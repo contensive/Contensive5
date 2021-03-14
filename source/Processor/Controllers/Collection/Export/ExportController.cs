@@ -66,11 +66,46 @@ namespace Contensive.Processor.Controllers {
                     List<string> tempPathFileList = new List<string>();
                     string tempExportPath = "CollectionExport" + Guid.NewGuid().ToString() + @"\";
                     // 
-                    // --resource executable files
-                    string wwwFileList = CS.GetText("wwwFileList");
-                    string ContentFileList = CS.GetText("ContentFileList");
-                    List<string> execFileList = ExportResourceListController.getResourceFileList(cp, CS.GetText("execFileList"), CollectionGuid);
-                    string execResourceNodeList = ExportResourceListController.getResourceNodeList(cp, execFileList, CollectionGuid, tempPathFileList, tempExportPath);
+                    // -- create www file list, test for missing files
+                    List<string> wwwUnixPathFilenameList = ExportResourceListController.getUnixPathFilenameList(cp, CS.GetText("wwwFileList"));
+                    foreach (var pathFilename in wwwUnixPathFilenameList) {
+                        if (!cp.WwwFiles.FileExists(pathFilename)) {
+                            cp.UserError.Add("The Collection includes a www file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
+                            return "";
+                        }
+                    }
+                    //
+                    // -- create cdn file list, test for missing files
+                    List<string> cdnUnixFileList = ExportResourceListController.getUnixPathFilenameList(cp, CS.GetText("ContentFileList"));
+                    foreach (var pathFilename in cdnUnixFileList) {
+                        if (!cp.CdnFiles.FileExists(pathFilename)) {
+                            //throw new ApplicationException("Collection includes a cdn file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it the collection resources.");
+                            cp.UserError.Add("Collection includes a cdn file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
+                            return "";
+                        }
+                    }
+                    //
+                    // -- create executable file list, test for missing files
+                    List<string> execUnixFileList = ExportResourceListController.getUnixPathFilenameList(cp, CS.GetText("execFileList"));
+                    foreach (var pathFilename in execUnixFileList) {
+                        if (!pathFilename.Length.Equals(0)) {
+                            string filename = System.IO.Path.GetFileName(pathFilename);
+                            string path = System.IO.Path.GetDirectoryName(pathFilename);
+
+                            string CollectionPath = "";
+                            DateTime LastChangeDate = default;
+                            GetLocalCollectionArgs(cp, CollectionGuid, ref CollectionPath, ref LastChangeDate);
+                            if (!CollectionPath.Length.Equals(0)) { CollectionPath += @"\"; }
+                            string AddonPath = @"addons\";
+                            if (!cp.PrivateFiles.FileExists(AddonPath + CollectionPath + filename)) {
+                                //throw new ApplicationException("Collection includes an executable file in the Resources tab that could not be found, [" + pathFilename + "]. Locate the file, or if it is not needed, remove it the collection resources.");
+                                cp.UserError.Add("The cCollection includes an executable file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
+                                return "";
+                            }
+                        }
+                    }
+                    //
+                    string execResourceNodeList = ExportResourceListController.getResourceNodeList(cp, execUnixFileList, CollectionGuid, tempPathFileList, tempExportPath);
                     // 
                     // -- helpLink
                     if (CS.FieldOK("HelpLink"))
@@ -86,22 +121,28 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- style sheet is in the wwwroot
                         if (!string.IsNullOrEmpty(addon.stylesLinkHref)) {
-                            string filename = addon.stylesLinkHref.Replace("/", "\\");
-                            if (filename.Substring(0, 1).Equals(@"\")) { filename = filename.Substring(1); }
-                            if (!cp.WwwFiles.FileExists(filename)) {
-                                cp.WwwFiles.Save(filename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
+                            string dosPathFilename = addon.stylesLinkHref.Replace("/", "\\");
+                            if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                            if (!cp.WwwFiles.FileExists(dosPathFilename)) {
+                                cp.WwwFiles.Save(dosPathFilename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
                             }
-                            wwwFileList += System.Environment.NewLine + addon.stylesLinkHref;
+                            string unixPathFilename = dosPathFilename.Replace("\\", "/");
+                            if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
+                                wwwUnixPathFilenameList.Add(unixPathFilename);
+                            }
                         }
                         //
                         // -- js is in the wwwroot
                         if (!string.IsNullOrEmpty(addon.jsHeadScriptSrc)) {
-                            string filename = addon.jsHeadScriptSrc.Replace("/", "\\");
-                            if (filename.Substring(0, 1).Equals(@"\")) { filename = filename.Substring(1); }
-                            if (!cp.WwwFiles.FileExists(filename)) {
-                                cp.WwwFiles.Save(filename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
+                            string dosPathFilename = addon.jsHeadScriptSrc.Replace("/", "\\");
+                            if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                            if (!cp.WwwFiles.FileExists(dosPathFilename)) {
+                                cp.WwwFiles.Save(dosPathFilename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
                             }
-                            wwwFileList += System.Environment.NewLine + addon.jsHeadScriptSrc;
+                            string unixPathFilename = dosPathFilename.Replace("\\", "/");
+                            if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
+                                wwwUnixPathFilenameList.Add(unixPathFilename);
+                            }
                         }
                         collectionXml.Append(ExportAddonController.getAddonNode(cp, addon.id, ref IncludeModuleGuidList, ref IncludeSharedStyleGuidList));
                     }
@@ -219,50 +260,45 @@ namespace Contensive.Processor.Controllers {
                     }
                     // 
                     // wwwFileList
-                    if (wwwFileList != "") {
-                        string[] Files = Strings.Split(wwwFileList, System.Environment.NewLine);
-                        for (int Ptr = 0; Ptr <= Information.UBound(Files); Ptr++) {
-                            string pathFilename = Files[Ptr];
-                            if (pathFilename != "") {
-                                pathFilename = Strings.Replace(pathFilename, @"\", "/");
-                                string path = "";
-                                string filename = pathFilename;
-                                int Pos = Strings.InStrRev(pathFilename, "/");
-                                if (Pos > 0) {
-                                    filename = Strings.Mid(pathFilename, Pos + 1);
-                                    path = Strings.Mid(pathFilename, 1, Pos - 1);
-                                }
-                                string fileExtension = System.IO.Path.GetExtension(filename);
-                                pathFilename = Strings.Replace(pathFilename, "/", @"\");
-                                if (tempPathFileList.Contains(tempExportPath + filename)) {
+                    foreach (var unixPathFilename in wwwUnixPathFilenameList) {
+                        if (!string.IsNullOrEmpty(unixPathFilename)) {
+                            string path = "";
+                            string filename = unixPathFilename;
+                            int Pos = Strings.InStrRev(unixPathFilename, "/");
+                            if (Pos > 0) {
+                                filename = Strings.Mid(unixPathFilename, Pos + 1);
+                                path = Strings.Mid(unixPathFilename, 1, Pos - 1);
+                            }
+                            string fileExtension = System.IO.Path.GetExtension(filename);
+                            string dosPathFilename = Strings.Replace(unixPathFilename, "/", @"\");
+                            if (tempPathFileList.Contains(tempExportPath + filename)) {
+                                //
+                                // -- the path already has a file with this name
+                                cp.UserError.Add("There was an error exporting this collection because there were multiple files with the same filename [" + filename + "]");
+                            } else if (fileExtension.ToUpperInvariant().Equals(".ZIP")) {
+                                //
+                                // -- zip files come from the collection folder
+                                CoreController core = ((CPClass)cp).core;
+                                string addonPath = AddonController.getPrivateFilesAddonPath();
+                                string collectionPath = CollectionFolderController.getCollectionConfigFolderPath(core, collection.ccguid);
+                                if (!cp.PrivateFiles.FileExists(addonPath + collectionPath + filename)) {
                                     //
-                                    // -- the path already has a file with this name
-                                    cp.UserError.Add("There was an error exporting this collection because there were multiple files with the same filename [" + filename + "]");
-                                } else if (fileExtension.ToUpperInvariant().Equals(".ZIP")) {
-                                    //
-                                    // -- zip files come from the collection folder
-                                    CoreController core = ((CPClass)cp).core;
-                                    string addonPath = AddonController.getPrivateFilesAddonPath();
-                                    string collectionPath = CollectionFolderController.getCollectionConfigFolderPath(core, collection.ccguid);
-                                    if (!cp.PrivateFiles.FileExists(addonPath + collectionPath + filename)) {
-                                        //
-                                        // - not there
-                                        cp.UserError.Add("There was an error exporting this collection because the zip file [" + pathFilename + "] was not found in the collection path [" + collectionPath + "].");
-                                    } else {
-                                        // 
-                                        // -- copy file from here
-                                        cp.PrivateFiles.Copy(addonPath + collectionPath + filename, tempExportPath + filename, cp.TempFiles);
-                                        tempPathFileList.Add(tempExportPath + filename);
-                                        collectionXml.Append(System.Environment.NewLine + "\t" + "<Resource name=\"" + System.Net.WebUtility.HtmlEncode(filename) + "\" type=\"www\" path=\"" + System.Net.WebUtility.HtmlEncode(path) + "\" />");
-                                    }
-                                } else if ((!cp.WwwFiles.FileExists(pathFilename))) {
-                                    cp.UserError.Add("There was an error exporting this collection because the www file [" + pathFilename + "] was not found.");
-
+                                    // - not there
+                                    cp.UserError.Add("There was an error exporting this collection because the zip file [" + dosPathFilename + "] was not found in the collection path [" + collectionPath + "].");
                                 } else {
-                                    cp.WwwFiles.Copy(pathFilename, tempExportPath + filename, cp.TempFiles);
+                                    // 
+                                    // -- copy file from here
+                                    cp.PrivateFiles.Copy(addonPath + collectionPath + filename, tempExportPath + filename, cp.TempFiles);
                                     tempPathFileList.Add(tempExportPath + filename);
                                     collectionXml.Append(System.Environment.NewLine + "\t" + "<Resource name=\"" + System.Net.WebUtility.HtmlEncode(filename) + "\" type=\"www\" path=\"" + System.Net.WebUtility.HtmlEncode(path) + "\" />");
                                 }
+                            } else if ((!cp.WwwFiles.FileExists(dosPathFilename))) {
+                                cp.UserError.Add("There was an error exporting this collection because the www file [" + dosPathFilename + "] was not found.");
+
+                            } else {
+                                cp.WwwFiles.Copy(dosPathFilename, tempExportPath + filename, cp.TempFiles);
+                                tempPathFileList.Add(tempExportPath + filename);
+                                collectionXml.Append(System.Environment.NewLine + "\t" + "<Resource name=\"" + System.Net.WebUtility.HtmlEncode(filename) + "\" type=\"www\" path=\"" + System.Net.WebUtility.HtmlEncode(path) + "\" />");
                             }
                         }
                     }
@@ -270,28 +306,24 @@ namespace Contensive.Processor.Controllers {
                     // ContentFileList
                     // 
                     if (true) {
-                        if (ContentFileList != "") {
-                            string[] Files = Strings.Split(ContentFileList, System.Environment.NewLine);
-                            for (var Ptr = 0; Ptr <= Information.UBound(Files); Ptr++) {
-                                string PathFilename = Files[Ptr];
-                                if (PathFilename != "") {
-                                    PathFilename = Strings.Replace(PathFilename, @"\", "/");
-                                    string Path = "";
-                                    string Filename = PathFilename;
-                                    int Pos = Strings.InStrRev(PathFilename, "/");
-                                    if (Pos > 0) {
-                                        Filename = Strings.Mid(PathFilename, Pos + 1);
-                                        Path = Strings.Mid(PathFilename, 1, Pos - 1);
-                                    }
-                                    if (tempPathFileList.Contains(tempExportPath + Filename))
-                                        cp.UserError.Add("There was an error exporting this collection because there were multiple files with the same filename [" + Filename + "]");
-                                    else if ((!cp.CdnFiles.FileExists(PathFilename)))
-                                        cp.UserError.Add("There was an error exporting this collection because the cdn file [" + PathFilename + "] was not found.");
-                                    else {
-                                        cp.CdnFiles.Copy(PathFilename, tempExportPath + Filename, cp.TempFiles);
-                                        tempPathFileList.Add(tempExportPath + Filename);
-                                        collectionXml.Append(System.Environment.NewLine + "\t" + "<Resource name=\"" + System.Net.WebUtility.HtmlEncode(Filename) + "\" type=\"content\" path=\"" + System.Net.WebUtility.HtmlEncode(Path) + "\" />");
-                                    }
+                        foreach (var contentUnixPathFilename in cdnUnixFileList) {
+                            if (contentUnixPathFilename != "") {
+                                //PathFilename = Strings.Replace(PathFilename, @"\", "/");
+                                string Path = "";
+                                string Filename = contentUnixPathFilename;
+                                int Pos = Strings.InStrRev(contentUnixPathFilename, "/");
+                                if (Pos > 0) {
+                                    Filename = Strings.Mid(contentUnixPathFilename, Pos + 1);
+                                    Path = Strings.Mid(contentUnixPathFilename, 1, Pos - 1);
+                                }
+                                if (tempPathFileList.Contains(tempExportPath + Filename))
+                                    cp.UserError.Add("There was an error exporting this collection because there were multiple files with the same filename [" + Filename + "]");
+                                else if ((!cp.CdnFiles.FileExists(contentUnixPathFilename)))
+                                    cp.UserError.Add("There was an error exporting this collection because the cdn file [" + contentUnixPathFilename + "] was not found.");
+                                else {
+                                    cp.CdnFiles.Copy(contentUnixPathFilename, tempExportPath + Filename, cp.TempFiles);
+                                    tempPathFileList.Add(tempExportPath + Filename);
+                                    collectionXml.Append(System.Environment.NewLine + "\t" + "<Resource name=\"" + System.Net.WebUtility.HtmlEncode(Filename) + "\" type=\"content\" path=\"" + System.Net.WebUtility.HtmlEncode(Path) + "\" />");
                                 }
                             }
                         }

@@ -279,7 +279,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="SubjectMemberID"></param>
         /// <param name="SubjectOrganizationID"></param>
         public static void addSiteActivity(CoreController core, string Message, int SubjectMemberID, int SubjectOrganizationID) {
-            addSiteActivity(core, Message, core.session.user.id, SubjectMemberID, SubjectOrganizationID, core.webServer.requestUrl, core.session.visitor.id, core.session.visit.id);
+            if ((core.session != null) && (core.session.user != null) && (core.session.visitor != null) && (core.session.visit != null) && (core.webServer != null)) {
+                addSiteActivity(core, Message, core.session.user.id, SubjectMemberID, SubjectOrganizationID, core.webServer.requestUrl, core.session.visitor.id, core.session.visit.id);
+            }
         }
         //
         //================================================================================================

@@ -5,32 +5,47 @@ using Microsoft.VisualBasic;
 using Contensive.BaseClasses;
 
 namespace Contensive.Processor.Controllers {
+    /// <summary>
+    /// methods to export resources for an addon collection
+    /// </summary>
     public static class ExportResourceListController {
         // 
         // ====================================================================================================
-        // 
-        public static List<string> getResourceFileList(CPBaseClass cp, string execFileCrlfList, string CollectionGuid) {
+        /// <summary>
+        /// return a list of files to export.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="fileCrlfList"></param>
+        /// <returns></returns>
+        public static List<string> getUnixPathFilenameList(CPBaseClass cp, string fileCrlfList) {
             try {
                 var result = new List<string>();
-                if (!execFileCrlfList.Length.Equals(0)) {
-                    string[] files = Strings.Split(execFileCrlfList, System.Environment.NewLine);
-                    for (int Ptr = 0; Ptr <= Information.UBound(files); Ptr++) {
-                        string pathFilename = files[Ptr];
-                        if (!result.Contains(pathFilename)) {
-                            result.Add(pathFilename);
+                foreach (var pathFilename in fileCrlfList.Split(System.Environment.NewLine.ToCharArray())) {
+                    if (!string.IsNullOrEmpty(pathFilename)) {
+                        string savePathFilename = pathFilename.Replace(@"\", "/");
+                        if (!result.Contains(savePathFilename)) {
+                            result.Add(savePathFilename);
                         }
                     }
                 }
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return new List<string>();
+                throw;
             }
         }
 
         // 
         // ====================================================================================================
-        // 
+        /// <summary>
+        /// Get collection file list of xml Resource nodes.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="execFileList"></param>
+        /// <param name="CollectionGuid"></param>
+        /// <param name="tempPathFileList"></param>
+        /// <param name="tempExportPath"></param>
+        /// <returns></returns>
         public static string getResourceNodeList(CPBaseClass cp, List<string> execFileList, string CollectionGuid, List<string> tempPathFileList, string tempExportPath) {
             try {
                 string nodeList = "";

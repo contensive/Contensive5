@@ -6,7 +6,9 @@ using System.Data;
 using System.Linq;
 
 namespace Contensive.Models.Db {
-    //
+    /// <summary>
+    /// person model
+    /// </summary>
     public class PersonModel : DbBaseModel {
         //
         //====================================================================================================
@@ -16,11 +18,29 @@ namespace Contensive.Models.Db {
         public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("people", "ccmembers", "default", false);
         //
         //====================================================================================================
+        /// <summary>
+        /// contact address line 1
+        /// </summary>
         public string address { get; set; }
+        /// <summary>
+        /// contact address line 2
+        /// </summary>
         public string address2 { get; set; }
+        /// <summary>
+        /// if true, use is an administrator
+        /// </summary>
         public bool admin { get; set; }
+        /// <summary>
+        /// if true, email can be sent to the user
+        /// </summary>
         public bool allowBulkEmail { get; set; }
+        /// <summary>
+        /// enable/disable tool panel
+        /// </summary>
         public bool allowToolsPanel { get; set; }
+        /// <summary>
+        /// if true, the user allows auto login. It must be enabled on the site as well.
+        /// </summary>
         public bool autoLogin { get; set; }
         public string billAddress { get; set; }
         public string billAddress2 { get; set; }
@@ -48,6 +68,7 @@ namespace Contensive.Models.Db {
         public string fax { get; set; }
         public string firstName { get; set; }
         public string imageFilename { get; set; }
+        public string imageAltSizeList { get; set; }
         public int languageId { get; set; }
         public string lastName { get; set; }
         public DateTime? lastVisit { get; set; }
@@ -67,6 +88,7 @@ namespace Contensive.Models.Db {
         public string shipZip { get; set; }
         public string state { get; set; }
         public string thumbnailFilename { get; set; }
+        public string thumbnailAltSizeList { get; set; }
         public string title { get; set; }
         public string username { get; set; }
         public int visits { get; set; }
