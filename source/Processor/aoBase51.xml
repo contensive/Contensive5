@@ -2731,6 +2731,7 @@
     <styleslinkhref>https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/adminUI.css</styleslinkhref>
     <IncludeAddon name="JQuery" guid="{9C882078-0DAC-48E3-AD4B-CF2AA230DF80}"/>
     <IncludeAddon name="Bootstrap" guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Admin Site" guid="{c2de2acf-ca39-4668-b417-aa491e7d8460}" type="Add-on">
     <Category></Category>
@@ -2744,6 +2745,7 @@
     <styleslinkhref></styleslinkhref>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
     <htmlDocument>Yes</htmlDocument>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="setAdminSiteFieldHelp" guid="{a89a0a11-cbdd-4bb5-995e-0dfaaf3e3111}" type="Add-on">
     <Category></Category>
@@ -2754,6 +2756,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.setAdminSiteFieldHelpClass]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Child Page List" guid="{D291F133-AB50-4640-9A9A-18DB68FF363B}" type="Add-on">
     <Category>Extras.Navigation</Category>
@@ -2766,6 +2769,7 @@
     <copytext></copytext>
     <ArgumentList><![CDATA[List Name]]></ArgumentList>
     <IncludeAddon name="JQuery UI" guid="{840B9AEF-9470-4599-BD47-7EC0C9298614}"/>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Page Manager" guid="{3a01572e-0f08-4feb-b189-18371752a3c3}" type="Add-on">
     <Category></Category>
@@ -2777,6 +2781,7 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.getHtmlBodyClass]]></DotNetClass>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
     <htmlDocument>Yes</htmlDocument>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="savePageManagerChildListSort" guid="{8429641A-03C9-4CD1-9369-5B9F2FA509E9}" type="Add-on">
     <Category></Category>
@@ -2787,6 +2792,7 @@
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.saveChildPageListDraggableClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Login Page" guid="{288a7ee1-9d93-4058-bcd9-c9cd29d25ec8}" type="Add-on">
     <Category></Category>
@@ -2798,6 +2804,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Login.getLoginPageClass]]></DotNetClass>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Login Form" guid="{E23C5941-19C2-4164-BCFD-83D6DD42F651}" type="Add-on">
     <Category></Category>
@@ -2810,6 +2817,7 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Login.getLoginFormClass]]></DotNetClass>
     <ArgumentList>Force Default Login=false</ArgumentList>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Login Button Form" guid="{04aeaacb-4322-4ad2-9817-17439681f8ee}" type="Add-on">
     <Category>Applications.Basic Forms</Category>
@@ -2821,6 +2829,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Login.GetLoginButtonFormClass]]></DotNetClass>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Authenticate" guid="{C560E9CB-24F3-4746-8C08-C960554D4F0F}" type="Add-on">
     <Category></Category>
@@ -2831,6 +2840,7 @@
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.AuthenticateClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Housekeep" guid="{7208D069-8FE3-4BD1-AB76-B25C40C89A45}" type="Add-on">
     <Category></Category>
@@ -2842,6 +2852,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Housekeeping.houseKeepClass]]></DotNetClass>
     <ProcessInterval>60</ProcessInterval>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Email Process" guid="{E6C14E81-EFC9-4BC0-ADB2-BDFF043A0800}" type="Add-on">
     <Category></Category>
@@ -2853,6 +2864,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.processEmailClass]]></DotNetClass>
     <ProcessInterval>1</ProcessInterval>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Export SQL To Csv" guid="{5C25F35D-A2A8-4791-B510-B1FFE0645004}" type="Add-on">
     <Category></Category>
@@ -2863,6 +2875,7 @@
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.ExportSql.exportCsvClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Export SQL To Xml" guid="{DC7EF1EE-20EE-4468-BEB1-0DC30AC8DAD6}" type="Add-on">
     <Category></Category>
@@ -2873,6 +2886,7 @@
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.ExportSql.exportXmlClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="robots.txt" guid="{717B61FD-4E51-46EC-A95A-1575D1D74963}" type="Add-on">
     <Category></Category>
@@ -2884,6 +2898,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.RobotsTxt.RobotsTxtClass]]></DotNetClass>
     <BlockEditTools>Yes</BlockEditTools>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="favicon Meta Tag Template Dependency" guid="{37FA12EE-89C8-4D42-A05D-1C4CA6B0EC2C}" type="Add-on">
     <Category></Category>
@@ -2894,6 +2909,7 @@
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.FaviconIco.FaviconIcoClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="downloadLibraryFile" guid="{C95A019A-70FD-4B03-9080-7106B27ED2D7}" type="Add-on">
     <Category></Category>
@@ -2904,6 +2920,7 @@
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.DownloadClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Status" guid="{6444B5C9-36DD-43FF-978C-26650EB2333F}" type="Add-on">
     <Category></Category>
@@ -2915,6 +2932,7 @@
     <IsInline>Yes</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass>Contensive.Processor.Addons.Diagnostics.StatusClass</DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="AuthStatus" guid="{AF37902B-BCC2-45E4-AF36-E322346731BD}" type="Add-on">
     <Category></Category>
@@ -2926,6 +2944,7 @@
     <IsInline>Yes</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass>Contensive.Processor.Addons.Diagnostics.AuthStatusClass</DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Server Diagnostic" guid="{58239C18-1B40-4401-9E6F-25E057327393}" type="Add-on">
     <Category></Category>
@@ -2938,6 +2957,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>Yes</Diagnostic>
     <DotNetClass>Contensive.Processor.Addons.Diagnostics.ServerDiagnosticClass</DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="OnInstallBase" guid="{86739518-9D46-470F-8C76-195D1A19CEDD}" type="Add-on">
     <Category></Category>
@@ -2950,6 +2970,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
     <DotNetClass>Contensive.Processor.Addons.Base.OnInstallClass</DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="NewApp" guid="{DFE6FD4B-B361-4F9C-BA52-18F6DCFABF56}" type="Add-on">
     <Category></Category>
@@ -2962,6 +2983,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
     <DotNetClass>Contensive.Processor.Addons.NewApp.NewAppClass</DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Page Content Review" guid="{6A54A051-6CF6-4D8C-823D-C37741DD072A}" type="Tool">
     <Category></Category>
@@ -3040,6 +3062,7 @@
           end function]]>
       </Code>
     </Scripting>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="See Also" guid="{C4198871-A848-4B0F-95D4-ADDE08A5620D}" type="Add-on">
     <Category>Extras.Navigation</Category>
@@ -3052,6 +3075,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.SeeAlsoClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Whats Related" guid="{42B8FE19-051B-4E83-8F9A-6BE01AB9A650}" type="Add-on">
     <Category>Extras.Navigation</Category>
@@ -3064,6 +3088,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.WhatsRelatedClass]]></DotNetClass>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="Content Box" guid="{E341695F-C444-4E10-9295-9BEEC41874D8}" type="Add-on">
     <Category>Content.Content Box</Category>
@@ -3076,6 +3101,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
     <CopyText><![CDATA[<AC type="Content" Name="Content" QueryString=""> ]]></CopyText>
+	<ActiveXProgramID></ActiveXProgramID>
   </Addon>
 
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID"  />

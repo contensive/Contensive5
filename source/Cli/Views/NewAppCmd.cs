@@ -35,6 +35,12 @@ namespace Contensive.CLI {
                 string authToken = authTokenDefault;
                 string domainName = "";
                 //
+                string allowableNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                if (!appName.All(x => allowableNameCharacters.Contains(x))) {
+                    Console.Write("\nThis application name is not valid because it must contain only letters and numbers.");
+                    return;
+                }
+                //
                 using (CPClass cp = new CPClass()) {
                     if (!cp.serverOk) {
                         Console.WriteLine("The Server Group does not appear to be configured correctly. Please run --configure");
@@ -86,8 +92,7 @@ namespace Contensive.CLI {
                                 Console.Write("\nThis application name is not valid because it must start with a letter.");
                                 continue;
                             }
-                            string allowableLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-                            if (!appName.All(x => allowableLetters.Contains(x))) {
+                            if (!appName.All(x => allowableNameCharacters.Contains(x))) {
                                 Console.Write("\nThis application name is not valid because it must contain only letters and numbers.");
                                 continue;
                             }

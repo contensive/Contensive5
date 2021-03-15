@@ -13,10 +13,21 @@ namespace Contensive.Processor.Models.Domain {
     public class PropertyModelClass {
         //
         private readonly CoreController core;
-        //
+        /// <summary>
+        /// Type of properties
+        /// </summary>
         public enum PropertyTypeEnum {
+            /// <summary>
+            /// user properties
+            /// </summary>
             user = 0,
+            /// <summary>
+            /// visit properties
+            /// </summary>
             visit = 1,
+            /// <summary>
+            /// visitor properties
+            /// </summary>
             visitor = 2
         }
         /// <summary>

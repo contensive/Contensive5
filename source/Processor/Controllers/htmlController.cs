@@ -1030,7 +1030,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static string form(CoreController core, string innerHtml, string actionQueryString, string htmlName, string htmlClass, string htmlId) {
             return form(core, innerHtml, new HtmlAttributesForm() {
-                action = string.IsNullOrEmpty(actionQueryString) ? "" : (actionQueryString.Substring(0,1).Equals("?") ? "" : "?") + actionQueryString ,
+                action = string.IsNullOrEmpty(actionQueryString) ? "" : (actionQueryString.Substring(0, 1).Equals("?") ? "" : "?") + actionQueryString,
                 style = "display: inline",
                 name = htmlName,
                 @class = htmlClass,
@@ -1050,7 +1050,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static string form(CoreController core, string innerHtml, string actionQueryString) {
             return form(core, innerHtml, new HtmlAttributesForm() {
-                action = string.IsNullOrEmpty(actionQueryString) ? "" : (actionQueryString.Substring(0,1).Equals("?") ? "" : "?") + actionQueryString ,
+                action = string.IsNullOrEmpty(actionQueryString) ? "" : (actionQueryString.Substring(0, 1).Equals("?") ? "" : "?") + actionQueryString,
                 style = "display: inline",
                 method = HtmlAttributesForm.HtmlMethodEnum.post
             });
@@ -1719,7 +1719,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                                 csData.goNext();
-                                
+
                             }
                         }
                     }
@@ -2621,7 +2621,7 @@ namespace Contensive.Processor.Controllers {
                                     bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
                                     string DivName = htmlNamePrefix + ".All";
                                     bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
-                                    string editLinkTemplate = !isAdmin ? "" : AdminUIController.getRecordEditAnchorTag(core, SecondaryMetaData,-1,"","");
+                                    string editLinkTemplate = !isAdmin ? "" : AdminUIController.getRecordEditAnchorTag(core, SecondaryMetaData, -1, "", "");
                                     while (csData.ok()) {
                                         string OptionName = csData.getText("OptionName");
                                         if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {
@@ -2636,7 +2636,7 @@ namespace Contensive.Processor.Controllers {
                                             if (string.IsNullOrEmpty(OptionCaption)) {
                                                 OptionCaption = OptionName;
                                             }
-                                            string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", RecordID.ToString())); 
+                                            string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", RecordID.ToString()));
                                             if (string.IsNullOrEmpty(OptionCaption)) {
                                                 optionCaptionHtmlEncoded += "&nbsp;" + SingularPrefixHtmlEncoded + RecordID;
                                             } else {
@@ -3207,38 +3207,62 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //=========================================================================================================
-        //
-        public void addScriptLinkSrc(string scriptLinkSrc, string addedByMessage, bool forceHead = false, int sourceAddonId = 0) {
+        /// <summary>
+        /// Add a javascript link to the document
+        /// </summary>
+        /// <param name="scriptLinkSrc">Link to the document. Should start with either 'http', or '/'</param>
+        /// <param name="addedByMessage">message displayed in debug mode</param>
+        /// <param name="forceHead">if true, this document tag goes in the head, else at the end of body</param>
+        /// <param name="sourceAddonId">optional, the addon that supplied this javascript</param>
+        public void addScriptLinkSrc(string scriptLinkSrc, string addedByMessage, bool forceHead, int sourceAddonId) {
             try {
-                if (!string.IsNullOrWhiteSpace(scriptLinkSrc)) {
-                    CPDocBaseClass.HtmlAssetClass asset = null;
-                    if (sourceAddonId != 0) {
-                        asset = core.doc.htmlAssetList.Find(t => ((t.content == scriptLinkSrc) && (t.isLink)));
-                    }
-                    if (asset != null) {
-                        //
-                        // already in list, just mark it forceHead
-                        asset.inHead = asset.inHead || forceHead;
-                    } else {
-                        //
-                        // add to list
-                        core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
-                            assetType = CPDocBaseClass.HtmlAssetTypeEnum.script,
-                            addedByMessage = addedByMessage,
-                            isLink = true,
-                            inHead = forceHead,
-                            content = scriptLinkSrc,
-                            sourceAddonId = sourceAddonId
-                        });
-                    }
+                string link = scriptLinkSrc.Trim().replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
+                if (string.IsNullOrEmpty(link)) { return; }
+                if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
+                    //
+                    // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
+                    link = "/" + link;
                 }
+                CPDocBaseClass.HtmlAssetClass asset = null;
+                if (sourceAddonId != 0) {
+                    asset = core.doc.htmlAssetList.Find(t => ((t.content == scriptLinkSrc) && (t.isLink)));
+                }
+                if (asset != null) {
+                    //
+                    // already in list, just mark it forceHead
+                    asset.inHead = asset.inHead || forceHead;
+                    return;
+                }
+                //
+                // add to list
+                core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
+                    assetType = CPDocBaseClass.HtmlAssetTypeEnum.script,
+                    addedByMessage = addedByMessage,
+                    isLink = true,
+                    inHead = forceHead,
+                    content = scriptLinkSrc,
+                    sourceAddonId = sourceAddonId
+                });
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
         }
         //
+        //=========================================================================================================
+        /// <summary>
+        /// Add a javascript link to the document
+        /// </summary>
+        /// <param name="scriptLinkSrc">Link to the document. Should start with either 'http', or '/'</param>
+        /// <param name="addedByMessage">message displayed in debug mode</param>
         public void addScriptLinkSrc(string scriptLinkSrc, string addedByMessage) => addScriptLinkSrc(scriptLinkSrc, addedByMessage, false, 0);
         //
+        //=========================================================================================================
+        /// <summary>
+        /// Add a javascript link to the document
+        /// </summary>
+        /// <param name="scriptLinkSrc">Link to the document. Should start with either 'http', or '/'</param>
+        /// <param name="addedByMessage">message displayed in debug mode</param>
+        /// <param name="forceHead">if true, this document tag goes in the head, else at the end of body</param>
         public void addScriptLinkSrc(string scriptLinkSrc, string addedByMessage, bool forceHead) => addScriptLinkSrc(scriptLinkSrc, addedByMessage, forceHead, 0);
         //
         //=========================================================================================================
@@ -3276,18 +3300,27 @@ namespace Contensive.Processor.Controllers {
         public void addMetaDescription(string MetaDescription) => addMetaDescription(MetaDescription, "");
         //
         //=========================================================================================================
-        //
-        public void addStyleLink(string StyleSheetLink, string addedByMessage) {
+        /// <summary>
+        /// add a link to the head tag for a remote stylesheet
+        /// </summary>
+        /// <param name="styleSheetLink">link, must start with either "/" or "http" or a "/" is added. This is because designers often create layouts without using a server by opening the files in the filesystem, and it is path relative.</param>
+        /// <param name="addedByMessage">Displayed in debug mode</param>
+        public void addStyleLink(string styleSheetLink, string addedByMessage) {
             try {
-                if (!string.IsNullOrEmpty(StyleSheetLink.Trim())) {
-                    core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
-                        addedByMessage = addedByMessage,
-                        assetType = CPDocBaseClass.HtmlAssetTypeEnum.style,
-                        inHead = true,
-                        isLink = true,
-                        content = StyleSheetLink
-                    });
+                string link = styleSheetLink.Trim().replace(@"\","/", StringComparison.InvariantCultureIgnoreCase);
+                if (string.IsNullOrEmpty(link)) { return; }
+                if (!link.StartsWith("/") && !link.StartsWith("http",StringComparison.InvariantCultureIgnoreCase)) { 
+                    //
+                    // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
+                    link = "/" + link; 
                 }
+                core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
+                    addedByMessage = addedByMessage,
+                    assetType = CPDocBaseClass.HtmlAssetTypeEnum.style,
+                    inHead = true,
+                    isLink = true,
+                    content = link
+                });
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
