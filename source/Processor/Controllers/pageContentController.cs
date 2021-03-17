@@ -837,7 +837,7 @@ namespace Contensive.Processor.Controllers {
                                         emailBody.Append(kmaEndTable);
                                         string queryStringForLinkAppend = "";
                                         string emailStatus = "";
-                                        EmailController.queuePersonEmail(core, person, core.siteProperties.getText("EmailFromAddress", "info@" + core.webServer.requestDomain), "Page Hit Notification", emailBody.ToString(), "", "", false, true, 0, "", false, ref emailStatus, queryStringForLinkAppend, "Page Hit Notification, page [" + core.doc.pageController.page.id + "]");
+                                        EmailController.tryQueuePersonEmail(core, person, core.siteProperties.getText("EmailFromAddress", "info@" + core.webServer.requestDomain), "Page Hit Notification", emailBody.ToString(), "", "", false, true, 0, "", false, ref emailStatus, queryStringForLinkAppend, "Page Hit Notification, page [" + core.doc.pageController.page.id + "]");
                                     }
                                 }
                             }
@@ -853,7 +853,7 @@ namespace Contensive.Processor.Controllers {
                                                 // Always
                                                 //
                                                 if (core.doc.pageController.page.triggerSendSystemEmailId != 0) {
-                                                    EmailController.queueSystemEmail(core, MetadataController.getRecordName(core, "System Email", core.doc.pageController.page.triggerSendSystemEmailId), "", core.session.user.id);
+                                                    EmailController.tryQueueSystemEmail(core, MetadataController.getRecordName(core, "System Email", core.doc.pageController.page.triggerSendSystemEmailId), "", core.session.user.id);
                                                 }
                                                 if (core.doc.pageController.page.triggerAddGroupId != 0) {
                                                     GroupController.addUser(core, GroupController.getGroupName(core, core.doc.pageController.page.triggerAddGroupId));
@@ -870,7 +870,7 @@ namespace Contensive.Processor.Controllers {
                                                 if (core.doc.pageController.page.triggerConditionGroupId != 0) {
                                                     if (GroupController.isMemberOfGroup(core, GroupController.getGroupName(core, core.doc.pageController.page.triggerConditionGroupId))) {
                                                         if (core.doc.pageController.page.triggerSendSystemEmailId != 0) {
-                                                            EmailController.queueSystemEmail(core, MetadataController.getRecordName(core, "System Email", core.doc.pageController.page.triggerSendSystemEmailId), "", core.session.user.id);
+                                                            EmailController.tryQueueSystemEmail(core, MetadataController.getRecordName(core, "System Email", core.doc.pageController.page.triggerSendSystemEmailId), "", core.session.user.id);
                                                         }
                                                         if (core.doc.pageController.page.triggerAddGroupId != 0) {
                                                             GroupController.addUser(core, GroupController.getGroupName(core, core.doc.pageController.page.triggerAddGroupId));
@@ -895,7 +895,7 @@ namespace Contensive.Processor.Controllers {
                                                             GroupController.removeUser(core, GroupController.getGroupName(core, core.doc.pageController.page.triggerRemoveGroupId));
                                                         }
                                                         if (core.doc.pageController.page.triggerSendSystemEmailId != 0) {
-                                                            EmailController.queueSystemEmail(core, MetadataController.getRecordName(core, "System Email", core.doc.pageController.page.triggerSendSystemEmailId), "", core.session.user.id);
+                                                            EmailController.tryQueueSystemEmail(core, MetadataController.getRecordName(core, "System Email", core.doc.pageController.page.triggerSendSystemEmailId), "", core.session.user.id);
                                                         }
                                                     }
                                                 }
@@ -2126,7 +2126,7 @@ namespace Contensive.Processor.Controllers {
                             if (person != null) {
                                 string sendStatus = "";
                                 string queryStringForLinkAppend = "";
-                                EmailController.queuePersonEmail(core, person, NoteFromEmail, "Feedback Form Submitted", NoteCopy, "", "", false, true, 0, "", false, ref sendStatus, queryStringForLinkAppend, "Feedback Form Email");
+                                EmailController.tryQueuePersonEmail(core, person, NoteFromEmail, "Feedback Form Submitted", NoteCopy, "", "", false, true, 0, "", false, ref sendStatus, queryStringForLinkAppend, "Feedback Form Email");
                             }
                             //
                             // ----- Note sent, say thanks

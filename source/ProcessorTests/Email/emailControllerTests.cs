@@ -158,7 +158,7 @@ namespace Tests {
                 toPerson.save(cp);
                 string sendStatus = "";
                 // act
-                Assert.IsTrue(EmailController.queuePersonEmail(cp.core, "Function Test", toPerson, "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", true, true, 0, "", true, ref sendStatus));
+                Assert.IsTrue(EmailController.tryQueuePersonEmail(cp.core, "Function Test", toPerson, "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", true, true, 0, "", true, ref sendStatus));
                 Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.ProcessEmailClass();
                 addon.Execute(cp);
                 // assert
@@ -230,7 +230,7 @@ namespace Tests {
                 string userErrorMessage = "";
                 int additionalMemberId = 0;
                 string appendedCopy = "";
-                Assert.IsTrue(EmailController.queueSystemEmail(cp.core, systemEmail.name, appendedCopy, additionalMemberId, ref userErrorMessage));
+                Assert.IsTrue(EmailController.tryQueueSystemEmail(cp.core, systemEmail.name, appendedCopy, additionalMemberId, ref userErrorMessage));
                 Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.ProcessEmailClass();
                 addon.Execute(cp);
                 //
