@@ -54,8 +54,19 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override int PageId {
             get {
-                if ((cp.core.doc == null) || (cp.core.doc.pageController == null) || (cp.core.doc.pageController.page == null)) { return 0; }
-                return cp.core.doc.pageController.page.id;
+                if ((cp.core.doc != null) && (cp.core.doc.pageController != null) && (cp.core.doc.pageController.page != null)) {
+                    return cp.core.doc.pageController.page.id;
+                }
+                if (cp.core.doc == null) {
+                    cp.Log.Warn("cp.Doc.PageId call with null cp.core.doc");
+                    return 0;
+                }
+                if (cp.core.doc.pageController == null) {
+                    cp.Log.Warn("cp.Doc.PageId call with null cp.core.doc.pageController");
+                    return 0;
+                }
+                cp.Log.Warn("cp.Doc.PageId call with null cp.core.doc.pageController.page");
+                return 0;
             }
         }
         //

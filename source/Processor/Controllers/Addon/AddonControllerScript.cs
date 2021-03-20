@@ -86,11 +86,7 @@ namespace Contensive.Processor.Controllers {
                     try {
                         engine.Execute(addon.scriptingCode);
                         object returnObj = engine.Evaluate(entryPoint);
-                        if (returnObj != null) {
-                            if (returnObj.GetType() == typeof(String)) {
-                                returnText = (String)returnObj;
-                            }
-                        }
+                        returnText = AddonController.convertAddonReturntoString(returnObj);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "executing script ");
                         LogController.logError(core, ex, errorMessage);
@@ -179,11 +175,7 @@ namespace Contensive.Processor.Controllers {
                     try {
                         engine.Execute(addon.scriptingCode);
                         object returnObj = engine.Evaluate(entryPoint);
-                        if (returnObj != null) {
-                            if (returnObj.GetType() == typeof(String)) {
-                                returnText = (String)returnObj;
-                            }
-                        }
+                        returnText = AddonController.convertAddonReturntoString(returnObj);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "executing script");
                         LogController.logError(core, ex, errorMessage);

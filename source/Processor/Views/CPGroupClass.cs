@@ -4,13 +4,19 @@ using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 
 namespace Contensive.Processor {
-    //
-    // comVisible to be activeScript compatible
-    //
+    /// <summary>
+    /// group interface
+    /// </summary>
     public class CPGroupClass : BaseClasses.CPGroupBaseClass, IDisposable {
         //
         private Contensive.Processor.Controllers.CoreController core;
         private readonly CPClass cp;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -70,16 +76,16 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override void Delete(string GroupNameIdOrGuid) {
-            if ( GenericController.isGuid(GroupNameIdOrGuid )) {
+            if (GenericController.isGuid(GroupNameIdOrGuid)) {
                 //
                 // -- guid
                 GroupModel.delete<GroupModel>(core.cpParent, GroupNameIdOrGuid);
                 return;
             }
-            if ( GroupNameIdOrGuid.isNumeric()) {
+            if (GroupNameIdOrGuid.isNumeric()) {
                 //
                 // -- id
-                GroupModel.delete<GroupModel>(core.cpParent, GenericController.encodeInteger( GroupNameIdOrGuid));
+                GroupModel.delete<GroupModel>(core.cpParent, GenericController.encodeInteger(GroupNameIdOrGuid));
                 return;
             }
             //
@@ -117,7 +123,7 @@ namespace Contensive.Processor {
                 return DbBaseModel.getRecordName<GroupModel>(core.cpParent, GroupIdOrGuid);
             }
         }
-        public override string GetName(int GroupId) 
+        public override string GetName(int GroupId)
             => DbBaseModel.getRecordName<GroupModel>(core.cpParent, GroupId);
         //
         //====================================================================================================
@@ -129,7 +135,7 @@ namespace Contensive.Processor {
                 if (userId == 0) {
                     GroupController.removeUser(core, groupId);
                 } else {
-                    GroupController.removeUser(core, groupId,userId);
+                    GroupController.removeUser(core, groupId, userId);
                 }
             }
         }
@@ -139,19 +145,23 @@ namespace Contensive.Processor {
         public override void RemoveUser(string GroupNameIdOrGuid) => RemoveUser(GroupNameIdOrGuid, 0);
         //
         //====================================================================================================
-        //
-        private void appendDebugLog(string copy) => LogController.logDebug(core, copy);
+        /// <summary>
+        /// debug log entry
+        /// </summary>
+        /// <param name="message"></param>
+        private void appendDebugLog(string message)
+            => Logger.Debug(LogController.getMessageLine(cp.core, message, false));
         //
         //====================================================================================================
         //
         #region  IDisposable Support 
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
-        public void Dispose()  {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        ~CPGroupClass()  {
+        ~CPGroupClass() {
             Dispose(false);
         }
         protected virtual void Dispose(bool disposing_group) {

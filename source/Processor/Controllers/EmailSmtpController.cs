@@ -62,15 +62,22 @@ namespace Contensive.Processor.Controllers {
                         client.Send(mailMessage);
                         status = true;
                     } catch (Exception ex) {
-                        returnErrorMessage = "There was an error sending email [" + ex + "]";
-                        LogController.logError(core, returnErrorMessage);
+                        string errMsg = "There was an error sending email";
+                        Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, "There was an error configuring smtp server ex [" + ex + "]");
+                string errMsg = "There was an error configuring smtp server";
+                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                 throw;
             }
             return status;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

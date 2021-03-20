@@ -474,14 +474,19 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// get body tag part of html body
+        /// </summary>
+        /// <param name="core"></param>
+        /// <returns></returns>
         public static string getHtmlBody_BodyTag(CoreController core) {
             string result = "";
             try {
                 if (core.doc.domain == null) {
                     //
                     // -- If no domain, block content with message
-                    LogController.logError(core, "Domain not recognized:" + core.webServer.requestUrlSource);
+                    string errMsg = "Domain not recognized:" + core.webServer.requestUrlSource;
+                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
                     return HtmlController.div("This domain name is not configured for this site.", "ccDialogPageNotFound");
                 }
                 //
@@ -2587,6 +2592,11 @@ namespace Contensive.Processor.Controllers {
             }
         }
         #endregion
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
-    //
 }

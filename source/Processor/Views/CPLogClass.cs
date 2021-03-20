@@ -2,12 +2,12 @@
 using System;
 using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
+using static Contensive.BaseClasses.CPLogBaseClass;
 
 namespace Contensive.Processor {
-    //
-    // todo implement or deprecate. might be nice to have this convenient api, but a model does the same, costs one query but will
-    // always have the model at the save version as the addon code - this cp interface will match the database, but not the addon.
-    // not sure which is better
+    /// <summary>
+    /// Logging interface
+    /// </summary>
     public class CPLogClass : CPLogBaseClass, IDisposable {
         //
         // ====================================================================================================
@@ -16,12 +16,18 @@ namespace Contensive.Processor {
         /// </summary>
         private readonly CPClass cp;
         //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        //
         // ====================================================================================================
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="cp"></param>
-        public CPLogClass(CPClass cp) 
+        public CPLogClass(CPClass cp)
             => this.cp = cp;
         //
         // ====================================================================================================
@@ -30,7 +36,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Trace(string logMessage) {
-            LogController.log(cp.core, logMessage, LogLevel.Trace);
+            Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Trace, Logger.Name, LogController.getMessageLine(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -39,7 +45,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Debug(string logMessage) {
-            LogController.log(cp.core, logMessage, LogLevel.Debug);
+            Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogController.getMessageLine(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -48,7 +54,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Info(string logMessage) {
-            LogController.log(cp.core, logMessage, LogLevel.Info);
+            Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Info, Logger.Name, LogController.getMessageLine(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -57,7 +63,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Warn(string logMessage) {
-            LogController.log(cp.core, logMessage, LogLevel.Warn);
+            Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.getMessageLine(cp.core, logMessage, true)));
         }
         //
         // ====================================================================================================
@@ -66,7 +72,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Error(string logMessage) {
-            LogController.log(cp.core, logMessage, LogLevel.Error);
+            Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.getMessageLine(cp.core, logMessage, true)));
         }
         //
         // ====================================================================================================
@@ -75,7 +81,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(string logMessage) {
-            LogController.log(cp.core, logMessage, LogLevel.Fatal);
+            Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.getMessageLine(cp.core, logMessage, true)));
         }
         //
         // ====================================================================================================
@@ -84,7 +90,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Add(string logMessage) {
-            LogController.logDebug(cp.core, logMessage);
+            Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogController.getMessageLine(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -94,6 +100,32 @@ namespace Contensive.Processor {
         /// <param name="level"></param>
         /// <param name="logMessage"></param>
         public override void Add(LogLevel level, string logMessage) {
+            switch (level) {
+                case LogLevel.Trace: {
+                        Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Trace, Logger.Name, LogController.getMessageLine(cp.core, logMessage, false)));
+                        break;
+                    }
+                case LogLevel.Debug: {
+                        Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogController.getMessageLine(cp.core, logMessage, false)));
+                        break;
+                    }
+                case LogLevel.Warn: {
+                        Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.getMessageLine(cp.core, logMessage, true)));
+                        break;
+                    }
+                case LogLevel.Error: {
+                        Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.getMessageLine(cp.core, logMessage, true)));
+                        break;
+                    }
+                case LogLevel.Fatal: {
+                        Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.getMessageLine(cp.core, logMessage, true)));
+                        break;
+                    }
+                default: {
+                        Logger.Log(typeof(LogController), new NLog.LogEventInfo(NLog.LogLevel.Info, Logger.Name, LogController.getMessageLine(cp.core, logMessage, false)));
+                        break;
+                    }
+            }
             LogController.log(cp.core, logMessage, level);
         }
         //
@@ -120,12 +152,12 @@ namespace Contensive.Processor {
         }
         //
         protected bool disposed_log;
-        public override void Dispose()  {
+        public override void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
         //
-        ~CPLogClass()  {
+        ~CPLogClass() {
             Dispose(false);
         }
         #endregion

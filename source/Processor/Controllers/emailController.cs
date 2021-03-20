@@ -687,8 +687,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="fromAddress"></param>
         /// <param name="emailSubject"></param>
         /// <param name="userErrorMessage"></param>
-        public static bool tryQueueFormEmail(CoreController core, string toAddress, string fromAddress, string emailSubject, ref string userErrorMessage) {
+        public static bool tryQueueFormEmail(CoreController core, string toAddress, string fromAddress, string emailSubject, out string userErrorMessage) {
             try {
+                userErrorMessage = "";
                 string Message = "";
                 string emailSubjectWorking = emailSubject;
                 if ((toAddress.IndexOf("@",StringComparison.InvariantCultureIgnoreCase) == -1)) {
@@ -716,7 +717,6 @@ namespace Contensive.Processor.Controllers {
                 return queueAdHocEmail(core, "Form Submission Email", core.session.user.id, toAddress, fromAddress, emailSubjectWorking, Message, "", "", "", false, false, 0, ref userErrorMessage);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
-                userErrorMessage += " The form could not be delivered due to an unknown error.";
                 throw;
             }
         }

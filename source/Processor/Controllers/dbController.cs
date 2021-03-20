@@ -73,6 +73,12 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public int sqlCommandTimeout { get; set; } = 30;
         //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        //
         //==========================================================================================
         /// <summary>
         /// constructor
@@ -214,8 +220,11 @@ namespace Contensive.Processor.Controllers {
                             connSQL.Open();
                             success = true;
                         } catch (System.Data.SqlClient.SqlException exSql) {
+                            //
                             // network related error, retry once
-                            LogController.logError(core, "executeQuery SqlException, retries left [" + retryCnt.ToString() + "], ex [" + exSql.ToString() + "]");
+                            string errMsg = "executeQuery SqlException, retries left [" + retryCnt.ToString() + "], ex [" + exSql.ToString() + "]";
+                            Logger.Error(exSql, LogController.getMessageLine(core, errMsg, true));
+                            //
                             if (retryCnt <= 0) { throw; }
                             retryCnt--;
                         } catch (Exception ex) {
@@ -236,9 +245,9 @@ namespace Contensive.Processor.Controllers {
                 dbVerified = true;
                 string logMsg = "duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsReturned + "], sql [" + sql.Replace("\r", "").Replace("\n", "") + "]";
                 if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
-                    LogController.logWarn(core, "Slow Query " + logMsg);
+                    Logger.Warn(LogController.getMessageLine(core, "Slow Query " + logMsg, true));
                 } else {
-                    LogController.logDebug(core, logMsg);
+                    Logger.Debug(LogController.getMessageLine(core, logMsg, false));
                 }
             } catch (Exception ex) {
                 LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], startRecord [" + startRecord + "], maxRecords [" + maxRecords + "], recordsReturned [" + recordsReturned + "]", ex));
@@ -282,7 +291,7 @@ namespace Contensive.Processor.Controllers {
                 if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
                     LogController.logWarn(core, "Slow Query " + logMsg);
                 } else {
-                    LogController.logDebug(core, logMsg);
+                    Logger.Debug(LogController.getMessageLine(core, logMsg, false));
                 }
             } catch (Exception ex) {
                 LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], recordsAffected [" + recordsAffected + "]", ex));
@@ -315,7 +324,7 @@ namespace Contensive.Processor.Controllers {
                 if (sw.ElapsedMilliseconds > sqlAsyncSlowThreshholdMsec) {
                     LogController.logWarn(core, "Slow Query " + logMsg);
                 } else {
-                    LogController.logDebug(core, logMsg);
+                    Logger.Debug(LogController.getMessageLine(core, logMsg, false));
                 }
                 return result;
             } catch (Exception ex) {

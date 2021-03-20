@@ -189,7 +189,8 @@ namespace Contensive.Processor.Controllers {
                             //
                             // error - Need a way to reach the user that submitted the file
                             //
-                            LogController.logError(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder, skipping xml file, not valid collection metadata, [" + core.privateFiles.localAbsRootPath + CollectionVersionFolder + file.Name + "]. " + ex);
+                            string errMsg = "skipping xml file, not valid collection metadata, [" + core.privateFiles.localAbsRootPath + CollectionVersionFolder + file.Name + "]";
+                            logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                             loadOK = false;
                         }
                         if (loadOK) {
@@ -515,7 +516,8 @@ namespace Contensive.Processor.Controllers {
                                                 //
                                                 // error - Need a way to reach the user that submitted the file
                                                 //
-                                                LogController.logError(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], creating navigator entries, there was an error parsing the portion of the collection that contains metadata. Navigator entry creation was aborted. [There was an error reading the Meta data file.] " + ex);
+                                                string errMsg = "[" + CollectionName + "], creating navigator entries, there was an error parsing the portion of the collection that contains metadata. Navigator entry creation was aborted. [There was an error reading the Meta data file.]";
+                                                logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                                                 return_ErrorMessage += " The collection was not installed because the xml collection file has an error.";
                                                 return false;
                                             }
@@ -802,14 +804,14 @@ namespace Contensive.Processor.Controllers {
                                 if (!collectionIncludesDiagnosticAddon) {
                                     //
                                     // -- log warning. This collection does not have an install addon
-                                    LogController.logDebug(core, "Collection does not include a Diagnostic addon, [" + collection.name + "]");
+                                    logger.Debug(LogController.getMessageLine(core, "Collection does not include a Diagnostic addon, [" + collection.name + "]", false));
                                 }
                                 //
                                 // -- execute onInstall addon if found
                                 if (string.IsNullOrEmpty(collectionOninstalladdonGuid)) {
                                     //
                                     // -- log warning. This collection does not have an install addon
-                                    LogController.logDebug(core, "Collection does not include an install addon, [" + collection.name + "]");
+                                    logger.Debug(LogController.getMessageLine(core, "Collection does not include an install addon, [" + collection.name + "]", false));
                                 } else {
                                     //
                                     // -- install the install addon
@@ -1207,7 +1209,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="contextLog"></param>
         private static void traceContextLog(CoreController core, Stack<string> contextLog) {
-            logger.Log(LogLevel.Info, LogController.getMessageLine(core, string.Join(",", contextLog)));
+            logger.Log(LogLevel.Info, LogController.getMessageLine(core, string.Join(",", contextLog), false));
         }
     }
 }

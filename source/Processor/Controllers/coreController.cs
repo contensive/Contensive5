@@ -654,7 +654,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 coreController_Initialize(cp, appName, httpContext, true);
             } catch (Exception ex) {
-                LogController.logLocalOnly("CoreController constructor-4, exception [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+                LogController.logShortLine("CoreController constructor-4, exception [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
             }
         }
@@ -729,7 +729,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logLocalOnly("CoreController coreController_Initialize, exception [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+                LogController.logShortLine("CoreController coreController_Initialize, exception [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
             }
         }
@@ -782,21 +782,21 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// NLog logger
         /// </summary>
-        public Logger nlogLogger {
-            get {
-                if (_nlogLogger == null) {
-                    //
-                    // -- if serverconfig not provided, return one-off logger
-                    if (serverConfig == null) { return LogManager.GetCurrentClassLogger(); }
-                    //
-                    // -- serverConfig is valid, initialize one stream for the rest of the document
-                    LogController.awsConfigure(this);
-                    _nlogLogger = LogManager.GetCurrentClassLogger();
-                }
-                return _nlogLogger;
-            }
-        }
-        private Logger _nlogLogger;
+        //public Logger nlogLogger {
+        //    get {
+        //        if (_nlogLogger == null) {
+        //            //
+        //            // -- if serverconfig not provided, return one-off logger
+        //            if (serverConfig == null) { return LogManager.GetCurrentClassLogger(); }
+        //            //
+        //            // -- serverConfig is valid, initialize one stream for the rest of the document
+        //            LogController.awsConfigure(this);
+        //            _nlogLogger = LogManager.GetCurrentClassLogger();
+        //        }
+        //        return _nlogLogger;
+        //    }
+        //}
+        //private Logger _nlogLogger;
         //
         //====================================================================================================
         /// <summary>

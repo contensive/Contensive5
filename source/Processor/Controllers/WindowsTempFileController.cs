@@ -12,10 +12,9 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Cratea new windows temp file (typically in users folder). Creates 0 byte file
         /// </summary>
-        /// <param name="cp"></param>
+        /// <param name="core"></param>
         /// <returns></returns>
-        public static string createFile(CoreController cp) {
-
+        public static string createFile(CoreController core) {
             try {
                 string fileName = string.Empty;
                 //
@@ -35,7 +34,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 return fileName;
             } catch (Exception ex) {
-                LogController.logError(cp,"Error creating TEMP file or seting attributes: " + ex.ToString());
+                string errMsg = "Error creating TEMP file or seting attributes";
+                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                 throw;
             }
         }
@@ -46,8 +46,8 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="dosAbspathFilename"></param>
         /// <param name="content"></param>
-        /// <param name="cp"></param>
-        public static void updateFile(CoreController cp, string dosAbspathFilename, string content) {
+        /// <param name="core"></param>
+        public static void updateFile(CoreController core, string dosAbspathFilename, string content) {
             try {
                 //
                 // Write to the temp file.
@@ -56,7 +56,8 @@ namespace Contensive.Processor.Controllers {
                 streamWriter.Flush();
                 streamWriter.Close();
             } catch (Exception ex) {
-                LogController.logError(cp, "Error writing to TEMP file: " + ex.ToString());
+                string errMsg = "Error writing to TEMP file";
+                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                 throw;
             }
         }
@@ -65,16 +66,17 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Read the temp file
         /// </summary>
-        /// <param name="cp"></param>
+        /// <param name="core"></param>
         /// <param name="dosAbspathFilename"></param>
-        public static void readFile(CoreController cp, string dosAbspathFilename) {
+        public static void readFile(CoreController core, string dosAbspathFilename) {
             try {
                 // Read from the temp file.
                 StreamReader myReader = File.OpenText(dosAbspathFilename);
                 Console.WriteLine("TEMP file contents: " + myReader.ReadToEnd());
                 myReader.Close();
             } catch (Exception ex) {
-                LogController.logError(cp, "Error reading TEMP file: " + ex.ToString());
+                string errMsg = "Error reading TEMP file";
+                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                 throw;
             }
         }
@@ -83,9 +85,9 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// delete a TEMP file
         /// </summary>
-        /// <param name="cp"></param>
+        /// <param name="core"></param>
         /// <param name="dosAbspathFilename"></param>
-        public static void deleteFile(CoreController cp, string dosAbspathFilename) {
+        public static void deleteFile(CoreController core, string dosAbspathFilename) {
             try {
                 // Delete the temp file (if it exists)
                 if (File.Exists(dosAbspathFilename)) {
@@ -93,13 +95,16 @@ namespace Contensive.Processor.Controllers {
                     Console.WriteLine("TEMP file deleted.");
                 }
             } catch (Exception ex) {
-                LogController.logError(cp, "Error deleting TEMP file: " + ex.ToString());
+                string errMsg = "Error deleting TEMP file";
+                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
-
-
-
-
 }

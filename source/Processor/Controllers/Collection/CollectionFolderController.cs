@@ -323,7 +323,8 @@ namespace Contensive.Processor.Controllers {
                 } catch (Exception ex) {
                     //
                     // -- exit, error loading file
-                    LogController.logError(core, MethodInfo.GetCurrentMethod().Name + ", UpdateConfig, Error loading Collections.xml file." + ex);
+                    string errMsg = "UpdateConfig, Error loading Collections.xml file";
+                    logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                     return;
                 }
                 if (!Doc.DocumentElement.Name.ToLower(CultureInfo.InvariantCulture).Equals("collectionlist")) {
@@ -497,7 +498,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="contextLog"></param>
         private static void traceContextLog(CoreController core, Stack<string> contextLog) {
-            logger.Log(LogLevel.Info, LogController.getMessageLine(core, string.Join(",", contextLog)));
+            logger.Log(LogLevel.Info, LogController.getMessageLine(core, string.Join(",", contextLog), false));
         }
     }
 }

@@ -53,7 +53,8 @@ namespace Contensive.Processor.Controllers {
                     } catch (Exception ex) {
                         //
                         // -- xml load error
-                        LogController.logError(core, "Upgrademetadata_LoadDataToCollection Error reading xml archive, ex=[" + ex + "]");
+                        string errMsg = "Upgrademetadata_LoadDataToCollection Error reading xml archive";
+                        Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                         throw new GenericException("Error in Upgrademetadata_LoadDataToCollection, during doc.loadXml()", ex);
                     }
                     if ((srcXmlDom.DocumentElement.Name.ToLowerInvariant() != CollectionFileRootNode) && (srcXmlDom.DocumentElement.Name.ToLowerInvariant() != "contensivecdef")) {
@@ -755,5 +756,11 @@ namespace Contensive.Processor.Controllers {
             }
             return returnAttr;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

@@ -43,9 +43,9 @@ Public Class ConfigurationClass
         ' -- if application var does not equal routemap.datecreated rebuild
         If (routeMapDateInvalid() OrElse (cp.routeMap.dateCreated <> CDate(HttpContext.Current.Application("RouteMapDateCreated")))) Then
             If routeMapDateInvalid() Then
-                LogController.logLocalOnly("configurationClass, loadRouteMap, [" + cp.Site.Name + "], rebuild because HttpContext.Current.Application(RouteMapDateCreated) is not valid", BaseClasses.CPLogBaseClass.LogLevel.Info)
+                LogController.logShortLine("configurationClass, loadRouteMap, [" + cp.Site.Name + "], rebuild because HttpContext.Current.Application(RouteMapDateCreated) is not valid", BaseClasses.CPLogBaseClass.LogLevel.Info)
             Else
-                LogController.logLocalOnly("configurationClass, loadRouteMap, [" + cp.Site.Name + "], rebuild because not equal, cp.routeMap.dateCreated [" + cp.routeMap.dateCreated.ToString() + "], HttpContext.Current.Application(RouteMapDateCreated) [" + HttpContext.Current.Application("RouteMapDateCreated").ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
+                LogController.logShortLine("configurationClass, loadRouteMap, [" + cp.Site.Name + "], rebuild because not equal, cp.routeMap.dateCreated [" + cp.routeMap.dateCreated.ToString() + "], HttpContext.Current.Application(RouteMapDateCreated) [" + HttpContext.Current.Application("RouteMapDateCreated").ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
             End If
             loadRouteMap(cp)
         End If
@@ -59,7 +59,7 @@ Public Class ConfigurationClass
     Public Shared Sub loadRouteMap(cp As CPClass)
         SyncLock RouteTable.Routes
             '
-            LogController.logLocalOnly("configurationClass, loadRouteMap enter, [" + cp.Site.Name + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
+            LogController.logShortLine("configurationClass, loadRouteMap enter, [" + cp.Site.Name + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
             '
             HttpContext.Current.Application("routeMapDateCreated") = cp.routeMap.dateCreated
             '
@@ -74,7 +74,7 @@ Public Class ConfigurationClass
             Next
         End SyncLock
         '
-        LogController.logLocalOnly("configurationClass, loadRouteMap exit, [" + cp.Site.Name + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
+        LogController.logShortLine("configurationClass, loadRouteMap exit, [" + cp.Site.Name + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
         '
     End Sub
     '
@@ -90,7 +90,7 @@ Public Class ConfigurationClass
             Dim context As New HttpContextModel
 
             If (iisContext Is Nothing) OrElse (iisContext.Request Is Nothing) OrElse (iisContext.Response Is Nothing) Then
-                LogController.logLocalOnly("ConfigurationClass.buildContext - Attempt to initialize webContext but iisContext or one of its objects is null., [" + appName + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal)
+                LogController.logShortLine("ConfigurationClass.buildContext - Attempt to initialize webContext but iisContext or one of its objects is null., [" + appName + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal)
                 Throw New ApplicationException("ConfigurationClass.buildContext - Attempt to initialize webContext but iisContext or one of its objects is null., [" + appName + "]")
             End If
             '
@@ -206,9 +206,9 @@ Public Class ConfigurationClass
             If True Then
                 '
                 ' -- transfer cookies
-                LogController.logLocalOnly("ConfigurationClass.buildContext transfer cookies", BaseClasses.CPLogBaseClass.LogLevel.Trace)
+                LogController.logShortLine("ConfigurationClass.buildContext transfer cookies", BaseClasses.CPLogBaseClass.LogLevel.Trace)
                 For Each cookieKey As String In iisContext.Request.Cookies.Keys
-                    LogController.logLocalOnly("ConfigurationClass.buildContext transfer cookies, cookieKey [" & cookieKey & "], cookie value [" & iisContext.Request.Cookies(cookieKey).Value & "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
+                    LogController.logShortLine("ConfigurationClass.buildContext transfer cookies, cookieKey [" & cookieKey & "], cookie value [" & iisContext.Request.Cookies(cookieKey).Value & "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
                     If String.IsNullOrWhiteSpace(cookieKey) Then Continue For
                     If (context.Request.Cookies.ContainsKey(cookieKey)) Then
                         context.Request.Cookies.Remove(cookieKey)
@@ -218,11 +218,11 @@ Public Class ConfigurationClass
                         .Value = iisContext.Request.Cookies(cookieKey).Value
                     })
                 Next
-                LogController.logLocalOnly("ConfigurationClass.buildContext exit, context.Request.Cookies.Count [" & context.Request.Cookies.Count & "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
+                LogController.logShortLine("ConfigurationClass.buildContext exit, context.Request.Cookies.Count [" & context.Request.Cookies.Count & "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
             End If
             Return context
         Catch ex As Exception
-            LogController.logLocalOnly("ConfigurationClass.buildContext exception, [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal)
+            LogController.logShortLine("ConfigurationClass.buildContext exception, [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal)
             Throw
         End Try
     End Function

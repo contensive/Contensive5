@@ -1,6 +1,6 @@
 ﻿<script runat="server">
     Sub Page_Load()
-        Contensive.Processor.Controllers.LogController.logLocalOnly("Page_Load", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Trace)
+        Contensive.Processor.Controllers.LogController.logShortLine("Page_Load", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Trace)
         Try
             If (HttpContext.Current.Request.HttpMethod = "OPTIONS") Then
                 '

@@ -55,6 +55,24 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
+        /// convert the return of an addon executable (code or script) to string
+        /// </summary>
+        /// <param name="AddonObjResult"></param>
+        /// <returns></returns>
+        public static string convertAddonReturntoString(object AddonObjResult) {
+            if (AddonObjResult == null) return string.Empty;
+            if (AddonObjResult.GetType() == typeof(string)) { return (string)AddonObjResult; }
+            if (AddonObjResult.GetType() == typeof(int)) { return ((int)AddonObjResult).ToString(); }
+            if (AddonObjResult.GetType() == typeof(double)) { return ((double)AddonObjResult).ToString(); }
+            if (AddonObjResult.GetType() == typeof(bool)) { return ((bool)AddonObjResult).ToString(); }
+            if (AddonObjResult.GetType() == typeof(DateTime)) { return ((DateTime)AddonObjResult).ToString(); }
+            if (AddonObjResult == new object()) return string.Empty;
+            if (AddonObjResult.ToString() == "[undefined]") return string.Empty;
+            return SerializeObject(AddonObjResult);
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
         /// execute all onBodyStart addons
         /// </summary>
         /// <returns></returns>
@@ -1413,31 +1431,7 @@ namespace Contensive.Processor.Controllers {
                             && (testType.BaseType.FullName.Equals("contensive.baseclasses.addonbaseclass", StringComparison.InvariantCultureIgnoreCase)))
                         );
                     //
-                    addonFound = addonType != null;
-                    //// -- assembly has a baseType fullname
-                    //string baseTypeName = assemblyType2.BaseType.FullName.ToLowerInvariant();
-                    //addonFound = baseTypeName.Equals("addonbaseclass") || (baseTypeName.Equals("contensive.baseclasses.addonbaseclass"));
-                    //if (addonFound) {
-                    //    addonType = assemblyType2;
-                    //}
-                    //foreach (Type assemblyType in testAssembly.GetTypes()) {
-                    //    if (addon.dotNetClass.Equals(assemblyType.FullName, StringComparison.InvariantCultureIgnoreCase)) {
-                    //        if ((assemblyType.IsPublic) && (!((assemblyType.Attributes & TypeAttributes.Abstract) == TypeAttributes.Abstract)) && (assemblyType.BaseType != null)) {
-                    //            //
-                    //            // -- assembly is public, not abstract, based on a base type
-                    //            if (!string.IsNullOrEmpty(assemblyType.BaseType.FullName)) {
-                    //                //
-                    //                // -- assembly has a baseType fullname
-                    //                string baseTypeName = assemblyType.BaseType.FullName.ToLowerInvariant();
-                    //                addonFound = baseTypeName.Equals("addonbaseclass") || (baseTypeName.Equals("contensive.baseclasses.addonbaseclass"));
-                    //                if (addonFound) {
-                    //                    addonType = assemblyType;
-                    //                    break;
-                    //                }
-                    //            }
-                    //        }
-                    //    }
-                    //}
+                    addonFound = (addonType != null);
                 } catch (ArgumentException ex) {
                     //
                     // -- argument exception
@@ -1492,9 +1486,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- Call Execute
                     object AddonObjResult = AddonObj.Execute(core.cpParent);
-                    if (AddonObjResult == null) return string.Empty;
-                    if (AddonObjResult.GetType().ToString() == "System.String") { return (string)AddonObjResult; }
-                    return SerializeObject(AddonObjResult);
+                    return convertAddonReturntoString(AddonObjResult);
                 } catch (Exception ex) {
                     //
                     // -- error in the addon
@@ -1533,7 +1525,8 @@ namespace Contensive.Processor.Controllers {
                 if (addon == null) {
                     //
                     // -- addon not found
-                    LogController.logError(core, "executeAsync called with null addon model.");
+                    string errMsg = "executeAsync called with null addon model.";
+                    logger.Error(LogController.getMessageLine(core, errMsg, true));
                     return;
                 }
                 //
@@ -2188,5 +2181,11 @@ namespace Contensive.Processor.Controllers {
             }
         }
         #endregion
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

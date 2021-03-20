@@ -950,7 +950,8 @@ namespace Contensive.Processor.Models.Domain {
                             if (!string.IsNullOrEmpty(LookupContentName)) {
                                 LookupContentId = ContentMetadataModel.getContentId(core, LookupContentName);
                                 if (LookupContentId <= 0) {
-                                    LogController.logError(core, "Could not create lookup field [" + fieldMetadata.nameLc + "] for content definition [" + name + "] because no content definition was found For lookup-content [" + LookupContentName + "].");
+                                    string errMsg = "Could not create lookup field [" + fieldMetadata.nameLc + "] for content definition [" + name + "] because no content definition was found For lookup-content [" + LookupContentName + "].";
+                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
                                 }
                             }
                             sqlList.Add("LOOKUPCONTENTID", DbController.encodeSQLNumber(LookupContentId));
@@ -963,7 +964,9 @@ namespace Contensive.Processor.Models.Domain {
                             if (!string.IsNullOrEmpty(ManyToManyContent)) {
                                 int ManyToManyContentId = ContentMetadataModel.getContentId(core, ManyToManyContent);
                                 if (ManyToManyContentId <= 0) {
-                                    LogController.logError(core, "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-content [" + ManyToManyContent + "].");
+                                    string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-content [" + ManyToManyContent + "].";
+                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
+
                                 }
                                 sqlList.Add("MANYTOMANYCONTENTID", DbController.encodeSQLNumber(ManyToManyContentId));
                             }
@@ -972,7 +975,8 @@ namespace Contensive.Processor.Models.Domain {
                             if (!string.IsNullOrEmpty(ManyToManyRuleContent)) {
                                 int ManyToManyRuleContentId = ContentMetadataModel.getContentId(core, ManyToManyRuleContent);
                                 if (ManyToManyRuleContentId <= 0) {
-                                    LogController.logError(core, "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-rule-content [" + ManyToManyRuleContent + "].");
+                                    string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-rule-content [" + ManyToManyRuleContent + "].";
+                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
                                 }
                                 sqlList.Add("MANYTOMANYRULECONTENTID", DbController.encodeSQLNumber(ManyToManyRuleContentId));
                             }
@@ -986,7 +990,8 @@ namespace Contensive.Processor.Models.Domain {
                             if (!string.IsNullOrEmpty(RedirectContentName)) {
                                 RedirectContentId = ContentMetadataModel.getContentId(core, RedirectContentName);
                                 if (RedirectContentId <= 0) {
-                                    LogController.logError(core, "Could not create redirect field [" + fieldMetadata.nameLc + "] for Content Definition [" + name + "] because no content definition was found For redirect-content [" + RedirectContentName + "].");
+                                    string errMsg = "Could not create redirect field [" + fieldMetadata.nameLc + "] for Content Definition [" + name + "] because no content definition was found For redirect-content [" + RedirectContentName + "].";
+                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
                                 }
                             }
                             sqlList.Add("REDIRECTCONTENTID", DbController.encodeSQLNumber(RedirectContentId));
@@ -1654,5 +1659,11 @@ namespace Contensive.Processor.Models.Domain {
             }
             return defaultValueDict;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

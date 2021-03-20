@@ -16,13 +16,13 @@ Public Class Global_asax
     Sub Application_Start(ByVal sender As Object, ByVal e As EventArgs)
         Try
             '
-            LogController.logLocalOnly("Global.asax, Application_Start [" & ConfigurationClass.getAppName() & "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
+            LogController.logShortLine("Global.asax, Application_Start [" & ConfigurationClass.getAppName() & "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
             '
             Using cp As New Contensive.Processor.CPClass(ConfigurationClass.getAppName())
                 ConfigurationClass.loadRouteMap(cp)
             End Using
         Catch ex As Exception
-            LogController.logLocalOnly("Global.asax, Application_Start exception [" & ConfigurationClass.getAppName() & "]" & getAppDescription("Application_Start ERROR exit") + ", ex [" & ex.ToString() & "]", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Fatal)
+            LogController.logShortLine("Global.asax, Application_Start exception [" & ConfigurationClass.getAppName() & "]" & getAppDescription("Application_Start ERROR exit") + ", ex [" & ex.ToString() & "]", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Fatal)
         End Try
     End Sub
     '
@@ -34,7 +34,7 @@ Public Class Global_asax
     ''' <param name="e"></param>
     Sub Session_Start(ByVal sender As Object, ByVal e As EventArgs)
         '
-        LogController.logLocalOnly("Global.asax, Session_Start [" + e.ToString() + "]", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Info)
+        LogController.logShortLine("Global.asax, Session_Start [" + e.ToString() + "]", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Info)
         '
     End Sub
     '
@@ -46,7 +46,7 @@ Public Class Global_asax
     ''' <param name="e"></param>
     Sub Application_BeginRequest(ByVal sender As Object, ByVal e As EventArgs)
         '
-        LogController.logLocalOnly("Global.asax, Application_BeginRequest [" + e.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
+        LogController.logShortLine("Global.asax, Application_BeginRequest [" + e.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
         '
     End Sub
     '
@@ -58,7 +58,7 @@ Public Class Global_asax
     ''' <param name="e"></param>
     Sub Application_AuthenticateRequest(ByVal sender As Object, ByVal e As EventArgs)
         '
-        LogController.logLocalOnly("Global.asax, Application_AuthenticateRequest [" + e.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
+        LogController.logShortLine("Global.asax, Application_AuthenticateRequest [" + e.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
         '
     End Sub
     '
@@ -80,10 +80,10 @@ Public Class Global_asax
                     ' -- File does not exist, thrown for every bot searching content
                     Return
                 End If
-                LogController.logLocalOnly("Global.asax, Application_Error, exception message [" + exception.Message + "], toString [" + exception.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Error)
+                LogController.logShortLine("Global.asax, Application_Error, exception message [" + exception.Message + "], toString [" + exception.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Error)
                 Dim innerException As Exception = exception.InnerException
                 If (innerException IsNot Nothing) Then
-                    LogController.logLocalOnly("Global.asax, Application_Error, inner exception message [" + innerException.Message + "], toString [" + innerException.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Error)
+                    LogController.logShortLine("Global.asax, Application_Error, inner exception message [" + innerException.Message + "], toString [" + innerException.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Error)
                 End If
             End If
         End If
@@ -98,7 +98,7 @@ Public Class Global_asax
     ''' <param name="e"></param>
     Sub Session_End(ByVal sender As Object, ByVal e As EventArgs)
         '
-        LogController.logLocalOnly("Global.asax, Session_End [" + e.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
+        LogController.logShortLine("Global.asax, Session_End [" + e.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
         '
     End Sub
     '
@@ -110,7 +110,7 @@ Public Class Global_asax
     ''' <param name="e"></param>
     Sub Application_End(ByVal sender As Object, ByVal e As EventArgs)
         '
-        LogController.logLocalOnly("Global.asax, Application_End [" + e.ToString() + "," + getShutdownDetail() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
+        LogController.logShortLine("Global.asax, Application_End [" + e.ToString() + "," + getShutdownDetail() + "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
         '
     End Sub
     '

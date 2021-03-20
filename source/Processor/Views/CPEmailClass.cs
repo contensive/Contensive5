@@ -69,9 +69,11 @@ namespace Contensive.Processor {
         /// <param name="toAddress"></param>
         /// <param name="fromAddress"></param>
         /// <param name="subject"></param>
+        /// <param name="userErrorMessage"></param>
         public override void sendForm(string toAddress, string fromAddress, string subject, ref string userErrorMessage) {
             try {
-                EmailController.tryQueueFormEmail(cp.core, toAddress, fromAddress, subject, ref userErrorMessage);
+                EmailController.tryQueueFormEmail(cp.core, toAddress, fromAddress, subject, out string errorMessage);
+                userErrorMessage = errorMessage;
             } catch (Exception ex) {
                 LogController.logError( cp.core,ex);
                 throw;

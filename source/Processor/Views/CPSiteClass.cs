@@ -10,6 +10,12 @@ namespace Contensive.Processor {
         private readonly CPClass cp;
         //
         //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
         //
         public CPSiteClass(CPClass cp) {
             this.cp = cp;
@@ -183,8 +189,13 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
-        public override void TestPoint(string message) => LogController.logDebug(cp.core, message);
+        /// <summary>
+        /// Debug log entry
+        /// </summary>
+        /// <param name="message"></param>
+        public override void TestPoint(string message) 
+            => Logger.Error(LogController.getMessageLine(cp.core, message, true ));
+
         //
         //====================================================================================================
         //

@@ -22,6 +22,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getLoginPage(CoreController core, bool forceDefaultLogin, bool requirePassword) {
             try {
+                //
+                LogController.logTrace(core, "loginController.getLoginPage, enter");
+                //
                 string result;
                 if (forceDefaultLogin) {
                     result = getLoginForm_Default(core, requirePassword);
@@ -46,6 +49,8 @@ namespace Contensive.Processor.Controllers {
         public static string getLoginForm_Default(CoreController core, bool requirePassword) {
             string result = "";
             try {
+                //
+                LogController.logTrace(core, "loginController.getLoginForm_Default, enter");
                 //
                 bool needLoginForm = true;
                 string formType = core.docProperties.getText("type");
@@ -150,6 +155,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getLoginForm(CoreController core, bool forceDefaultLoginForm, bool requirePassword) {
             try {
+                //
+                LogController.logTrace(core, "loginController.getLoginForm, enter");
+                //
                 string returnHtml = "";
                 int loginAddonId = 0;
                 if (!forceDefaultLoginForm) {
@@ -198,6 +206,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool processLoginFormDefault(CoreController core, string requestUsername, string requestPassword, bool passwordRequestValid) {
             try {
+                //
+                LogController.logTrace(core, "loginController.processLoginFormDefault, enter");
+                //
                 if ((!core.session.visit.cookieSupport) && (core.session.visit.pageVisits>1)) {
                     //
                     // -- no cookies

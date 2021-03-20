@@ -175,7 +175,8 @@ namespace Contensive.Processor.Controllers {
                                             string cliPathFilename = cpApp.core.programFiles.localAbsRootPath + "cc.exe";
                                             if (!runInServiceProcess && !System.IO.File.Exists(cliPathFilename)) {
                                                 runInServiceProcess = true;
-                                                LogController.logError(cpApp.core, "TaskRunner cannot run out of process because command line program cc.exe not found in program files folder [" + cpApp.core.programFiles.localAbsRootPath + "]");
+                                                string errMsg = "TaskRunner cannot run out of process because command line program cc.exe not found in program files folder [" + cpApp.core.programFiles.localAbsRootPath + "]";
+                                                Logger.Error(LogController.getMessageLine(cpApp.core, errMsg, true));
                                             }
                                             if (runInServiceProcess) {
                                                 //
@@ -214,7 +215,8 @@ namespace Contensive.Processor.Controllers {
                                                         process.WaitForExit(timeoutMsec);
                                                     }
                                                     if (!process.HasExited) {
-                                                        LogController.logError(cpApp.core, "TaskRunner Killing process, process timed out, app [" + appKVP.Value.name + "].");
+                                                        string errMsg = "TaskRunner Killing process, process timed out, app [" + appKVP.Value.name + "].";
+                                                        Logger.Error(LogController.getMessageLine(cpApp.core, errMsg, true));
                                                         process.Kill();
                                                         process.WaitForExit();
                                                     }
@@ -319,6 +321,11 @@ namespace Contensive.Processor.Controllers {
 
         }
         #endregion
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
-
 }

@@ -45,32 +45,24 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="message"></param>
+        /// <param name="addtoUI">Iftrue, the message will be appended to the doc object, and if applicable, added to the UI/</param>
         /// <returns></returns>
-        public static string getMessageLine(CoreController core, string message) {
+        public static string getMessageLine(CoreController core, string message, bool addtoUI) {
             string result = "app [" + ((core.appConfig != null) ? core.appConfig.name : "no-app") + "]";
             result += ", thread [" + System.Threading.Thread.CurrentThread.ManagedThreadId.ToString("000") + "]";
             result += ", url [" + ((core.webServer == null) ? "non-web" : string.IsNullOrEmpty(core.webServer.requestPathPage) ? "empty" : core.webServer.requestPathPage) + "]";
             result += ", " + message.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", " ");
+            //
+            // -- add to doc exception list to display at top of webpage
+            if (!addtoUI) { return result; }
+            if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
+            if (core.doc.errorList.Count < 10) {
+                core.doc.errorList.Add(result);
+                return result;
+            }
+
             return result;
         }
-        //
-        //=============================================================================
-        /// <summary>
-        /// log Executed queries, user authenticated, session expired
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logDebug(CoreController core, string message) => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Debug);
-        //
-        //=============================================================================
-        /// <summary>
-        /// log application crashes / exceptions
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logError(CoreController core, string message) => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Error);
         //
         //=============================================================================
         /// <summary>
@@ -139,7 +131,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="messageLine"></param>
         /// <param name="level"></param>
-        public static void logLocalOnly(string messageLine, BaseClasses.CPLogBaseClass.LogLevel level) {
+        public static void logShortLine(string messageLine, BaseClasses.CPLogBaseClass.LogLevel level) {
             try {
                 var nlogLogger = LogManager.GetCurrentClassLogger();
                 nlogLogger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), nlogLogger.Name, messageLine));
@@ -157,17 +149,18 @@ namespace Contensive.Processor.Controllers {
         /// <param name="level"></param>
         public static void log(CoreController core, string message, BaseClasses.CPLogBaseClass.LogLevel level) {
             try {
-                string messageLine = getMessageLine(core, message);
-                Logger loggerInstance = core.nlogLogger;
+                string messageLine = getMessageLine(core, message, level >= BaseClasses.CPLogBaseClass.LogLevel.Warn);
+                //Logger loggerInstance = core.nlogLogger;
+                Logger loggerInstance = LogManager.GetCurrentClassLogger();
                 loggerInstance.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), loggerInstance.Name, messageLine));
-                //
-                // -- add to doc exception list to display at top of webpage
-                if (level < BaseClasses.CPLogBaseClass.LogLevel.Warn) { return; }
-                if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
-                if (core.doc.errorList.Count < 10) {
-                    core.doc.errorList.Add(messageLine);
-                    return;
-                }
+                ////
+                //// -- add to doc exception list to display at top of webpage
+                //if (level < BaseClasses.CPLogBaseClass.LogLevel.Warn) { return; }
+                //if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
+                //if (core.doc.errorList.Count < 10) {
+                //    core.doc.errorList.Add(messageLine);
+                //    return;
+                //}
                 if (core.doc.errorList.Count == 10) { core.doc.errorList.Add("Exception limit exceeded"); }
             } catch (Exception) {
                 // -- throw away errors in error-handling
@@ -356,7 +349,7 @@ namespace Contensive.Processor.Controllers {
         public static void logAlarm(CoreController core, string cause) {
             LogController.logFatal(core, "logAlarm: " + cause);
             DateTime now = DateTime.Now;
-            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000") + now.Month.ToString("00") + now.Day.ToString("00") + "-alarms.log", getMessageLine(core, now.ToString() + ", [" + cause + "]"));
+            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000") + now.Month.ToString("00") + now.Day.ToString("00") + "-alarms.log", getMessageLine(core, now.ToString() + ", [" + cause + "]",true));
 
         }
     }

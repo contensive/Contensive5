@@ -134,11 +134,11 @@ namespace Contensive.Processor.Controllers {
             } catch (RedisConnectionException ex) {
                 //
                 // -- could not connect
-                LogController.logError(core, ex, "Exception initializing Redis connection, will continue with cache disabled.");
+                logger.Error(ex, LogController.getMessageLine(core, "Exception initializing Redis connection, will continue with cache disabled.", true));
             } catch (Exception ex) {
                 //
                 // -- mystery except, buyt cannot let a connection error take down the application
-                LogController.logError(core, ex, "Exception initializing remote cache, will continue with cache disabled.");
+                logger.Error(ex, LogController.getMessageLine(core, "Exception initializing remote cache, will continue with cache disabled.", true));
             }
         }
         //
@@ -174,7 +174,7 @@ namespace Contensive.Processor.Controllers {
                 if (dateCompare >= 0) {
                     //
                     // -- global invalidation
-                    LogController.logTrace(core, "keyHash [" + keyHash + "], invalidated because cacheObject saveDate [" + cacheDocument.saveDate + "] is before the globalInvalidationDate [" + globalInvalidationDate + "]");
+                    logger.Trace(LogController.getMessageLine(core, "keyHash [" + keyHash + "], invalidated because cacheObject saveDate [" + cacheDocument.saveDate + "] is before the globalInvalidationDate [" + globalInvalidationDate + "]", false));
                     return default;
                 }
                 //
@@ -195,7 +195,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- invalidate because a dependent document was changed after the cacheDocument was saved
                             cacheMiss = true;
-                            LogController.logTrace(core, "keyHash [" + keyHash + "], invalidated because the dependentKeyHash [" + dependentKeyHash + "] was modified [" + dependantCacheDocument.saveDate + "] after the cacheDocument's saveDate [" + cacheDocument.saveDate + "]");
+                            logger.Trace(LogController.getMessageLine(core, "keyHash [" + keyHash + "], invalidated because the dependentKeyHash [" + dependentKeyHash + "] was modified [" + dependantCacheDocument.saveDate + "] after the cacheDocument's saveDate [" + cacheDocument.saveDate + "]", false));
                             break;
                         }
                     }
@@ -226,14 +226,14 @@ namespace Contensive.Processor.Controllers {
                         } catch (Exception ex) {
                             //
                             // -- object value did not match. return as miss
-                            LogController.logWarn(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]");
+                            logger.Warn(LogController.getMessageLine(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]",true));
                             result = default;
                         }
                     }
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
                 return default;
             }
         }
@@ -296,27 +296,13 @@ namespace Contensive.Processor.Controllers {
                     try {
                         RedisKey redisKey = new RedisKey(keyHash.hash);
                         RedisValue redisValue = redisDb.StringGet(redisKey);
-                        if(!redisValue.IsNull) {
+                        if (!redisValue.IsNull) {
                             result = Newtonsoft.Json.JsonConvert.DeserializeObject<CacheDocumentClass>(redisValue);
                         }
                         //result = cacheClientMemCacheD.Get<CacheDocumentClass>(keyHash.hash);
                     } catch (Exception ex) {
-                        LogController.logError(core, ex);
+                        logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
                         throw;
-                        ////
-                        //// --memcachd -- client does not throw its own errors, so try to differentiate by message
-                        //if (ex.Message.ToLowerInvariant().IndexOf("unable to load type") >= 0) {
-                        //    //
-                        //    // -- trying to deserialize an object and this code does not have a matching class, clear cache and return empty
-                        //    LogController.logWarn(core, ex);
-                        //    cacheClientMemCacheD.Remove(keyHash.hash);
-                        //    result = null;
-                        //} else {
-                        //    //
-                        //    // -- some other error
-                        //    LogController.logError(core, ex);
-                        //    throw;
-                        //}
                     }
                 }
                 if ((result == null) && core.serverConfig.enableLocalMemoryCache) {
@@ -345,14 +331,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- log result
                 if (result == null) {
-                    LogController.logTrace(core, "miss, cacheType [" + typeMessage + "], key [" + keyHash.key + "]");
+                    logger.Trace(LogController.getMessageLine(core, "miss, cacheType [" + typeMessage + "], key [" + keyHash.key + "]", false));
                 } else {
                     if (result.content == null) {
-                        LogController.logTrace(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [null]");
+                        logger.Trace(LogController.getMessageLine(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [null]", false));
                     } else {
                         string content = result.content.ToString();
                         content = (content.Length > 50) ? (content.left(50) + "...") : content;
-                        LogController.logTrace(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [" + content + "]");
+                        logger.Trace(LogController.getMessageLine(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [" + content + "]", false));
                     }
                 }
                 //
@@ -366,7 +352,7 @@ namespace Contensive.Processor.Controllers {
                 }
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
                 throw;
             }
             return result;
@@ -426,7 +412,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 storeCacheDocument(keyHash, cacheDocument);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
             }
         }
         //
@@ -583,7 +569,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 storeCacheDocument(keyPtrHash, cacheDocument);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
             }
         }
         //
@@ -611,7 +597,7 @@ namespace Contensive.Processor.Controllers {
                 storeCacheDocument(keyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = core.dateTimeNowMockable });
                 _globalInvalidationDate = null;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
                 throw;
             }
         }
@@ -621,20 +607,19 @@ namespace Contensive.Processor.Controllers {
         /// invalidate a key
         /// </summary>
         /// <param name="key">The text name for the cache entry.</param>
-        /// <param name="recursionLimit"></param>
         public void invalidate(string key) {
             invalidate(createKeyHash(key), 5);
         }
         //
         //====================================================================================================
-        // <summary>
-        // invalidates a tag
-        // </summary>
-        // <param name="tag"></param>
-        // <remarks></remarks>
+        /// <summary>
+        /// invalidates a tag
+        /// </summary>
+        /// <param name="keyHash"></param>
+        /// <param name="recursionLimit"></param>
         public void invalidate(CacheKeyHashClass keyHash, int recursionLimit = 5) {
             try {
-                Controllers.LogController.logTrace(core, "invalidate, keyHash [" + keyHash + "], recursionLimit [" + recursionLimit + "]");
+                logger.Trace(LogController.getMessageLine(core, "invalidate, keyHash [key:" + keyHash.key + "], recursionLimit [" + recursionLimit + "]", false));
                 if ((recursionLimit > 0) && (keyHash != null)) {
                     //CacheKeyHashClass keyHash = createKeyHash(key);
                     //
@@ -657,7 +642,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
                 throw;
             }
         }
@@ -684,7 +669,7 @@ namespace Contensive.Processor.Controllers {
                     invalidate(key);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
                 throw;
             }
         }
@@ -907,22 +892,16 @@ namespace Contensive.Processor.Controllers {
                         // -- save remote cache
                         var redisKey = new RedisKey(keyHash.hash);
                         string jsonCacheDocument = Newtonsoft.Json.JsonConvert.SerializeObject(cacheDocument);
-                        var redisValue = new RedisValue( jsonCacheDocument);
+                        var redisValue = new RedisValue(jsonCacheDocument);
                         TimeSpan? redisTimeSpan = cacheDocument.invalidationDate.Subtract(DateTime.Now);
                         redisDb.StringSet(redisKey, redisValue, redisTimeSpan);
-
-                        //if (!cacheClientMemCacheD.Store(Enyim.Caching.Memcached.StoreMode.Set, keyHash.hash, cacheDocument, cacheDocument.invalidationDate)) {
-                        //    //
-                        //    // -- store failed
-                        //    LogController.logError(core, "Enyim cacheClient.Store failed, no details available.");
-                        //}
                     }
                 }
                 //
-                LogController.logTrace(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to [" + string.Join(",", cacheDocument.keyPtrHash) + "]");
+                logger.Trace(LogController.getMessageLine(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to [" + string.Join(",", cacheDocument.keyPtrHash) + "]", false));
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
             }
         }
         //
@@ -1048,6 +1027,11 @@ namespace Contensive.Processor.Controllers {
             }
         }
         #endregion
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
-    //
 }

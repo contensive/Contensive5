@@ -341,16 +341,16 @@ namespace Contensive.Processor.Controllers {
             get {
                 if (_requestCookies != null) { return _requestCookies; }
                 //
-                LogController.logLocalOnly("WebServerController.requestCookies, build 1", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("WebServerController.requestCookies, build 1", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 _requestCookies = new Dictionary<string, CookieClass>();
                 if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Cookies == null)) return _requestCookies;
                 //
-                LogController.logLocalOnly("WebServerController.requestCookies, build 2", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("WebServerController.requestCookies, build 2", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 foreach (KeyValuePair<string, HttpContextRequestCookie> kvp in httpContext.Request.Cookies) {
                     //
-                    LogController.logLocalOnly("WebServerController.requestCookies, build 3", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                    LogController.logShortLine("WebServerController.requestCookies, build 3", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                     //
                     _requestCookies.Add(kvp.Key, new CookieClass() { name = kvp.Key, value = kvp.Value.Value });                    
                 }
@@ -457,8 +457,8 @@ namespace Contensive.Processor.Controllers {
         public bool initHttpContext() {
             try {
                 //
-                LogController.logLocalOnly("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                LogController.logLocalOnly("initHttpContext, httpContext.Request.Cookies.Count [" + httpContext.Request.Cookies.Count + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("initHttpContext, httpContext.Request.Cookies.Count [" + httpContext.Request.Cookies.Count + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 // -- must have valid context, else non http 
                 if (httpContext == null) { return false; }
@@ -647,11 +647,11 @@ namespace Contensive.Processor.Controllers {
                 // ----- Style tag
                 adminMessage = "For more information, please contact the <a href=\"mailto:" + core.siteProperties.emailAdmin + "?subject=Re: " + requestDomain + "\">Site Administrator</A>.";                //
                 //
-                LogController.logLocalOnly("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
             } catch (Exception ex) {
                 //
-                LogController.logLocalOnly("initHttpContext, exception", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("initHttpContext, exception", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 LogController.logError(core, ex);
                 throw;

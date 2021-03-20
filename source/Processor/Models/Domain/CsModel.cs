@@ -85,6 +85,12 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
+        /// <summary>
         /// constructor
         /// </summary>
         /// <param name="core"></param>
@@ -116,6 +122,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
+                Logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
                 LogController.logError(core, ex);
                 throw;
             }
@@ -1162,10 +1169,6 @@ namespace Contensive.Processor {
                             //
                             if (GenericController.encodeText(rawValueForDb) != getText(field.nameLc)) {
                                 SetNeeded = true;
-                                // -- this just junks up the log - it is not actiinoable. if the db is too small, it will error out anyway
-                                //if (rawValueForDb.Length > 255) {
-                                //    LogController.logWarn(core, new GenericException("Text length too long saving field [" + contentMeta.name + "." + fieldName + "], length [" + rawValueForDb.Length + "], but max for Text field is 255. Save will be attempted"));
-                                //}
                             }
                             break;
                         }
@@ -1177,10 +1180,6 @@ namespace Contensive.Processor {
                             //
                             if (GenericController.encodeText(rawValueForDb) != getText(field.nameLc)) {
                                 SetNeeded = true;
-                                // -- this just junks up the log - it is not actiinoable. if the db is too small, it will error out anyway
-                                //if (rawValueForDb.Length > 65535) {
-                                //    LogController.logWarn(core, new GenericException("Text length too long saving field [" + contentMeta.name + "." + fieldName + "], length [" + rawValueForDb.Length + "], but max for LongText and Html is 65535. Save will be attempted"));
-                                //}
                             }
                             break;
                         }
@@ -1481,6 +1480,8 @@ namespace Contensive.Processor {
                         if (!string.IsNullOrEmpty(sqlUpdate)) {
                             string sql = "update " + this.contentMeta.tableName + " set " + sqlUpdate + " where id=" + id + ";";
                             if (asyncSave) {
+                                //
+                                // -- send to queue or cache for execution later
                                 db.executeNonQuery(sql);
                             } else {
                                 db.executeNonQuery(sql);
@@ -1495,6 +1496,7 @@ namespace Contensive.Processor {
                     }
                 }
                 //
+                Logger.Trace(LogController.getMessageLine(core, "save, exit", false));
                 Controllers.LogController.logTrace(core, "save, exit");
                 //
             } catch (Exception ex) {
@@ -1953,8 +1955,6 @@ namespace Contensive.Processor {
         /// <param name="sqlOrderBy"></param>
         /// <param name="activeOnly"></param>
         /// <param name="memberId"></param>
-        /// <param name="ignorefalse2"></param>
-        /// <param name="ignorefalse"></param>
         /// <param name="sqlSelectFieldList"></param>
         /// <param name="pageSize"></param>
         /// <param name="pageNumber">1 based page number</param>

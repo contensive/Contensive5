@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.Tools {
                     //
                     //
                     //
-                    LogController.logDebug(core, "Restarting IIS");
+                    core.cpParent.Log.Debug("Restarting IIS");
                     core.webServer.redirect("" + cdnPrefix + "Popup/WaitForIISReset.htm", "Redirect to iis reset");
                     Thread.Sleep(2000);
                     var cmdDetail = new TaskModel.CmdDetailClass {

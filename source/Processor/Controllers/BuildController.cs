@@ -103,7 +103,8 @@ namespace Contensive.Processor.Controllers {
                             try {
                                 root.save(core.cpParent);
                             } catch (Exception ex) {
-                                LogController.logError(core, logPrefix + ", error prevented root user update. " + ex);
+                                string errMsg = "error prevented root user update";
+                                logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                             }
                         }
                         //
@@ -1144,5 +1145,11 @@ namespace Contensive.Processor.Controllers {
             // -- convert the data to textblock and addonlist
             BuildDataMigrationController.convertPageContentToAddonList(core, landingPage);
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

@@ -144,7 +144,7 @@ namespace Contensive.Processor {
         //
         public override bool IsPageBuilderEditing {
             get {
-                return cp.core.session.IsPageBuilderEditing();
+                return cp.core.session.isPageBuilderEditing();
             }
         }
         //
@@ -152,7 +152,7 @@ namespace Contensive.Processor {
         //
         public override bool IsDebugging {
             get {
-                return cp.core.session.IsDebugging();
+                return cp.core.session.isDebugging();
             }
         }
         //

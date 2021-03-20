@@ -73,14 +73,22 @@ namespace Contensive.Processor.Controllers {
                     return true;
                 } catch (Exception ex) {
                     reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
-                    LogController.logError(core, "Unexpected exception during SES send" + logLongDetail + ", exception [" + ex + "]");
+                    string errMsg = "Unexpected exception during SES send" + logLongDetail + "";
+                    logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                     return false;
                 }
             } catch (Exception ex) {
                 reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
-                LogController.logError(core, "Unexpected exception during SES configure" + logLongDetail + ", exception [" + ex + "]");
+                string errMsg = "Unexpected exception during SES configure" + logLongDetail + "";
+                logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
                 return false;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }
