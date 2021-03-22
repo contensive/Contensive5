@@ -135,14 +135,6 @@ namespace Contensive.BaseClasses {
         public abstract string CreateTableDependencyKey(string tableName);
         //
         //====================================================================================================
-        //
-        //public abstract BaseModels.CacheKeyHashBaseModel CreateTableDependencyKeyHash(string tableName, string dataSourceName);
-        //
-        //====================================================================================================
-        //
-        //public abstract BaseModels.CacheKeyHashBaseModel CreateTableDependencyKeyHash(string tableName);
-        //
-        //====================================================================================================
         /// <summary>
         /// Updates the cache dependency key for this table that a record in this table has been modified
         /// </summary>
@@ -305,8 +297,6 @@ namespace Contensive.BaseClasses {
         //
         // Deprecated methods
         //
-        //public abstract void Save(string key, string Value);
-        //public abstract void Save(string key, string Value, string tagCommaList);
         /// <summary>
         /// Use InvalidateTableDependencyKey() instead
         /// </summary>

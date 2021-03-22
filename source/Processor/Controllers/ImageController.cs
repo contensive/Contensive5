@@ -1,6 +1,4 @@
-﻿
-using Contensive.Processor.Models.Domain;
-using SixLabors.ImageSharp;
+﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
@@ -207,5 +205,11 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

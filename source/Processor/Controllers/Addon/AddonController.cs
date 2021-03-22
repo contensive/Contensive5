@@ -62,12 +62,12 @@ namespace Contensive.Processor.Controllers {
         public static string convertAddonReturntoString(object AddonObjResult) {
             if (AddonObjResult == null) return string.Empty;
             if (AddonObjResult.GetType() == typeof(string)) { return (string)AddonObjResult; }
-            if (AddonObjResult.GetType() == typeof(int)) { return ((int)AddonObjResult).ToString(); }
-            if (AddonObjResult.GetType() == typeof(double)) { return ((double)AddonObjResult).ToString(); }
-            if (AddonObjResult.GetType() == typeof(bool)) { return ((bool)AddonObjResult).ToString(); }
-            if (AddonObjResult.GetType() == typeof(DateTime)) { return ((DateTime)AddonObjResult).ToString(); }
-            if (AddonObjResult == new object()) return string.Empty;
-            if (AddonObjResult.ToString() == "[undefined]") return string.Empty;
+            if (AddonObjResult.GetType() == typeof(int)) { return ((int)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
+            if (AddonObjResult.GetType() == typeof(double)) { return ((double)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
+            if (AddonObjResult.GetType() == typeof(bool)) { return ((bool)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
+            if (AddonObjResult.GetType() == typeof(DateTime)) { return ((DateTime)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
+            if (AddonObjResult == new object()) { return string.Empty; }
+            if (AddonObjResult.ToString() == "[undefined]") { return string.Empty; }
             return SerializeObject(AddonObjResult);
         }
         //
@@ -1526,7 +1526,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- addon not found
                     string errMsg = "executeAsync called with null addon model.";
-                    logger.Error(LogController.getMessageLine(core, errMsg, true));
+                    logger.Error(LogController.processLogMessage(core, errMsg, true));
                     return;
                 }
                 //

@@ -1,10 +1,7 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Microsoft.VisualBasic;
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using System;
 
 namespace Contensive.Processor.Controllers {
     public static class ExportLayoutController {
@@ -25,6 +22,11 @@ namespace Contensive.Processor.Controllers {
                 return string.Empty;
             }
         }
-        // 
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

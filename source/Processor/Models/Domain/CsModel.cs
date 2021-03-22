@@ -87,7 +87,7 @@ namespace Contensive.Processor {
         /// <summary>
         /// nlog class instance
         /// </summary>
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -122,7 +122,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                Logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
                 LogController.logError(core, ex);
                 throw;
             }
@@ -1496,8 +1496,7 @@ namespace Contensive.Processor {
                     }
                 }
                 //
-                Logger.Trace(LogController.getMessageLine(core, "save, exit", false));
-                Controllers.LogController.logTrace(core, "save, exit");
+                logger.Trace(LogController.processLogMessage(core, "save, exit", false));
                 //
             } catch (Exception ex) {
                 LogController.logError(core, ex);

@@ -1,8 +1,8 @@
 ﻿
+using Contensive.Processor.Models.Domain;
 using System;
 using System.Net.Mail;
 using System.Net.Mime;
-using Contensive.Processor.Models.Domain;
 //
 namespace Contensive.Processor.Controllers {
     public class EmailSmtpController {
@@ -63,12 +63,12 @@ namespace Contensive.Processor.Controllers {
                         status = true;
                     } catch (Exception ex) {
                         string errMsg = "There was an error sending email";
-                        Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                        Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                     }
                 }
             } catch (Exception ex) {
                 string errMsg = "There was an error configuring smtp server";
-                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 throw;
             }
             return status;

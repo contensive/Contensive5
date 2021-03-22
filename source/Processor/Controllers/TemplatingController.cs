@@ -16,5 +16,11 @@ namespace Contensive.Processor.Controllers {
             var templateCompiled = Handlebars.Compile(template);
             return templateCompiled(dataSet);
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

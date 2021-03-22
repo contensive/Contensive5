@@ -123,6 +123,9 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="propertyType"></param>
         public void setProperty(string key, string value, DocPropertyModel.DocPropertyTypesEnum propertyType) {
             try {
+                //
+                LogController.logTrace(core, "docPropertyModel.setProperty, key [" + key + "], value [" + value + "], propertyType [" + (int)propertyType + "]");
+                //
                 DocPropertyModel prop = new DocPropertyModel {
                     nameValue = key,
                     fileSize = 0,
@@ -282,7 +285,11 @@ namespace Contensive.Processor.Models.Domain {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// normalize/standardize a key for use in docproperties. Blank keys are skipped because they may be a data issue, not a code issue
+        /// </summary>
+        /// <param name="sourceKey"></param>
+        /// <returns></returns>
         private string encodeDocPropertyKey(string sourceKey) {
             string returnResult = "";
             try {

@@ -245,6 +245,12 @@ namespace Contensive.Processor.Controllers {
             => addTaskToQueue(core, cmdDetail, blockDuplicates, downloadName, "");
         //
         //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
         //
         #region  IDisposable Support 
         // Do not change or add Overridable to these methods.

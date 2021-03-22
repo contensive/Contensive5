@@ -104,7 +104,7 @@ namespace Contensive.Processor.Controllers {
                                 root.save(core.cpParent);
                             } catch (Exception ex) {
                                 string errMsg = "error prevented root user update";
-                                logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                                logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                             }
                         }
                         //

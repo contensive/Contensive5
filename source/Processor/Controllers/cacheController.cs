@@ -134,11 +134,11 @@ namespace Contensive.Processor.Controllers {
             } catch (RedisConnectionException ex) {
                 //
                 // -- could not connect
-                logger.Error(ex, LogController.getMessageLine(core, "Exception initializing Redis connection, will continue with cache disabled.", true));
+                logger.Error(ex, LogController.processLogMessage(core, "Exception initializing Redis connection, will continue with cache disabled.", true));
             } catch (Exception ex) {
                 //
                 // -- mystery except, buyt cannot let a connection error take down the application
-                logger.Error(ex, LogController.getMessageLine(core, "Exception initializing remote cache, will continue with cache disabled.", true));
+                logger.Error(ex, LogController.processLogMessage(core, "Exception initializing remote cache, will continue with cache disabled.", true));
             }
         }
         //
@@ -174,7 +174,7 @@ namespace Contensive.Processor.Controllers {
                 if (dateCompare >= 0) {
                     //
                     // -- global invalidation
-                    logger.Trace(LogController.getMessageLine(core, "keyHash [" + keyHash + "], invalidated because cacheObject saveDate [" + cacheDocument.saveDate + "] is before the globalInvalidationDate [" + globalInvalidationDate + "]", false));
+                    logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because cacheObject saveDate [" + cacheDocument.saveDate + "] is before the globalInvalidationDate [" + globalInvalidationDate + "]", false));
                     return default;
                 }
                 //
@@ -195,7 +195,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- invalidate because a dependent document was changed after the cacheDocument was saved
                             cacheMiss = true;
-                            logger.Trace(LogController.getMessageLine(core, "keyHash [" + keyHash + "], invalidated because the dependentKeyHash [" + dependentKeyHash + "] was modified [" + dependantCacheDocument.saveDate + "] after the cacheDocument's saveDate [" + cacheDocument.saveDate + "]", false));
+                            logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because the dependentKeyHash [" + dependentKeyHash + "] was modified [" + dependantCacheDocument.saveDate + "] after the cacheDocument's saveDate [" + cacheDocument.saveDate + "]", false));
                             break;
                         }
                     }
@@ -226,14 +226,14 @@ namespace Contensive.Processor.Controllers {
                         } catch (Exception ex) {
                             //
                             // -- object value did not match. return as miss
-                            logger.Warn(LogController.getMessageLine(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]",true));
+                            logger.Warn(LogController.processLogMessage(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]",true));
                             result = default;
                         }
                     }
                 }
                 return result;
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
                 return default;
             }
         }
@@ -301,7 +301,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //result = cacheClientMemCacheD.Get<CacheDocumentClass>(keyHash.hash);
                     } catch (Exception ex) {
-                        logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                        logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
                         throw;
                     }
                 }
@@ -331,14 +331,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- log result
                 if (result == null) {
-                    logger.Trace(LogController.getMessageLine(core, "miss, cacheType [" + typeMessage + "], key [" + keyHash.key + "]", false));
+                    logger.Trace(LogController.processLogMessage(core, "miss, cacheType [" + typeMessage + "], key [" + keyHash.key + "]", false));
                 } else {
                     if (result.content == null) {
-                        logger.Trace(LogController.getMessageLine(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [null]", false));
+                        logger.Trace(LogController.processLogMessage(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [null]", false));
                     } else {
                         string content = result.content.ToString();
                         content = (content.Length > 50) ? (content.left(50) + "...") : content;
-                        logger.Trace(LogController.getMessageLine(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [" + content + "]", false));
+                        logger.Trace(LogController.processLogMessage(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [" + content + "]", false));
                     }
                 }
                 //
@@ -352,7 +352,7 @@ namespace Contensive.Processor.Controllers {
                 }
 
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
                 throw;
             }
             return result;
@@ -412,7 +412,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 storeCacheDocument(keyHash, cacheDocument);
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
             }
         }
         //
@@ -569,7 +569,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 storeCacheDocument(keyPtrHash, cacheDocument);
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
             }
         }
         //
@@ -597,7 +597,7 @@ namespace Contensive.Processor.Controllers {
                 storeCacheDocument(keyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = core.dateTimeNowMockable });
                 _globalInvalidationDate = null;
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
                 throw;
             }
         }
@@ -619,7 +619,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recursionLimit"></param>
         public void invalidate(CacheKeyHashClass keyHash, int recursionLimit = 5) {
             try {
-                logger.Trace(LogController.getMessageLine(core, "invalidate, keyHash [key:" + keyHash.key + "], recursionLimit [" + recursionLimit + "]", false));
+                logger.Trace(LogController.processLogMessage(core, "invalidate, keyHash [key:" + keyHash.key + "], recursionLimit [" + recursionLimit + "]", false));
                 if ((recursionLimit > 0) && (keyHash != null)) {
                     //CacheKeyHashClass keyHash = createKeyHash(key);
                     //
@@ -642,7 +642,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
                 throw;
             }
         }
@@ -669,7 +669,7 @@ namespace Contensive.Processor.Controllers {
                     invalidate(key);
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
                 throw;
             }
         }
@@ -898,10 +898,10 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                logger.Trace(LogController.getMessageLine(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to [" + string.Join(",", cacheDocument.keyPtrHash) + "]", false));
+                logger.Trace(LogController.processLogMessage(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to [" + string.Join(",", cacheDocument.keyPtrHash) + "]", false));
                 //
             } catch (Exception ex) {
-                logger.Error(ex, LogController.getMessageLine(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
             }
         }
         //

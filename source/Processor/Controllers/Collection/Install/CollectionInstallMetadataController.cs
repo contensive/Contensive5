@@ -1,15 +1,15 @@
 ﻿
-using System;
-using System.Xml;
-using System.Collections.Generic;
-using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
-using Contensive.Processor.Models.Domain;
-using System.Linq;
-using Contensive.Processor.Exceptions;
 using Contensive.Models.Db;
-using System.Text;
+using Contensive.Processor.Exceptions;
+using Contensive.Processor.Models.Domain;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
+using System.Xml;
+using static Contensive.Processor.Constants;
+using static Contensive.Processor.Controllers.GenericController;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -54,7 +54,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- xml load error
                         string errMsg = "Upgrademetadata_LoadDataToCollection Error reading xml archive";
-                        Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                        Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                         throw new GenericException("Error in Upgrademetadata_LoadDataToCollection, during doc.loadXml()", ex);
                     }
                     if ((srcXmlDom.DocumentElement.Name.ToLowerInvariant() != CollectionFileRootNode) && (srcXmlDom.DocumentElement.Name.ToLowerInvariant() != "contensivecdef")) {

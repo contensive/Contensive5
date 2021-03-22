@@ -35,7 +35,7 @@ namespace Contensive.Processor.Controllers {
                 return fileName;
             } catch (Exception ex) {
                 string errMsg = "Error creating TEMP file or seting attributes";
-                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 throw;
             }
         }
@@ -57,7 +57,7 @@ namespace Contensive.Processor.Controllers {
                 streamWriter.Close();
             } catch (Exception ex) {
                 string errMsg = "Error writing to TEMP file";
-                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 throw;
             }
         }
@@ -76,7 +76,7 @@ namespace Contensive.Processor.Controllers {
                 myReader.Close();
             } catch (Exception ex) {
                 string errMsg = "Error reading TEMP file";
-                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 throw;
             }
         }
@@ -96,7 +96,7 @@ namespace Contensive.Processor.Controllers {
                 }
             } catch (Exception ex) {
                 string errMsg = "Error deleting TEMP file";
-                Logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 throw;
             }
         }

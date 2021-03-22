@@ -1,11 +1,10 @@
 ﻿
-using System;
-using System.Collections.Generic;
 using Amazon.SimpleEmail;
 using Amazon.SimpleEmail.Model;
-using Amazon;
 using Contensive.Processor.Extensions;
 using Contensive.Processor.Models.Domain;
+using System;
+using System.Collections.Generic;
 //
 namespace Contensive.Processor.Controllers {
     public static class AwsSesController {
@@ -74,13 +73,13 @@ namespace Contensive.Processor.Controllers {
                 } catch (Exception ex) {
                     reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
                     string errMsg = "Unexpected exception during SES send" + logLongDetail + "";
-                    logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                    logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                     return false;
                 }
             } catch (Exception ex) {
                 reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
                 string errMsg = "Unexpected exception during SES configure" + logLongDetail + "";
-                logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 return false;
             }
         }

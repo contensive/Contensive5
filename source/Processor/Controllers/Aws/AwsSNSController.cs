@@ -1,15 +1,10 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using Amazon.SimpleEmail;
-using Amazon.SimpleEmail.Model;
-using Amazon;
-using Contensive.Processor.Models.Domain;
-using Amazon.SimpleNotificationService;
 using Amazon.Runtime;
-using Amazon.Runtime.CredentialManagement;
+using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using Contensive.Processor.Extensions;
+using System;
+using System.Collections.Generic;
 
 //
 namespace Contensive.Processor.Controllers {
@@ -65,5 +60,11 @@ namespace Contensive.Processor.Controllers {
         public void subscribeQueue( CoreController core, AmazonSimpleNotificationServiceClient snsClient, AmazonSQSClient sqsClient, string topicArn, string queueURL) {
             snsClient.SubscribeQueueAsync(topicArn, sqsClient, queueURL).WaitSynchronously();
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

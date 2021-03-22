@@ -347,6 +347,12 @@ namespace Contensive.Processor.Controllers {
             public DateTime? editLockExpiresDate { get; set; }
         }
         //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        //
         //==========================================================================================
         #region  IDisposable Support 
         protected bool disposed;

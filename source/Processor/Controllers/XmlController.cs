@@ -1041,5 +1041,11 @@ namespace Contensive.Processor.Controllers {
         public static int getXMLAttributeInteger(CoreController core, ref bool Found, XmlNode Node, string Name, int DefaultIfNotFound) {
             return GenericController.encodeInteger(getXMLAttribute(core, ref Found, Node, Name, DefaultIfNotFound.ToString()));
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

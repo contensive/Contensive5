@@ -5,6 +5,7 @@ using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
 
 namespace Contensive.Processor {
+    //
     public class CPSiteClass : BaseClasses.CPSiteBaseClass, IDisposable {
         //
         private readonly CPClass cp;
@@ -157,33 +158,57 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="userID"></param>
+        /// <param name="organizationId"></param>
         public override void LogActivity(string message, int userID, int organizationId) {
             LogController.addSiteActivity(cp.core, message, 0, userID, organizationId);
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="typeOfWarningKey"></param>
+        /// <param name="instanceKey"></param>
         public override void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey) {
             LogController.addSiteWarning(cp.core, name, description, "", 0, description, typeOfWarningKey, instanceKey);
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cause"></param>
         public override void LogAlarm(string cause) {
             LogController.logAlarm(cp.core, cause);
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         public override void ErrorReport(string message) {
             LogController.log(cp.core, message , BaseClasses.CPLogBaseClass.LogLevel.Error);
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="message"></param>
         public override void ErrorReport(System.Exception ex, string message) {
             LogController.log(cp.core, message + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ex"></param>
         public override void ErrorReport(System.Exception ex) {
             LogController.log(cp.core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
         }
@@ -194,77 +219,123 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="message"></param>
         public override void TestPoint(string message) 
-            => Logger.Error(LogController.getMessageLine(cp.core, message, true ));
+            => Logger.Trace(LogController.processLogMessage(cp.core, "testpoint:" + message, false ));
 
         //
         //====================================================================================================
-        //
-        public override string ThrowEvent(string eventNameIdOrGuid) => cp.core.addon.throwEvent(eventNameIdOrGuid);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="eventNameIdOrGuid"></param>
+        /// <returns></returns>
+        public override string ThrowEvent(string eventNameIdOrGuid) 
+            => cp.core.addon.throwEvent(eventNameIdOrGuid);
         //
         //====================================================================================================
         // Deprecated
-        //
+        /// <summary>
+        /// 
+        /// </summary>
         [Obsolete("Deprecated.", false)]
         public override bool MultiDomainMode { get { return false; } }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="DefaultValue"></param>
+        /// <returns></returns>
         [Obsolete("Use GetText()", false)]
         public override string GetProperty(string propertyName, string DefaultValue) {
             return cp.core.siteProperties.getText(propertyName, DefaultValue);
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <returns></returns>
         [Obsolete("Use GetText()", false)]
         public override string GetProperty(string propertyName) {
             return cp.core.siteProperties.getText(propertyName, "");
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="DefaultValue"></param>
+        /// <returns></returns>
         [Obsolete("Use methods with matching types", false)]
         public override bool GetBoolean(string propertyName, string DefaultValue) {
             return cp.core.siteProperties.getBoolean(propertyName, GenericController.encodeBoolean(DefaultValue));
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="DefaultValue"></param>
+        /// <returns></returns>
         [Obsolete("Use methods with matching types", false)]
         public override DateTime GetDate(string propertyName, string DefaultValue) {
             return cp.core.siteProperties.getDate(propertyName, GenericController.encodeDate(DefaultValue));
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="DefaultValue"></param>
+        /// <returns></returns>
         [Obsolete("Use methods with matching types", false)]
         public override int GetInteger(string propertyName, string DefaultValue) {
             return cp.core.siteProperties.getInteger(propertyName, GenericController.encodeInteger(DefaultValue));
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="propertyName"></param>
+        /// <param name="DefaultValue"></param>
+        /// <returns></returns>
         [Obsolete("Deprecated.", false)]
         public override double GetNumber(string propertyName, string DefaultValue) {
             return cp.core.siteProperties.getNumber(propertyName, GenericController.encodeNumber(DefaultValue));
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
         [Obsolete("Deprecated, please use cp.cdnFiles, cp.privateFiles, cp.WwwFiles, or cp.TempFiles instead.", false)]
         public override string PhysicalFilePath {
             get {
                 return cp.core.cdnFiles.localAbsRootPath;
             }
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
         [Obsolete("Deprecated, please use cp.cdnFiles, cp.privateFiles, cp.WwwFiles, or cp.TempFiles instead.", false)]
         public override string PhysicalInstallPath {
             get {
                 return cp.core.privateFiles.localAbsRootPath;
             }
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
         [Obsolete("Deprecated, please use cp.cdnFiles, cp.privateFiles, cp.WwwFiles, or cp.TempFiles instead.", false)]
         public override string PhysicalWWWPath {
             get {
                 return cp.core.wwwFiles.localAbsRootPath;
             }
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
         [Obsolete("Deprecated.", false)]
         public override bool TrapErrors {
             get {
                 return GenericController.encodeBoolean(GetProperty("TrapErrors", "1"));
             }
         }
-        //
+        /// <summary>
+        /// 
+        /// </summary>
         [Obsolete("Deprecated.", false)]
         public override string AppPath {
             get {

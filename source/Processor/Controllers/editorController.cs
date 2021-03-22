@@ -161,6 +161,12 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
         #region  IDisposable Support 
         //
         // this class must implement System.IDisposable

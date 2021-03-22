@@ -160,7 +160,7 @@ namespace Contensive.Processor.Controllers {
         public static SessionController create(CoreController core, bool trackVisits) {
             //
             Logger.Trace("SessionController.create, enter");
-            Logger.Trace(LogController.getMessageLine(core, "SessionController.create, enter", false));
+            Logger.Trace(LogController.processLogMessage(core, "SessionController.create, enter", false));
             LogController.logTrace(core, "SessionController.create, enter");
             //
             SessionController resultSessionContext = null;
@@ -696,8 +696,7 @@ namespace Contensive.Processor.Controllers {
         public void logout() {
             try {
                 //
-                Logger.Trace(LogController.getMessageLine(core, "SessionController.logout, enter", false));
-                LogController.logTrace(core, "SessionController.logout, enter");
+                Logger.Trace(LogController.processLogMessage(core, "SessionController.logout, enter", false));
                 //
                 LogController.addSiteActivity(core, "logout", user.id, user.organizationId);
                 //
@@ -744,10 +743,9 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
-        /// <param name="requirePassword">If true, the noPassword option is disabled</param>
+        /// <param name="requestIncludesPassword">If true, the noPassword option is disabled</param>
         /// <returns></returns>
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "<Pending>")]
-        public int getUserIdForUsernameCredentials(string username, string password, bool requirePassword) {
+        public int getUserIdForUsernameCredentials(string username, string password, bool requestIncludesPassword) {
             try {
                 //
                 LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials enter");
@@ -755,16 +753,22 @@ namespace Contensive.Processor.Controllers {
                 bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin);
                 if (string.IsNullOrEmpty(username)) {
                     //
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, username blank");
+                    //
                     // -- username blank, stop here
                     return 0;
                 }
-                bool allowNoPassword = !requirePassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
+                bool allowNoPassword = !requestIncludesPassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
                 if (string.IsNullOrEmpty(password) && !allowNoPassword) {
+                    //
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, password blank");
                     //
                     // -- password blank, stop here
                     return 0;
                 }
                 if (visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts) {
+                    //
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, maxVisitLoginAttempts reached");
                     //
                     // ----- already tried 5 times
                     return 0;
@@ -772,9 +776,13 @@ namespace Contensive.Processor.Controllers {
                 string Criteria;
                 if (allowEmailLogin) {
                     //
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt email login");
+                    //
                     // -- login by username or email
                     Criteria = "((username=" + DbController.encodeSQLText(username) + ")or(email=" + DbController.encodeSQLText(username) + "))";
                 } else {
+                    //
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt username login");
                     //
                     // -- login by username only
                     Criteria = "(username=" + DbController.encodeSQLText(username) + ")";
@@ -783,10 +791,14 @@ namespace Contensive.Processor.Controllers {
                 using (var cs = new CsModel(core)) {
                     if (!cs.open("People", Criteria, "id", true, user.id, "ID,password,admin,developer", PageSize: 2)) {
                         //
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, user record not found");
+                        //
                         // -- fail, username not found, stop here
                         return 0;
                     }
                     if (cs.getRowCount() > 1) {
+                        //
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, multiple users found");
                         //
                         // -- fail, multiple matches
                         return 0;
@@ -796,9 +808,13 @@ namespace Contensive.Processor.Controllers {
                         // -- password mode
                         if (!string.IsNullOrEmpty(password) && password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
                             //
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
+                            //
                             // -- success, password match
                             return cs.getInteger("ID");
                         }
+                        //
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
                         //
                         // -- fail, blank or incorrect password
                         return 0;
@@ -807,29 +823,35 @@ namespace Contensive.Processor.Controllers {
                     // -- no-password mode
                     if (cs.getBoolean("admin") || cs.getBoolean("developer")) {
                         //
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode matched admin/dev");
+                        //
                         // -- fail, no-password-mode and match is admin/dev
                         return 0;
                     }
                     //
                     // -- no-password auth cannot be content manager
-                    using (var csRules = new CsModel(core)) {
-                        string SQL = ""
-                            + " select ccGroupRules.ContentID"
-                            + " from ccGroupRules right join ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
-                            + " where (1=1)"
-                            + " and(ccMemberRules.memberId=" + cs.getInteger("ID") + ")"
-                            + " and(ccMemberRules.active>0)"
-                            + " and(ccGroupRules.active>0)"
-                            + " and(ccGroupRules.ContentID Is not Null)"
-                            + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
-                            + ");";
-                        if (!csRules.openSql(SQL)) {
-                            //
-                            // -- success, match is not content manager
-                            return cs.getInteger("ID");
-                        }
+                    using var csRules = new CsModel(core);
+                    string SQL = ""
+                        + " select ccGroupRules.ContentID"
+                        + " from ccGroupRules right join ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
+                        + " where (1=1)"
+                        + " and(ccMemberRules.memberId=" + cs.getInteger("ID") + ")"
+                        + " and(ccMemberRules.active>0)"
+                        + " and(ccGroupRules.active>0)"
+                        + " and(ccGroupRules.ContentID Is not Null)"
+                        + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
+                        + ");";
+                    if (!csRules.openSql(SQL)) {
+                        //
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
+                        //
+                        // -- success, match is not content manager
+                        return cs.getInteger("ID");
                     }
                 }
+                //
+                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, exit with no  match");
+                //
                 return 0;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1079,14 +1101,96 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
-        /// true if editing any content
+        /// true if editing enabled and user is admin
         /// </summary>
         /// <returns></returns>
         public bool isEditing() {
-            //
-            LogController.logTrace(core, "SessionController.isEditing, enter");
-            //
-            return isEditing("");
+            try {
+                //
+                LogController.logTrace(core, "SessionController.isEditing");
+                //
+                // -- return true if admin and editing is turned on
+                if (!isAuthenticated) { return false; }
+                bool editingSiteProperty = core.visitProperty.getBoolean("AllowEditing") || core.visitProperty.getBoolean("AllowAdvancedEditor");
+                if (!editingSiteProperty) { return false; }
+                return editingSiteProperty && (core.session.user.admin || core.session.user.developer);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// true if editing the content from content id. If contentId is 0, or not a valid content, return false
+        /// </summary>
+        /// <param name="contentId"></param>
+        /// <returns></returns>
+        public bool isEditing_ContentId(int contentId) {
+            try {
+                //
+                LogController.logTrace(core, "SessionController.isEditing, contentid [" + contentId + "]");
+                //
+                if (contentId <= 0) { return false; }
+                if (!isAuthenticated) { return false; }
+                string contentName = MetadataController.getContentNameByID(core, contentId);
+                if (string.IsNullOrEmpty(contentName)) { return false; }
+                return isEditing_ContentName(contentName);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// true if editing the content from content name. If contentName is blank, returns true of admin.
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <returns></returns>
+        public bool isEditing_ContentName(string contentName) {
+            try {
+                if (string.IsNullOrEmpty(contentName)) { return isEditing(); }
+                //
+                LogController.logTrace(core, "SessionController.isEditing [" + contentName + "]");
+                //
+                // -- if empty contentid or contentName, return true if admin and editing is turned on
+                if (!isAuthenticated) { return false; }
+                bool editingSiteProperty = core.visitProperty.getBoolean("AllowEditing") || core.visitProperty.getBoolean("AllowAdvancedEditor");
+                if (!editingSiteProperty) { return false; }
+                if (editingSiteProperty && (core.session.user.admin || core.session.user.developer)) { return true; }
+                //
+                // -- is editing content (id or name)
+                string contentNameLc = contentName.ToLowerInvariant();
+                if (core.doc.contentIsEditingList.Contains(contentNameLc)) { return true; }
+                if (core.doc.contentNotEditingList.Contains(contentNameLc)) { return false; }
+                if (isAuthenticatedContentManager(contentNameLc)) {
+                    core.doc.contentIsEditingList.Add(contentNameLc);
+                    return true;
+                }
+                core.doc.contentNotEditingList.Add(contentNameLc);
+                return false;
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// True if editing a specific content
+        /// </summary>
+        /// <param name="contentNameOrId"></param>
+        /// <returns></returns>
+        public bool isEditing(string contentNameOrId) {
+            try {
+                if (string.IsNullOrEmpty(contentNameOrId)) { return isEditing(); }
+                if (contentNameOrId.isNumeric()) { return isEditing_ContentId(encodeInteger(contentNameOrId)); }
+                return isEditing_ContentName(contentNameOrId);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
         }
         //
         //========================================================================
@@ -1126,44 +1230,6 @@ namespace Contensive.Processor.Controllers {
             //
             if (!isAuthenticatedDeveloper()) { return false; }
             return core.visitProperty.getBoolean("AllowDebugging", false);
-        }
-        //
-        //
-        //========================================================================
-        /// <summary>
-        /// True if editing a specific content
-        /// </summary>
-        /// <param name="contentNameOrId"></param>
-        /// <returns></returns>
-        public bool isEditing(string contentNameOrId) {
-            bool result = false;
-            try {
-                //
-                LogController.logTrace(core, "SessionController.isEditing, enter");
-                //
-                if (!isAuthenticated) { return false; }
-                //
-                // -- if empty contentid or contentName, return true if admin and editing is turned on
-                if (string.IsNullOrWhiteSpace(contentNameOrId)) { return ((core.session.user.admin) || (core.session.user.developer)) && (core.visitProperty.getBoolean("AllowEditing") || core.visitProperty.getBoolean("AllowAdvancedEditor")); }
-                string cacheTestName = contentNameOrId.ToLowerInvariant();
-                if (core.doc.contentIsEditingList.Contains(cacheTestName)) { return true; }
-                if (core.doc.contentNotEditingList.Contains(cacheTestName)) { return false; }
-                if (core.visitProperty.getBoolean("AllowEditing") || core.visitProperty.getBoolean("AllowAdvancedEditor")) {
-                    if (contentNameOrId.isNumeric()) {
-                        contentNameOrId = MetadataController.getContentNameByID(core, encodeInteger(contentNameOrId));
-                    }
-                    result = isAuthenticatedContentManager(contentNameOrId);
-                }
-                if (result) {
-                    core.doc.contentIsEditingList.Add(cacheTestName);
-                } else {
-                    core.doc.contentNotEditingList.Add(cacheTestName);
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-            return result;
         }
         //
         //========================================================================
@@ -1244,5 +1310,11 @@ namespace Contensive.Processor.Controllers {
             result += "<br>" + Msg_WorkflowDisabled;
             return result;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

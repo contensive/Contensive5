@@ -340,18 +340,9 @@ namespace Contensive.Processor.Controllers {
         public Dictionary<string, CookieClass> requestCookies {
             get {
                 if (_requestCookies != null) { return _requestCookies; }
-                //
-                LogController.logShortLine("WebServerController.requestCookies, build 1", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                //
                 _requestCookies = new Dictionary<string, CookieClass>();
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Cookies == null)) return _requestCookies;
-                //
-                LogController.logShortLine("WebServerController.requestCookies, build 2", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                //
-                foreach (KeyValuePair<string, HttpContextRequestCookie> kvp in httpContext.Request.Cookies) {
-                    //
-                    LogController.logShortLine("WebServerController.requestCookies, build 3", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                    //
+                if (httpContext?.Request?.Cookies == null) return _requestCookies;
+                foreach (var kvp in httpContext.Request.Cookies) {
                     _requestCookies.Add(kvp.Key, new CookieClass() { name = kvp.Key, value = kvp.Value.Value });                    
                 }
                 return _requestCookies;
@@ -1278,6 +1269,12 @@ namespace Contensive.Processor.Controllers {
         public void clearResponseBuffer() {
             httpContext.Response.headers.Clear();
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
     //
     // ====================================================================================================
@@ -1294,5 +1291,4 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string value { get; set; }
     }
-
 }

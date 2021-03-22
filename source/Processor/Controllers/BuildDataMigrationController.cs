@@ -335,17 +335,24 @@ namespace Contensive.Processor.Controllers {
             string addonList = Resources.defaultAddonListJson.replace("{textBlockInstanceGuid}", textBlockInstanceGuid, StringComparison.InvariantCulture).replace("{childListInstanceGuid}", childListInstanceGuid, StringComparison.InvariantCulture);
             core.cpParent.Db.ExecuteNonQuery("update ccpagecontent set addonList=" + core.cpParent.Db.EncodeSQLText(addonList) + " where (id=" + page.id + ")");
         }
-        //
-        //====================================================================================================
-        #region  IDisposable Support 
-        //
-        // this class must implement System.IDisposable
-        // never throw an exception in dispose
-        // Do not change or add Overridable to these methods.
-        // Put cleanup code in Dispose(ByVal disposing As Boolean).
-        //====================================================================================================
-        //
-        protected bool disposed;
+
+    //
+    //====================================================================================================
+    /// <summary>
+    /// nlog class instance
+    /// </summary>
+    private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+    //
+    //====================================================================================================
+    #region  IDisposable Support 
+    //
+    // this class must implement System.IDisposable
+    // never throw an exception in dispose
+    // Do not change or add Overridable to these methods.
+    // Put cleanup code in Dispose(ByVal disposing As Boolean).
+    //====================================================================================================
+    //
+    protected bool disposed;
         //
         public void Dispose() {
             // do not add code here. Use the Dispose(disposing) overload

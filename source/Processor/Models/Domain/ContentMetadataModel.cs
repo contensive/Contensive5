@@ -951,7 +951,7 @@ namespace Contensive.Processor.Models.Domain {
                                 LookupContentId = ContentMetadataModel.getContentId(core, LookupContentName);
                                 if (LookupContentId <= 0) {
                                     string errMsg = "Could not create lookup field [" + fieldMetadata.nameLc + "] for content definition [" + name + "] because no content definition was found For lookup-content [" + LookupContentName + "].";
-                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
+                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
                                 }
                             }
                             sqlList.Add("LOOKUPCONTENTID", DbController.encodeSQLNumber(LookupContentId));
@@ -965,7 +965,7 @@ namespace Contensive.Processor.Models.Domain {
                                 int ManyToManyContentId = ContentMetadataModel.getContentId(core, ManyToManyContent);
                                 if (ManyToManyContentId <= 0) {
                                     string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-content [" + ManyToManyContent + "].";
-                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
+                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
 
                                 }
                                 sqlList.Add("MANYTOMANYCONTENTID", DbController.encodeSQLNumber(ManyToManyContentId));
@@ -976,7 +976,7 @@ namespace Contensive.Processor.Models.Domain {
                                 int ManyToManyRuleContentId = ContentMetadataModel.getContentId(core, ManyToManyRuleContent);
                                 if (ManyToManyRuleContentId <= 0) {
                                     string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-rule-content [" + ManyToManyRuleContent + "].";
-                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
+                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
                                 }
                                 sqlList.Add("MANYTOMANYRULECONTENTID", DbController.encodeSQLNumber(ManyToManyRuleContentId));
                             }
@@ -991,7 +991,7 @@ namespace Contensive.Processor.Models.Domain {
                                 RedirectContentId = ContentMetadataModel.getContentId(core, RedirectContentName);
                                 if (RedirectContentId <= 0) {
                                     string errMsg = "Could not create redirect field [" + fieldMetadata.nameLc + "] for Content Definition [" + name + "] because no content definition was found For redirect-content [" + RedirectContentName + "].";
-                                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
+                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
                                 }
                             }
                             sqlList.Add("REDIRECTCONTENTID", DbController.encodeSQLNumber(RedirectContentId));

@@ -176,7 +176,7 @@ namespace Contensive.Processor.Controllers {
                                             if (!runInServiceProcess && !System.IO.File.Exists(cliPathFilename)) {
                                                 runInServiceProcess = true;
                                                 string errMsg = "TaskRunner cannot run out of process because command line program cc.exe not found in program files folder [" + cpApp.core.programFiles.localAbsRootPath + "]";
-                                                Logger.Error(LogController.getMessageLine(cpApp.core, errMsg, true));
+                                                Logger.Error(LogController.processLogMessage(cpApp.core, errMsg, true));
                                             }
                                             if (runInServiceProcess) {
                                                 //
@@ -216,7 +216,7 @@ namespace Contensive.Processor.Controllers {
                                                     }
                                                     if (!process.HasExited) {
                                                         string errMsg = "TaskRunner Killing process, process timed out, app [" + appKVP.Value.name + "].";
-                                                        Logger.Error(LogController.getMessageLine(cpApp.core, errMsg, true));
+                                                        Logger.Error(LogController.processLogMessage(cpApp.core, errMsg, true));
                                                         process.Kill();
                                                         process.WaitForExit();
                                                     }

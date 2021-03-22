@@ -693,5 +693,11 @@ namespace Contensive.Processor.Controllers {
             }
             return result;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

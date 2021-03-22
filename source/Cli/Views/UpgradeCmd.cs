@@ -34,7 +34,8 @@ namespace Contensive.CLI {
             if (!string.IsNullOrEmpty(appName)) {
                 //
                 // -- upgrade app
-                using (CPClass upgradeApp = new Contensive.Processor.CPClass(appName)) {
+                using CPClass upgradeApp = new Contensive.Processor.CPClass(appName);
+                if (upgradeApp.GetAppConfig().enabled) {
                     BuildController.upgrade(upgradeApp.core, false, repair);
                     upgradeApp.Cache.InvalidateAll();
                 }
@@ -42,7 +43,8 @@ namespace Contensive.CLI {
                 //
                 // -- upgrade all apps
                 foreach (var kvp in cp.core.serverConfig.apps) {
-                    using (CPClass upgradeApp = new Contensive.Processor.CPClass(kvp.Key)) {
+                    using CPClass upgradeApp = new CPClass(kvp.Key);
+                    if (upgradeApp.GetAppConfig().enabled) {
                         BuildController.upgrade(upgradeApp.core, false, repair);
                         upgradeApp.Cache.InvalidateAll();
                     }

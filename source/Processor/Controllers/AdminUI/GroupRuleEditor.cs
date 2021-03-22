@@ -1,10 +1,7 @@
 ﻿
+using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
-using Contensive.Processor.Models.Domain;
-using Contensive.Processor.Controllers;
-using Contensive.Processor.Properties;
-using Contensive.Models.Db;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public class GroupRuleEditor {
@@ -37,5 +34,11 @@ namespace Contensive.Processor.Addons.AdminSite {
             public string helpText;
             public List<GroupRuleEditorRowModel> rowList;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

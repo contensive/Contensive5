@@ -11,6 +11,7 @@ using System.Text;
 using Contensive.Processor.Models.Domain;
 using Contensive.Models.Db;
 using System.Threading.Tasks;
+using NLog;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -486,7 +487,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- If no domain, block content with message
                     string errMsg = "Domain not recognized:" + core.webServer.requestUrlSource;
-                    Logger.Error(LogController.getMessageLine(core, errMsg, true));
+                    logger.Error(LogController.processLogMessage(core, errMsg, true));
                     return HtmlController.div("This domain name is not configured for this site.", "ccDialogPageNotFound");
                 }
                 //
@@ -2553,6 +2554,12 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
         #region  IDisposable Support 
         //
         // this class must implement System.IDisposable
@@ -2592,11 +2599,5 @@ namespace Contensive.Processor.Controllers {
             }
         }
         #endregion
-        //
-        //====================================================================================================
-        /// <summary>
-        /// nlog class instance
-        /// </summary>
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

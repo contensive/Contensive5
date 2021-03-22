@@ -1,14 +1,9 @@
 ﻿
+using Amazon.Runtime;
+using Amazon.SQS;
+using Contensive.Processor.Extensions;
 using System;
 using System.Collections.Generic;
-using Amazon.SimpleEmail;
-using Amazon.SimpleEmail.Model;
-using Amazon;
-using Contensive.Processor.Models.Domain;
-using Amazon.SQS;
-using Amazon.Runtime;
-using Amazon.Runtime.CredentialManagement;
-using Contensive.Processor.Extensions;
 
 //
 namespace Contensive.Processor.Controllers {
@@ -50,5 +45,11 @@ namespace Contensive.Processor.Controllers {
             }
             return result;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

@@ -1,19 +1,8 @@
 ﻿
+using Contensive.Models.Db;
 using System;
 using System.Xml;
-using System.Collections.Generic;
 using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
-using Contensive.Processor.Models.Domain;
-using System.Linq;
-using static Contensive.BaseClasses.CPFileSystemBaseClass;
-using Contensive.Processor.Exceptions;
-using Contensive.BaseClasses;
-using System.Reflection;
-using NLog;
-using Contensive.Models.Db;
-using System.Globalization;
-using System.Text;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -86,5 +75,10 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

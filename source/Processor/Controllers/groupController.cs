@@ -401,9 +401,12 @@ namespace Contensive.Processor.Controllers {
             }
             return returnREsult;
         }
-
-
-
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         #region  IDisposable Support 

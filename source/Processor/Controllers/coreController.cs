@@ -2,7 +2,6 @@
 using Contensive.BaseModels;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
-using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Design.PluralizationServices;
@@ -654,7 +653,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 coreController_Initialize(cp, appName, httpContext, true);
             } catch (Exception ex) {
-                LogController.logShortLine("CoreController constructor-4, exception [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+                LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
             }
         }
@@ -691,7 +690,12 @@ namespace Contensive.Processor.Controllers {
                     // -- initialize application
                     appConfig = AppConfigModel.getObject(this, serverConfig, appName);
                 }
-                if (httpContext!=null) {
+                if(!appConfig.enabled) { 
+                    //
+                    // -- app not enabled, exit
+                    return; 
+                }
+                if (httpContext != null) {
                     //
                     // -- initialize http context
                     webServer.httpContext = httpContext;
@@ -729,7 +733,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logShortLine("CoreController coreController_Initialize, exception [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+                LogController.logShortLine("CoreController coreController_Initialize, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
             }
         }
@@ -780,26 +784,6 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// NLog logger
-        /// </summary>
-        //public Logger nlogLogger {
-        //    get {
-        //        if (_nlogLogger == null) {
-        //            //
-        //            // -- if serverconfig not provided, return one-off logger
-        //            if (serverConfig == null) { return LogManager.GetCurrentClassLogger(); }
-        //            //
-        //            // -- serverConfig is valid, initialize one stream for the rest of the document
-        //            LogController.awsConfigure(this);
-        //            _nlogLogger = LogManager.GetCurrentClassLogger();
-        //        }
-        //        return _nlogLogger;
-        //    }
-        //}
-        //private Logger _nlogLogger;
-        //
-        //====================================================================================================
-        /// <summary>
         /// dotnet pluralize and singularize.
         /// </summary>
         public PluralizationService pluralizationService {
@@ -814,10 +798,15 @@ namespace Contensive.Processor.Controllers {
 
         #region  IDisposable Support 
         //
-        protected bool disposed;
         //====================================================================================================
         /// <summary>
-        /// dispose.
+        /// dispose pattern
+        /// </summary>
+        protected bool disposed;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// dispose pattern
         /// </summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
@@ -825,79 +814,71 @@ namespace Contensive.Processor.Controllers {
                 this.disposed = true;
                 if (disposing) {
                     //
-                    // call .dispose for managed objects
-                    //
-                    // ----- Block all output from underlying routines
-                    //
+                    // -- Block all output from underlying routines
                     doc.blockExceptionReporting = true;
                     doc.continueProcessing = false;
                     //
-                    // content server object is valid
-                    //
-                    if (serverConfig != null) {
-                        if (appConfig != null) {
-                            if (appConfig.appStatus == AppConfigBaseModel.AppStatusEnum.ok) {
-                                if (deleteSessionOnExit) {
-                                    if ((session != null)) {
-                                        if ((session.visit != null) && (session.visit.id > 0)) {
-                                            //
-                                            // -- delete visit
-                                            visitProperty.deleteAll(session.user.id);
-                                            DbBaseModel.delete<VisitModel>(cpParent, session.visit.id);
-                                            //
-                                            // -- delete viewing
-                                            DbBaseModel.deleteRows<ViewingModel>(cpParent, "(visitId=" + session.visit.id + ")");
-                                        }
-                                        if ((session.visitor != null) && (session.visitor.id > 0)) {
-                                            //
-                                            // -- delete visitor
-                                            visitorProperty.deleteAll(session.user.id);
-                                            DbBaseModel.delete<VisitorModel>(cpParent, session.visit.id);
-                                        }
-                                    }
+                    // -- content server object is valid
+                    if ((serverConfig != null) && (appConfig != null) && (appConfig.appStatus == AppConfigBaseModel.AppStatusEnum.ok)) {
+                        if (deleteSessionOnExit) {
+                            if ((session != null)) {
+                                if ((session.visit != null) && (session.visit.id > 0)) {
+                                    //
+                                    // -- delete visit
+                                    visitProperty.deleteAll(session.user.id);
+                                    DbBaseModel.delete<VisitModel>(cpParent, session.visit.id);
+                                    //
+                                    // -- delete viewing
+                                    DbBaseModel.deleteRows<ViewingModel>(cpParent, "(visitId=" + session.visit.id + ")");
                                 }
-                                if (!deleteSessionOnExit && siteProperties.allowVisitTracking) {
+                                if ((session.visitor != null) && (session.visitor.id > 0)) {
                                     //
-                                    // If visit tracking, save the viewing record
-                                    //
-                                    string ViewingName = ((string)(session.visit.id + "." + session.visit.pageVisits)).left(10);
-                                    int PageId = 0;
-                                    if (_doc != null) {
-                                        if (doc.pageController.page != null) {
-                                            PageId = doc.pageController.page.id;
-                                        }
-                                    }
-                                    //
-                                    // -- convert requestForm to a name=value string for Db storage
-                                    string requestFormSerialized = GenericController.convertNameValueDictToREquestString(webServer.requestForm);
-                                    string pagetitle = "";
-                                    if (!doc.htmlMetaContent_TitleList.Count.Equals(0)) {
-                                        pagetitle = doc.htmlMetaContent_TitleList[0].content;
-                                    }
-                                    string sql = "insert into ccviewings ("
-                                        + "Name,VisitId,MemberID,Host,Path,Page,QueryString,Form,Referer,DateAdded,StateOK,pagetime,Active,RecordID,ExcludeFromAnalytics,pagetitle,ccguid"
-                                        + ")values("
-                                        + " " + DbController.encodeSQLText(ViewingName)
-                                        + "," + session.visit.id.ToString()
-                                        + "," + session.user.id.ToString()
-                                        + "," + DbController.encodeSQLText(webServer.requestDomain)
-                                        + "," + DbController.encodeSQLText(webServer.requestPath)
-                                        + "," + DbController.encodeSQLText(webServer.requestPage)
-                                        + "," + DbController.encodeSQLText(webServer.requestQueryString.left(255))
-                                        + "," + DbController.encodeSQLText(requestFormSerialized.left(255))
-                                        + "," + DbController.encodeSQLText(webServer.requestReferrer.left(255))
-                                        + "," + DbController.encodeSQLDate(doc.profileStartTime)
-                                        + "," + DbController.encodeSQLBoolean(session.visitStateOk)
-                                        + "," + doc.appStopWatch.ElapsedMilliseconds.ToString()
-                                        + ",1"
-                                        + "," + PageId.ToString()
-                                        + "," + DbController.encodeSQLBoolean(webServer.pageExcludeFromAnalytics)
-                                        + "," + DbController.encodeSQLText(pagetitle)
-                                        + "," + DbController.encodeSQLText(doc.docGuid);
-                                    sql += ");";
-                                    db.executeNonQuery(sql);
+                                    // -- delete visitor
+                                    visitorProperty.deleteAll(session.user.id);
+                                    DbBaseModel.delete<VisitorModel>(cpParent, session.visit.id);
                                 }
                             }
+                        }
+                        if (!deleteSessionOnExit && siteProperties.allowVisitTracking) {
+                            //
+                            // If visit tracking, save the viewing record
+                            //
+                            string ViewingName = ((string)(session.visit.id + "." + session.visit.pageVisits)).left(10);
+                            int PageId = 0;
+                            if (_doc != null) {
+                                if (doc.pageController.page != null) {
+                                    PageId = doc.pageController.page.id;
+                                }
+                            }
+                            //
+                            // -- convert requestForm to a name=value string for Db storage
+                            string requestFormSerialized = GenericController.convertNameValueDictToREquestString(webServer.requestForm);
+                            string pagetitle = "";
+                            if (!doc.htmlMetaContent_TitleList.Count.Equals(0)) {
+                                pagetitle = doc.htmlMetaContent_TitleList[0].content;
+                            }
+                            string sql = "insert into ccviewings ("
+                                + "Name,VisitId,MemberID,Host,Path,Page,QueryString,Form,Referer,DateAdded,StateOK,pagetime,Active,RecordID,ExcludeFromAnalytics,pagetitle,ccguid"
+                                + ")values("
+                                + " " + DbController.encodeSQLText(ViewingName)
+                                + "," + session.visit.id.ToString()
+                                + "," + session.user.id.ToString()
+                                + "," + DbController.encodeSQLText(webServer.requestDomain)
+                                + "," + DbController.encodeSQLText(webServer.requestPath)
+                                + "," + DbController.encodeSQLText(webServer.requestPage)
+                                + "," + DbController.encodeSQLText(webServer.requestQueryString.left(255))
+                                + "," + DbController.encodeSQLText(requestFormSerialized.left(255))
+                                + "," + DbController.encodeSQLText(webServer.requestReferrer.left(255))
+                                + "," + DbController.encodeSQLDate(doc.profileStartTime)
+                                + "," + DbController.encodeSQLBoolean(session.visitStateOk)
+                                + "," + doc.appStopWatch.ElapsedMilliseconds.ToString()
+                                + ",1"
+                                + "," + PageId.ToString()
+                                + "," + DbController.encodeSQLBoolean(webServer.pageExcludeFromAnalytics)
+                                + "," + DbController.encodeSQLText(pagetitle)
+                                + "," + DbController.encodeSQLText(doc.docGuid);
+                            sql += ");";
+                            db.executeNonQuery(sql);
                         }
                     }
                     //
@@ -937,12 +918,22 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        /// <summary>
+        /// dispose pattern
+        /// </summary>
         public void Dispose() {
             // do not add code here. Use the Dispose(disposing) overload
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        //
+        /// <summary>
+        /// dispose pattern
+        /// </summary>
         ~CoreController() {
             // do not add code here. Use the Dispose(disposing) overload
             Dispose(false);

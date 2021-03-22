@@ -23,7 +23,7 @@ namespace Contensive.Processor {
         /// constructor for server use. No application context will be available. Use to create new apps or iterate through apps.
         /// </summary>
         /// <remarks></remarks>
-        public CPClass()  {
+        public CPClass() {
             core = new CoreController(this);
         }
         //
@@ -71,10 +71,10 @@ namespace Contensive.Processor {
         /// return a message that can be used to display status
         /// </summary>
         public string statusMessage {
-                get {
-                    return GenericController.getApplicationStatusMessage(core.appConfig.appStatus);
-                }
+            get {
+                return GenericController.getApplicationStatusMessage(core.appConfig.appStatus);
             }
+        }
         //
         //====================================================================================================
         /// <summary>
@@ -120,6 +120,11 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeRoute(string route) {
             try {
+                if (!core.appConfig.enabled) {
+                    //
+                    // -- if app not enabled, exit with empty
+                    return string.Empty;
+                }
                 return RouteController.executeRoute(core, route);
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
@@ -131,10 +136,14 @@ namespace Contensive.Processor {
         /// <summary>
         /// Executes the default route set in the admin settings is used.
         /// </summary>
-        /// <param name="route"></param>
         /// <returns></returns>
-        public string executeRoute()  {
+        public string executeRoute() {
             try {
+                if (!core.appConfig.enabled) {
+                    //
+                    // -- if app not enabled, exit with empty
+                    return string.Empty;
+                }
                 return RouteController.executeRoute(core);
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
@@ -151,11 +160,16 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeAddon(string addonNameOrGuid, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextSimple) {
             try {
+                if (!core.appConfig.enabled) {
+                    //
+                    // -- if app not enabled, exit with empty
+                    return string.Empty;
+                }
                 if (GenericController.isGuid(addonNameOrGuid)) {
                     //
                     // -- call by guid
                     AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonNameOrGuid);
-                    if ( addon == null ) {
+                    if (addon == null) {
                         throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");
                     } else {
                         return core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
@@ -165,14 +179,14 @@ namespace Contensive.Processor {
                     }
                 } else {
                     AddonModel addon = AddonModel.createByUniqueName(core.cpParent, addonNameOrGuid);
-                    if ( addon != null ) {
+                    if (addon != null) {
                         //
                         // -- call by name
                         return core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
                             addonType = addonContext,
                             errorContextMessage = "external call to execute addon [" + addonNameOrGuid + "]"
                         });
-                    } else if (addonNameOrGuid.isNumeric() ) {
+                    } else if (addonNameOrGuid.isNumeric()) {
                         //
                         // -- compatibility - call by id
                         return executeAddon(GenericController.encodeInteger(addonNameOrGuid), addonContext);
@@ -195,8 +209,13 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeAddon(int addonId, Contensive.BaseClasses.CPUtilsBaseClass.addonContext addonContext = Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple) {
             try {
+                if (!core.appConfig.enabled) {
+                    //
+                    // -- if app not enabled, exit with empty
+                    return string.Empty;
+                }
                 AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonId);
-                if ( addon == null) {
+                if (addon == null) {
                     throw new GenericException("Addon [#" + addonId.ToString() + "] could not be found.");
                 } else {
                     return core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
@@ -215,7 +234,7 @@ namespace Contensive.Processor {
         /// Create a new block object, used to manipulate html elements using htmlClass and htmlId. Alternatively create a block object with its constructor.
         /// </summary>
         /// <returns></returns>
-        public override CPBlockBaseClass BlockNew()  {
+        public override CPBlockBaseClass BlockNew() {
             return new CPBlockClass(this);
         }
         //
@@ -224,7 +243,7 @@ namespace Contensive.Processor {
         /// Create a new data set object used to run queries and open tables with soft table names (determined run-time). Alternatively create a data set object with its constructor
         /// </summary>
         /// <returns></returns>
-        public override CPCSBaseClass CSNew()  {
+        public override CPCSBaseClass CSNew() {
             return new CPCSClass(this);
         }
         //
@@ -325,7 +344,7 @@ namespace Contensive.Processor {
         public override CPDbBaseClass Db {
             get {
                 if (_dbObj == null) {
-                    _dbObj = new CPDbClass(this,"");
+                    _dbObj = new CPDbClass(this, "");
                 }
                 return _dbObj;
             }
@@ -364,7 +383,8 @@ namespace Contensive.Processor {
         /// <summary>
         /// Legacy method that provides access the current application server. AS of v5, access is limited to that provided by FilePrivate, wwwRoot, temp and cdnFiles
         /// </summary>
-        [Obsolete("deprecated",true)] public override CPFileBaseClass File {
+        [Obsolete("deprecated", true)]
+        public override CPFileBaseClass File {
             get {
                 if (_fileObj == null) {
                     _fileObj = new CPFileClass(this);
@@ -469,7 +489,7 @@ namespace Contensive.Processor {
         private CPLogClass _LogObj;
 
         //
-        [Obsolete("Deprecated. To access addon details of the addon running, create a model with the cp.addon.id",true)]
+        [Obsolete("Deprecated. To access addon details of the addon running, create a model with the cp.addon.id", true)]
         public override CPAddonBaseClass MyAddon {
             get {
                 return Addon;
@@ -625,7 +645,7 @@ namespace Contensive.Processor {
             }
         }
         private CPFileSystemClass _CdnFiles;
-        
+
         //
         //=========================================================================================================
         //
@@ -663,9 +683,9 @@ namespace Contensive.Processor {
         //
         //=========================================================================================================
         //
-        public override List<string> GetAppNameList()  {
+        public override List<string> GetAppNameList() {
             var result = new List<string>();
-            foreach ( var app in core.serverConfig.apps) {
+            foreach (var app in core.serverConfig.apps) {
                 result.Add(app.Key);
             }
             return result;
@@ -680,7 +700,7 @@ namespace Contensive.Processor {
         //
         //=========================================================================================================
         //
-        public override AppConfigBaseModel GetAppConfig()  {
+        public override AppConfigBaseModel GetAppConfig() {
             return core.appConfig;
         }
         //
@@ -709,12 +729,12 @@ namespace Contensive.Processor {
         //
         protected bool disposed_cp;
         //
-        public void Dispose()  {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
         //
-        ~CPClass()  {
+        ~CPClass() {
             Dispose(false);
         }
         //

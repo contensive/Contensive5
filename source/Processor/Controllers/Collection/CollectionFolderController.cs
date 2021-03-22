@@ -1,13 +1,13 @@
 ﻿
-using System;
-using System.Xml;
-using System.Collections.Generic;
-using static Contensive.Processor.Constants;
 using Contensive.Processor.Models.Domain;
-using static Contensive.BaseClasses.CPFileSystemBaseClass;
-using System.Reflection;
 using NLog;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
+using System.Xml;
+using static Contensive.BaseClasses.CPFileSystemBaseClass;
+using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -16,10 +16,6 @@ namespace Contensive.Processor.Controllers {
     /// manage the collection folder. The collection folder is in private files. This is where collections are installed, and where addon assemblys are run.
     /// </summary>
     public class CollectionFolderController {
-        /// <summary>
-        /// class logger initialization
-        /// </summary>
-        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -324,7 +320,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- exit, error loading file
                     string errMsg = "UpdateConfig, Error loading Collections.xml file";
-                    logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                    logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                     return;
                 }
                 if (!Doc.DocumentElement.Name.ToLower(CultureInfo.InvariantCulture).Equals("collectionlist")) {
@@ -498,7 +494,13 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="contextLog"></param>
         private static void traceContextLog(CoreController core, Stack<string> contextLog) {
-            logger.Log(LogLevel.Info, LogController.getMessageLine(core, string.Join(",", contextLog), false));
+            logger.Log(LogLevel.Info, LogController.processLogMessage(core, string.Join(",", contextLog), false));
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

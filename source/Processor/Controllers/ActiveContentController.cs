@@ -1,13 +1,13 @@
 ﻿
-using System;
 using Contensive.BaseClasses;
-using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
-using Contensive.Processor.Exceptions;
-using System.Collections.Generic;
-using System.Linq;
 using Contensive.Models.Db;
+using Contensive.Processor.Exceptions;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using static Contensive.Processor.Constants;
+using static Contensive.Processor.Controllers.GenericController;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -1301,5 +1301,11 @@ namespace Contensive.Processor.Controllers {
             };
             return result;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

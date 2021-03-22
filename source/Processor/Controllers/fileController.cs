@@ -2143,6 +2143,12 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
         // dispose
         //
         #region  IDisposable Support 

@@ -190,7 +190,7 @@ namespace Contensive.Processor.Controllers {
                             // error - Need a way to reach the user that submitted the file
                             //
                             string errMsg = "skipping xml file, not valid collection metadata, [" + core.privateFiles.localAbsRootPath + CollectionVersionFolder + file.Name + "]";
-                            logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                            logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                             loadOK = false;
                         }
                         if (loadOK) {
@@ -517,7 +517,7 @@ namespace Contensive.Processor.Controllers {
                                                 // error - Need a way to reach the user that submitted the file
                                                 //
                                                 string errMsg = "[" + CollectionName + "], creating navigator entries, there was an error parsing the portion of the collection that contains metadata. Navigator entry creation was aborted. [There was an error reading the Meta data file.]";
-                                                logger.Error(ex, LogController.getMessageLine(core, errMsg, true));
+                                                logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                                                 return_ErrorMessage += " The collection was not installed because the xml collection file has an error.";
                                                 return false;
                                             }
@@ -804,14 +804,14 @@ namespace Contensive.Processor.Controllers {
                                 if (!collectionIncludesDiagnosticAddon) {
                                     //
                                     // -- log warning. This collection does not have an install addon
-                                    logger.Debug(LogController.getMessageLine(core, "Collection does not include a Diagnostic addon, [" + collection.name + "]", false));
+                                    logger.Debug(LogController.processLogMessage(core, "Collection does not include a Diagnostic addon, [" + collection.name + "]", false));
                                 }
                                 //
                                 // -- execute onInstall addon if found
                                 if (string.IsNullOrEmpty(collectionOninstalladdonGuid)) {
                                     //
                                     // -- log warning. This collection does not have an install addon
-                                    logger.Debug(LogController.getMessageLine(core, "Collection does not include an install addon, [" + collection.name + "]", false));
+                                    logger.Debug(LogController.processLogMessage(core, "Collection does not include an install addon, [" + collection.name + "]", false));
                                 } else {
                                     //
                                     // -- install the install addon
@@ -1209,7 +1209,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="contextLog"></param>
         private static void traceContextLog(CoreController core, Stack<string> contextLog) {
-            logger.Log(LogLevel.Info, LogController.getMessageLine(core, string.Join(",", contextLog), false));
+            logger.Log(LogLevel.Info, LogController.processLogMessage(core, string.Join(",", contextLog), false));
         }
     }
 }

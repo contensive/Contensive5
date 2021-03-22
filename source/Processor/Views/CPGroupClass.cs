@@ -9,14 +9,9 @@ namespace Contensive.Processor {
     /// </summary>
     public class CPGroupClass : BaseClasses.CPGroupBaseClass, IDisposable {
         //
-        private Contensive.Processor.Controllers.CoreController core;
-        private readonly CPClass cp;
+        private readonly CoreController core;
         //
-        //====================================================================================================
-        /// <summary>
-        /// nlog class instance
-        /// </summary>
-        private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly CPClass cp;
         //
         //====================================================================================================
         /// <summary>
@@ -33,7 +28,8 @@ namespace Contensive.Processor {
         /// Add a group
         /// </summary>
         /// <param name="groupName"></param>
-        public override void Add(string groupName) => GroupController.add(core, groupName);
+        public override void Add(string groupName) 
+            => GroupController.add(core, groupName);
         //
         //====================================================================================================
         /// <summary>
@@ -41,40 +37,68 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="groupName"></param>
         /// <param name="groupCaption"></param>
-        public override void Add(string groupName, string groupCaption) => GroupController.add(core, groupName, groupCaption);
+        public override void Add(string groupName, string groupCaption) 
+            => GroupController.add(core, groupName, groupCaption);
         //
         //====================================================================================================
         /// <summary>
         /// Add current user to a group
         /// </summary>
         /// <param name="groupNameOrGuid"></param>
-        public override void AddUser(string groupNameOrGuid) => GroupController.addUser(core, groupNameOrGuid, core.session.user.id, DateTime.MinValue);
+        public override void AddUser(string groupNameOrGuid) 
+            => GroupController.addUser(core, groupNameOrGuid, core.session.user.id, DateTime.MinValue);
         //
         //====================================================================================================
         /// <summary>
         /// Add current user to a group
         /// </summary>
         /// <param name="groupId"></param>
-        public override void AddUser(int groupId) => GroupController.addUser(core, groupId.ToString(), core.session.user.id, DateTime.MinValue);
+        public override void AddUser(int groupId) 
+            => GroupController.addUser(core, groupId.ToString(), core.session.user.id, DateTime.MinValue);
         //
         //====================================================================================================
-        //
-        public override void AddUser(string GroupNameIdOrGuid, int UserId) => GroupController.addUser(core, GroupNameIdOrGuid, UserId, DateTime.MinValue);
-        //
-        //====================================================================================================
-        //
-        public override void AddUser(string GroupNameIdOrGuid, int UserId, DateTime DateExpires) => GroupController.addUser(core, GroupNameIdOrGuid, UserId, DateExpires);
-        //
-        //====================================================================================================
-        //
-        public override void AddUser(int GroupId, int UserId) => GroupController.addUser(core, GroupId, UserId, DateTime.MinValue);
+        /// <summary>
+        /// Add user to a group
+        /// </summary>
+        /// <param name="GroupNameIdOrGuid"></param>
+        /// <param name="UserId"></param>
+        public override void AddUser(string GroupNameIdOrGuid, int UserId) 
+            => GroupController.addUser(core, GroupNameIdOrGuid, UserId, DateTime.MinValue);
         //
         //====================================================================================================
-        //
-        public override void AddUser(int GroupId, int UserId, DateTime DateExpires) => GroupController.addUser(core, GroupId.ToString(), UserId, DateExpires);
+        /// <summary>
+        /// Add user to a group
+        /// </summary>
+        /// <param name="GroupNameIdOrGuid"></param>
+        /// <param name="UserId"></param>
+        /// <param name="DateExpires"></param>
+        public override void AddUser(string GroupNameIdOrGuid, int UserId, DateTime DateExpires) 
+            => GroupController.addUser(core, GroupNameIdOrGuid, UserId, DateExpires);
         //
         //====================================================================================================
+        /// <summary>
+        /// Add user to a group
+        /// </summary>
+        /// <param name="GroupId"></param>
+        /// <param name="UserId"></param>
+        public override void AddUser(int GroupId, int UserId) 
+            => GroupController.addUser(core, GroupId, UserId, DateTime.MinValue);
         //
+        //====================================================================================================
+        /// <summary>
+        /// Add user to a group
+        /// </summary>
+        /// <param name="GroupId"></param>
+        /// <param name="UserId"></param>
+        /// <param name="DateExpires"></param>
+        public override void AddUser(int GroupId, int UserId, DateTime DateExpires) 
+            => GroupController.addUser(core, GroupId.ToString(), UserId, DateExpires);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Delete group
+        /// </summary>
+        /// <param name="GroupNameIdOrGuid"></param>
         public override void Delete(string GroupNameIdOrGuid) {
             if (GenericController.isGuid(GroupNameIdOrGuid)) {
                 //
@@ -94,11 +118,18 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
-        public override void Delete(int GroupId) => GroupModel.delete<GroupModel>(core.cpParent, GroupId);
+        /// <summary>
+        /// Delete group
+        /// </summary>
+        /// <param name="GroupId"></param>
+        public override void Delete(int GroupId) => DbBaseModel.delete<GroupModel>(core.cpParent, GroupId);
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Get group id
+        /// </summary>
+        /// <param name="GroupNameOrGuid"></param>
+        /// <returns></returns>
         public override int GetId(string GroupNameOrGuid) {
             GroupModel group;
             if (GenericController.isGuid(GroupNameOrGuid)) {
@@ -111,7 +142,11 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Get group name
+        /// </summary>
+        /// <param name="GroupIdOrGuid"></param>
+        /// <returns></returns>
         public override string GetName(string GroupIdOrGuid) {
             if (GroupIdOrGuid.isNumeric()) {
                 //
@@ -123,11 +158,20 @@ namespace Contensive.Processor {
                 return DbBaseModel.getRecordName<GroupModel>(core.cpParent, GroupIdOrGuid);
             }
         }
+        /// <summary>G
+        /// Get group name
+        /// </summary>
+        /// <param name="GroupId"></param>
+        /// <returns></returns>
         public override string GetName(int GroupId)
             => DbBaseModel.getRecordName<GroupModel>(core.cpParent, GroupId);
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// remove user from group
+        /// </summary>
+        /// <param name="GroupNameIdOrGuid"></param>
+        /// <param name="removeUserId"></param>
         public override void RemoveUser(string GroupNameIdOrGuid, int removeUserId) {
             int groupId = GetId(GroupNameIdOrGuid);
             int userId = removeUserId;
@@ -141,32 +185,42 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// remove current user from group
+        /// </summary>
+        /// <param name="GroupNameIdOrGuid"></param>
         public override void RemoveUser(string GroupNameIdOrGuid) => RemoveUser(GroupNameIdOrGuid, 0);
         //
         //====================================================================================================
         /// <summary>
-        /// debug log entry
+        /// nlog class instance
         /// </summary>
-        /// <param name="message"></param>
-        private void appendDebugLog(string message)
-            => Logger.Debug(LogController.getMessageLine(cp.core, message, false));
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         //
         #region  IDisposable Support 
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
+        /// <summary>
+        /// Dispose pattern
+        /// </summary>
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+        /// <summary>
+        /// Dispose pattern
+        /// </summary>
         ~CPGroupClass() {
             Dispose(false);
         }
+        /// <summary>
+        /// Dispose pattern
+        /// </summary>
+        /// <param name="disposing_group"></param>
         protected virtual void Dispose(bool disposing_group) {
             if (!this.disposed_group) {
-                appendDebugLog(".dispose, dereference cp, main, csv");
                 if (disposing_group) {
                     //
                     // call .dispose for managed objects
@@ -178,6 +232,9 @@ namespace Contensive.Processor {
             }
             this.disposed_group = true;
         }
+        /// <summary>
+        /// Dispose 
+        /// </summary>
         protected bool disposed_group;
         #endregion
     }

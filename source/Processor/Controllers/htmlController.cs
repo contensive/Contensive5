@@ -4095,6 +4095,11 @@ namespace Contensive.Processor.Controllers {
             result = result.Replace(" src=/", " src=" + urlProtocolDomainSlash);
             return result;
         }
-
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

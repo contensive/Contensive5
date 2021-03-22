@@ -1,10 +1,5 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.Models.Db;
-using Contensive.Processor.Models.Domain;
+﻿using Contensive.Models.Db;
 using System;
-using static Contensive.Processor.Constants;
-using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -70,5 +65,11 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

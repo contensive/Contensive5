@@ -1,13 +1,13 @@
 ﻿
-using System;
-using System.Xml;
-using System.Collections.Generic;
-using static Contensive.Processor.Constants;
-using System.IO;
-using System.Threading;
-using System.Reflection;
 using NLog;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
+using System.Threading;
+using System.Xml;
+using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -30,10 +30,6 @@ namespace Contensive.Processor.Controllers {
     /// install addon collections.
     /// </summary>
     public class CollectionLibraryController {
-        /// <summary>
-        /// class logger initialization
-        /// </summary>
-        private static readonly Logger logger = NLog.LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -265,5 +261,11 @@ namespace Contensive.Processor.Controllers {
             }
             return UpgradeOK;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

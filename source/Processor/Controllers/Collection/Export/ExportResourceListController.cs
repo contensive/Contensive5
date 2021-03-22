@@ -1,8 +1,8 @@
 ﻿
+using Contensive.BaseClasses;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
-using Microsoft.VisualBasic;
-using Contensive.BaseClasses;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -130,6 +130,12 @@ namespace Contensive.Processor.Controllers {
                 return string.Empty;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }
 

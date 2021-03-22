@@ -5,6 +5,7 @@ using NLog;
 using NLog.Config;
 using System.Collections.Generic;
 using NLog.AWS.Logger;
+using System.Globalization;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -47,7 +48,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="message"></param>
         /// <param name="addtoUI">Iftrue, the message will be appended to the doc object, and if applicable, added to the UI/</param>
         /// <returns></returns>
-        public static string getMessageLine(CoreController core, string message, bool addtoUI) {
+        public static string processLogMessage(CoreController core, string message, bool addtoUI) {
             string result = "app [" + ((core.appConfig != null) ? core.appConfig.name : "no-app") + "]";
             result += ", thread [" + System.Threading.Thread.CurrentThread.ManagedThreadId.ToString("000") + "]";
             result += ", url [" + ((core.webServer == null) ? "non-web" : string.IsNullOrEmpty(core.webServer.requestPathPage) ? "empty" : core.webServer.requestPathPage) + "]";
@@ -55,50 +56,14 @@ namespace Contensive.Processor.Controllers {
             //
             // -- add to doc exception list to display at top of webpage
             if (!addtoUI) { return result; }
-            if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
-            if (core.doc.errorList.Count < 10) {
-                core.doc.errorList.Add(result);
+            if (core.doc.errorList.Count >= 10) { 
+                core.doc.errorList.Add("Exception limit exceeded");
                 return result;
             }
-
+            if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
+            core.doc.errorList.Add(result);
             return result;
         }
-        //
-        //=============================================================================
-        /// <summary>
-        /// log highest level, most important messages
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logFatal(CoreController core, string message) => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Fatal);
-        //
-        //=============================================================================
-        /// <summary>
-        /// Normal behavior like mail sent, user updated profile etc
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logInfo(CoreController core, string message) => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Info);
-        //
-        //=============================================================================
-        /// <summary>
-        /// log begin method, end method, etc
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logTrace(CoreController core, string message) => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Trace);
-        //
-        //=============================================================================
-        /// <summary>
-        /// log incorrect behavior but the application can continue
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logWarn(CoreController core, string message) => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Warn);
         //
         //=============================================================================
         /// <summary>
@@ -133,8 +98,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="level"></param>
         public static void logShortLine(string messageLine, BaseClasses.CPLogBaseClass.LogLevel level) {
             try {
-                var nlogLogger = LogManager.GetCurrentClassLogger();
-                nlogLogger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), nlogLogger.Name, messageLine));
+                logger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
             } catch (Exception) {
                 // -- throw away errors in error-handling
             }
@@ -148,24 +112,50 @@ namespace Contensive.Processor.Controllers {
         /// <param name="message"></param>
         /// <param name="level"></param>
         public static void log(CoreController core, string message, BaseClasses.CPLogBaseClass.LogLevel level) {
-            try {
-                string messageLine = getMessageLine(core, message, level >= BaseClasses.CPLogBaseClass.LogLevel.Warn);
-                //Logger loggerInstance = core.nlogLogger;
-                Logger loggerInstance = LogManager.GetCurrentClassLogger();
-                loggerInstance.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), loggerInstance.Name, messageLine));
-                ////
-                //// -- add to doc exception list to display at top of webpage
-                //if (level < BaseClasses.CPLogBaseClass.LogLevel.Warn) { return; }
-                //if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
-                //if (core.doc.errorList.Count < 10) {
-                //    core.doc.errorList.Add(messageLine);
-                //    return;
-                //}
-                if (core.doc.errorList.Count == 10) { core.doc.errorList.Add("Exception limit exceeded"); }
-            } catch (Exception) {
-                // -- throw away errors in error-handling
-            }
+            string messageLine = processLogMessage(core, message, level >= BaseClasses.CPLogBaseClass.LogLevel.Warn);
+            logger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
         }
+        //
+        //=============================================================================
+        /// <summary>
+        /// log highest level, most important messages
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="message"></param>
+        /// <remarks></remarks>
+        [Obsolete("Use nlog instance in each class",false)] 
+        public static void logFatal(CoreController core, string message)
+            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+        //
+        //=============================================================================
+        /// <summary>
+        /// Normal behavior like mail sent, user updated profile etc
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="message"></param>
+        /// <remarks></remarks>        
+        public static void logInfo(CoreController core, string message)
+            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Info);
+        //
+        //=============================================================================
+        /// <summary>
+        /// log begin method, end method, etc
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="message"></param>
+        /// <remarks></remarks>
+        public static void logTrace(CoreController core, string message)
+            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Trace);
+        //
+        //=============================================================================
+        /// <summary>
+        /// log incorrect behavior but the application can continue
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="message"></param>
+        /// <remarks></remarks>
+        public static void logWarn(CoreController core, string message)
+            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Warn);
         //
         //====================================================================================================
         /// <summary>
@@ -230,6 +220,20 @@ namespace Contensive.Processor.Controllers {
             log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
         }
         //
+        //================================================================================================
+        /// <summary>
+        /// An error that also appends a log file in the /alarms folder in program files. The diagnostic monitor should signal a fail.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="cause"></param>
+        public static void logAlarm(CoreController core, string cause) {
+            log(core, "logAlarm: " + cause, BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+            //
+            // -- set off alarm
+            DateTime now = DateTime.Now;
+            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000", CultureInfo.InvariantCulture) + now.Month.ToString("00", CultureInfo.InvariantCulture) + now.Day.ToString("00", CultureInfo.InvariantCulture) + "-alarms.log", processLogMessage(core, now.ToString(CultureInfo.InvariantCulture) + ", [" + cause + "]", true));
+        }
+        //
         //=====================================================================================================
         /// <summary>
         /// add activity about a user to the site's activity log for content managers to review
@@ -240,6 +244,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="SubjectMemberID"></param>
         /// <param name="SubjectOrganizationID"></param>
         /// <param name="Link"></param>
+        /// <param name="VisitorId"></param>
+        /// <param name="VisitId"></param>
         public static void addSiteActivity(CoreController core, string Message, int ByMemberID, int SubjectMemberID, int SubjectOrganizationID, string Link = "", int VisitorId = 0, int VisitId = 0) {
             try {
                 //
@@ -259,7 +265,8 @@ namespace Contensive.Processor.Controllers {
                 return;
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+                throw;
             }
         }
         //
@@ -268,12 +275,12 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="Message"></param>
-        /// <param name="SubjectMemberID"></param>
-        /// <param name="SubjectOrganizationID"></param>
-        public static void addSiteActivity(CoreController core, string Message, int SubjectMemberID, int SubjectOrganizationID) {
+        /// <param name="message"></param>
+        /// <param name="subjectMemberID"></param>
+        /// <param name="subjectOrganizationID"></param>
+        public static void addSiteActivity(CoreController core, string message, int subjectMemberID, int subjectOrganizationID) {
             if ((core.session != null) && (core.session.user != null) && (core.session.visitor != null) && (core.session.visit != null) && (core.webServer != null)) {
-                addSiteActivity(core, Message, core.session.user.id, SubjectMemberID, SubjectOrganizationID, core.webServer.requestUrl, core.session.visitor.id, core.session.visit.id);
+                addSiteActivity(core, message, core.session.user.id, subjectMemberID, subjectOrganizationID, core.webServer.requestUrl, core.session.visitor.id, core.session.visit.id);
             }
         }
         //
@@ -296,61 +303,51 @@ namespace Contensive.Processor.Controllers {
         ///           count - the number of times the name and issueCategory matched. "This error was reported 100 times"
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="Name">A generic description of the warning that describes the problem, but if the issue occurs again the name will match, like Page Not Found on /Home</param>
+        /// <param name="name">A generic description of the warning that describes the problem, but if the issue occurs again the name will match, like Page Not Found on /Home</param>
         /// <param name="ignore">To be deprecated - same as name</param>
         /// <param name="location">Where the issue occurred, like on a page, or in a background process.</param>
-        /// <param name="PageID"></param>
-        /// <param name="Description">Any detail the use will need to debug the problem.</param>
+        /// <param name="pageID"></param>
+        /// <param name="description">Any detail the use will need to debug the problem.</param>
         /// <param name="issueCategory">A general description of the issue that can be grouped in a report, like Page Not Found</param>
         /// <param name="ignore2">to be deprecated, same a name.</param>
         //
-        public static void addSiteWarning(CoreController core, string Name, string ignore, string location, int PageID, string Description, string issueCategory, string ignore2) {
-            int warningId = 0;
+        public static void addSiteWarning(CoreController core, string name, string ignore, string location, int pageID, string description, string issueCategory, string ignore2) {
             string SQL = "select top 1 ID from ccSiteWarnings"
-                + " where (name=" + DbController.encodeSQLText(Name) + ")"
+                + " where (name=" + DbController.encodeSQLText(name) + ")"
                 + " and(generalKey=" + DbController.encodeSQLText(issueCategory) + ")"
                 + "";
-            DataTable dt = core.db.executeQuery(SQL);
-            if (dt.Rows.Count > 0) {
-                warningId = GenericController.encodeInteger(dt.Rows[0]["id"]);
+            using (DataTable dt = core.db.executeQuery(SQL)) {
+                if (dt.Rows.Count > 0) {
+                    //
+                    // -- increment count for matching warning
+                    int warningId = GenericController.encodeInteger(dt.Rows[0]["id"]);
+                    SQL = "update ccsitewarnings "
+                        + " set count=count+1,"
+                        + " dateLastReported=" + DbController.encodeSQLDate(core.dateTimeNowMockable) + " "
+                        + " where id=" + warningId;
+                    core.db.executeNonQuery(SQL);
+                    return;
+                }
             }
             //
-            if (warningId != 0) {
-                //
-                // increment count for matching warning
-                //
-                SQL = "update ccsitewarnings set count=count+1,DateLastReported=" + DbController.encodeSQLDate(core.dateTimeNowMockable) + " where id=" + warningId;
-                core.db.executeNonQuery(SQL);
-            } else {
-                //
-                // insert new record
-                //
-                using (var csData = new CsModel(core)) {
-                    if (csData.insert("Site Warnings")) {
-                        csData.set("name", Name);
-                        csData.set("description", Description);
-                        csData.set("generalKey", issueCategory);
-                        csData.set("count", 1);
-                        csData.set("DateLastReported", core.dateTimeNowMockable);
-                        csData.set("location", location);
-                        csData.set("pageId", PageID);
-                    }
-                }
+            // -- insert new record
+            using var csData = new CsModel(core);
+            if (csData.insert("Site Warnings")) {
+                csData.set("name", name);
+                csData.set("description", description);
+                csData.set("generalKey", issueCategory);
+                csData.set("count", 1);
+                csData.set("DateLastReported", core.dateTimeNowMockable);
+                csData.set("location", location);
+                csData.set("pageId", pageID);
             }
             //
         }
         //
-        //================================================================================================
+        //====================================================================================================
         /// <summary>
-        /// Appends a log file in the /alarms folder in program files. The diagnostic monitor should signal a fail.
+        /// nlog class instance
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="cause"></param>
-        public static void logAlarm(CoreController core, string cause) {
-            LogController.logFatal(core, "logAlarm: " + cause);
-            DateTime now = DateTime.Now;
-            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000") + now.Month.ToString("00") + now.Day.ToString("00") + "-alarms.log", getMessageLine(core, now.ToString() + ", [" + cause + "]",true));
-
-        }
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

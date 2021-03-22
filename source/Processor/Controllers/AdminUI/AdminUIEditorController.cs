@@ -1,16 +1,15 @@
 ﻿
+using Contensive.Models.Db;
+using Contensive.Processor.Addons.AdminSite;
+using Contensive.Processor.Addons.AdminSite.Models;
+using Contensive.Processor.Models.Domain;
+using Contensive.Processor.Properties;
 using System;
 using System.Collections.Generic;
-using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
-using Contensive.Processor.Models.Domain;
-using System.Text;
-using Contensive.Processor.Exceptions;
-using Contensive.Models.Db;
 using System.Globalization;
-using Contensive.Processor.Addons.AdminSite.Models;
-using Contensive.Processor.Addons.AdminSite;
-using Contensive.Processor.Properties;
+using System.Text;
+using static Contensive.Processor.Constants;
+using static Contensive.Processor.Controllers.GenericController;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -891,5 +890,11 @@ namespace Contensive.Processor.Controllers {
             public string helpText;
             public List<GroupRuleEditorRowModel> rowList;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

@@ -212,5 +212,11 @@ namespace Contensive.Processor.Controllers {
             if (ex.InnerException != null) { errorMsg += "\nInner Exception: " + ex.InnerException.ToString(); }
             return errorMsg;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

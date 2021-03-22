@@ -1,6 +1,6 @@
 ﻿
-using System;
 using Contensive.Processor.Controllers;
+using System;
 using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Addons.AdminSite {
@@ -80,5 +80,11 @@ namespace Contensive.Processor.Addons.AdminSite {
             return tempGetForm_Edit_LinkAliases;
         }
 
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

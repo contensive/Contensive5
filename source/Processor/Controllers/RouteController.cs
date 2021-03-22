@@ -29,6 +29,11 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <returns>The doc created by the default addon. (html, json, etc)</returns>
         public static string executeRoute(CoreController core, string routeOverride = "") {
+            if (!core.appConfig.enabled) {
+                //
+                // -- if app not enabled, exit with empty
+                return string.Empty;
+            }
             string result = "";
             var sw = new Stopwatch();
             sw.Start();
@@ -157,8 +162,8 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     string requestUsername = core.cpParent.Doc.GetText("username");
                                     string requestPassword = core.cpParent.Doc.GetText("password");
-                                    bool passwordRequestValid = core.cpParent.Doc.IsProperty("password");
-                                    LoginController.processLoginFormDefault(core, requestUsername, requestPassword, passwordRequestValid);
+                                    bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
+                                    LoginController.processLoginFormDefault(core, requestUsername, requestPassword, requestIncludesPassword);
                                     result = "";
                                     break;
                                 }
@@ -423,5 +428,11 @@ namespace Contensive.Processor.Controllers {
             }
             return result;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

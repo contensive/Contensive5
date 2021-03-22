@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using NLog;
 using System;
 using static Contensive.Processor.Constants;
 //
@@ -50,7 +51,7 @@ namespace Contensive.Processor.Controllers {
             string result = "";
             try {
                 //
-                LogController.logTrace(core, "loginController.getLoginForm_Default, enter");
+                LogController.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + requirePassword + "]");
                 //
                 bool needLoginForm = true;
                 string formType = core.docProperties.getText("type");
@@ -156,7 +157,7 @@ namespace Contensive.Processor.Controllers {
         public static string getLoginForm(CoreController core, bool forceDefaultLoginForm, bool requirePassword) {
             try {
                 //
-                LogController.logTrace(core, "loginController.getLoginForm, enter");
+                LogController.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + requirePassword + "]");
                 //
                 string returnHtml = "";
                 int loginAddonId = 0;
@@ -202,12 +203,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="requestUsername">The username submitted from the request</param>
         /// <param name="requestPassword">The password submitted from the request</param>
-        /// <param name="passwordRequestValid">true if the request includes a password property. if true, the no-password mode is blocked and a password is required. Typically used to create an admin/developer login</param>
+        /// <param name="requestIncludesPassword">true if the request includes a password property. if true, the no-password mode is blocked and a password is required. Typically used to create an admin/developer login</param>
         /// <returns></returns>
-        public static bool processLoginFormDefault(CoreController core, string requestUsername, string requestPassword, bool passwordRequestValid) {
+        public static bool processLoginFormDefault(CoreController core, string requestUsername, string requestPassword, bool requestIncludesPassword) {
             try {
                 //
-                LogController.logTrace(core, "loginController.processLoginFormDefault, enter");
+                LogController.logTrace(core, "loginController.processLoginFormDefault, requestUsername [" + requestUsername + "], requestPassword [" + requestPassword + "], requestIncludesPassword [" + requestIncludesPassword + "]");
                 //
                 if ((!core.session.visit.cookieSupport) && (core.session.visit.pageVisits>1)) {
                     //
@@ -226,12 +227,15 @@ namespace Contensive.Processor.Controllers {
                 int userId = core.session.getUserIdForUsernameCredentials(
                     requestUsername,
                     requestPassword,
-                    passwordRequestValid
+                    requestIncludesPassword
                 );
                 if (userId == 0) {
                     //
-                    // -- gegtUserId failed, userError already added
-                    if (core.session.isAuthenticated || core.session.isRecognized()) { core.session.logout(); }
+                    // -- getUserId failed, userError already added
+                    // -- if login fails, do not logout. Current issue where a second longin process is running, fails, 
+                    // -- and logs out because there is a 'username' collision with another addon which overwrites the global-space username variable
+                    // -- informal survey of trusted sites leave you logged in if sign-on fails. 
+                    // -- if (core.session.isAuthenticated || core.session.isRecognized()) { core.session.logout(); }
                     core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
                     core.session.visit.save(core.cpParent);
                     ErrorController.addUserError(core, loginFailedError);
@@ -263,5 +267,11 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }
