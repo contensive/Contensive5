@@ -341,9 +341,15 @@ namespace Contensive.Processor.Controllers {
             get {
                 if (_requestCookies != null) { return _requestCookies; }
                 _requestCookies = new Dictionary<string, CookieClass>();
-                if (httpContext?.Request?.Cookies == null) return _requestCookies;
+                if (httpContext?.Request?.Cookies == null) { return _requestCookies; }
+                //
+                // -- add httpContet request cookies to the local simple name/value request cookies dictionary
                 foreach (var kvp in httpContext.Request.Cookies) {
-                    _requestCookies.Add(kvp.Key, new CookieClass() { name = kvp.Key, value = kvp.Value.Value });                    
+                    if (!_requestCookies.ContainsKey(kvp.Key)) {
+                        //
+                        // -- do not allow duplicate keys
+                        _requestCookies.Add(kvp.Key, new CookieClass() { name = kvp.Key, value = kvp.Value.Value });
+                    }
                 }
                 return _requestCookies;
             }

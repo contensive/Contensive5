@@ -235,7 +235,7 @@ namespace Contensive.Processor.Controllers {
                     // -- if login fails, do not logout. Current issue where a second longin process is running, fails, 
                     // -- and logs out because there is a 'username' collision with another addon which overwrites the global-space username variable
                     // -- informal survey of trusted sites leave you logged in if sign-on fails. 
-                    // -- if (core.session.isAuthenticated || core.session.isRecognized()) { core.session.logout(); }
+                    // -- i f   ( c o r e . s e s s i o n . i s A u t h e n t i c a t e d   | |   c o r e . s e s s i o n . i s R e c o g n i z e d ( ) )   {   c o r e . s e s s i o n . l o g o u t ( ) ;  }
                     core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
                     core.session.visit.save(core.cpParent);
                     ErrorController.addUserError(core, loginFailedError);

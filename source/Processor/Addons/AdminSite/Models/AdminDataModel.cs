@@ -1,16 +1,15 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Data;
-
-using Contensive.Processor.Controllers;
-using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
-using Contensive.Processor.Models.Domain;
-using Contensive.Processor.Exceptions;
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Addons.AdminSite.Models;
+using Contensive.Processor.Controllers;
+using Contensive.Processor.Exceptions;
+using Contensive.Processor.Models.Domain;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using static Contensive.Processor.Constants;
+using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Addons.AdminSite {
     /// <summary>
@@ -20,7 +19,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //====================================================================================================
         //
-        public CoreController core;
+        private CoreController core { get; }
         //
         //====================================================================================================
         /// <summary>
@@ -80,7 +79,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <summary>
         /// for passing where clause values from page to page, key should be lowercase
         /// </summary>
-        public Dictionary<string, string> wherePair = new Dictionary<string, string>();
+        internal Dictionary<string, string> wherePair { get; set; } = new Dictionary<string, string>();
         //
         //====================================================================================================
         /// <summary>
@@ -179,12 +178,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// Count of Buttons in use
         /// </summary>
         public int buttonObjectCount { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public string[,] imagePreloads = new string[3, 101];
         //
         //====================================================================================================
         /// <summary>
@@ -531,7 +524,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Read WherePairCount
                 int wherePairCount = 0;
                 foreach (var nvp in request.wherePairDict) {
-                    wherePair.Add(nvp.Key.ToLower(), nvp.Value);
+                    wherePair.Add(nvp.Key.ToLowerInvariant(), nvp.Value);
                     core.doc.addRefreshQueryString("wl" + wherePairCount, GenericController.encodeRequestVariable(nvp.Key));
                     core.doc.addRefreshQueryString("wr" + wherePairCount, GenericController.encodeRequestVariable(nvp.Value));
                     wherePairCount += 1;
@@ -607,14 +600,14 @@ namespace Contensive.Processor.Addons.AdminSite {
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
-            return;
         }
         // ====================================================================================================
-        // Load Array
-        //   Get defaults if no record ID
-        //   Then load in any response elements
-        //
-        public void loadEditRecord(CoreController core, bool CheckUserErrors = false) {
+        /// <summary>
+        /// Load Array, Get defaults if no record ID, Then load in any response elements
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="CheckUserErrors"></param>
+        public void loadEditRecord(CoreController core, bool CheckUserErrors) {
             try {
                 // todo refactor out
                 if (string.IsNullOrEmpty(adminContent.name)) {
@@ -718,8 +711,17 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         //
         // ====================================================================================================
-        //   Load both Live and Edit Record values from definition defaults
+        /// <summary>
+        /// Load Array, Get defaults if no record ID, Then load in any response elements, no user errors
+        /// </summary>
+        /// <param name="core"></param>
+        public void loadEditRecord(CoreController core) => loadEditRecord(core, false);
         //
+        // ====================================================================================================
+        /// <summary>
+        /// Load both Live and Edit Record values from definition defaults
+        /// </summary>
+        /// <param name="core"></param>
         public void loadEditRecord_Default(CoreController core) {
             try {
                 //
@@ -832,8 +834,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         //
         // ====================================================================================================
-        //   Load both Live and Edit Record values from definition defaults
-        //
+        /// <summary>
+        /// Load both Live and Edit Record values from definition defaults
+        /// </summary>
+        /// <param name="core"></param>
         public void loadEditRecord_WherePairs(CoreController core) {
             try {
                 // todo refactor out
@@ -887,9 +891,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         //
         // ====================================================================================================
-        //   Load Records from the database
-        //
-        public void loadEditRecord_Dbase(CoreController core, bool CheckUserErrors = false) {
+        /// <summary>
+        /// Load Records from the database
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="CheckUserErrors"></param>
+        public void loadEditRecord_Dbase(CoreController core, bool CheckUserErrors) {
             try {
                 //
                 //
@@ -976,10 +983,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 } else {
                                     editRecordField = editRecord.fieldsLc[fieldNameLc];
                                 }
-                                //
-                                // 1/21/2007 - added clause if required and null, set to default value
-                                //
-                                object fieldValue = NullVariant;
                                 //
                                 // Load the current Database value
                                 //
@@ -1114,8 +1117,18 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         //
         // ====================================================================================================
-        //   Read the Form into the fields array
+        /// <summary>
+        /// Load Records from the database, no user error check
+        /// </summary>
+        /// <param name="core"></param>
+        public void loadEditRecord_Dbase(CoreController core)
+            => loadEditRecord_Dbase(core, false);
         //
+        // ====================================================================================================
+        /// <summary>
+        /// Read the Form into the fields array
+        /// </summary>
+        /// <param name="core"></param>
         public void loadEditRecord_Request(CoreController core) {
             try {
                 //
@@ -1177,8 +1190,13 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         //
         // ====================================================================================================
-        //   Read the Form into the fields array
-        //
+        /// <summary>
+        /// Read the Form into the fields array
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="field"></param>
+        /// <param name="FormFieldLcListToBeLoaded"></param>
+        /// <param name="FormEmptyFieldLcList"></param>
         public void loadEditRecord_RequestField(CoreController core, ContentFieldMetadataModel field, List<string> FormFieldLcListToBeLoaded, List<string> FormEmptyFieldLcList) {
             try {
                 //
@@ -1338,8 +1356,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         //
                                         ResponseFieldIsEmpty = ResponseFieldIsEmpty || (string.IsNullOrEmpty(ResponseFieldValueText));
                                         if (!ResponseFieldIsEmpty) {
-                                            if (ResponseFieldValueText.isNumeric()) {
-                                            } else {
+                                            if (!ResponseFieldValueText.isNumeric()) {
                                                 Processor.Controllers.ErrorController.addUserError(core, "This record cannot be saved because the field [" + field.caption + "]" + TabCopy + " must be a numeric value.");
                                                 ResponseFieldValueIsOKToSave = false;
                                             }
@@ -1352,8 +1369,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         //
                                         ResponseFieldIsEmpty = ResponseFieldIsEmpty || (string.IsNullOrEmpty(ResponseFieldValueText));
                                         if (!ResponseFieldIsEmpty) {
-                                            if (ResponseFieldValueText.isNumeric()) {
-                                            } else {
+                                            if (!ResponseFieldValueText.isNumeric()) {
                                                 ErrorController.addUserError(core, "This record cannot be saved because the field [" + field.caption + "]" + TabCopy + " had an invalid selection.");
                                                 ResponseFieldValueIsOKToSave = false;
                                             }
@@ -1567,7 +1583,9 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// addons used for editing, based on the field type
+        /// </summary>
         public List<FieldTypeEditorAddonModel> fieldTypeEditors {
             get {
                 if (_fieldTypeDefaultEditors == null) {
@@ -1576,22 +1594,66 @@ namespace Contensive.Processor.Addons.AdminSite {
                 return _fieldTypeDefaultEditors;
             }
         }
-        private List<FieldTypeEditorAddonModel> _fieldTypeDefaultEditors = null;
+        private List<FieldTypeEditorAddonModel> _fieldTypeDefaultEditors;
         //
     }
+    //
+    //====================================================================================================
+    /// <summary>
+    /// method request object
+    /// </summary>
     public class AdminDataRequest {
-        public int contentId;
-        public int id;
-        public string guid;
-        public string titleExtension;
-        public int recordTop;
-        public int recordsPerPage;
-        public Dictionary<string, string> wherePairDict;
-        public int adminAction;
-        public int adminSourceForm;
-        public int adminForm;
-        public string adminButton;
-        public int ignore_legacyMenuDepth;
-        public string fieldEditorPreference;
+        /// <summary>
+        /// content for edit or list
+        /// </summary>
+        public int contentId { get; set; }
+        /// <summary>
+        /// record id for edit
+        /// </summary>
+        public int id { get; set; }
+        /// <summary>
+        /// guid for edit
+        /// </summary>
+        public string guid { get; set; }
+        /// <summary>
+        /// prefix for record edit
+        /// </summary>
+        public string titleExtension { get; set; }
+        /// <summary>
+        /// the index to the top record
+        /// </summary>
+        public int recordTop { get; set; }
+        /// <summary>
+        /// records to display
+        /// </summary>
+        public int recordsPerPage { get; set; }
+        /// <summary>
+        /// name value pairs used for filters
+        /// </summary>
+        public Dictionary<string, string> wherePairDict { get; set; }
+        /// <summary>
+        /// action, like save, etc
+        /// </summary>
+        public int adminAction { get; set; }
+        /// <summary>
+        /// the form id of to originating form
+        /// </summary>
+        public int adminSourceForm { get; set; }
+        /// <summary>
+        /// the destination form
+        /// </summary>
+        public int adminForm { get; set; }
+        /// <summary>
+        /// the button pressed
+        /// </summary>
+        public string adminButton { get; set; }
+        /// <summary>
+        /// ignore_legacyMenuDepth
+        /// </summary>
+        public int ignore_legacyMenuDepth { get; set; }
+        /// <summary>
+        /// fieldEditorPreference
+        /// </summary>
+        public string fieldEditorPreference { get; set; }
     }
 }
