@@ -8,6 +8,9 @@ using System.Collections.Generic;
 using System.Text;
 //
 namespace Contensive.Processor.Addons.PageManager {
+    /// <summary>
+    /// addon interface
+    /// </summary>
     public class GetChildPageList : Contensive.BaseClasses.AddonBaseClass {
         //
         //====================================================================================================
@@ -48,7 +51,16 @@ namespace Contensive.Processor.Addons.PageManager {
         //       "ORPHAN" returns all child pages that have not been printed on this page
         //           - uses ChildPageListTracking to track what has been seen
         //=============================================================================
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="requestedListName"></param>
+        /// <param name="contentName"></param>
+        /// <param name="parentPageID"></param>
+        /// <param name="allowChildListDisplay"></param>
+        /// <param name="ArchivePages"></param>
+        /// <returns></returns>
         public static string getChildPageList(CoreController core, string requestedListName, string contentName, int parentPageID, bool allowChildListDisplay, bool ArchivePages = false) {
             try {
                 if (string.IsNullOrEmpty(contentName)) { contentName = PageContentModel.tableMetadata.contentName; }

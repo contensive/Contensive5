@@ -689,11 +689,11 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- initialize application
                     appConfig = AppConfigModel.getObject(this, serverConfig, appName);
-                }
-                if(!appConfig.enabled) { 
-                    //
-                    // -- app not enabled, exit
-                    return; 
+                    if (!appConfig.enabled) {
+                        //
+                        // -- app is provided, but not enabled, exit
+                        return;
+                    }
                 }
                 if (httpContext != null) {
                     //

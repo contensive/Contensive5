@@ -540,6 +540,20 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// Text Messaging interface
+        /// </summary>
+        public override CPSMSBaseClass SMS {
+            get {
+                if (_smsObj == null) {
+                    _smsObj = new CPSMSClass(this);
+                }
+                return _smsObj;
+            }
+        }
+        private CPSMSClass _smsObj;
+        //
+        //====================================================================================================
+        /// <summary>
         /// An object that provides basic methods helpful is application execute.
         /// </summary>
         public override CPUtilsBaseClass Utils {
@@ -776,6 +790,9 @@ namespace Contensive.Processor {
                     }
                     if (_siteObj != null) {
                         _siteObj.Dispose();
+                    }
+                    if (_smsObj != null) {
+                        _smsObj.Dispose();
                     }
                     if (_userObj != null) {
                         _userObj.Dispose();

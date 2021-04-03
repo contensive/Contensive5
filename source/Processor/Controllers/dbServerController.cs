@@ -92,7 +92,23 @@ namespace Contensive.Processor.Controllers {
         /// <param name="catalogName"></param>
         public void deleteCatalog(string catalogName) {
             try {
-                executeQuery("DROP DATABASE IF EXISTS " + catalogName);
+                // -- close connections and drop database
+                string sql = ""
+                    + "\r Use Master"
+                    + "\r Go"
+                    + "\r Declare @dbname sysname"
+                    + "\r Set @dbname = '" + catalogName + "'"
+                    + "\r Declare @spid int"
+                    + "\r Select @spid = min(spid) from master.dbo.sysprocesses"
+                    + "\r where dbid = db_id(@dbname)"
+                    + "\r While @spid Is Not Null"
+                    + "\r Begin"
+                    + "\r  Execute('Kill ' + @spid)"
+                    + "\r  Select @spid = min(spid) from master.dbo.sysprocesses"
+                    + "\r  where dbid = db_id(@dbname) and spid > @spid"
+                    + "\r End"
+                    + "\r drop database app2103141833";
+                executeQuery(sql);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

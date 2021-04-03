@@ -14,12 +14,21 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// Deserialize a
+        /// Deserialize to an object of a known class
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="JSON"></param>
         /// <returns></returns>
         public abstract T Deserialize<T>(string JSON);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Deserialize to an object of a unknown class
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="JSON"></param>
+        /// <returns></returns>
+        public abstract object Deserialize(string JSON);
     }
 }
 

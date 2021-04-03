@@ -328,7 +328,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userErrorMessage"></param>
         /// <returns>Admin message if something went wrong (email addresses checked, etc.</returns>
         public static bool tryQueueSystemEmail(CoreController core, string emailName, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
-            if (!String.IsNullOrEmpty(emailName)) {
+            if (!string.IsNullOrEmpty(emailName)) {
                 SystemEmailModel email = DbBaseModel.createByUniqueName<SystemEmailModel>(core.cpParent, emailName);
                 if (email == null) {
                     if (emailName.isNumeric()) {
@@ -395,6 +395,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
         public static bool tryQueueSystemEmail(CoreController core, int emailid, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
+            //
+            // -- argument check. if emailid is 0, the configuration is set to not send, and this should not have been called. If non-zero and no email found, that is a data error.
+            if (emailid == 0) { return false; }
+            //
             SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailid);
             if (email == null) {
                 userErrorMessage = "The notification email could not be sent.";
@@ -445,6 +449,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="email"></param>
         /// <param name="appendedCopy"></param>
         /// <param name="additionalMemberID"></param>
+        /// <param name="userErrorMessage"></param>
         /// <returns>Admin message if something went wrong (email addresses checked, etc.</returns>
         public static bool queueSystemEmail(CoreController core, SystemEmailModel email, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             try {
@@ -611,10 +616,10 @@ namespace Contensive.Processor.Controllers {
                             int Posat = GenericController.strInstr(1, Emailtext, "@");
                             int PosDot = Emailtext.LastIndexOf(".") + 1;
                             if (EmailLen < 6) {
-                                BadCnt +=  1;
+                                BadCnt += 1;
                                 BadList.Append(EmailLine + BR);
                             } else if ((Posat < 4) || (Posat > (EmailLen - 4))) {
-                                BadCnt +=  1;
+                                BadCnt += 1;
                                 BadList.Append(EmailLine + BR);
                             }
                             TotalList = TotalList + EmailLine + BR;
@@ -692,7 +697,7 @@ namespace Contensive.Processor.Controllers {
                 userErrorMessage = "";
                 string Message = "";
                 string emailSubjectWorking = emailSubject;
-                if ((toAddress.IndexOf("@",StringComparison.InvariantCultureIgnoreCase) == -1)) {
+                if ((toAddress.IndexOf("@", StringComparison.InvariantCultureIgnoreCase) == -1)) {
                     toAddress = core.siteProperties.getText("TrapEmail");
                     emailSubjectWorking = "EmailForm with bad to-address";
                     Message = "Subject: " + emailSubjectWorking;

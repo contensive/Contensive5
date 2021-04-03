@@ -14,15 +14,6 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Contensive version
-        /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public abstract string Version { get; }
-        //
-        //====================================================================================================
-        /// <summary>
         /// The addon class handles access to an add-on's features. Use the Utils object to run an cpcore.addon. An instance of the Addon class is passed to the executing addon in the MyAddon object so it can access any features needed. See the CPAddonBaseClass for more details.
         /// </summary>
         /// <value></value>
@@ -254,6 +245,16 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract CPSecurityBaseClass Security { get; }
         //
+        //====================================================================================================
+        /// <summary>
+        /// Text messaging services
+        /// </summary>
+        public abstract CPSMSBaseClass SMS { get; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// A local file system that automatically deletes files
+        /// </summary>
         public abstract CPFileSystemBaseClass TempFiles { get; }
         //
         //====================================================================================================
@@ -300,6 +301,15 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract CPUtilsBaseClass Utils { get; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Contensive version
+        /// </summary>
+        /// <value></value>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public abstract string Version { get; }
         //
         //====================================================================================================
         /// <summary>

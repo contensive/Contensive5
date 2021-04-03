@@ -40,36 +40,56 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     LogController.logInfo(core, "Delete visits with no DateAdded");
                     //
-                    core.db.sqlCommandTimeout = 180;
-                    core.db.executeNonQuery("delete from ccvisits where (DateAdded is null)");
+                    int loopCnt = 0;
+                    int recordsAffected = 0;
+                    do {
+                        core.db.sqlCommandTimeout = 180;
+                        core.db.executeNonQuery("delete top (1000) from ccvisits where (DateAdded is null)", ref recordsAffected);
+                    } while (recordsAffected != 0 && ++loopCnt < 100);
                 }
                 {
                     //
                     LogController.logInfo(core, "Delete visits with no visitor, 2-days old to allow visit-summary");
                     //
-                    core.db.sqlCommandTimeout = 180;
-                    core.db.executeNonQuery("delete from ccvisits from ccvisits v left join ccvisitors r on r.id=v.visitorid where (r.id is null) and (v.DateAdded<DATEADD(day,-2,CAST(GETDATE() AS DATE)))");
+                    int loopCnt = 0;
+                    int recordsAffected = 0;
+                    do {
+                        core.db.sqlCommandTimeout = 180;
+                        core.db.executeNonQuery("delete top (1000) from ccvisits from ccvisits v left join ccvisitors r on r.id=v.visitorid where (r.id is null) and (v.DateAdded<DATEADD(day,-2,CAST(GETDATE() AS DATE)))",ref recordsAffected);
+                    } while (recordsAffected != 0 && ++loopCnt < 100);
                 }
                 {
                     //
-                    LogController.logInfo(core, "Delete visits with bot=true, 2-days old to allow visit-summary");
+                    LogController.logInfo(core, "Delete bot visits, 2-days old to allow visit-summary");
                     //
-                    core.db.sqlCommandTimeout = 180;
-                    core.db.executeNonQuery("delete from ccvisits from ccvisits v where (v.bot>0) and (v.DateAdded<DATEADD(day,-2,CAST(GETDATE() AS DATE)))");
+                    int loopCnt = 0;
+                    int recordsAffected = 0;
+                    do {
+                        core.db.sqlCommandTimeout = 180;
+                        core.db.executeNonQuery("delete top (1000) from ccvisits from ccvisits v where (v.bot>0) and (v.DateAdded<DATEADD(day,-2,CAST(GETDATE() AS DATE)))", ref recordsAffected);
+                    } while (recordsAffected != 0 && ++loopCnt < 100);
                 }
                 {
                     //
                     LogController.logInfo(core, "delete visits with no people (no functional use to site beyond reporting, which is limited past archive date)");
                     //
-                    core.db.sqlCommandTimeout = 180;
-                    core.db.executeNonQuery("delete from ccvisits from ccvisits v left join ccmembers m on m.id=v.memberid where (m.id is null) and (v.DateAdded<DATEADD(day,-2,CAST(GETDATE() AS DATE)))");
+                    int loopCnt = 0;
+                    int recordsAffected = 0;
+                    do {
+                        core.db.sqlCommandTimeout = 180;
+                        core.db.executeNonQuery("delete top (1000) from ccvisits from ccvisits v left join ccmembers m on m.id=v.memberid where (m.id is null) and (v.DateAdded<DATEADD(day,-2,CAST(GETDATE() AS DATE)))", ref recordsAffected);
+                    } while (recordsAffected != 0 && ++loopCnt < 100);
                 }
                 if (env.archiveDeleteNoCookie) {
                     //
                     LogController.logInfo(core, "Deleting visits with no cookie support older than Midnight, Two Days Ago");
                     //
-                    core.db.sqlCommandTimeout = 180;
-                    core.db.executeNonQuery("delete from ccvisits where (CookieSupport=0)and(LastVisitTime<DATEADD(day,-2,CAST(GETDATE() AS DATE)))");
+                    int loopCnt = 0;
+                    int recordsAffected = 0;
+                    do {
+                        core.db.sqlCommandTimeout = 180;
+                        core.db.executeNonQuery("delete top (1000) from ccvisits where (CookieSupport=0)and(LastVisitTime<DATEADD(day,-2,CAST(GETDATE() AS DATE)))", ref recordsAffected);
+                    } while (recordsAffected != 0 && ++loopCnt < 100);
                 }
                 DateTime OldestVisitDate = default;
                 //
