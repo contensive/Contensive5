@@ -51,6 +51,10 @@ namespace Contensive.Models.Db {
         public string jSHead { get; set; }
         public string jSOnLoad { get; set; }
         public string linkAlias { get; set; }
+        /// <summary>
+        /// html class added to the LI element of dynamic bootstrap menus
+        /// </summary>
+        public string menuClass { get; set; }
         public string menuHeadline { get; set; }
         public string metaDescription { get; set; }
         public string metaKeywordList { get; set; }
