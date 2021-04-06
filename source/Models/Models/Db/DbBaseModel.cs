@@ -1767,9 +1767,9 @@ namespace Contensive.Models.Db {
         /// Get count of all records in the table
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="core"></param>
+        /// <param name="cp"></param>
         /// <returns></returns>
-        public static int getCount<T>(CPBaseClass core) where T : DbBaseModel => getCount<T>(core, "");
+        public static int getCount<T>(CPBaseClass cp) where T : DbBaseModel => getCount<T>(cp, "");
         //
         //====================================================================================================
         /// <summary>
