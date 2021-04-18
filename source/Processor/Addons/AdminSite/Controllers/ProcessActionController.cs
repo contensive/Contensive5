@@ -361,7 +361,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             }
                             break;
                     }
-                    adminData.adminForm = adminData.adminSourceForm;
+                    adminData.dstFormId = adminData.srcFormId;
                     //
                     // convert so action can be used in as a refresh
                     adminData.admin_Action = Constants.AdminActionNop;
@@ -447,7 +447,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // If the content supports datereviewed, mark it
                 //
                 if (!cp.core.doc.userErrorList.Count.Equals(0)) {
-                    adminData.adminForm = adminData.adminSourceForm;
+                    adminData.dstFormId = adminData.srcFormId;
                 }
                 adminData.admin_Action = Constants.AdminActionNop;
             } catch (Exception ex) {

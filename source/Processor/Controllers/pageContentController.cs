@@ -374,7 +374,6 @@ namespace Contensive.Processor.Controllers {
                                         //
                                         // -- block with custom content
                                         core.doc.continueProcessing = false;
-                                        core.doc.setMetaContent(0, 0);
                                         core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
                                         return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), TemplateDefaultBodyTag, true, true);
                                     }

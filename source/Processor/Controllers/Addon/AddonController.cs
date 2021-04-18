@@ -534,7 +534,6 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- iFrame content, framed in content, during the remote method call, add in the rest of the html page
                     hint = 24;
-                    core.doc.setMetaContent(0, 0);
                     resultString = ""
                         + core.siteProperties.docTypeDeclaration + Environment.NewLine + "<html>"
                         + Environment.NewLine + "<head>"

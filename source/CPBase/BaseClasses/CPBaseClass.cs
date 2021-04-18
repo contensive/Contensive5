@@ -181,10 +181,13 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// utilities for json
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
         public abstract CPJSONBaseClass JSON { get; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// manage application layout records.
+        /// </summary>
+        public abstract CPLayoutBaseClass Layout { get; }
         //
         //====================================================================================================
         /// <summary>
@@ -194,6 +197,12 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract CPLogBaseClass Log { get; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Manage mustache compatible template language operations
+        /// </summary>
+        public abstract CPMustacheBaseClass Mustache { get; }
         //
         //====================================================================================================
         /// <summary>

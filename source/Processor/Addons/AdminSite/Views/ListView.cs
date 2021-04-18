@@ -141,9 +141,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // Refresh Query String
                             //
                             core.doc.addRefreshQueryString("tr", indexConfig.recordTop.ToString());
-                            core.doc.addRefreshQueryString("asf", adminData.adminForm.ToString());
+                            core.doc.addRefreshQueryString("asf", adminData.dstFormId.ToString());
                             core.doc.addRefreshQueryString("cid", adminData.adminContent.id.ToString());
-                            core.doc.addRefreshQueryString(RequestNameTitleExtension, GenericController.encodeRequestVariable(adminData.titleExtension));
+                            core.doc.addRefreshQueryString(RequestNameTitleExtension, GenericController.encodeRequestVariable(adminData.editViewTitleSuffix));
                             int WhereCount = 0;
                             foreach (var kvp in adminData.wherePair) {
                                 core.doc.addRefreshQueryString("wl" + WhereCount, kvp.Key);
@@ -433,7 +433,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     string Button = core.docProperties.getText(RequestNameButton);
                     if (!string.IsNullOrEmpty(Button)) {
                         int ColumnCnt = 0;
-                        switch (adminData.requestButton) {
+                        switch (adminData.srcFormButton) {
                             case ButtonFirst:
                                 //
                                 // Force to first page

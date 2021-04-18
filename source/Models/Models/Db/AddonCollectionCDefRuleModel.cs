@@ -1,6 +1,8 @@
 ﻿
 namespace Contensive.Models.Db {
-    //
+    /// <summary>
+    /// Rules that connnect collections to content definitions
+    /// </summary>
     public class AddonCollectionCDefRuleModel : DbBaseModel {
         //
         //====================================================================================================

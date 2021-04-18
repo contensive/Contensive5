@@ -664,7 +664,6 @@ namespace Contensive.Processor.Controllers {
                     fieldEditorPreference = "",
                     guid = "",
                     id = 0,
-                    ignore_legacyMenuDepth = 0,
                     recordsPerPage = 100,
                     recordTop = 0,
                     titleExtension = "",
@@ -739,7 +738,7 @@ namespace Contensive.Processor.Controllers {
                             return "[available after save]";
                         }
                         string RedirectPath = (string.IsNullOrEmpty(field.redirectPath)) ? core.appConfig.adminRoute : field.redirectPath;
-                        RedirectPath += "?" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(" For " + editRecord.nameLc + adminData.titleExtension) + "&" + RequestNameAdminDepth + "=" + (adminData.ignore_legacyMenuDepth + 1) + "&wl0=" + field.redirectId + "&wr0=" + editRecord.id;
+                        RedirectPath += "?" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(" For " + editRecord.nameLc + adminData.editViewTitleSuffix) + "&wl0=" + field.redirectId + "&wr0=" + editRecord.id;
                         if (field.redirectContentId != 0) {
                             RedirectPath += "&cid=" + field.redirectContentId;
                         } else {
@@ -861,7 +860,7 @@ namespace Contensive.Processor.Controllers {
                     relatedButtonList = "",
                     roleInput = AdminUIController.getButtonPrimaryAnchor("Add Role", "?af=4&cid=" + ContentMetadataModel.getContentId(core, "Group Roles"))
                 });
-                return TemplatingController.renderStringToString(Resources.GroupRuleEditorRow2, groupRuleEditor);
+                return MustacheController.renderStringToString(Resources.GroupRuleEditorRow2, groupRuleEditor);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 return string.Empty;

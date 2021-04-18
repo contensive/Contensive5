@@ -25,13 +25,15 @@ namespace Contensive.Processor.Models.Domain {
         private List<int> OnPageEndIdList = new List<int>();
         private List<int> OnPageStartIdList = new List<int>();
         private List<int> remoteMethodIdList = new List<int>();
+        /// <summary>
+        /// Each addon includes text to be added to the robots.txt response.
+        /// </summary>
         public string robotsTxt = "";
         //
         //====================================================================================================
         /// <summary>
         /// return an new empty object. Required for cache read
         /// </summary>
-        /// <param name="core"></param>
         public AddonCacheModel()  { }
         //
         //====================================================================================================

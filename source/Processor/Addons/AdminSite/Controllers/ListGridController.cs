@@ -11,10 +11,25 @@ using Contensive.BaseClasses;
 using System.Linq;
 //
 namespace Contensive.Processor.Addons.AdminSite {
-    public static class ListGridController {
+    /// <summary>
+    /// Create the List Grid in the List View
+    /// </summary>
+    public static class ListGridController
+        {
         //
         //===========================================================================
-        //
+        /// <summary>
+        /// Get list view html
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="adminData"></param>
+        /// <param name="indexConfig"></param>
+        /// <param name="userContentPermissions"></param>
+        /// <param name="sql"></param>
+        /// <param name="dataSource"></param>
+        /// <param name="FieldUsedInColumns"></param>
+        /// <param name="IsLookupFieldValid"></param>
+        /// <returns></returns>
         public static string get(CoreController core, AdminDataModel adminData, IndexConfigClass indexConfig, PermissionController.UserContentPermissions userContentPermissions, string sql, DataSourceModel dataSource, Dictionary<string, bool> FieldUsedInColumns, Dictionary<string, bool> IsLookupFieldValid) {
             try {
                 bool allowDelete = (adminData.adminContent.allowDelete) && (userContentPermissions.allowDelete) && (indexConfig.allowDelete);
@@ -50,7 +65,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // if this is a current sort ,add the reverse flag
                     //
                     StringBuilder buttonHref = new StringBuilder();
-                    buttonHref.Append("/" + core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormIndex + "&SetSortField=" + column.Name + "&RT=0&" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(adminData.titleExtension) + "&cid=" + adminData.adminContent.id + "&ad=" + adminData.ignore_legacyMenuDepth);
+                    buttonHref.Append("/" + core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormIndex + "&SetSortField=" + column.Name + "&RT=0&" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(adminData.editViewTitleSuffix) + "&cid=" + adminData.adminContent.id);
                     if (!indexConfig.sorts.ContainsKey(column.Name)) {
                         buttonHref.Append("&SetSortDirection=1");
                     } else {
@@ -120,7 +135,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- generic admin url for edit and add links
                 string adminEditPresetArgQsList = "";
-                string adminUrlBase = "\\" + core.appConfig.adminRoute + "?" + rnAdminAction + "=" + Constants.AdminActionNop + "&cid=" + adminData.adminContent.id + "&" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(adminData.titleExtension) + "&ad=" + adminData.ignore_legacyMenuDepth + "&" + rnAdminSourceForm + "=" + adminData.adminForm + "&" + rnAdminForm + "=" + AdminFormEdit;
+                string adminUrlBase = "\\" + core.appConfig.adminRoute + "?" + rnAdminAction + "=" + Constants.AdminActionNop + "&cid=" + adminData.adminContent.id + "&" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(adminData.editViewTitleSuffix) + "&" + rnAdminSourceForm + "=" + adminData.dstFormId + "&" + rnAdminForm + "=" + AdminFormEdit;
                 if(!adminData.wherePair.Count.Equals(0)) {
                     int WhereCount = 0;
                     foreach (var kvp in adminData.wherePair) {

@@ -104,11 +104,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // ----- ButtonBar
                 //
-                if (adminData.ignore_legacyMenuDepth > 0) {
-                    LeftButtons += AdminUIController.getButtonPrimary(ButtonClose, "window.close();");
-                } else {
-                    LeftButtons += AdminUIController.getButtonPrimary(ButtonCancel);
-                }
+                LeftButtons += AdminUIController.getButtonPrimary(ButtonCancel);
                 LeftButtons += AdminUIController.getButtonPrimary(ButtonSearch);
                 ButtonBar = AdminUIController.getSectionButtonBar(core, LeftButtons, "");
                 //

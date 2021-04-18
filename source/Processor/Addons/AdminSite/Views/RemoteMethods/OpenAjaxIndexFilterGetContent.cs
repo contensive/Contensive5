@@ -32,7 +32,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                         fieldEditorPreference = "",
                         guid = "",
                         id = 0,
-                        ignore_legacyMenuDepth = 0,
                         recordsPerPage = 100,
                         recordTop = 0,
                         titleExtension = "",

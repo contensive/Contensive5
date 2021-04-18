@@ -2,6 +2,9 @@
 using System;
 //
 namespace Contensive.Models.Db {
+    /// <summary>
+    /// records that represent addon collections
+    /// </summary>
     public class AddonCollectionModel : DbBaseModel {
         //
         //====================================================================================================

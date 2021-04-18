@@ -27,7 +27,6 @@ namespace Contensive.Processor.Addons.Primitives {
                     //
                     core.doc.addRefreshQueryString("EditorObjectName", EditorObjectName);
                     core.html.addScriptLinkSrc("" + cdnPrefix + "ClientSide/dialogs.js", "Resource Library");
-                    core.doc.setMetaContent(0, 0);
                     core.html.addScriptCode_onLoad("document.body.style.overflow='scroll';", "Resource Library");
                     string Copy = core.html.getResourceLibrary("", true, EditorObjectName, LinkObjectName, true);
                     string htmlBody = ""
@@ -46,7 +45,6 @@ namespace Contensive.Processor.Addons.Primitives {
                     // Open a page compatible with a dialog
                     core.doc.addRefreshQueryString("LinkObjectName", LinkObjectName);
                     core.html.addScriptLinkSrc("" + cdnPrefix + "ClientSide/dialogs.js", "Resource Library");
-                    core.doc.setMetaContent(0, 0);
                     core.html.addScriptCode_onLoad("document.body.style.overflow='scroll';", "Resource Library");
                     string htmlBody = ""
                         + core.html.getPanelHeader("Contensive Resource Library") + "\r<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr><td>"

@@ -478,17 +478,43 @@ namespace Contensive.Processor {
         private CPJSONBaseClass _jsonObj;
         //
         //====================================================================================================
+        /// <summary>
+        /// Return a persistent object for this functionality
+        /// </summary>
         public override CPLogBaseClass Log {
             get {
-                if (_LogObj == null) {
-                    _LogObj = new CPLogClass(this);
+                if (logObj == null) {
+                    logObj = new CPLogClass(this);
                 }
-                return _LogObj;
+                return logObj;
             }
         }
-        private CPLogClass _LogObj;
-
+        private CPLogClass logObj;
         //
+        //====================================================================================================
+        /// <summary>
+        /// Return a persistent object for this functionality
+        /// </summary>
+        public override CPLayoutBaseClass Layout {
+            get {
+                if (layoutObj == null) {
+                    layoutObj = new CPLayoutClass(this);
+                }
+                return layoutObj;
+            }
+        }
+        private CPLayoutClass layoutObj;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return a persistent object for this functionality
+        /// </summary>
+        public override CPMustacheBaseClass Mustache => throw new NotImplementedException();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return a persistent object for this functionality
+        /// </summary>
         [Obsolete("Deprecated. To access addon details of the addon running, create a model with the cp.addon.id", true)]
         public override CPAddonBaseClass MyAddon {
             get {
@@ -693,10 +719,12 @@ namespace Contensive.Processor {
         //=========================================================================================================
         //
         private CPSecurityBaseClass _Security;
-
         //
         //=========================================================================================================
-        //
+        /// <summary>
+        /// Gets a list of string with all the applications for this server
+        /// </summary>
+        /// <returns></returns>
         public override List<string> GetAppNameList() {
             var result = new List<string>();
             foreach (var app in core.serverConfig.apps) {
@@ -706,14 +734,21 @@ namespace Contensive.Processor {
         }
         //
         //=========================================================================================================asdfasdf
-        //
+        /// <summary>
+        /// Get the configuration object for the specified application. Returns null if not found.
+        /// </summary>
+        /// <param name="appName"></param>
+        /// <returns></returns>
         public override AppConfigBaseModel GetAppConfig(string appName) {
             if (!core.serverConfig.apps.ContainsKey(appName)) return null;
             return core.serverConfig.apps[appName];
         }
         //
         //=========================================================================================================
-        //
+        /// <summary>
+        /// Get the configuration object for the current application.
+        /// </summary>
+        /// <returns></returns>
         public override AppConfigBaseModel GetAppConfig() {
             return core.appConfig;
         }
@@ -740,14 +775,20 @@ namespace Contensive.Processor {
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
         //====================================================================================================
-        //
+        /// <summary>
+        /// MS recommended interface
+        /// </summary>
         protected bool disposed_cp;
-        //
+        /// <summary>
+        /// MS recommended interface
+        /// </summary>
         public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        //
+        /// <summary>
+        /// MS recommended interface
+        /// </summary>
         ~CPClass() {
             Dispose(false);
         }

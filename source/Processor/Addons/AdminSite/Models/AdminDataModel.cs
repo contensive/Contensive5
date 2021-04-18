@@ -35,27 +35,21 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //====================================================================================================
         /// <summary>
+        /// The form that submitted that the button to process
+        /// </summary>
+        public int srcFormId { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Value returned from a submit button, process into action/form
         /// </summary>
-        public string requestButton { get; set; }
+        public string srcFormButton { get; set; }
         //
         //====================================================================================================
         /// <summary>
         /// the next form requested (the get). typically set with af=123
         /// </summary>
-        public int adminForm { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public int fancyBoxPtr { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        public int requestedContentId { get; set; }
+        public int dstFormId { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -71,12 +65,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //====================================================================================================
         /// <summary>
-        /// The form that submitted that the button to process
-        /// </summary>
-        public int adminSourceForm { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
         /// for passing where clause values from page to page, key should be lowercase
         /// </summary>
         internal Dictionary<string, string> wherePair { get; set; } = new Dictionary<string, string>();
@@ -85,25 +73,19 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <summary>
         /// 
         /// </summary>
-        public int recordTop { get; set; }
+        public int listViewRecordTop { get; set; }
         //
         //====================================================================================================
         /// <summary>
         /// 
         /// </summary>
-        public int recordsPerPage { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// The number of windows open (below this one)
-        /// </summary>
-        public int ignore_legacyMenuDepth { get; set; }
+        public int listViewRecordsPerPage { get; set; }
         //
         //====================================================================================================
         /// <summary>
         /// String that adds on to the end of the title
         /// </summary>
-        public string titleExtension { get; set; }
+        public string editViewTitleSuffix { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -430,20 +412,19 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// constructor - load the context for the admin site, controlled by request inputs like rnContent (cid) and rnRecordId (id)
         /// </summary>
         /// <param name="core"></param>
+        /// <param name="request"></param>
         public AdminDataModel(CoreController core, AdminDataRequest request) {
             try {
                 this.core = core;
                 //
                 // adminContext.content init
-                requestedContentId = request.contentId;
-                if (requestedContentId != 0) {
-                    adminContent = ContentMetadataModel.create(core, requestedContentId);
+                if (request.contentId != 0) {
+                    adminContent = ContentMetadataModel.create(core, request.contentId);
                     if (adminContent == null) {
                         adminContent = new ContentMetadataModel {
                             id = 0
                         };
-                        Processor.Controllers.ErrorController.addUserError(core, "There is no content with the requested id [" + requestedContentId + "]");
-                        requestedContentId = 0;
+                        Processor.Controllers.ErrorController.addUserError(core, "There is no content with the requested id [" + request.contentId + "]");
                     }
                 }
                 if (adminContent == null) {
@@ -502,11 +483,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // Other page control fields
                 //
-                titleExtension = request.titleExtension;
-                recordTop = request.recordTop;
-                recordsPerPage = request.recordsPerPage;
-                if (recordsPerPage == 0) {
-                    recordsPerPage = Constants.RecordsPerPageDefault;
+                editViewTitleSuffix = request.titleExtension;
+                listViewRecordTop = request.recordTop;
+                listViewRecordsPerPage = request.recordsPerPage;
+                if (listViewRecordsPerPage == 0) {
+                    listViewRecordsPerPage = Constants.RecordsPerPageDefault;
                 }
                 //
                 // Read WherePairCount
@@ -521,10 +502,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----- Other
                 //
                 admin_Action = request.adminAction;
-                adminSourceForm = request.adminSourceForm;
-                adminForm = request.adminForm;
-                requestButton = request.adminButton;
-                ignore_legacyMenuDepth = request.ignore_legacyMenuDepth;
+                srcFormId = request.adminSourceForm;
+                dstFormId = request.adminForm;
+                srcFormButton = request.adminButton;
                 //
                 // ----- convert fieldEditorPreference change to a refresh action
                 //
@@ -534,9 +514,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // Editor Preference change attempt. Set new preference and set this as a refresh
                         //
-                        requestButton = "";
+                        srcFormButton = "";
                         admin_Action = Constants.AdminActionEditRefresh;
-                        adminForm = AdminFormEdit;
+                        dstFormId = AdminFormEdit;
                         int Pos = GenericController.strInstr(1, fieldEditorPreference, ":");
                         if (Pos > 0) {
                             int fieldEditorFieldId = GenericController.encodeInteger(fieldEditorPreference.left(Pos - 1));
@@ -1635,10 +1615,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// the button pressed
         /// </summary>
         public string adminButton { get; set; }
-        /// <summary>
-        /// ignore_legacyMenuDepth
-        /// </summary>
-        public int ignore_legacyMenuDepth { get; set; }
         /// <summary>
         /// fieldEditorPreference
         /// </summary>

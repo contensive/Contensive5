@@ -54,7 +54,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                         + cp.core.html.getPanelHeader("Unauthorized Access")
                         + cp.core.html.getPanel(result, "ccPanel", "ccPanelHilite", "ccPanelShadow", "400", 15)
                         + "</div>";
-                    cp.core.doc.setMetaContent(0, 0);
                     cp.core.html.addTitle("Unauthorized Access", "adminSite");
                     return HtmlController.div(result, "container-fluid ccBodyAdmin ccCon");
                 }
@@ -77,417 +76,412 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="cp">interface wrapper for coreController</param>
         /// <returns></returns>
         private string getHtmlBody(CPClass cp, string forceAdminContent = "") {
-            string result = "";
             try {
-                // todo convert to jquery bind
-                cp.core.doc.setMetaContent(0, 0);
+                if (!cp.core.doc.continueProcessing) { return ""; }
                 //
                 // turn off chrome protection against submitting html content
                 cp.core.webServer.addResponseHeader("X-XSS-Protection", "0");
                 //
                 // check for member login, if logged in and no admin, lock out, Do CheckMember here because we need to know who is there to create proper blocked menu
-                if (cp.core.doc.continueProcessing) {
-                    //
-                    // -- read wl+wr values into wherePair dictionary
-                    // -- wherepairs are used to:
-                    // ---- prepopulate inserted records
-                    // ---- create filters for gridList
-                    // -- wherepair wr0=id, wl=1 (means id=1)
-                    Dictionary<string, string> wherePairs = new Dictionary<string, string>();
-                    for (int wpCnt = 0; wpCnt <= 99; wpCnt++) {
-                        string key = cp.Doc.GetText("wl" + wpCnt);
-                        if (string.IsNullOrEmpty(key)) { break; }
-                        wherePairs.Add(key.ToLowerInvariant(), cp.Doc.GetText("wr" + wpCnt));
-                    }
-                    //
-                    // -- read wc (whereclause) into wherepair dictionary also
-                    // -- whereclause wc=id%3D1 (means id=1)
-                    string WhereClauseContent = GenericController.encodeText(cp.Doc.GetText("wc"));
-                    if (!string.IsNullOrEmpty(WhereClauseContent)) {
-                        string[] QSSplit = WhereClauseContent.Split(',');
-                        for (int QSPointer = 0; QSPointer <= QSSplit.GetUpperBound(0); QSPointer++) {
-                            string NameValue = QSSplit[QSPointer];
-                            if (!string.IsNullOrEmpty(NameValue)) {
-                                if ((NameValue.left(1) == "(") && (NameValue.Substring(NameValue.Length - 1) == ")") && (NameValue.Length > 2)) {
-                                    NameValue = NameValue.Substring(1, NameValue.Length - 2);
-                                }
-                                string[] NVSplit = NameValue.Split('=');
-                                if (NVSplit.GetUpperBound(0) > 0) {
-                                    wherePairs.Add(NVSplit[0].ToLowerInvariant(), NVSplit[1]);
-                                }
-                            }
-                        }
-                    }
-
-                    int adminForm = cp.Doc.GetInteger(rnAdminForm);
-                    var adminData = new AdminDataModel(cp.core, new AdminDataRequest {
-                        contentId = cp.Doc.GetInteger("cid"),
-                        id = cp.Doc.GetInteger("id"),
-                        guid = cp.Doc.GetText("guid"),
-                        titleExtension = cp.Doc.GetText(RequestNameTitleExtension),
-                        recordTop = cp.Doc.GetInteger("RT"),
-                        recordsPerPage = cp.Doc.GetInteger("RS"),
-                        wherePairDict = wherePairs,
-                        adminAction = cp.Doc.GetInteger(rnAdminAction),
-                        adminSourceForm = cp.Doc.GetInteger(rnAdminSourceForm),
-                        adminForm = adminForm,
-                        adminButton = cp.Doc.GetText(RequestNameButton),
-                        ignore_legacyMenuDepth = (adminForm == AdminFormEdit) ? 0 : cp.Doc.GetInteger(RequestNameAdminDepth),
-                        fieldEditorPreference = cp.Doc.GetText("fieldEditorPreference")
-                    });
-                    cp.core.db.sqlCommandTimeout = 300;
-                    adminData.buttonObjectCount = 0;
-                    adminData.contentWatchLoaded = false;
-                    //
-                    string buildVersion = cp.core.siteProperties.dataBuildVersion;
-                    if (versionIsOlder(buildVersion, cp.Version)) {
-                        LogController.logWarn(cp.core, new GenericException("Application code (v" + cp.Version + ") is newer than database (v" + buildVersion + "). Upgrade the database with the command line 'cc.exe -a " + cp.core.appConfig.name + " -u'."));
-                    }
-                    //
-                    if (versionIsOlder(cp.Version, buildVersion)) {
-                        LogController.logWarn(cp.core, new GenericException("Database upgrade (v" + buildVersion + ") is newer than the Application code (v" + cp.Version + "). Upgrade the website code."));
-                    }
-                    //
-                    // Process SourceForm/Button into Action/Form, and process
-                    if (adminData.requestButton == ButtonCancelAll) {
-                        adminData.adminForm = AdminFormRoot;
-                    } else {
-                        ProcessForms(cp, adminData);
-                        ProcessActionController.processActions(cp, adminData, cp.core.siteProperties.useContentWatchLink);
-                    }
-                    //
-                    // Normalize values to be needed
-                    if (adminData.editRecord.id != 0) {
-                        var table = DbBaseModel.createByUniqueName<TableModel>(cp, adminData.adminContent.tableName);
-                        if (table != null) {
-                            WorkflowController.clearEditLock(cp.core, table.id, adminData.editRecord.id);
-                        }
-                    }
-                    if (adminData.adminForm < 1) {
-                        //
-                        // No form was set, use default form
-                        if (adminData.adminContent.id <= 0) {
-                            adminData.adminForm = AdminFormRoot;
-                        } else {
-                            adminData.adminForm = AdminFormIndex;
-                        }
-                    }
-                    int addonId = cp.core.docProperties.getInteger("addonid");
-                    string AddonGuid = cp.core.docProperties.getText("addonguid");
-                    if (adminData.adminForm == AdminFormLegacyAddonManager) {
-                        //
-                        // patch out any old links to the legacy addon manager
-                        adminData.adminForm = 0;
-                        AddonGuid = addonGuidAddonManager;
-                    }
-                    //
-                    //-------------------------------------------------------------------------------
-                    // Edit form but not valid record case
-                    // Put this here so we can display the error without being stuck displaying the edit form
-                    // Putting the error on the edit form is confusing because there are fields to fill in
-                    //-------------------------------------------------------------------------------
-                    //
-                    if (adminData.adminSourceForm == AdminFormEdit) {
-                        if (cp.core.doc.userErrorList.Count.Equals(0) && (adminData.requestButton.Equals(ButtonOK) || adminData.requestButton.Equals(ButtonCancel) || adminData.requestButton.Equals(ButtonDelete))) {
-                            string EditReferer = cp.core.docProperties.getText("EditReferer");
-                            string CurrentLink = GenericController.modifyLinkQuery(cp.core.webServer.requestUrl, "editreferer", "", false);
-                            CurrentLink = GenericController.toLCase(CurrentLink);
-                            //
-                            // check if this editreferer includes cid=thisone and id=thisone -- if so, go to index form for this cid
-                            //
-                            if ((!string.IsNullOrEmpty(EditReferer)) && (EditReferer.ToLowerInvariant() != CurrentLink)) {
-                                //
-                                // return to the page it came from
-                                //
-                                return cp.core.webServer.redirect(EditReferer, "Admin Edit page returning to the EditReferer setting");
-                            } else {
-                                //
-                                // return to the index page for this content
-                                //
-                                adminData.adminForm = AdminFormIndex;
-                            }
-                        }
-                        if (adminData.blockEditForm) {
-                            adminData.adminForm = AdminFormIndex;
-                        }
-                    }
-                    int HelpAddonId = cp.core.docProperties.getInteger("helpaddonid");
-                    int HelpCollectionId = cp.core.docProperties.getInteger("helpcollectionid");
-                    if (HelpCollectionId == 0) {
-                        HelpCollectionId = cp.core.visitProperty.getInteger("RunOnce HelpCollectionID");
-                        if (HelpCollectionId != 0) {
-                            cp.core.visitProperty.setProperty("RunOnce HelpCollectionID", "");
-                        }
-                    }
-                    //
-                    //-------------------------------------------------------------------------------
-                    // build refresh string
-                    //-------------------------------------------------------------------------------
-                    //
-                    if (adminData.adminContent.id != 0) {
-                        cp.core.doc.addRefreshQueryString("cid", GenericController.encodeText(adminData.adminContent.id));
-                    }
-                    if (adminData.editRecord.id != 0) {
-                        cp.core.doc.addRefreshQueryString("id", GenericController.encodeText(adminData.editRecord.id));
-                    }
-                    if (!string.IsNullOrEmpty(adminData.titleExtension)) {
-                        cp.core.doc.addRefreshQueryString(RequestNameTitleExtension, GenericController.encodeRequestVariable(adminData.titleExtension));
-                    }
-                    if (adminData.recordTop != 0) {
-                        cp.core.doc.addRefreshQueryString("rt", GenericController.encodeText(adminData.recordTop));
-                    }
-                    if (adminData.recordsPerPage != Constants.RecordsPerPageDefault) {
-                        cp.core.doc.addRefreshQueryString("rs", GenericController.encodeText(adminData.recordsPerPage));
-                    }
-                    if (adminData.adminForm != 0) {
-                        cp.core.doc.addRefreshQueryString(rnAdminForm, GenericController.encodeText(adminData.adminForm));
-                    }
-                    if (adminData.ignore_legacyMenuDepth != 0) {
-                        cp.core.doc.addRefreshQueryString(RequestNameAdminDepth, GenericController.encodeText(adminData.ignore_legacyMenuDepth));
-                    }
-                    //
-                    // normalize guid
-                    //
-                    if (!string.IsNullOrEmpty(AddonGuid)) {
-                        if ((AddonGuid.Length == 38) && (AddonGuid.left(1) == "{") && (AddonGuid.Substring(AddonGuid.Length - 1) == "}")) {
-                            //
-                            // Good to go
-                            //
-                        } else if (AddonGuid.Length == 36) {
-                            //
-                            // might be valid with the brackets, add them
-                            //
-                            AddonGuid = "{" + AddonGuid + "}";
-                        } else if (AddonGuid.Length == 32) {
-                            //
-                            // might be valid with the brackets and the dashes, add them
-                            //
-                            AddonGuid = "{" + AddonGuid.left(8) + "-" + AddonGuid.Substring(8, 4) + "-" + AddonGuid.Substring(12, 4) + "-" + AddonGuid.Substring(16, 4) + "-" + AddonGuid.Substring(20) + "}";
-                        } else {
-                            //
-                            // not valid
-                            //
-                            AddonGuid = "";
-                        }
-                    }
-                    //
-                    //-------------------------------------------------------------------------------
-                    // Create the content
-                    //-------------------------------------------------------------------------------
-                    //
-                    string adminBody = "";
-                    string AddonName = "";
-                    if (!string.IsNullOrEmpty(forceAdminContent)) {
-                        //
-                        // Use content passed in as an argument
-                        //
-                        adminBody = forceAdminContent;
-                    } else if (HelpAddonId != 0) {
-                        //
-                        // display Addon Help
-                        //
-                        cp.core.doc.addRefreshQueryString("helpaddonid", HelpAddonId.ToString());
-                        adminBody = GetAddonHelp(cp, HelpAddonId, "");
-                    } else if (HelpCollectionId != 0) {
-                        //
-                        // display Collection Help
-                        //
-                        cp.core.doc.addRefreshQueryString("helpcollectionid", HelpCollectionId.ToString());
-                        adminBody = GetCollectionHelp(cp, HelpCollectionId, "");
-                    } else if (adminData.adminForm != 0) {
-                        //
-                        // -- formindex requires valid content
-                        if ((adminData.adminContent.tableName == null) && (adminData.adminForm == AdminFormIndex)) {
-                            adminData.adminForm = AdminFormRoot;
-                        }
-                        //
-                        // No content so far, try the forms
-                        // todo - convert this to switch
-                        switch (adminData.adminForm) {
-                            //
-                            case AdminFormIndex: {
-                                    adminBody = ListView.get(cp, cp.core, adminData);
-                                    break;
-                                }
-                            case AdminFormEdit: {
-                                    adminBody = EditView.get(cp.core, adminData);
-                                    break;
-                                }
-                            case AdminFormToolSyncTables: {
-                                    adminBody = SyncTablesClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormToolSchema: {
-                                    adminBody = DbSchemaToolClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormToolDbIndex: {
-                                    adminBody = DbIndexToolClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminformToolFindAndReplace: {
-                                    adminBody = FindAndReplaceToolClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminformToolCreateGUID: {
-                                    adminBody = CreateGUIDToolClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminformToolIISReset: {
-                                    adminBody = IISResetToolClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormToolContentSchema: {
-                                    adminBody = ContentSchemaToolClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormToolManualQuery: {
-                                    adminBody = ManualQueryClass.get(cp);
-                                    break;
-                                }
-                            case AdminFormToolDefineContentFieldsFromTable: {
-                                    adminBody = DefineContentFieldsFromTableClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormToolCreateContentDefinition: {
-                                    adminBody = CreateContentDefinitionClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormToolConfigureEdit: {
-                                    adminBody = ConfigureEditClass.get(cp);
-                                    break;
-                                }
-                            case AdminFormToolConfigureListing: {
-                                    adminBody = ConfigureListClass.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormClearCache: {
-                                    adminBody = cp.core.addon.execute("{7B5B8150-62BE-40F4-A66A-7CC74D99BA76}", new CPUtilsBaseClass.addonExecuteContext() {
-                                        addonType = CPUtilsBaseClass.addonContext.ContextAdmin
-                                    });
-                                    break;
-                                }
-                            case AdminFormResourceLibrary: {
-                                    adminBody = cp.core.html.getResourceLibrary("", false, "", "", true);
-                                    break;
-                                }
-                            case AdminFormQuickStats: {
-                                    adminBody = QuickStatsView.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormClose: {
-                                    adminBody = "<Script Language=\"JavaScript\" type=\"text/javascript\"> window.close(); </Script>";
-                                    break;
-                                }
-                            case AdminFormContentChildTool: {
-                                    adminBody = ContentChildToolClass.get(cp);
-                                    break;
-                                }
-                            case AdminformHousekeepingControl: {
-                                    adminBody = HouseKeepingControlClass.get(cp);
-                                    break;
-                                }
-                            case AdminFormDownloads: {
-                                    adminBody = (ToolDownloads.get(cp.core));
-                                    break;
-                                }
-                            case AdminFormImportWizard: {
-                                    adminBody = cp.core.addon.execute(addonGuidImportWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
-                                        addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
-                                        errorContextMessage = "get Import Wizard for Admin"
-                                    });
-                                    break;
-                                }
-                            case AdminFormCustomReports: {
-                                    adminBody = ToolCustomReports.get(cp.core);
-                                    break;
-                                }
-                            case AdminFormFormWizard: {
-                                    adminBody = cp.core.addon.execute(addonGuidFormWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
-                                        addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
-                                        errorContextMessage = "get Form Wizard for Admin"
-                                    });
-                                    break;
-                                }
-                            case AdminFormLegacyAddonManager: {
-                                    adminBody = AddonController.getAddonManager(cp.core);
-                                    break;
-                                }
-                            case AdminFormEditorConfig: {
-                                    adminBody = EditorConfigView.get(cp.core);
-                                    break;
-                                }
-                            default: {
-                                    adminBody = "<p>The form requested is not supported</p>";
-                                    break;
-                                }
-                        }
-                    } else if ((addonId != 0) || (!string.IsNullOrEmpty(AddonGuid)) || (!string.IsNullOrEmpty(AddonName))) {
-                        //
-                        // execute an addon
-                        //
-                        if ((AddonGuid == addonGuidAddonManager) || (AddonName.ToLowerInvariant() == "add-on manager") || (AddonName.ToLowerInvariant() == "addon manager")) {
-                            //
-                            // Special case, call the routine that provides a backup
-                            //
-                            cp.core.doc.addRefreshQueryString("addonguid", addonGuidAddonManager);
-                            adminBody = AddonController.getAddonManager(cp.core);
-                        } else {
-                            AddonModel addon = null;
-                            string executeContextErrorCaption = "unknown";
-                            if (addonId != 0) {
-                                executeContextErrorCaption = " addon id:" + addonId + " for Admin";
-                                cp.core.doc.addRefreshQueryString("addonid", addonId.ToString());
-                                addon = DbBaseModel.create<AddonModel>(cp, addonId);
-                            } else if (!string.IsNullOrEmpty(AddonGuid)) {
-                                executeContextErrorCaption = "addon guid:" + AddonGuid + " for Admin";
-                                cp.core.doc.addRefreshQueryString("addonguid", AddonGuid);
-                                addon = DbBaseModel.create<AddonModel>(cp, AddonGuid);
-                            } else if (!string.IsNullOrEmpty(AddonName)) {
-                                executeContextErrorCaption = "addon name:" + AddonName + " for Admin";
-                                cp.core.doc.addRefreshQueryString("addonname", AddonName);
-                                addon = AddonModel.createByUniqueName(cp, AddonName);
-                            }
-                            if (addon != null) {
-                                addonId = addon.id;
-                                AddonName = addon.name;
-                                cp.core.doc.addRefreshQueryString(RequestNameRunAddon, addonId.ToString());
-                            }
-                            string InstanceOptionString = cp.core.userProperty.getText("Addon [" + AddonName + "] Options", "");
-                            int DefaultWrapperId = -1;
-                            adminBody = cp.core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
-                                addonType = Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
-                                instanceGuid = adminSiteInstanceId,
-                                argumentKeyValuePairs = GenericController.convertQSNVAArgumentstoDocPropertiesList(cp.core, InstanceOptionString),
-                                wrapperID = DefaultWrapperId,
-                                errorContextMessage = executeContextErrorCaption
-                            });
-                            if (string.IsNullOrEmpty(adminBody)) {
-                                //
-                                // empty returned, display desktop
-                                adminBody = RootView.getForm_Root(cp.core);
-                            }
-
-                        }
-                    } else {
-                        //
-                        // nothing so far, display desktop
-                        adminBody = RootView.getForm_Root(cp.core);
-                    }
-                    //
-                    // add user errors
-                    if (!cp.core.doc.userErrorList.Count.Equals(0)) {
-                        adminBody = HtmlController.div(ErrorController.getUserError(cp.core), "ccAdminMsg") + adminBody;
-                    }
-                    cp.core.html.addScriptCode("ButtonObjectCount = " + adminData.buttonObjectCount + ";", "Admin Site");
-
-                    result += addHeaderFooter(cp, adminBody);
-
+                //
+                // -- read wl+wr values into wherePair dictionary
+                // -- wherepairs are used to:
+                // ---- prepopulate inserted records
+                // ---- create filters for gridList
+                // -- wherepair wr0=id, wl=1 (means id=1)
+                Dictionary<string, string> wherePairs = new Dictionary<string, string>();
+                for (int wpCnt = 0; wpCnt <= 99; wpCnt++) {
+                    string key = cp.Doc.GetText("wl" + wpCnt);
+                    if (string.IsNullOrEmpty(key)) { break; }
+                    wherePairs.Add(key.ToLowerInvariant(), cp.Doc.GetText("wr" + wpCnt));
                 }
+                //
+                // -- read wc (whereclause) into wherepair dictionary also
+                // -- whereclause wc=id%3D1 (means id=1)
+                string WhereClauseContent = GenericController.encodeText(cp.Doc.GetText("wc"));
+                if (!string.IsNullOrEmpty(WhereClauseContent)) {
+                    string[] QSSplit = WhereClauseContent.Split(',');
+                    for (int QSPointer = 0; QSPointer <= QSSplit.GetUpperBound(0); QSPointer++) {
+                        string NameValue = QSSplit[QSPointer];
+                        if (!string.IsNullOrEmpty(NameValue)) {
+                            if ((NameValue.left(1) == "(") && (NameValue.Substring(NameValue.Length - 1) == ")") && (NameValue.Length > 2)) {
+                                NameValue = NameValue.Substring(1, NameValue.Length - 2);
+                            }
+                            string[] NVSplit = NameValue.Split('=');
+                            if (NVSplit.GetUpperBound(0) > 0) {
+                                wherePairs.Add(NVSplit[0].ToLowerInvariant(), NVSplit[1]);
+                            }
+                        }
+                    }
+                }
+
+                int adminForm = cp.Doc.GetInteger(rnAdminForm);
+                var adminData = new AdminDataModel(cp.core, new AdminDataRequest {
+                    contentId = cp.Doc.GetInteger("cid"),
+                    id = cp.Doc.GetInteger("id"),
+                    guid = cp.Doc.GetText("guid"),
+                    titleExtension = cp.Doc.GetText(RequestNameTitleExtension),
+                    recordTop = cp.Doc.GetInteger("RT"),
+                    recordsPerPage = cp.Doc.GetInteger("RS"),
+                    wherePairDict = wherePairs,
+                    adminAction = cp.Doc.GetInteger(rnAdminAction),
+                    adminSourceForm = cp.Doc.GetInteger(rnAdminSourceForm),
+                    adminForm = adminForm,
+                    adminButton = cp.Doc.GetText(RequestNameButton),
+                    fieldEditorPreference = cp.Doc.GetText("fieldEditorPreference")
+                });
+                cp.core.db.sqlCommandTimeout = 300;
+                adminData.buttonObjectCount = 0;
+                adminData.contentWatchLoaded = false;
+                //
+                string buildVersion = cp.core.siteProperties.dataBuildVersion;
+                if (versionIsOlder(buildVersion, cp.Version)) {
+                    LogController.logWarn(cp.core, new GenericException("Application code (v" + cp.Version + ") is newer than database (v" + buildVersion + "). Upgrade the database with the command line 'cc.exe -a " + cp.core.appConfig.name + " -u'."));
+                }
+                //
+                if (versionIsOlder(cp.Version, buildVersion)) {
+                    LogController.logWarn(cp.core, new GenericException("Database upgrade (v" + buildVersion + ") is newer than the Application code (v" + cp.Version + "). Upgrade the website code."));
+                }
+                //
+                // Process SourceForm/Button into Action/Form, and process
+                if (adminData.srcFormButton == ButtonCancelAll) {
+                    adminData.dstFormId = AdminFormRoot;
+                } else {
+                    ProcessForms(cp, adminData);
+                    ProcessActionController.processActions(cp, adminData, cp.core.siteProperties.useContentWatchLink);
+                }
+                //
+                // Normalize values to be needed
+                if (adminData.editRecord.id != 0) {
+                    var table = DbBaseModel.createByUniqueName<TableModel>(cp, adminData.adminContent.tableName);
+                    if (table != null) {
+                        WorkflowController.clearEditLock(cp.core, table.id, adminData.editRecord.id);
+                    }
+                }
+                if (adminData.dstFormId < 1) {
+                    //
+                    // No form was set, use default form
+                    if (adminData.adminContent.id <= 0) {
+                        adminData.dstFormId = AdminFormRoot;
+                    } else {
+                        adminData.dstFormId = AdminFormIndex;
+                    }
+                }
+                int addonId = cp.core.docProperties.getInteger("addonid");
+                string AddonGuid = cp.core.docProperties.getText("addonguid");
+                if (adminData.dstFormId == AdminFormLegacyAddonManager) {
+                    //
+                    // patch out any old links to the legacy addon manager
+                    adminData.dstFormId = 0;
+                    AddonGuid = addonGuidAddonManager;
+                }
+                //
+                //-------------------------------------------------------------------------------
+                // Edit form but not valid record case
+                // Put this here so we can display the error without being stuck displaying the edit form
+                // Putting the error on the edit form is confusing because there are fields to fill in
+                //-------------------------------------------------------------------------------
+                //
+                if (adminData.srcFormId == AdminFormEdit) {
+                    if (cp.core.doc.userErrorList.Count.Equals(0) && (adminData.srcFormButton.Equals(ButtonOK) || adminData.srcFormButton.Equals(ButtonCancel) || adminData.srcFormButton.Equals(ButtonDelete))) {
+                        string EditReferer = cp.core.docProperties.getText("EditReferer");
+                        string CurrentLink = GenericController.modifyLinkQuery(cp.core.webServer.requestUrl, "editreferer", "", false);
+                        CurrentLink = GenericController.toLCase(CurrentLink);
+                        //
+                        // check if this editreferer includes cid=thisone and id=thisone -- if so, go to index form for this cid
+                        //
+                        if ((!string.IsNullOrEmpty(EditReferer)) && (EditReferer.ToLowerInvariant() != CurrentLink)) {
+                            //
+                            // return to the page it came from
+                            //
+                            return cp.core.webServer.redirect(EditReferer, "Admin Edit page returning to the EditReferer setting");
+                        } else {
+                            //
+                            // return to the index page for this content
+                            //
+                            adminData.dstFormId = AdminFormIndex;
+                        }
+                    }
+                    if (adminData.blockEditForm) {
+                        adminData.dstFormId = AdminFormIndex;
+                    }
+                }
+                int HelpAddonId = cp.core.docProperties.getInteger("helpaddonid");
+                int HelpCollectionId = cp.core.docProperties.getInteger("helpcollectionid");
+                if (HelpCollectionId == 0) {
+                    HelpCollectionId = cp.core.visitProperty.getInteger("RunOnce HelpCollectionID");
+                    if (HelpCollectionId != 0) {
+                        cp.core.visitProperty.setProperty("RunOnce HelpCollectionID", "");
+                    }
+                }
+                //
+                //-------------------------------------------------------------------------------
+                // build refresh string
+                //-------------------------------------------------------------------------------
+                //
+                if (adminData.adminContent.id != 0) {
+                    cp.core.doc.addRefreshQueryString("cid", GenericController.encodeText(adminData.adminContent.id));
+                }
+                if (adminData.editRecord.id != 0) {
+                    cp.core.doc.addRefreshQueryString("id", GenericController.encodeText(adminData.editRecord.id));
+                }
+                if (!string.IsNullOrEmpty(adminData.editViewTitleSuffix)) {
+                    cp.core.doc.addRefreshQueryString(RequestNameTitleExtension, GenericController.encodeRequestVariable(adminData.editViewTitleSuffix));
+                }
+                if (adminData.listViewRecordTop != 0) {
+                    cp.core.doc.addRefreshQueryString("rt", GenericController.encodeText(adminData.listViewRecordTop));
+                }
+                if (adminData.listViewRecordsPerPage != Constants.RecordsPerPageDefault) {
+                    cp.core.doc.addRefreshQueryString("rs", GenericController.encodeText(adminData.listViewRecordsPerPage));
+                }
+                if (adminData.dstFormId != 0) {
+                    cp.core.doc.addRefreshQueryString(rnAdminForm, GenericController.encodeText(adminData.dstFormId));
+                }
+                //
+                // normalize guid
+                //
+                if (!string.IsNullOrEmpty(AddonGuid)) {
+                    if ((AddonGuid.Length == 38) && (AddonGuid.left(1) == "{") && (AddonGuid.Substring(AddonGuid.Length - 1) == "}")) {
+                        //
+                        // Good to go
+                        //
+                    } else if (AddonGuid.Length == 36) {
+                        //
+                        // might be valid with the brackets, add them
+                        //
+                        AddonGuid = "{" + AddonGuid + "}";
+                    } else if (AddonGuid.Length == 32) {
+                        //
+                        // might be valid with the brackets and the dashes, add them
+                        //
+                        AddonGuid = "{" + AddonGuid.left(8) + "-" + AddonGuid.Substring(8, 4) + "-" + AddonGuid.Substring(12, 4) + "-" + AddonGuid.Substring(16, 4) + "-" + AddonGuid.Substring(20) + "}";
+                    } else {
+                        //
+                        // not valid
+                        //
+                        AddonGuid = "";
+                    }
+                }
+                //
+                //-------------------------------------------------------------------------------
+                // Create the content
+                //-------------------------------------------------------------------------------
+                //
+                string content = "";
+                string AddonName = "";
+                if (!string.IsNullOrEmpty(forceAdminContent)) {
+                    //
+                    // Use content passed in as an argument
+                    //
+                    content = forceAdminContent;
+                } else if (HelpAddonId != 0) {
+                    //
+                    // display Addon Help
+                    //
+                    cp.core.doc.addRefreshQueryString("helpaddonid", HelpAddonId.ToString());
+                    content = GetAddonHelp(cp, HelpAddonId, "");
+                } else if (HelpCollectionId != 0) {
+                    //
+                    // display Collection Help
+                    //
+                    cp.core.doc.addRefreshQueryString("helpcollectionid", HelpCollectionId.ToString());
+                    content = GetCollectionHelp(cp, HelpCollectionId, "");
+                } else if (adminData.dstFormId != 0) {
+                    //
+                    // -- formindex requires valid content
+                    if ((adminData.adminContent.tableName == null) && (adminData.dstFormId == AdminFormIndex)) {
+                        adminData.dstFormId = AdminFormRoot;
+                    }
+                    //
+                    // No content so far, try the forms
+                    // todo - convert this to switch
+                    switch (adminData.dstFormId) {
+                        //
+                        case AdminFormIndex: {
+                                content = ListView.get(cp, cp.core, adminData);
+                                break;
+                            }
+                        case AdminFormEdit: {
+                                content = EditView.get(cp.core, adminData);
+                                break;
+                            }
+                        case AdminFormToolSyncTables: {
+                                content = SyncTablesClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormToolSchema: {
+                                content = DbSchemaToolClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormToolDbIndex: {
+                                content = DbIndexToolClass.get(cp.core);
+                                break;
+                            }
+                        case AdminformToolFindAndReplace: {
+                                content = FindAndReplaceToolClass.get(cp.core);
+                                break;
+                            }
+                        case AdminformToolCreateGUID: {
+                                content = CreateGUIDToolClass.get(cp.core);
+                                break;
+                            }
+                        case AdminformToolIISReset: {
+                                content = IISResetToolClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormToolContentSchema: {
+                                content = ContentSchemaToolClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormToolManualQuery: {
+                                content = ManualQueryClass.get(cp);
+                                break;
+                            }
+                        case AdminFormToolDefineContentFieldsFromTable: {
+                                content = DefineContentFieldsFromTableClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormToolCreateContentDefinition: {
+                                content = CreateContentDefinitionClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormToolConfigureEdit: {
+                                content = ConfigureEditClass.get(cp);
+                                break;
+                            }
+                        case AdminFormToolConfigureListing: {
+                                content = ConfigureListClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormClearCache: {
+                                content = cp.core.addon.execute("{7B5B8150-62BE-40F4-A66A-7CC74D99BA76}", new CPUtilsBaseClass.addonExecuteContext() {
+                                    addonType = CPUtilsBaseClass.addonContext.ContextAdmin
+                                });
+                                break;
+                            }
+                        case AdminFormResourceLibrary: {
+                                content = cp.core.html.getResourceLibrary("", false, "", "", true);
+                                break;
+                            }
+                        case AdminFormQuickStats: {
+                                content = QuickStatsView.get(cp.core);
+                                break;
+                            }
+                        case AdminFormClose: {
+                                content = "<Script Language=\"JavaScript\" type=\"text/javascript\"> window.close(); </Script>";
+                                break;
+                            }
+                        case AdminFormContentChildTool: {
+                                content = ContentChildToolClass.get(cp);
+                                break;
+                            }
+                        case AdminformHousekeepingControl: {
+                                content = HouseKeepingControlClass.get(cp);
+                                break;
+                            }
+                        case AdminFormDownloads: {
+                                content = (ToolDownloads.get(cp.core));
+                                break;
+                            }
+                        case AdminFormImportWizard: {
+                                content = cp.core.addon.execute(addonGuidImportWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                                    addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
+                                    errorContextMessage = "get Import Wizard for Admin"
+                                });
+                                break;
+                            }
+                        case AdminFormCustomReports: {
+                                content = ToolCustomReports.get(cp.core);
+                                break;
+                            }
+                        case AdminFormFormWizard: {
+                                content = cp.core.addon.execute(addonGuidFormWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                                    addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
+                                    errorContextMessage = "get Form Wizard for Admin"
+                                });
+                                break;
+                            }
+                        case AdminFormLegacyAddonManager: {
+                                content = AddonController.getAddonManager(cp.core);
+                                break;
+                            }
+                        case AdminFormEditorConfig: {
+                                content = EditorConfigView.get(cp.core);
+                                break;
+                            }
+                        default: {
+                                content = "<p>The form requested is not supported</p>";
+                                break;
+                            }
+                    }
+                } else if ((addonId != 0) || (!string.IsNullOrEmpty(AddonGuid)) || (!string.IsNullOrEmpty(AddonName))) {
+                    //
+                    // execute an addon
+                    //
+                    if ((AddonGuid == addonGuidAddonManager) || (AddonName.ToLowerInvariant() == "add-on manager") || (AddonName.ToLowerInvariant() == "addon manager")) {
+                        //
+                        // Special case, call the routine that provides a backup
+                        //
+                        cp.core.doc.addRefreshQueryString("addonguid", addonGuidAddonManager);
+                        content = AddonController.getAddonManager(cp.core);
+                    } else {
+                        AddonModel addon = null;
+                        string executeContextErrorCaption = "unknown";
+                        if (addonId != 0) {
+                            executeContextErrorCaption = " addon id:" + addonId + " for Admin";
+                            cp.core.doc.addRefreshQueryString("addonid", addonId.ToString());
+                            addon = DbBaseModel.create<AddonModel>(cp, addonId);
+                        } else if (!string.IsNullOrEmpty(AddonGuid)) {
+                            executeContextErrorCaption = "addon guid:" + AddonGuid + " for Admin";
+                            cp.core.doc.addRefreshQueryString("addonguid", AddonGuid);
+                            addon = DbBaseModel.create<AddonModel>(cp, AddonGuid);
+                        } else if (!string.IsNullOrEmpty(AddonName)) {
+                            executeContextErrorCaption = "addon name:" + AddonName + " for Admin";
+                            cp.core.doc.addRefreshQueryString("addonname", AddonName);
+                            addon = AddonModel.createByUniqueName(cp, AddonName);
+                        }
+                        if (addon != null) {
+                            addonId = addon.id;
+                            AddonName = addon.name;
+                            cp.core.doc.addRefreshQueryString(RequestNameRunAddon, addonId.ToString());
+                        }
+                        string InstanceOptionString = cp.core.userProperty.getText("Addon [" + AddonName + "] Options", "");
+                        int DefaultWrapperId = -1;
+                        content = cp.core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                            addonType = Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
+                            instanceGuid = adminSiteInstanceId,
+                            argumentKeyValuePairs = GenericController.convertQSNVAArgumentstoDocPropertiesList(cp.core, InstanceOptionString),
+                            wrapperID = DefaultWrapperId,
+                            errorContextMessage = executeContextErrorCaption
+                        });
+                        if (string.IsNullOrEmpty(content)) {
+                            //
+                            // empty returned, display desktop
+                            content = RootView.getForm_Root(cp.core);
+                        }
+
+                    }
+                } else {
+                    //
+                    // nothing so far, display desktop
+                    content = RootView.getForm_Root(cp.core);
+                }
+                //
+                // -- add user errors
+                if (!cp.core.doc.userErrorList.Count.Equals(0)) {
+                    content = HtmlController.div(ErrorController.getUserError(cp.core), "ccAdminMsg") + content;
+                }
+                //
+                // -- add button count to js
+                // todo should be added to hidden input
+                cp.core.html.addScriptCode("ButtonObjectCount = " + adminData.buttonObjectCount + ";", "Admin Site");
+                //
+                // -- create the body html
+                return getHtmlBody_Body(cp, content);
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
+                throw;
             }
-            return result;
         }
         //
         //====================================================================================================
@@ -495,9 +489,9 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// Wrap the admin body with the header and footer
         /// </summary>
         /// <param name="cp"></param>
-        /// <param name="body"></param>
+        /// <param name="content"></param>
         /// <returns></returns>
-        public static string  addHeaderFooter( CPClass cp, string body ) {
+        public static string getHtmlBody_Body(CPClass cp, string content) {
             try {
                 string headerExceptions = cp.core.session.user.developer ? ErrorController.getDocExceptionHtmlList(cp.core) : "";
                 string headerLeft = cp.core.siteProperties.getText("AdminHeaderHTML", "Administration Site");
@@ -519,7 +513,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + "<table border=0 cellpadding=0 cellspacing=0>"
                     + "<tr>"
                     + "<td class=\"ccToolsCon\" valign=top>" + bodyLeft + "</td>"
-                    + "<td class=\"ccContentCon\" valign=top id=\"desktop\">" + body + "</td>"
+                    + "<td class=\"ccContentCon\" valign=top id=\"desktop\">" + content + "</td>"
                     + "</tr>"
                     + "</table>";
             } catch (Exception) {
@@ -720,17 +714,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                 Contensive.Processor.Addons.AdminSite.Models.EditRecordModel editRecord = adminData.editRecord;
                 //
                 //
-                if (adminData.adminSourceForm != 0) {
+                if (adminData.srcFormId != 0) {
                     string EditorStyleRulesFilename = null;
-                    switch (adminData.adminSourceForm) {
+                    switch (adminData.srcFormId) {
                         case AdminFormReports: {
                                 //
                                 // Reports form cancel button
                                 //
-                                switch (adminData.requestButton) {
+                                switch (adminData.srcFormButton) {
                                     case ButtonCancel: {
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = AdminFormRoot;
+                                            adminData.dstFormId = AdminFormRoot;
                                             break;
                                         }
                                     default: {
@@ -741,10 +735,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 break;
                             }
                         case AdminFormQuickStats: {
-                                switch (adminData.requestButton) {
+                                switch (adminData.srcFormButton) {
                                     case ButtonCancel: {
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = AdminFormRoot;
+                                            adminData.dstFormId = AdminFormRoot;
                                             break;
                                         }
                                     default: {
@@ -758,10 +752,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // Publish Form
                                 //
-                                switch (adminData.requestButton) {
+                                switch (adminData.srcFormButton) {
                                     case ButtonCancel: {
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = AdminFormRoot;
+                                            adminData.dstFormId = AdminFormRoot;
                                             break;
                                         }
                                     default: {
@@ -773,55 +767,55 @@ namespace Contensive.Processor.Addons.AdminSite {
                             }
                         case AdminFormIndex: {
 
-                                switch (adminData.requestButton) {
+                                switch (adminData.srcFormButton) {
                                     case ButtonCancel: {
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = AdminFormRoot;
+                                            adminData.dstFormId = AdminFormRoot;
                                             adminData.adminContent = new ContentMetadataModel();
                                             break;
                                         }
                                     case ButtonClose: {
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = AdminFormRoot;
+                                            adminData.dstFormId = AdminFormRoot;
                                             adminData.adminContent = new ContentMetadataModel();
                                             break;
                                         }
                                     case ButtonAdd: {
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
                                         }
 
                                     case ButtonFind: {
                                             adminData.admin_Action = Constants.AdminActionFind;
-                                            adminData.adminForm = adminData.adminSourceForm;
+                                            adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
 
                                     case ButtonFirst: {
-                                            adminData.recordTop = 0;
-                                            adminData.adminForm = adminData.adminSourceForm;
+                                            adminData.listViewRecordTop = 0;
+                                            adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
                                     case ButtonPrevious: {
-                                            adminData.recordTop -= adminData.recordsPerPage;
-                                            if (adminData.recordTop < 0) {
-                                                adminData.recordTop = 0;
+                                            adminData.listViewRecordTop -= adminData.listViewRecordsPerPage;
+                                            if (adminData.listViewRecordTop < 0) {
+                                                adminData.listViewRecordTop = 0;
                                             }
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = adminData.adminSourceForm;
+                                            adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
 
                                     case ButtonNext: {
                                             adminData.admin_Action = Constants.AdminActionNext;
-                                            adminData.adminForm = adminData.adminSourceForm;
+                                            adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
 
                                     case ButtonDelete: {
                                             adminData.admin_Action = Constants.AdminActionDeleteRows;
-                                            adminData.adminForm = adminData.adminSourceForm;
+                                            adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
                                     default: {
@@ -837,63 +831,63 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // Edit Form
                                 //
-                                switch (adminData.requestButton) {
+                                switch (adminData.srcFormButton) {
                                     case ButtonRefresh: {
                                             //
                                             // this is a test operation. need this so the user can set editor preferences without saving the record
                                             //   during refresh, the edit page is redrawn just was it was, but no save
                                             //
                                             adminData.admin_Action = Constants.AdminActionEditRefresh;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
 
                                     case ButtonMarkReviewed: {
                                             adminData.admin_Action = Constants.AdminActionMarkReviewed;
-                                            adminData.adminForm = GetForm_Close(cp, adminData.ignore_legacyMenuDepth);
+                                            adminData.dstFormId = AdminFormIndex;
                                             break;
 
                                         }
 
                                     case ButtonSaveandInvalidateCache: {
                                             adminData.admin_Action = Constants.AdminActionReloadCDef;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
 
                                     case ButtonDelete: {
                                             adminData.admin_Action = Constants.AdminActionDelete;
-                                            adminData.adminForm = GetForm_Close(cp, adminData.ignore_legacyMenuDepth);
+                                            adminData.dstFormId = AdminFormIndex;
                                             break;
 
                                         }
 
                                     case ButtonSave: {
                                             adminData.admin_Action = Constants.AdminActionSave;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
 
                                     case ButtonSaveAddNew: {
                                             adminData.admin_Action = Constants.AdminActionSaveAddNew;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
 
                                     case ButtonOK: {
                                             adminData.admin_Action = Constants.AdminActionSave;
-                                            adminData.adminForm = GetForm_Close(cp, adminData.ignore_legacyMenuDepth);
+                                            adminData.dstFormId = AdminFormIndex;
                                             break;
 
                                         }
 
                                     case ButtonCancel: {
                                             adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.adminForm = GetForm_Close(cp, adminData.ignore_legacyMenuDepth);
+                                            adminData.dstFormId = AdminFormIndex;
                                             break;
 
                                         }
@@ -903,7 +897,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             // Send a Group Email
                                             //
                                             adminData.admin_Action = Constants.AdminActionSendEmail;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
@@ -913,7 +907,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             // Activate (submit) a conditional Email
                                             //
                                             adminData.admin_Action = Constants.AdminActionActivateEmail;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
@@ -922,7 +916,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             // Deactivate (clear submit) a conditional Email
                                             //
                                             adminData.admin_Action = Constants.AdminActionDeactivateEmail;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
@@ -931,7 +925,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             // Test an Email (Group, System, or Conditional)
                                             //
                                             adminData.admin_Action = Constants.AdminActionSendEmailTest;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
                                         }
                                     case ButtonCreateDuplicate: {
@@ -939,7 +933,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             // Create a Duplicate record (for email)
                                             //
                                             adminData.admin_Action = Constants.AdminActionDuplicate;
-                                            adminData.adminForm = AdminFormEdit;
+                                            adminData.dstFormId = AdminFormEdit;
                                             break;
 
                                         }
@@ -954,7 +948,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // Process actions
                                 //
-                                switch (adminData.requestButton) {
+                                switch (adminData.srcFormButton) {
                                     case ButtonSave:
                                     case ButtonOK: {
                                             //
@@ -991,13 +985,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             break;
                                         }
                                 }
-                                switch (adminData.requestButton) {
+                                switch (adminData.srcFormButton) {
                                     case ButtonCancel:
                                     case ButtonOK: {
                                             //
                                             // Process redirects
                                             //
-                                            adminData.adminForm = AdminFormRoot;
+                                            adminData.dstFormId = AdminFormRoot;
                                             break;
                                         }
                                     default: {
@@ -1016,18 +1010,6 @@ namespace Contensive.Processor.Addons.AdminSite {
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
             }
-        }
-        //       
-        //=============================================================================================
-        /// <summary>
-        /// Get the form close
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="MenuDepth"></param>
-        /// <returns></returns>
-        private int GetForm_Close(CPClass cp, int MenuDepth) {
-            if (MenuDepth > 0) { return AdminFormClose; }
-            return AdminFormIndex;
         }
         //
         //=================================================================================

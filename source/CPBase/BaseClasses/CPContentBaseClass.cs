@@ -123,7 +123,11 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract string GetCopy(string CopyName, string DefaultContent);
-        //
+        /// <summary>
+        /// Get the string from the 'Copy Content' record based on it's name. If the record does not exist it is created with the default value provided.
+        /// </summary>
+        /// <param name="CopyName"></param>
+        /// <returns></returns>
         public abstract string GetCopy(string CopyName);
         //
         //====================================================================================================
@@ -157,13 +161,31 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract string GetAddLink(string ContentName, string PresetNameValueList, bool AllowPaste, bool IsEditing);
-        //
+        /// <summary>
+        /// Get an icon linked to the administration site which adds a new record to the content.
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="PresetNameValueList"></param>
+        /// <returns></returns>
         public abstract string GetAddLink(string ContentName, string PresetNameValueList);
-        //
+        /// <summary>
+        /// Get an icon linked to the administration site which adds a new record to the content.
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <returns></returns>
         public abstract string GetAddLink(string ContentName);
-        //
+        /// <summary>
+        /// Get an icon linked to the administration site which adds a new record to the content.
+        /// </summary>
+        /// <param name="contentId"></param>
+        /// <param name="PresetNameValueList"></param>
+        /// <returns></returns>
         public abstract string GetAddLink(int contentId, string PresetNameValueList);
-        //
+        /// <summary>
+        /// Get an icon linked to the administration site which adds a new record to the content.
+        /// </summary>
+        /// <param name="contentId"></param>
+        /// <returns></returns>
         public abstract string GetAddLink(int contentId);
         //
         //====================================================================================================
@@ -303,7 +325,18 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract string GetPageLink(int PageID, string QueryStringSuffix, bool AllowLinkAlias);
+        /// <summary>
+        /// Return the appropriate link for a page.
+        /// </summary>
+        /// <param name="PageID"></param>
+        /// <param name="QueryStringSuffix"></param>
+        /// <returns></returns>
         public abstract string GetPageLink(int PageID, string QueryStringSuffix);
+        /// <summary>
+        /// Return the appropriate link for a page.
+        /// </summary>
+        /// <param name="PageID"></param>
+        /// <returns></returns>
         public abstract string GetPageLink(int PageID);
         //
         //====================================================================================================
@@ -364,33 +397,6 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract bool IsChildContent(string ChildContentID, string ParentContentID);
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Returns the html layout field of a layout record
-        /// </summary>
-        /// <param name="layoutName"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public abstract string getLayout(string layoutName);
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Returns the html layout field of a layout record. If the record does not exist, it is created with the supplied default layout
-        /// </summary>
-        /// <param name="layoutName"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public abstract string getLayout(string layoutName, string defaultLayout);
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Returns the html layout field of a layout record
-        /// </summary>
-        /// <param name="layoutId"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public abstract string GetLayout(int layoutId);
         //
         //====================================================================================================
         /// <summary>
@@ -492,34 +498,117 @@ namespace Contensive.BaseClasses {
         //====================================================================================================
         // deprecated
         //
+        /// <summary>
+        /// Deprecated, use CP.Layout.GetLayoutByName()
+        /// </summary>
+        /// <param name="layoutName"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Obsolete("Deprecated, use CP.Layout.GetLayoutByName()", false)]
+        public abstract string getLayout(string layoutName);
+        //
+        /// <summary>
+        /// Deprecated, use CP.Layout.GetLayoutByName()
+        /// </summary>
+        /// <param name="layoutName"></param>
+        /// <param name="defaultLayout"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Obsolete("Deprecated, use CP.Layout.GetLayoutByName()", false)] 
+        public abstract string getLayout(string layoutName, string defaultLayout);
+        //
+        /// <summary>
+        /// Returns the html layout field of a layout record
+        /// </summary>
+        /// <param name="layoutId"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Obsolete("Deprecated, use CP.Layout.GetLayout()", false)]
+        public abstract string GetLayout(int layoutId);
+        //
+        /// <summary>
+        /// Deprecated, template link is not supported
+        /// </summary>
+        /// <param name="TemplateID"></param>
+        /// <returns></returns>
         [Obsolete("Deprecated, template link is not supported", false)]
         public abstract string GetTemplateLink(int TemplateID);
         //
+        /// <summary>
+        /// workflow editing is deprecated
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <returns></returns>
         [Obsolete("workflow editing is deprecated", false)]
         public abstract bool IsWorkflow(string ContentName);
         //
+        /// <summary>
+        /// workflow editing is deprecated
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="RecordID"></param>
         [Obsolete("workflow editing is deprecated", false)]
         public abstract void PublishEdit(string ContentName, int RecordID);
         //
+        /// <summary>
+        /// workflow editing is deprecated
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="RecordID"></param>
         [Obsolete("workflow editing is deprecated", false)]
         public abstract void SubmitEdit(string ContentName, int RecordID);
         //
+        /// <summary>
+        /// workflow editing is deprecated
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="RecordId"></param>
         [Obsolete("workflow editing is deprecated", false)]
         public abstract void AbortEdit(string ContentName, int RecordId);
         //
+        /// <summary>
+        /// workflow editing is deprecated
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="RecordId"></param>
         [Obsolete("workflow editing is deprecated", false)]
         public abstract void ApproveEdit(string ContentName, int RecordId);
         //
-        [Obsolete("Please use AddRecord(ContentName as String)", false)]
+        /// <summary>
+        /// Deprecated, use AddRecord(string)
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated, use AddRecord(string)", false)]
         public abstract int AddRecord(object ContentName);
         //
-        [Obsolete("Use models to access record fields)", false)]
+        /// <summary>
+        /// Deprecated. Use models to access record fields
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="PropertyName"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated. Use models to access record fields", false)]
         public abstract string GetProperty(string ContentName, string PropertyName);
         //
-        [Obsolete("deprecated, use GetFieldMeta and use the property", false)]
+        /// <summary>
+        /// Deprecated, use GetFieldMeta and use the property
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="FieldName"></param>
+        /// <param name="PropertyName"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated, use GetFieldMeta and use the property", false)]
         public abstract string GetFieldProperty(string ContentName, string FieldName, string PropertyName);
         //
-        [Obsolete("deprecated, use method with FieldTypeIdEnum", false)]
+        /// <summary>
+        /// Deprecated, use method with FieldTypeIdEnum
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="FieldName"></param>
+        /// <param name="fileTypeEnum"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated, use method with FieldTypeIdEnum", false)]
         public abstract int AddContentField(string ContentName, string FieldName, fileTypeIdEnum fileTypeEnum);
         //
         public enum GoogleVisualizationStatusEnum {

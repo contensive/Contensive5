@@ -827,7 +827,6 @@ namespace Contensive.Processor {
         //   Common RequestName Variables
         //------------------------------------------------------------------------
         //
-        internal const string RequestNameAdminDepth = "ad";
         internal const string rnAdminForm = "af";
         internal const string rnAdminSourceForm = "asf";
         internal const string rnAdminAction = "aa";

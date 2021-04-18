@@ -448,53 +448,6 @@ namespace Contensive.Processor.Controllers {
 
         }
         //
-        //=============================================================================
-        /// <summary>
-        /// Sets the MetaContent subsystem so the next call to main_GetLastMeta... returns the correct value
-        /// </summary>
-        /// <param name="contentId"></param>
-        /// <param name="recordId"></param>
-        public void setMetaContent(int contentId, int recordId) {
-            if ((contentId != 0) && (recordId != 0)) {
-                //
-                // -- open meta content record
-                string Criteria = "(ContentID=" + contentId + ")and(RecordID=" + recordId + ")";
-                string FieldList = "ID,Name,MetaDescription,OtherHeadTags,MetaKeywordList";
-                string keywordList = "";
-                int MetaContentId = 0;
-                using (var csData = new CsModel(core)) {
-                    if (csData.open("Meta Content", Criteria, "", false, 0, FieldList)) {
-                        MetaContentId = csData.getInteger("ID");
-                        core.html.addTitle(HtmlController.encodeHtml(csData.getText("Name")), "page content");
-                        core.html.addMetaDescription(HtmlController.encodeHtml(csData.getText("MetaDescription")), "page content");
-                        core.html.addHeadTag(csData.getText("OtherHeadTags"), "page content");
-                        keywordList = csData.getText("MetaKeywordList").Replace(Environment.NewLine, ",");
-                    }
-                    csData.close();
-                }
-                //
-                // open Keyword List
-                using (var csData = new CsModel(core)) {
-                    string SQL = "select ccMetaKeywords.Name"
-                        + " From ccMetaKeywords"
-                        + " LEFT JOIN ccMetaKeywordRules on ccMetaKeywordRules.MetaKeywordID=ccMetaKeywords.ID"
-                        + " Where ccMetaKeywordRules.MetaContentID=" + MetaContentId;
-                    csData.openSql(SQL);
-                    while (csData.ok()) {
-                        keywordList = keywordList + "," + csData.getText("Name");
-                        csData.goNext();
-                    }
-                    if (!string.IsNullOrEmpty(keywordList)) {
-                        if (keywordList.left(1) == ",") {
-                            keywordList = keywordList.Substring(1);
-                        }
-                        keywordList = HtmlController.encodeHtml(keywordList);
-                        core.html.addMetaKeywordList(keywordList, "page content");
-                    }
-                }
-            }
-        }
-        //
         //====================================================================================================
         /// <summary>
         /// nlog class instance

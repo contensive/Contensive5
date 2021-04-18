@@ -5,7 +5,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Templating methods (Mustache, Stubble, Handlebars - need signed, and framework+core or standard)
     /// </summary>
-    public static class TemplatingController {
+    public static class MustacheController {
         /// <summary>
         /// render template with dataset
         /// </summary>

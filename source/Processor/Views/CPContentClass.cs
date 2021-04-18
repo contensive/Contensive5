@@ -302,18 +302,13 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
-        public override string GetLayout(int layoutid) {
-            try {
-                using (var cs = new CsModel(cp.core)) {
-                    string sql = "select layout from ccLayouts where id=" + layoutid;
-                    cs.openSql(sql);
-                    if (cs.ok()) { return cs.getText("layout"); }
-                }
-            } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
-            }
-            return string.Empty;
+        /// <summary>
+        /// Deprecated. Use CP.Layout.GetLayout
+        /// </summary>
+        /// <param name="layoutid"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)] public override string GetLayout(int layoutid) {
+            return cp.Layout.GetLayout(layoutid);
         }
         //
         //====================================================================================================
