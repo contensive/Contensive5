@@ -23,13 +23,13 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //====================================================================================================
         /// <summary>
-        /// the content metadata being edited
+        /// the content metadata being viewed. Typically set with the query cid=123
         /// </summary>
         public ContentMetadataModel adminContent { get; set; }
         //
         //====================================================================================================
         /// <summary>
-        /// the record being edited
+        /// the record being edited, typically set with query cid=123,id=123,af=4
         /// </summary>
         public EditRecordModel editRecord { get; set; }
         //
@@ -41,7 +41,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //====================================================================================================
         /// <summary>
-        /// the next form requested (the get)
+        /// the next form requested (the get). typically set with af=123
         /// </summary>
         public int adminForm { get; set; }
         //
@@ -178,18 +178,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// Count of Buttons in use
         /// </summary>
         public int buttonObjectCount { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Collected string of Javascript functions to print at end
-        /// </summary>
-        public string javaScriptString { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// the HTML needed to complete the Admin Form after contents
-        /// </summary>
-        public string adminFooter { get; set; }
         //
         //====================================================================================================
         /// <summary>

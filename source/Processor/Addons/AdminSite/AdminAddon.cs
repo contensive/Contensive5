@@ -74,6 +74,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// return the html body for the admin site
         /// </summary>
         /// <param name="forceAdminContent"></param>
+        /// <param name="cp">interface wrapper for coreController</param>
         /// <returns></returns>
         private string getHtmlBody(CPClass cp, string forceAdminContent = "") {
             string result = "";
@@ -136,7 +137,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     });
                     cp.core.db.sqlCommandTimeout = 300;
                     adminData.buttonObjectCount = 0;
-                    adminData.javaScriptString = "";
                     adminData.contentWatchLoaded = false;
                     //
                     string buildVersion = cp.core.siteProperties.dataBuildVersion;
@@ -276,7 +276,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //-------------------------------------------------------------------------------
                     //
                     string adminBody = "";
-                    StringBuilderLegacyController Stream = new StringBuilderLegacyController();
                     string AddonName = "";
                     if (!string.IsNullOrEmpty(forceAdminContent)) {
                         //
@@ -377,7 +376,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 }
                             case AdminFormClose: {
-                                    Stream.add("<Script Language=\"JavaScript\" type=\"text/javascript\"> window.close(); </Script>");
+                                    adminBody = "<Script Language=\"JavaScript\" type=\"text/javascript\"> window.close(); </Script>";
                                     break;
                                 }
                             case AdminFormContentChildTool: {
@@ -478,22 +477,54 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                     // add user errors
                     if (!cp.core.doc.userErrorList.Count.Equals(0)) {
-                        adminBody = HtmlController.div(Processor.Controllers.ErrorController.getUserError(cp.core), "ccAdminMsg") + adminBody;
+                        adminBody = HtmlController.div(ErrorController.getUserError(cp.core), "ccAdminMsg") + adminBody;
                     }
-                    Stream.add(getAdminHeader(cp, adminData));
-                    Stream.add(adminBody);
-                    Stream.add(adminData.adminFooter);
-                    adminData.javaScriptString += "ButtonObjectCount = " + adminData.buttonObjectCount + ";";
-                    cp.core.html.addScriptCode(adminData.javaScriptString, "Admin Site");
-                    result = Stream.text;
-                }
-                if (cp.core.session.user.developer) {
-                    result = Processor.Controllers.ErrorController.getDocExceptionHtmlList(cp.core) + result;
+                    cp.core.html.addScriptCode("ButtonObjectCount = " + adminData.buttonObjectCount + ";", "Admin Site");
+
+                    result += addHeaderFooter(cp, adminBody);
+
                 }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
             }
             return result;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Wrap the admin body with the header and footer
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="body"></param>
+        /// <returns></returns>
+        public static string  addHeaderFooter( CPClass cp, string body ) {
+            try {
+                string headerExceptions = cp.core.session.user.developer ? ErrorController.getDocExceptionHtmlList(cp.core) : "";
+                string headerLeft = cp.core.siteProperties.getText("AdminHeaderHTML", "Administration Site");
+                string headerRight = HtmlController.a(cp.User.Name, "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id);
+                string headerRightNav = ""
+                    + "<form class=\"form-inline\" method=post action=\"?method=logout\">"
+                    + "<button class=\"btn btn-warning btn-sm ml-2\" type=\"submit\">Logout</button>"
+                    + "</form>";
+                string header = AdminUIController.getHeader(cp.core, headerLeft, headerRight, headerRightNav);
+                //
+                string bodyLeft = cp.core.addon.execute(DbBaseModel.create<AddonModel>(cp, AdminNavigatorGuid), new CPUtilsBaseClass.addonExecuteContext {
+                    addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
+                    errorContextMessage = "executing Admin Navigator in Admin"
+                });
+                //
+                return ""
+                    + headerExceptions
+                    + header
+                    + "<table border=0 cellpadding=0 cellspacing=0>"
+                    + "<tr>"
+                    + "<td class=\"ccToolsCon\" valign=top>" + bodyLeft + "</td>"
+                    + "<td class=\"ccContentCon\" valign=top id=\"desktop\">" + body + "</td>"
+                    + "</tr>"
+                    + "</table>";
+            } catch (Exception) {
+                throw;
+            }
         }
         //
         //====================================================================================================
@@ -676,41 +707,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
                 return;
-            } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
-                throw;
-            }
-        }
-        // 
-        //========================================================================
-        //
-        private string getAdminHeader(CPClass cp, AdminDataModel adminData, string BackgroundColor = "") {
-            try {
-                string leftSide = cp.core.siteProperties.getText("AdminHeaderHTML", "Administration Site");
-                string rightSide = HtmlController.a(cp.User.Name, "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id);
-                string rightSideNavHtml = ""
-                    + "<form class=\"form-inline\" method=post action=\"?method=logout\">"
-                    + "<button class=\"btn btn-warning btn-sm ml-2\" type=\"submit\">Logout</button>"
-                    + "</form>";
-                //
-                // Assemble header
-                //
-                StringBuilderLegacyController Stream = new StringBuilderLegacyController();
-                Stream.add(AdminUIController.getHeader(cp.core, leftSide, rightSide, rightSideNavHtml));
-                //
-                // --- Content Definition
-                adminData.adminFooter = "";
-                //
-                // -- Admin Navigator
-                string AdminNavFull = cp.core.addon.execute(DbBaseModel.create<AddonModel>(cp, AdminNavigatorGuid), new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
-                    addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
-                    errorContextMessage = "executing Admin Navigator in Admin"
-                });
-                //
-                Stream.add("<table border=0 cellpadding=0 cellspacing=0><tr>\r<td class=\"ccToolsCon\" valign=top>" + AdminNavFull + "</td>\r<td id=\"desktop\" class=\"ccContentCon\" valign=top>");
-                adminData.adminFooter += "</td></tr></table>";
-                //
-                return Stream.text;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
                 throw;
