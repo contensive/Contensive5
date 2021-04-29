@@ -88,7 +88,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // -- Load Index page customizations
                         IndexConfigClass indexConfig = IndexConfigClass.get(core, adminData);
                         setIndexSQL_ProcessIndexConfigRequests(core, adminData, ref indexConfig);
-                        AdminAddon.setIndexSQL_SaveIndexConfig(cp, core, indexConfig);
+                        AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, indexConfig);
                         //
                         // Get the SQL parts
                         bool AllowAccessToContent = false;
@@ -1365,42 +1365,41 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 SubFilterList = "";
                 if (adminData.adminContent.tableName.ToLower(CultureInfo.InvariantCulture) == GenericController.toLCase("ccmembers")) {
-                    using (var csData = new CsModel(core)) {
-                        csData.openSql(core.db.getSQLSelect("ccGroups", "ID,Caption,Name", "(active<>0)", "Caption,Name"));
-                        while (csData.ok()) {
-                            string Name = csData.getText("Name");
-                            Ptr = 0;
-                            if (IndexConfig.groupListCnt > 0) {
-                                for (Ptr = 0; Ptr < IndexConfig.groupListCnt; Ptr++) {
-                                    if (Name == IndexConfig.groupList[Ptr]) {
-                                        break;
-                                    }
+                    using var csData = new CsModel(core);
+                    csData.openSql(core.db.getSQLSelect("ccGroups", "ID,Caption,Name", "(active<>0)", "Caption,Name"));
+                    while (csData.ok()) {
+                        string Name = csData.getText("Name");
+                        Ptr = 0;
+                        if (IndexConfig.groupListCnt > 0) {
+                            for (Ptr = 0; Ptr < IndexConfig.groupListCnt; Ptr++) {
+                                if (Name == IndexConfig.groupList[Ptr]) {
+                                    break;
                                 }
                             }
-                            if (Ptr == IndexConfig.groupListCnt) {
-                                int RecordId = csData.getInteger("ID");
-                                Caption = csData.getText("Caption");
-                                if (string.IsNullOrEmpty(Caption)) {
-                                    Caption = Name;
-                                    if (string.IsNullOrEmpty(Caption)) {
-                                        Caption = "Group " + RecordId;
-                                    }
-                                }
-                                if (Caption.Length > 30) {
-                                    Caption = Caption.left(15) + "..." + Caption.Substring(Caption.Length - 15);
-                                }
-                                Caption = "<span style=\"white-space:nowrap;\">" + Caption + "</span>";
-                                QS = RQS;
-                                if (!string.IsNullOrEmpty(Name.Trim(' '))) {
-                                    QS = GenericController.modifyQueryString(QS, "IndexFilterAddGroup", Name, true);
-                                } else {
-                                    QS = GenericController.modifyQueryString(QS, "IndexFilterAddGroup", RecordId.ToString(), true);
-                                }
-                                Link = "/" + core.appConfig.adminRoute + "?" + QS;
-                                SubFilterList = SubFilterList + "<div class=\"ccFilterIndent\"><a class=\"ccFilterLink\" href=\"" + Link + "\">" + Caption + "</a></div>";
-                            }
-                            csData.goNext();
                         }
+                        if (Ptr == IndexConfig.groupListCnt) {
+                            int RecordId = csData.getInteger("ID");
+                            Caption = csData.getText("Caption");
+                            if (string.IsNullOrEmpty(Caption)) {
+                                Caption = Name;
+                                if (string.IsNullOrEmpty(Caption)) {
+                                    Caption = "Group " + RecordId;
+                                }
+                            }
+                            if (Caption.Length > 30) {
+                                Caption = Caption.left(15) + "..." + Caption.Substring(Caption.Length - 15);
+                            }
+                            Caption = "<span style=\"white-space:nowrap;\">" + Caption + "</span>";
+                            QS = RQS;
+                            if (!string.IsNullOrEmpty(Name.Trim(' '))) {
+                                QS = GenericController.modifyQueryString(QS, "IndexFilterAddGroup", Name, true);
+                            } else {
+                                QS = GenericController.modifyQueryString(QS, "IndexFilterAddGroup", RecordId.ToString(), true);
+                            }
+                            Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                            SubFilterList = SubFilterList + "<div class=\"ccFilterIndent\"><a class=\"ccFilterLink\" href=\"" + Link + "\">" + Caption + "</a></div>";
+                        }
+                        csData.goNext();
                     }
                 }
                 if (!string.IsNullOrEmpty(SubFilterList)) {

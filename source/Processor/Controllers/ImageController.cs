@@ -8,9 +8,9 @@ namespace Contensive.Processor.Controllers {
     // 
     // =========================================================================================
     /// <summary>
-    ///     ''' service controller wraps services like email. It should be a child object of the application. Never static class b/c mocking interface
-    ///     ''' public property bool 'mock', set true to mock this service by loggin activity in a mockList()
-    ///     ''' </summary>
+    /// service controller wraps services like email. It should be a child object of the application. Never static class b/c mocking interface
+    /// public property bool 'mock', set true to mock this service by loggin activity in a mockList()
+    /// </summary>
     public sealed class ImageController {
         // 
         // ====================================================================================================

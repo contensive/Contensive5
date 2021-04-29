@@ -81,7 +81,7 @@ namespace Contensive.Processor {
             return cp.core.siteProperties.getBoolean(key, defaultValue);
         }
         public override bool GetBoolean(string key) {
-            return cp.core.siteProperties.getBoolean(key, default(bool));
+            return cp.core.siteProperties.getBoolean(key, default);
         }
         //
         //====================================================================================================
@@ -90,7 +90,7 @@ namespace Contensive.Processor {
             return cp.core.siteProperties.getDate(key, DefaultValue);
         }
         public override DateTime GetDate(string key) {
-            return cp.core.siteProperties.getDate(key, default(DateTime));
+            return cp.core.siteProperties.getDate(key, default);
         }
         //
         //====================================================================================================
@@ -99,7 +99,7 @@ namespace Contensive.Processor {
             return cp.core.siteProperties.getInteger(key, DefaultValue);
         }
         public override int GetInteger(string key) {
-            return cp.core.siteProperties.getInteger(key, default(int));
+            return cp.core.siteProperties.getInteger(key, default);
         }
         //
         //====================================================================================================
@@ -108,7 +108,7 @@ namespace Contensive.Processor {
             return cp.core.siteProperties.getNumber(key, DefaultValue);
         }
         public override double GetNumber(string key) {
-            return cp.core.siteProperties.getNumber(key, default(double));
+            return cp.core.siteProperties.getNumber(key, default);
         }
         //
         //====================================================================================================
@@ -117,7 +117,7 @@ namespace Contensive.Processor {
             return cp.core.siteProperties.getText(key, DefaultValue);
         }
         public override string GetText(string key) {
-            return cp.core.siteProperties.getText(key, default(string));
+            return cp.core.siteProperties.getText(key, default);
         }
         //
         //====================================================================================================

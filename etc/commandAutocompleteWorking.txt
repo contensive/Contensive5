@@ -1,0 +1,74 @@
+<div class="navbar-text" style="padding-right:1rem;width:300px"><form class="form-inline my-2 my-lg-0"><input id="cmdSearch" class="form-control ui-autocomplete-input" type="search" placeholder="Command" autocomplete="off"></form></div>
+
+
+
+  $( function() {
+	var data = [
+            { label: "items", value: "items", url: "http://build210422/admin?cid=99" },
+        ];
+    $( "#cmdSearch" ).autocomplete({
+      source: function (request, response) {
+        $.ajax({
+            dataType: "json",
+            type : 'Get',
+            url: '/adminAutocompleteCommands?term=' + request.term,
+            success: function(data) {
+                response(data);
+            },
+            error: function(data) {
+                console.log("error in remote method");;  
+            }
+        });
+    },
+      select: function( event, ui ) { 
+          console.log("selected label:" + ui.item.label + ", value: " + ui.item.value + ", url: " + ui.item.url); 
+          window.location.href = ui.item.url;        
+      }
+    });
+  } );
+  
+  
+  [
+{"label":"items", "value":"items", "url":"http://build210422/admin?cid=99" },
+{"label":"andreas", "value":"2", "url":"http://build210422/admin" },
+{"label":"antal", "value":"3", "url":"http://build210422/admin" },
+{"label":"annhhx10", "value":"4", "url":"http://build210422/admin" },
+{"label":"annk K12", "value":"5", "url":"http://build210422/admin" },
+{"label":"annttop C13", "value":"6", "url":"http://build210422/admin" },
+{"label":"anders andersson", "value":"7", "url":"http://build210422/admin" },
+{"label":"andreas andersson", "value":"8", "url":"http://build210422/admin" },
+{"label":"andreas johnson", "value":"9", "url":"http://build210422/admin" }
+]
+
+  $( function() {
+	var data = [
+            { label: "items", value: "items", url: "http://build210422/admin?cid=99" },
+            { label: "andreas", value: "2", url: "http://build210422/admin" },
+            { label: "antal", value: "3", url: "http://build210422/admin" },
+            { label: "annhhx10", value: "4", url: "http://build210422/admin" },
+            { label: "annk K12", value: "5", url: "http://build210422/admin" },
+            { label: "annttop C13", value: "6", url: "http://build210422/admin" },
+            { label: "anders andersson", value: "7", url: "http://build210422/admin" },
+            { label: "andreas andersson", value: "8", url: "http://build210422/admin" },
+            { label: "andreas johnson", value: "9", url: "http://build210422/admin" }
+        ];
+    $( "#cmdSearch" ).autocomplete({
+      source: function (request, response) {
+        $.ajax({
+            dataType: "json",
+            type : 'Get',
+            url: '/adminAutocompleteCommands',
+            success: function(data) {
+                response(data);
+            },
+            error: function(data) {
+                console.log("error in remote method");;  
+            }
+        });
+    },
+      select: function( event, ui ) { 
+          console.log("selected label:" + ui.item.label + ", value: " + ui.item.value + ", url: " + ui.item.url); 
+          window.location.href = ui.item.url;        
+      }
+    });
+  } );

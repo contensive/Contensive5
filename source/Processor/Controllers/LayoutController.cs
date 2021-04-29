@@ -11,7 +11,22 @@ namespace Contensive.Processor.Controllers {
         // 
         // ====================================================================================================
         /// <summary>
-        /// get a layout  from the layout record, create the record from layoutCdnPathFilename if invalid
+        /// get a design block layout object from the layout record, create the record from layoutCdnPathFilename if invalid.
+        /// There are two typical design block layout patterns:
+        /// 
+        /// 1 - the addon has a single layout. 
+        /// The addon reads it from the layout table by guid (layoutGuid) with the cp.layout.verify() method
+        /// If the layout record is not found or is blank, the layout record is created from content in an html file installed with the collection (defaultLayoutCdnPathFilename).
+        /// The layout record is cached so this read is sub-millisecond. 
+        /// A designer can update the addon's design by replacing the content of the layout record.This update is never overwritten by the collection.
+        /// To restore a layout to its default, delete the layout record.
+        /// 
+        /// 2 - the addon can have multiple layouts that the user can swith between (it only used one layout at a time)
+        /// The addon has a settings record where the user selects the layout to be used. The addon reads the layout from the layout table by the selected ID in the settings record.
+        /// If the layout record is not found or is blank, the verify method returns the 'default layout' for the addon using the verify-by-guid pattern (#1 above).
+        /// The layout record is cached so this read is sub-millisecond. 
+        /// A designer can add new layouts and/or update the addon's default design by replacing the content of the layout record.This update is never overwritten by the collection.
+        /// To restore a layout to its default, delete the layout record.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="layoutGuid"></param>
@@ -54,18 +69,17 @@ namespace Contensive.Processor.Controllers {
             try {
                 // 
                 // -- layout not found, create from deployed file
+                string content = cp.CdnFiles.Read(layoutCdnPathFilename);
+                if (string.IsNullOrEmpty(content)) {
+                    //
+                    // -- content not found -- exception
+                    throw new ApplicationException("Layout [" + layoutName + "] was not found by its guid [" + layoutGuid + "] and the backup file blank or not found [" + layoutCdnPathFilename + "]");
+                }
                 layout.name = layoutName;
                 layout.ccguid = layoutGuid;
-                layout.layout.content = cp.CdnFiles.Read(layoutCdnPathFilename);
+                layout.layout.content = content;
                 layout.save(cp);
-                if (!string.IsNullOrEmpty(layout.layout.content))
-                    return layout.layout.content;
-                // 
-                // -- failed to initialize from file, log error and return backup
-                // 
-                layout.layout.content = "<!-- Layout file not found [" + layoutCdnPathFilename + "] -->";
-                layout.save(cp);
-                return layout.layout.content;
+                return content;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

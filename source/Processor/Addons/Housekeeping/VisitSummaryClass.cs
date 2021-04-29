@@ -110,34 +110,33 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         // Find missing daily summaries, summarize that date
                         //
                         string SQL = core.db.getSQLSelect("ccVisitSummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber,TimeNumber");
-                        using (var csData = new CsModel(core)) {
-                            csData.openSql(SQL);
-                            DateTime datePtr = env.oldestVisitSummaryWeCareAbout;
-                            while (datePtr <= env.yesterday) {
-                                if (!csData.ok()) {
+                        using var csData = new CsModel(core);
+                        csData.openSql(SQL);
+                        DateTime datePtr = env.oldestVisitSummaryWeCareAbout;
+                        while (datePtr <= env.yesterday) {
+                            if (!csData.ok()) {
+                                //
+                                // Out of data, start with this DatePtr
+                                //
+                                VisitSummaryClass.summarizePeriod(core, env, datePtr, datePtr, 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
+                            } else {
+                                DateTime workingDate = DateTime.MinValue.AddDays(csData.getInteger("DateNumber"));
+                                if (datePtr < workingDate) {
                                     //
-                                    // Out of data, start with this DatePtr
+                                    // There are missing dates, update them
                                     //
-                                    VisitSummaryClass.summarizePeriod(core, env, datePtr, datePtr, 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
-                                } else {
-                                    DateTime workingDate = DateTime.MinValue.AddDays(csData.getInteger("DateNumber"));
-                                    if (datePtr < workingDate) {
-                                        //
-                                        // There are missing dates, update them
-                                        //
-                                        VisitSummaryClass.summarizePeriod(core, env, datePtr, workingDate.AddDays(-1), 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
-                                    }
+                                    VisitSummaryClass.summarizePeriod(core, env, datePtr, workingDate.AddDays(-1), 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                                 }
-                                if (csData.ok()) {
-                                    //
-                                    // if there is more data, go to the next record
-                                    //
-                                    csData.goNext();
-                                }
-                                datePtr = datePtr.AddDays(1).Date;
                             }
-                            csData.close();
+                            if (csData.ok()) {
+                                //
+                                // if there is more data, go to the next record
+                                //
+                                csData.goNext();
+                            }
+                            datePtr = datePtr.AddDays(1).Date;
                         }
+                        csData.close();
                     }
                 }
             } catch (Exception ex) {
@@ -186,22 +185,22 @@ namespace Contensive.Processor.Addons.Housekeeping {
             try {
                 //
                 if (string.CompareOrdinal(BuildVersion, CoreController.codeVersion()) >= 0) {
-                    DateTime PeriodStart = default(DateTime);
+                    DateTime PeriodStart = default;
                     PeriodStart = StartTimeDate;
                     if (PeriodStart < OldestVisitSummaryWeCareAbout) {
                         PeriodStart = OldestVisitSummaryWeCareAbout;
                     }
                     double StartTimeHoursSinceMidnight = PeriodStart.TimeOfDay.TotalHours;
                     PeriodStart = PeriodStart.Date.AddHours(StartTimeHoursSinceMidnight);
-                    DateTime PeriodDatePtr = default(DateTime);
+                    DateTime PeriodDatePtr = default;
                     PeriodDatePtr = PeriodStart;
                     while (PeriodDatePtr < EndTimeDate) {
                         //
                         int DateNumber = encodeInteger(PeriodDatePtr.AddHours(HourDuration / 2.0).ToOADate());
                         int TimeNumber = encodeInteger(PeriodDatePtr.TimeOfDay.TotalHours);
-                        DateTime DateStart = default(DateTime);
+                        DateTime DateStart = default;
                         DateStart = PeriodDatePtr.Date;
-                        DateTime DateEnd = default(DateTime);
+                        DateTime DateEnd = default;
                         DateEnd = PeriodDatePtr.AddHours(HourDuration).Date;
                         //
                         // No Cookie Visits

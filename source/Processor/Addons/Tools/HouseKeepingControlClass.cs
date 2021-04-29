@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.Tools {
                 string Button = null;
                 int PagesTotal = 0;
                 string Caption = null;
-                DateTime DateValue = default(DateTime);
+                DateTime DateValue = default;
                 string AgeInDays = null;
                 int ArchiveRecordAgeDays = 0;
                 string ArchiveTimeOfDay = null;

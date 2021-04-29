@@ -41,7 +41,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 bool DbUpToDate = false;
                 string GuidFieldName = null;
                 List<int> collectionsInstalledIDList = new List<int>();
-                DateTime DateValue = default(DateTime);
+                DateTime DateValue = default;
                 string ErrorMessage = "";
                 string OnServerGuidList = "";
                 bool UpgradeOK = false;
@@ -239,11 +239,10 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                     }
                                 } else {
                                     foreach (string installedCollectionGuid in collectionsInstalledList) {
-                                        using (var csData = new CsModel(core)) {
-                                            csData.open("Add-on Collections", GuidFieldName + "=" + DbController.encodeSQLText(installedCollectionGuid));
-                                            if (csData.ok()) {
-                                                collectionsInstalledIDList.Add(csData.getInteger("ID"));
-                                            }
+                                        using var csData = new CsModel(core);
+                                        csData.open("Add-on Collections", GuidFieldName + "=" + DbController.encodeSQLText(installedCollectionGuid));
+                                        if (csData.ok()) {
+                                            collectionsInstalledIDList.Add(csData.getInteger("ID"));
                                         }
                                     }
                                 }
@@ -710,20 +709,18 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         ParentNameSpace = menuNameSpace.left(Pos - 1);
                     }
                     if (string.IsNullOrEmpty(ParentNameSpace)) {
-                        using (var csData = new CsModel(core)) {
-                            csData.open(ContentName, "(name=" + DbController.encodeSQLText(ParentName) + ")and((parentid is null)or(parentid=0))", "ID", false, 0, "ID");
-                            if (csData.ok()) {
-                                tempGetParentIDFromNameSpace = csData.getInteger("ID");
-                            }
-                            csData.close();
+                        using var csData = new CsModel(core);
+                        csData.open(ContentName, "(name=" + DbController.encodeSQLText(ParentName) + ")and((parentid is null)or(parentid=0))", "ID", false, 0, "ID");
+                        if (csData.ok()) {
+                            tempGetParentIDFromNameSpace = csData.getInteger("ID");
                         }
+                        csData.close();
                     } else {
                         ParentId = getParentIDFromNameSpace(ContentName, ParentNameSpace);
-                        using (var csData = new CsModel(core)) {
-                            csData.open(ContentName, "(name=" + DbController.encodeSQLText(ParentName) + ")and(parentid=" + ParentId + ")", "ID", false, 0, "ID");
-                            if (csData.ok()) {
-                                tempGetParentIDFromNameSpace = csData.getInteger("ID");
-                            }
+                        using var csData = new CsModel(core);
+                        csData.open(ContentName, "(name=" + DbController.encodeSQLText(ParentName) + ")and(parentid=" + ParentId + ")", "ID", false, 0, "ID");
+                        if (csData.ok()) {
+                            tempGetParentIDFromNameSpace = csData.getInteger("ID");
                         }
                     }
                 }

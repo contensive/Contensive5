@@ -13,7 +13,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="cpBase"></param>
         /// <returns></returns>
         public override object Execute(CPBaseClass cpBase) {
-            return (new AdminAddon()).Execute(cpBase);
+            return (new AdminAutocompleteCommands()).Execute(cpBase);
         }
     }
 }

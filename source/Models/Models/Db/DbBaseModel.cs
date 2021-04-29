@@ -1412,7 +1412,7 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static string getSelectSql<T>(CPBaseClass cp, List<string> fieldList, string sqlCriteria, string sqlOrderBy) where T : DbBaseModel {
             try {
-                if (fieldList == null) {
+                if ((fieldList == null) || (fieldList.Count==0)) {
                     fieldList = new List<string>();
                     T instance = (T)Activator.CreateInstance(typeof(T));
                     foreach (PropertyInfo modelProperty in instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {

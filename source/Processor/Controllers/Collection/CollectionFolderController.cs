@@ -194,7 +194,7 @@ namespace Contensive.Processor.Controllers {
                                                         // If it is not already installed, download and install it also
                                                         //
                                                         string workingTempPath = GenericController.getGUIDNaked() + "\\";
-                                                        DateTime libraryCollectionLastModifiedDate = default(DateTime);
+                                                        DateTime libraryCollectionLastModifiedDate = default;
                                                         try {
                                                             //
                                                             // try-finally to delete the working folder
@@ -450,7 +450,7 @@ namespace Contensive.Processor.Controllers {
             //
             // create a collection 'version' folder for these new files
             string TimeStamp = "";
-            DateTime NowTime = default(DateTime);
+            DateTime NowTime = default;
             NowTime = core.dateTimeNowMockable;
             int NowPart = NowTime.Year;
             TimeStamp += NowPart.ToString();

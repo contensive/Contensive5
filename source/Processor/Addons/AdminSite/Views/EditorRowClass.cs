@@ -127,28 +127,27 @@ namespace Contensive.Processor.Addons.AdminSite {
                 } else {
                     //
                     // -- editor failed, determine if it is missing (or inactive). If missing, remove it from the members preferences
-                    using (var csData = new CsModel(core)) {
-                        if (!csData.openSql("select id from ccaggregatefunctions where id=" + editorAddon.id)) {
-                            //
-                            // -- missing, not just inactive
-                            EditorString = "";
-                            //
-                            // load user's editor preferences to fieldEditorPreferences() - this is the editor this user has picked when there are >1
-                            //   fieldId:addonId,fieldId:addonId,etc
-                            //   with custom FancyBox form in edit window with button "set editor preference"
-                            //   this button causes a 'refresh' action, reloads fields with stream without save
-                            //
-                            string tmpList = core.userProperty.getText("editorPreferencesForContent:" + adminData.adminContent.id, "");
-                            int PosStart = GenericController.strInstr(1, "," + tmpList, "," + field.id + ":");
-                            if (PosStart > 0) {
-                                int PosEnd = GenericController.strInstr(PosStart + 1, "," + tmpList, ",");
-                                if (PosEnd == 0) {
-                                    tmpList = tmpList.left(PosStart - 1);
-                                } else {
-                                    tmpList = tmpList.left(PosStart - 1) + tmpList.Substring(PosEnd - 1);
-                                }
-                                core.userProperty.setProperty("editorPreferencesForContent:" + adminData.adminContent.id, tmpList);
+                    using var csData = new CsModel(core);
+                    if (!csData.openSql("select id from ccaggregatefunctions where id=" + editorAddon.id)) {
+                        //
+                        // -- missing, not just inactive
+                        EditorString = "";
+                        //
+                        // load user's editor preferences to fieldEditorPreferences() - this is the editor this user has picked when there are >1
+                        //   fieldId:addonId,fieldId:addonId,etc
+                        //   with custom FancyBox form in edit window with button "set editor preference"
+                        //   this button causes a 'refresh' action, reloads fields with stream without save
+                        //
+                        string tmpList = core.userProperty.getText("editorPreferencesForContent:" + adminData.adminContent.id, "");
+                        int PosStart = GenericController.strInstr(1, "," + tmpList, "," + field.id + ":");
+                        if (PosStart > 0) {
+                            int PosEnd = GenericController.strInstr(PosStart + 1, "," + tmpList, ",");
+                            if (PosEnd == 0) {
+                                tmpList = tmpList.left(PosStart - 1);
+                            } else {
+                                tmpList = tmpList.left(PosStart - 1) + tmpList.Substring(PosEnd - 1);
                             }
+                            core.userProperty.setProperty("editorPreferencesForContent:" + adminData.adminContent.id, tmpList);
                         }
                     }
                 }

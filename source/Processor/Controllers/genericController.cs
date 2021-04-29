@@ -614,12 +614,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="GMTDate"></param>
         /// <returns></returns>
         public static DateTime deprecatedDecodeGMTDate(string GMTDate) {
-            if (string.IsNullOrEmpty(GMTDate)) { return default(DateTime); }
+            if (string.IsNullOrEmpty(GMTDate)) { return default; }
             double HourPart = encodeNumber(GMTDate.Substring(5, 11));
-            if (!isDate(HourPart)) { return default(DateTime); }
+            if (!isDate(HourPart)) { return default; }
             double YearPart = encodeNumber(GMTDate.Substring(17, 8));
             if (!isDate(YearPart)) { return DateTime.FromOADate(YearPart + (HourPart + 4) / 24); }
-            return default(DateTime);
+            return default;
         }
         // 
         //=================================================================================

@@ -100,6 +100,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="leftSideMessage"></param>
         /// <param name="rightSideMessage"></param>
+        /// <param name="rightSideNavHtml"></param>
         /// <returns></returns>
         public static string getHeader(CoreController core, string leftSideMessage, string rightSideMessage, string rightSideNavHtml) {
             string result = Processor.Properties.Resources.adminNavBarHtml;
@@ -1129,47 +1130,46 @@ namespace Contensive.Processor.Controllers {
                         //
                         // non-admin member, first check if they have access and main_Get true markers
                         //
-                        using (var csData = new CsModel(core)) {
-                            string sql = "SELECT ccContent.ID as ContentID, ccContent.AllowAdd as ContentAllowAdd, ccGroupRules.AllowAdd as GroupRulesAllowAdd, ccMemberRules.DateExpires as MemberRulesDateExpires"
-                                + " FROM (((ccContent"
-                                    + " LEFT JOIN ccGroupRules ON ccGroupRules.ContentID=ccContent.ID)"
-                                    + " LEFT JOIN ccgroups ON ccGroupRules.GroupID=ccgroups.ID)"
-                                    + " LEFT JOIN ccMemberRules ON ccgroups.ID=ccMemberRules.GroupID)"
-                                    + " LEFT JOIN ccMembers ON ccMemberRules.memberId=ccMembers.ID"
-                                + " WHERE ("
-                                + " (ccContent.id=" + content.id + ")"
-                                + " AND(ccContent.active<>0)"
-                                + " AND(ccGroupRules.active<>0)"
-                                + " AND(ccMemberRules.active<>0)"
-                                + " AND((ccMemberRules.DateExpires is Null)or(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
-                                + " AND(ccgroups.active<>0)"
-                                + " AND(ccMembers.active<>0)"
-                                + " AND(ccMembers.ID=" + core.session.user.id + ")"
-                                + " );";
-                            csData.openSql(sql);
-                            if (csData.ok()) {
-                                //
-                                // ----- Entry was found, member has some kind of access
-                                //
-                                userHasAccess = true;
-                                contentAllowAdd = content.allowAdd;
-                                groupRulesAllowAdd = csData.getBoolean("GroupRulesAllowAdd");
-                                memberRulesDateExpires = csData.getDate("MemberRulesDateExpires");
-                                memberRulesAllow = false;
-                                if (memberRulesDateExpires == DateTime.MinValue) {
-                                    memberRulesAllow = true;
-                                } else if (memberRulesDateExpires > core.doc.profileStartTime) {
-                                    memberRulesAllow = true;
-                                }
-                            } else {
-                                //
-                                // ----- No entry found, this member does not have access, just main_Get ContentID
-                                //
-                                userHasAccess = true;
-                                contentAllowAdd = false;
-                                groupRulesAllowAdd = false;
-                                memberRulesAllow = false;
+                        using var csData = new CsModel(core);
+                        string sql = "SELECT ccContent.ID as ContentID, ccContent.AllowAdd as ContentAllowAdd, ccGroupRules.AllowAdd as GroupRulesAllowAdd, ccMemberRules.DateExpires as MemberRulesDateExpires"
+                            + " FROM (((ccContent"
+                                + " LEFT JOIN ccGroupRules ON ccGroupRules.ContentID=ccContent.ID)"
+                                + " LEFT JOIN ccgroups ON ccGroupRules.GroupID=ccgroups.ID)"
+                                + " LEFT JOIN ccMemberRules ON ccgroups.ID=ccMemberRules.GroupID)"
+                                + " LEFT JOIN ccMembers ON ccMemberRules.memberId=ccMembers.ID"
+                            + " WHERE ("
+                            + " (ccContent.id=" + content.id + ")"
+                            + " AND(ccContent.active<>0)"
+                            + " AND(ccGroupRules.active<>0)"
+                            + " AND(ccMemberRules.active<>0)"
+                            + " AND((ccMemberRules.DateExpires is Null)or(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
+                            + " AND(ccgroups.active<>0)"
+                            + " AND(ccMembers.active<>0)"
+                            + " AND(ccMembers.ID=" + core.session.user.id + ")"
+                            + " );";
+                        csData.openSql(sql);
+                        if (csData.ok()) {
+                            //
+                            // ----- Entry was found, member has some kind of access
+                            //
+                            userHasAccess = true;
+                            contentAllowAdd = content.allowAdd;
+                            groupRulesAllowAdd = csData.getBoolean("GroupRulesAllowAdd");
+                            memberRulesDateExpires = csData.getDate("MemberRulesDateExpires");
+                            memberRulesAllow = false;
+                            if (memberRulesDateExpires == DateTime.MinValue) {
+                                memberRulesAllow = true;
+                            } else if (memberRulesDateExpires > core.doc.profileStartTime) {
+                                memberRulesAllow = true;
                             }
+                        } else {
+                            //
+                            // ----- No entry found, this member does not have access, just main_Get ContentID
+                            //
+                            userHasAccess = true;
+                            contentAllowAdd = false;
+                            groupRulesAllowAdd = false;
+                            memberRulesAllow = false;
                         }
                     }
                     if (userHasAccess) {

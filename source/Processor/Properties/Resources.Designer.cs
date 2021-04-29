@@ -75,6 +75,24 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid ccBodyAdmin ccCon&quot;&gt;
+        ///    {{{adminExceptions}}}
+        ///    {{{adminHeader}}}
+        ///    &lt;table border=0 cellpadding=0 cellspacing=0&gt;
+        ///        &lt;tr&gt;
+        ///            &lt;td class=&quot;ccToolsCon&quot; valign=top&gt;{{{adminNav}}}&lt;/td&gt;
+        ///            &lt;td class=&quot;ccContentCon&quot; valign=top id=&quot;desktop&quot;&gt;{{{adminContent}}}&lt;/td&gt;
+        ///        &lt;/tr&gt;
+        ///    &lt;/table&gt;
+        ///&lt;/div&gt;.
+        /// </summary>
+        public static string AdminSiteLayoutBackup {
+            get {
+                return ResourceManager.GetString("AdminSiteLayoutBackup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to [
         ///  {
         ///    &quot;designBlockTypeGuid&quot;: &quot;{4F7FADCB-7B0B-4E4B-BBE4-CFAF4E49D548}&quot;,
@@ -113,14 +131,14 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///	&lt;h4 class=&quot;form-signin-heading&quot;&gt;Forget Your Password&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///	&lt;h4&gt;Forget Your Password&lt;/h4&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only pt-2&quot;&gt;Email address&lt;/label&gt;
         ///		&lt;input type=&quot;email&quot; name=&quot;email&quot; id=&quot;inputEmail&quot; class=&quot;form-control pt-2&quot; placeholder=&quot;Email&quot; required autofocus&gt;
         ///	&lt;/div&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Send Password&lt;/button&gt;
+        ///		&lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Recover Password&lt;/button&gt;
         ///	&lt;/div&gt;
         ///&lt;/div&gt; &lt;!-- /container-fluid --&gt;
         ///.
@@ -191,16 +209,17 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
         ///    &lt;/div&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
-        ///    &lt;/div [rest of string was truncated]&quot;;.
+        ///		&lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Login&lt;/button&gt;
+        ///    &lt;/div&gt;
+        ///&lt;/div&gt;.
         /// </summary>
         public static string login_email_nopassword {
             get {
@@ -209,16 +228,20 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
         ///    &lt;/div&gt;
+        ///    &lt;div class=&quot;checkbox pt-2&quot;&gt;
+        ///        &lt;label&gt;
+        ///            &lt;input type=&quot;checkbox&quot; name=&quot;autologin&quot; value=&quot;1&quot;&gt;&amp;nbsp;Remember me
+        ///        &lt;/label&gt;
+        ///    &lt;/div&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
-        ///    &lt;/div [rest of string was truncated]&quot;;.
+        ///		&lt;button class=&quot;btn btn-success  [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_email_nopassword_auto {
             get {
@@ -227,8 +250,9 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
@@ -236,7 +260,8 @@ namespace Contensive.Processor.Properties {
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
         ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
-        ///    &lt;/div [rest of string was truncated]&quot;;.
+        ///    &lt;/div&gt;
+        ///	&lt;di [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_email_password {
             get {
@@ -245,8 +270,9 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only&quot;&gt;Email address&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputEmail&quot; class=&quot;form-control&quot; placeholder=&quot;Username or Email&quot; required autofocus&gt;
@@ -254,7 +280,8 @@ namespace Contensive.Processor.Properties {
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
         ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
-        ///    &lt;/div [rest of string was truncated]&quot;;.
+        ///    &lt;/div&gt;
+        ///     [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_email_password_auto {
             get {
@@ -263,17 +290,17 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
         ///	&lt;/div&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///	    &lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
-        ///	&lt;/div&gt;
-        ///	&lt;div cl [rest of string was truncated]&quot;;.
+        ///	    &lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Login&lt;/button&gt;
+        ///    &lt;/div&gt;
+        ///&lt;/div&gt;.
         /// </summary>
         public static string login_username_nopassword {
             get {
@@ -282,17 +309,18 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
         ///	&lt;/div&gt;
+        ///    &lt;div class=&quot;checkbox pt-2&quot;&gt;
+        ///        &lt;label&gt;&lt;input type=&quot;checkbox&quot; name=&quot;autoLogin&quot; value=&quot;1&quot;&gt;&amp;nbsp;Remember me&lt;/label&gt;
+        ///    &lt;/div&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
-        ///	    &lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
-        ///	&lt;/div&gt;
-        ///    &lt;div [rest of string was truncated]&quot;;.
+        ///	    &lt;button class=&quot;btn btn-success btn-block&quot; type=&quot;submit&quot;&gt;Login&lt;/ [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_username_nopassword_auto {
             get {
@@ -301,8 +329,9 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
@@ -311,7 +340,7 @@ namespace Contensive.Processor.Properties {
         ///	    &lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
         ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
         ///	&lt;/div&gt;
-        ///	&lt;div cl [rest of string was truncated]&quot;;.
+        ///	&lt;div class=&quot;pt [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_username_password {
             get {
@@ -320,8 +349,9 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid&quot;&gt;
-        ///    &lt;h4 class=&quot;form-signin-heading&quot;&gt;Login&lt;/h4&gt;
+        ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///    &lt;h4&gt;Login&lt;/h4&gt;
+        ///	{{userError}}
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputUsername&quot; class=&quot;sr-only&quot;&gt;Username&lt;/label&gt;
         ///		&lt;input type=&quot;text&quot; name=&quot;username&quot; id=&quot;inputUsername&quot; class=&quot;form-control&quot; placeholder=&quot;Username&quot; required autofocus&gt;
@@ -330,7 +360,7 @@ namespace Contensive.Processor.Properties {
         ///	    &lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
         ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
         ///	&lt;/div&gt;
-        ///    &lt;div [rest of string was truncated]&quot;;.
+        ///    &lt;div class= [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_username_password_auto {
             get {

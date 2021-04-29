@@ -1,26 +1,34 @@
 ﻿
 using Contensive.Processor.Controllers;
-using System;
-using System.Collections.Generic;
 
 namespace Contensive.Processor {
     //
     //====================================================================================================
-    //
+    /// <summary>
+    /// Manage mustache replacement calls
+    /// </summary>
     public class CPMustacheClass : BaseClasses.CPMustacheBaseClass {
         //
-        private CPClass cp;
+        private readonly CPClass cp;
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// construct
+        /// </summary>
+        /// <param name="cp"></param>
         public CPMustacheClass(CPClass cp) {
             this.cp = cp;
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// render a layout and the mustache compatible object
+        /// </summary>
+        /// <param name="template"></param>
+        /// <param name="dataSet"></param>
+        /// <returns></returns>
         public override string render(string template, object dataSet) {
-            throw new NotImplementedException();
+            return MustacheController.renderStringToString(template, dataSet);
         }
     }
 }

@@ -78,15 +78,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         SourceName = field.nameLc;
                                         //
                                         // -- copy the field
-                                        using (var CSSource = new CsModel(core)) {
-                                            if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")")) {
-                                                using (var CSTarget = new CsModel(core)) {
-                                                    if (CSTarget.insert("Content Fields")) {
-                                                        CSSource.copyRecord(CSTarget);
-                                                        CSTarget.set("ContentID", adminContent.id);
-                                                        reloadMetadata = true;
-                                                    }
-                                                }
+                                        using var CSSource = new CsModel(core);
+                                        if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")")) {
+                                            using var CSTarget = new CsModel(core);
+                                            if (CSTarget.insert("Content Fields")) {
+                                                CSSource.copyRecord(CSTarget);
+                                                CSTarget.set("ContentID", adminContent.id);
+                                                reloadMetadata = true;
                                             }
                                         }
                                     }
@@ -102,15 +100,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                             if (field.inherited) {
                                 SourceContentId = field.contentId;
                                 SourceName = field.nameLc;
-                                using (var CSSource = new CsModel(core)) {
-                                    if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")")) {
-                                        using (var CSTarget = new CsModel(core)) {
-                                            if (CSTarget.insert("Content Fields")) {
-                                                CSSource.copyRecord(CSTarget);
-                                                CSTarget.set("ContentID", adminContent.id);
-                                                reloadMetadata = true;
-                                            }
-                                        }
+                                using var CSSource = new CsModel(core);
+                                if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")")) {
+                                    using var CSTarget = new CsModel(core);
+                                    if (CSTarget.insert("Content Fields")) {
+                                        CSSource.copyRecord(CSTarget);
+                                        CSTarget.set("ContentID", adminContent.id);
+                                        reloadMetadata = true;
                                     }
                                 }
                             }
@@ -236,7 +232,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             foreach (var column in IndexConfig.columns) {
                                 column.Width = encodeInteger((1000 * column.Width) / (double)ColumnWidthTotal);
                             }
-                            AdminAddon.setIndexSQL_SaveIndexConfig(cp, core, IndexConfig);
+                            AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, IndexConfig);
                             IndexConfig = IndexConfigClass.get(core, adminData);
                         }
                     }

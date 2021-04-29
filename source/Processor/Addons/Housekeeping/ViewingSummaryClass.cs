@@ -96,9 +96,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         int DateNumber = encodeInteger( (PeriodDatePtr - default(DateTime)).TotalDays);
                         // encodeInteger(PeriodDatePtr.AddHours(HourDuration / 2.0).ToOADate());
                         int TimeNumber = encodeInteger(PeriodDatePtr.TimeOfDay.TotalHours);
-                        DateTime DateStart = default(DateTime);
+                        DateTime DateStart = default;
                         DateStart = PeriodDatePtr.Date;
-                        DateTime DateEnd = default(DateTime);
+                        DateTime DateEnd = default;
                         DateEnd = PeriodDatePtr.AddHours(HourDuration).Date;
                         string PageTitle = "";
                         int PageId = 0;

@@ -107,10 +107,10 @@ namespace Contensive.Processor.Controllers {
         // 
         // ====================================================================================================
         /// <summary>
-        ///         ''' constructor
-        ///         ''' </summary>
-        ///         ''' <param name="cp"></param>
-        ///         ''' <remarks></remarks>
+        /// constructor
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <remarks></remarks>
         public XmlController(CPBaseClass cp) {
             this.cp = cp;
         }

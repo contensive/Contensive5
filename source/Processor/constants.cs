@@ -39,12 +39,6 @@ namespace Contensive.Processor {
         //
         //      CacheController: 
         //
-        //
-        //
-        // code version for this build. This is saved in a site property and checked in the housekeeping event - checkDataVersion
-        //
-        internal const int codeVersion = 0;
-        //
         /// <summary>
         /// Cdn for css and js
         /// to update cdn

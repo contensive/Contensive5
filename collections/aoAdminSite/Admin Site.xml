@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<Collection name="Admin Site" guid="{06CF29A1-B5E9-4170-894B-069CF36C7E7D}" system="No" updatable="Yes" blockNavigatorNode="No" onInstallAddonGuid="">
+	<HelpLink></HelpLink>
+	<Help></Help>
+	<Resource name="AdminSiteLayout.html" type="file" path="adminsite" />
+</Collection>

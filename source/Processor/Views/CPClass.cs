@@ -509,7 +509,15 @@ namespace Contensive.Processor {
         /// <summary>
         /// Return a persistent object for this functionality
         /// </summary>
-        public override CPMustacheBaseClass Mustache => throw new NotImplementedException();
+        public override CPMustacheBaseClass Mustache {
+            get {
+                if (mustacheObj == null) {
+                    mustacheObj = new CPMustacheClass(this);
+                }
+                return mustacheObj;
+            }
+        }
+        private CPMustacheClass mustacheObj;
         //
         //====================================================================================================
         /// <summary>
@@ -706,7 +714,9 @@ namespace Contensive.Processor {
         public override ServerConfigBaseModel ServerConfig => core.serverConfig;
         //
         //=========================================================================================================
-        //
+        /// <summary>
+        /// 
+        /// </summary>
         public override CPSecurityBaseClass Security {
             get {
                 if (_Security == null) {

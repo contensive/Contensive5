@@ -8,12 +8,19 @@ using Contensive.Processor.Models.Domain;
 using Contensive.BaseClasses;
 
 namespace Contensive.Processor.Addons.AdminSite {
-    public class ListViewAdvancedSearch {
+    /// <summary>
+    /// list view advanced search
+    /// </summary>
+    public static class ListViewAdvancedSearch {
         //
         //=================================================================================
-        //
-        //=================================================================================
-        //
+        /// <summary>
+        /// list view advanced search
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="core"></param>
+        /// <param name="adminData"></param>
+        /// <returns></returns>
         public static string get(CPClass cp, CoreController core, AdminDataModel adminData) {
             string returnForm = "";
             try {
@@ -92,7 +99,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                                 }
                             }
-                            AdminAddon.setIndexSQL_SaveIndexConfig(cp, core, IndexConfig);
+                            AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, IndexConfig);
                             return string.Empty;
                         case ButtonCancel:
                             return string.Empty;
