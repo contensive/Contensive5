@@ -27,7 +27,7 @@ namespace Contensive.Processor {
         /// <param name="template"></param>
         /// <param name="dataSet"></param>
         /// <returns></returns>
-        public override string render(string template, object dataSet) {
+        public override string Render(string template, object dataSet) {
             return MustacheController.renderStringToString(template, dataSet);
         }
     }

@@ -85,9 +85,6 @@ namespace Contensive.Processor.Controllers {
                     return newImageFilename.Replace(@"\", "/");
                 }
                 //
-                // -- image size does not exist, create it
-                imageAltSizeList.Add(imageAltsize);
-                //
                 // -- future actions will open this file. Verify it exists to prevent hard errors
                 if (!core.cdnFiles.fileExists(imagePathFilename)) {
                     LogController.logError(core, new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imagePathFilename + "]"));

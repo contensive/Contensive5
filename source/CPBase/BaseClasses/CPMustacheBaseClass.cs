@@ -17,6 +17,6 @@ namespace Contensive.BaseClasses {
         /// <param name="template"></param>
         /// <param name="dataSet"></param>
         /// <returns></returns>
-        public abstract string render(string template, object dataSet);
+        public abstract string Render(string template, object dataSet);
     }
 }

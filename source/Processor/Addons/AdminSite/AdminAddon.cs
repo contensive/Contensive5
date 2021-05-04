@@ -96,7 +96,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         errorContextMessage = "executing Admin Navigator in Admin"
                     })
                 };
-                return cp.Mustache.render(layout, data);
+                return cp.Mustache.Render(layout, data);
             } catch (Exception) {
                 throw;
             }

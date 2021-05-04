@@ -119,29 +119,39 @@ namespace Contensive.Processor.Controllers {
                     string IncludeModuleGuidList = "";
                     foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "collectionid=" + collection.id)) {
                         //
-                        // -- style sheet is in the wwwroot
+                        // -- style sheet link
                         if (!string.IsNullOrEmpty(addon.stylesLinkHref)) {
-                            string dosPathFilename = addon.stylesLinkHref.Replace("/", "\\");
-                            if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
-                            if (!cp.WwwFiles.FileExists(dosPathFilename)) {
-                                cp.WwwFiles.Save(dosPathFilename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
-                            }
-                            string unixPathFilename = dosPathFilename.Replace("\\", "/");
-                            if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
-                                wwwUnixPathFilenameList.Add(unixPathFilename);
+                            string href = addon.stylesLinkHref.ToLowerInvariant();
+                            if ( !href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
+                                //
+                                // -- href is to a local file, add it to file list
+                                string dosPathFilename = addon.stylesLinkHref.Replace("/", "\\");
+                                if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                                if (!cp.WwwFiles.FileExists(dosPathFilename)) {
+                                    cp.WwwFiles.Save(dosPathFilename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
+                                }
+                                string unixPathFilename = dosPathFilename.Replace("\\", "/");
+                                if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
+                                    wwwUnixPathFilenameList.Add(unixPathFilename);
+                                }
                             }
                         }
                         //
-                        // -- js is in the wwwroot
+                        // -- js is as link
                         if (!string.IsNullOrEmpty(addon.jsHeadScriptSrc)) {
-                            string dosPathFilename = addon.jsHeadScriptSrc.Replace("/", "\\");
-                            if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
-                            if (!cp.WwwFiles.FileExists(dosPathFilename)) {
-                                cp.WwwFiles.Save(dosPathFilename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
-                            }
-                            string unixPathFilename = dosPathFilename.Replace("\\", "/");
-                            if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
-                                wwwUnixPathFilenameList.Add(unixPathFilename);
+                            string href = addon.jsHeadScriptSrc.ToLowerInvariant();
+                            if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
+                                //
+                                // -- href is to a local file, add it to file list
+                                string dosPathFilename = addon.jsHeadScriptSrc.Replace("/", "\\");
+                                if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                                if (!cp.WwwFiles.FileExists(dosPathFilename)) {
+                                    cp.WwwFiles.Save(dosPathFilename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
+                                }
+                                string unixPathFilename = dosPathFilename.Replace("\\", "/");
+                                if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
+                                    wwwUnixPathFilenameList.Add(unixPathFilename);
+                                }
                             }
                         }
                         collectionXml.Append(ExportAddonController.getAddonNode(cp, addon.id, ref IncludeModuleGuidList, ref IncludeSharedStyleGuidList));

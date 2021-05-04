@@ -44,7 +44,11 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// get a layout  from the layout record, create the record from layoutCdnPathFilename if invalid
+        /// Get a layout from the layout record, create the record from layoutCdnPathFilename if invalid. 
+        /// If the layout file is imported, it will follow the Contensive HtmlImport pattern (see the HtmlImport tool for more details)
+        /// 1) if a body tag is present, only import the body's content.
+        /// 2) The presence of a data-delete attribute will delete the node
+        /// 3) data-addon="name" will replace the node with an addon. if the addon does not exist it will be created with the content of the node.
         /// </summary>
         /// <param name="layoutGuid"></param>
         /// <param name="defaultLayoutName"></param>
@@ -56,7 +60,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// return a layout by its name. If there are duplicates, return the first by id. Not recommeded, use Guid. For compatibility only
+        /// Get a layout by its name. If there are duplicates, return the first by id. Not recommeded, use Guid. For compatibility only
         /// </summary>
         /// <param name="layoutName"></param>
         /// <returns></returns>

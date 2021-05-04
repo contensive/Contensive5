@@ -2,6 +2,7 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -67,9 +68,8 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string updateLayoutFromCdn(CPBaseClass cp, LayoutModel layout, string layoutGuid, string layoutName, string layoutCdnPathFilename) {
             try {
-                // 
-                // -- layout not found, create from deployed file
-                string content = cp.CdnFiles.Read(layoutCdnPathFilename);
+                var ignoreErrors = new List<string>();
+                string content = HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(layoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
                 if (string.IsNullOrEmpty(content)) {
                     //
                     // -- content not found -- exception
@@ -132,10 +132,9 @@ namespace Contensive.Processor.Controllers {
         public static string getLayoutByName(CPClass cp, string layoutName) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return string.Empty; }
-                using (var cs = new CsModel(cp.core)) {
-                    cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout");
-                    if (cs.ok()) { return cs.getText("layout"); }
-                }
+                using var cs = new CsModel(cp.core);
+                cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout");
+                if (cs.ok()) { return cs.getText("layout"); }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
                 throw;
