@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
-    /// Templating methods (Mustache, Stubble, Handlebars - need signed, and framework+core or standard)
+    /// Simple layout methods frequently used
     /// </summary>
     public static class LayoutController {
         // 

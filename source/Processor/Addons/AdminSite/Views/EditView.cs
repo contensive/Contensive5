@@ -237,7 +237,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 result += Environment.NewLine + "<input TYPE=\"hidden\" NAME=\"" + RequestNameTitleExtension + "\" VALUE=\"" + adminData.editViewTitleSuffix + "\">";
                 result += Environment.NewLine + "<input TYPE=\"hidden\" NAME=\"FormEmptyFieldList\" ID=\"FormEmptyFieldList\" VALUE=\",\">";
                 result += innerHtml;
-                return HtmlController.form(core, result, new CPBase.BaseModels.HtmlAttributesForm() {
+                return HtmlController.form(core, result, new CPBase.BaseModels.HtmlAttributesForm {
                     onsubmit = "cj.admin.saveEmptyFieldList('FormEmptyFieldList')",
                     autocomplete = false
                 });

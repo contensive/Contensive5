@@ -23,7 +23,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (ContentId == 0) {
                     result = "No filter is available";
                 } else {
-                    result = ListView.getForm_IndexFilterContent(core, new AdminDataModel(core, new AdminDataRequest() {
+                    result = ListView.getForm_IndexFilterContent(core, new AdminDataModel(core, new AdminDataRequest {
                         adminAction = 0,
                         adminButton = "",
                         adminForm = 0,

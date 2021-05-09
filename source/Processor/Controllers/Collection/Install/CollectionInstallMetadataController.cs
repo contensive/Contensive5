@@ -47,7 +47,7 @@ namespace Contensive.Processor.Controllers {
                     // -- empty collection is an error
                     throw (new GenericException("Upgrademetadata_LoadDataToCollection, srcCollectionXml is blank or null"));
                 } else {
-                    XmlDocument srcXmlDom = new XmlDocument() { XmlResolver = null };
+                    XmlDocument srcXmlDom = new XmlDocument { XmlResolver = null };
                     try {
                         srcXmlDom.LoadXml(srcCollecionXml);
                     } catch (Exception ex) {

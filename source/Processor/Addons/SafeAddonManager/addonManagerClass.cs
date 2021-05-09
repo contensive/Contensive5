@@ -283,7 +283,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         ColWidth[3] = "99%";
                         ColSortable[3] = false;
                         //
-                        LocalCollections = new XmlDocument() { XmlResolver = null };
+                        LocalCollections = new XmlDocument { XmlResolver = null };
                         LocalCollectionXML = CollectionFolderModel.getCollectionFolderConfigXml(core);
                         LocalCollections.LoadXml(LocalCollectionXML);
                         foreach (XmlNode CDef_Node in LocalCollections.DocumentElement.ChildNodes) {
@@ -297,7 +297,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                             }
                         }
                         //
-                        LibCollections = new XmlDocument() { XmlResolver = null };
+                        LibCollections = new XmlDocument { XmlResolver = null };
                         bool parseError = false;
                         try {
                             LibCollections.Load("http://support.contensive.com/GetCollectionList?iv=" + CoreController.codeVersion() + "&includeSystem=1&includeNonPublic=1");

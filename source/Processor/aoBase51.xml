@@ -3342,6 +3342,7 @@
   <ImportCollection name="Contact Manager">{51A67CB6-EA94-497C-896A-979A851BE3DB}</ImportCollection>
   <ImportCollection name="Dashboard">{B470C25F-DDBC-4593-8161-1A2FD4A35690}</ImportCollection>
   <ImportCollection name="Design Blocks">{fd1685af-bc66-4649-a8f1-1b3c18d59d24}</ImportCollection>
+  <ImportCollection name="Email Bounce Process">{321eb147-d85f-4537-8768-a16067c5ad17}</ImportCollection>
   <ImportCollection name="Fancy Box">{B59F4D89-ADD9-4FEA-9D3F-B5A44DFD8F39}</ImportCollection>
   <ImportCollection name="Font Awesome">{3db6a433-59ca-43d1-9fb6-a539b6b947f2}</ImportCollection>
   <ImportCollection name="Import Wizard">{339B9171-5B57-4F42-914C-DCEF4F52F388}</ImportCollection>

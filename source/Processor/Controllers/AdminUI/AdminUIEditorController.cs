@@ -655,7 +655,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- redirect goes to a list of records (one-to-many or many-to-many
-                var gridData = new AdminDataModel(core, new AdminDataRequest() {
+                var gridData = new AdminDataModel(core, new AdminDataRequest {
                     adminAction = 0,
                     adminButton = "",
                     adminForm = 0,

@@ -123,7 +123,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             Cells[RowPointer, 2] = (requestedBy == null) ? "unknown" : requestedBy.name;
                             Cells[RowPointer, 3] = download.dateRequested.ToString();
                             if ( string.IsNullOrEmpty(download.resultMessage)) {
-                                Cells[RowPointer, 4] = "\r\n<div id=\"pending" + RowPointer + "\">Pending <img src=\"/ccLib/images/ajax-loader-small.gif\" width=16 height=16></div>";
+                                Cells[RowPointer, 4] = "\r\n<div id=\"pending" + RowPointer + "\">Pending <img src=\"https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/images/ajax-loader-small.gif\" width=16 height=16></div>";
                             } else if (!string.IsNullOrEmpty(download.filename.filename)) {
                                 Cells[RowPointer, 4] = "<div id=\"pending" + RowPointer + "\">" + LinkPrefix + download.filename.filename + LinkSuffix + "</div>";
                             } else {

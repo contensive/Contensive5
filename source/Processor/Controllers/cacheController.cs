@@ -800,7 +800,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public CacheKeyHashClass createKeyHash(string objectUniqueName) {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(createKey(objectUniqueName));
-            return new CacheKeyHashClass() {
+            return new CacheKeyHashClass {
                 key = objectUniqueName,
                 hash = Convert.ToBase64String(plainTextBytes)
             };

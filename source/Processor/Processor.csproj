@@ -4,7 +4,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>
-      netcoreapp3.1;net472
+      net472;netcoreapp3.1
     </TargetFrameworks>
     <RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
@@ -24,6 +24,7 @@
     <Product>Contensive Processor</Product>
     <Description>This package installs the library files required to create an instance of cp within an application.</Description>
     <Copyright>Copyright 2020</Copyright>
+    <NoWarn Label="FIX IT: Disable missing docs warnings">$(NoWarn);1570;1572;1573;1587;1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Nuget" Condition="'$(Configuration)' == 'Release'">
@@ -80,6 +81,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="app.ico" Pack="true" PackagePath="" />
+    <!--<None Include="bin\debug\net472\Stubble.Core.dll" Pack="true" PackagePath="" />-->
   </ItemGroup>
 
   <ItemGroup Label="Editor Config">
@@ -118,22 +120,22 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWS.Logger.NLog" Version="2.0.1" />
-    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.5.0.70" />
-    <PackageReference Include="AWSSDK.Core" Version="3.5.2.10" />
-    <PackageReference Include="AWSSDK.S3" Version="3.5.8.5" />
-    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.5.0.70" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.5.1.42" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.5.1.19" />
+    <PackageReference Include="AWS.Logger.NLog" Version="3.0.0" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.0.17" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.0.18" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.0.19" />
+    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.17" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.1.3" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.0.18" />
     <PackageReference Include="Contensive.HtmlImport" Version="21.5.3.8" />
-    <PackageReference Include="Handlebars.Net" Version="2.0.4" />
-    <PackageReference Include="Microsoft.ClearScript" Version="7.1.0" />
+    <PackageReference Include="Handlebars.Net" Version="2.0.7" />
+    <PackageReference Include="Microsoft.ClearScript" Version="7.1.2" />
     <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NLog" Version="4.7.7" />
-    <PackageReference Include="NUglify" Version="1.13.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NLog" Version="4.7.9" />
+    <PackageReference Include="NUglify" Version="1.13.10" />
     <PackageReference Include="SharpZipLib" Version="1.3.1" />
-    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.3" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0" />
@@ -157,7 +159,7 @@
       <Version>5.0.0</Version>
     </PackageReference>
     <PackageReference Include="System.Drawing.Common">
-      <Version>5.0.1</Version>
+      <Version>5.0.2</Version>
     </PackageReference>
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />
   </ItemGroup>

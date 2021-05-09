@@ -855,7 +855,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="htmlId"></param>
         /// <returns></returns>
         public static string formMultipart(CoreController core, string innerHtml, string actionQueryString, string htmlName, string htmlClass, string htmlId) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 action = (string.IsNullOrEmpty(actionQueryString)) ? "" : "?" + actionQueryString,
                 method = HtmlAttributesForm.HtmlMethodEnum.post,
                 enctype = HtmlAttributesForm.HtmlEncTypeEnum.multipart_form_data,
@@ -866,7 +866,7 @@ namespace Contensive.Processor.Controllers {
         }
         //        
         public static string formMultipart(CoreController core, string innerHtml, string actionQueryString, string htmlName, string htmlClass) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 action = (string.IsNullOrEmpty(actionQueryString)) ? "" : "?" + actionQueryString,
                 method = HtmlAttributesForm.HtmlMethodEnum.post,
                 enctype = HtmlAttributesForm.HtmlEncTypeEnum.multipart_form_data,
@@ -876,7 +876,7 @@ namespace Contensive.Processor.Controllers {
         }
         //        
         public static string formMultipart(CoreController core, string innerHtml, string actionQueryString, string htmlName) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 action = (string.IsNullOrEmpty(actionQueryString)) ? "" : "?" + actionQueryString,
                 method = HtmlAttributesForm.HtmlMethodEnum.post,
                 enctype = HtmlAttributesForm.HtmlEncTypeEnum.multipart_form_data,
@@ -885,7 +885,7 @@ namespace Contensive.Processor.Controllers {
         }
         //        
         public static string formMultipart(CoreController core, string innerHtml, string actionQueryString) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 action = (string.IsNullOrEmpty(actionQueryString)) ? "" : "?" + actionQueryString,
                 method = HtmlAttributesForm.HtmlMethodEnum.post,
                 enctype = HtmlAttributesForm.HtmlEncTypeEnum.multipart_form_data
@@ -893,7 +893,7 @@ namespace Contensive.Processor.Controllers {
         }
         //        
         public static string formMultipart(CoreController core, string innerHtml) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 method = HtmlAttributesForm.HtmlMethodEnum.post,
                 enctype = HtmlAttributesForm.HtmlEncTypeEnum.multipart_form_data
             });
@@ -1029,7 +1029,7 @@ namespace Contensive.Processor.Controllers {
         }
         //
         public static string form(CoreController core, string innerHtml, string actionQueryString, string htmlName, string htmlClass, string htmlId) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 action = string.IsNullOrEmpty(actionQueryString) ? "" : (actionQueryString.Substring(0, 1).Equals("?") ? "" : "?") + actionQueryString,
                 style = "display: inline",
                 name = htmlName,
@@ -1040,7 +1040,7 @@ namespace Contensive.Processor.Controllers {
         }
         //
         public static string form(CoreController core, string innerHtml, string actionQueryString, string htmlName) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 action = string.IsNullOrEmpty(actionQueryString) ? "" : (actionQueryString.Substring(0, 1).Equals("?") ? "" : "?") + actionQueryString,
                 style = "display: inline",
                 name = htmlName,
@@ -1049,7 +1049,7 @@ namespace Contensive.Processor.Controllers {
         }
         //
         public static string form(CoreController core, string innerHtml, string actionQueryString) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 action = string.IsNullOrEmpty(actionQueryString) ? "" : (actionQueryString.Substring(0, 1).Equals("?") ? "" : "?") + actionQueryString,
                 style = "display: inline",
                 method = HtmlAttributesForm.HtmlMethodEnum.post
@@ -1057,7 +1057,7 @@ namespace Contensive.Processor.Controllers {
         }
         //
         public static string form(CoreController core, string innerHtml) {
-            return form(core, innerHtml, new HtmlAttributesForm() {
+            return form(core, innerHtml, new HtmlAttributesForm {
                 style = "display: inline",
                 method = HtmlAttributesForm.HtmlMethodEnum.post
             });

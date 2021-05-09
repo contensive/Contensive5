@@ -864,7 +864,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- mark the current sample and select back asa target if it marked, send or skip
                         string targetGuid = GenericController.getGUID();
-                        core.db.update(EmailQueueModel.tableMetadata.tableNameLower, "(ccguid=" + DbController.encodeSQLText(queueSample.ccguid) + ")", new System.Collections.Specialized.NameValueCollection() { { "ccguid", DbController.encodeSQLText(targetGuid) } });
+                        core.db.update(EmailQueueModel.tableMetadata.tableNameLower, "(ccguid=" + DbController.encodeSQLText(queueSample.ccguid) + ")", new System.Collections.Specialized.NameValueCollection { { "ccguid", DbController.encodeSQLText(targetGuid) } });
                         EmailQueueModel targetQueueRecord = DbBaseModel.create<EmailQueueModel>(core.cpParent, targetGuid);
                         if (targetQueueRecord != null) {
                             //

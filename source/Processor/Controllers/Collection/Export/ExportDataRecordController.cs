@@ -79,8 +79,8 @@ namespace Contensive.Processor.Controllers {
                                     // 
                                     // -- get output 'columns', the inner loop enumeration, the fields within each record that will be exported
                                     var contentFieldExportList = new List<ContentFieldModel>();
-                                    List<string> ignoreFields = new List<string>() { "id", "contentcontrolid", "editsourceid", "editarchive", "editblank", "contentcategoryid" };
-                                    List<int> ignoreTypes = new List<int>() { (int)CPContentBaseClass.FieldTypeIdEnum.Redirect, (int)CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement };
+                                    List<string> ignoreFields = new List<string> { "id", "contentcontrolid", "editsourceid", "editarchive", "editblank", "contentcategoryid" };
+                                    List<int> ignoreTypes = new List<int> { (int)CPContentBaseClass.FieldTypeIdEnum.Redirect, (int)CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement };
                                     foreach (var metaField in DbBaseModel.createList<ContentFieldModel>(cp, "contentid=" + dataExportContentId)) {
                                         if (!string.IsNullOrEmpty(metaField.name)) {
                                             if (!ignoreFields.Contains(metaField.name.ToLowerInvariant())) {

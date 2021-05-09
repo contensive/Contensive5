@@ -78,5 +78,16 @@ namespace Contensive.Processor {
         public override string GetLayoutByName(string layoutName, string defaultLayout) {
             return LayoutController.getLayoutByName(cp, layoutName, defaultLayout);
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Tranform a source html string using the data attribute based system
+        /// </summary>
+        /// <param name="sourceHtml"></param>
+        /// <returns></returns>
+        public override string Transform(string sourceHtml) {
+            var ignoreErrors = new List<string>();
+            return HtmlImport.Controllers.ImportController.processHtml(cp, sourceHtml, HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+        }
     }
 }

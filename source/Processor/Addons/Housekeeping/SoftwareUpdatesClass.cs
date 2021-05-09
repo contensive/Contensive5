@@ -21,7 +21,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 LogController.logInfo(core, "Housekeep, download and install");
                 //
-                var Doc = new XmlDocument() { XmlResolver = null };
+                var Doc = new XmlDocument { XmlResolver = null };
                 string URL = "http://support.contensive.com/GetUpdates?iv=" + CoreController.codeVersion();
                 Doc.Load(URL);
                 if ((Doc.DocumentElement.Name.ToLowerInvariant() == GenericController.toLCase("ContensiveUpdate")) && (Doc.DocumentElement.ChildNodes.Count != 0)) {

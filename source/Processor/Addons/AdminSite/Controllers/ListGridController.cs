@@ -120,7 +120,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         }
                     }
                     if(indexConfig.allowColumnSort) {
-                        buttonFace = HtmlController.a(buttonFace, new CPBase.BaseModels.HtmlAttributesA() {
+                        buttonFace = HtmlController.a(buttonFace, new CPBase.BaseModels.HtmlAttributesA {
                             title = SortTitle,
                             href = buttonHref.ToString(),
                             @class = "ccAdminListCaption"

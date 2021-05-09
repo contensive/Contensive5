@@ -123,14 +123,14 @@ namespace Contensive.Processor.Controllers {
                     if (resizeToWidth)
                         // 
                         // -- resize to width
-                        finalResizedImageSize = new SixLabors.ImageSharp.Size() {
+                        finalResizedImageSize = new SixLabors.ImageSharp.Size {
                             Width = holeWidth,
                             Height = Convert.ToInt32(image.Height * widthRatio)
                         };
                     else
                         // 
                         // -- resize to height
-                        finalResizedImageSize = new SixLabors.ImageSharp.Size() {
+                        finalResizedImageSize = new SixLabors.ImageSharp.Size {
                             Width = Convert.ToInt32(image.Width * heightRatio),
                             Height = holeHeight
                         };

@@ -348,7 +348,7 @@ namespace Contensive.Processor.Controllers {
                     if (!_requestCookies.ContainsKey(kvp.Key)) {
                         //
                         // -- do not allow duplicate keys
-                        _requestCookies.Add(kvp.Key, new CookieClass() { name = kvp.Key, value = kvp.Value.Value });
+                        _requestCookies.Add(kvp.Key, new CookieClass { name = kvp.Key, value = kvp.Value.Value });
                     }
                 }
                 return _requestCookies;

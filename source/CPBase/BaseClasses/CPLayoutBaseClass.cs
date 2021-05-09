@@ -48,13 +48,21 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// returns a layout by Guid. If missing, the layout record is created with the default name and the layout file referenced in the cdn
+        /// returns a layout by Guid. 
+        /// If missing, the layout record is created with the default name 
+        /// and the layout file referenced in the cdn is transformed (data attribute based html transformations)
         /// </summary>
-        /// <param name="cp"></param>
         /// <param name="layoutGuid"></param>
         /// <param name="defaultLayoutName"></param>
         /// <param name="defaultLayoutCdnPathFilename"></param>
         /// <returns></returns>
         public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename);
+        /// <summary>
+        /// Transform the input html using the data attribute based html transformations. These transformations 
+        /// are typically used to convert a static html design
+        /// </summary>
+        /// <param name="sourceHtml"></param>
+        /// <returns></returns>
+        public abstract string Transform(string sourceHtml);
     }
 }

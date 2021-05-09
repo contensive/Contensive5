@@ -53,8 +53,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Process the Start signal from the Server Control Manager
         /// </summary>
-        /// <param name="setVerbose"></param>
-        /// <param name="singleThreaded"></param>
         /// <returns></returns>
         public bool startTimerEvents() {
             bool returnStartedOk = false;

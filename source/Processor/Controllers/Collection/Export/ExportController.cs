@@ -194,7 +194,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- add records from any content that supports the field 'collectionid' or 'installedbycollectionid'
 
-                    foreach (var field in new List<string>() { "collectionId", "installedbycollectionid" }) {
+                    foreach (var field in new List<string> { "collectionId", "installedbycollectionid" }) {
                         using (var csTable = cp.CSNew()) {
                             if (csTable.OpenSQL("select c.name as contentName, c.id as contentId, t.name as tableName from cccontent c left join cctables t on t.id=c.ContentTableID left join ccfields f on f.ContentID=c.id  where (c.name<>'add-ons')and(f.name=" + cp.Db.EncodeSQLText(field) + ")")) {
                                 do {
@@ -455,7 +455,7 @@ namespace Contensive.Processor.Controllers {
                 const string CollectionListRootNode = "collectionlist";
                 Return_CollectionPath = "";
                 Return_LastChangeDate = DateTime.MinValue;
-                System.Xml.XmlDocument Doc = new System.Xml.XmlDocument() { XmlResolver = null };
+                System.Xml.XmlDocument Doc = new System.Xml.XmlDocument { XmlResolver = null };
                 Doc.LoadXml(cp.PrivateFiles.Read(@"addons\Collections.xml"));
                 if (true) {
                     if (Strings.LCase(Doc.DocumentElement.Name) != Strings.LCase(CollectionListRootNode)) {

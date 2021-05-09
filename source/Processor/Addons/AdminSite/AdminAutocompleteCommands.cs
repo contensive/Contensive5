@@ -49,14 +49,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (cs.OpenSQL(sql)) {
                         do {
                             if(cs.GetText("type")=="c") {
-                                result.Add(new ResponseAdminAutocompleteCommandModel() {
+                                result.Add(new ResponseAdminAutocompleteCommandModel {
                                     label = cs.GetText("name"),
                                     type = "c",
                                     url = contentUrl + cs.GetText("id"),
                                     value = cs.GetText("name")
                                 });
                             } else {
-                                result.Add(new ResponseAdminAutocompleteCommandModel() {
+                                result.Add(new ResponseAdminAutocompleteCommandModel {
                                     label = cs.GetText("name"),
                                     type = "c",
                                     url = addonUrl + cs.GetText("id"),

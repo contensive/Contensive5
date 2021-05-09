@@ -76,7 +76,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- get layout
                 string layout = cp.Layout.GetLayout(Constants.guidLayoutAdminSite, "Admin Site Layout", @"adminsite\AdminSiteLayout.html");
-                if (string.IsNullOrEmpty(layout)) { layout = Processor.Properties.Resources.AdminSiteLayoutBackup; };
+                if (string.IsNullOrEmpty(layout)) { layout = Processor.Properties.Resources.AdminSiteLayoutBackup; }
                 //
                 // -- get static data
                 // todo -- move this to the dataViewModel to create content during render
@@ -84,7 +84,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     adminExceptions = cp.core.session.user.developer ? ErrorController.getDocExceptionHtmlList(cp.core) : "",
                     leftSideMessage = cp.Site.GetText("AdminHeaderHTML", "Administration Site"),
                     navBrand = cp.Site.Name,
-                    rightSideMessage = cp.Html5.A(cp.User.Name, new CPBase.BaseModels.HtmlAttributesA() {
+                    rightSideMessage = cp.Html5.A(cp.User.Name, new CPBase.BaseModels.HtmlAttributesA {
                         href = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
                     }),
                     rightSideNavHtml = ""

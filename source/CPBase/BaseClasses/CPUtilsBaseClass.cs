@@ -723,7 +723,8 @@ namespace Contensive.BaseClasses {
         /// Deprecated
         /// </summary>
         /// <param name="isNewApp"></param>
-        [Obsolete("Installation upgrade through the cp interface is deprecated. Please use the command line tool.", false)]        public abstract void Upgrade(bool isNewApp);
+        [Obsolete("Installation upgrade through the cp interface is deprecated. Please use the command line tool.", false)]        
+        public abstract void Upgrade(bool isNewApp);
         /// <summary>
         /// Deprecated
         /// </summary>

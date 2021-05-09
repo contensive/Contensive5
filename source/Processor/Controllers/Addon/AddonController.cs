@@ -1872,7 +1872,7 @@ namespace Contensive.Processor.Controllers {
                         OptionValue = GenericController.decodeAddonConstructorArgument(OptionValue);
                         //
                         // -- add to json format
-                        argList.Add(new NameValueModel() {
+                        argList.Add(new NameValueModel {
                             name = OptionName,
                             value = OptionValue
                         });

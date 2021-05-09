@@ -563,7 +563,7 @@ namespace Contensive.Processor.Controllers {
                             ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).WaitSynchronously();
                             //
                             // -- create delete request from object list
-                            DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest() {
+                            DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest {
                                 BucketName = core.serverConfig.awsBucketName
                             };
                             foreach (S3Object entry in listResponse.S3Objects) {
@@ -965,7 +965,7 @@ namespace Contensive.Processor.Controllers {
         private bool fileExists_remote(string pathFilename) {
             try {
                 string remoteUnixPathFilename = convertToUnixSlash(joinPath(remotePathPrefix, pathFilename));
-                var request = new ListObjectsRequest() {
+                var request = new ListObjectsRequest {
                     BucketName = core.serverConfig.awsBucketName,
                     Prefix = remoteUnixPathFilename
                 };

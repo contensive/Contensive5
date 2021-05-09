@@ -297,7 +297,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 break;
                             }
                         case AdminFormClearCache: {
-                                content = cp.core.addon.execute("{7B5B8150-62BE-40F4-A66A-7CC74D99BA76}", new CPUtilsBaseClass.addonExecuteContext() {
+                                content = cp.core.addon.execute("{7B5B8150-62BE-40F4-A66A-7CC74D99BA76}", new CPUtilsBaseClass.addonExecuteContext {
                                     addonType = CPUtilsBaseClass.addonContext.ContextAdmin
                                 });
                                 break;
@@ -432,21 +432,14 @@ namespace Contensive.Processor.Addons.AdminSite {
         private static string GetAddonHelp(CPClass cp, int HelpAddonID, string UsedIDString) {
             string addonHelp = "";
             try {
-                string IconFilename = null;
-                int IconWidth = 0;
-                int IconHeight = 0;
-                int IconSprites = 0;
-                bool IconIsInline = false;
-                string AddonName = "";
-                string AddonHelpCopy = "";
-                DateTime AddonDateAdded = default;
-                DateTime AddonLastUpdated = default;
-                string IncludeHelp = "";
-                string IconImg = "";
-                string helpLink = "";
-                bool FoundAddon = false;
-                //
                 if (GenericController.strInstr(1, "," + UsedIDString + ",", "," + HelpAddonID + ",") == 0) {
+                    string AddonName = "";
+                    string AddonHelpCopy = "";
+                    DateTime AddonDateAdded = default;
+                    DateTime AddonLastUpdated = default;
+                    bool FoundAddon = false;
+                    string helpLink = "";
+                    string IconImg = "";
                     using (var csData = new CsModel(cp.core)) {
                         csData.openRecord(AddonModel.tableMetadata.contentName, HelpAddonID);
                         if (csData.ok()) {
@@ -458,11 +451,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                             if (AddonLastUpdated == DateTime.MinValue) {
                                 AddonLastUpdated = AddonDateAdded;
                             }
-                            IconFilename = csData.getText("Iconfilename");
-                            IconWidth = csData.getInteger("IconWidth");
-                            IconHeight = csData.getInteger("IconHeight");
-                            IconSprites = csData.getInteger("IconSprites");
-                            IconIsInline = csData.getBoolean("IsInline");
+                            string IconFilename = csData.getText("Iconfilename");
+                            int IconWidth =  csData.getInteger("IconWidth");
+                            int IconHeight = csData.getInteger("IconHeight");
+                            int IconSprites = csData.getInteger("IconSprites");
+                            bool IconIsInline = csData.getBoolean("IsInline");
                             IconImg = AddonController.getAddonIconImg("/" + cp.core.appConfig.adminRoute, IconWidth, IconHeight, IconSprites, IconIsInline, "", IconFilename, cp.core.appConfig.cdnFileUrl, AddonName, AddonName, "", 0);
                             helpLink = csData.getText("helpLink");
                         }
@@ -472,8 +465,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // Included Addons
                         //
+                        var IncludeHelp = new StringBuilder();
                         foreach (var addonon in cp.core.addonCache.getDependsOnList(HelpAddonID)) {
-                            IncludeHelp += GetAddonHelp(cp, addonon.id, HelpAddonID + "," + addonon.id.ToString());
+                            IncludeHelp.Append(GetAddonHelp(cp, addonon.id, HelpAddonID + "," + addonon.id.ToString()));
                         }
                         if (!string.IsNullOrEmpty(helpLink)) {
                             if (!string.IsNullOrEmpty(AddonHelpCopy)) {
@@ -577,14 +571,9 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="return_Custom"></param>
         private static void getFieldHelpMsgs(CPClass cp, int ContentID, string FieldName, ref string return_Default, ref string return_Custom) {
             try {
-                //
-                string SQL = null;
                 bool Found = false;
-                int ParentId = 0;
-                //
-                Found = false;
                 using (var csData = new CsModel(cp.core)) {
-                    SQL = "select h.HelpDefault,h.HelpCustom from ccfieldhelp h left join ccfields f on f.id=h.fieldid where f.contentid=" + ContentID + " and f.name=" + DbController.encodeSQLText(FieldName);
+                    string SQL = "select h.HelpDefault,h.HelpCustom from ccfieldhelp h left join ccfields f on f.id=h.fieldid where f.contentid=" + ContentID + " and f.name=" + DbController.encodeSQLText(FieldName);
                     csData.openSql(SQL);
                     if (csData.ok()) {
                         Found = true;
@@ -594,9 +583,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 //
                 if (!Found) {
-                    ParentId = 0;
+                    int ParentId = 0;
                     using (var csData = new CsModel(cp.core)) {
-                        SQL = "select parentid from cccontent where id=" + ContentID;
+                        string SQL = "select parentid from cccontent where id=" + ContentID;
                         csData.openSql(SQL);
                         if (csData.ok()) {
                             ParentId = csData.getInteger("parentid");
@@ -606,7 +595,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                         getFieldHelpMsgs(cp, ParentId, FieldName, ref return_Default, ref return_Custom);
                     }
                 }
-                return;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
                 throw;
@@ -616,10 +604,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         private static void ProcessForms(CPClass cp, AdminDataModel adminData) {
             try {
-                // todo
-                Contensive.Processor.Addons.AdminSite.Models.EditRecordModel editRecord = adminData.editRecord;
-                //
-                //
                 if (adminData.srcFormId != 0) {
                     string EditorStyleRulesFilename = null;
                     switch (adminData.srcFormId) {
