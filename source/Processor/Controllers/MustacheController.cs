@@ -17,15 +17,15 @@ namespace Contensive.Processor.Controllers {
             // -- stubble (is not signed, manually signed but cannot add to nuget package)
             //var stubble = new StubbleBuilder().Build();
             //return stubble.Render(template, dataSet);
-#if net472
-            //
-            // -- Nustache, no core version
-            return Nustache.Core.Render.StringToString(template, dataSet);
-#else
+#if NETCOREAPP3_1
             //
             // -- handlebars issue, {{#thing}}this{{thing}}that{{/thing}} 
             var templateCompiled = Handlebars.Compile(template);
             return templateCompiled(dataSet);
+#else
+            //
+            // -- Nustache, no core version
+            return Nustache.Core.Render.StringToString(template, dataSet);
 #endif
         }
         //
