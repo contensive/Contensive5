@@ -48,6 +48,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 MemberRuleClass.executeHourlyTasks(core);
                 MetadataClass.executeHourlyTasks(core);
                 LinkAliasClass.executeHourlyTasks(core);
+                AddonEventCatchersClass.executeHourlyTasks(core);
                 //
                 // -- Properties
                 UserProperyClass.executeHourlyTasks(core);

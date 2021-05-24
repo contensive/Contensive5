@@ -102,11 +102,9 @@ Public Class ConfigurationClass
             ' -- setup request
             iisContext.Request.InputStream.Position = 0
             context.Request.requestBody = (New System.IO.StreamReader(iisContext.Request.InputStream)).ReadToEnd()
-            'Dim str As System.IO.StreamReader = New System.IO.StreamReader(iisContext.Request.InputStream)
-            'context.Request.requestBody = str.ReadToEnd()
             context.Request.ContentType = iisContext.Request.ContentType
             context.Request.Url = New HttpContentRequestUrl() With {
-                .AbsoluteUri = iisContext.Request.Url.AbsoluteUri,
+                .AbsoluteUri = iisContext.Request.Url.Scheme & "://" & iisContext.Request.Url.Host & iisContext.Request.RawUrl,
                 .Port = iisContext.Request.Url.Port
             }
             context.Request.UrlReferrer = iisContext.Request.UrlReferrer

@@ -677,10 +677,9 @@ namespace Contensive.Models.Db {
                 if (recordId <= 0) { return result; }
                 result = (allowRecordCaching(typeof(T))) ? readRecordCache<T>(cp, recordId) : null;
                 if (result == null) {
-                    using (var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(id=" + recordId + ")", ""))) {
-                        if (dt != null) {
-                            if (dt.Rows.Count > 0) { result = loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList); }
-                        }
+                    using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(id=" + recordId + ")", ""));
+                    if (dt != null) {
+                        if (dt.Rows.Count > 0) { result = loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList); }
                     }
                 }
                 //
@@ -794,11 +793,10 @@ namespace Contensive.Models.Db {
                     // -- if allowCache, then this subclass is for a content that has a unique name. read the name pointer
                     result = (allowRecordCaching(typeof(T)) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
                     if (result == null) {
-                        using (var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(name=" + cp.Db.EncodeSQLText(recordName) + ")", ""))) {
-                            if (dt != null) {
-                                if (dt.Rows.Count > 0) {
-                                    return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
-                                }
+                        using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(name=" + cp.Db.EncodeSQLText(recordName) + ")", ""));
+                        if (dt != null) {
+                            if (dt.Rows.Count > 0) {
+                                return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
                             }
                         }
                     }
@@ -1094,10 +1092,9 @@ namespace Contensive.Models.Db {
                                             if ((String.IsNullOrEmpty(fileFieldFilename)) && (id != 0)) {
                                                 // 
                                                 // -- if record exists and file property's filename is not set, get the filename from the Db
-                                                using (DataTable dt = cp.Db.ExecuteQuery("select " + instanceProperty.Name + " from " + tableName + " where (id=" + id + ")")) {
-                                                    if (dt.Rows.Count > 0) {
-                                                        fileFieldFilename = cp.Utils.EncodeText(dt.Rows[0][instanceProperty.Name]);
-                                                    }
+                                                using DataTable dt = cp.Db.ExecuteQuery("select " + instanceProperty.Name + " from " + tableName + " where (id=" + id + ")");
+                                                if (dt.Rows.Count > 0) {
+                                                    fileFieldFilename = cp.Utils.EncodeText(dt.Rows[0][instanceProperty.Name]);
                                                 }
                                             }
                                             PropertyInfo fileFieldContentProperty = instanceProperty.PropertyType.GetProperty("content");
@@ -1548,15 +1545,14 @@ namespace Contensive.Models.Db {
             if (parentRecordId == childRecordId) return true;
             if (!containsField<T>("parentid")) { return false; }
             if (childIdList.Contains(childRecordId)) { return false; }
-            using (DataTable dt = cp.Db.ExecuteQuery("select parentId from " + derivedTableName(typeof(T)) + " where id=" + childRecordId)) {
-                if (dt != null) {
-                    if (dt.Rows.Count > 0) {
-                        childIdList.Add(parentRecordId);
-                        return isParentOf<T>(cp, parentRecordId, cp.Utils.EncodeInteger(dt.Rows[0]["parentid"]), childIdList);
-                    }
+            using DataTable dt = cp.Db.ExecuteQuery("select parentId from " + derivedTableName(typeof(T)) + " where id=" + childRecordId);
+            if (dt != null) {
+                if (dt.Rows.Count > 0) {
+                    childIdList.Add(parentRecordId);
+                    return isParentOf<T>(cp, parentRecordId, cp.Utils.EncodeInteger(dt.Rows[0]["parentid"]), childIdList);
                 }
-                return false;
             }
+            return false;
         }
         //
         //====================================================================================================
@@ -1585,19 +1581,18 @@ namespace Contensive.Models.Db {
             if ((childRecordId < 1) || (parentRecordId < 1)) { return false; }
             if (parentIdList.Contains(childRecordId)) { return false; }
             if (parentRecordId == childRecordId) return true;
-            using (DataTable dt = cp.Db.ExecuteQuery("select id from " + derivedTableName(typeof(T)) + " where parentId=" + parentRecordId)) {
-                if (dt != null) {
-                    if (dt.Rows.Count > 0) {
-                        parentIdList.Add(parentRecordId);
-                        foreach (DataRow row in dt.Rows) {
-                            if (isChildOf<T>(cp, cp.Utils.EncodeInteger(row["id"]), childRecordId, parentIdList, true)) {
-                                return true;
-                            }
+            using DataTable dt = cp.Db.ExecuteQuery("select id from " + derivedTableName(typeof(T)) + " where parentId=" + parentRecordId);
+            if (dt != null) {
+                if (dt.Rows.Count > 0) {
+                    parentIdList.Add(parentRecordId);
+                    foreach (DataRow row in dt.Rows) {
+                        if (isChildOf<T>(cp, cp.Utils.EncodeInteger(row["id"]), childRecordId, parentIdList, true)) {
+                            return true;
                         }
                     }
                 }
-                return false;
             }
+            return false;
         }
         //
         //====================================================================================================
@@ -1733,7 +1728,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// create a list of objects based on the sql criteria and sort order, and add a cache object to an argument
+        /// returns he number of records that match the criteria.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="sqlCriteria"></param>
@@ -1742,10 +1737,9 @@ namespace Contensive.Models.Db {
             try {
                 int result = 0;
                 if (isAppInvalid(cp)) { return result; }
-                using (var dt = cp.Db.ExecuteQuery(getCountSql<T>(sqlCriteria))) {
-                    if (dt.Rows.Count == 0) return result;
-                    return cp.Utils.EncodeInteger(dt.Rows[0][0]);
-                }
+                using var dt = cp.Db.ExecuteQuery(getCountSql<T>(sqlCriteria));
+                if (dt.Rows.Count == 0) return result;
+                return cp.Utils.EncodeInteger(dt.Rows[0][0]);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
