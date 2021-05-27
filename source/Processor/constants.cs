@@ -842,8 +842,8 @@ namespace Contensive.Processor {
         internal const string RequestNameCatalogKeywords = "CatalogKeywords";
         internal const string RequestNameCatalogSource = "CatalogSource";
         //
-        internal const string RequestNameDownloadFileGuid = "download";
-        internal const string RequestNameDownloadFileId = "downloadid";
+        internal const string rnDownloadFileGuid = "download";
+        internal const string rnDownloadFileId = "downloadid";
         internal const string RequestNameLibraryUpload = "LibraryUpload";
         internal const string RequestNameLibraryName = "LibraryName";
         internal const string RequestNameLibraryDescription = "LibraryDescription";
@@ -867,12 +867,12 @@ namespace Contensive.Processor {
         //
         internal const string RequestNameToolContentId = "ContentID";
         //
-        internal const string RequestNameCut = "a904o2pa0cut";
+        internal const string rnPageCut = "a904o2pa0cut";
         internal const string RequestNamePaste = "dp29a7dsa6paste";
-        internal const string RequestNamePasteParentContentId = "dp29a7dsa6cid";
-        internal const string RequestNamePasteParentRecordId = "dp29a7dsa6rid";
+        internal const string rnPasteParentContentId = "dp29a7dsa6cid";
+        internal const string rnPasteParentRecordId = "dp29a7dsa6rid";
         internal const string RequestNamePasteFieldList = "dp29a7dsa6key";
-        internal const string RequestNameCutClear = "dp29a7dsa6clear";
+        internal const string rnCutClear = "dp29a7dsa6clear";
         //
         internal const string RequestNameRequestBinary = "RequestBinary";
         internal const string RequestNameJSForm = "RequestJSForm";

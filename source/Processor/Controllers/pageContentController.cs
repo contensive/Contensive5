@@ -1,17 +1,15 @@
 ﻿
+using Contensive.BaseClasses;
+using Contensive.Models.Db;
+using Contensive.Processor.Exceptions;
+using Contensive.Processor.Models.Domain;
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Data;
-using Contensive.BaseClasses;
-using Contensive.Processor.Exceptions;
-using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
+using System.Linq;
 using System.Text;
-using Contensive.Processor.Models.Domain;
-using Contensive.Models.Db;
-using System.Threading.Tasks;
-using NLog;
+using static Contensive.Processor.Constants;
+using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -58,192 +56,204 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <returns></returns>
         public static string getHtmlBody(CoreController core) {
-            string result = "";
             try {
-                bool IsPageNotFound = false;
+                if (!core.doc.continueProcessing) { return ""; }
+                string result = "";
                 //
-                if (core.doc.continueProcessing) {
-                    //
-                    // -- setup domain
-                    string domainTest = core.webServer.requestDomain.Trim().ToLowerInvariant().Replace("..", ".");
-                    core.doc.domain = null;
-                    if (!string.IsNullOrEmpty(domainTest)) {
-                        int posDot = 0;
-                        int loopCnt = 10;
-                        do {
-                            core.doc.domain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, domainTest);
-                            posDot = domainTest.IndexOf('.');
-                            if ((posDot >= 0) && (domainTest.Length > 1)) {
-                                domainTest = domainTest.Substring(posDot + 1);
-                            }
-                            loopCnt -= 1;
-                        } while ((core.doc.domain == null) && (posDot >= 0) && (loopCnt > 0));
-                    }
-                    //
-                    // -- load requested page/template
-                    loadPage(core, core.docProperties.getInteger(rnPageId), core.doc.domain);
-                    //
-                    // -- create context object to use for page and template dependencies
-                    CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
-                        addonType = CPUtilsBaseClass.addonContext.ContextSimple,
-                        cssContainerClass = "",
-                        cssContainerId = "",
-                        hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
-                            contentName = PageContentModel.tableMetadata.contentName,
-                            fieldName = "copyfilename",
-                            recordId = core.doc.pageController.page.id
-                        },
-                        isIncludeAddon = false
-                    };
-                    //
-                    // -- execute template Dependencies
-                    List<AddonModel> templateAddonList = AddonModel.createList_templateDependencies(core.cpParent, core.doc.pageController.template.id);
-                    if (templateAddonList.Count > 0) {
-                        string addonContextMessage = executeContext.errorContextMessage;
-                        foreach (AddonModel addon in templateAddonList) {
-                            executeContext.errorContextMessage = "executing template dependency [" + addon.name + "]";
-                            result += core.addon.executeDependency(addon, executeContext);
+                // -- setup domain
+                string domainTest = core.webServer.requestDomain.Trim().ToLowerInvariant().Replace("..", ".");
+                core.doc.domain = null;
+                if (!string.IsNullOrEmpty(domainTest)) {
+                    int posDot = 0;
+                    int loopCnt = 10;
+                    do {
+                        core.doc.domain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, domainTest);
+                        posDot = domainTest.IndexOf('.');
+                        if ((posDot >= 0) && (domainTest.Length > 1)) {
+                            domainTest = domainTest.Substring(posDot + 1);
                         }
-                        executeContext.errorContextMessage = addonContextMessage;
+                        loopCnt -= 1;
+                    } while ((core.doc.domain == null) && (posDot >= 0) && (loopCnt > 0));
+                }
+                //
+                // -- load requested page/template
+                loadPage(core, core.docProperties.getInteger(rnPageId), core.doc.domain);
+                //
+                // -- create context object to use for page and template dependencies
+                CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
+                    addonType = CPUtilsBaseClass.addonContext.ContextSimple,
+                    cssContainerClass = "",
+                    cssContainerId = "",
+                    hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
+                        contentName = PageContentModel.tableMetadata.contentName,
+                        fieldName = "copyfilename",
+                        recordId = core.doc.pageController.page.id
+                    },
+                    isIncludeAddon = false
+                };
+                //
+                // -- execute template Dependencies
+                List<AddonModel> templateAddonList = AddonModel.createList_templateDependencies(core.cpParent, core.doc.pageController.template.id);
+                if (templateAddonList.Count > 0) {
+                    string addonContextMessage = executeContext.errorContextMessage;
+                    foreach (AddonModel addon in templateAddonList) {
+                        executeContext.errorContextMessage = "executing template dependency [" + addon.name + "]";
+                        result += core.addon.executeDependency(addon, executeContext);
                     }
-                    //
-                    // -- execute on page start addons (after body tag)//
-                    // 
-                    // -- execute page addons
-                    //
-                    // -- execute page Dependencies
-                    List<AddonModel> pageAddonList = AddonModel.createList_pageDependencies(core.cpParent, core.doc.pageController.page.id);
-                    if (pageAddonList.Count > 0) {
-                        string addonContextMessage = executeContext.errorContextMessage;
-                        foreach (AddonModel addon in pageAddonList) {
-                            executeContext.errorContextMessage = "executing page dependency [" + addon.name + "]";
-                            result += core.addon.executeDependency(addon, executeContext);
-                        }
-                        executeContext.errorContextMessage = addonContextMessage;
+                    executeContext.errorContextMessage = addonContextMessage;
+                }
+                //
+                // -- execute on page start addons (after body tag)//
+                // 
+                // -- execute page addons
+                //
+                // -- execute page Dependencies
+                List<AddonModel> pageAddonList = AddonModel.createList_pageDependencies(core.cpParent, core.doc.pageController.page.id);
+                if (pageAddonList.Count > 0) {
+                    string addonContextMessage = executeContext.errorContextMessage;
+                    foreach (AddonModel addon in pageAddonList) {
+                        executeContext.errorContextMessage = "executing page dependency [" + addon.name + "]";
+                        result += core.addon.executeDependency(addon, executeContext);
                     }
-                    //
-                    core.doc.adminWarning = core.docProperties.getText("AdminWarningMsg");
-                    core.doc.adminWarningPageID = core.docProperties.getInteger("AdminWarningPageID");
-                    //
-                    // todo move cookie test to htmlDoc controller
-                    // -- Add cookie test
-                    bool AllowCookieTest = core.siteProperties.allowVisitTracking && (core.session.visit.pageVisits == 1);
-                    if (AllowCookieTest) {
-                        core.html.addScriptCode_onLoad("if (document.cookie && document.cookie != null){cj.ajax.qs('" + rnCookieDetect + "=" + SecurityController.encodeToken(core, core.session.visit.id, core.doc.profileStartTime.AddSeconds(30)) + "')};", "Cookie Test");
-                    }
-                    //
-                    // -- Contensive Form Page Processing
-                    if (core.docProperties.getInteger("ContensiveFormPageID") != 0) {
-                        processForm(core, core.docProperties.getInteger("ContensiveFormPageID"));
-                    }
-                    //
-                    // -- Automatic Redirect to a full URL, If the link field of the record is an absolution address, rc = redirect contentID, ri = redirect content recordid
-                    core.doc.redirectContentID = (core.docProperties.getInteger(rnRedirectContentId));
-                    if (core.doc.redirectContentID != 0) {
-                        core.doc.redirectRecordID = (core.docProperties.getInteger(rnRedirectRecordId));
-                        if (core.doc.redirectRecordID != 0) {
-                            string contentName = MetadataController.getContentNameByID(core, core.doc.redirectContentID);
-                            if (!string.IsNullOrEmpty(contentName)) {
-                                if (core.webServer.redirectByRecord_ReturnStatus(contentName, core.doc.redirectRecordID, "")) {
-                                    core.doc.continueProcessing = false;
-                                    return string.Empty;
-                                } else {
-                                    core.doc.adminWarning = "<p>The site attempted to automatically jump to another page, but there was a problem with the page that included the link.<p>";
-                                    core.doc.adminWarningPageID = core.doc.redirectRecordID;
-                                }
+                    executeContext.errorContextMessage = addonContextMessage;
+                }
+                //
+                core.doc.adminWarning = core.docProperties.getText("AdminWarningMsg");
+                core.doc.adminWarningPageID = core.docProperties.getInteger("AdminWarningPageID");
+                //
+                // todo move cookie test to htmlDoc controller
+                // -- Add cookie test
+                bool AllowCookieTest = core.siteProperties.allowVisitTracking && (core.session.visit.pageVisits == 1);
+                if (AllowCookieTest) {
+                    core.html.addScriptCode_onLoad("if (document.cookie && document.cookie != null){cj.ajax.qs('" + rnCookieDetect + "=" + SecurityController.encodeToken(core, core.session.visit.id, core.doc.profileStartTime.AddSeconds(30)) + "')};", "Cookie Test");
+                }
+                //
+                // -- Contensive Form Page Processing
+                if (core.docProperties.getInteger("ContensiveFormPageID") != 0) {
+                    processForm(core, core.docProperties.getInteger("ContensiveFormPageID"));
+                }
+                //
+                // -- Automatic Redirect to a full URL, If the link field of the record is an absolution address, rc = redirect contentID, ri = redirect content recordid
+                core.doc.redirectContentID = (core.docProperties.getInteger(rnRedirectContentId));
+                if (core.doc.redirectContentID != 0) {
+                    core.doc.redirectRecordID = (core.docProperties.getInteger(rnRedirectRecordId));
+                    if (core.doc.redirectRecordID != 0) {
+                        string contentName = MetadataController.getContentNameByID(core, core.doc.redirectContentID);
+                        if (!string.IsNullOrEmpty(contentName)) {
+                            if (core.webServer.redirectByRecord_ReturnStatus(contentName, core.doc.redirectRecordID, "")) {
+                                core.doc.continueProcessing = false;
+                                return string.Empty;
+                            } else {
+                                core.doc.adminWarning = "<p>The site attempted to automatically jump to another page, but there was a problem with the page that included the link.<p>";
+                                core.doc.adminWarningPageID = core.doc.redirectRecordID;
                             }
                         }
                     }
-                    //
-                    // -- Active Download hook
-                    LibraryFilesModel file = LibraryFilesModel.create<LibraryFilesModel>(core.cpParent, core.docProperties.getText(RequestNameDownloadFileGuid));
+                }
+                //
+                // -- Active Download hook
+                if (core.docProperties.containsKey(rnDownloadFileGuid) || core.docProperties.containsKey(rnDownloadFileId)) {
+                    LibraryFilesModel file = null;
+                    string downloadGuid = core.docProperties.getText(rnDownloadFileGuid);
+                    if (!string.IsNullOrEmpty(downloadGuid)) {
+                        file = DbBaseModel.create<LibraryFilesModel>(core.cpParent, downloadGuid);
+                    }
                     if (file == null) {
                         //
                         // -- compatibility mode, downloadid, this exposes all library files because it exposes the sequential id number
-                        int downloadId = core.docProperties.getInteger(RequestNameDownloadFileId);
-                        if ((downloadId > 0) && (core.siteProperties.getBoolean("Allow library file download by id", false))) {
-                            file = LibraryFilesModel.create<LibraryFilesModel>(core.cpParent, downloadId);
+                        int downloadId = core.docProperties.getInteger(rnDownloadFileId);
+                        if ((downloadId > 0) && core.siteProperties.getBoolean("Allow library file download by id", false)) {
+                            file = DbBaseModel.create<LibraryFilesModel>(core.cpParent, downloadId);
                         }
                     }
                     if (file != null) {
-                        //
-                        // -- lookup record and set clicks
-                        if (file != null) {
+                        if (!string.IsNullOrEmpty(file.filename)) {
+                            //
+                            // -- update download clicks
                             file.clicks += 1;
                             file.save(core.cpParent);
-                            if (file.filename != "") {
-                                //
-                                // -- create log entry
-                                LibraryFileLogModel log = LibraryFileLogModel.addEmpty<LibraryFileLogModel>(core.cpParent);
-                                if (log != null) {
-                                    log.name = core.dateTimeNowMockable.ToString() + " user [#" + core.session.user.name + ", " + core.session.user.name + "]";
-                                    log.fileId = file.id;
-                                    log.visitId = core.session.visit.id;
-                                    log.memberId = core.session.user.id;
-                                    log.fromUrl = core.webServer.requestPageReferer;
-                                    log.save(core.cpParent);
-                                }
-                                //
-                                // -- and go
-                                string link = GenericController.getCdnFileLink(core, file.filename);
-                                return core.webServer.redirect(link, "Redirecting because the active download request variable is set to a valid Library Files record.");
+                            //
+                            // -- create log entry
+                            LibraryFileLogModel log = DbBaseModel.addEmpty<LibraryFileLogModel>(core.cpParent);
+                            if (log != null) {
+                                log.name = core.dateTimeNowMockable.ToString() + " user [#" + core.session.user.name + ", " + core.session.user.name + "]";
+                                log.fileId = file.id;
+                                log.visitId = core.session.visit.id;
+                                log.memberId = core.session.user.id;
+                                log.fromUrl = core.webServer.requestPageReferer;
+                                log.save(core.cpParent);
                             }
+                            //
+                            // -- redirect to resources
+                            //core.webServer.responseContentType = MimeMapping.MimeUtility.GetMimeMapping(file.filename);
+                            string link = getCdnFileLink(core, file.filename);
+                            return core.webServer.redirect(link, "Redirecting because the active download request variable is set to a valid Library Files record.");
                         }
                     }
-                    //
-                    // -- Process clipboard cut/paste
-                    string Clip = core.docProperties.getText(RequestNameCut);
+                }
+                //
+                // -- process clip cut
+                if (core.docProperties.containsKey(rnPageCut)) {
+                    string Clip = core.docProperties.getText(rnPageCut);
                     if (!string.IsNullOrEmpty(Clip)) {
                         //
                         // -- clicked cut, save the cut in the clipboard
                         core.visitProperty.setProperty("Clipboard", Clip);
-                        GenericController.modifyLinkQuery(core.doc.refreshQueryString, RequestNameCut, "");
                     }
-                    int ClipParentContentId = core.docProperties.getInteger(RequestNamePasteParentContentId);
-                    int ClipParentRecordId = core.docProperties.getInteger(RequestNamePasteParentRecordId);
-                    if ((ClipParentContentId != 0) && (ClipParentRecordId != 0)) {
+                    modifyLinkQuery(core.doc.refreshQueryString, rnPageCut, "");
+                }
+                //
+                // -- process clip paste
+                if (core.docProperties.containsKey(rnPasteParentContentId) && core.docProperties.containsKey(rnPasteParentRecordId)) {
+                    int clipParentContentId = core.docProperties.getInteger(rnPasteParentContentId);
+                    int clipParentRecordId = core.docProperties.getInteger(rnPasteParentRecordId);
+                    if ((clipParentContentId != 0) && (clipParentRecordId != 0)) {
                         //
                         // -- clicked paste, do the paste and clear the cliboard
-                        attemptClipboardPaste(core, ClipParentContentId, ClipParentRecordId);
+                        attemptClipboardPaste(core, clipParentContentId, clipParentRecordId);
                     }
-                    //
-                    Clip = core.docProperties.getText(RequestNameCutClear);
-                    if (!string.IsNullOrEmpty(Clip)) {
+                    modifyLinkQuery(core.doc.refreshQueryString, rnPasteParentContentId, "");
+                    modifyLinkQuery(core.doc.refreshQueryString, rnPasteParentRecordId, "");
+                }
+                //
+                // -- process cutclear
+                if (core.docProperties.containsKey(rnCutClear)) {
+                    string clip = core.docProperties.getText(rnCutClear);
+                    if (!string.IsNullOrEmpty(clip)) {
                         //
                         // if a cut clear, clear the clipboard
                         core.visitProperty.setProperty("Clipboard", "");
-                        Clip = core.visitProperty.getText("Clipboard", "");
-                        GenericController.modifyLinkQuery(core.doc.refreshQueryString, RequestNameCutClear, "");
                     }
-                    //
-                    //--------------------------------------------------------------------------
-                    // link alias and link forward
-                    //--------------------------------------------------------------------------
-                    //
-                    string linkAliasTest1 = core.webServer.requestPathPage;
-                    if (linkAliasTest1.left(1) == "/") {
-                        linkAliasTest1 = linkAliasTest1.Substring(1);
+                    modifyLinkQuery(core.doc.refreshQueryString, rnCutClear, "");
+                }
+                //
+                // -- link alias and link forward
+                string linkAliasTest1 = core.webServer.requestPathPage;
+                if (linkAliasTest1.left(1) == "/") {
+                    linkAliasTest1 = linkAliasTest1.Substring(1);
+                }
+                if (linkAliasTest1.Length > 0) {
+                    if (linkAliasTest1.Substring(linkAliasTest1.Length - 1, 1) == "/") {
+                        linkAliasTest1 = linkAliasTest1.left(linkAliasTest1.Length - 1);
                     }
-                    if (linkAliasTest1.Length > 0) {
-                        if (linkAliasTest1.Substring(linkAliasTest1.Length - 1, 1) == "/") {
-                            linkAliasTest1 = linkAliasTest1.left(linkAliasTest1.Length - 1);
-                        }
-                    }
+                }
+                {
                     string linkAliasTest2 = linkAliasTest1 + "/";
                     string sql = "";
-                    if ((!IsPageNotFound) && (core.webServer.requestPathPage != "")) {
+                    string requestPathPage = core.webServer.requestBrowser;
+                    if (!string.IsNullOrEmpty(requestPathPage)) {
                         //
                         // build link variations needed later
-                        int PosProtocol = GenericController.strInstr(1, core.webServer.requestPathPage, "://", 1);
+                        int PosProtocol = GenericController.strInstr(1, requestPathPage, "://", 1);
                         string LinkNoProtocol = "";
                         string LinkFullPath = "";
                         string LinkFullPathNoSlash = "";
                         if (PosProtocol != 0) {
-                            LinkNoProtocol = core.webServer.requestPathPage.Substring(PosProtocol + 2);
-                            int Pos = GenericController.strInstr(PosProtocol + 3, core.webServer.requestPathPage, "/", 2);
+                            LinkNoProtocol = requestPathPage.Substring(PosProtocol + 2);
+                            int Pos = GenericController.strInstr(PosProtocol + 3, requestPathPage, "/", 2);
                             if (Pos != 0) {
-                                string linkDomain = core.webServer.requestPathPage.left(Pos - 1);
-                                LinkFullPath = core.webServer.requestPathPage.Substring(Pos - 1);
+                                string linkDomain = requestPathPage.left(Pos - 1);
+                                LinkFullPath = requestPathPage.Substring(Pos - 1);
                                 //
                                 // strip off leading or trailing slashes, and return only the string between the leading and secton slash
                                 //
@@ -352,52 +362,51 @@ namespace Contensive.Processor.Controllers {
                             }
                         }
                     }
-                    //
-                    // ----- do anonymous access blocking
-                    if (!core.session.isAuthenticated) {
-                        if ((core.webServer.requestPath != "/") && GenericController.strInstr(1, "/" + core.appConfig.adminRoute, core.webServer.requestPath, 1) != 0) {
-                            //
-                            // admin page is excluded from custom blocking
-                        } else {
-                            int AnonymousUserResponseId = GenericController.encodeInteger(core.siteProperties.getText("AnonymousUserResponseID", "0"));
-                            switch (AnonymousUserResponseId) {
-                                case 1: {
-                                        //
-                                        // -- block with login
-                                        core.doc.continueProcessing = false;
-                                        return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
-                                            addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                                            errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
-                                        });
-                                    }
-                                case 2: {
-                                        //
-                                        // -- block with custom content
-                                        core.doc.continueProcessing = false;
-                                        core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
-                                        return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), TemplateDefaultBodyTag, true, true);
-                                    }
-                                default: {
-                                        // do nothing
-                                        break;
-                                    }
-                            }
+                }
+                //
+                // ----- do anonymous access blocking
+                if (!core.session.isAuthenticated) {
+                    if ((core.webServer.requestPath != "/") && GenericController.strInstr(1, "/" + core.appConfig.adminRoute, core.webServer.requestPath, 1) != 0) {
+                        //
+                        // admin page is excluded from custom blocking
+                    } else {
+                        int AnonymousUserResponseId = GenericController.encodeInteger(core.siteProperties.getText("AnonymousUserResponseID", "0"));
+                        switch (AnonymousUserResponseId) {
+                            case 1: {
+                                    //
+                                    // -- block with login
+                                    core.doc.continueProcessing = false;
+                                    return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
+                                        addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                                        errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
+                                    });
+                                }
+                            case 2: {
+                                    //
+                                    // -- block with custom content
+                                    core.doc.continueProcessing = false;
+                                    core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
+                                    return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), TemplateDefaultBodyTag, true, true);
+                                }
+                            default: {
+                                    // do nothing
+                                    break;
+                                }
                         }
                     }
-                    //
-                    // -- build body content
-                    string htmlDocBody = getHtmlBody_BodyTag(core);
-                    //
-                    // -- check secure certificate required
-                    bool SecureLink_Template_Required = core.doc.pageController.template.isSecure;
+                }
+                //
+                // -- build body content
+                string htmlDocBody = getHtmlBody_BodyTag(core);
+                //
+                // -- check secure certificate required
+                {
                     bool SecureLink_Page_Required = false;
                     foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
-                        if (core.doc.pageController.page.isSecure) {
-                            SecureLink_Page_Required = true;
-                            break;
-                        }
+                        SecureLink_Page_Required = core.doc.pageController.page.isSecure;
+                        if (SecureLink_Page_Required) { break; }
                     }
-                    bool SecureLink_Required = SecureLink_Template_Required || SecureLink_Page_Required;
+                    bool SecureLink_Required = core.doc.pageController.template.isSecure || SecureLink_Page_Required;
                     bool SecureLink_CurrentURL = (core.webServer.requestUrl.ToLowerInvariant().left(8) == "https://");
                     if (SecureLink_CurrentURL && (!SecureLink_Required)) {
                         //
@@ -418,23 +427,22 @@ namespace Contensive.Processor.Controllers {
                         core.doc.redirectBecausePageNotFound = false;
                         return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                     }
-                    //
-                    // -- check that this template exists on this domain
-                    // -- if endpoint is just domain -> the template is automatically compatible by default (domain determined the landing page)
-                    // -- if endpoint is domain + route (link alias), the route determines the page, which may determine the core.doc.pageController.template. If this template is not allowed for this domain, redirect to the domain's landingcore.doc.pageController.page.
-                    //
-                    sql = "(domainId=" + core.doc.domain.id + ")";
-                    List<TemplateDomainRuleModel> allowTemplateRuleList = DbBaseModel.createList<TemplateDomainRuleModel>(core.cpParent, sql);
-                    if (allowTemplateRuleList.Count == 0) {
+                }
+                //
+                // -- check that this template exists on this domain
+                // -- if endpoint is just domain -> the template is automatically compatible by default (domain determined the landing page)
+                // -- if endpoint is domain + route (link alias), the route determines the page, which may determine the core.doc.pageController.template. If this template is not allowed for this domain, redirect to the domain's landingcore.doc.pageController.page.
+                //
+                {
+                    DataTable ruleList = core.db.executeQuery("select templateid from ccdomaintemplaterules where (domainId=" + core.doc.domain.id + ")");
+                    if (ruleList.Rows.Count > 0) {
                         //
-                        // -- current template has no domain preference, use current
-                    } else {
+                        // -- current template has a domain preference, test it
                         bool allowTemplate = false;
-                        foreach (TemplateDomainRuleModel rule in allowTemplateRuleList) {
-                            if (rule.templateId == core.doc.pageController.template.id) {
-                                allowTemplate = true;
-                                break;
-                            }
+                        int pageTemplateId = core.doc.pageController.template.id;
+                        foreach (DataRow row in ruleList.Rows) {
+                            allowTemplate = pageTemplateId.Equals((int)row["templateid"]); //  .templateId.Equals(pageTemplateId);
+                            if (allowTemplate) { break; }
                         }
                         if (!allowTemplate) {
                             //
@@ -446,31 +454,18 @@ namespace Contensive.Processor.Controllers {
                             return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                         }
                     }
-                    result += htmlDocBody;
                 }
-                //
-                if (IsPageNotFound) {
-                    //
-                    // new way -- if a (real) 404 page is received, just convert this hit to the page-not-found page, do not redirect to it
-                    //
-                    LogController.addSiteWarning(core, "Page Not Found", "Page Not Found", "", 0, "Page Not Found from [" + core.webServer.requestUrlSource + "]", "Page Not Found", "Page Not Found");
-                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus404_NotFound);
-                    core.docProperties.setProperty(rnPageId, getPageNotFoundPageId(core));
-                    if (core.session.isAuthenticatedAdmin()) {
-                        string PageNotFoundReason = "";
-                        core.doc.adminWarning = PageNotFoundReason;
-                        core.doc.adminWarningPageID = 0;
-                    }
-                }
+                result += htmlDocBody;
                 //
                 // add exception list header
                 if (core.session.user.developer) {
                     result = ErrorController.getDocExceptionHtmlList(core) + result;
                 }
+                return result;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                throw;
             }
-            return result;
         }
         //
         //====================================================================================================
@@ -1093,7 +1088,7 @@ namespace Contensive.Processor.Controllers {
                     if (!string.IsNullOrWhiteSpace(usedPageidList)) {
                         sqlCriteria += "and(id not in (" + usedPageidList + "))";
                     }
-                    foreach (var page in DbBaseModel.createList<PageContentModel>(core.cpParent, sqlCriteria,"sortorder")) {
+                    foreach (var page in DbBaseModel.createList<PageContentModel>(core.cpParent, sqlCriteria, "sortorder")) {
                         ContentMetadataModel contentMetadata;
                         if (page.contentControlId == 0) {
                             contentMetadata = ContentMetadataModel.createByUniqueName(core, "page content");
@@ -1137,7 +1132,7 @@ namespace Contensive.Processor.Controllers {
                     DateTime pageModifiedDate = (core.doc.pageController.page.modifiedDate != null) ? encodeDate(core.doc.pageController.page.modifiedDate) : DateTime.MinValue;
                     core.cpParent.Content.LatestContentModifiedDate.Track(pageModifiedDate);
                     pageModifiedDate = core.cpParent.Content.LatestContentModifiedDate.Get();
-                    if (pageModifiedDate != DateTime.MinValue)  {
+                    if (pageModifiedDate != DateTime.MinValue) {
                         result.Append("\r<p>This page was last modified " + encodeDate(pageModifiedDate).ToString("G"));
                         //if (core.session.isAuthenticatedAdmin()) {
                         //    if (core.doc.pageController.page.modifiedBy == 0) {
@@ -2052,7 +2047,7 @@ namespace Contensive.Processor.Controllers {
                     Body = pageForm.repeatCell;
                     Body = GenericController.strReplace(Body, "{{CAPTION}}", "&nbsp;", 1, 99, 1);
                     Body = GenericController.strReplace(Body, "{{FIELD}}", "*&nbsp;Required Fields");
-                    repeatBody +=  Body;
+                    repeatBody += Body;
                 }
                 //
                 string innerHtml = ""
@@ -2098,25 +2093,25 @@ namespace Contensive.Processor.Controllers {
                             NoteFromName = core.docProperties.getText("NoteFromName");
                             NoteFromEmail = core.docProperties.getText("NoteFromEmail");
                             //
-                            NoteCopy +=  "Feedback Submitted" + BR;
-                            NoteCopy +=  "From " + NoteFromName + " at " + NoteFromEmail + BR;
-                            NoteCopy +=  "Replying to:" + BR;
+                            NoteCopy += "Feedback Submitted" + BR;
+                            NoteCopy += "From " + NoteFromName + " at " + NoteFromEmail + BR;
+                            NoteCopy += "Replying to:" + BR;
                             if (!string.IsNullOrEmpty(headline)) {
-                                NoteCopy +=  "    Article titled [" + headline + "]" + BR;
+                                NoteCopy += "    Article titled [" + headline + "]" + BR;
                             }
-                            NoteCopy +=  "    Record [" + RecordID + "] in Content Definition [" + ContentName + "]" + BR;
-                            NoteCopy +=  BR;
-                            NoteCopy +=  "<b>Comments</b>" + BR;
+                            NoteCopy += "    Record [" + RecordID + "] in Content Definition [" + ContentName + "]" + BR;
+                            NoteCopy += BR;
+                            NoteCopy += "<b>Comments</b>" + BR;
                             //
                             Copy = core.docProperties.getText("NoteCopy");
                             if (string.IsNullOrEmpty(Copy)) {
-                                NoteCopy +=  "[no comments entered]" + BR;
+                                NoteCopy += "[no comments entered]" + BR;
                             } else {
-                                NoteCopy +=  HtmlController.convertNewLineToHtmlBreak(Copy) + BR;
+                                NoteCopy += HtmlController.convertNewLineToHtmlBreak(Copy) + BR;
                             }
                             //
                             NoteCopy += BR;
-                            NoteCopy +=  "<b>Content on which the comments are based</b>" + BR;
+                            NoteCopy += "<b>Content on which the comments are based</b>" + BR;
                             //
                             using (var csData = new CsModel(core)) {
                                 csData.open(ContentName, "ID=" + RecordID);
@@ -2124,7 +2119,7 @@ namespace Contensive.Processor.Controllers {
                                 if (csData.ok()) {
                                     Copy = (csData.getText("copyFilename"));
                                 }
-                                NoteCopy +=  Copy + BR;
+                                NoteCopy += Copy + BR;
                             }
                             //
                             PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, ToMemberID);
@@ -2144,38 +2139,38 @@ namespace Contensive.Processor.Controllers {
                             // ----- print the feedback submit form
                             //
                             Panel = "<form Action=\"" + core.webServer.requestFormActionURL + "?" + core.doc.refreshQueryString + "\" Method=\"post\">";
-                            Panel +=  "<table border=\"0\" cellpadding=\"4\" cellspacing=\"0\" width=\"100%\">";
-                            Panel +=  "<tr>";
-                            Panel +=  "<td colspan=\"2\"><p>Your feedback is welcome</p></td>";
-                            Panel +=  "</tr><tr>";
+                            Panel += "<table border=\"0\" cellpadding=\"4\" cellspacing=\"0\" width=\"100%\">";
+                            Panel += "<tr>";
+                            Panel += "<td colspan=\"2\"><p>Your feedback is welcome</p></td>";
+                            Panel += "</tr><tr>";
                             //
                             // ----- From Name
                             //
                             Copy = core.session.user.name;
-                            Panel +=  "<td align=\"right\" width=\"100\"><p>Your Name</p></td>";
-                            Panel +=  "<td align=\"left\"><input type=\"text\" name=\"NoteFromName\" value=\"" + HtmlController.encodeHtml(Copy) + "\"></span></td>";
-                            Panel +=  "</tr><tr>";
+                            Panel += "<td align=\"right\" width=\"100\"><p>Your Name</p></td>";
+                            Panel += "<td align=\"left\"><input type=\"text\" name=\"NoteFromName\" value=\"" + HtmlController.encodeHtml(Copy) + "\"></span></td>";
+                            Panel += "</tr><tr>";
                             //
                             // ----- From Email address
                             //
                             Copy = core.session.user.email;
-                            Panel +=  "<td align=\"right\" width=\"100\"><p>Your Email</p></td>";
-                            Panel +=  "<td align=\"left\"><input type=\"text\" name=\"NoteFromEmail\" value=\"" + HtmlController.encodeHtml(Copy) + "\"></span></td>";
-                            Panel +=  "</tr><tr>";
+                            Panel += "<td align=\"right\" width=\"100\"><p>Your Email</p></td>";
+                            Panel += "<td align=\"left\"><input type=\"text\" name=\"NoteFromEmail\" value=\"" + HtmlController.encodeHtml(Copy) + "\"></span></td>";
+                            Panel += "</tr><tr>";
                             //
                             // ----- Message
                             //
                             Copy = "";
-                            Panel +=  "<td align=\"right\" width=\"100\" valign=\"top\"><p>Feedback</p></td>";
-                            Panel +=  "<td>" + HtmlController.inputText_Legacy(core, "NoteCopy", Copy, 4, 40, "TextArea", false) + "</td>";
-                            Panel +=  "</tr><tr>";
+                            Panel += "<td align=\"right\" width=\"100\" valign=\"top\"><p>Feedback</p></td>";
+                            Panel += "<td>" + HtmlController.inputText_Legacy(core, "NoteCopy", Copy, 4, 40, "TextArea", false) + "</td>";
+                            Panel += "</tr><tr>";
                             //
                             // ----- submit button
                             //
-                            Panel +=  "<td>&nbsp;</td>";
-                            Panel +=  "<td>" + HtmlController.inputSubmit(FeedbackButtonSubmit, "fbb") + "</td>";
-                            Panel +=  "</tr></table>";
-                            Panel +=  "</form>";
+                            Panel += "<td>&nbsp;</td>";
+                            Panel += "<td>" + HtmlController.inputSubmit(FeedbackButtonSubmit, "fbb") + "</td>";
+                            Panel += "</tr></table>";
+                            Panel += "</form>";
                             //
                             result = Panel;
                             break;
@@ -2468,8 +2463,8 @@ namespace Contensive.Processor.Controllers {
             core.visitProperty.setProperty("Clipboard", "");
             //
             // -- clear the paste from refresh click
-            GenericController.modifyQueryString(core.doc.refreshQueryString, RequestNamePasteParentContentId, "");
-            GenericController.modifyQueryString(core.doc.refreshQueryString, RequestNamePasteParentRecordId, "");
+            GenericController.modifyQueryString(core.doc.refreshQueryString, rnPasteParentContentId, "");
+            GenericController.modifyQueryString(core.doc.refreshQueryString, rnPasteParentRecordId, "");
 
             {
                 if (!core.session.isAuthenticatedContentManager(pasteParentContentMetadata)) {

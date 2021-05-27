@@ -18,7 +18,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 CoreController core = ((CPClass)cp).core;
                 //
                 // -- Active Download hook
-                LibraryFilesModel file = LibraryFilesModel.create<LibraryFilesModel>(core.cpParent, core.docProperties.getText(RequestNameDownloadFileGuid));
+                LibraryFilesModel file = LibraryFilesModel.create<LibraryFilesModel>(core.cpParent, core.docProperties.getText(rnDownloadFileGuid));
                 if (file != null) {
                     //
                     // -- lookup record and set clicks

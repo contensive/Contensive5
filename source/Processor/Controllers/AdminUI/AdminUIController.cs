@@ -872,7 +872,7 @@ namespace Contensive.Processor.Controllers {
                     getRecordEditSegment(core, contentMetadata, recordId, recordName)
                 };
                 if (allowCut) {
-                    string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, RequestNameCut, GenericController.encodeText(contentMetadata.id) + "." + GenericController.encodeText(recordId), true);
+                    string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, rnPageCut, GenericController.encodeText(contentMetadata.id) + "." + GenericController.encodeText(recordId), true);
                     editSegmentList.Add("<a class=\"ccRecordCutLink\" TabIndex=\"-1\" href=\"" + HtmlController.encodeHtml(WorkingLink) + "\">&nbsp;" + iconContentCut.Replace("content cut", getEditSegmentRecordCaption(core, "Cut", contentMetadata.name, recordId, "")) + "</a>");
                 }
                 return getRecordEditAnchorTag(core, editSegmentList);
@@ -1074,8 +1074,8 @@ namespace Contensive.Processor.Controllers {
                         // Can not paste as child of itself
                         string PasteLink = core.webServer.requestPage + "?" + core.doc.refreshQueryString;
                         PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePaste, "1", true);
-                        PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePasteParentContentId, content.id.ToString(), true);
-                        PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePasteParentRecordId, ParentId.ToString(), true);
+                        PasteLink = GenericController.modifyLinkQuery(PasteLink, rnPasteParentContentId, content.id.ToString(), true);
+                        PasteLink = GenericController.modifyLinkQuery(PasteLink, rnPasteParentRecordId, ParentId.ToString(), true);
                         PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePasteFieldList, presetNameValueList, true);
                         string pasteLinkAnchor = HtmlController.a(iconContentPaste_Green + "&nbsp;Paste Record", PasteLink, "ccRecordPasteLink", "", "-1");
                         result.Add(HtmlController.div(pasteLinkAnchor + HtmlController.div("&nbsp;", "ccEditLinkEndCap"), "ccRecordLinkCon"));

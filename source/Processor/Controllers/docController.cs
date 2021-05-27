@@ -98,7 +98,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// 
         /// </summary>
-        public Dictionary<CPHtml5BaseClass.EditorContentType, string> wysiwygAddonList;
+        public Dictionary<CPHtml5BaseClass.EditorContentType, string> wysiwygAddonList { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -162,7 +162,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        internal List<CacheInputSelectClass> inputSelectCache = new List<CacheInputSelectClass>();
+        internal List<CacheInputSelectClass> inputSelectCache { get; set; } = new List<CacheInputSelectClass>();
         //
         //====================================================================================================
         /// <summary>
@@ -216,7 +216,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// user errors collected during this document
         /// </summary>
-        internal List<string> userErrorList = new List<string>();
+        internal List<string> userErrorList { get; set; } = new List<string>();
         //
         //====================================================================================================
         /// <summary>

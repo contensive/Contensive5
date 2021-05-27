@@ -92,7 +92,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        private int integerPropertyBase(string propertyName, int defaultValue, ref int? localStore) {
+        private int getPropertyBase(string propertyName, int defaultValue, ref int? localStore) {
             if (dbNotReady) {
                 //
                 // -- Db not available yet, return default
@@ -107,7 +107,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        private bool booleanPropertyBase(string propertyName, bool defaultValue, ref bool? localStore) {
+        private bool getPropertyBase(string propertyName, bool defaultValue, ref bool? localStore) {
             if (dbNotReady) {
                 //
                 // -- Db not available yet, return default
@@ -122,7 +122,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        private string textPropertyBase(string propertyName, string defaultValue, ref string localStore) {
+        private string getPropertyBase(string propertyName, string defaultValue, ref string localStore) {
             if (dbNotReady) {
                 //
                 // -- Db not available yet, return default
@@ -139,7 +139,7 @@ namespace Contensive.Processor.Controllers {
         //
         internal int landingPageID {
             get {
-                return integerPropertyBase("LandingPageID", 0, ref _landingPageId);
+                return getPropertyBase("LandingPageID", 0, ref _landingPageId);
             }
         }
         private int? _landingPageId = null;
@@ -148,7 +148,7 @@ namespace Contensive.Processor.Controllers {
         //
         internal bool trackGuestsWithoutCookies {
             get {
-                return booleanPropertyBase("track guests without cookies", false, ref _trackGuestsWithoutCookies);
+                return getPropertyBase("track guests without cookies", false, ref _trackGuestsWithoutCookies);
             }
         }
         private bool? _trackGuestsWithoutCookies = null;
@@ -157,7 +157,7 @@ namespace Contensive.Processor.Controllers {
         //
         internal bool allowAutoLogin {
             get {
-                return booleanPropertyBase("allowautologin", false, ref _AllowAutoLogin);
+                return getPropertyBase("allowautologin", false, ref _AllowAutoLogin);
             }
         }
         private bool? _AllowAutoLogin = null;
@@ -166,7 +166,7 @@ namespace Contensive.Processor.Controllers {
         //
         internal bool allowAutoRecognize {
             get {
-                return booleanPropertyBase("allowautorecognize", false, ref _allowAutoRecognize);
+                return getPropertyBase("allowautorecognize", false, ref _allowAutoRecognize);
             }
         }
         private bool? _allowAutoRecognize = null;
@@ -175,7 +175,7 @@ namespace Contensive.Processor.Controllers {
         //
         internal int maxVisitLoginAttempts {
             get {
-                return integerPropertyBase("maxVisitLoginAttempts", 20, ref _maxVisitLoginAttempts);
+                return getPropertyBase("maxVisitLoginAttempts", 20, ref _maxVisitLoginAttempts);
             }
         }
         private int? _maxVisitLoginAttempts = null;
@@ -184,7 +184,7 @@ namespace Contensive.Processor.Controllers {
         //
         public string loginIconFilename {
             get {
-                return textPropertyBase("LoginIconFilename", "" + cdnPrefix + "images/ccLibLogin.GIF", ref _LoginIconFilename);
+                return getPropertyBase("LoginIconFilename", "" + cdnPrefix + "images/ccLibLogin.GIF", ref _LoginIconFilename);
             }
         }
         private string _LoginIconFilename = null;
@@ -193,7 +193,7 @@ namespace Contensive.Processor.Controllers {
         //
         public bool allowVisitTracking {
             get {
-                return booleanPropertyBase("allowVisitTracking", true, ref _allowVisitTracking);
+                return getPropertyBase("allowVisitTracking", true, ref _allowVisitTracking);
             }
         }
         private bool? _allowVisitTracking;
@@ -207,7 +207,7 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         public bool trapErrors {
             get {
-                return booleanPropertyBase("TrapErrors", true, ref _trapErrors);
+                return getPropertyBase("TrapErrors", true, ref _trapErrors);
             }
         }
         private bool? _trapErrors = null;
@@ -216,7 +216,7 @@ namespace Contensive.Processor.Controllers {
         //
         public string serverPageDefault {
             get {
-                return textPropertyBase(sitePropertyName_ServerPageDefault, sitePropertyDefaultValue_ServerPageDefault, ref _ServerPageDefault_local);
+                return getPropertyBase(sitePropertyName_ServerPageDefault, sitePropertyDefaultValue_ServerPageDefault, ref _ServerPageDefault_local);
             }
         }
         private string _ServerPageDefault_local = null;
@@ -225,7 +225,7 @@ namespace Contensive.Processor.Controllers {
         //
         internal int defaultWrapperID {
             get {
-                return integerPropertyBase("DefaultWrapperID", 0, ref _defaultWrapperId);
+                return getPropertyBase("DefaultWrapperID", 0, ref _defaultWrapperId);
             }
         }
         private int? _defaultWrapperId = null;
@@ -237,7 +237,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         internal bool allowLinkAlias {
             get {
-                return booleanPropertyBase("allowLinkAlias", true, ref _allowLinkAlias_Local);
+                return getPropertyBase("allowLinkAlias", true, ref _allowLinkAlias_Local);
             }
         }
         private bool? _allowLinkAlias_Local = null;
@@ -246,7 +246,7 @@ namespace Contensive.Processor.Controllers {
         //
         public string docTypeDeclaration {
             get {
-                return textPropertyBase("DocTypeDeclaration", DTDDefault, ref _docTypeDeclaration);
+                return getPropertyBase("DocTypeDeclaration", DTDDefault, ref _docTypeDeclaration);
             }
         }
         private string _docTypeDeclaration = null;
@@ -255,7 +255,7 @@ namespace Contensive.Processor.Controllers {
         //
         public bool useContentWatchLink {
             get {
-                return booleanPropertyBase("UseContentWatchLink", false, ref _useContentWatchLink);
+                return getPropertyBase("UseContentWatchLink", false, ref _useContentWatchLink);
             }
         }
         private bool? _useContentWatchLink = null;
@@ -264,7 +264,7 @@ namespace Contensive.Processor.Controllers {
         //
         public bool allowTestPointLogging {
             get {
-                return booleanPropertyBase("AllowTestPointLogging", false, ref _allowTestPointLogging);
+                return getPropertyBase("AllowTestPointLogging", false, ref _allowTestPointLogging);
             }
         }
         private bool? _allowTestPointLogging = null;
@@ -273,7 +273,7 @@ namespace Contensive.Processor.Controllers {
         //
         public int defaultFormInputWidth {
             get {
-                return integerPropertyBase("DefaultFormInputWidth", 60, ref _defaultFormInputWidth);
+                return getPropertyBase("DefaultFormInputWidth", 60, ref _defaultFormInputWidth);
             }
         }
         private int? _defaultFormInputWidth = null;
@@ -282,7 +282,7 @@ namespace Contensive.Processor.Controllers {
         //
         public int selectFieldWidthLimit {
             get {
-                return integerPropertyBase("SelectFieldWidthLimit", 200, ref _selectFieldWidthLimit);
+                return getPropertyBase("SelectFieldWidthLimit", 200, ref _selectFieldWidthLimit);
             }
         }
         private int? _selectFieldWidthLimit = null;
@@ -291,7 +291,7 @@ namespace Contensive.Processor.Controllers {
         //
         public int selectFieldLimit {
             get {
-                return integerPropertyBase("SelectFieldLimit", 1000, ref _selectFieldLimit);
+                return getPropertyBase("SelectFieldLimit", 1000, ref _selectFieldLimit);
             }
         }
         private int? _selectFieldLimit = null;
@@ -300,7 +300,7 @@ namespace Contensive.Processor.Controllers {
         //
         public int defaultFormInputTextHeight {
             get {
-                return integerPropertyBase("DefaultFormInputTextHeight", 1, ref _defaultFormInputTextHeight);
+                return getPropertyBase("DefaultFormInputTextHeight", 1, ref _defaultFormInputTextHeight);
             }
         }
         private int? _defaultFormInputTextHeight = null;
@@ -309,7 +309,7 @@ namespace Contensive.Processor.Controllers {
         //
         public string emailAdmin {
             get {
-                return textPropertyBase("EmailAdmin", "webmaster@" + core.webServer.requestDomain, ref _emailAdmin);
+                return getPropertyBase("EmailAdmin", "webmaster@" + core.webServer.requestDomain, ref _emailAdmin);
             }
         }
         private string _emailAdmin = null;
@@ -317,7 +317,7 @@ namespace Contensive.Processor.Controllers {
         //
         public bool imageAllowUpdate {
             get {
-                return booleanPropertyBase("ImageAllowUpdate", true, ref _imageAllowUpdate);
+                return getPropertyBase("ImageAllowUpdate", true, ref _imageAllowUpdate);
             }
         }
         private bool? _imageAllowUpdate = null;
@@ -589,7 +589,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string dataBuildVersion {
             get {
-                return textPropertyBase("BuildVersion", "", ref _buildVersion);
+                return getPropertyBase("BuildVersion", "", ref _buildVersion);
             }
             set {
                 setProperty("BuildVersion", value);

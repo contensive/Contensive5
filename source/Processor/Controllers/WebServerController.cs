@@ -97,10 +97,18 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestDomain {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) return string.Empty;
-                return (core.webServer.httpContext.Request.ServerVariables.ContainsKey("SERVER_NAME")) ? core.webServer.httpContext.Request.ServerVariables["SERVER_NAME"] : "";
+                if (local_requestDomain != null) { return local_requestDomain; }
+                //
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) {
+                    local_requestDomain = "";
+                    return local_requestDomain;
+                }
+                //
+                local_requestDomain = core.webServer.httpContext.Request.ServerVariables.ContainsKey("SERVER_NAME") ? core.webServer.httpContext.Request.ServerVariables["SERVER_NAME"] : "";
+                return local_requestDomain;
             }
         }
+        private string local_requestDomain = null;
         //
         // ====================================================================================================
         /// <summary>
@@ -108,13 +116,18 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public bool requestSecure {
             get {
-                if (_requestSecure != null) { return (bool)_requestSecure; }
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) return false;
-                _requestSecure = core.webServer.httpContext.Request.ServerVariables.ContainsKey("SERVER_PORT_SECURE") && encodeBoolean(core.webServer.httpContext.Request.ServerVariables["SERVER_PORT_SECURE"]);
-                return (bool)_requestSecure;
+                if (local_requestSecure != null) { return (bool)local_requestSecure; }
+                //
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) {
+                    local_requestSecure = false;
+                    return false;
+                }
+                var serverVariables = core.webServer.httpContext.Request.ServerVariables;
+                local_requestSecure = serverVariables.ContainsKey("SERVER_PORT_SECURE") && encodeBoolean(serverVariables["SERVER_PORT_SECURE"]);
+                return (bool)local_requestSecure;
             }
         }
-        private bool? _requestSecure = null;
+        private bool? local_requestSecure = null;
         //
         // ====================================================================================================
         /// <summary>
