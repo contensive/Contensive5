@@ -77,7 +77,8 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- load requested page/template
-                loadPage(core, core.docProperties.getInteger(rnPageId), core.doc.domain);
+                result += loadPage(core, core.docProperties.getInteger(rnPageId), core.doc.domain);
+                if (!core.doc.continueProcessing) { return result; }
                 //
                 // -- create context object to use for page and template dependencies
                 CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
@@ -434,14 +435,14 @@ namespace Contensive.Processor.Controllers {
                 // -- if endpoint is domain + route (link alias), the route determines the page, which may determine the core.doc.pageController.template. If this template is not allowed for this domain, redirect to the domain's landingcore.doc.pageController.page.
                 //
                 {
-                    DataTable ruleList = core.db.executeQuery("select templateid from ccdomaintemplaterules where (domainId=" + core.doc.domain.id + ")");
+                    DataTable ruleList = core.db.executeQuery("select t.id from ccdomaintemplaterules r left join cctemplates t on t.id=r.templateid where (r.domainId=" + core.doc.domain.id + ")");
                     if (ruleList.Rows.Count > 0) {
                         //
                         // -- current template has a domain preference, test it
                         bool allowTemplate = false;
                         int pageTemplateId = core.doc.pageController.template.id;
                         foreach (DataRow row in ruleList.Rows) {
-                            allowTemplate = pageTemplateId.Equals((int)row["templateid"]); //  .templateId.Equals(pageTemplateId);
+                            allowTemplate = pageTemplateId.Equals((int)row[0]);
                             if (allowTemplate) { break; }
                         }
                         if (!allowTemplate) {
@@ -1269,14 +1270,20 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        //
-        public static void loadPage(CoreController core, int requestedPageId, DomainModel domain) {
+        /// <summary>
+        /// Load the page meta data, return anything that should be added to the page.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="requestedPageId"></param>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        public static string loadPage(CoreController core, int requestedPageId, DomainModel domain) {
             try {
                 if (domain == null) {
                     //
                     // -- domain is not valid
                     LogController.logError(core, new GenericException("Page could not be determined because the domain was not recognized."));
-                    return;
+                    return "";
                 }
                 //
                 // -- attempt requested page
@@ -1300,8 +1307,7 @@ namespace Contensive.Processor.Controllers {
                     core.doc.redirectLink = requestedPage.link;
                     core.doc.redirectReason = "Redirecting because page includes a link override.";
                     core.doc.redirectBecausePageNotFound = false;
-                    core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
-                    return;
+                    return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                 }
                 core.doc.addRefreshQueryString(rnPageId, encodeText(requestedPage.id));
                 //
@@ -1441,20 +1447,20 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("Open Graph Title", HtmlController.encodeHtml(core.doc.pageController.page.pageTitle));
                 core.docProperties.setProperty("Open Graph Description", HtmlController.encodeHtml(core.doc.pageController.page.metaDescription));
                 core.docProperties.setProperty("Open Graph Image", (string.IsNullOrEmpty(core.doc.pageController.page.imageFilename)) ? string.Empty : core.webServer.requestProtocol + core.appConfig.domainList.First() + core.appConfig.cdnFileUrl + core.doc.pageController.page.imageFilename);
+                return "";
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                throw;
             }
         }
         //
         //====================================================================================================
         //
         public static int getPageNotFoundPageId(CoreController core) {
-            if (core.domain.pageNotFoundPageId == 0) {
-                //
-                // no domain page not found, use site default
-                return core.siteProperties.getInteger("PageNotFoundPageID", 0);
-            }
-            return core.domain.pageNotFoundPageId;
+            if (core.domain.pageNotFoundPageId > 0) { return core.domain.pageNotFoundPageId; }
+            //
+            // no domain page not found, use site default
+            return core.siteProperties.getInteger("PageNotFoundPageID", 0);
         }
         //
         //====================================================================================================

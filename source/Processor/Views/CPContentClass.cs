@@ -266,6 +266,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)]
         public override string getLayout(string layoutName) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return string.Empty; }
@@ -281,6 +282,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)]
         public override string getLayout(string layoutName, string defaultLayout) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return string.Empty; }
