@@ -208,7 +208,7 @@ namespace Contensive.Processor {
         // todo implement wysiwyg features 3
         public override string InputHtml(string htmlName, int maxLength, string htmlValue, string htmlClass) {
             string addonListJSON = cp.core.html.getWysiwygAddonList(CPHtml5BaseClass.EditorContentType.contentTypeWeb);
-            return cp.Html.div( cp.core.html.getFormInputHTML(htmlName, htmlValue, "", "", false, true, addonListJSON, "", "", false),"",htmlClass);
+            return cp.Html.div(cp.core.html.getFormInputHTML(htmlName, htmlValue, "", "", false, true, addonListJSON, "", "", false), "", htmlClass);
         }
         // todo implement wysiwyg features 4
         public override string InputHtml(string htmlName, int maxLength, string htmlValue, string htmlClass, string htmlId) {
@@ -250,7 +250,7 @@ namespace Contensive.Processor {
         public override string InputTextArea(string htmlName, int maxLength) => HtmlController.inputTextarea(cp.core, htmlName, "", 4, -1, "", false, false, "", false, maxLength);
         public override string InputTextArea(string htmlName, int maxLength, string htmlValue) => HtmlController.inputTextarea(cp.core, htmlName, htmlValue, 4, -1, "", false, false, "", false, maxLength);
         public override string InputTextArea(string htmlName, int maxLength, string htmlValue, string htmlClass) => HtmlController.inputTextarea(cp.core, htmlName, htmlValue, 4, -1, "", false, false, htmlClass, false, maxLength);
-        public override string InputTextArea(string htmlName, int maxLength, string htmlValue, string htmlClass, string htmlId) =>  HtmlController.inputTextarea(cp.core, htmlName, htmlValue, 4, -1, htmlId, false, false, htmlClass, false, maxLength);
+        public override string InputTextArea(string htmlName, int maxLength, string htmlValue, string htmlClass, string htmlId) => HtmlController.inputTextarea(cp.core, htmlName, htmlValue, 4, -1, htmlId, false, false, htmlClass, false, maxLength);
         //
         // ====================================================================================================
         //
@@ -293,7 +293,7 @@ namespace Contensive.Processor {
         public override string RadioBox(string htmlName, int htmlValue, int currentValue, string htmlClass, string htmlId) => HtmlController.inputRadio(htmlName, htmlValue.ToString(CultureInfo.InvariantCulture), currentValue.ToString(CultureInfo.InvariantCulture), htmlId, htmlClass);
         //
         public override string RadioBox(string htmlName, double htmlValue, double currentValue) => HtmlController.inputRadio(htmlName, htmlValue.ToString(CultureInfo.InvariantCulture), currentValue.ToString(CultureInfo.InvariantCulture));
-        public override string RadioBox(string htmlName, double htmlValue, double currentValue, string htmlClass) => HtmlController.inputRadio(htmlName, htmlValue.ToString(CultureInfo.InvariantCulture), currentValue.ToString(CultureInfo.InvariantCulture),"",htmlClass);
+        public override string RadioBox(string htmlName, double htmlValue, double currentValue, string htmlClass) => HtmlController.inputRadio(htmlName, htmlValue.ToString(CultureInfo.InvariantCulture), currentValue.ToString(CultureInfo.InvariantCulture), "", htmlClass);
         public override string RadioBox(string htmlName, double htmlValue, double currentValue, string htmlClass, string htmlId) => HtmlController.inputRadio(htmlName, htmlValue.ToString(CultureInfo.InvariantCulture), currentValue.ToString(CultureInfo.InvariantCulture), htmlId, htmlClass);
         //
         public override string RadioBox(string htmlName, DateTime htmlValue, DateTime currentValue) => HtmlController.inputRadio(htmlName, htmlValue.ToString(CultureInfo.InvariantCulture), currentValue.ToString(CultureInfo.InvariantCulture));
@@ -353,7 +353,7 @@ namespace Contensive.Processor {
             return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "", htmlClass);
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption, string htmlClass, string htmlId) {
-            return HtmlController.selectFromList( cp.core, htmlName, GenericController.encodeInteger( htmlValue ), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
         }
         //
         // ====================================================================================================
@@ -362,13 +362,13 @@ namespace Contensive.Processor {
             return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId);
         }
         public override string SelectUser(string htmlName, int htmlValue, int groupId, string noneCaption) {
-            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, noneCaption);
+            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, "", noneCaption);
         }
         public override string SelectUser(string htmlName, int htmlValue, int groupId, string noneCaption, string htmlClass) {
-            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, noneCaption);
+            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, "", noneCaption, "", htmlClass);
         }
         public override string SelectUser(string htmlName, int htmlValue, int groupId, string noneCaption, string htmlClass, string htmlId) {
-            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, noneCaption, htmlId);
+            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, "", noneCaption, htmlId, htmlClass);
         }
     }
 }

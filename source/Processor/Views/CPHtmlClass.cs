@@ -6,7 +6,7 @@ using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 
 namespace Contensive.Processor {
-    public class CPHtmlClass: CPHtmlBaseClass, IDisposable {
+    public class CPHtmlClass : CPHtmlBaseClass, IDisposable {
         /// <summary>
         /// dependencies
         /// </summary>
@@ -80,7 +80,7 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
-        public override string Form(string innerHtml, string htmlName, string htmlClass, string htmlId, string actionQueryString, string method ) {
+        public override string Form(string innerHtml, string htmlName, string htmlClass, string htmlId, string actionQueryString, string method) {
             if (method.ToLowerInvariant() == "get") {
                 return HtmlController.form(cp.core, innerHtml, actionQueryString, htmlName, htmlId, method);
             } else {
@@ -260,7 +260,7 @@ namespace Contensive.Processor {
         // ==========================================================================================
         //
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption, string htmlClass, string htmlId) {
-            return HtmlController.selectFromList( cp.core, htmlName, GenericController.encodeInteger( htmlValue ), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
+            return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, htmlId, htmlClass);
         }
         public override string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption, string htmlClass) {
             return HtmlController.selectFromList(cp.core, htmlName, GenericController.encodeInteger(htmlValue), optionList.Split(',').ToList(), noneCaption, "", htmlClass);
@@ -275,13 +275,13 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override string SelectUser(string htmlName, int htmlValue, int groupId, string noneCaption, string htmlClass, string htmlId) {
-            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, noneCaption, htmlId);
+            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, "", noneCaption, htmlId, htmlClass);
         }
         public override string SelectUser(string htmlName, int htmlValue, int groupId, string noneCaption, string htmlClass) {
-            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, noneCaption);
+            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, "", noneCaption, "", htmlClass);
         }
         public override string SelectUser(string htmlName, int htmlValue, int groupId, string noneCaption) {
-            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, noneCaption);
+            return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId, "", noneCaption);
         }
         public override string SelectUser(string htmlName, int htmlValue, int groupId) {
             return cp.core.html.selectUserFromGroup(htmlName, htmlValue, groupId);
@@ -418,14 +418,14 @@ namespace Contensive.Processor {
         // ====================================================================================================
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
-        public void Dispose()  {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
         //
         // ====================================================================================================
         //
-        ~CPHtmlClass()  {
+        ~CPHtmlClass() {
             Dispose(false);
         }
         #endregion

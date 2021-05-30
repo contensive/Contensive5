@@ -500,7 +500,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public string selectUserFromGroup(string MenuName, int currentValue, int GroupID, string ignore = "", string noneCaption = "", string HtmlId = "", string HtmlClass = "select") {
+        public string selectUserFromGroup(string MenuName, int currentValue, int GroupID, string ignore = "", string noneCaption = "Select", string HtmlId = "", string HtmlClass = "") {
             string result = "";
             try {
                 StringBuilderLegacyController FastString = new StringBuilderLegacyController();
