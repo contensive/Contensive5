@@ -81,7 +81,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- OnBodyStart add-ons
             foreach (AddonModel addon in core.addonCache.getOnBodyStartAddonList()) {
-                CPUtilsBaseClass.addonExecuteContext bodyStartContext = new CPUtilsBaseClass.addonExecuteContext {
+                var bodyStartContext = new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextOnBodyStart,
                     errorContextMessage = "calling onBodyStart addon [" + addon.name + "] in HtmlBodyTemplate"
                 };
@@ -100,7 +100,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- OnBodyEnd add-ons
             foreach (var addon in core.addonCache.getOnBodyEndAddonList()) {
-                CPUtilsBaseClass.addonExecuteContext bodyEndContext = new CPUtilsBaseClass.addonExecuteContext {
+                var bodyEndContext = new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextFilter,
                     errorContextMessage = "calling onBodyEnd addon [" + addon.name + "] in HtmlBodyTemplate"
                 };
@@ -120,7 +120,7 @@ namespace Contensive.Processor.Controllers {
         public string executeDependency(AddonModel addon, CPUtilsBaseClass.addonExecuteContext context) {
             //
             // -- save current context
-            CPUtilsBaseClass.addonExecuteContext contextParent = new CPUtilsBaseClass.addonExecuteContext {
+            var contextParent = new CPUtilsBaseClass.addonExecuteContext {
                 forceHtmlDocument = context.forceHtmlDocument,
                 isIncludeAddon = context.isIncludeAddon,
                 wrapperID = context.wrapperID
@@ -167,7 +167,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="executeContext"></param>
         /// <returns></returns>
         public string execute(AddonModel addon, CPUtilsBaseClass.addonExecuteContext executeContext) {
-            StringBuilder result = new StringBuilder();
+            var result = new StringBuilder();
             string resultString = "";
             int hint = 0;
             //
@@ -420,7 +420,7 @@ namespace Contensive.Processor.Controllers {
                             }
                         }
                         int PosStart = 0;
-                        HttpController kmaHTTP = new HttpController();
+                        HttpController kmaHTTP = new();
                         string RemoteAssetContent = kmaHTTP.getURL(RemoteAssetLink);
                         int Pos = GenericController.strInstr(1, RemoteAssetContent, "<body", 1);
                         if (Pos > 0) {
@@ -651,7 +651,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- log remote method payload size
                 if (addon.remoteMethod) {
-                    StackFrame frame = new StackFrame(1);
+                    StackFrame frame = new(1);
                     MethodBase method = frame.GetMethod();
                     LogController.logTrace(core, "remote [" + method.ReflectedType.Name + "." + method.Name + "], visit [" + core.session.visit.id + "], payload [" + resultString.Length + "]");
                 }
@@ -674,7 +674,7 @@ namespace Contensive.Processor.Controllers {
             string result = "";
             try {
                 string Button = core.docProperties.getText(RequestNameButton);
-                StringBuilderLegacyController Content = new StringBuilderLegacyController();
+                StringBuilderLegacyController Content = new();
                 string ButtonList = "";
                 string Name = "";
                 string Description = "";
@@ -691,7 +691,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     {
                         bool loadOK = true;
-                        XmlDocument Doc = new XmlDocument();
+                        XmlDocument Doc = new();
                         try {
                             Doc.LoadXml(FormXML);
                         } catch (Exception ex) {

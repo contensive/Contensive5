@@ -24,7 +24,7 @@
     <Product>Contensive Processor</Product>
     <Description>This package installs the library files required to create an instance of cp within an application.</Description>
     <Copyright>Copyright 2020</Copyright>
-    <NoWarn Label="FIX IT: Disable missing docs warnings">1701;1702;1570;1572;1573;1587;1591;CS1591</NoWarn>
+    <NoWarn Label="FIX IT: Disable missing docs warnings">1701;1702;1570;1572;1573;1587;1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Nuget" Condition="'$(Configuration)' == 'Release'">

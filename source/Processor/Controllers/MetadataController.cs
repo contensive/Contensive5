@@ -96,7 +96,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static int getRecordIdByUniqueName(CoreController core, string contentName, string recordName) {
             try {
-                if (String.IsNullOrWhiteSpace(recordName)) { return 0; }
+                if (string.IsNullOrWhiteSpace(recordName)) { return 0; }
                 var meta = ContentMetadataModel.createByUniqueName(core, contentName);
                 if ((meta == null) || (String.IsNullOrWhiteSpace(meta.tableName))) { return 0; }
                 using (DataTable dt = core.db.executeQuery("select top 1 id from " + meta.tableName + " where name=" + DbController.encodeSQLText(recordName) + " order by id")) {
@@ -116,13 +116,14 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// returns true if the metadata field exists
         /// </summary>
-        /// <param name="ContentID"></param>
-        /// <param name="FieldName"></param>
+        /// <param name="core"></param>
+        /// <param name="contentId"></param>
+        /// <param name="fieldName"></param>
         /// <returns></returns>
-        public static bool isMetadataField(CoreController core, int ContentID, string FieldName) {
-            var meta = ContentMetadataModel.create(core, ContentID);
+        public static bool isMetadataField(CoreController core, int contentId, string fieldName) {
+            var meta = ContentMetadataModel.create(core, contentId);
             if (meta == null) { return false; }
-            return meta.fields.ContainsKey(FieldName.Trim().ToLower(CultureInfo.InvariantCulture));
+            return meta.fields.ContainsKey(fieldName.Trim().ToLower(CultureInfo.InvariantCulture));
         }
         //
         //========================================================================
@@ -133,12 +134,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recordId"></param>
         /// <param name="userId"></param>
         //
-        public static void deleteContentRecord(CoreController core, string contentName, int recordId, int userId = SystemMemberId) {
+        public static void deleteContentRecord(CoreController core, string contentName, int recordId) {
             var meta = ContentMetadataModel.createByUniqueName(core, contentName);
             if (meta == null) { return; }
-            using (var db = new DbController(core, meta.dataSourceName)) {
-                core.db.delete(recordId, meta.tableName);
-            }
+            using var db = new DbController(core, meta.dataSourceName); 
+            core.db.delete(recordId, meta.tableName);
         }
         //
         //========================================================================

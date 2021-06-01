@@ -1028,7 +1028,7 @@ namespace Contensive.Processor {
         //[System.Runtime.InteropServices.DllImport("kernel32", EntryPoint = "GetCurrentProcessId", ExactSpelling = true, CharSet = System.Runtime.InteropServices.CharSet.Ansi, SetLastError = true)]
         //internal static extern int getCurrentProcessId();
         //
-        public static readonly DateTime dateMinValue = new DateTime(1899, 12, 30);
+        public static readonly DateTime dateMinValue = new(1899, 12, 30);
         //
         internal const string kmaEndTable = "</table >";
         internal const string tableCellEnd = "</td>";

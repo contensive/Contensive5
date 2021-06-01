@@ -70,7 +70,7 @@ namespace Contensive.Processor.Controllers {
                     // -- Special Case - must install base collection metadata first because it builds the system that the system needs to do everything else
                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installBaseCollection, install metadata first to verify system requirements");
 
-                    CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(true, core, baseCollectionXml, isNewBuild, reinstallDependencies, true, logPrefix);
+                    CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, baseCollectionXml, isNewBuild, reinstallDependencies, true, logPrefix);
                 }
                 {
                     //
@@ -505,7 +505,7 @@ namespace Contensive.Processor.Controllers {
                                             //
                                             // -- Use the upgrade code to import this part
                                             metaDataMiniCollection = "<" + CollectionFileRootNode + " name=\"" + CollectionName + "\" guid=\"" + collectionGuid + "\">" + metaDataMiniCollection + "</" + CollectionFileRootNode + ">";
-                                            CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(false, core, metaDataMiniCollection, IsNewBuild, reinstallDependencies, isBaseCollection, logPrefix);
+                                            CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, metaDataMiniCollection, IsNewBuild, reinstallDependencies, isBaseCollection, logPrefix);
                                             //
                                             // -- Process nodes to save Collection data
                                             XmlDocument NavDoc = new XmlDocument();
