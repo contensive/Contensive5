@@ -1584,33 +1584,17 @@ namespace Contensive.Processor.Controllers {
         //
         //==============================================================================
         public static bool isGuid(string Source) {
-            bool returnValue = false;
             try {
-                if ((Source.Length == 38) && (Source.left(1) == "{") && (Source.Substring(Source.Length - 1) == "}")) {
-                    //
-                    // Good to go
-                    //
-                    returnValue = true;
-                } else if ((Source.Length == 36) && (Source.IndexOf(" ", StringComparison.InvariantCultureIgnoreCase) == -1)) {
-                    //
-                    // might be valid with the brackets, add them
-                    //
-                    returnValue = true;
-                } else if (Source.Length == 32) {
-                    //
-                    // might be valid with the brackets and the dashes, add them
-                    //
-                    returnValue = true;
-                } else {
-                    //
-                    // not valid
-                    //
-                    returnValue = false;
-                }
+                if ((Source.Length == 38) && (Source.left(1) == "{") && (Source.Substring(Source.Length - 1) == "}")) { return true; }                
+                if ((Source.Length == 36) && (Source.IndexOf(" ", StringComparison.InvariantCultureIgnoreCase) == -1)) { return true; }                
+                if (Source.Length == 32) { return true; }
+                //
+                // not valid
+                //
+                return false;
             } catch (Exception ex) {
                 throw new GenericException("Exception in isGuid", ex);
             }
-            return returnValue;
         }
         // todo refactor out vb fpo
         //====================================================================================================
@@ -1801,22 +1785,6 @@ namespace Contensive.Processor.Controllers {
                 a = strReplace(a, ":", "#0058#");
             }
             return a;
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Returns true if the argument is a string in guid compatible format
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <returns></returns>
-        public static bool common_isGuid(string guid) {
-            bool returnIsGuid = false;
-            try {
-                returnIsGuid = (guid.Length == 38) && (guid.left(1) == "{") && (guid.Substring(guid.Length - 1) == "}");
-            } catch (Exception ex) {
-                throw (ex);
-            }
-            return returnIsGuid;
         }
         //
         //========================================================================

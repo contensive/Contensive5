@@ -1004,7 +1004,7 @@ namespace Contensive.Processor.Models.Domain {
                         sqlList.Add("CREATEKEY", "0");
                         sqlList.Add("DATEADDED", DbController.encodeSQLDate(core.dateTimeNowMockable));
                         sqlList.Add("CREATEDBY", DbController.encodeSQLNumber(SystemMemberId));
-                        fieldMetadata.id = db.insertGetId("ccFields");
+                        fieldMetadata.id = db.insertGetId("ccFields",0);
                         //
                         if (!blockCacheClear) {
                             core.cache.invalidateAll();

@@ -107,52 +107,47 @@ namespace Contensive.Processor.Controllers {
             // (ADONET) .NET Framework Data Provider for SQL Server > Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password = myPassword;
             //     https://www.connectionstrings.com/sql-server/
             //
-            string returnConnString = "";
             try {
                 //
                 // -- simple local cache so it does not have to be recreated each time
                 string key = "catalog:" + catalogName + "/datasource:" + dataSourceName;
                 if (connectionStringDict.ContainsKey(key)) {
-                    returnConnString = connectionStringDict[key];
-                } else {
-                    //
-                    // -- lookup dataSource
-                    string normalizedDataSourceName = DataSourceModel.normalizeDataSourceName(dataSourceName);
-                    if ((string.IsNullOrEmpty(normalizedDataSourceName)) || (normalizedDataSourceName == "default")) {
-                        //
-                        // -- default datasource
-                        returnConnString = ""
-                        + core.dbServer.getConnectionStringADONET() + "Database=" + catalogName + ";";
-                    } else {
-                        //
-                        // -- custom datasource from Db in primary datasource
-                        if (!core.dataSourceDictionary.ContainsKey(normalizedDataSourceName)) {
-                            //
-                            // -- not found, this is a hard error
-                            throw new GenericException("Datasource [" + normalizedDataSourceName + "] was not found.");
-                        } else {
-                            //
-                            // -- found in local cache
-                            var datasource = core.dataSourceDictionary[normalizedDataSourceName];
-                            returnConnString = ""
-                            + "server=tcp:" + datasource.endpoint + ";"
-                            + "User Id=" + datasource.username + ";"
-                            + "Password=" + datasource.password + ";"
-                            + "Database=" + catalogName + ";";
-                            //
-                            // -- add certificate requirement, if true, set yes, if false, no not add it
-                            if (datasource.secure) {
-                                returnConnString += "Encrypt=yes;";
-                            }
-                        }
-                    }
-                    connectionStringDict.Add(key, returnConnString);
+                    return connectionStringDict[key];
                 }
+                //
+                // -- lookup dataSource
+                string normalizedDataSourceName = DataSourceModel.normalizeDataSourceName(dataSourceName);
+                if ((string.IsNullOrEmpty(normalizedDataSourceName)) || (normalizedDataSourceName == "default")) {
+                    //
+                    // -- default datasource
+                    return core.dbServer.getConnectionStringADONET() + "Database=" + catalogName + ";";
+                }
+                //
+                // -- custom datasource from Db in primary datasource
+                if (!core.dataSourceDictionary.ContainsKey(normalizedDataSourceName)) {
+                    //
+                    // -- not found, this is a hard error
+                    throw new GenericException("Datasource [" + normalizedDataSourceName + "] was not found.");
+                }
+                //
+                // -- found in local cache
+                var datasource = core.dataSourceDictionary[normalizedDataSourceName];
+                string returnConnString = ""
+                    + "server=tcp:" + datasource.endpoint + ";"
+                    + "User Id=" + datasource.username + ";"
+                    + "Password=" + datasource.password + ";"
+                    + "Database=" + catalogName + ";";
+                //
+                // -- add certificate requirement, if true, set yes, if false, no not add it
+                if (datasource.secure) {
+                    returnConnString += "Encrypt=yes;";
+                }
+                connectionStringDict.Add(key, returnConnString);
+                return returnConnString;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnConnString;
         }
         //
         //====================================================================================================
@@ -212,14 +207,14 @@ namespace Contensive.Processor.Controllers {
                 // https://msdn.microsoft.com/en-us/library/system.data.sqlclient.sqldatareader.aspx
                 //
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connSQL = new SqlConnection(getConnectionStringADONET(core.appConfig.name))) {
+                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
                     int retryCnt = 1;
                     bool success = false;
                     do {
                         try {
                             connSQL.Open();
                             success = true;
-                        } catch (System.Data.SqlClient.SqlException exSql) {
+                        } catch (SqlException exSql) {
                             //
                             // network related error, retry once
                             string errMsg = "executeQuery SqlException, retries left [" + retryCnt.ToString() + "], ex [" + exSql.ToString() + "]";
@@ -232,7 +227,7 @@ namespace Contensive.Processor.Controllers {
                             throw;
                         }
                     } while (!success && (retryCnt >= 0));
-                    using (SqlCommand cmdSQL = new SqlCommand()) {
+                    using (SqlCommand cmdSQL = new()) {
                         cmdSQL.CommandType = CommandType.Text;
                         cmdSQL.CommandText = sql;
                         cmdSQL.Connection = connSQL;
@@ -340,31 +335,18 @@ namespace Contensive.Processor.Controllers {
         /// <param name="tableName"></param>
         /// <param name="criteria"></param>
         /// <param name="sqlList"></param>
-        public void update(string tableName, string criteria, NameValueCollection sqlList, bool asyncSave = false) {
+        public void update(string tableName, string criteria, NameValueCollection sqlList) {
             try {
-                string sql = "update " + tableName + " set " + sqlList.getNameValueList() + " where " + criteria + ";";
-                if (!asyncSave) {
-                    executeNonQuery(sql);
-                } else {
-                    core.db.executeNonQuery(sql);
-                }
+                executeNonQuery("update " + tableName + " set " + sqlList.getNameValueList() + " where " + criteria + ";");
             } catch (Exception ex) {
                 LogController.logError(core, new GenericException("Exception [" + ex.Message + "] updating table [" + tableName + "], criteria [" + criteria + "], dataSourceName [" + dataSourceName + "]", ex));
                 throw;
             }
         }
-        /// <summary>
-        /// Update a record in a table
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="criteria"></param>
-        /// <param name="sqlList"></param>
-        public void update(string tableName, string criteria, NameValueCollection sqlList)
-            => update(tableName, criteria, sqlList, false);
         //
         //========================================================================
         /// <summary>
-        /// iInserts a record into a table and returns the ID
+        /// insert a record into a table and returns the ID
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="memberId"></param>
@@ -380,13 +362,6 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
-        /// <summary>
-        /// iInserts a record into a table and returns the ID
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <returns></returns>
-        public int insertGetId(string tableName)
-            => insertGetId(tableName, 0);
         //
         //========================================================================
         /// <summary>
@@ -410,8 +385,7 @@ namespace Contensive.Processor.Controllers {
                     { "Active", encodeSQLNumber(1) }
                 };
                 //
-                insert(tableName, sqlList);
-                return openTable(tableName, "(DateAdded=" + sqlDateAdded + ")and(ccguid=" + sqlGuid + ")", "ID DESC", "", 1, 1);
+                return insert(tableName, sqlList);
             } catch (Exception ex) {
                 LogController.logError(core, new GenericException("Exception [" + ex.Message + "] inserting table [" + tableName + "], dataSourceName [" + dataSourceName + "]", ex));
                 throw;
@@ -431,7 +405,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="sqlList"></param>
-        public void insert(string tableName, NameValueCollection sqlList) {
+        public DataTable insert(string tableName, NameValueCollection sqlList) {
             try {
                 if (sqlList.Count == 0) {
                     throw new ArgumentException("Empty field list is not allowed for Db insert.");
@@ -447,8 +421,8 @@ namespace Contensive.Processor.Controllers {
                 if (nameList.Contains(",,")) {
                     throw new ArgumentException("Blank values are not allowed for Db insert.");
                 }
-                string sql = "insert into " + tableName + "(" + nameList + ")values(" + valueList + ")";
-                core.db.executeNonQuery(sql);
+                string sql = "insert into " + tableName + "(" + nameList + ") output inserted.* values(" + valueList + ")";
+                return core.db.executeQuery(sql);
             } catch (Exception ex) {
                 LogController.logError(core, new GenericException("Exception [" + ex.Message + "], inserting table [" + tableName + "], dataSourceName [" + dataSourceName + "]", ex));
                 throw;
@@ -496,17 +470,14 @@ namespace Contensive.Processor.Controllers {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public bool isSQLTableField(string tableName, string fieldName) {
-            bool returnOK = false;
             try {
-                Models.Domain.TableSchemaModel tableSchema = TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
-                if (tableSchema != null) {
-                    returnOK = (null != tableSchema.columns.Find(x => x.COLUMN_NAME.ToLowerInvariant() == fieldName.ToLowerInvariant()));
-                }
+                TableSchemaModel tableSchema = TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
+                if (tableSchema == null) { return false; }
+                return null != tableSchema.columns.Find(x => x.COLUMN_NAME.ToLowerInvariant() == fieldName.ToLowerInvariant());
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnOK;
         }
         //
         //========================================================================
@@ -516,14 +487,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="tableName"></param>
         /// <returns></returns>
         public bool isSQLTable(string tableName) {
-            bool ReturnOK = false;
             try {
-                ReturnOK = (!(Models.Domain.TableSchemaModel.getTableSchema(core, tableName, dataSourceName) == null));
+                return null != TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return ReturnOK;
         }
         //   
         //========================================================================
@@ -540,57 +509,50 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (string.IsNullOrEmpty(tableName)) {
                     //
-                    // tablename required
-                    //
+                    // -- tablename required
                     throw new ArgumentException("Tablename can not be blank.");
-                } else if (GenericController.strInstr(1, tableName, ".") != 0) {
-                    //
-                    // Remote table -- remote system controls remote tables
-                    //
-                    throw new ArgumentException("Tablename can not contain a period(.)");
-                } else {
-                    //
-                    // Local table -- create if not in schema
-                    //
-                    if (Models.Domain.TableSchemaModel.getTableSchema(core, tableName, dataSourceName) == null) {
-                        if (!allowAutoIncrement) {
-                            string SQL = "Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.Integer) + ");";
-                            executeNonQuery(SQL);
-                        } else {
-                            //
-                            LogController.logInfo(core, "creating sql table [" + tableName + "], datasource [" + dataSourceName + "]");
-                            //
-                            string SQL = "Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement) + ");";
-                            executeNonQuery(SQL);
-                        }
-                    }
-                    //
-                    // ----- Test the common fields required in all tables
-                    //
-                    createSQLTableField(tableName, "id", CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement);
-                    createSQLTableField(tableName, "name", CPContentBaseClass.FieldTypeIdEnum.Text);
-                    createSQLTableField(tableName, "dateAdded", CPContentBaseClass.FieldTypeIdEnum.Date);
-                    createSQLTableField(tableName, "createdby", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                    createSQLTableField(tableName, "modifiedBy", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                    createSQLTableField(tableName, "modifiedDate", CPContentBaseClass.FieldTypeIdEnum.Date);
-                    createSQLTableField(tableName, "active", CPContentBaseClass.FieldTypeIdEnum.Boolean);
-                    createSQLTableField(tableName, "sortOrder", CPContentBaseClass.FieldTypeIdEnum.Text);
-                    createSQLTableField(tableName, "contentControlId", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                    createSQLTableField(tableName, "ccGuid", CPContentBaseClass.FieldTypeIdEnum.Text);
-                    createSQLTableField(tableName, "createKey", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                    //
-                    // ----- setup core indexes
-                    //
-                    // 20171029 primary key dow not need index -- Call createSQLIndex( TableName, TableName & "Id", "ID")
-                    createSQLIndex(tableName, tableName + "Active", "active");
-                    createSQLIndex(tableName, tableName + "Name", "name");
-                    createSQLIndex(tableName, tableName + "SortOrder", "sortOrder");
-                    createSQLIndex(tableName, tableName + "DateAdded", "dateAdded");
-                    createSQLIndex(tableName, tableName + "ContentControlId", "contentControlId");
-                    createSQLIndex(tableName, tableName + "ModifiedDate", "modifiedDate");
-                    createSQLIndex(tableName, tableName + "CcGuid", "ccGuid");
                 }
-                Models.Domain.TableSchemaModel.tableSchemaListClear(core);
+                if (GenericController.strInstr(1, tableName, ".") != 0) {
+                    //
+                    // -- Remote table -- remote system controls remote tables
+                    throw new ArgumentException("Tablename can not contain a period(.)");
+                }
+                //
+                // -- Local table -- create if not in schema
+                if (TableSchemaModel.getTableSchema(core, tableName, dataSourceName) == null) {
+                    //
+                    LogController.logInfo(core, "creating sql table [" + tableName + "], datasource [" + dataSourceName + "]");
+                    //
+                    if (!allowAutoIncrement) {
+                        executeNonQuery("Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.Integer) + ");");
+                    } else {
+                        executeNonQuery("Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement) + ");");
+                    }
+                }
+                //
+                // ----- Test the common fields required in all tables
+                createSQLTableField(tableName, "id", CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement);
+                createSQLTableField(tableName, "name", CPContentBaseClass.FieldTypeIdEnum.Text);
+                createSQLTableField(tableName, "dateAdded", CPContentBaseClass.FieldTypeIdEnum.Date);
+                createSQLTableField(tableName, "createdby", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                createSQLTableField(tableName, "modifiedBy", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                createSQLTableField(tableName, "modifiedDate", CPContentBaseClass.FieldTypeIdEnum.Date);
+                createSQLTableField(tableName, "active", CPContentBaseClass.FieldTypeIdEnum.Boolean);
+                createSQLTableField(tableName, "sortOrder", CPContentBaseClass.FieldTypeIdEnum.Text);
+                createSQLTableField(tableName, "contentControlId", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                createSQLTableField(tableName, "ccGuid", CPContentBaseClass.FieldTypeIdEnum.Text);
+                createSQLTableField(tableName, "createKey", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                //
+                // ----- setup core indexes
+                createSQLIndex(tableName, tableName + "Active", "active");
+                createSQLIndex(tableName, tableName + "Name", "name");
+                createSQLIndex(tableName, tableName + "SortOrder", "sortOrder");
+                createSQLIndex(tableName, tableName + "DateAdded", "dateAdded");
+                createSQLIndex(tableName, tableName + "ContentControlId", "contentControlId");
+                createSQLIndex(tableName, tableName + "ModifiedDate", "modifiedDate");
+                createSQLIndex(tableName, tableName + "CcGuid", "ccGuid");
+                //
+                TableSchemaModel.tableSchemaListClear(core);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -655,49 +617,47 @@ namespace Contensive.Processor.Controllers {
         /// <param name="deleteIndexesContainingField"></param>
         public void deleteTableField(string tableName, string fieldName, bool deleteIndexesContainingField) {
             try {
-                if (isSQLTableField(tableName, fieldName)) {
-                    //
-                    // -- this is a valid field in this table/datasource
-                    if (deleteIndexesContainingField) {
+                if (!isSQLTableField(tableName, fieldName)) { return; }
+                //
+                // -- this is a valid field in this table/datasource
+                if (!deleteIndexesContainingField) { return; }
+                //
+                // -- delete the indexes containing this field
+                var tableSchema = Models.Domain.TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
+                if (tableSchema == null) { return; }
+                //
+                foreach (Models.Domain.TableSchemaModel.ColumnSchemaModel column in tableSchema.columns) {
+                    if ((column.COLUMN_NAME.ToLowerInvariant() == fieldName.ToLowerInvariant())) {
                         //
-                        // -- delete the indexes containing this field
-                        var tableSchema = Models.Domain.TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
-                        if (tableSchema != null) {
-                            foreach (Models.Domain.TableSchemaModel.ColumnSchemaModel column in tableSchema.columns) {
-                                if ((column.COLUMN_NAME.ToLowerInvariant() == fieldName.ToLowerInvariant())) {
-                                    //
-                                    LogController.logInfo(core, "deleteTableField, dropping conversion required, field [" + column.COLUMN_NAME + "], table [" + tableName + "]");
-                                    //
-                                    // these can be very long queries for big tables 
-                                    int sqlTimeout = core.cpParent.Db.SQLTimeout;
-                                    core.cpParent.Db.SQLTimeout = 1800;
-                                    //
-                                    // drop any indexes that use this field
-                                    foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
-                                        if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
-                                            //
-                                            LogController.logInfo(core, "deleteTableField, dropping index [" + index.index_name + "], because it contains this field");
-                                            //
-                                            try {
-                                                core.db.deleteIndex(tableName, index.index_name);
-                                            } catch (Exception ex) {
-                                                LogController.logWarn(core, "deleteTableField, error dropping index, [" + ex + "]");
-                                            }
-                                        }
-                                    }
-                                    //
-                                    LogController.logInfo(core, "deleteTableField, dropping field");
-                                    //
-                                    try {
-                                        executeNonQuery("ALTER TABLE " + tableName + " DROP COLUMN " + fieldName + ";");
-                                    } catch (Exception exDrop) {
-                                        LogController.logWarn(core, exDrop, "deleteTableField, error dropping field");
-                                    }
-                                    //
-                                    core.cpParent.Db.SQLTimeout = sqlTimeout;
+                        LogController.logInfo(core, "deleteTableField, dropping conversion required, field [" + column.COLUMN_NAME + "], table [" + tableName + "]");
+                        //
+                        // these can be very long queries for big tables 
+                        int sqlTimeout = core.cpParent.Db.SQLTimeout;
+                        core.cpParent.Db.SQLTimeout = 1800;
+                        //
+                        // drop any indexes that use this field
+                        foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
+                            if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
+                                //
+                                LogController.logInfo(core, "deleteTableField, dropping index [" + index.index_name + "], because it contains this field");
+                                //
+                                try {
+                                    core.db.deleteIndex(tableName, index.index_name);
+                                } catch (Exception ex) {
+                                    LogController.logWarn(core, "deleteTableField, error dropping index, [" + ex + "]");
                                 }
                             }
                         }
+                        //
+                        LogController.logInfo(core, "deleteTableField, dropping field");
+                        //
+                        try {
+                            executeNonQuery("ALTER TABLE " + tableName + " DROP COLUMN " + fieldName + ";");
+                        } catch (Exception exDrop) {
+                            LogController.logWarn(core, exDrop, "deleteTableField, error dropping field");
+                        }
+                        //
+                        core.cpParent.Db.SQLTimeout = sqlTimeout;
                     }
                 }
             } catch (Exception ex) {
@@ -716,18 +676,22 @@ namespace Contensive.Processor.Controllers {
         /// <param name="clearMetaCache"></param>
         public void createSQLIndex(string TableName, string IndexName, string FieldNames, bool clearMetaCache = false) {
             try {
-                if (!(string.IsNullOrEmpty(TableName) && string.IsNullOrEmpty(IndexName) && string.IsNullOrEmpty(FieldNames))) {
-                    TableSchemaModel ts = TableSchemaModel.getTableSchema(core, TableName, dataSourceName);
-                    if (ts != null) {
-                        if (null == ts.indexes.Find(x => x.index_name.ToLowerInvariant() == IndexName.ToLowerInvariant())) {
-                            executeNonQuery("CREATE INDEX [" + IndexName + "] ON [" + TableName + "]( " + FieldNames + " );");
-                            if (clearMetaCache) {
-                                core.cache.invalidateAll();
-                                core.clearMetaData();
-                            }
-                        }
-                    }
-                }
+                //
+                // -- argument check
+                if (string.IsNullOrEmpty(TableName) && string.IsNullOrEmpty(IndexName) && string.IsNullOrEmpty(FieldNames)) { return; }
+                //
+                // -- select current tableschema
+                TableSchemaModel ts = TableSchemaModel.getTableSchema(core, TableName, dataSourceName);
+                if (ts == null) { return; }
+                if (null != ts.indexes.Find(x => x.index_name.ToLowerInvariant() == IndexName.ToLowerInvariant())) { return; }
+                //
+                // -- index not found, create index
+                executeNonQuery("CREATE INDEX [" + IndexName + "] ON [" + TableName + "]( " + FieldNames + " );");
+                //
+                // -- clear cache
+                if (!clearMetaCache) { return; }
+                core.cache.invalidateAll();
+                core.clearMetaData();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -758,27 +722,22 @@ namespace Contensive.Processor.Controllers {
         /// <param name="fieldType"></param>
         /// <returns></returns>
         public string getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum fieldType) {
-            string returnType = "";
             try {
                 switch (fieldType) {
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean:
                     case CPContentBaseClass.FieldTypeIdEnum.Integer:
                     case CPContentBaseClass.FieldTypeIdEnum.Lookup:
                     case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
-                            returnType = "int null";
-                            break;
+                            return "int null";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Currency: {
-                            returnType = "float null";
-                            break;
+                            return "float null";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                            returnType = "datetime2(7) null";
-                            break;
+                            return "datetime2(7) null";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Float: {
-                            returnType = "float null";
-                            break;
+                            return "float null";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.FileImage:
                     case CPContentBaseClass.FieldTypeIdEnum.Link:
@@ -791,30 +750,26 @@ namespace Contensive.Processor.Controllers {
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
-                            returnType = "nvarchar(255) NULL";
-                            break;
+                            return "nvarchar(255) NULL";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.LongText:
                     case CPContentBaseClass.FieldTypeIdEnum.HTML:
                     case CPContentBaseClass.FieldTypeIdEnum.HTMLCode: {
                             //
                             // ----- Longtext, depends on datasource
-                            returnType = "nvarchar(max) Null";
-                            break;
+                            return "nvarchar(max) Null";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement: {
                             //
                             // ----- autoincrement type, depends on datasource
                             //
-                            returnType = "int identity primary key";
-                            break;
+                            return "int identity primary key";
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
                     case CPContentBaseClass.FieldTypeIdEnum.Redirect: {
                             //
                             // -- types with no db data, 200402 changed from varchar(255)
-                            returnType = "int null";
-                            break;
+                            return "int null";
                         }
                     default: {
                             //
@@ -827,7 +782,6 @@ namespace Contensive.Processor.Controllers {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnType;
         }
         //
         //========================================================================
@@ -839,25 +793,20 @@ namespace Contensive.Processor.Controllers {
         public void deleteIndex(string TableName, string IndexName) {
             try {
                 TableSchemaModel ts = TableSchemaModel.getTableSchema(core, TableName, dataSourceName);
-                if (ts != null) {
-                    if (null != ts.indexes.Find(x => x.index_name.ToLowerInvariant() == IndexName.ToLowerInvariant())) {
-                        string sql = "";
-                        switch (getDataSourceType()) {
-                            case Constants.DataSourceTypeODBCAccess: {
-                                    sql = "DROP INDEX " + IndexName + " On " + TableName + ";";
-                                    break;
-                                }
-                            default: {
-                                    sql = "DROP INDEX [" + TableName + "].[" + IndexName + "];";
-                                    break;
-                                }
+                if (ts == null) { return; }
+                if (null == ts.indexes.Find(x => x.index_name.ToLowerInvariant() == IndexName.ToLowerInvariant())) { return; }
+                switch (getDataSourceType()) {
+                    case Constants.DataSourceTypeODBCAccess: {
+                            executeNonQuery("DROP INDEX " + IndexName + " On " + TableName + ";");
+                            break;
                         }
-                        executeNonQuery(sql);
-                        core.cache.invalidateAll();
-                        core.clearMetaData();
-                    }
+                    default: {
+                            executeNonQuery("DROP INDEX [" + TableName + "].[" + IndexName + "];");
+                            break;
+                        }
                 }
-
+                core.cache.invalidateAll();
+                core.clearMetaData();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -871,7 +820,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         //
         public int getDataSourceType() {
-            return Constants.DataSourceTypeODBCSQLServer;
+            return DataSourceTypeODBCSQLServer;
         }
         //
         //========================================================================
@@ -1262,31 +1211,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="TableName"></param>
-        /// <returns></returns>
-        public string getSQLIndexList(string TableName) {
-            string returnList = "";
-            try {
-                TableSchemaModel ts = TableSchemaModel.getTableSchema(core, TableName, dataSourceName);
-                if (ts != null) {
-                    foreach (TableSchemaModel.IndexSchemaModel index in ts.indexes) {
-                        returnList += "," + index.index_name;
-                    }
-                    if (returnList.Length > 0) {
-                        returnList = returnList.Substring(2);
-                    }
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-            return returnList;
-        }
-        //
-        //========================================================================
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
         //
@@ -1310,21 +1234,15 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         //
         public DataTable getColumnSchemaData(string tableName) {
-            DataTable returnDt = new DataTable();
             try {
-                if (string.IsNullOrEmpty(tableName.Trim())) {
-                    throw new ArgumentException("tablename cannot be blank");
-                } else {
-                    string connString = getConnectionStringADONET(core.appConfig.name);
-                    using SqlConnection connSQL = new SqlConnection(connString);
-                    connSQL.Open();
-                    returnDt = connSQL.GetSchema("Columns", new[] { core.appConfig.name, null, tableName, null });
-                }
+                if (string.IsNullOrEmpty(tableName.Trim())) { throw new ArgumentException("tablename cannot be blank"); }
+                using SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name));
+                connSQL.Open();
+                return connSQL.GetSchema("Columns", new[] { core.appConfig.name, null, tableName, null });
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnDt;
         }
         //
         //========================================================================
@@ -1335,9 +1253,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public DataTable getIndexSchemaData(string tableName) {
             try {
-                if (string.IsNullOrWhiteSpace(tableName)) {
-                    throw new ArgumentException("tablename cannot be blank");
-                }
+                if (string.IsNullOrWhiteSpace(tableName.Trim())) { throw new ArgumentException("tablename cannot be blank"); }
                 return executeQuery("sys.sp_helpindex @objname = N'" + tableName + "'");
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1353,15 +1269,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getNameIdOrGuidSqlCriteria(string nameIdOrGuid) {
             try {
-                string sqlCriteria = "";
-                if (nameIdOrGuid.isNumeric()) {
-                    sqlCriteria = "id=" + encodeSQLNumber(double.Parse(nameIdOrGuid));
-                } else if (GenericController.common_isGuid(nameIdOrGuid)) {
-                    sqlCriteria = "ccGuid=" + encodeSQLText(nameIdOrGuid);
-                } else {
-                    sqlCriteria = "name=" + encodeSQLText(nameIdOrGuid);
-                }
-                return sqlCriteria;
+                if (nameIdOrGuid.isNumeric()) { return "id=" + encodeSQLNumber(double.Parse(nameIdOrGuid)); }
+                if (isGuid(nameIdOrGuid)) { return "ccGuid=" + encodeSQLText(nameIdOrGuid); }
+                return "name=" + encodeSQLText(nameIdOrGuid);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -1376,22 +1286,18 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         ///
         public string[,] convertDataTabletoArray(DataTable dt) {
-            string[,] rows = { { } };
             try {
-                int columnCnt = 0;
-                int rowCnt = 0;
-                int cPtr = 0;
-                int rPtr = 0;
                 //
                 // 20150717 check for no columns
+                string[,] rows = { { } };
                 if ((dt.Rows.Count > 0) && (dt.Columns.Count > 0)) {
-                    columnCnt = dt.Columns.Count;
-                    rowCnt = dt.Rows.Count;
+                    int columnCnt = dt.Columns.Count;
+                    int rowCnt = dt.Rows.Count;
                     // 20150717 change from rows(columnCnt,rowCnt) because other routines appear to use this count
                     rows = new string[columnCnt, rowCnt];
-                    rPtr = 0;
+                    int rPtr = 0;
                     foreach (DataRow dr in dt.Rows) {
-                        cPtr = 0;
+                        int cPtr = 0;
                         foreach (DataColumn cell in dt.Columns) {
                             rows[cPtr, rPtr] = GenericController.encodeText(dr[cell]);
                             cPtr += 1;
@@ -1399,11 +1305,11 @@ namespace Contensive.Processor.Controllers {
                         rPtr += 1;
                     }
                 }
+                return rows;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return rows;
         }
         //
         //========================================================================
@@ -1415,69 +1321,61 @@ namespace Contensive.Processor.Controllers {
         /// <param name="ChunkSize"></param>
         /// <param name="MaxChunkCount"></param>
         public void deleteTableRecordChunks(string TableName, string Criteria, int ChunkSize = 1000, int MaxChunkCount = 1000) {
-            int PreviousCount = 0;
-            int CurrentCount = 0;
-            int LoopCount = 0;
-            string SQL = null;
-            int iChunkSize = 0;
-            int iChunkCount = 0;
-            int DataSourceType;
-            //
-            DataSourceType = getDataSourceType();
+            int DataSourceType = getDataSourceType();
             if ((DataSourceType != DataSourceTypeODBCSQLServer) && (DataSourceType != DataSourceTypeODBCAccess)) {
                 //
                 // If not SQL server, just delete them
                 //
                 deleteRows(TableName, Criteria);
-            } else {
-                //
-                // ----- Clear up to date for the properties
-                //
-                iChunkSize = ChunkSize;
-                if (iChunkSize == 0) {
-                    iChunkSize = 1000;
+                return;
+            }
+            //
+            // ----- Clear up to date for the properties
+            //
+            int iChunkSize = ChunkSize;
+            if (iChunkSize == 0) {
+                iChunkSize = 1000;
+            }
+            int iChunkCount = MaxChunkCount;
+            if (iChunkCount == 0) {
+                iChunkCount = 1000;
+            }
+            //
+            // Get an initial count and allow for timeout
+            //
+            int PreviousCount = -1;
+            int LoopCount = 0;
+            int CurrentCount = 0;
+            string SQL = "select count(*) as RecordCount from " + TableName + " where " + Criteria;
+            DataTable dt = executeQuery(SQL);
+            if (dt.Rows.Count > 0) {
+                CurrentCount = GenericController.encodeInteger(dt.Rows[0][0]);
+            }
+            while ((CurrentCount != 0) && (PreviousCount != CurrentCount) && (LoopCount < iChunkCount)) {
+                if (getDataSourceType() == DataSourceTypeODBCMySQL) {
+                    SQL = "delete from " + TableName + " where id in (select ID from " + TableName + " where " + Criteria + " limit " + iChunkSize + ")";
+                } else {
+                    SQL = "delete from " + TableName + " where id in (select top " + iChunkSize + " ID from " + TableName + " where " + Criteria + ")";
                 }
-                iChunkCount = MaxChunkCount;
-                if (iChunkCount == 0) {
-                    iChunkCount = 1000;
-                }
-                //
-                // Get an initial count and allow for timeout
-                //
-                PreviousCount = -1;
-                LoopCount = 0;
-                CurrentCount = 0;
+                executeNonQuery(SQL);
+                PreviousCount = CurrentCount;
                 SQL = "select count(*) as RecordCount from " + TableName + " where " + Criteria;
-                DataTable dt = executeQuery(SQL);
+                dt = executeQuery(SQL);
                 if (dt.Rows.Count > 0) {
                     CurrentCount = GenericController.encodeInteger(dt.Rows[0][0]);
                 }
-                while ((CurrentCount != 0) && (PreviousCount != CurrentCount) && (LoopCount < iChunkCount)) {
-                    if (getDataSourceType() == DataSourceTypeODBCMySQL) {
-                        SQL = "delete from " + TableName + " where id in (select ID from " + TableName + " where " + Criteria + " limit " + iChunkSize + ")";
-                    } else {
-                        SQL = "delete from " + TableName + " where id in (select top " + iChunkSize + " ID from " + TableName + " where " + Criteria + ")";
-                    }
-                    executeNonQuery(SQL);
-                    PreviousCount = CurrentCount;
-                    SQL = "select count(*) as RecordCount from " + TableName + " where " + Criteria;
-                    dt = executeQuery(SQL);
-                    if (dt.Rows.Count > 0) {
-                        CurrentCount = GenericController.encodeInteger(dt.Rows[0][0]);
-                    }
-                    LoopCount = LoopCount + 1;
-                }
-                if ((CurrentCount != 0) && (PreviousCount == CurrentCount)) {
-                    //
-                    // records did not delete
-                    //
-                    LogController.logError(core, new GenericException("Error deleting record chunks. No records were deleted and the process was not complete."));
-                } else if (LoopCount >= iChunkCount) {
-                    //
-                    // records did not delete
-                    //
-                    LogController.logError(core, new GenericException("Error deleting record chunks. The maximum chunk count was exceeded while deleting records."));
-                }
+                LoopCount = LoopCount + 1;
+            }
+            if ((CurrentCount != 0) && (PreviousCount == CurrentCount)) {
+                //
+                // records did not delete
+                //
+                LogController.logError(core, new GenericException("Error deleting record chunks. No records were deleted and the process was not complete."));
+            } else if (LoopCount >= iChunkCount) {
+                //
+                // records did not delete
+                //
+                LogController.logError(core, new GenericException("Error deleting record chunks. The maximum chunk count was exceeded while deleting records."));
             }
         }
         //
@@ -1488,21 +1386,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceName"></param>
         /// <returns></returns>
         public static string encodeSqlTableName(string sourceName) {
-            string returnName = "";
-            const string FirstCharSafeString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            const string SafeString = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@#";
             try {
-                string src = null;
-                string TestChr = null;
-                int Ptr = 0;
+
+                const string FirstCharSafeString = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                const string SafeString = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@#";
                 //
                 // remove nonsafe URL characters
                 //
-                src = sourceName;
-                returnName = "";
+                string src = sourceName;
+                string returnName = "";
                 // first character
+                int Ptr = 0;
                 while (Ptr < src.Length) {
-                    TestChr = src.Substring(Ptr, 1);
+                    string TestChr = src.Substring(Ptr, 1);
                     Ptr += 1;
                     if (FirstCharSafeString.IndexOf(TestChr) >= 0) {
                         returnName += TestChr;
@@ -1511,17 +1407,16 @@ namespace Contensive.Processor.Controllers {
                 }
                 // non-first character
                 while (Ptr < src.Length) {
-                    TestChr = src.Substring(Ptr, 1);
+                    string TestChr = src.Substring(Ptr, 1);
                     Ptr += 1;
                     if (SafeString.IndexOf(TestChr) >= 0) {
                         returnName += TestChr;
                     }
                 }
+                return returnName;
             } catch (Exception ex) {
-                // shared method, rethrow;rror
                 throw new GenericException("Exception in encodeSqlTableName(" + sourceName + ")", ex);
             }
-            return returnName;
         }
         //
         //=================================================================================
@@ -1552,7 +1447,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="remoteQueryKey"></param>
         /// <returns></returns>
         public DataTable executeRemoteQuery(string remoteQueryKey) {
-            DataTable result = null;
+            DataTable result;
             try {
                 var remoteQuery = DbBaseModel.create<RemoteQueryModel>(core.cpParent, remoteQueryKey);
                 if (remoteQuery == null) {

@@ -234,9 +234,25 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Insert a record and return the records id
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="createdByUserId"></param>
+        /// <returns></returns>
         public override int Add(string tableName, int createdByUserId) {
             return db.insertGetId(tableName, createdByUserId);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Insert a record and return the record in a datatable
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="createdByUserId"></param>
+        /// <returns></returns>
+        public override DataTable Insert(string tableName, int createdByUserId) {
+            return db.insert(tableName, createdByUserId);
         }
         //
         //====================================================================================================
@@ -246,9 +262,15 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Update a table record. Async not implemented
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="criteria"></param>
+        /// <param name="sqlList"></param>
+        /// <param name="async">Not implemented</param>
         public override void Update(string tableName, string criteria, NameValueCollection sqlList, bool async) {
-            db.update(tableName, criteria, sqlList, async);
+            db.update(tableName, criteria, sqlList);
         }
         //
         //====================================================================================================

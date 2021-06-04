@@ -644,7 +644,15 @@ namespace Contensive.Models.Db {
             try {
                 T result = default;
                 if (isAppInvalid(cp)) { return result; }
-                return create<T>(cp, cp.Db.Add(derivedTableName(typeof(T)), userId));
+                //
+                // -- instead of add and create, true loading the datatable from the insert
+                DataTable dt = cp.Db.Insert(derivedTableName(typeof(T)), userId);
+                if (dt != null) {
+                    List<string> callersCacheNameList = new();
+                    if (dt.Rows.Count > 0) { result = loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList); }
+                }
+                return result;
+                //return create<T>(cp, cp.Db.Add(derivedTableName(typeof(T)), userId));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
@@ -682,6 +690,8 @@ namespace Contensive.Models.Db {
                         if (dt.Rows.Count > 0) { result = loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList); }
                     }
                 }
+                // todo
+                // -- !!!!! It appears these assignments are done in loadRecord
                 //
                 // -- store cp in all extended fields that need it (file fields so content read can happen on demand instead of at load)
                 if (result != null) {
@@ -981,7 +991,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="userId"></param>
-        /// <param name="asyncSave"></param>
+        /// <param name="asyncSave">Not implemented</param>
         /// <returns></returns>
         public int save(CPBaseClass cp, int userId, bool asyncSave) {
             try {
@@ -1123,7 +1133,7 @@ namespace Contensive.Models.Db {
                     }
                 }
                 if (sqlPairs.Count > 0) {
-                    cp.Db.Update(tableName, "(id=" + id + ")", sqlPairs, asyncSave);
+                    cp.Db.Update(tableName, "(id=" + id + ")", sqlPairs);
                 }
                 string cacheKey = cp.Cache.CreateRecordKey(id, tableName, datasourceName);
                 if (!allowRecordCaching(this.GetType())) {
@@ -1409,7 +1419,7 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static string getSelectSql<T>(CPBaseClass cp, List<string> fieldList, string sqlCriteria, string sqlOrderBy) where T : DbBaseModel {
             try {
-                if ((fieldList == null) || (fieldList.Count==0)) {
+                if ((fieldList == null) || (fieldList.Count == 0)) {
                     fieldList = new List<string>();
                     T instance = (T)Activator.CreateInstance(typeof(T));
                     foreach (PropertyInfo modelProperty in instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {

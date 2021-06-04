@@ -54,6 +54,15 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Add a record to a table and return the record in a datatable
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="createdByUserId"></param>
+        /// <returns></returns>
+        public abstract DataTable Insert(string tableName, int createdByUserId);
+        //
+        //====================================================================================================
+        /// <summary>
         /// update records in a table. Criteria is an sql compatible where-clause, the sqlList is a list of fields and values to update
         /// </summary>
         /// <param name="tableName"></param>

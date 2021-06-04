@@ -305,7 +305,7 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override bool isGuid(string guid) {
-            return GenericController.common_isGuid(guid);
+            return GenericController.isGuid(guid);
         }
         //
         //====================================================================================================

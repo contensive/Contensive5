@@ -86,7 +86,7 @@ namespace Contensive.Processor.Controllers {
                 // windows holds one instance of this class. This check needs a lock to catch the non-threadsafe check-then-set here
                 if (!ProcessTimerInProcess) {
                     ProcessTimerInProcess = true;
-                    using (CPClass cp = new CPClass()) {
+                    using (CPClass cp = new()) {
                         if (cp.core.serverConfig.allowTaskSchedulerService) {
                             scheduleTasks(cp.core);
                         }
@@ -118,58 +118,57 @@ namespace Contensive.Processor.Controllers {
                 foreach (var appKvp in core.serverConfig.apps) {
                     if (appKvp.Value.enabled && appKvp.Value.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
                         LogController.logTrace(core, "scheduleTasks, app=[" + appKvp.Value.name + "]");
-                        using (CPClass cpApp = new CPClass(appKvp.Value.name)) {
-                            //
-                            // Execute Processes
-                            try {
-                                string sqlAddonsCriteria = ""
-                                    + "(active<>0)"
-                                    + " and(name<>'')"
-                                    + " and("
-                                    + "  ((ProcessRunOnce is not null)and(ProcessRunOnce<>0))"
-                                    + "  or((ProcessInterval is not null)and(ProcessInterval<>0)and(ProcessNextRun is null))"
-                                    + "  or(ProcessNextRun<" + DbController.encodeSQLDate(core.dateTimeNowMockable) + ")"
-                                    + " )";
-                                var addonList = DbBaseModel.createList<AddonModel>(cpApp, sqlAddonsCriteria);
-                                foreach (var addon in addonList) {
+                        using CPClass cpApp = new(appKvp.Value.name);
+                        //
+                        // -- execute processes
+                        try {
+                            string sqlAddonsCriteria = ""
+                                + "(active<>0)"
+                                + " and(name<>'')"
+                                + " and("
+                                + "  ((ProcessRunOnce is not null)and(ProcessRunOnce<>0))"
+                                + "  or((ProcessInterval is not null)and(ProcessInterval<>0)and(ProcessNextRun is null))"
+                                + "  or(ProcessNextRun<" + DbController.encodeSQLDate(core.dateTimeNowMockable) + ")"
+                                + " )";
+                            var addonList = DbBaseModel.createList<AddonModel>(cpApp, sqlAddonsCriteria);
+                            foreach (var addon in addonList) {
+                                //
+                                int addonProcessInterval = encodeInteger(addon.processInterval);
+                                if (addon.processRunOnce) {
                                     //
-                                    int addonProcessInterval = encodeInteger(addon.processInterval);
-                                    if (addon.processRunOnce) {
-                                        //
-                                        // -- run once checked 
-                                        addon.processNextRun = core.dateTimeNowMockable;
-                                        addon.processRunOnce = false;
-                                    } else if ((addon.processNextRun == null) && (addonProcessInterval > 0)) {
-                                        //
-                                        // -- processInterval set but everything else blank )
-                                        addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
-                                    }
-                                    if (addon.processNextRun <= core.dateTimeNowMockable) {
-                                        //
-                                        LogController.logInfo(cpApp.core, "scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
-                                        //
-                                        // -- add task to queue for runner
-                                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
-                                            addonId = addon.id,
-                                            addonName = addon.name,
-                                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, addon.argumentList)
-                                        }, true);
-                                        if (addonProcessInterval > 0) {
-                                            //
-                                            // -- interval set, update the next run
-                                            addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
-                                        } else {
-                                            //
-                                            // -- no interval, no next run
-                                            addon.processNextRun = null;
-                                        }
-                                    }
-                                    addon.save(cpApp);
+                                    // -- run once checked 
+                                    addon.processNextRun = core.dateTimeNowMockable;
+                                    addon.processRunOnce = false;
+                                } else if ((addon.processNextRun == null) && (addonProcessInterval > 0)) {
+                                    //
+                                    // -- processInterval set but everything else blank )
+                                    addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
                                 }
-                            } catch (Exception ex) {
-                                LogController.logTrace(cpApp.core, "scheduleTasks, exception [" + ex + "]");
-                                LogController.logError(cpApp.core, ex);
+                                if (addon.processNextRun <= core.dateTimeNowMockable) {
+                                    //
+                                    LogController.logInfo(cpApp.core, "scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
+                                    //
+                                    // -- add task to queue for runner
+                                    addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                                        addonId = addon.id,
+                                        addonName = addon.name,
+                                        args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, addon.argumentList)
+                                    }, true);
+                                    if (addonProcessInterval > 0) {
+                                        //
+                                        // -- interval set, update the next run
+                                        addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
+                                    } else {
+                                        //
+                                        // -- no interval, no next run
+                                        addon.processNextRun = null;
+                                    }
+                                }
+                                addon.save(cpApp);
                             }
+                        } catch (Exception ex) {
+                            LogController.logTrace(cpApp.core, "scheduleTasks, exception [" + ex + "]");
+                            LogController.logError(cpApp.core, ex);
                         }
                     }
                 }
