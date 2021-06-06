@@ -362,18 +362,17 @@ namespace Contensive.Processor {
                     }
                 }
                 //
-                string sqlGuid = DbController.encodeSQLText(getGUID());
-                string sqlDateAdded = DbController.encodeSQLDate(core.dateTimeNowMockable);
-                sqlList.Add("ccguid", sqlGuid);
-                sqlList.Add("DATEADDED", sqlDateAdded);
-                sqlList.Add("CONTENTCONTROLID", DbController.encodeSQLNumber(meta.id));
-                sqlList.Add("CREATEDBY", DbController.encodeSQLNumber(userId));
                 using (var db = new DbController(core, meta.dataSourceName)) {
-                    db.insert(meta.tableName, sqlList);
+                    init();
+                    dt = db.insert(meta.tableName, sqlList, userId);
+                    this.readable = true;
+                    this.createdWithMetaData = true;
+                    this.contentName = contentName;
+                    this.sqlSource = "select * from " + meta.tableName + " where id=" + ((int)dt.Rows[0]["id"]).ToString() ;
+                    this.contentMeta = meta;
+                    initAfterOpen();
                 }
-                //
-                // ----- Get the record back so we can use the ID
-                return open(contentName, "(ccguid=" + sqlGuid + ")And(DateAdded=" + sqlDateAdded + ")", "ID DESC", false, userId);
+                return ok();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

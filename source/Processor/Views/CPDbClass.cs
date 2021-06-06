@@ -256,6 +256,18 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// insert a record with values provided.
+        /// </summary>
+        /// <param name="tableName"></param>
+        /// <param name="sqlList"></param>
+        /// <param name="createdByUserId"></param>
+        /// <returns></returns>
+        public override DataTable Insert(string tableName, NameValueCollection sqlList, int createdByUserId) {
+            return db.insert(tableName, sqlList, createdByUserId);
+        }
+        //
+        //====================================================================================================
         //
         public override void Update(string tableName, string criteria, NameValueCollection sqlList) {
             db.update(tableName, criteria, sqlList);

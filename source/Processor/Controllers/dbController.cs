@@ -349,11 +349,11 @@ namespace Contensive.Processor.Controllers {
         /// insert a record into a table and returns the ID
         /// </summary>
         /// <param name="tableName"></param>
-        /// <param name="memberId"></param>
+        /// <param name="createdByUserId"></param>
         /// <returns></returns>
-        public int insertGetId(string tableName, int memberId) {
+        public int insertGetId(string tableName, int createdByUserId) {
             try {
-                using (DataTable dt = insert(tableName, memberId)) {
+                using (DataTable dt = insert(tableName, createdByUserId)) {
                     if (dt.Rows.Count > 0) { return encodeInteger(dt.Rows[0]["id"]); }
                 }
                 return 0;
@@ -365,39 +365,37 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
+        /// Use to verify base fields (name, guid, etc) are in a namevalue set to be used for insert
+        /// </summary>
+        /// <param name="sqlList"></param>
+        /// <returns></returns>
+        public NameValueCollection verifyBaseSqlNameValueFields(NameValueCollection sqlList, int userId) {
+            if (sqlList["ccguid"] == null) { sqlList.Add("ccguid", encodeSQLText(GenericController.getGUID())); };
+            if (sqlList["dateadded"] == null) { sqlList.Add("dateadded", encodeSQLDate(core.dateTimeNowMockable)); };
+            if (sqlList["modifieddate"] == null) { sqlList.Add("modifieddate", encodeSQLDate(core.dateTimeNowMockable)); };
+            if (sqlList["createdby"] == null) { sqlList.Add("createdby", encodeSQLNumber(userId)); };
+            if (sqlList["modifiedby"] == null) { sqlList.Add("modifiedby", encodeSQLNumber(userId)); };
+            if (sqlList["contentcontrolid"] == null) { sqlList.Add("contentcontrolid", encodeSQLNumber(0)); };
+            if (sqlList["name"] == null) { sqlList.Add("name", encodeSQLText("")); };
+            if (sqlList["active"] == null) { sqlList.Add("active", encodeSQLBoolean(true)); };
+            return sqlList;
+        }
+        //
+        //========================================================================
+        /// <summary>
         /// Insert a record in a table, select it and return a datatable. You must dispose the datatable.
         /// </summary>
         /// <param name="tableName"></param>
-        /// <param name="memberId"></param>
+        /// <param name="createdByUserId"></param>
         /// <returns></returns>
-        public DataTable insert(string tableName, int memberId) {
+        public DataTable insert(string tableName, int createdByUserId) {
             try {
-                string sqlGuid = encodeSQLText(GenericController.getGUID());
-                string sqlDateAdded = encodeSQLDate(core.dateTimeNowMockable);
-                NameValueCollection sqlList = new NameValueCollection {
-                    { "ccGuid", sqlGuid },
-                    { "dateadded", sqlDateAdded },
-                    { "createdby", encodeSQLNumber(memberId) },
-                    { "ModifiedDate", sqlDateAdded },
-                    { "ModifiedBy", encodeSQLNumber(memberId) },
-                    { "contentControlId", encodeSQLNumber(0) },
-                    { "Name", encodeSQLText("") },
-                    { "Active", encodeSQLNumber(1) }
-                };
-                //
-                return insert(tableName, sqlList);
+                return insert(tableName, new NameValueCollection(), createdByUserId);
             } catch (Exception ex) {
                 LogController.logError(core, new GenericException("Exception [" + ex.Message + "] inserting table [" + tableName + "], dataSourceName [" + dataSourceName + "]", ex));
                 throw;
             }
         }
-        /// <summary>
-        /// Insert a record in a table, select it and return a datatable. You must dispose the datatable.
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <returns></returns>
-        public DataTable insert(string tableName)
-            => insert(tableName, 0);
         //
         //========================================================================
         /// <summary>
@@ -405,19 +403,20 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="sqlList"></param>
-        public DataTable insert(string tableName, NameValueCollection sqlList) {
+        public DataTable insert(string tableName, NameValueCollection sqlList, int createdByUserId) {
             try {
-                if (sqlList.Count == 0) {
+                NameValueCollection sqlListWorking = verifyBaseSqlNameValueFields(sqlList, createdByUserId);
+                if (sqlListWorking.Count == 0) {
                     throw new ArgumentException("Empty field list is not allowed for Db insert.");
                 }
                 if (string.IsNullOrEmpty(tableName)) {
                     throw new ArgumentException("Blank table name is not allowed for Db insert.");
                 }
-                string nameList = sqlList.getNameList();
+                string nameList = sqlListWorking.getNameList();
                 if (nameList.Contains(",,")) {
                     throw new ArgumentException("Blank field names are not allowed for Db insert.");
                 }
-                string valueList = sqlList.getValueList();
+                string valueList = sqlListWorking.getValueList();
                 if (nameList.Contains(",,")) {
                     throw new ArgumentException("Blank values are not allowed for Db insert.");
                 }
@@ -442,18 +441,18 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public DataTable openTable(string tableName, string criteria, string sortFieldList, string selectFieldList, int pageSize, int pageNumber) {
             try {
-                string sql = "SELECT";
+                string sql = "select";
                 if (string.IsNullOrEmpty(selectFieldList)) {
                     sql += " *";
                 } else {
                     sql += " " + selectFieldList;
                 }
-                sql += " FROM " + tableName;
+                sql += " from " + tableName;
                 if (!string.IsNullOrEmpty(criteria)) {
-                    sql += " WHERE (" + criteria + ")";
+                    sql += " where (" + criteria + ")";
                 }
                 if (!string.IsNullOrEmpty(sortFieldList)) {
-                    sql += " ORDER BY " + sortFieldList;
+                    sql += " order by " + sortFieldList;
                 }
                 return executeQuery(sql, getStartRecord(pageSize, pageNumber), pageSize);
             } catch (Exception ex) {

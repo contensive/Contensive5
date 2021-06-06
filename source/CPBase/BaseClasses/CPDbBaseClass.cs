@@ -63,11 +63,21 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Add a record to a table and return the record in a datatable
+        /// </summary>
+        /// <param name="tableName">The table to be inserted.</param>
+        /// <param name="sqlList">NameValue pairs to be inserted. Name is the field name. Value is saved to the field, formatted for an sql statement according to the correct type. ex sqlList.Add("name", cp.db.EncodeSqlText("Bob Smith"))</param>
+        /// <param name="createdByUserId">The user id to be set in the created-by and modified-by fields</param>
+        /// <returns></returns>
+        public abstract DataTable Insert(string tableName, NameValueCollection sqlList, int createdByUserId);
+        //
+        //====================================================================================================
+        /// <summary>
         /// update records in a table. Criteria is an sql compatible where-clause, the sqlList is a list of fields and values to update
         /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="criteria"></param>
-        /// <param name="sqlList"></param>
+        /// <param name="tableName">The table to be updated.</param>
+        /// <param name="criteria">Sql compatible where clause to select the record(s) that will be updated.</param>
+        /// <param name="sqlList">NameValue pairs. Name is the field name. Value is saved to the field, formatted for an sql statement according to the correct type. ex sqlList.Add("name", cp.db.EncodeSqlText("Bob Smith"))</param>
         public abstract void Update(string tableName, string criteria, NameValueCollection sqlList);
         //
         //====================================================================================================

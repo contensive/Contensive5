@@ -35,7 +35,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 {
                     string DataBuildVersion = core.siteProperties.dataBuildVersion;
-                    if (versionIsOlder(DataBuildVersion,"4.1.636")) {
+                    if (versionIsOlder(DataBuildVersion, "4.1.636")) {
                         // this is a test
                     }
                     //
@@ -140,7 +140,7 @@ namespace Contensive.Processor.Controllers {
                         DataBuildVersion = CoreController.codeVersion();
                         core.siteProperties.dataBuildVersion = CoreController.codeVersion();
                     }
-                    if(versionIsOlder(DataBuildVersion, CoreController.codeVersion())) {
+                    if (versionIsOlder(DataBuildVersion, CoreController.codeVersion())) {
                         //
                         // -- data updates
                         LogController.logInfo(core, logPrefix + ", run database conversions, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
@@ -939,25 +939,22 @@ namespace Contensive.Processor.Controllers {
         private static void verifySortMethod(CoreController core, string Name, string OrderByCriteria) {
             try {
                 //
-                NameValueCollection sqlList = new NameValueCollection {
-                    { "name", DbController.encodeSQLText(Name) },
-                    { "CreatedBy", "0" },
-                    { "OrderByClause", DbController.encodeSQLText(OrderByCriteria) },
-                    { "active", DbController.SQLTrue },
-                    { "contentControlId", ContentMetadataModel.getContentId(core, "Sort Methods").ToString() }
+                NameValueCollection sqlList = new() {
+                    { "orderbyclause", DbController.encodeSQLText(OrderByCriteria) }
                 };
                 //
-                DataTable dt = core.db.openTable("ccSortMethods", "Name=" + DbController.encodeSQLText(Name), "ID", "ID", 1, 1);
-                if (dt.Rows.Count > 0) {
-                    //
-                    // update sort method
-                    int recordId = GenericController.encodeInteger(dt.Rows[0]["ID"]);
-                    core.db.update("ccSortMethods", "ID=" + recordId.ToString(), sqlList);
-                    DbBaseModel.invalidateCacheOfRecord<SortMethodModel>(core.cpParent, recordId);
-                } else {
-                    //
-                    // Create the new sort method
-                    core.db.insert("ccSortMethods", sqlList);
+                using (DataTable dt = core.db.openTable("ccSortMethods", "name=" + DbController.encodeSQLText(Name), "id", "id", 1, 1)) {
+                    if (dt.Rows.Count > 0) {
+                        //
+                        // update sort method
+                        int recordId = GenericController.encodeInteger(dt.Rows[0]["id"]);
+                        core.db.update("ccsortmethods", "id=" + recordId.ToString(), sqlList);
+                        DbBaseModel.invalidateCacheOfRecord<SortMethodModel>(core.cpParent, recordId);
+                    } else {
+                        //
+                        // Create the new sort method
+                        core.db.insert("ccSortMethods", sqlList, 0);
+                    }
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);

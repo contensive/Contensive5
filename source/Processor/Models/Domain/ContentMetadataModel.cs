@@ -999,6 +999,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                     //
                     if (fieldMetadata.id == 0) {
+                        
                         sqlList.Add("NAME", DbController.encodeSQLText(fieldMetadata.nameLc));
                         sqlList.Add("CONTENTID", DbController.encodeSQLNumber(id));
                         sqlList.Add("CREATEKEY", "0");
@@ -1347,7 +1348,7 @@ namespace Contensive.Processor.Models.Domain {
                             var fieldList = new NameValueCollection {
                                 { "name", DbController.encodeSQLText("test-record") }
                             };
-                            core.db.insert(tableName, fieldList);
+                            core.db.insert(tableName, fieldList, 0);
                         }
                     }
                     using (DataTable dt = targetDb.executeQuery("select top 1 * from " + tableName)) {
