@@ -109,120 +109,69 @@ Public Class ConfigurationClass
             }
             context.Request.UrlReferrer = iisContext.Request.UrlReferrer
             '
-            If True Then
-                '
-                ' -- server variables
-                Dim nameValues As NameValueCollection = iisContext.Request.ServerVariables
-                For i As Integer = 0 To nameValues.Count - 1
-                    Dim key As String = nameValues.GetKey(i)
-                    If String.IsNullOrWhiteSpace(key) Then
-                        Continue For
-                    End If
-                    If context.Request.ServerVariables.ContainsKey(key) Then
-                        context.Request.ServerVariables.Remove(key)
-                    End If
-                    context.Request.ServerVariables.Add(key, nameValues.Get(i))
-                Next
-            End If
+            ' -- server variables
+            storeNameValues(iisContext.Request.ServerVariables, context.Request.ServerVariables)
             '
-            If True Then
-                '
-                ' -- request headers
-                Dim nameValues As NameValueCollection = iisContext.Request.Headers
-                For i As Integer = 0 To nameValues.Count - 1
-                    Dim key As String = nameValues.GetKey(i)
-                    If String.IsNullOrWhiteSpace(key) Then
-                        Continue For
-                    End If
-                    If context.Request.Headers.ContainsKey(key) Then
-                        context.Request.Headers.Remove(key)
-                    End If
-                    context.Request.Headers.Add(key, nameValues.Get(i))
-                Next
-            End If
+            ' -- request headers
+            storeNameValues(iisContext.Request.Headers, context.Request.Headers)
             '
-            If True Then
-                '
-                ' -- request querystring
-                Dim nameValues As NameValueCollection = iisContext.Request.QueryString
-                For i As Integer = 0 To nameValues.Count - 1
-                    Dim key As String = nameValues.GetKey(i)
-                    If String.IsNullOrWhiteSpace(key) Then
-                        Continue For
-                    End If
-                    If context.Request.Headers.ContainsKey(key) Then
-                        context.Request.Headers.Remove(key)
-                    End If
-                    context.Request.QueryString.Add(key, nameValues.Get(i))
-                Next
-            End If
+            ' -- request querystring
+            storeNameValues(iisContext.Request.QueryString, context.Request.QueryString)
             '
-            If True Then
-                '
-                ' -- request form
-                Dim nameValues As NameValueCollection = iisContext.Request.Form
-                For i As Integer = 0 To nameValues.Count - 1
-                    Dim key As String = nameValues.GetKey(i)
-                    If String.IsNullOrWhiteSpace(key) Then
-                        Continue For
-                    End If
-                    If context.Request.Headers.ContainsKey(key) Then
-                        context.Request.Headers.Remove(key)
-                    End If
-                    context.Request.Form.Add(key, nameValues.Get(i))
-                Next
-            End If
-
-            If True Then
-                '
-                ' -- transfer upload files
-                Dim filePtr As Integer = 0
-                Dim instanceId As String = GenericController.getGUIDNaked()
-                For Each key As String In iisContext.Request.Files.AllKeys
-                    If String.IsNullOrWhiteSpace(key) Then
-                        Continue For
-                    End If
-                    Dim file As HttpPostedFile = iisContext.Request.Files(key)
-                    If file IsNot Nothing Then
-                        Dim normalizedFilename As String = FileController.normalizeDosFilename(file.FileName)
-                        If (file.ContentLength > 0) AndAlso (Not String.IsNullOrWhiteSpace(normalizedFilename)) Then
-                            Dim windowsTempFile As String = DefaultSite.WindowsTempFileController.createTmpFile()
-                            file.SaveAs(windowsTempFile)
-                            context.Request.Files.Add(New DocPropertyModel With {
-                                .name = key,
-                                .value = normalizedFilename,
-                                .nameValue = System.Uri.EscapeDataString(key) & "=" + System.Uri.EscapeDataString(normalizedFilename),
-                                .windowsTempfilename = windowsTempFile,
-                                .propertyType = DocPropertyModel.DocPropertyTypesEnum.file
-                            })
-                            filePtr += 1
-                        End If
-                    End If
-                Next
-            End If
-
-            If True Then
-                '
-                ' -- transfer cookies
-                LogController.logShortLine("ConfigurationClass.buildContext transfer cookies", BaseClasses.CPLogBaseClass.LogLevel.Trace)
-                For Each cookieKey As String In iisContext.Request.Cookies.Keys
-                    LogController.logShortLine("ConfigurationClass.buildContext transfer cookies, cookieKey [" & cookieKey & "], cookie value [" & iisContext.Request.Cookies(cookieKey).Value & "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
-                    If String.IsNullOrWhiteSpace(cookieKey) Then Continue For
-                    If (context.Request.Cookies.ContainsKey(cookieKey)) Then
-                        context.Request.Cookies.Remove(cookieKey)
-                    End If
-                    context.Request.Cookies.Add(cookieKey, New HttpContextRequestCookie() With {
-                        .Name = cookieKey,
-                        .Value = iisContext.Request.Cookies(cookieKey).Value
-                    })
-                Next
-                LogController.logShortLine("ConfigurationClass.buildContext exit, context.Request.Cookies.Count [" & context.Request.Cookies.Count & "]", BaseClasses.CPLogBaseClass.LogLevel.Trace)
-            End If
+            ' -- request form
+            storeNameValues(iisContext.Request.Form, context.Request.Form)
+            '
+            ' -- transfer upload files
+            For Each key As String In iisContext.Request.Files.AllKeys
+                If String.IsNullOrWhiteSpace(key) Then Continue For
+                Dim file As HttpPostedFile = iisContext.Request.Files(key)
+                If file Is Nothing Then Continue For
+                If file.ContentLength = 0 Then Continue For
+                Dim normalizedFilename As String = FileController.normalizeDosFilename(file.FileName)
+                If String.IsNullOrWhiteSpace(normalizedFilename) Then Continue For
+                Dim windowsTempFile As String = DefaultSite.WindowsTempFileController.createTmpFile()
+                file.SaveAs(windowsTempFile)
+                context.Request.Files.Add(New DocPropertyModel With {
+                    .name = key,
+                    .value = normalizedFilename,
+                    .nameValue = Uri.EscapeDataString(key) & "=" + Uri.EscapeDataString(normalizedFilename),
+                    .windowsTempfilename = windowsTempFile,
+                    .propertyType = DocPropertyModel.DocPropertyTypesEnum.file
+                })
+            Next
+            '
+            ' -- transfer cookies
+            For Each cookieKey As String In iisContext.Request.Cookies.Keys
+                If String.IsNullOrWhiteSpace(cookieKey) Then Continue For
+                If (context.Request.Cookies.ContainsKey(cookieKey)) Then context.Request.Cookies.Remove(cookieKey)
+                context.Request.Cookies.Add(cookieKey, New HttpContextRequestCookie() With {
+                    .Name = cookieKey,
+                    .Value = iisContext.Request.Cookies(cookieKey).Value
+                })
+            Next
+            '
             Return context
         Catch ex As Exception
             LogController.logShortLine("ConfigurationClass.buildContext exception, [" + ex.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal)
             Throw
         End Try
     End Function
+    '
+    ' ====================================================================================================
+    ''' <summary>
+    ''' Store NameValueCollection to a dictionary of string,string
+    ''' </summary>
+    ''' <param name="nameValues"></param>
+    ''' <param name="store"></param>
+    Public Shared Sub storeNameValues(nameValues As NameValueCollection, store As Dictionary(Of String, String))
+        For i As Integer = 0 To nameValues.Count - 1
+            Dim value As String = nameValues.Get(i)
+            If String.IsNullOrWhiteSpace(value) Then Continue For
+            Dim key As String = nameValues.GetKey(i)
+            If String.IsNullOrWhiteSpace(key) Then Continue For
+            If store.ContainsKey(key) Then store.Remove(key)
+            store.Add(key, value)
+        Next
+    End Sub
 End Class
 

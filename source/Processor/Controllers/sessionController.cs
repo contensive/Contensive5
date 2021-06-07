@@ -159,9 +159,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static SessionController create(CoreController core, bool trackVisits) {
             //
-            Logger.Trace("SessionController.create, enter");
-            Logger.Trace(LogController.processLogMessage(core, "SessionController.create, enter", false));
-            LogController.logTrace(core, "SessionController.create, enter");
+            Logger.Trace("SessionController.create, enter-1");
+            Logger.Trace(LogController.processLogMessage(core, "SessionController.create, enter-2", false));
+            LogController.logTrace(core, "SessionController.create, enter-3");
             //
             SessionController resultSessionContext = null;
             try {
@@ -450,18 +450,13 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                // -- Write Visit Cookie
-                //
+                // -- Write Visit Cookie and exit
                 setVisitCookie(core, resultSessionContext);
+                return resultSessionContext;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
-            } finally {
-                //
-                LogController.logTrace(core, "finally");
-                //
             }
-            return resultSessionContext;
         }
         /// <summary>
         /// The prefix for visit and visitor cookes
