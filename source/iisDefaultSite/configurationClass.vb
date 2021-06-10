@@ -110,16 +110,16 @@ Public Class ConfigurationClass
             context.Request.UrlReferrer = iisContext.Request.UrlReferrer
             '
             ' -- server variables
-            storeNameValues(iisContext.Request.ServerVariables, context.Request.ServerVariables)
+            storeNameValues(iisContext.Request.ServerVariables, context.Request.ServerVariables, True)
             '
             ' -- request headers
-            storeNameValues(iisContext.Request.Headers, context.Request.Headers)
+            storeNameValues(iisContext.Request.Headers, context.Request.Headers, True)
             '
             ' -- request querystring
-            storeNameValues(iisContext.Request.QueryString, context.Request.QueryString)
+            storeNameValues(iisContext.Request.QueryString, context.Request.QueryString, False)
             '
             ' -- request form
-            storeNameValues(iisContext.Request.Form, context.Request.Form)
+            storeNameValues(iisContext.Request.Form, context.Request.Form, False)
             '
             ' -- transfer upload files
             For Each key As String In iisContext.Request.Files.AllKeys
@@ -163,10 +163,10 @@ Public Class ConfigurationClass
     ''' </summary>
     ''' <param name="nameValues"></param>
     ''' <param name="store"></param>
-    Public Shared Sub storeNameValues(nameValues As NameValueCollection, store As Dictionary(Of String, String))
+    Public Shared Sub storeNameValues(nameValues As NameValueCollection, store As Dictionary(Of String, String), skipEmptyValues As Boolean)
         For i As Integer = 0 To nameValues.Count - 1
             Dim value As String = nameValues.Get(i)
-            If String.IsNullOrWhiteSpace(value) Then Continue For
+            If skipEmptyValues And String.IsNullOrWhiteSpace(value) Then Continue For
             Dim key As String = nameValues.GetKey(i)
             If String.IsNullOrWhiteSpace(key) Then Continue For
             If store.ContainsKey(key) Then store.Remove(key)

@@ -132,7 +132,7 @@ namespace Contensive.Processor.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;div class=&quot;my-4 container-fluid&quot;&gt;
-        ///	&lt;h4&gt;Forget Your Password&lt;/h4&gt;
+        ///	&lt;h4&gt;Recover Your Password&lt;/h4&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputEmail&quot; class=&quot;sr-only pt-2&quot;&gt;Email address&lt;/label&gt;
         ///		&lt;input type=&quot;email&quot; name=&quot;email&quot; id=&quot;inputEmail&quot; class=&quot;form-control pt-2&quot; placeholder=&quot;Email&quot; required autofocus&gt;
