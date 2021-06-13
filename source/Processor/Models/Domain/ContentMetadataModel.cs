@@ -238,12 +238,10 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <returns></returns>
         public List<int> childIdList(CoreController core) {
-            if (_childIdList == null) {
-                _childIdList = new List<int>();
-                using (DataTable dt = core.db.executeQuery("select id from cccontent where parentid=" + id)) {
-                    foreach (DataRow row in dt.Rows) { _childIdList.Add(encodeInteger(row[0])); }
-                }
-            }
+            if (_childIdList != null) { return _childIdList; }
+            _childIdList = new List<int>();
+            using DataTable dt = core.db.executeQuery("select id from cccontent where parentid=" + id);
+            foreach (DataRow row in dt.Rows) { _childIdList.Add(encodeInteger(row[0])); }
             return _childIdList;
         }
         private List<int> _childIdList = null;
@@ -279,7 +277,7 @@ namespace Contensive.Processor.Models.Domain {
                     // -- key is already there, remove it first                        
                     core.metaDataDictionary.Remove(content.id.ToString());
                 }
-                List<string> dependentCacheNameList = new List<string>();
+                List<string> dependentCacheNameList = new();
                 if (!forceDbLoad) {
                     result = getCache(core, content.id);
                 }
@@ -373,7 +371,7 @@ namespace Contensive.Processor.Models.Domain {
                                 } else {
                                     foreach (var keyvaluepair in parentMetaData.fields) {
                                         Models.Domain.ContentFieldMetadataModel parentField = keyvaluepair.Value;
-                                        Models.Domain.ContentFieldMetadataModel childField = new Models.Domain.ContentFieldMetadataModel();
+                                        Models.Domain.ContentFieldMetadataModel childField = new();
                                         childField = (Models.Domain.ContentFieldMetadataModel)parentField.Clone();
                                         childField.inherited = true;
                                         result.fields.Add(childField.nameLc.ToLowerInvariant(), childField);
@@ -458,7 +456,7 @@ namespace Contensive.Processor.Models.Domain {
                                 if (dtFields.Rows.Count == 0) {
                                     //
                                 } else {
-                                    List<string> usedFields = new List<string>();
+                                    List<string> usedFields = new();
                                     foreach (DataRow fieldRow in dtFields.Rows) {
                                         string fieldName = GenericController.encodeText(fieldRow[13]);
                                         int fieldId = GenericController.encodeInteger(fieldRow[12]);
@@ -490,7 +488,7 @@ namespace Contensive.Processor.Models.Domain {
                                                 //
                                                 result.fields.Remove(fieldNameLower);
                                             }
-                                            Models.Domain.ContentFieldMetadataModel field = new Models.Domain.ContentFieldMetadataModel();
+                                            Models.Domain.ContentFieldMetadataModel field = new();
                                             int fieldIndexColumn = -1;
                                             CPContentBaseClass.FieldTypeIdEnum fieldTypeId = (CPContentBaseClass.FieldTypeIdEnum)GenericController.encodeInteger(fieldRow[15]);
                                             if (GenericController.encodeText(fieldRow[4]) != "") {
@@ -792,7 +790,7 @@ namespace Contensive.Processor.Models.Domain {
             ContentMetadataModel result = null;
             try {
                 try {
-                    result = core.cache.getObject<Models.Domain.ContentMetadataModel>(createKeyHash(core,contentId));
+                    result = core.cache.getObject<Models.Domain.ContentMetadataModel>(createKeyHash(core, contentId));
                 } catch (Exception ex) {
                     LogController.logError(core, ex);
                 }
@@ -879,32 +877,32 @@ namespace Contensive.Processor.Models.Domain {
                     // This update is not allowed
                     LogController.logWarn(core, new GenericException("Warning, updating base field from non-base collection, context [" + logMsgContext + "], content [" + name + "], field [" + fieldMetadata.nameLc + "]"));
                 }
-                using (var db = new DbController(core, dataSourceName)) {
-                    //
-                    // Get the installedByCollectionId
-                    int InstalledByCollectionId = 0;
-                    if (!string.IsNullOrEmpty(fieldMetadata.installedByCollectionGuid)) {
-                        var addonCollection = AddonCollectionModel.create<AddonCollectionModel>(core.cpParent, fieldMetadata.installedByCollectionGuid);
-                        if (addonCollection != null) {
-                            InstalledByCollectionId = addonCollection.id;
-                        }
+                using var db = new DbController(core, dataSourceName);
+                //
+                // -- Get the installedByCollectionId
+                int InstalledByCollectionId = 0;
+                if (!string.IsNullOrEmpty(fieldMetadata.installedByCollectionGuid)) {
+                    var addonCollection = AddonCollectionModel.create<AddonCollectionModel>(core.cpParent, fieldMetadata.installedByCollectionGuid);
+                    if (addonCollection != null) {
+                        InstalledByCollectionId = addonCollection.id;
                     }
+                }
+                //
+                // Create or update the Table Field
+                if (fieldMetadata.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
                     //
-                    // Create or update the Table Field
-                    if (fieldMetadata.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
-                        //
-                        // Redirect Field
-                    } else if (fieldMetadata.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany) {
-                        //
-                        // ManyToMany Field
-                    } else {
-                        //
-                        // All other fields
-                        db.createSQLTableField(tableName, fieldMetadata.nameLc, fieldMetadata.fieldTypeId);
-                    }
+                    // Redirect Field
+                } else if (fieldMetadata.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany) {
                     //
-                    // create or update the field
-                    var sqlList = new NameValueCollection {
+                    // ManyToMany Field
+                } else {
+                    //
+                    // All other fields
+                    db.createSQLTableField(tableName, fieldMetadata.nameLc, fieldMetadata.fieldTypeId);
+                }
+                //
+                // create or update the field
+                var sqlList = new NameValueCollection {
                             { "ACTIVE", DbController.encodeSQLBoolean(fieldMetadata.active) },
                             { "MODIFIEDBY", DbController.encodeSQLNumber(SystemMemberId) },
                             { "MODIFIEDDATE", DbController.encodeSQLDate(core.dateTimeNowMockable) },
@@ -937,87 +935,86 @@ namespace Contensive.Processor.Models.Domain {
                             { "ISBASEFIELD", DbController.encodeSQLBoolean(fieldMetadata.isBaseField) },
                             { "LOOKUPLIST", DbController.encodeSQLText(fieldMetadata.lookupList) }
                         };
-                    int RedirectContentId = 0;
-                    int LookupContentId = 0;
-                    //
-                    // -- conditional fields
-                    switch (fieldMetadata.fieldTypeId) {
-                        case CPContentBaseClass.FieldTypeIdEnum.Lookup:
-                            //
-                            // -- lookup field
-                            //
-                            string LookupContentName = fieldMetadata.get_lookupContentName(core);
-                            if (!string.IsNullOrEmpty(LookupContentName)) {
-                                LookupContentId = ContentMetadataModel.getContentId(core, LookupContentName);
-                                if (LookupContentId <= 0) {
-                                    string errMsg = "Could not create lookup field [" + fieldMetadata.nameLc + "] for content definition [" + name + "] because no content definition was found For lookup-content [" + LookupContentName + "].";
-                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
-                                }
-                            }
-                            sqlList.Add("LOOKUPCONTENTID", DbController.encodeSQLNumber(LookupContentId));
-                            break;
-                        case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
-                            //
-                            // -- many-to-many field
-                            //
-                            string ManyToManyContent = fieldMetadata.get_manyToManyContentName(core);
-                            if (!string.IsNullOrEmpty(ManyToManyContent)) {
-                                int ManyToManyContentId = ContentMetadataModel.getContentId(core, ManyToManyContent);
-                                if (ManyToManyContentId <= 0) {
-                                    string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-content [" + ManyToManyContent + "].";
-                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
-
-                                }
-                                sqlList.Add("MANYTOMANYCONTENTID", DbController.encodeSQLNumber(ManyToManyContentId));
-                            }
-                            //
-                            string ManyToManyRuleContent = fieldMetadata.get_manyToManyRuleContentName(core);
-                            if (!string.IsNullOrEmpty(ManyToManyRuleContent)) {
-                                int ManyToManyRuleContentId = ContentMetadataModel.getContentId(core, ManyToManyRuleContent);
-                                if (ManyToManyRuleContentId <= 0) {
-                                    string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-rule-content [" + ManyToManyRuleContent + "].";
-                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
-                                }
-                                sqlList.Add("MANYTOMANYRULECONTENTID", DbController.encodeSQLNumber(ManyToManyRuleContentId));
-                            }
-                            sqlList.Add("MANYTOMANYRULEPRIMARYFIELD", DbController.encodeSQLText(fieldMetadata.manyToManyRulePrimaryField));
-                            sqlList.Add("MANYTOMANYRULESECONDARYFIELD", DbController.encodeSQLText(fieldMetadata.manyToManyRuleSecondaryField));
-                            break;
-                        case CPContentBaseClass.FieldTypeIdEnum.Redirect:
-                            //
-                            // -- redirect field
-                            string RedirectContentName = fieldMetadata.get_redirectContentName(core);
-                            if (!string.IsNullOrEmpty(RedirectContentName)) {
-                                RedirectContentId = ContentMetadataModel.getContentId(core, RedirectContentName);
-                                if (RedirectContentId <= 0) {
-                                    string errMsg = "Could not create redirect field [" + fieldMetadata.nameLc + "] for Content Definition [" + name + "] because no content definition was found For redirect-content [" + RedirectContentName + "].";
-                                    Logger.Error(LogController.processLogMessage(core, errMsg, true));
-                                }
-                            }
-                            sqlList.Add("REDIRECTCONTENTID", DbController.encodeSQLNumber(RedirectContentId));
-                            break;
-                    }
-                    //
-                    if (fieldMetadata.id == 0) {
-                        
-                        sqlList.Add("NAME", DbController.encodeSQLText(fieldMetadata.nameLc));
-                        sqlList.Add("CONTENTID", DbController.encodeSQLNumber(id));
-                        sqlList.Add("CREATEKEY", "0");
-                        sqlList.Add("DATEADDED", DbController.encodeSQLDate(core.dateTimeNowMockable));
-                        sqlList.Add("CREATEDBY", DbController.encodeSQLNumber(SystemMemberId));
-                        fieldMetadata.id = db.insertGetId("ccFields",0);
+                //
+                // -- conditional fields
+                switch (fieldMetadata.fieldTypeId) {
+                    case CPContentBaseClass.FieldTypeIdEnum.Lookup:
                         //
-                        if (!blockCacheClear) {
-                            core.cache.invalidateAll();
-                            core.clearMetaData();
+                        // -- lookup field
+                        //
+                        string LookupContentName = fieldMetadata.get_lookupContentName(core);
+                        int LookupContentId = 0;
+                        if (!string.IsNullOrEmpty(LookupContentName)) {
+                            LookupContentId = ContentMetadataModel.getContentId(core, LookupContentName);
+                            if (LookupContentId <= 0) {
+                                string errMsg = "Could not create lookup field [" + fieldMetadata.nameLc + "] for content definition [" + name + "] because no content definition was found For lookup-content [" + LookupContentName + "].";
+                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+                            }
                         }
-                    }
-                    if (fieldMetadata.id == 0) {
-                        throw (new GenericException("Could not create Field [" + fieldMetadata.nameLc + "] because insert into ccfields failed."));
-                    }
-                    db.update("ccFields", "ID=" + fieldMetadata.id, sqlList);
-                    ContentFieldModel.invalidateCacheOfRecord<ContentFieldModel>(core.cpParent, fieldMetadata.id);
+                        sqlList.Add("LOOKUPCONTENTID", DbController.encodeSQLNumber(LookupContentId));
+                        break;
+                    case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
+                        //
+                        // -- many-to-many field
+                        //
+                        string ManyToManyContent = fieldMetadata.get_manyToManyContentName(core);
+                        if (!string.IsNullOrEmpty(ManyToManyContent)) {
+                            int ManyToManyContentId = getContentId(core, ManyToManyContent);
+                            if (ManyToManyContentId <= 0) {
+                                string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-content [" + ManyToManyContent + "].";
+                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+
+                            }
+                            sqlList.Add("MANYTOMANYCONTENTID", DbController.encodeSQLNumber(ManyToManyContentId));
+                        }
+                        //
+                        string ManyToManyRuleContent = fieldMetadata.get_manyToManyRuleContentName(core);
+                        if (!string.IsNullOrEmpty(ManyToManyRuleContent)) {
+                            int ManyToManyRuleContentId = getContentId(core, ManyToManyRuleContent);
+                            if (ManyToManyRuleContentId <= 0) {
+                                string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-rule-content [" + ManyToManyRuleContent + "].";
+                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+                            }
+                            sqlList.Add("MANYTOMANYRULECONTENTID", DbController.encodeSQLNumber(ManyToManyRuleContentId));
+                        }
+                        sqlList.Add("MANYTOMANYRULEPRIMARYFIELD", DbController.encodeSQLText(fieldMetadata.manyToManyRulePrimaryField));
+                        sqlList.Add("MANYTOMANYRULESECONDARYFIELD", DbController.encodeSQLText(fieldMetadata.manyToManyRuleSecondaryField));
+                        break;
+                    case CPContentBaseClass.FieldTypeIdEnum.Redirect:
+                        //
+                        // -- redirect field
+                        string RedirectContentName = fieldMetadata.get_redirectContentName(core);
+                        int RedirectContentId = 0;
+                        if (!string.IsNullOrEmpty(RedirectContentName)) {
+                            RedirectContentId = getContentId(core, RedirectContentName);
+                            if (RedirectContentId <= 0) {
+                                string errMsg = "Could not create redirect field [" + fieldMetadata.nameLc + "] for Content Definition [" + name + "] because no content definition was found For redirect-content [" + RedirectContentName + "].";
+                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+                            }
+                        }
+                        sqlList.Add("REDIRECTCONTENTID", DbController.encodeSQLNumber(RedirectContentId));
+                        break;
                 }
+                //
+                if (fieldMetadata.id == 0) {
+
+                    sqlList.Add("NAME", DbController.encodeSQLText(fieldMetadata.nameLc));
+                    sqlList.Add("CONTENTID", DbController.encodeSQLNumber(id));
+                    sqlList.Add("CREATEKEY", "0");
+                    sqlList.Add("DATEADDED", DbController.encodeSQLDate(core.dateTimeNowMockable));
+                    sqlList.Add("CREATEDBY", DbController.encodeSQLNumber(SystemMemberId));
+                    fieldMetadata.id = db.insertGetId("ccFields", 0);
+                    //
+                    if (!blockCacheClear) {
+                        core.cache.invalidateAll();
+                        core.clearMetaData();
+                    }
+                }
+                if (fieldMetadata.id == 0) {
+                    throw (new GenericException("Could not create Field [" + fieldMetadata.nameLc + "] because insert into ccfields failed."));
+                }
+                db.update("ccFields", "ID=" + fieldMetadata.id, sqlList);
+                ContentFieldModel.invalidateCacheOfRecord<ContentFieldModel>(core.cpParent, fieldMetadata.id);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -1160,7 +1157,7 @@ namespace Contensive.Processor.Models.Domain {
                         // metadata does not inherit its fields, create what is needed for a non-inherited metadata
                         //
                         if (!contentMetadata.fields.ContainsKey("id")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "id",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement,
@@ -1174,7 +1171,7 @@ namespace Contensive.Processor.Models.Domain {
                         }
                         //
                         if (!contentMetadata.fields.ContainsKey("name")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "name",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Text,
@@ -1188,7 +1185,7 @@ namespace Contensive.Processor.Models.Domain {
                         }
                         //
                         if (!contentMetadata.fields.ContainsKey("active")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "active",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Boolean,
@@ -1202,7 +1199,7 @@ namespace Contensive.Processor.Models.Domain {
                         }
                         //
                         if (!contentMetadata.fields.ContainsKey("sortorder")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "sortorder",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Text,
@@ -1216,7 +1213,7 @@ namespace Contensive.Processor.Models.Domain {
                         }
                         //
                         if (!contentMetadata.fields.ContainsKey("dateadded")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "dateadded",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Date,
@@ -1229,7 +1226,7 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
                         if (!contentMetadata.fields.ContainsKey("createdby")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "createdby",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Lookup,
@@ -1243,7 +1240,7 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
                         if (!contentMetadata.fields.ContainsKey("modifieddate")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "modifieddate",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Date,
@@ -1256,7 +1253,7 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
                         if (!contentMetadata.fields.ContainsKey("modifiedby")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "modifiedby",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Lookup,
@@ -1270,7 +1267,7 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
                         if (!contentMetadata.fields.ContainsKey("ContentControlId")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "contentcontrolid",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Lookup,
@@ -1284,7 +1281,7 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
                         if (!contentMetadata.fields.ContainsKey("CreateKey")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "createkey",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Integer,
@@ -1297,7 +1294,7 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
                         if (!contentMetadata.fields.ContainsKey("ccGuid")) {
-                            ContentFieldMetadataModel fieldMetadata = new Models.Domain.ContentFieldMetadataModel {
+                            ContentFieldMetadataModel fieldMetadata = new() {
                                 nameLc = "ccguid",
                                 active = true,
                                 fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.Text,
@@ -1359,7 +1356,7 @@ namespace Contensive.Processor.Models.Domain {
                         if (contentMetadata.id <= 0) {
                             //
                             // -- Content definition not found, create it
-                            contentMetadata.id = verifyContent_returnId(core, new ContentMetadataModel() {
+                            contentMetadata.id = verifyContent_returnId(core, new ContentMetadataModel {
                                 tableName = tableName,
                                 name = ContentName,
                                 active = true
@@ -1587,10 +1584,9 @@ namespace Contensive.Processor.Models.Domain {
             //
             // -- if content includes a parentId field (like page content), update all child records to this meta.id
             if (fields.ContainsKey("parentid")) {
-                using (var dt = core.db.executeQuery("select id from " + tableName + " where parentid=" + recordId)) {
-                    foreach (DataRow dr in dt.Rows) {
-                        setContentControlId(core, DbController.getDataRowFieldInteger(dr, "id"), newContentControlID, UsedIDString);
-                    }
+                using var dt = core.db.executeQuery("select id from " + tableName + " where parentid=" + recordId); 
+                foreach (DataRow dr in dt.Rows) {
+                    setContentControlId(core, DbController.getDataRowFieldInteger(dr, "id"), newContentControlID, UsedIDString);
                 }
             }
         }

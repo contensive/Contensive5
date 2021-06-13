@@ -134,7 +134,6 @@ namespace Contensive.Processor {
                 if (GenericController.isGuid(addonNameOrGuid)) {
                     //
                     // -- call by guid
-                    AddonModel addon2 = core.addonCache.getAddonByGuid(addonNameOrGuid);
                     AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonNameOrGuid);
                     if (addon == null) {
                         throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");

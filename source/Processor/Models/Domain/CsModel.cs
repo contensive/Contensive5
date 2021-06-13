@@ -921,14 +921,14 @@ namespace Contensive.Processor {
                 if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany) {
                     var result = new StringBuilder();
                     if (this.contentMeta.fields.ContainsKey("id")) {
-                        int RecordId = GenericController.encodeInteger(getRawData("id"));
+                        int RecordId = encodeInteger(getRawData("id"));
                         string ContentName = MetadataController.getContentNameByID(core, field.manyToManyRuleContentId);
                         string DbTable = MetadataController.getContentTablename(core, ContentName);
-                        using (DataTable dtResult = core.db.executeQuery("Select " + field.manyToManyRuleSecondaryField + " from " + DbTable + " where " + field.manyToManyRulePrimaryField + "=" + RecordId)) {
-                            if (DbController.isDataTableOk(dtResult)) {
-                                foreach (DataRow dr in dtResult.Rows) {
-                                    result.Append("," + dr[0].ToString());
-                                }
+                        string sql = "Select " + field.manyToManyRuleSecondaryField + " from " + DbTable + " where " + field.manyToManyRulePrimaryField + "=" + RecordId;
+                        using DataTable dtResult = core.db.executeQuery(sql); 
+                        if (DbController.isDataTableOk(dtResult)) {
+                            foreach (DataRow dr in dtResult.Rows) {
+                                result.Append("," + dr[0].ToString());
                             }
                         }
                     }
@@ -965,10 +965,9 @@ namespace Contensive.Processor {
                                 if (!string.IsNullOrEmpty(LookupContentName)) {
                                     //
                                     // -- First try Lookup Content
-                                    using (var cs = new CsModel(core)) {
-                                        if (cs.open(LookupContentName, "ID=" + DbController.encodeSQLNumber(GenericController.encodeInteger(rawData)), "", true, 0, "name", 1)) {
-                                            return cs.getText("name");
-                                        }
+                                    using var cs = new CsModel(core); 
+                                    if (cs.open(LookupContentName, "ID=" + DbController.encodeSQLNumber(encodeInteger(rawData)), "", true, 0, "name", 1)) {
+                                        return cs.getText("name");
                                     }
                                 }
                                 return string.Empty;
@@ -1460,13 +1459,12 @@ namespace Contensive.Processor {
                     //
                     if ((SQLCriteriaUnique.Length > 0)) {
                         string sqlUnique = "select id from " + this.contentMeta.tableName + " where (id<>" + id + ")and(" + SQLCriteriaUnique + ")and(" + this.contentMeta.legacyContentControlCriteria + ");";
-                        using (DataTable dtRecords = db.executeQuery(sqlUnique)) {
-                            //
-                            // -- unique violation
-                            if (dtRecords.Rows.Count > 0) {
-                                LogController.logWarn(core, "Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]");
-                                return;
-                            }
+                        using DataTable dtRecords = db.executeQuery(sqlUnique);
+                        //
+                        // -- unique violation
+                        if (dtRecords.Rows.Count > 0) {
+                            LogController.logWarn(core, "Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]");
+                            return;
                         }
                     }
                     //
@@ -1517,7 +1515,7 @@ namespace Contensive.Processor {
                 this.readCacheRowCnt = 0;
                 this.readCacheRowPtr = -1;
                 this.writeCache = new Dictionary<string, string>();
-                this.fieldNames = new String[] { };
+                this.fieldNames = Array.Empty<string>();
                 if (this.dt != null) {
                     if (this.dt.Rows.Count > 0) {
                         this.resultColumnCount = this.dt.Columns.Count;

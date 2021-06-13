@@ -123,7 +123,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="propertyType"></param>
         public void setProperty(string key, string value, DocPropertyModel.DocPropertyTypesEnum propertyType) {
             try {
-                setProperty(key, new DocPropertyModel() {
+                setProperty(key, new DocPropertyModel {
                     nameValue = key + "=" + value,
                     fileSize = 0,
                     fileType = "",
@@ -172,7 +172,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <returns></returns>
         public List<string> getKeyList() {
-            List<string> keyList = new List<string>();
+            List<string> keyList = new();
             foreach (KeyValuePair<string, DocPropertyModel> kvp in docPropertiesDict) {
                 keyList.Add(kvp.Key);
             }
@@ -318,7 +318,7 @@ namespace Contensive.Processor.Models.Domain {
                             string[] ValuePair = nameValuePair.Split('=');
                             string key = decodeResponseVariable(encodeText(ValuePair[0]));
                             if (!string.IsNullOrEmpty(key)) {
-                                DocPropertyModel docProperty = new DocPropertyModel {
+                                DocPropertyModel docProperty = new() {
                                     name = key,
                                     propertyType = DocPropertyModel.DocPropertyTypesEnum.queryString,
                                     value = (ValuePair.GetUpperBound(0) > 0) ? decodeResponseVariable(encodeText(ValuePair[1])) : ""
