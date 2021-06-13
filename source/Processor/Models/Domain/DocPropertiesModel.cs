@@ -123,19 +123,14 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="propertyType"></param>
         public void setProperty(string key, string value, DocPropertyModel.DocPropertyTypesEnum propertyType) {
             try {
-                //
-                LogController.logTrace(core, "docPropertyModel.setProperty, key [" + key + "], value [" + value + "], propertyType [" + (int)propertyType + "]");
-                //
-                DocPropertyModel prop = new DocPropertyModel {
-                    nameValue = key,
+                setProperty(key, new DocPropertyModel() {
+                    nameValue = key + "=" + value,
                     fileSize = 0,
                     fileType = "",
                     name = key,
-                    propertyType = propertyType
-                };
-                prop.nameValue = key + "=" + value;
-                prop.value = value;
-                setProperty(key, prop);
+                    propertyType = propertyType,
+                    value = value
+                });
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -149,6 +144,9 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="key"></param>
         /// <param name="value">See DocPropertyModel for details.</param>
         public void setProperty(string key, DocPropertyModel value) {
+            //
+            LogController.logTrace(core, "docPropertyModel.setProperty, nameValue [" + value.nameValue + "], propertyType [" + (int)value.propertyType + "]");
+            //
             string propKey = encodeDocPropertyKey(key);
             if (!string.IsNullOrEmpty(propKey)) {
                 if (docPropertiesDict.ContainsKey(propKey)) {

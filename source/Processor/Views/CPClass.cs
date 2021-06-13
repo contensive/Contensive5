@@ -35,15 +35,6 @@ namespace Contensive.Processor {
         public CPClass(string appName) {
             core = new CoreController(this, appName);
         }
-        ////
-        ////=========================================================================================================
-        ///// <summary>
-        ///// constructor for non-Internet app use. Configuration provided manually. Used internally to create application instances for email rendering.
-        ///// </summary>
-        ///// <remarks></remarks>
-        //public CPClass(string appName, ServerConfigModel serverConfig) {
-        //    core = new CoreController(this, appName, serverConfig);
-        //}
         //
         //=========================================================================================================
         /// <summary>
@@ -60,7 +51,7 @@ namespace Contensive.Processor {
         /// <summary>
         /// return ok if the application is running correctly. Use statusMessage to display the status
         /// </summary>
-        public AppConfigModel.AppStatusEnum status {
+        public AppConfigBaseModel.AppStatusEnum status {
             get {
                 return core.appConfig.appStatus;
             }
@@ -83,15 +74,8 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public bool serverOk {
             get {
-                bool result = false;
-                if (core == null) {
-                    //
-                } else if (core.serverConfig == null) {
-                    //
-                } else {
-                    result = !string.IsNullOrEmpty(core.serverConfig.defaultDataSourceAddress);
-                }
-                return result;
+                if (core?.serverConfig == null) { return false; }
+                return !string.IsNullOrEmpty(core.serverConfig.defaultDataSourceAddress);
             }
         }
         //
@@ -101,14 +85,8 @@ namespace Contensive.Processor {
         /// </summary>
         public bool appOk {
             get {
-                if (core != null) {
-                    if (core.serverConfig != null) {
-                        if (core.appConfig != null) {
-                            return (core.appConfig.appStatus == AppConfigModel.AppStatusEnum.ok);
-                        }
-                    }
-                }
-                return false;
+                if ((core?.serverConfig == null) || (core?.appConfig == null)) { return false; }
+                return (core.appConfig.appStatus == AppConfigBaseModel.AppStatusEnum.ok);
             }
         }
         //
@@ -120,16 +98,12 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeRoute(string route) {
             try {
-                if (!core.appConfig.enabled) {
-                    //
-                    // -- if app not enabled, exit with empty
-                    return string.Empty;
-                }
+                if ((core?.appConfig == null) || (!core.appConfig.enabled)) { return string.Empty; }
                 return RouteController.executeRoute(core, route);
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
+                throw;
             }
-            return String.Empty;
         }
         //
         //==========================================================================================
@@ -139,16 +113,12 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeRoute() {
             try {
-                if (!core.appConfig.enabled) {
-                    //
-                    // -- if app not enabled, exit with empty
-                    return string.Empty;
-                }
+                if ((core?.appConfig == null) || (!core.appConfig.enabled)) { return string.Empty; }
                 return RouteController.executeRoute(core);
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
+                throw;
             }
-            return String.Empty;
         }
         //
         //====================================================================================================
@@ -160,14 +130,11 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeAddon(string addonNameOrGuid, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextSimple) {
             try {
-                if (!core.appConfig.enabled) {
-                    //
-                    // -- if app not enabled, exit with empty
-                    return string.Empty;
-                }
+                if ((core?.appConfig == null) || (!core.appConfig.enabled)) { return string.Empty; }
                 if (GenericController.isGuid(addonNameOrGuid)) {
                     //
                     // -- call by guid
+                    AddonModel addon2 = core.addonCache.getAddonByGuid(addonNameOrGuid);
                     AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonNameOrGuid);
                     if (addon == null) {
                         throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");

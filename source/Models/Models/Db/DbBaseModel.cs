@@ -643,7 +643,6 @@ namespace Contensive.Models.Db {
         public static T addEmpty<T>(CPBaseClass cp, int userId) where T : DbBaseModel {
             try {
                 T result = default;
-                if (isAppInvalid(cp)) { return result; }
                 //
                 // -- instead of add and create, true loading the datatable from the insert
                 DataTable dt = cp.Db.Insert(derivedTableName(typeof(T)), userId);
@@ -681,7 +680,6 @@ namespace Contensive.Models.Db {
         public static T create<T>(CPBaseClass cp, int recordId, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 T result = default;
-                if (isAppInvalid(cp)) { return result; }
                 if (recordId <= 0) { return result; }
                 result = (allowRecordCaching(typeof(T))) ? readRecordCache<T>(cp, recordId) : null;
                 if (result == null) {
@@ -763,7 +761,6 @@ namespace Contensive.Models.Db {
         public static T create<T>(CPBaseClass cp, string recordGuid, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 T result = default;
-                if (isAppInvalid(cp)) { return result; }
                 if (string.IsNullOrEmpty(recordGuid)) { return result; }
                 result = (allowRecordCaching(typeof(T))) ? readRecordCacheByGuidPtr<T>(cp, recordGuid) : null;
                 if (result != null) { return result; }
@@ -802,7 +799,6 @@ namespace Contensive.Models.Db {
         public static T createByUniqueName<T>(CPBaseClass cp, string recordName, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 T result = default;
-                if (isAppInvalid(cp)) { return result; }
                 if (!string.IsNullOrEmpty(recordName)) {
                     //
                     // -- if allowCache, then this subclass is for a content that has a unique name. read the name pointer
@@ -998,20 +994,11 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public int save(CPBaseClass cp, int userId, bool asyncSave) {
             try {
-                if (isAppInvalid(cp)) { return 0; }
                 //
                 // -- get derived class tablename and data ssource
                 Type instanceType = this.GetType();
                 string tableName = derivedTableName(instanceType);
                 string datasourceName = derivedDataSourceName(instanceType);
-                //
-                // -- -- -- instead of add then update, insert now returns record
-                // -- if new object save, create record first
-                if (id == 0) {
-                    // debug here to track insert vs add+update
-                    id = 0;
-                    //id = cp.Db.Add(tableName, userId); 
-                }
                 //
                 // -- create all the sql update pairs for every property set
                 var sqlPairs = new NameValueCollection();
@@ -1194,7 +1181,6 @@ namespace Contensive.Models.Db {
         /// <param name="recordId"></param>
         public static void delete<T>(CPBaseClass cp, int recordId) where T : DbBaseModel {
             try {
-                if (isAppInvalid(cp)) { return; }
                 if (recordId <= 0) { return; }
                 string dataSourceName = derivedDataSourceName(typeof(T));
                 string tableName = derivedTableName(typeof(T));
@@ -1214,7 +1200,6 @@ namespace Contensive.Models.Db {
         /// <param name="guid"></param>
         public static void delete<T>(CPBaseClass cp, string guid) where T : DbBaseModel {
             try {
-                if (isAppInvalid(cp)) { return; }
                 if (string.IsNullOrEmpty(guid)) { return; }
                 // todo change cache invalidate to key ptr, and we do not need to open the record first
                 DbBaseModel instance = create<T>(cp, guid);
@@ -1242,7 +1227,6 @@ namespace Contensive.Models.Db {
         public static List<T> createList<T>(CPBaseClass cp, string sqlCriteria, string sqlOrderBy, int pageSize, int pageNumber, List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 List<T> result = new List<T>();
-                if (isAppInvalid(cp)) { return result; }
                 int startRecord = pageSize * (pageNumber - 1);
                 int maxRecords = pageSize;
                 using (var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, sqlCriteria, sqlOrderBy), startRecord, maxRecords)) {
@@ -1414,7 +1398,6 @@ namespace Contensive.Models.Db {
         public static T createEmpty<T>(CPBaseClass cp, int userId) where T : DbBaseModel {
             try {
                 T instance = (T)Activator.CreateInstance(typeof(T));
-                if (isAppInvalid(cp)) { return instance; }
                 DateTime rightNow = DateTime.Now;
                 instance.GetType().GetProperty("active", BindingFlags.Instance | BindingFlags.Public).SetValue(instance, 0, null);
                 instance.GetType().GetProperty("ccguid", BindingFlags.Instance | BindingFlags.Public).SetValue(instance, cp.Utils.CreateGuid(), null);
@@ -1514,7 +1497,6 @@ namespace Contensive.Models.Db {
         /// <param name="sqlCriteria"></param>
         public static void deleteRows<T>(CPBaseClass cp, string sqlCriteria) where T : DbBaseModel {
             try {
-                if (isAppInvalid(cp)) { return; }
                 if (string.IsNullOrEmpty(sqlCriteria)) { return; }
                 cp.Db.DeleteRows(derivedTableName(typeof(T)), sqlCriteria);
                 invalidateCacheOfTable<T>(cp);
@@ -1648,7 +1630,6 @@ namespace Contensive.Models.Db {
         /// <param name="recordId"></param>
         public static void invalidateCacheOfRecord<T>(CPBaseClass cp, int recordId) where T : DbBaseModel {
             try {
-                if (isAppInvalid(cp)) { return; }
                 cp.Cache.InvalidateTableRecord(derivedTableName(typeof(T)), recordId);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -1663,7 +1644,6 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         public static void invalidateCacheOfTable<T>(CPBaseClass cp) where T : DbBaseModel {
             try {
-                if (isAppInvalid(cp)) { return; }
                 cp.Cache.InvalidateTable(derivedTableName(typeof(T)));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -1768,7 +1748,6 @@ namespace Contensive.Models.Db {
         public static int getCount<T>(CPBaseClass cp, string sqlCriteria) where T : DbBaseModel {
             try {
                 int result = 0;
-                if (isAppInvalid(cp)) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getCountSql<T>(sqlCriteria));
                 if (dt.Rows.Count == 0) return result;
                 return cp.Utils.EncodeInteger(dt.Rows[0][0]);

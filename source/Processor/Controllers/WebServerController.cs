@@ -212,12 +212,6 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// for more information message
-        /// </summary>
-        public string adminMessage { get; set; } = "";
-        //
-        // ====================================================================================================
-        /// <summary>
         /// Request Referer
         /// </summary>
         public string requestPageReferer {
@@ -468,36 +462,37 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                LogController.logShortLine("initHttpContext, httpContext.Request.Cookies.Count [" + httpContext.Request.Cookies.Count + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 // -- must have valid context, else non http 
                 if (httpContext == null) { return false; }
                 if (!core.appConfig.appStatus.Equals(BaseModels.AppConfigBaseModel.AppStatusEnum.ok)) { return false; }
                 //
                 // -- initialize doc properties from httpContext
-                foreach (KeyValuePair<string, string> kvp in httpContext.Request.ServerVariables) {
-                    core.docProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.serverVariable);
+                var httpContextRequest = httpContext.Request;
+                var coreDocProperties = core.docProperties;
+                foreach (KeyValuePair<string, string> kvp in httpContextRequest.ServerVariables) {
+                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.serverVariable);
                 }
-                foreach (KeyValuePair<string, string> kvp in httpContext.Request.Headers) {
-                    core.docProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.header);
+                foreach (KeyValuePair<string, string> kvp in httpContextRequest.Headers) {
+                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.header);
                 }
-                foreach (KeyValuePair<string, string> kvp in httpContext.Request.QueryString) {
-                    core.docProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.queryString);
+                foreach (KeyValuePair<string, string> kvp in httpContextRequest.QueryString) {
+                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.queryString);
                 }
-                foreach (KeyValuePair<string, string> kvp in httpContext.Request.Form) {
-                    core.docProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.form);
+                foreach (KeyValuePair<string, string> kvp in httpContextRequest.Form) {
+                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.form);
                 }
                 //
                 // -- add uploaded files to docproperties. windowsTempFiles should be disposed by parent object who created them and provided the context
-                foreach (DocPropertyModel fileProperty in httpContext.Request.Files) {
-                    core.docProperties.setProperty(fileProperty.name, fileProperty);
+                foreach (DocPropertyModel fileProperty in httpContextRequest.Files) {
+                    coreDocProperties.setProperty(fileProperty.name, fileProperty);
                 }
                 //
                 // -- setup response 
                 core.webServer.responseContentType = "text/html";
                 //
                 //   javascript cookie detect on page1 of all visits
-                string CookieDetectKey = core.docProperties.getText(rnCookieDetect);
+                string CookieDetectKey = coreDocProperties.getText(rnCookieDetect);
                 if (!string.IsNullOrEmpty(CookieDetectKey)) {
                     //
                     SecurityController.TokenData visitToken = SecurityController.decodeToken(core, CookieDetectKey);
@@ -653,9 +648,6 @@ namespace Contensive.Processor.Controllers {
                 if (core.domain.noFollow) {
                     responseNoFollow = true;
                 }
-                //
-                // ----- Style tag
-                adminMessage = "For more information, please contact the <a href=\"mailto:" + core.siteProperties.emailAdmin + "?subject=Re: " + requestDomain + "\">Site Administrator</A>.";                //
                 //
                 LogController.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
