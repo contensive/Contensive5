@@ -747,7 +747,7 @@ namespace Contensive.Models.Db {
                 T result = (allowRecordCaching(typeof(T)) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
                 if (result != null) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(name=" + cp.Db.EncodeSQLText(recordName) + ")", "id"));
-                if (dt?.Rows != null) { return default; }
+                if (dt?.Rows == null) { return default; }
                 if (dt.Rows.Count == 0) { return default; }
                 return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
