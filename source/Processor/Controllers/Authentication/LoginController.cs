@@ -128,13 +128,7 @@ namespace Contensive.Processor.Controllers {
                         layout = layout.Replace("{{userError}}", "");
                     }
                     //
-                    // -- create the action query
-                    //string QueryString = GenericController.modifyQueryString(core.webServer.requestQueryString, RequestNameHardCodedPage, "", false);
-                    //QueryString = GenericController.modifyQueryString(QueryString, "requestbinary", "", false);
-                    //layout += HtmlController.inputHidden("Type", FormTypeLogin);
-                    //layout += HtmlController.inputHidden("email", core.session.user.email);
-                    //result += HtmlController.form(core, layout, QueryString);
-
+                    // -- wrap in form
                     layout += HtmlController.inputHidden("Type", FormTypeLogin);
                     result += HtmlController.form(core, layout);
                     //

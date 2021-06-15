@@ -56,7 +56,6 @@ namespace Contensive.Processor.Addons.Tools {
                         }
                         FindText = core.docProperties.getText("FindText");
                         ReplaceText = core.docProperties.getText("ReplaceText");
-                        //string QS = "app=" + encodeNvaArgument(core.appConfig.name) + "&FindText=" + encodeNvaArgument(FindText) + "&ReplaceText=" + encodeNvaArgument(ReplaceText) + "&CDefNameList=" + encodeNvaArgument(CDefList);
                         var cmdDetail = new TaskModel.CmdDetailClass {
                             addonId = 0,
                             addonName = "GetForm_FindAndReplace",

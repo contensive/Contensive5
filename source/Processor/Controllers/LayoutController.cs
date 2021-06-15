@@ -1,5 +1,6 @@
 ﻿
 using Contensive.BaseClasses;
+using Contensive.Exceptions;
 using Contensive.Models.Db;
 using System;
 using System.Collections.Generic;
@@ -73,7 +74,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(content)) {
                     //
                     // -- content not found -- exception
-                    throw new ApplicationException("Layout [" + layoutName + "] was not found by its guid [" + layoutGuid + "] and the backup file blank or not found [" + layoutCdnPathFilename + "]");
+                    throw new GenericException("Layout [" + layoutName + "] was not found by its guid [" + layoutGuid + "] and the backup file blank or not found [" + layoutCdnPathFilename + "]");
                 }
                 layout.name = layoutName;
                 layout.ccguid = layoutGuid;

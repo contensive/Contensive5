@@ -157,8 +157,6 @@ namespace Contensive.Processor.Addons.AdminSite {
             string editorWrapperSyle = "";
             if (!useEditorAddon) {
                 bool IsEmptyList = false;
-                //string NonEncodedLink = null;
-                //string EncodedLink = null;
                 //
                 // if custom editor not used or if it failed
                 //
@@ -167,25 +165,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // ----- Default Editor, Redirect fields (the same for normal/readonly/spelling)
 
                     EditorString = AdminUIEditorController.getRedirectEditor(core, field, adminData, editRecord, fieldValue_text, editorReadOnly, fieldHtmlId, field.required);
-                    //string RedirectPath = core.appConfig.adminRoute;
-                    //if (field.redirectPath != "") {
-                    //    RedirectPath = field.redirectPath;
-                    //}
-                    //RedirectPath = RedirectPath + "?" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(" For " + editRecord.nameLc + adminData.titleExtension) + "&" + RequestNameAdminDepth + "=" + (adminData.ignore_legacyMenuDepth + 1) + "&wl0=" + field.redirectId + "&wr0=" + editRecord.id;
-                    //if (field.redirectContentId != 0) {
-                    //    RedirectPath = RedirectPath + "&cid=" + field.redirectContentId;
-                    //} else {
-                    //    RedirectPath = RedirectPath + "&cid=" + ((editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : editRecord.contentControlId);
-                    //}
-                    //if (editRecord.id == 0) {
-                    //    EditorString += ("[available after save]");
-                    //} else {
-                    //    RedirectPath = GenericController.strReplace(RedirectPath, "'", "\\'");
-                    //    EditorString += ("<a href=\"#\"");
-                    //    EditorString += (" onclick=\" window.open('" + RedirectPath + "', '_blank', 'scrollbars=yes,toolbar=no,status=no,resizable=yes'); return false;\"");
-                    //    EditorString += (">");
-                    //    EditorString += ("Open in New Window</A>");
-                    //}
                 } else if (editorReadOnly) {
                     //
                     //--------------------------------------------------------------------------------------------

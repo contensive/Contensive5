@@ -92,21 +92,6 @@ namespace Contensive.Processor.Controllers {
         /// true if cacheClient initialized correctly
         /// </summary>
         private readonly bool remoteCacheInitialized;
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //private static Lazy<ConnectionMultiplexer> lazyConnection = new Lazy<ConnectionMultiplexer>(() => {
-        //    return ConnectionMultiplexer.Connect("whatever-redis.bd1zu2.0009.usw2.cache.amazonaws.com:6379");
-        //});
-        ////
-        ////====================================================================================================
-        ////
-        //public static ConnectionMultiplexer connection {
-        //    get {
-        //        ConnectionMultiplexer lazyConnection = ConnectionMultiplexer.Connect("whatever-redis.bd1zu2.0009.usw2.cache.amazonaws.com:6379");
-        //        return lazyConnection;
-        //    }
-        //}
         //
         //====================================================================================================
         /// <summary>
@@ -287,7 +272,6 @@ namespace Contensive.Processor.Controllers {
         private CacheDocumentClass getCacheDocument(CacheKeyHashClass keyHash) {
             CacheDocumentClass result = null;
             try {
-                //string serverKey = createServerKeyHash(keyHash);
                 string typeMessage = "";
                 if (remoteCacheInitialized) {
                     //
@@ -867,7 +851,6 @@ namespace Contensive.Processor.Controllers {
                     throw new ArgumentException("cache key cannot be blank");
                 }
                 string typeMessage = "";
-                //string keyHash = createServerKeyHash(keyHash);
                 if (core.serverConfig.enableLocalMemoryCache) {
                     //
                     // -- save local memory cache
@@ -879,11 +862,9 @@ namespace Contensive.Processor.Controllers {
                     // -- save local file cache
                     typeMessage = "local-file";
                     string serializedData = SerializeObject(cacheDocument);
-                    using (System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash)) {
-                        mutex.WaitOne();
-                        core.privateFiles.saveFile("appCache\\" + FileController.encodeDosFilename(keyHash + ".txt"), serializedData);
-                        mutex.ReleaseMutex();
-                    }
+                    using System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash); mutex.WaitOne();
+                    core.privateFiles.saveFile("appCache\\" + FileController.encodeDosFilename(keyHash + ".txt"), serializedData);
+                    mutex.ReleaseMutex();
                 }
                 if (core.serverConfig.enableRemoteCache) {
                     typeMessage = "remote";
@@ -936,7 +917,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dataSourceName"></param>
         /// <returns></returns>
         public CacheKeyHashClass createTableDependencyKeyHash(string tableName, string dataSourceName) {
-            //string key = "tabledependency/" + ((String.IsNullOrWhiteSpace(dataSourceName)) ? "default/" + tableName.Trim().ToLowerInvariant() + "/" : dataSourceName.Trim().ToLowerInvariant() + "/" + tableName.Trim().ToLowerInvariant() + "/");
             return createKeyHash(createTableDependencyKey(tableName, dataSourceName));
         }
         //

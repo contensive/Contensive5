@@ -83,28 +83,9 @@ namespace Contensive.Processor {
         public override void Invalidate(string key) => cp.core.cache.invalidate(key);
         //
         //====================================================================================================
-        /// <summary>
-        /// Create a key used as a dependency key that will invalidate when any record in a table is changed.
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <returns></returns>
-        //public override BaseModels.CacheKeyHashBaseModel CreateTableDependencyKeyHash(string tableName) {
-        //    return cp.core.cache.createTableDependencyKeyHash(tableName);
-        //}
         public override string CreateTableDependencyKey(string tableName) {
             return cp.core.cache.createTableDependencyKey(tableName);
         }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Create a key used as a dependency key that will invalidate when any record in a table is changed.
-        /// </summary>
-        /// <param name="tableName"></param>
-        /// <param name="dataSourceName"></param>
-        /// <returns></returns>
-        //public override BaseModels.CacheKeyHashBaseModel CreateTableDependencyKeyHash(string tableName, string dataSourceName) {
-        //    return cp.core.cache.createTableDependencyKeyHash(tableName, dataSourceName);
-        //}
         //
         //====================================================================================================
         //
@@ -130,18 +111,6 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        //public override BaseModels.CacheKeyHashBaseModel CreateRecordKeyHash(int recordId, string tableName, string dataSourceName) {
-        //    return cp.core.cache.createRecordKeyHash(recordId, tableName, dataSourceName);
-        //}
-        //
-        //====================================================================================================
-        //
-        //public override BaseModels.CacheKeyHashBaseModel CreateRecordKeyHash(int recordId, string tableName) {
-        //    return cp.core.cache.createRecordKeyHash(recordId, tableName, "default");
-        //}
-        //
-        //====================================================================================================
-        //
         public override string CreateKey(string objectName) {
             return cp.core.cache.createKey(objectName);
         }
@@ -151,18 +120,6 @@ namespace Contensive.Processor {
         public override string CreateKey(string objectName, string objectUniqueIdentifier = "") {
             return cp.core.cache.createKey(objectName + "-" + objectUniqueIdentifier);
         }
-        //
-        //====================================================================================================
-        //
-        //public override BaseModels.CacheKeyHashBaseModel CreateKeyHash(string objectName) {
-        //    return cp.core.cache.createKeyHash(objectName);
-        //}
-        //
-        //====================================================================================================
-        //
-        //public override BaseModels.CacheKeyHashBaseModel CreateKeyHash(string objectName, string objectUniqueIdentifier = "") {
-        //    return cp.core.cache.createKeyHash(objectName + "-" + objectUniqueIdentifier);
-        //}
         //
         //====================================================================================================
         //
@@ -185,18 +142,6 @@ namespace Contensive.Processor {
         public override string CreatePtrKeyforDbRecordUniqueName(string name, string tableName) {
             return cp.core.cache.createRecordNamePtrKey(name, tableName);
         }
-        //
-        //====================================================================================================
-        //
-        //public override BaseModels.CacheKeyHashBaseModel CreatePtrKeyHashforDbRecordUniqueName(string name, string tableName, string dataSourceName) {
-        //    return cp.core.cache.createRecordNamePtrKeyHash(name, tableName, dataSourceName);
-        //}
-        //
-        //====================================================================================================
-        //
-        //public override BaseModels.CacheKeyHashBaseModel CreatePtrKeyHashforDbRecordUniqueName(string name, string tableName) {
-        //    return cp.core.cache.createRecordNamePtrKeyHash(name, tableName);
-        //}
         //
         //====================================================================================================
         //

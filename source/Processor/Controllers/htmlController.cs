@@ -821,27 +821,6 @@ namespace Contensive.Processor.Controllers {
             }
             return result;
         }
-        ////
-        ////====================================================================================================
-        ////
-        //public void enableOutputBuffer(bool BufferOn) {
-        //    try {
-        //        if (core.doc.outputBufferEnabled) {
-        //            //
-        //            // ----- once on, can not be turned off Response Object
-        //            //
-        //            core.doc.outputBufferEnabled = BufferOn;
-        //        } else {
-        //            //
-        //            // ----- StreamBuffer off, allow on and off
-        //            //
-        //            core.doc.outputBufferEnabled = BufferOn;
-        //        }
-        //    } catch (Exception ex) {
-        //        LogController.logError(core, ex);
-        //        throw;
-        //    }
-        //}
         //
         //====================================================================================================
         /// <summary>
@@ -2629,7 +2608,6 @@ namespace Contensive.Processor.Controllers {
                                             // Current checkbox is visible
                                             //
                                             int RecordID = csData.getInteger("ID");
-                                            //string editLink = !isAdmin ? "" : editLinkTemplate.Replace("-1", RecordID.ToString());
                                             bool AllowRuleCopy = csData.getBoolean("AllowRuleCopy");
                                             string RuleCopyCaption = csData.getText("RuleCopyCaption");
                                             string OptionCaption = csData.getText("OptionCaption");

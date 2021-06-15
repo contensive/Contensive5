@@ -277,7 +277,6 @@ namespace Contensive.Processor.Models.Domain {
                     // -- key is already there, remove it first                        
                     core.metaDataDictionary.Remove(content.id.ToString());
                 }
-                List<string> dependentCacheNameList = new();
                 if (!forceDbLoad) {
                     result = getCache(core, content.id);
                 }

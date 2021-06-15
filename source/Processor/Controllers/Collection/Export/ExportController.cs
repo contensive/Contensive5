@@ -79,7 +79,6 @@ namespace Contensive.Processor.Controllers {
                     List<string> cdnUnixFileList = ExportResourceListController.getUnixPathFilenameList(cp, CS.GetText("ContentFileList"));
                     foreach (var pathFilename in cdnUnixFileList) {
                         if (!cp.CdnFiles.FileExists(pathFilename)) {
-                            //throw new ApplicationException("Collection includes a cdn file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it the collection resources.");
                             cp.UserError.Add("Collection includes a cdn file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
                             return "";
                         }
@@ -98,7 +97,6 @@ namespace Contensive.Processor.Controllers {
                             if (!CollectionPath.Length.Equals(0)) { CollectionPath += @"\"; }
                             string AddonPath = @"addons\";
                             if (!cp.PrivateFiles.FileExists(AddonPath + CollectionPath + filename)) {
-                                //throw new ApplicationException("Collection includes an executable file in the Resources tab that could not be found, [" + pathFilename + "]. Locate the file, or if it is not needed, remove it the collection resources.");
                                 cp.UserError.Add("The cCollection includes an executable file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
                                 return "";
                             }

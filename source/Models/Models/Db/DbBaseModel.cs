@@ -643,7 +643,7 @@ namespace Contensive.Models.Db {
         public static T addEmpty<T>(CPBaseClass cp, int userId) where T : DbBaseModel {
             try {
                 DataTable dt = cp.Db.Insert(derivedTableName(typeof(T)), userId);
-                if ((dt?.Rows == null) || (dt.Rows.Count == 0)) { throw new ApplicationException("Cannot addEmpty to table " + derivedTableName(typeof(T))); }
+                if ((dt?.Rows == null) || (dt.Rows.Count == 0)) { throw new GenericException("Cannot addEmpty to table " + derivedTableName(typeof(T))); }
                 List<string> callersCacheNameList = new();
                 return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
@@ -681,7 +681,7 @@ namespace Contensive.Models.Db {
                 if (dt.Rows.Count == 0) { return default; }
                 return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
-                cp.Site.ErrorReport(ex);
+                cp.Site.ErrorReport(ex, "create by id");
                 throw;
             }
         }
@@ -716,7 +716,7 @@ namespace Contensive.Models.Db {
                 if (dt.Rows.Count == 0) { return default; }
                 return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
-                cp.Site.ErrorReport(ex);
+                cp.Site.ErrorReport(ex,"create by guid");
                 throw;
             }
         }
@@ -751,7 +751,7 @@ namespace Contensive.Models.Db {
                 if (dt.Rows.Count == 0) { return default; }
                 return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
-                cp.Site.ErrorReport(ex);
+                cp.Site.ErrorReport(ex, "create by name");
                 throw;
             }
         }
@@ -1068,7 +1068,7 @@ namespace Contensive.Models.Db {
                         //
                         // -- this is an empty model. insert the record and populate the id
                         var dt = cp.Db.Insert(tableName, sqlPairs, userId);
-                        if ((dt?.Rows == null) || (dt.Rows.Count == 0)) { throw new ApplicationException("DbBaseModel.Save, Insert failed to return a record."); }
+                        if ((dt?.Rows == null) || (dt.Rows.Count == 0)) { throw new GenericException("DbBaseModel.Save, Insert failed to return a record."); }
                         //
                         // -- get the id back.
                         // -- Although it is possible that the record has autoincrement fields, etc. the return record from a save is not exprected to pick them up

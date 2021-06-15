@@ -10,7 +10,6 @@ namespace Contensive.BaseClasses {
     public abstract class CPCSBaseClass : IDisposable {
         // todo cs.openRecord -- very important as it will use the cdef model + dbmodels so it will be cached - cs.open() cannot be cached.
         // todo in collection file, in cdef for each text field, include a maxtextlength that will be used throughout to prevent db truncation
-        //public Sub New(ByVal cmcObj As Contensive.Processor.cpCoreClass, ByRef CPParent As CPBaseClass)
         //
         //====================================================================================================
         /// <summary>

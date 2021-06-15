@@ -132,7 +132,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     Stream.add(core.html.getPanel(Panel, "ccPanel", "ccPanelShadow", "ccPanelHilite", "100%", 0));
                 }
                 Stream.add("</td></tr></table>");
-                //Stream.Add(htmlController.form_end());
                 //
                 tempGetForm_QuickStats = HtmlController.form(core, Stream.text);
                 core.html.addTitle("Quick Stats");

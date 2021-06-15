@@ -1824,7 +1824,6 @@ namespace Contensive.Processor.Controllers {
         private void verifyPath_remote(string path) {
             try {
                 if (string.IsNullOrEmpty(path)) { return; }
-                //string dosPath = normalizeDosPath(path);
                 string remoteUnixPath = convertToUnixSlash(joinPath(remotePathPrefix, path));
                 if (!verifiedRemotePathList.Contains(remoteUnixPath)) {
                     UrlDetailsClass remoteUnixPathSplit = GenericController.splitUrl(remoteUnixPath);
