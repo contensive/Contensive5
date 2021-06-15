@@ -129,11 +129,14 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- create the action query
-                    string QueryString = GenericController.modifyQueryString(core.webServer.requestQueryString, RequestNameHardCodedPage, "", false);
-                    QueryString = GenericController.modifyQueryString(QueryString, "requestbinary", "", false);
+                    //string QueryString = GenericController.modifyQueryString(core.webServer.requestQueryString, RequestNameHardCodedPage, "", false);
+                    //QueryString = GenericController.modifyQueryString(QueryString, "requestbinary", "", false);
+                    //layout += HtmlController.inputHidden("Type", FormTypeLogin);
+                    //layout += HtmlController.inputHidden("email", core.session.user.email);
+                    //result += HtmlController.form(core, layout, QueryString);
+
                     layout += HtmlController.inputHidden("Type", FormTypeLogin);
-                    layout += HtmlController.inputHidden("email", core.session.user.email);
-                    result += HtmlController.form(core, layout, QueryString);
+                    result += HtmlController.form(core, layout);
                     //
                     // ----- Password Form
                     if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {
