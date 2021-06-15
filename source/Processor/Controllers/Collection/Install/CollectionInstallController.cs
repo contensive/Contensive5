@@ -200,8 +200,7 @@ namespace Contensive.Processor.Controllers {
                                 // Collection File - import from sub so it can be re-entrant
                                 //------------------------------------------------------------------------------------------------------
                                 //
-                                bool IsFound = false;
-                                string CollectionName = XmlController.getXMLAttribute(core, ref IsFound, Doc.DocumentElement, "name", "");
+                                string CollectionName = XmlController.getXMLAttribute(core, Doc.DocumentElement, "name", "");
                                 if (string.IsNullOrEmpty(CollectionName)) {
                                     //
                                     // ----- Error condition -- it must have a collection name
@@ -210,10 +209,9 @@ namespace Contensive.Processor.Controllers {
                                     return_ErrorMessage += "The collection was not installed because the collection name in the xml collection file is blank";
                                     return false;
                                 }
-                                bool attributeFound = false;
-                                bool CollectionSystem = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, ref attributeFound, Doc.DocumentElement, "system", "false"));
-                                string collectionOninstalladdonGuid = XmlController.getXMLAttribute(core, ref attributeFound, Doc.DocumentElement, "onInstallAddonGuid", "");
-                                string dataRecordList = XmlController.getXMLAttribute(core, ref attributeFound, Doc.DocumentElement, "DataRecordList", "");
+                                bool CollectionSystem = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "system", "false"));
+                                string collectionOninstalladdonGuid = XmlController.getXMLAttribute(core, Doc.DocumentElement, "onInstallAddonGuid", "");
+                                string dataRecordList = XmlController.getXMLAttribute(core, Doc.DocumentElement, "DataRecordList", "");
                                 int Parent_NavId = BuildController.verifyNavigatorEntry(core, new MetadataMiniCollectionModel.MiniCollectionMenuModel {
                                     guid = addonGuidManageAddon,
                                     name = "Manage Add-ons",
@@ -222,9 +220,9 @@ namespace Contensive.Processor.Controllers {
                                     newWindow = false,
                                     active = true,
                                 }, 0);
-                                bool CollectionUpdatable = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, ref attributeFound, Doc.DocumentElement, "updatable", "true"));
-                                bool CollectionblockNavigatorNode = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, ref attributeFound, Doc.DocumentElement, "blockNavigatorNode", "false"));
-                                string FileGuid = XmlController.getXMLAttribute(core, ref IsFound, Doc.DocumentElement, "guid", CollectionName);
+                                bool CollectionUpdatable = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "updatable", "true"));
+                                bool CollectionblockNavigatorNode = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "blockNavigatorNode", "false"));
+                                string FileGuid = XmlController.getXMLAttribute(core, Doc.DocumentElement, "guid", CollectionName);
                                 if (string.IsNullOrEmpty(FileGuid)) {
                                     FileGuid = CollectionName;
                                 }
@@ -277,9 +275,9 @@ namespace Contensive.Processor.Controllers {
                                                 //
                                                 // set wwwfilelist, contentfilelist, execfilelist
                                                 //
-                                                string resourceType = XmlController.getXMLAttribute(core, ref IsFound, MetaDataSection, "type", "");
-                                                string resourcePath = XmlController.getXMLAttribute(core, ref IsFound, MetaDataSection, "path", "");
-                                                string filename = XmlController.getXMLAttribute(core, ref IsFound, MetaDataSection, "name", "");
+                                                string resourceType = XmlController.getXMLAttribute(core, MetaDataSection, "type", "");
+                                                string resourcePath = XmlController.getXMLAttribute(core, MetaDataSection, "path", "");
+                                                string filename = XmlController.getXMLAttribute(core, MetaDataSection, "name", "");
                                                 //
                                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], resource found, name [" + filename + "], type [" + resourceType + "], path [" + resourcePath + "]");
                                                 //
@@ -351,8 +349,8 @@ namespace Contensive.Processor.Controllers {
                                                 // Get path to this collection and call into it
                                                 //
                                                 bool Found = false;
-                                                string ChildCollectionName = XmlController.getXMLAttribute(core, ref Found, MetaDataSection, "name", "");
-                                                string ChildCollectionGUId = XmlController.getXMLAttribute(core, ref Found, MetaDataSection, "guid", MetaDataSection.InnerText);
+                                                string ChildCollectionName = XmlController.getXMLAttribute(core, MetaDataSection, "name", "");
+                                                string ChildCollectionGUId = XmlController.getXMLAttribute(core, MetaDataSection, "guid", MetaDataSection.InnerText);
                                                 if (string.IsNullOrEmpty(ChildCollectionGUId)) {
                                                     ChildCollectionGUId = MetaDataSection.InnerText;
                                                 }
@@ -525,7 +523,7 @@ namespace Contensive.Processor.Controllers {
                                                 foreach (XmlNode metaDataNode in NavDoc.DocumentElement.ChildNodes) {
                                                     switch (GenericController.toLCase(metaDataNode.Name)) {
                                                         case "cdef": {
-                                                                string ContentName = XmlController.getXMLAttribute(core, ref IsFound, metaDataNode, "name", "");
+                                                                string ContentName = XmlController.getXMLAttribute(core, metaDataNode, "name", "");
                                                                 //
                                                                 // setup metadata rule
                                                                 //
@@ -568,15 +566,15 @@ namespace Contensive.Processor.Controllers {
                                                                 //
                                                                 // Data.Record node
                                                                 //
-                                                                string ContentName = XmlController.getXMLAttribute(core, ref IsFound, ContentNode, "content", "");
+                                                                string ContentName = XmlController.getXMLAttribute(core, ContentNode, "content", "");
                                                                 if (string.IsNullOrEmpty(ContentName)) {
                                                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data.record node with a blank content attribute.");
                                                                     result = false;
                                                                     return_ErrorMessage += " Collection file [" + CollectionName + "] contains a data.record node with a blank content attribute.";
                                                                     return false;
                                                                 } else {
-                                                                    string ContentRecordGuid = XmlController.getXMLAttribute(core, ref IsFound, ContentNode, "guid", "");
-                                                                    string ContentRecordName = XmlController.getXMLAttribute(core, ref IsFound, ContentNode, "name", "");
+                                                                    string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
+                                                                    string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
                                                                     if ((string.IsNullOrEmpty(ContentRecordGuid)) && (string.IsNullOrEmpty(ContentRecordName))) {
                                                                         LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
                                                                         result = false;
@@ -658,8 +656,8 @@ namespace Contensive.Processor.Controllers {
                                                     //
                                                     // processed, but add rule for collection record
                                                     bool Found = false;
-                                                    string ChildCollectionName = XmlController.getXMLAttribute(core, ref Found, metaDataSection, "name", "");
-                                                    string ChildCollectionGUId = XmlController.getXMLAttribute(core, ref Found, metaDataSection, "guid", metaDataSection.InnerText);
+                                                    string ChildCollectionName = XmlController.getXMLAttribute(core, metaDataSection, "name", "");
+                                                    string ChildCollectionGUId = XmlController.getXMLAttribute(core, metaDataSection, "guid", metaDataSection.InnerText);
                                                     if (string.IsNullOrEmpty(ChildCollectionGUId)) {
                                                         ChildCollectionGUId = metaDataSection.InnerText;
                                                     }
@@ -858,15 +856,14 @@ namespace Contensive.Processor.Controllers {
         public static void installDataNode(CoreController core, XmlNode dataNode, ref string return_ErrorMessage) {
             foreach (XmlNode ContentNode in dataNode.ChildNodes) {
                 if (ContentNode.Name.ToLowerInvariant() == "record") {
-                    bool isFound = false;
-                    string ContentName = XmlController.getXMLAttribute(core, ref isFound, ContentNode, "content", "");
+                    string ContentName = XmlController.getXMLAttribute(core, ContentNode, "content", "");
                     if (string.IsNullOrEmpty(ContentName)) {
                         LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder, install collection file contains a data.record node with a blank content attribute.");
                         return_ErrorMessage += "<P>Collection file contains a data.record node with a blank content attribute.</P>";
                         break;
                     } else {
-                        string ContentRecordGuid = XmlController.getXMLAttribute(core, ref isFound, ContentNode, "guid", "");
-                        string ContentRecordName = XmlController.getXMLAttribute(core, ref isFound, ContentNode, "name", "");
+                        string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
+                        string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
                         if ((!string.IsNullOrEmpty(ContentRecordGuid)) || (!string.IsNullOrEmpty(ContentRecordName))) {
                             ContentMetadataModel metaData = Models.Domain.ContentMetadataModel.createByUniqueName(core, ContentName);
                             bool isPageContent = metaData.name.ToLower().Equals("page content");
@@ -888,7 +885,7 @@ namespace Contensive.Processor.Controllers {
                                             //
                                             // todo optimize 
                                             bool IsFieldFound = false;
-                                            string FieldNameLc = XmlController.getXMLAttribute(core, ref isFound, FieldNode, "name", "").ToLowerInvariant();
+                                            string FieldNameLc = XmlController.getXMLAttribute(core, FieldNode, "name", "").ToLowerInvariant();
                                             CPContentBaseClass.FieldTypeIdEnum fieldTypeId = 0;
                                             int FieldLookupContentId = -1;
                                             ContentFieldMetadataModel fieldMetadata = null;
@@ -1107,12 +1104,11 @@ namespace Contensive.Processor.Controllers {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
-                    bool IsFound = false;
-                    string AOName = XmlController.getXMLAttribute(core, ref IsFound, AddonNode, "name", "No Name");
+                    string AOName = XmlController.getXMLAttribute(core, AddonNode, "name", "No Name");
                     if (string.IsNullOrEmpty(AOName)) { AOName = "No Name"; }
-                    string AOGuid = XmlController.getXMLAttribute(core, ref IsFound, AddonNode, "guid", AOName);
+                    string AOGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", AOName);
                     if (string.IsNullOrEmpty(AOGuid)) { AOGuid = AOName; }
-                    string AddOnType = XmlController.getXMLAttribute(core, ref IsFound, AddonNode, "type", "");
+                    string AddOnType = XmlController.getXMLAttribute(core, AddonNode, "type", "");
                     string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(AOGuid) + ")";
                     using (var csData = new CsModel(core)) {
                         if (csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
@@ -1141,8 +1137,8 @@ namespace Contensive.Processor.Controllers {
                                                 // include add-ons - NOTE - import collections must be run before interfaces
                                                 // when importing a collectin that will be used for an include
                                                 //
-                                                string IncludeAddonName = XmlController.getXMLAttribute(core, ref IsFound, PageInterface, "name", "");
-                                                string IncludeAddonGuid = XmlController.getXMLAttribute(core, ref IsFound, PageInterface, "guid", IncludeAddonName);
+                                                string IncludeAddonName = XmlController.getXMLAttribute(core, PageInterface, "name", "");
+                                                string IncludeAddonGuid = XmlController.getXMLAttribute(core, PageInterface, "guid", IncludeAddonName);
                                                 int IncludeAddonId = 0;
                                                 Criteria = "";
                                                 if (!string.IsNullOrEmpty(IncludeAddonGuid)) {

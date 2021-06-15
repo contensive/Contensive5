@@ -39,16 +39,15 @@ namespace Contensive.Processor.Controllers {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
-                    bool IsFound = false;
-                    string addonName = XmlController.getXMLAttribute(core, ref IsFound, AddonNode, "name", "No Name");
+                    string addonName = XmlController.getXMLAttribute(core, AddonNode, "name", "No Name");
                     if (string.IsNullOrEmpty(addonName)) {
                         addonName = "No Name";
                     }
-                    string addonGuid = XmlController.getXMLAttribute(core, ref IsFound, AddonNode, "guid", addonName);
+                    string addonGuid = XmlController.getXMLAttribute(core,  AddonNode, "guid", addonName);
                     if (string.IsNullOrEmpty(addonGuid)) {
                         addonGuid = addonName;
                     }
-                    string navTypeName = XmlController.getXMLAttribute(core, ref IsFound, AddonNode, "type", "");
+                    string navTypeName = XmlController.getXMLAttribute(core,  AddonNode, "type", "");
                     int navTypeId = getListIndex(navTypeName, navTypeIDList);
                     if (navTypeId == 0) {
                         navTypeId = NavTypeIDAddon;
@@ -156,9 +155,9 @@ namespace Contensive.Processor.Controllers {
                                                                     int TriggerContentId = 0;
                                                                     string ContentNameorGuid = TriggerNode.InnerText;
                                                                     if (string.IsNullOrEmpty(ContentNameorGuid)) {
-                                                                        ContentNameorGuid = XmlController.getXMLAttribute(core, ref IsFound, TriggerNode, "guid", "");
+                                                                        ContentNameorGuid = XmlController.getXMLAttribute(core,  TriggerNode, "guid", "");
                                                                         if (string.IsNullOrEmpty(ContentNameorGuid)) {
-                                                                            ContentNameorGuid = XmlController.getXMLAttribute(core, ref IsFound, TriggerNode, "name", "");
+                                                                            ContentNameorGuid = XmlController.getXMLAttribute(core,  TriggerNode, "name", "");
                                                                         }
                                                                     }
                                                                     using (var CS2 = new CsModel(core)) {
@@ -201,14 +200,14 @@ namespace Contensive.Processor.Controllers {
                                                     // include add-ons - NOTE - import collections must be run before interfaces
                                                     // when importing a collectin that will be used for an include
                                                     int scriptinglanguageid = (int)AddonController.ScriptLanguages.VBScript;
-                                                    string ScriptingLanguage = XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "language", "").ToLowerInvariant();
+                                                    string ScriptingLanguage = XmlController.getXMLAttribute(core, Addonfield, "language", "").ToLowerInvariant();
                                                     if (ScriptingLanguage.Equals("javascript") || ScriptingLanguage.Equals("jscript")) {
                                                         scriptinglanguageid = (int)AddonController.ScriptLanguages.Javascript;
                                                     }
                                                     cs.set("scriptinglanguageid", scriptinglanguageid);
-                                                    string ScriptingEntryPoint = XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "entrypoint", "");
+                                                    string ScriptingEntryPoint = XmlController.getXMLAttribute(core,  Addonfield, "entrypoint", "");
                                                     cs.set("ScriptingEntryPoint", ScriptingEntryPoint);
-                                                    int ScriptingTimeout = GenericController.encodeInteger(XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "timeout", "5000"));
+                                                    int ScriptingTimeout = GenericController.encodeInteger(XmlController.getXMLAttribute(core, Addonfield, "timeout", "5000"));
                                                     cs.set("ScriptingTimeout", ScriptingTimeout);
                                                     string ScriptingCode = "";
                                                     foreach (XmlNode ScriptingNode in Addonfield.ChildNodes) {
@@ -239,9 +238,9 @@ namespace Contensive.Processor.Controllers {
                                                     // create a navigator entry with a parent set to this
                                                     //
                                                     cs.save();
-                                                    string menuNameSpace = XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "NameSpace", "");
+                                                    string menuNameSpace = XmlController.getXMLAttribute(core,  Addonfield, "NameSpace", "");
                                                     if (!string.IsNullOrEmpty(menuNameSpace)) {
-                                                        string NavIconTypeString = XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "type", "");
+                                                        string NavIconTypeString = XmlController.getXMLAttribute(core,  Addonfield, "type", "");
                                                         if (string.IsNullOrEmpty(NavIconTypeString)) {
                                                             NavIconTypeString = "Addon";
                                                         }
@@ -270,7 +269,7 @@ namespace Contensive.Processor.Controllers {
                                                     //
                                                     // import exclusive style
                                                     //
-                                                    string NodeName = XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "name", "");
+                                                    string NodeName = XmlController.getXMLAttribute(core,  Addonfield, "name", "");
                                                     string NewValue = encodeText(Addonfield.InnerText).Trim(' ');
                                                     if (NewValue.left(1) != "{") {
                                                         NewValue = "{" + NewValue;
@@ -322,7 +321,7 @@ namespace Contensive.Processor.Controllers {
                                                     //
                                                     // icon
                                                     //
-                                                    FieldValue = XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "link", "");
+                                                    FieldValue = XmlController.getXMLAttribute(core,  Addonfield, "link", "");
                                                     if (!string.IsNullOrEmpty(FieldValue)) {
                                                         //
                                                         // Icons can be either in the root of the website or in content files
@@ -348,9 +347,9 @@ namespace Contensive.Processor.Controllers {
                                                         }
                                                         cs.set("IconFilename", FieldValue);
                                                         {
-                                                            cs.set("IconWidth", GenericController.encodeInteger(XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "width", "0")));
-                                                            cs.set("IconHeight", GenericController.encodeInteger(XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "height", "0")));
-                                                            cs.set("IconSprites", GenericController.encodeInteger(XmlController.getXMLAttribute(core, ref IsFound, Addonfield, "sprites", "0")));
+                                                            cs.set("IconWidth", GenericController.encodeInteger(XmlController.getXMLAttribute(core,  Addonfield, "width", "0")));
+                                                            cs.set("IconHeight", GenericController.encodeInteger(XmlController.getXMLAttribute(core,  Addonfield, "height", "0")));
+                                                            cs.set("IconSprites", GenericController.encodeInteger(XmlController.getXMLAttribute(core,  Addonfield, "sprites", "0")));
                                                         }
                                                     }
                                                     break;

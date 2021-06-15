@@ -19,12 +19,11 @@ namespace Contensive.Processor.Controllers {
             try {
                 string Basename = GenericController.toLCase(rootNode.Name);
                 if (Basename == "layout") {
-                    bool IsFound = false;
-                    string layoutName = XmlController.getXMLAttribute(core, ref IsFound, rootNode, "name", "No Name");
+                    string layoutName = XmlController.getXMLAttribute(core,  rootNode, "name", "No Name");
                     if (string.IsNullOrEmpty(layoutName)) {
                         layoutName = "No Name";
                     }
-                    string layoutGuid = XmlController.getXMLAttribute(core, ref IsFound, rootNode, "guid", layoutName);
+                    string layoutGuid = XmlController.getXMLAttribute(core,  rootNode, "guid", layoutName);
                     if (string.IsNullOrEmpty(layoutGuid)) {
                         layoutGuid = layoutName;
                     }

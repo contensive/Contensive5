@@ -62,11 +62,10 @@ namespace Contensive.Processor.Controllers {
                     LogController.logError(core, new GenericException("the archive file has a syntax error. Application name must be the first node."));
                 } else {
                     result.isBaseCollection = isBaseCollection;
-                    bool Found = false;
                     //
                     // Get Collection Name for logs
                     //
-                    string collectionName = XmlController.getXMLAttribute(core, ref Found, srcXmlDom.DocumentElement, "name", "");
+                    string collectionName = XmlController.getXMLAttribute(core, srcXmlDom.DocumentElement, "name", "");
                     if (string.IsNullOrEmpty(collectionName)) {
                         LogController.logInfo(core, "Upgrademetadata_LoadDataToCollection, Application: " + core.appConfig.name + ", Collection has no name");
                     }
@@ -80,11 +79,11 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // Content Definitions
                                     //
-                                    string contentName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "name", "");
+                                    string contentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "name", "");
                                     if (string.IsNullOrEmpty(contentName)) {
                                         throw (new GenericException("Collection xml file load includes a content metadata node with no name."));
                                     }
-                                    string contentGuid = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "guid", "");
+                                    string contentGuid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "guid", "");
                                     ContentMetadataModel DefaultMetaData = null;
                                     if (!isBaseCollection) {
                                         //
@@ -116,27 +115,27 @@ namespace Contensive.Processor.Controllers {
                                     if (!(DefaultMetaData.active)) {
                                         activeDefaultText = "0";
                                     }
-                                    cdefActiveText = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "Active", activeDefaultText);
+                                    cdefActiveText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Active", activeDefaultText);
                                     if (string.IsNullOrEmpty(cdefActiveText)) { cdefActiveText = "1"; }
                                     targetMetaData.active = encodeBoolean(cdefActiveText);
                                     targetMetaData.activeOnly = true;
                                     //.adminColumns = ?
-                                    targetMetaData.adminOnly = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AdminOnly", DefaultMetaData.adminOnly);
+                                    targetMetaData.adminOnly = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AdminOnly", DefaultMetaData.adminOnly);
                                     targetMetaData.aliasId = "id";
                                     targetMetaData.aliasName = "name";
-                                    targetMetaData.allowAdd = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AllowAdd", DefaultMetaData.allowAdd);
-                                    targetMetaData.allowCalendarEvents = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AllowCalendarEvents", DefaultMetaData.allowCalendarEvents);
-                                    targetMetaData.allowContentChildTool = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AllowContentChildTool", DefaultMetaData.allowContentChildTool);
-                                    targetMetaData.allowContentTracking = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AllowContentTracking", DefaultMetaData.allowContentTracking);
-                                    targetMetaData.allowDelete = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AllowDelete", DefaultMetaData.allowDelete);
-                                    targetMetaData.allowTopicRules = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AllowTopicRules", DefaultMetaData.allowTopicRules);
-                                    targetMetaData.guid = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "guid", DefaultMetaData.guid);
+                                    targetMetaData.allowAdd = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AllowAdd", DefaultMetaData.allowAdd);
+                                    targetMetaData.allowCalendarEvents = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AllowCalendarEvents", DefaultMetaData.allowCalendarEvents);
+                                    targetMetaData.allowContentChildTool = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AllowContentChildTool", DefaultMetaData.allowContentChildTool);
+                                    targetMetaData.allowContentTracking = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AllowContentTracking", DefaultMetaData.allowContentTracking);
+                                    targetMetaData.allowDelete = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AllowDelete", DefaultMetaData.allowDelete);
+                                    targetMetaData.allowTopicRules = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AllowTopicRules", DefaultMetaData.allowTopicRules);
+                                    targetMetaData.guid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "guid", DefaultMetaData.guid);
                                     targetMetaData.dataChanged = setAllDataChanged;
                                     targetMetaData.legacyContentControlCriteria = "";
-                                    targetMetaData.dataSourceName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "ContentDataSourceName", DefaultMetaData.dataSourceName);
-                                    targetMetaData.tableName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "ContentTableName", DefaultMetaData.tableName);
+                                    targetMetaData.dataSourceName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ContentDataSourceName", DefaultMetaData.dataSourceName);
+                                    targetMetaData.tableName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ContentTableName", DefaultMetaData.tableName);
                                     targetMetaData.dataSourceId = 0;
-                                    targetMetaData.defaultSortMethod = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "DefaultSortMethod", DefaultMetaData.defaultSortMethod);
+                                    targetMetaData.defaultSortMethod = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "DefaultSortMethod", DefaultMetaData.defaultSortMethod);
                                     if ((targetMetaData.defaultSortMethod == null) || (targetMetaData.defaultSortMethod == "") || (targetMetaData.defaultSortMethod.ToLowerInvariant() == "name")) {
                                         targetMetaData.defaultSortMethod = "By Name";
                                     } else if (GenericController.toLCase(targetMetaData.defaultSortMethod) == "sortorder") {
@@ -144,21 +143,21 @@ namespace Contensive.Processor.Controllers {
                                     } else if (GenericController.toLCase(targetMetaData.defaultSortMethod) == "date") {
                                         targetMetaData.defaultSortMethod = "By Date";
                                     }
-                                    targetMetaData.developerOnly = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "DeveloperOnly", DefaultMetaData.developerOnly);
-                                    targetMetaData.dropDownFieldList = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "DropDownFieldList", DefaultMetaData.dropDownFieldList);
-                                    targetMetaData.editorGroupName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "EditorGroupName", DefaultMetaData.editorGroupName);
+                                    targetMetaData.developerOnly = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "DeveloperOnly", DefaultMetaData.developerOnly);
+                                    targetMetaData.dropDownFieldList = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "DropDownFieldList", DefaultMetaData.dropDownFieldList);
+                                    targetMetaData.editorGroupName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "EditorGroupName", DefaultMetaData.editorGroupName);
                                     targetMetaData.fields = new Dictionary<string, Models.Domain.ContentFieldMetadataModel>();
-                                    targetMetaData.iconLink = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "IconLink", DefaultMetaData.iconLink);
-                                    targetMetaData.iconHeight = XmlController.getXMLAttributeInteger(core, ref Found, metaData_NodeWithinLoop, "IconHeight", DefaultMetaData.iconHeight);
-                                    targetMetaData.iconWidth = XmlController.getXMLAttributeInteger(core, ref Found, metaData_NodeWithinLoop, "IconWidth", DefaultMetaData.iconWidth);
-                                    targetMetaData.iconSprites = XmlController.getXMLAttributeInteger(core, ref Found, metaData_NodeWithinLoop, "IconSprites", DefaultMetaData.iconSprites);
+                                    targetMetaData.iconLink = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "IconLink", DefaultMetaData.iconLink);
+                                    targetMetaData.iconHeight = XmlController.getXMLAttributeInteger(core,  metaData_NodeWithinLoop, "IconHeight", DefaultMetaData.iconHeight);
+                                    targetMetaData.iconWidth = XmlController.getXMLAttributeInteger(core,  metaData_NodeWithinLoop, "IconWidth", DefaultMetaData.iconWidth);
+                                    targetMetaData.iconSprites = XmlController.getXMLAttributeInteger(core,  metaData_NodeWithinLoop, "IconSprites", DefaultMetaData.iconSprites);
                                     targetMetaData.includesAFieldChange = false;
-                                    targetMetaData.installedByCollectionGuid = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "installedByCollection", DefaultMetaData.installedByCollectionGuid);
-                                    targetMetaData.isBaseContent = isBaseCollection || XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "IsBaseContent", false);
-                                    targetMetaData.isModifiedSinceInstalled = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "IsModified", DefaultMetaData.isModifiedSinceInstalled);
+                                    targetMetaData.installedByCollectionGuid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "installedByCollection", DefaultMetaData.installedByCollectionGuid);
+                                    targetMetaData.isBaseContent = isBaseCollection || XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "IsBaseContent", false);
+                                    targetMetaData.isModifiedSinceInstalled = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "IsModified", DefaultMetaData.isModifiedSinceInstalled);
                                     targetMetaData.name = contentName;
-                                    targetMetaData.parentName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "Parent", DefaultMetaData.parentName);
-                                    targetMetaData.whereClause = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "WhereClause", DefaultMetaData.whereClause);
+                                    targetMetaData.parentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Parent", DefaultMetaData.parentName);
+                                    targetMetaData.whereClause = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "WhereClause", DefaultMetaData.whereClause);
                                     //
                                     // -- determine id
                                     targetMetaData.id = DbController.getContentId(core, contentName);
@@ -170,7 +169,7 @@ namespace Contensive.Processor.Controllers {
                                         // ----- process metadata Field
                                         //
                                         if (textMatch(MetaDataChildNode.Name, "field")) {
-                                            string FieldName = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "Name", "");
+                                            string FieldName = XmlController.getXMLAttribute(core, MetaDataChildNode, "Name", "");
                                             ContentFieldMetadataModel DefaultMetaDataField = null;
                                             //
                                             // try to find field in the defaultmetadata
@@ -186,50 +185,50 @@ namespace Contensive.Processor.Controllers {
                                             }
                                             var metaDataField = result.metaData[contentName.ToLowerInvariant()].fields[FieldName.ToLowerInvariant()];
                                             metaDataField.nameLc = FieldName.ToLowerInvariant();
-                                            string cdefFieldActiveText = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "Active", (DefaultMetaDataField.active) ? "1" : "0");
+                                            string cdefFieldActiveText = XmlController.getXMLAttribute(core, MetaDataChildNode, "Active", (DefaultMetaDataField.active) ? "1" : "0");
                                             metaDataField.active = (string.IsNullOrEmpty(cdefFieldActiveText)) ? true : encodeBoolean(cdefFieldActiveText);
                                             //
                                             // Convert Field Descriptor (text) to field type (integer)
                                             //
                                             string defaultFieldTypeName = ContentFieldMetadataModel.getFieldTypeNameFromFieldTypeId(core, DefaultMetaDataField.fieldTypeId);
-                                            string fieldTypeName = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "FieldType", defaultFieldTypeName);
+                                            string fieldTypeName = XmlController.getXMLAttribute(core, MetaDataChildNode, "FieldType", defaultFieldTypeName);
                                             metaDataField.fieldTypeId = core.db.getFieldTypeIdFromFieldTypeName(fieldTypeName);
-                                            metaDataField.editSortPriority = XmlController.getXMLAttributeInteger(core, ref Found, MetaDataChildNode, "EditSortPriority", DefaultMetaDataField.editSortPriority);
-                                            metaDataField.authorable = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "Authorable", DefaultMetaDataField.authorable);
-                                            metaDataField.caption = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
-                                            metaDataField.defaultValue = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "DefaultValue", DefaultMetaDataField.defaultValue);
-                                            metaDataField.notEditable = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "NotEditable", DefaultMetaDataField.notEditable);
-                                            metaDataField.indexColumn = XmlController.getXMLAttributeInteger(core, ref Found, MetaDataChildNode, "IndexColumn", DefaultMetaDataField.indexColumn);
-                                            metaDataField.indexWidth = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "IndexWidth", DefaultMetaDataField.indexWidth);
-                                            metaDataField.indexSortOrder = XmlController.getXMLAttributeInteger(core, ref Found, MetaDataChildNode, "IndexSortOrder", DefaultMetaDataField.indexSortOrder);
-                                            metaDataField.redirectId = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "RedirectID", DefaultMetaDataField.redirectId);
-                                            metaDataField.redirectPath = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "RedirectPath", DefaultMetaDataField.redirectPath);
-                                            metaDataField.htmlContent = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "HTMLContent", DefaultMetaDataField.htmlContent);
-                                            metaDataField.uniqueName = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "UniqueName", DefaultMetaDataField.uniqueName);
-                                            metaDataField.password = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "Password", DefaultMetaDataField.password);
-                                            metaDataField.adminOnly = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "AdminOnly", DefaultMetaDataField.adminOnly);
-                                            metaDataField.developerOnly = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "DeveloperOnly", DefaultMetaDataField.developerOnly);
-                                            metaDataField.readOnly = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "ReadOnly", DefaultMetaDataField.readOnly);
-                                            metaDataField.required = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "Required", DefaultMetaDataField.required);
-                                            metaDataField.rssTitleField = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "RSSTitle", DefaultMetaDataField.rssTitleField);
-                                            metaDataField.rssDescriptionField = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "RSSDescriptionField", DefaultMetaDataField.rssDescriptionField);
-                                            string memberSelectGroup = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "MemberSelectGroup", "");
+                                            metaDataField.editSortPriority = XmlController.getXMLAttributeInteger(core,  MetaDataChildNode, "EditSortPriority", DefaultMetaDataField.editSortPriority);
+                                            metaDataField.authorable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Authorable", DefaultMetaDataField.authorable);
+                                            metaDataField.caption = XmlController.getXMLAttribute(core, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
+                                            metaDataField.defaultValue = XmlController.getXMLAttribute(core, MetaDataChildNode, "DefaultValue", DefaultMetaDataField.defaultValue);
+                                            metaDataField.notEditable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "NotEditable", DefaultMetaDataField.notEditable);
+                                            metaDataField.indexColumn = XmlController.getXMLAttributeInteger(core,  MetaDataChildNode, "IndexColumn", DefaultMetaDataField.indexColumn);
+                                            metaDataField.indexWidth = XmlController.getXMLAttribute(core, MetaDataChildNode, "IndexWidth", DefaultMetaDataField.indexWidth);
+                                            metaDataField.indexSortOrder = XmlController.getXMLAttributeInteger(core,  MetaDataChildNode, "IndexSortOrder", DefaultMetaDataField.indexSortOrder);
+                                            metaDataField.redirectId = XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectID", DefaultMetaDataField.redirectId);
+                                            metaDataField.redirectPath = XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectPath", DefaultMetaDataField.redirectPath);
+                                            metaDataField.htmlContent = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "HTMLContent", DefaultMetaDataField.htmlContent);
+                                            metaDataField.uniqueName = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "UniqueName", DefaultMetaDataField.uniqueName);
+                                            metaDataField.password = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Password", DefaultMetaDataField.password);
+                                            metaDataField.adminOnly = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "AdminOnly", DefaultMetaDataField.adminOnly);
+                                            metaDataField.developerOnly = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "DeveloperOnly", DefaultMetaDataField.developerOnly);
+                                            metaDataField.readOnly = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "ReadOnly", DefaultMetaDataField.readOnly);
+                                            metaDataField.required = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Required", DefaultMetaDataField.required);
+                                            metaDataField.rssTitleField = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "RSSTitle", DefaultMetaDataField.rssTitleField);
+                                            metaDataField.rssDescriptionField = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "RSSDescriptionField", DefaultMetaDataField.rssDescriptionField);
+                                            string memberSelectGroup = XmlController.getXMLAttribute(core, MetaDataChildNode, "MemberSelectGroup", "");
                                             metaDataField.memberSelectGroupName_set(core, memberSelectGroup);
-                                            metaDataField.editTabName = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "EditTab", DefaultMetaDataField.editTabName);
-                                            metaDataField.scramble = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "Scramble", DefaultMetaDataField.scramble);
-                                            metaDataField.lookupList = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "LookupList", DefaultMetaDataField.lookupList);
-                                            metaDataField.manyToManyRulePrimaryField = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "ManyToManyRulePrimaryField", DefaultMetaDataField.manyToManyRulePrimaryField);
-                                            metaDataField.manyToManyRuleSecondaryField = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "ManyToManyRuleSecondaryField", DefaultMetaDataField.manyToManyRuleSecondaryField);
-                                            metaDataField.set_lookupContentName(core, XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "LookupContent", DefaultMetaDataField.get_lookupContentName(core)));
+                                            metaDataField.editTabName = XmlController.getXMLAttribute(core, MetaDataChildNode, "EditTab", DefaultMetaDataField.editTabName);
+                                            metaDataField.scramble = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Scramble", DefaultMetaDataField.scramble);
+                                            metaDataField.lookupList = XmlController.getXMLAttribute(core, MetaDataChildNode, "LookupList", DefaultMetaDataField.lookupList);
+                                            metaDataField.manyToManyRulePrimaryField = XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyRulePrimaryField", DefaultMetaDataField.manyToManyRulePrimaryField);
+                                            metaDataField.manyToManyRuleSecondaryField = XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyRuleSecondaryField", DefaultMetaDataField.manyToManyRuleSecondaryField);
+                                            metaDataField.set_lookupContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "LookupContent", DefaultMetaDataField.get_lookupContentName(core)));
                                             // isbase should be set if the base file is loading, regardless of the state of any isBaseField attribute -- which will be removed later
                                             // case 1 - when the application collection is loaded from the exported xml file, isbasefield must follow the export file although the data is not the base collection
                                             // case 2 - when the base file is loaded, all fields must include the attribute
-                                            metaDataField.isBaseField = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "IsBaseField", false) || isBaseCollection;
-                                            metaDataField.set_redirectContentName(core, XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "RedirectContent", DefaultMetaDataField.get_redirectContentName(core)));
-                                            metaDataField.set_manyToManyContentName(core, XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "ManyToManyContent", DefaultMetaDataField.get_manyToManyContentName(core)));
-                                            metaDataField.set_manyToManyRuleContentName(core, XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "ManyToManyRuleContent", DefaultMetaDataField.get_manyToManyRuleContentName(core)));
-                                            metaDataField.isModifiedSinceInstalled = XmlController.getXMLAttributeBoolean(core, ref Found, MetaDataChildNode, "IsModified", DefaultMetaDataField.isModifiedSinceInstalled);
-                                            metaDataField.installedByCollectionGuid = XmlController.getXMLAttribute(core, ref Found, MetaDataChildNode, "installedByCollectionId", DefaultMetaDataField.installedByCollectionGuid);
+                                            metaDataField.isBaseField = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "IsBaseField", false) || isBaseCollection;
+                                            metaDataField.set_redirectContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectContent", DefaultMetaDataField.get_redirectContentName(core)));
+                                            metaDataField.set_manyToManyContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyContent", DefaultMetaDataField.get_manyToManyContentName(core)));
+                                            metaDataField.set_manyToManyRuleContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyRuleContent", DefaultMetaDataField.get_manyToManyRuleContentName(core)));
+                                            metaDataField.isModifiedSinceInstalled = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "IsModified", DefaultMetaDataField.isModifiedSinceInstalled);
+                                            metaDataField.installedByCollectionGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "installedByCollectionId", DefaultMetaDataField.installedByCollectionGuid);
                                             metaDataField.id = DbController.getContentFieldId(core, targetMetaData.id, metaDataField.nameLc);
                                             metaDataField.dataChanged = setAllDataChanged;
                                             //
@@ -257,9 +256,9 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // SQL Indexes
                                     //
-                                    string IndexName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "indexname", "");
-                                    string TableName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "tableName", "");
-                                    string DataSourceName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "DataSourceName", "");
+                                    string IndexName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "indexname", "");
+                                    string TableName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "tableName", "");
+                                    string DataSourceName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "DataSourceName", "");
                                     if (string.IsNullOrEmpty(DataSourceName)) {
                                         DataSourceName = "default";
                                     }
@@ -279,7 +278,7 @@ namespace Contensive.Processor.Controllers {
                                         indexName = IndexName,
                                         tableName = TableName,
                                         dataSourceName = DataSourceName,
-                                        fieldNameList = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "FieldNameList", "")
+                                        fieldNameList = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "FieldNameList", "")
                                     };
                                     result.sqlIndexes.Add(newIndex);
                                     break;
@@ -289,8 +288,8 @@ namespace Contensive.Processor.Controllers {
                             case "navigatorentry": {
                                     //
                                     // Admin Menus / Navigator Entries
-                                    string MenuName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "Name", "");
-                                    string MenuGuid = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "guid", "");
+                                    string MenuName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Name", "");
+                                    string MenuGuid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "guid", "");
                                     bool IsNavigator = (NodeName == "navigatorentry");
                                     string MenuKey = null;
                                     if (!IsNavigator) {
@@ -299,7 +298,7 @@ namespace Contensive.Processor.Controllers {
                                         MenuKey = MenuGuid;
                                     }
                                     if (!result.menus.ContainsKey(MenuKey)) {
-                                        cdefActiveText = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "Active", "1");
+                                        cdefActiveText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Active", "1");
                                         if (string.IsNullOrEmpty(cdefActiveText)) {
                                             cdefActiveText = "1";
                                         }
@@ -309,18 +308,18 @@ namespace Contensive.Processor.Controllers {
                                             guid = MenuGuid,
                                             key = MenuKey,
                                             active = GenericController.encodeBoolean(cdefActiveText),
-                                            menuNameSpace = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "NameSpace", ""),
-                                            parentName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "ParentName", ""),
-                                            contentName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "ContentName", ""),
-                                            linkPage = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "LinkPage", ""),
-                                            sortOrder = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "SortOrder", ""),
-                                            adminOnly = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "AdminOnly", false),
-                                            developerOnly = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "DeveloperOnly", false),
-                                            newWindow = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "NewWindow", false),
-                                            addonName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "AddonName", ""),
-                                            addonGuid = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "AddonGuid", ""),
-                                            navIconType = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "NavIconType", ""),
-                                            navIconTitle = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "NavIconTitle", ""),
+                                            menuNameSpace = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NameSpace", ""),
+                                            parentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ParentName", ""),
+                                            contentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "ContentName", ""),
+                                            linkPage = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "LinkPage", ""),
+                                            sortOrder = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "SortOrder", ""),
+                                            adminOnly = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "AdminOnly", false),
+                                            developerOnly = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "DeveloperOnly", false),
+                                            newWindow = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "NewWindow", false),
+                                            addonName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonName", ""),
+                                            addonGuid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonGuid", ""),
+                                            navIconType = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NavIconType", ""),
+                                            navIconTitle = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NavIconTitle", ""),
                                             isNavigator = IsNavigator
                                         });
                                     }
@@ -335,7 +334,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // style sheet entries
                                     //
-                                    string styleName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "Name", "");
+                                    string styleName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Name", "");
                                     int Ptr = 0;
                                     if (result.styleCnt > 0) {
                                         for (Ptr = 0; Ptr < result.styleCnt; Ptr++) {
@@ -352,7 +351,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     var tempVar5 = result.styles[Ptr];
                                     tempVar5.dataChanged = setAllDataChanged;
-                                    tempVar5.overwrite = XmlController.getXMLAttributeBoolean(core, ref Found, metaData_NodeWithinLoop, "Overwrite", false);
+                                    tempVar5.overwrite = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "Overwrite", false);
                                     tempVar5.copy = metaData_NodeWithinLoop.InnerText;
                                     break;
                                 }
@@ -365,7 +364,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             case "pagetemplate": {
                                     //
-                                    string templateName = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "Name", "");
+                                    string templateName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Name", "");
                                     int Ptr = 0;
                                     if (result.pageTemplateCnt > 0) {
                                         for (Ptr = 0; Ptr < result.pageTemplateCnt; Ptr++) {
@@ -381,9 +380,9 @@ namespace Contensive.Processor.Controllers {
                                         result.pageTemplates[Ptr].name = templateName;
                                     }
                                     var tempVar6 = result.pageTemplates[Ptr];
-                                    tempVar6.copy = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "Copy", "");
-                                    tempVar6.guid = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "guid", "");
-                                    tempVar6.style = XmlController.getXMLAttribute(core, ref Found, metaData_NodeWithinLoop, "style", "");
+                                    tempVar6.copy = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Copy", "");
+                                    tempVar6.guid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "guid", "");
+                                    tempVar6.style = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "style", "");
                                     break;
                                 }
                             default: {

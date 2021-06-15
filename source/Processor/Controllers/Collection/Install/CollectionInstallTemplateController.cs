@@ -20,12 +20,11 @@ namespace Contensive.Processor.Controllers {
             try {
                 string Basename = toLCase(templateNode.Name);
                 if (Basename == "template") {
-                    bool IsFound = false;
-                    string templateName = XmlController.getXMLAttribute(core, ref IsFound, templateNode, "name", "No Name");
+                    string templateName = XmlController.getXMLAttribute(core, templateNode, "name", "No Name");
                     if (string.IsNullOrEmpty(templateName)) {
                         templateName = "No Name";
                     }
-                    string recordGuid = XmlController.getXMLAttribute(core, ref IsFound, templateNode, "guid", templateName);
+                    string recordGuid = XmlController.getXMLAttribute(core, templateNode, "guid", templateName);
                     if (string.IsNullOrEmpty(recordGuid)) {
                         recordGuid = templateName;
                     }
@@ -39,8 +38,8 @@ namespace Contensive.Processor.Controllers {
                     foreach (XmlNode childNode in templateNode.ChildNodes) {
                         switch (childNode.Name.ToLowerInvariant()) {
                             case "includeaddon": {
-                                    string addonGuid = XmlController.getXMLAttribute(core, ref IsFound, childNode, "guid", "");
-                                    string addonName = XmlController.getXMLAttribute(core, ref IsFound, childNode, "name", "No Name");
+                                    string addonGuid = XmlController.getXMLAttribute(core, childNode, "guid", "");
+                                    string addonName = XmlController.getXMLAttribute(core, childNode, "name", "No Name");
                                     if (!string.IsNullOrEmpty(addonGuid)) {
                                         var addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuid);
                                         if (addon == null) {
@@ -66,7 +65,7 @@ namespace Contensive.Processor.Controllers {
                     template.name = templateName;
                     //record.bodyHTML = templateNode.InnerText;
                     template.collectionId = collectionId;
-                    template.isSecure = XmlController.getXMLAttributeBoolean(core, ref IsFound, templateNode, "issecure", false);
+                    template.isSecure = XmlController.getXMLAttributeBoolean(core, templateNode, "issecure", false);
                     template.save(core.cpParent);
                 }
             } catch (Exception ex) {

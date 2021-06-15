@@ -124,12 +124,11 @@ namespace Contensive.Processor.Controllers {
                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, xml base name wrong [" + CollectionFileBaseName + "]");
                                 continue;
                             }
-                            bool IsFound = false;
                             //
                             // Collection File
                             //
-                            string Collectionname = XmlController.getXMLAttribute(core, ref IsFound, CollectionFile.DocumentElement, "name", "");
-                            string collectionGuid = XmlController.getXMLAttribute(core, ref IsFound, CollectionFile.DocumentElement, "guid", Collectionname);
+                            string Collectionname = XmlController.getXMLAttribute(core, CollectionFile.DocumentElement, "name", "");
+                            string collectionGuid = XmlController.getXMLAttribute(core, CollectionFile.DocumentElement, "guid", Collectionname);
                             if ((!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (!collectionsDownloaded.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture)))) {
                                 if (string.IsNullOrEmpty(Collectionname)) {
                                     //
@@ -170,8 +169,8 @@ namespace Contensive.Processor.Controllers {
                                         case "importcollection":
                                             //
                                             // -- Download Collection file into install folder
-                                            ChildCollectionName = XmlController.getXMLAttribute(core, ref Found, metaDataSection, "name", "");
-                                            ChildCollectionGUID = XmlController.getXMLAttribute(core, ref Found, metaDataSection, "guid", metaDataSection.InnerText);
+                                            ChildCollectionName = XmlController.getXMLAttribute(core, metaDataSection, "name", "");
+                                            ChildCollectionGUID = XmlController.getXMLAttribute(core, metaDataSection, "guid", metaDataSection.InnerText);
                                             if (string.IsNullOrEmpty(ChildCollectionGUID)) {
                                                 ChildCollectionGUID = metaDataSection.InnerText;
                                             }
