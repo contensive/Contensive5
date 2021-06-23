@@ -655,16 +655,14 @@ namespace Contensive.Processor.Controllers {
                                             case "importcollection": {
                                                     //
                                                     // processed, but add rule for collection record
-                                                    bool Found = false;
-                                                    string ChildCollectionName = XmlController.getXMLAttribute(core, metaDataSection, "name", "");
-                                                    string ChildCollectionGUId = XmlController.getXMLAttribute(core, metaDataSection, "guid", metaDataSection.InnerText);
-                                                    if (string.IsNullOrEmpty(ChildCollectionGUId)) {
-                                                        ChildCollectionGUId = metaDataSection.InnerText;
+                                                    string ChildCollectionGuid = XmlController.getXMLAttribute(core, metaDataSection, "guid", metaDataSection.InnerText);
+                                                    if (string.IsNullOrEmpty(ChildCollectionGuid)) {
+                                                        ChildCollectionGuid = metaDataSection.InnerText;
                                                     }
-                                                    if (!string.IsNullOrEmpty(ChildCollectionGUId)) {
-                                                        int ChildCollectionId = 0;
+                                                    if (!string.IsNullOrEmpty(ChildCollectionGuid)) {
                                                         using (var csData = new CsModel(core)) {
-                                                            csData.open("Add-on Collections", "ccguid=" + DbController.encodeSQLText(ChildCollectionGUId));
+                                                            csData.open("Add-on Collections", "ccguid=" + DbController.encodeSQLText(ChildCollectionGuid));
+                                                            int ChildCollectionId = 0;
                                                             if (csData.ok()) {
                                                                 ChildCollectionId = csData.getInteger("id");
                                                             }
@@ -1104,97 +1102,96 @@ namespace Contensive.Processor.Controllers {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
-                    string AOName = XmlController.getXMLAttribute(core, AddonNode, "name", "No Name");
-                    if (string.IsNullOrEmpty(AOName)) { AOName = "No Name"; }
-                    string AOGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", AOName);
-                    if (string.IsNullOrEmpty(AOGuid)) { AOGuid = AOName; }
-                    string AddOnType = XmlController.getXMLAttribute(core, AddonNode, "type", "");
-                    string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(AOGuid) + ")";
+                    string addonName = XmlController.getXMLAttribute(core, AddonNode, "name", "No Name");
+                    if (string.IsNullOrEmpty(addonName)) { addonName = "No Name"; }
+                    string addonGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", addonName);
+                    if (string.IsNullOrEmpty(addonGuid)) { addonGuid = addonName; }
+                    string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(addonGuid) + ")";
                     using (var csData = new CsModel(core)) {
                         if (csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                             //
-                            // Update the Addon
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + AOName + "], Guid [" + AOGuid + "]");
-                        } else {
-                            //
-                            // not found by GUID - search name against name to update legacy Add-ons
-                            Criteria = "(name=" + DbController.encodeSQLText(AOName) + ")and(" + AddonGuidFieldName + " is null)";
-                            csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
+                            // Update the Addon, done
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                            return result;
                         }
+                        //
+                        // -- not found by GUID - search name against name to update legacy Add-ons
+                        Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
+                        csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
                         if (!csData.ok()) {
                             //
-                            // Could not find add-on
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + AOName + "], Guid [" + AOGuid + "]");
-                        } else {
-                            if (AddonNode.ChildNodes.Count > 0) {
-                                foreach (XmlNode PageInterface in AddonNode.ChildNodes) {
-                                    switch (GenericController.toLCase(PageInterface.Name)) {
-                                        case "includeaddon":
-                                        case "includeadd-on":
-                                        case "include addon":
-                                        case "include add-on": {
-                                                //
-                                                // include add-ons - NOTE - import collections must be run before interfaces
-                                                // when importing a collectin that will be used for an include
-                                                //
-                                                string IncludeAddonName = XmlController.getXMLAttribute(core, PageInterface, "name", "");
-                                                string IncludeAddonGuid = XmlController.getXMLAttribute(core, PageInterface, "guid", IncludeAddonName);
-                                                int IncludeAddonId = 0;
-                                                Criteria = "";
-                                                if (!string.IsNullOrEmpty(IncludeAddonGuid)) {
-                                                    Criteria = AddonGuidFieldName + "=" + DbController.encodeSQLText(IncludeAddonGuid);
-                                                    if (string.IsNullOrEmpty(IncludeAddonName)) {
-                                                        IncludeAddonName = "Add-on " + IncludeAddonGuid;
-                                                    }
-                                                } else if (!string.IsNullOrEmpty(IncludeAddonName)) {
-                                                    Criteria = "(name=" + DbController.encodeSQLText(IncludeAddonName) + ")";
-                                                }
-                                                if (!string.IsNullOrEmpty(Criteria)) {
-                                                    using (var CS2 = new CsModel(core)) {
-                                                        CS2.open(AddonModel.tableMetadata.contentName, Criteria);
-                                                        if (CS2.ok()) {
-                                                            IncludeAddonId = CS2.getInteger("ID");
-                                                        }
-                                                    }
-                                                    bool AddRule = false;
-                                                    if (IncludeAddonId == 0) {
-                                                        string UserError = "The include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
-                                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
-                                                        ReturnUpgradeOK = false;
-                                                        ReturnErrorMessage = ReturnErrorMessage + "<P>The collection was not installed because the add-on [" + AOName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>";
-                                                    } else {
-                                                        using (var cs3 = new CsModel(core)) {
-                                                            AddRule = !cs3.openSql("select ID from ccAddonIncludeRules where Addonid=" + csData.getInteger("id") + " and IncludedAddonID=" + IncludeAddonId);
-                                                        }
-                                                    }
-                                                    if (AddRule) {
-                                                        using (var cs3 = new CsModel(core)) {
-                                                            cs3.insert("Add-on Include Rules");
-                                                            if (cs3.ok()) {
-                                                                cs3.set("Addonid", csData.getInteger("id"));
-                                                                cs3.set("IncludedAddonID", IncludeAddonId);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                break;
+                            // Could not find add-on, done
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                            return result;
+                        }
+                        if (AddonNode.ChildNodes.Count == 0) {
+                            //
+                            // -- no child nodes, done
+                            return result;
+                        }
+                        foreach (XmlNode PageInterface in AddonNode.ChildNodes) {
+                            switch (GenericController.toLCase(PageInterface.Name)) {
+                                case "includeaddon":
+                                case "includeadd-on":
+                                case "include addon":
+                                case "include add-on": {
+                                        //
+                                        // -- include add-ons - NOTE - import collections must be run before interfaces, when importing a collectin that will be used for an include
+                                        string IncludeAddonName = XmlController.getXMLAttribute(core, PageInterface, "name", "");
+                                        string IncludeAddonGuid = XmlController.getXMLAttribute(core, PageInterface, "guid", IncludeAddonName);
+                                        int IncludeAddonId = 0;
+                                        Criteria = "";
+                                        if (!string.IsNullOrEmpty(IncludeAddonGuid)) {
+                                            Criteria = AddonGuidFieldName + "=" + DbController.encodeSQLText(IncludeAddonGuid);
+                                            if (string.IsNullOrEmpty(IncludeAddonName)) {
+                                                IncludeAddonName = "Add-on " + IncludeAddonGuid;
                                             }
-                                        default: {
-                                                // do nothing
-                                                break;
+                                        } else if (!string.IsNullOrEmpty(IncludeAddonName)) {
+                                            Criteria = "(name=" + DbController.encodeSQLText(IncludeAddonName) + ")";
+                                        }
+                                        if (!string.IsNullOrEmpty(Criteria)) {
+                                            using (var CS2 = new CsModel(core)) {
+                                                CS2.open(AddonModel.tableMetadata.contentName, Criteria);
+                                                if (CS2.ok()) {
+                                                    IncludeAddonId = CS2.getInteger("ID");
+                                                }
                                             }
+                                            bool AddRule = false;
+                                            if (IncludeAddonId == 0) {
+                                                string UserError = "The include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
+                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
+                                                ReturnUpgradeOK = false;
+                                                ReturnErrorMessage = ReturnErrorMessage + "<P>The collection was not installed because the add-on [" + addonName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>";
+                                            } else {
+                                                using (var cs3 = new CsModel(core)) {
+                                                    AddRule = !cs3.openSql("select ID from ccAddonIncludeRules where Addonid=" + csData.getInteger("id") + " and IncludedAddonID=" + IncludeAddonId);
+                                                }
+                                            }
+                                            if (AddRule) {
+                                                using (var cs3 = new CsModel(core)) {
+                                                    cs3.insert("Add-on Include Rules");
+                                                    if (cs3.ok()) {
+                                                        cs3.set("Addonid", csData.getInteger("id"));
+                                                        cs3.set("IncludedAddonID", IncludeAddonId);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        break;
                                     }
-                                }
+                                default: {
+                                        // do nothing
+                                        break;
+                                    }
                             }
                         }
                     }
                 }
+                return result;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return result;
-            //
         }
         //
         //======================================================================================================
