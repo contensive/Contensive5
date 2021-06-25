@@ -1097,8 +1097,7 @@ namespace Contensive.Processor.Controllers {
         /// this is the second pass, so all add-ons should be added
         /// no errors for missing addones, except the include add-on case
         /// </summary>
-        private static string setAddonDependencies(CoreController core, XmlNode AddonNode, string AddonGuidFieldName, string ignore_BuildVersion, int CollectionID, ref bool ReturnUpgradeOK, ref string ReturnErrorMessage) {
-            string result = "";
+        private static void setAddonDependencies(CoreController core, XmlNode AddonNode, string AddonGuidFieldName, string ignore_BuildVersion, int CollectionID, ref bool ReturnUpgradeOK, ref string ReturnErrorMessage) {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
@@ -1108,27 +1107,42 @@ namespace Contensive.Processor.Controllers {
                     if (string.IsNullOrEmpty(addonGuid)) { addonGuid = addonName; }
                     string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(addonGuid) + ")";
                     using (var csData = new CsModel(core)) {
-                        if (csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
-                            //
-                            // Update the Addon, done
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
-                            return result;
-                        }
                         //
-                        // -- not found by GUID - search name against name to update legacy Add-ons
-                        Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
-                        csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
-                        if (!csData.ok()) {
+                        //????? dont understand why this code aborted if the addon was found. It should add the dependencies found, remove the ones not found
+                        // 
+                        if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                             //
-                            // Could not find add-on, done
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
-                            return result;
+                            // -- not found by GUID - search name to update legacy Add-ons
+                            csData.close();
+                            Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
+                            if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
+                                //
+                                // Could not find add-on, this is an error, but do not abort
+                                LogController.logError(core, new ApplicationException( MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]"));
+                                return;
+                            }
                         }
-                        if (AddonNode.ChildNodes.Count == 0) {
-                            //
-                            // -- no child nodes, done
-                            return result;
-                        }
+                        //if (csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
+                        //    //
+                        //    // Update the Addon, done
+                        //    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                        //    return result;
+                        //}
+                        ////
+                        //// -- not found by GUID - search name against name to update legacy Add-ons
+                        //Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
+                        //csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
+                        //if (!csData.ok()) {
+                        //    //
+                        //    // Could not find add-on, done
+                        //    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                        //    return result;
+                        //}
+                        //if (AddonNode.ChildNodes.Count == 0) {
+                        //    //
+                        //    // -- no child nodes, done
+                        //    return result;
+                        //}
                         foreach (XmlNode PageInterface in AddonNode.ChildNodes) {
                             switch (GenericController.toLCase(PageInterface.Name)) {
                                 case "includeaddon":
@@ -1187,7 +1201,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                return result;
+                return;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

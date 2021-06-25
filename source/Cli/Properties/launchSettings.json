@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a app2103150146 --deleteprotection off --delete"
+      "commandLineArgs": "-a app210530 -r"
     }
   }
 }

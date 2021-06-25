@@ -541,24 +541,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             break;
                                         }
                                     case "CONTENTCONTROLID": {
-                                            //
-                                            // run this after the save, so it will be blocked if the save fails
-                                            // block the change from this save
-                                            // Update the content control ID here, for all the children, and all the edit and archive records of both
-                                            //
-                                            int saveValue = GenericController.encodeInteger(fieldValueObject);
-                                            if (adminData.editRecord.contentControlId != saveValue) {
-                                                SaveCCIDValue = saveValue;
+                                            if (csData.getInteger(fieldName) != encodeInteger(fieldValueObject)) {
+                                                SaveCCIDValue = encodeInteger(fieldValueObject);
                                                 recordChanged = true;
                                             }
                                             break;
                                         }
                                     case "ACTIVE": {
-                                            bool saveValue = GenericController.encodeBoolean(fieldValueObject);
-                                            if (csData.getBoolean(fieldName) != saveValue) {
+                                            if (csData.getBoolean(fieldName) != encodeBoolean(fieldValueObject)) {
                                                 fieldChanged = true;
                                                 recordChanged = true;
-                                                csData.set(fieldName, saveValue);
+                                                csData.set(fieldName, encodeBoolean(fieldValueObject));
                                             }
                                             break;
                                         }
@@ -566,14 +559,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             //
                                             // ----- make sure content watch expires before content expires
                                             //
-                                            if (!GenericController.isNull(fieldValueObject)) {
-                                                if (GenericController.isDate(fieldValueObject)) {
-                                                    DateTime saveValue = GenericController.encodeDate(fieldValueObject);
-                                                    if (adminData.contentWatchExpires <= DateTime.MinValue) {
-                                                        adminData.contentWatchExpires = saveValue;
-                                                    } else if (adminData.contentWatchExpires > saveValue) {
-                                                        adminData.contentWatchExpires = saveValue;
-                                                    }
+                                            if (!isNull(fieldValueObject) && isDate(fieldValueObject)) {
+                                                DateTime saveValue = encodeDate(fieldValueObject);
+                                                if (adminData.contentWatchExpires <= DateTime.MinValue) {
+                                                    adminData.contentWatchExpires = saveValue;
+                                                } else if (adminData.contentWatchExpires > saveValue) {
+                                                    adminData.contentWatchExpires = saveValue;
                                                 }
                                             }
                                             //
@@ -583,14 +574,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             //
                                             // ----- make sure content watch expires before content archives
                                             //
-                                            if (!GenericController.isNull(fieldValueObject)) {
-                                                if (GenericController.isDate(fieldValueObject)) {
-                                                    DateTime saveValue = GenericController.encodeDate(fieldValueObject);
-                                                    if ((adminData.contentWatchExpires) <= DateTime.MinValue) {
-                                                        adminData.contentWatchExpires = saveValue;
-                                                    } else if (adminData.contentWatchExpires > saveValue) {
-                                                        adminData.contentWatchExpires = saveValue;
-                                                    }
+                                            if (!isNull(fieldValueObject) && isDate(fieldValueObject)) {
+                                                DateTime saveValue = GenericController.encodeDate(fieldValueObject);
+                                                if ((adminData.contentWatchExpires) <= DateTime.MinValue) {
+                                                    adminData.contentWatchExpires = saveValue;
+                                                } else if (adminData.contentWatchExpires > saveValue) {
+                                                    adminData.contentWatchExpires = saveValue;
                                                 }
                                             }
                                             break;
