@@ -1074,7 +1074,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="poolName"></param>
         public void verifyAppPool(string poolName) {
             try {
-                using ServerManager serverManager = new ServerManager();
+                using ServerManager serverManager = new();
                 bool poolFound = false;
                 ApplicationPool appPool = null;
                 foreach (ApplicationPool appPoolWithinLoop in serverManager.ApplicationPools) {

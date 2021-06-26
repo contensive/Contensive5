@@ -262,9 +262,9 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// 
+        /// doc persistent list of addons that have added to metadata to the head (title, etc) to prevent duplicate metadata
         /// </summary>
-        internal List<int> addonIdListRunInThisDoc { get; set; } = new List<int>();
+        internal List<int> addonIdList_AddedMetedata { get; set; } = new List<int>();
         //
         //====================================================================================================
         /// <summary>
@@ -307,6 +307,13 @@ namespace Contensive.Processor.Controllers {
         /// Dictionary of addons running to track recursion, addonId and count of recursive entries. When executing an addon, check if it is in the list, if so, check if the recursion count is under the limit (addonRecursionDepthLimit). If not add it or increment the count. On exit, decrement the count and remove if 0.
         /// </summary>
         internal Dictionary<int, int> addonRecursionDepth { get; set; } = new Dictionary<int, int>();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Addons executed during this document. Used to verify if an addon dependency has already rrun
+        /// </summary>
+        internal List<int> addonsExecuted { get; set; } = new();
+
         //
         //====================================================================================================
         /// <summary>

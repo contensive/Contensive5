@@ -25,7 +25,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         public DocPropertiesModel(CoreController core) {
             this.core = core;
-            docPropertiesDict = new Dictionary<string, DocPropertyModel>();
+            docPropertiesDict = new Dictionary<string, DocPropertyModel>(StringComparer.InvariantCultureIgnoreCase);
         }
         //
         //====================================================================================================
@@ -289,16 +289,19 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="sourceKey"></param>
         /// <returns></returns>
         private string encodeDocPropertyKey(string sourceKey) {
-            string returnResult = "";
-            try {
-                if (!string.IsNullOrEmpty(sourceKey)) {
-                    returnResult = sourceKey.ToLowerInvariant();
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-            return returnResult;
+            //
+            // -- key was forced lowecase, but changing the dictionary to allow ingnorecase stringcomparer means no longer needed.
+            return sourceKey;
+            //string returnResult = "";
+            //try {
+            //    if (!string.IsNullOrEmpty(sourceKey)) {
+            //        returnResult = sourceKey.ToLowerInvariant();
+            //    }
+            //} catch (Exception ex) {
+            //    LogController.logError(core, ex);
+            //    throw;
+            //}
+            //return returnResult;
         }
         //
         //

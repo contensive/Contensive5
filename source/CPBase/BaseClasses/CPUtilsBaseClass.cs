@@ -693,11 +693,11 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         [Obsolete("Deprecated. use cp.addon.execute()", false)] public abstract string ExecuteAddon(string IdGuidOrName, addonContext context);
         /// <summary>
-        /// Deprecated. use cp.addon.executeAsync()
+        /// Deprecated. use cp.addon.executeAsProcess()
         /// </summary>
         /// <param name="IdGuidOrName"></param>
         /// <returns></returns>
-        [Obsolete("Deprecated. use cp.addon.executeAsync()", false)] public abstract string ExecuteAddonAsProcess(string IdGuidOrName);
+        [Obsolete("Deprecated. use cp.addon.executeAsProcess()", false)] public abstract string ExecuteAddonAsProcess(string IdGuidOrName);
         /// <summary>
         /// Deprecated
         /// </summary>

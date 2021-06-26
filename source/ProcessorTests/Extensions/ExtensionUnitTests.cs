@@ -11,11 +11,21 @@ namespace Tests {
             Assert.AreEqual(10, test.Length);
             //
             string test300 = string.Concat(Enumerable.Repeat(test, 30));
-            Assert.AreEqual(300, test.Length);
+            Assert.AreEqual(300, test300.Length);
+            //
+            Assert.AreEqual(0, test.substringSafe(0, 0).Length);
             //
             Assert.AreEqual(5, test.substringSafe(0, 5).Length);
             //
-            Assert.AreEqual(254, test300.substringSafe(0, 254).Length);
+            Assert.AreEqual(10, test.substringSafe(0, 10).Length);
+            //
+            Assert.AreEqual(10, test.substringSafe(0, 100).Length);
+            //
+            Assert.AreEqual(299, test300.substringSafe(0, 299).Length);
+            //
+            Assert.AreEqual(300, test300.substringSafe(0, 300).Length);
+            //
+            Assert.AreEqual(300, test300.substringSafe(0, 301).Length);
             //
         }
     }

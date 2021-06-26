@@ -92,48 +92,48 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Execute an addon asynchonously with the current session environment.
+        /// Execute an addon in a background process with the current session environment.
         /// </summary>
         /// <param name="addonName">The name of the addon to be executed.</param>
-        public abstract void ExecuteAsyncByUniqueName(string addonName);
+        public abstract void ExecuteAsProcessByUniqueName(string addonName);
         //
         //====================================================================================================
         /// <summary>
-        /// Execute an addon asynchonously with the current session environment. Arguments can be passed that the addon can read with cp.doc.get methods.
+        /// Execute an addon in a background process with the current session environment. Arguments can be passed that the addon can read with cp.doc.get methods.
         /// </summary>
         /// <param name="addonName">The name of the addon to be executed.</param>
         /// <param name="argumentKeyValuePairs">The executing addon can read these arguments with methods like cp.doc.getText("key").</param>
-        public abstract void ExecuteAsyncByUniqueName(string addonName, Dictionary<string, string> argumentKeyValuePairs);
+        public abstract void ExecuteAsProcessByUniqueName(string addonName, Dictionary<string, string> argumentKeyValuePairs);
         //
         //====================================================================================================
         /// <summary>
-        /// Execute an addon asynchonously with the current session environment.
+        /// Execute an addon in a background process with the current session environment.
         /// </summary>
         /// <param name="addonGuid">The guid of the addon to be executed.</param>
-        public abstract void ExecuteAsync(string addonGuid);
+        public abstract void ExecuteAsProcess(string addonGuid);
         //
         //====================================================================================================
         /// <summary>
-        /// Execute an addon asynchonously with the current session environment. Arguments can be passed that the addon can read with cp.doc.get methods.
+        /// Execute an addon in a background process with the current session environment. Arguments can be passed that the addon can read with cp.doc.get methods.
         /// </summary>
         /// <param name="addonGuid">The guid of the addon to be executed.</param>
         /// <param name="argumentKeyValuePairs">The executing addon can read these arguments with methods like cp.doc.getText("key").</param>
-        public abstract void ExecuteAsync(string addonGuid, Dictionary<string, string> argumentKeyValuePairs);
+        public abstract void ExecuteAsProcess(string addonGuid, Dictionary<string, string> argumentKeyValuePairs);
         //
         //====================================================================================================
         /// <summary>
-        /// Execute an addon asynchonously with the current session environment.
+        /// Execute an addon in a background process with the current session environment.
         /// </summary>
         /// <param name="addonid">The id of the addon to be executed.</param>
-        public abstract void ExecuteAsync(int addonid);
+        public abstract void ExecuteAsProcess(int addonid);
         //
         //====================================================================================================
         /// <summary>
-        /// Execute an addon asynchonously with the current session environment. Arguments can be passed that the addon can read with cp.doc.get methods.
+        /// Execute an addon in a background process with the current session environment. Arguments can be passed that the addon can read with cp.doc.get methods.
         /// </summary>
         /// <param name="addonid">The id of the addon to be executed.</param>
         /// <param name="argumentKeyValuePairs"></param>
-        public abstract void ExecuteAsync(int addonid, Dictionary<string, string> argumentKeyValuePairs);
+        public abstract void ExecuteAsProcess(int addonid, Dictionary<string, string> argumentKeyValuePairs);
         //
         //====================================================================================================
         /// <summary>

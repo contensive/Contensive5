@@ -66,8 +66,10 @@ namespace Contensive.Processor.Controllers {
             if (AddonObjResult.GetType() == typeof(double)) { return ((double)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
             if (AddonObjResult.GetType() == typeof(bool)) { return ((bool)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
             if (AddonObjResult.GetType() == typeof(DateTime)) { return ((DateTime)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
-            if (AddonObjResult == new object()) { return string.Empty; }
-            if (AddonObjResult.ToString() == "[undefined]") { return string.Empty; }
+            //if (AddonObjResult = (new object())) { return string.Empty; }
+            //if (AddonObjResult.ToString() == "[undefined]") { return string.Empty; }
+            //
+            // -- all objects serialize to JSON
             return SerializeObject(AddonObjResult);
         }
         //
@@ -119,6 +121,9 @@ namespace Contensive.Processor.Controllers {
         /// 
         public string executeDependency(AddonModel addon, CPUtilsBaseClass.addonExecuteContext context) {
             //
+            // -- exit if this addon has already been executed
+            if (core.doc.addonsExecuted.Contains(addon.id)) { return ""; }
+            //
             // -- save current context
             var contextParent = new CPUtilsBaseClass.addonExecuteContext {
                 forceHtmlDocument = context.forceHtmlDocument,
@@ -164,23 +169,39 @@ namespace Contensive.Processor.Controllers {
         /// execute addon
         /// </summary>
         /// <param name="addon"></param>
-        /// <param name="executeContext"></param>
+        /// <param name="executeContext">A description of the calling method/environment</param>
         /// <returns></returns>
         public string execute(AddonModel addon, CPUtilsBaseClass.addonExecuteContext executeContext) {
-            var result = new StringBuilder();
-            string resultString = "";
-            int hint = 0;
             //
-            // -- setup values that have to be in finalize
-            bool rootLevelAddon = core.doc.addonRecursionDepth.Count.Equals(0);
-            bool save_forceJavascriptToHead = executeContext.forceJavascriptToHead;
-            //
+            // -- agument test
             if (addon == null) {
+                if (executeContext == null) {
+                    //
+                    // -- no addon and no context
+                    LogController.logWarn(core, new ArgumentException("AddonController.execute called with null addon and null executeContext."));
+                    return "";
+                }
                 //
-                // -- addon not found
-                LogController.logWarn(core, new ArgumentException("AddonExecute called with null addon, executeContext [" + executeContext.errorContextMessage + "]."));
+                // -- no addon
+                LogController.logWarn(core, new ArgumentException("AddonController.execute called with null addon, executeContext [" + executeContext.errorContextMessage + "]."));
                 return "";
             }
+            //
+            if (executeContext == null) {
+                //
+                // -- no context
+                LogController.logError(core, new ArgumentException("AddonController.execute call with invalid executeContext,  was not configured for addon [#" + addon.id + ", " + addon.name + "]."));
+                return "";
+            }
+            //
+            // -- setup values that have to be in finalize
+            string parentInstanceId = core.docProperties.getText("instanceId");
+            bool rootLevelAddon = core.doc.addonRecursionDepth.Count.Equals(0);
+            bool save_forceJavascriptToHead = executeContext.forceJavascriptToHead;
+            var result = new StringBuilder();
+            int hint = 0;
+            Stopwatch sw = new();
+            sw.Start();
             try {
                 hint = 1;
                 //
@@ -188,12 +209,10 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- save the addon details in a fifo stack to popoff during exit. The top of the stack represents the addon being executed
                 core.doc.addonModelStack.Push(addon);
-                if (executeContext == null) {
-                    //
-                    // -- context not configured 
-                    LogController.logError(core, new ArgumentException("The Add-on executeContext was not configured for addon [#" + addon.id + ", " + addon.name + "]."));
-                    return "";
-                }
+                //
+                // -- Track that this addon has been executed (to provide dependancy verification)
+                if (!core.doc.addonsExecuted.Contains(addon.id)) { core.doc.addonsExecuted.Add(addon.id); }
+                //
                 if (!string.IsNullOrEmpty(addon.objectProgramId)) {
                     //
                     // -- addons with activeX components are deprecated
@@ -209,7 +228,16 @@ namespace Contensive.Processor.Controllers {
                 if (blockRecursion) {
                     //
                     // -- cannot call an addon within an addon
-                    throw new GenericException("Addon recursion limit exceeded. An addon [#" + addon.id + ", " + addon.name + "] cannot be called by itself more than " + addonRecursionLimit + " times.");
+                    string errorMsg = ", recursive depth by addon ";
+                    foreach (KeyValuePair<int, int> kvp in core.doc.addonRecursionDepth) {
+                        errorMsg += "[addonId " + kvp.Key + ",recursive calls " + kvp.Value + "]";
+                    }
+                    //
+                    errorMsg += ", addon stack ";
+                    foreach (var addonInStack in core.doc.addonModelStack) {
+                        errorMsg += "[" + addonInStack.id + ", " + addonInStack.name + "]";
+                    }
+                    throw new GenericException("Addon recursion limit exceeded. An addon [#" + addon.id + ", " + addon.name + "] cannot be called by itself more than " + addonRecursionLimit + " times." + errorMsg);
                 }
                 hint = 3;
                 //
@@ -221,14 +249,17 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- if root level addon, and the addon is an html document, create the html document around it and uglify if not debugging
-                if ((executeContext.forceHtmlDocument) || ((rootLevelAddon) && (addon.htmlDocument))) {
+                if (executeContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
                     //
-                    // -- on body start addons
-                    resultString += core.addon.executeOnBodyStart();
+                    // -- on body start addons (as long  as this addon is not onbodystart also
+                    if (!addon.onBodyStart) {
+                        result.Append(core.addon.executeOnBodyStart());
+                    } else {
+                        logger.Warn("Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyStart. onBodyStart was ignored.");
+                    }
                 }
                 //
                 // -- if executeContext.instanceGuid is set, save the current instanceId and set the context value. If not set, leave the current in place
-                string parentInstanceId = core.docProperties.getText("instanceId");
                 if (!string.IsNullOrWhiteSpace(executeContext.instanceGuid)) {
                     core.docProperties.setProperty("instanceId", executeContext.instanceGuid);
                 }
@@ -348,26 +379,33 @@ namespace Contensive.Processor.Controllers {
                     //-----------------------------------------------------------------
                     //
                     hint = 12;
-                    string testString = (addon.copy + addon.copyText + addon.pageTitle + addon.metaDescription + addon.metaKeywordList + addon.otherHeadTags + addon.formXML).ToLowerInvariant();
+                    string addon_copy = addon.copy;
+                    string addon_copyText = addon.copyText;
+                    string addon_pageTitle = addon.pageTitle;
+                    string addon_metaDescription = addon.metaDescription;
+                    string addon_metaKeywordList = addon.metaKeywordList;
+                    string addon_otherHeadTags = addon.otherHeadTags;
+                    string addon_formXML = addon.formXML;
+                    string testString = (addon_copy + addon_copyText + addon_pageTitle + addon_metaDescription + addon_metaKeywordList + addon_otherHeadTags + addon_formXML).ToLowerInvariant();
                     if (!string.IsNullOrWhiteSpace(testString)) {
                         foreach (var key in core.docProperties.getKeyList()) {
                             if (testString.Contains(("$" + key + "$").ToLowerInvariant())) {
                                 string ReplaceSource = "$" + key + "$";
                                 string ReplaceValue = core.docProperties.getText(key);
-                                addon.copy = addon.copy.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
-                                addon.copyText = addon.copyText.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
-                                addon.pageTitle = addon.pageTitle.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
-                                addon.metaDescription = addon.metaDescription.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
-                                addon.metaKeywordList = addon.metaKeywordList.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
-                                addon.otherHeadTags = addon.otherHeadTags.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
-                                addon.formXML = addon.formXML.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
+                                addon_copy = addon_copy.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
+                                addon_copyText = addon_copyText.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
+                                addon_pageTitle = addon_pageTitle.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
+                                addon_metaDescription = addon_metaDescription.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
+                                addon_metaKeywordList = addon_metaKeywordList.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
+                                addon_otherHeadTags = addon_otherHeadTags.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
+                                addon_formXML = addon_formXML.replace(ReplaceSource, ReplaceValue, StringComparison.CurrentCultureIgnoreCase);
                             }
                         }
                     }
                     //
                     // -- text components
                     hint = 13;
-                    string contentParts = addon.copyText + addon.copy;
+                    string contentParts = addon_copyText + addon_copy;
                     if (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextEditor) {
                         //
                         // not editor, encode the content parts of the addon
@@ -438,9 +476,9 @@ namespace Contensive.Processor.Controllers {
                     //
                     // --  FormXML
                     hint = 17;
-                    if (!string.IsNullOrEmpty(addon.formXML)) {
+                    if (!string.IsNullOrEmpty(addon_formXML)) {
                         bool ExitAddonWithBlankResponse = false;
-                        result.Append(execute_formContent(addon.formXML, ref ExitAddonWithBlankResponse, "addon [" + addon.name + "]"));
+                        result.Append(execute_formContent(addon_formXML, ref ExitAddonWithBlankResponse, "addon [" + addon.name + "]"));
                         if (ExitAddonWithBlankResponse) {
                             return string.Empty;
                         }
@@ -475,12 +513,12 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- non-js html assets (styles,head tags), set flag to block duplicates 
                     hint = 21;
-                    if (!core.doc.addonIdListRunInThisDoc.Contains(addon.id)) {
-                        core.doc.addonIdListRunInThisDoc.Add(addon.id);
-                        core.html.addTitle(addon.pageTitle, AddedByName);
-                        core.html.addMetaDescription(addon.metaDescription, AddedByName);
-                        core.html.addMetaKeywordList(addon.metaKeywordList, AddedByName);
-                        core.html.addHeadTag(addon.otherHeadTags, AddedByName);
+                    if (!core.doc.addonIdList_AddedMetedata.Contains(addon.id)) {
+                        core.doc.addonIdList_AddedMetedata.Add(addon.id);
+                        core.html.addTitle(addon_pageTitle, AddedByName);
+                        core.html.addMetaDescription(addon_metaDescription, AddedByName);
+                        core.html.addMetaKeywordList(addon_metaKeywordList, AddedByName);
+                        core.html.addHeadTag(addon_otherHeadTags, AddedByName);
                         //
                         // -- styles
                         if (!string.IsNullOrEmpty(addon.stylesFilename.filename)) {
@@ -528,20 +566,23 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 //   Add Wrappers to content
-                resultString = result.ToString();
                 hint = 23;
                 if (addon.inFrame && (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml)) {
                     //
                     // -- iFrame content, framed in content, during the remote method call, add in the rest of the html page
                     hint = 24;
-                    resultString = ""
-                        + core.siteProperties.docTypeDeclaration + Environment.NewLine + "<html>"
+
+                    result = new StringBuilder(""
+                        + core.siteProperties.docTypeDeclaration
+                        + Environment.NewLine + "<html>"
                         + Environment.NewLine + "<head>"
                         + core.html.getHtmlHead()
                         + Environment.NewLine + "</head>"
                         + Environment.NewLine + TemplateDefaultBodyTag
+                        + result.ToString()
                         + Environment.NewLine + "</body>"
-                        + Environment.NewLine + "</html>";
+                        + Environment.NewLine + "</html>"
+                        );
                 } else if (addon.asAjax && (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
                     //
                     // -- as ajax content, AsAjax addon, during the Ajax callback, need to create an onload event that runs everything appended to onload within this content
@@ -560,9 +601,9 @@ namespace Contensive.Processor.Controllers {
                     hint = 22;
                     if (!string.IsNullOrEmpty(containerCssId) || !string.IsNullOrEmpty(ContainerCssClass)) {
                         if (addon.isInline) {
-                            resultString = "\r<span id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\" style=\"display:inline;\">" + resultString + "</span>";
+                            result = new StringBuilder("\r<span id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\" style=\"display:inline;\">" + result.ToString() + "</span>");
                         } else {
-                            resultString = "\r<div id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\">" + resultString + "\r</div>";
+                            result = new StringBuilder("\r<div id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\">" + result.ToString() + "\r</div>");
                         }
                     }
                     //
@@ -578,8 +619,8 @@ namespace Contensive.Processor.Controllers {
                             var editSegmentList = new List<string> {
                                             AdminUIController.getAddonEditSegment(core, addon.id, addon.name)
                                         };
-                            resultString = AdminUIController.getAddonEditAnchorTag(core, editSegmentList) + resultString;
-                            resultString = AdminUIController.getEditWrapper(core, resultString);
+                            result = new StringBuilder(AdminUIController.getAddonEditAnchorTag(core, editSegmentList) + result.ToString());
+                            result = new StringBuilder(AdminUIController.getEditWrapper(core, result.ToString()));
                         }
                     }
                     //
@@ -589,17 +630,17 @@ namespace Contensive.Processor.Controllers {
                         if (core.visitProperty.getBoolean("AllowDebugging")) {
                             string AddonCommentName = GenericController.strReplace(addon.name, "-->", "..>");
                             if (addon.isInline) {
-                                resultString = "<!-- Add-on " + AddonCommentName + " -->" + resultString + "<!-- /Add-on " + AddonCommentName + " -->";
+                                result = new StringBuilder("<!-- Add-on " + AddonCommentName + " -->" + result.ToString() + "<!-- /Add-on " + AddonCommentName + " -->");
                             } else {
-                                resultString = "\r<!-- Add-on " + AddonCommentName + " -->" + resultString + "\r<!-- /Add-on " + AddonCommentName + " -->";
+                                result = new StringBuilder("\r<!-- Add-on " + AddonCommentName + " -->" + result.ToString() + "\r<!-- /Add-on " + AddonCommentName + " -->");
                             }
                         }
                     }
                     //
                     // -- Add Design Wrapper
                     hint = 27;
-                    if ((!string.IsNullOrEmpty(resultString)) && (!addon.isInline) && (executeContext.wrapperID > 0)) {
-                        resultString = addWrapperToResult(resultString, executeContext.wrapperID, "for Add-on " + addon.name);
+                    if ((result.Length > 0) && (!addon.isInline) && (executeContext.wrapperID > 0)) {
+                        result = new StringBuilder(addWrapperToResult(result.ToString(), executeContext.wrapperID, "for Add-on " + addon.name));
                     }
                     // -- restore the parent's instanceId
                     hint = 28;
@@ -623,28 +664,37 @@ namespace Contensive.Processor.Controllers {
                 // -- restore the forceJavascriptToHead value of the caller
                 executeContext.forceJavascriptToHead = save_forceJavascriptToHead;
                 //
+                // -- restore the parent instanceid
+                core.docProperties.setProperty("instanceId", parentInstanceId);
+                //
                 // -- html-only addons
                 if (executeContext.forceHtmlDocument || addon.htmlDocument) {
                     //
                     // -- if the executed content includes content cmds, we cant guarantee it didnt come from user data
                     if (core.siteProperties.beta200327_BlockCCmdCodeAfterAddonExec) {
-                        resultString = resultString.Replace("{%", "{_%").Replace("%}", "%_}");
+                        result = new StringBuilder(result.ToString().Replace("{%", "{_%").Replace("%}", "%_}"));
                     }
                     //
                     // -- if root level addon, and the addon is an html document, create the html document around it and uglify if not debugging
-                    if ((executeContext.forceHtmlDocument) || (rootLevelAddon && (addon.htmlDocument))) {
+                    if (executeContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
                         //
-                        // -- on body end addons
-                        core.doc.body = resultString;
-                        string addonResult = core.addon.executeOnBodyEnd();
-                        resultString = core.doc.body + addonResult;
+                        // -- on body end addons (as long  as this addon is not onbodystart also
+                        if (!addon.onBodyEnd) {
+                            //
+                            // -- on body end addons
+                            core.doc.body = result.ToString();
+                            string addonResult = core.addon.executeOnBodyEnd();
+                            result = new StringBuilder(core.doc.body + addonResult);
+                        } else {
+                            logger.Warn("Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyEnd. onBodyEnd was ignored.");
+                        }
                         //
                         // -- create html document from returned body
-                        resultString = core.html.getHtmlDoc(resultString, "<body>");
+                        result = new StringBuilder( core.html.getHtmlDoc(result.ToString(), "<body>"));
                         //
                         // -- minify results
                         if ((!core.doc.visitPropertyAllowDebugging) && (core.siteProperties.getBoolean("Allow Html Minify", true))) {
-                            resultString = NUglify.Uglify.Html(resultString).Code;
+                            result = new StringBuilder( NUglify.Uglify.Html(result.ToString()).Code);
                         }
                     }
                 }
@@ -653,13 +703,13 @@ namespace Contensive.Processor.Controllers {
                 if (addon.remoteMethod) {
                     StackFrame frame = new(1);
                     MethodBase method = frame.GetMethod();
-                    LogController.logTrace(core, "remote [" + method.ReflectedType.Name + "." + method.Name + "], visit [" + core.session.visit.id + "], payload [" + resultString.Length + "]");
+                    LogController.logTrace(core, "addon [" + addon.id + "." + addon.name + "], method [" + method.ReflectedType.Name + "." + method.Name + "], visit [" + core.session.visit.id + "], payload [" + result.Length + "], time [" + sw.ElapsedMilliseconds + "ms]");
                 }
                 //
                 // -- pop modelstack and test point message
                 core.doc.addonModelStack.Pop();
             }
-            return resultString;
+            return result.ToString();
         }
         //
         //====================================================================================================
@@ -1515,11 +1565,11 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================================
         /// <summary>
-        /// execute an addon in the task service
+        /// Execute the addon in a background process.
         /// </summary>
         /// <param name="addon"></param>
         /// <param name="arguments"></param>
-        public void executeAsync(AddonModel addon, Dictionary<string, string> arguments) {
+        public void executeAsProcess(AddonModel addon, Dictionary<string, string> arguments) {
             try {
                 if (addon == null) {
                     //
@@ -1546,27 +1596,35 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================================
         /// <summary>
-        /// execute an addon with the default context
+        /// Execute the addon in a background process.
         /// </summary>
         /// <param name="addon"></param>
-        public void executeAsync(AddonModel addon) => executeAsync(addon, new Dictionary<string, string>());
+        public void executeAsProcess(AddonModel addon) => executeAsProcess(addon, new Dictionary<string, string>());
         //
         //====================================================================================================================
-        //
-        public void executeAsync(string guid, string OptionString = "") {
+        /// <summary>
+        /// Execute the addon in a background process.
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <param name="OptionString"></param>
+        public void executeAsProcess(string guid, string OptionString = "") {
             if (string.IsNullOrEmpty(guid)) { throw new ArgumentException("executeAsync called with invalid guid [" + guid + "]"); }
             var addon = DbBaseModel.create<AddonModel>(core.cpParent, guid);
             if (addon == null) { throw new ArgumentException("ExecuteAsync cannot find Addon for guid [" + guid + "]"); }
-            executeAsync(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
+            executeAsProcess(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
         }
         //
         //====================================================================================================================
-        //
-        public void executeAsyncByName(string name, string OptionString = "") {
+        /// <summary>
+        /// Execute the addon in a background process.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="OptionString"></param>
+        public void executeAsProcessByName(string name, string OptionString = "") {
             if (string.IsNullOrEmpty(name)) { throw new ArgumentException("executeAsyncByName called with invalid name [" + name + "]"); }
             var addon = AddonModel.createByUniqueName(core.cpParent, name);
             if (addon == null) { throw new ArgumentException("executeAsyncByName cannot find Addon for name [" + name + "]"); }
-            executeAsync(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
+            executeAsProcess(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
         }
         //
         //===================================================================================================

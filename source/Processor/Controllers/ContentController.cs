@@ -252,7 +252,7 @@ namespace Contensive.Processor.Controllers {
                             if (onChangeAddonsAsync) {
                                 //
                                 // -- execute addon async
-                                core.addon.executeAsync(addon, instanceArguments);
+                                core.addon.executeAsProcess(addon, instanceArguments);
                             } else {
                                 //
                                 // -- execute addon

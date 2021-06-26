@@ -99,46 +99,63 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// execute an addon asyncronously. The session environment will include the same user, visit, doc. Include argument keyValuePairs available to the addon through cp.doc.get
+        /// execute an addon in a backgorund process. The session environment will include the same user, visit, doc. Include argument keyValuePairs available to the addon through cp.doc.get
         /// </summary>
         /// <param name="Addonid"></param>
         /// <param name="keyValuePairs"></param>
-        public override void ExecuteAsync(int Addonid, Dictionary<string, string> keyValuePairs) {
+        public override void ExecuteAsProcess(int Addonid, Dictionary<string, string> keyValuePairs) {
             if (Addonid <= 0) { throw new ArgumentException("ExecuteAsync called with invalid AddonId [" + Addonid + "]"); }
             var addon = DbBaseModel.create<AddonModel>(cp, Addonid);
             if (addon == null) { throw new ArgumentException("ExecuteAsync cannot find AddonId [" + Addonid + "]"); }
-            cp.core.addon.executeAsync(addon, keyValuePairs);
+            cp.core.addon.executeAsProcess(addon, keyValuePairs);
         }
         //
         //====================================================================================================
-        //
-        public override void ExecuteAsync(int Addonid) => ExecuteAsync(Addonid, new Dictionary<string, string>());
+        /// <summary>
+        /// execute an addon in a backgorund process. The session environment will include the same user, visit, doc.
+        /// </summary>
+        /// <param name="Addonid"></param>
+        public override void ExecuteAsProcess(int Addonid) => ExecuteAsProcess(Addonid, new Dictionary<string, string>());
         //
         //====================================================================================================
-        //
-        public override void ExecuteAsync(string guid, Dictionary<string, string> keyValuePairs) {
+        /// <summary>
+        /// execute an addon in a backgorund process. The session environment will include the same user, visit, doc. Include argument keyValuePairs available to the addon through cp.doc.get
+        /// </summary>
+        /// <param name="guid"></param>
+        /// <param name="keyValuePairs"></param>
+        public override void ExecuteAsProcess(string guid, Dictionary<string, string> keyValuePairs) {
             if (string.IsNullOrEmpty(guid)) { throw new ArgumentException("ExecuteAsync called with invalid guid [" + guid + "]"); }
             var addon = DbBaseModel.create<AddonModel>(cp, guid);
             if (addon == null) { throw new ArgumentException("ExecuteAsync cannot find Addon for guid [" + guid + "]"); }
-            cp.core.addon.executeAsync(addon, keyValuePairs);
+            cp.core.addon.executeAsProcess(addon, keyValuePairs);
         }
         //
         //====================================================================================================
-        //
-        public override void ExecuteAsync(string guid) => ExecuteAsync(guid, new Dictionary<string, string>());
+        /// <summary>
+        /// execute an addon in a backgorund process. The session environment will include the same user, visit, doc.
+        /// </summary>
+        /// <param name="guid"></param>
+        public override void ExecuteAsProcess(string guid) => ExecuteAsProcess(guid, new Dictionary<string, string>());
         //
         //====================================================================================================
-        //
-        public override void ExecuteAsyncByUniqueName(string name, Dictionary<string, string> keyValuePairs) {
+        /// <summary>
+        /// execute an addon in a backgorund process. The session environment will include the same user, visit, doc. Include argument keyValuePairs available to the addon through cp.doc.get
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="keyValuePairs"></param>
+        public override void ExecuteAsProcessByUniqueName(string name, Dictionary<string, string> keyValuePairs) {
             if (string.IsNullOrEmpty(name)) { throw new ArgumentException("ExecuteAsyncByUniqueName called with invalid name [" + name + "]"); }
             var addon = AddonModel.createByUniqueName(cp, name);
             if (addon == null) { throw new ArgumentException("ExecuteAsyncByUniqueName cannot find Addon for name [" + name + "]"); }
-            cp.core.addon.executeAsync(addon, keyValuePairs);
+            cp.core.addon.executeAsProcess(addon, keyValuePairs);
         }
         //
         //====================================================================================================
-        //
-        public override void ExecuteAsyncByUniqueName(string name) => ExecuteAsyncByUniqueName(name, new Dictionary<string, string>());
+        /// <summary>
+        /// execute an addon in a backgorund process. The session environment will include the same user, visit, doc.
+        /// </summary>
+        /// <param name="name"></param>
+        public override void ExecuteAsProcessByUniqueName(string name) => ExecuteAsProcessByUniqueName(name, new Dictionary<string, string>());
         //
         //==========================================================================================
         /// <summary>

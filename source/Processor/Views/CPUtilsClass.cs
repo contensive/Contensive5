@@ -462,7 +462,7 @@ namespace Contensive.Processor {
                     addon = cp.core.addonCache.getAddonByName(addonIDGuidOrName);
                 }
                 if (addon != null) {
-                    cp.core.addon.executeAsync(addon);
+                    cp.core.addon.executeAsProcess(addon);
                 }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
