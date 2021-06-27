@@ -19,7 +19,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Group_blank() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
@@ -34,7 +34,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Group_Add_StringString() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
@@ -57,7 +57,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Group_Add_String() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
@@ -80,7 +80,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Group_AddUser_String() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 //
                 // arrange
                 CoreController core = ((CPClass)cp).core;
@@ -105,7 +105,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Group_AddUser_Group_Person_Date() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 //
                 // arrange
                 CoreController core = ((CPClass)cp).core;
@@ -145,7 +145,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Group_AddUser_Group_Person() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 //
                 // arrange
                 CoreController core = ((CPClass)cp).core;

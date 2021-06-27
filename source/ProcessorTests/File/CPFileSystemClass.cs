@@ -15,7 +15,7 @@ namespace Tests {
         //
         [TestMethod]
         public void normalizeFilename_Test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string okFilename1 = "abcdefghijklmnopqrstuvwxyz0123456789.abc";
                 string okFilename2 = okFilename1.ToUpperInvariant();
@@ -36,7 +36,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Append_Test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string tmpFilename = "tmp" + GenericController.getRandomInteger(cp.core).ToString() + ".txt";
                 string content = GenericController.getRandomInteger(cp.core).ToString();
@@ -51,7 +51,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Save_Test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string tmpFilename = "tmp" + GenericController.getRandomInteger(cp.core).ToString() + ".txt";
                 string content = GenericController.getRandomInteger(cp.core).ToString();
@@ -66,7 +66,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Copy_Test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string srcFilename = "src" + GenericController.getRandomInteger(cp.core).ToString() + ".txt";
                 string tmpContent = GenericController.getRandomInteger(cp.core).ToString();
@@ -83,7 +83,7 @@ namespace Tests {
         //
         [TestMethod]
         public void deleteFile_Test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string srcFilename = "src" + GenericController.getRandomInteger(cp.core).ToString() + ".txt";
                 string tmpContent = GenericController.getRandomInteger(cp.core).ToString();

@@ -15,7 +15,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void contentCmdController_SimpleSyntax_runAddon()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var addon = AddonModel.addEmpty<AddonModel>(cp);
                 addon.name = "testaddon-4-" + GenericController.getRandomInteger(cp.core).ToString() ;
@@ -35,7 +35,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void contentCmdController_SimpleSyntax_mulipleContextSwitch()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
                 addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
@@ -60,7 +60,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void contentCmdController_SimpleSyntax_CommandList()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
                 addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
@@ -85,7 +85,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void contentCmdController_SimpleSyntax_CommandList_MultipleCommands()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
                 addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
@@ -110,7 +110,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void contentCmdController_JsonSyntax()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
                 addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
@@ -130,7 +130,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void contentCmdController_JsonSyntax_WithArgument()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
                 addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
@@ -150,7 +150,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void Controllers_JsonSyntax_executeAddonTest_argumentReplacement()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addon = AddonModel.addEmpty<AddonModel>(cp);
                 addon.name = "testaddon-3-" + GenericController.getRandomInteger(cp.core).ToString();

@@ -20,7 +20,7 @@ namespace Tests {
         //
         [TestMethod]
         public void teamplatePlaceHolder()  {
-            using CPClass cp = new CPClass(testAppName);
+            using CPClass cp = new(testAppName);
             //
             // -- arrange
             //

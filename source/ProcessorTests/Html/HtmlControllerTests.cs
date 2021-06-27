@@ -16,7 +16,7 @@ namespace Tests {
         //
         [TestMethod]
         public void selectFromList_Test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string expect = "<select size=1 id=\"htmlid\" class=\"htmlclass\" name=\"menuname\"><option value=\"\">nonecaption</option><option value=\"2\">a</option><option value=\"1\" selected>b</option><option value=\"3\">c</option></select>";
                 string menuName = "menuname";
@@ -36,7 +36,7 @@ namespace Tests {
         //
         [TestMethod]
         public void selectFromList_Test_CaptionInput() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string expect = "<select size=1 id=\"htmlid\" class=\"htmlclass\" name=\"menuname\"><option value=\"\">nonecaption</option><option value=\"2\" selected>a</option><option value=\"1\">b</option><option value=\"3\">c</option></select>";
                 string menuName = "menuname";

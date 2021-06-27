@@ -19,7 +19,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_blank() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
                 // assert
@@ -31,7 +31,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_SetGetString() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string key = "test" + GenericController.getRandomInteger(cp.core).ToString();
                 string value = "value" + GenericController.getRandomInteger(cp.core).ToString();
@@ -55,7 +55,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_SetGetObjectDefault() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var srcTest = new cacheTestClass();
                 string key = "test" + GenericController.getRandomInteger(cp.core).ToString();
@@ -69,7 +69,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_SetGetObjectNonDefault() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var srcTest = new cacheTestClass {
                     prop1 = "b",
@@ -89,7 +89,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithDependency() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTest = "test" + GenericController.getRandomInteger(cp.core).ToString();
@@ -111,7 +111,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithDependencyList() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTest = cp.Cache.CreateKey("test" + GenericController.getRandomInteger(cp.core).ToString());
@@ -136,7 +136,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithInvalidationDate() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTestWithDate = "testWithDate" + GenericController.getRandomInteger(cp.core).ToString();
@@ -156,7 +156,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithInvalidate() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTest = "test" + GenericController.getRandomInteger(cp.core).ToString();
@@ -178,7 +178,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void Controllers_cache_SetGetAlias() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
                 string testKey = "test" + GenericController.getRandomInteger(cp.core).ToString();
@@ -197,7 +197,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void Controllers_cache_SetGetAliasInvalidateKey() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
                 string testKey = "test" + GenericController.getRandomInteger(cp.core).ToString();
@@ -219,7 +219,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void Controllers_cache_SetGetAliasInvalidateAlias() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
                 string testKey = "test" + GenericController.getRandomInteger(cp.core).ToString();
@@ -242,7 +242,7 @@ namespace Tests {
             // -- save a cache key with a dependency on a table
             // -- pretent this key is from table TestTable
             // -- set dependency on AnyRecord of the table
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string value = "12345";
                 string key = cp.Cache.CreateKey("testKey");
                 string fakeTableName = "testTable";

@@ -9,7 +9,7 @@ namespace Tests {
     public class RouteMapModelTests {
         [TestMethod]
         public void models_RouteMap_DictionaryHasAdmin() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
                 var routes = RouteMapModel.create(cp.core);

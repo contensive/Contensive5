@@ -29,7 +29,7 @@ namespace Tests {
         //
         [TestMethod]
         public void cpUser_IsInGroup_GroupName() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
@@ -60,7 +60,7 @@ namespace Tests {
         //
         [TestMethod]
         public void cpUser_IsInGroup_2() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();

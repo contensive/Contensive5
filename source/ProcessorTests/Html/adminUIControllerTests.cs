@@ -14,7 +14,7 @@ namespace Tests {
         // todo - write out tests
         [TestMethod]
         public void controllers_Addon_blank()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
                 // assert

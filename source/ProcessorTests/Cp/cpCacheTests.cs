@@ -18,7 +18,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void views_cpCache_TableInvalidationKey() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 cp.core.siteProperties.setProperty("AllowBake", true);
                 //
@@ -51,7 +51,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpCache_LegacySaveRead() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 cp.core.siteProperties.setProperty("AllowBake", true);
                 // act
                 cp.Cache.Store("testString", "testValue");
@@ -66,7 +66,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpCache_SetGet_integration() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 DateTime testDate = new DateTime(1990, 8, 7);
                 cp.core.siteProperties.setProperty("AllowBake", true);
                 // act
@@ -90,7 +90,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpCache_InvalidateAll_integration() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 DateTime testDate = new DateTime(1990, 8, 7);
                 cp.core.siteProperties.setProperty("AllowBake", true);
                 // act
@@ -123,7 +123,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpCache_InvalidateList_integration() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 cp.core.siteProperties.setProperty("AllowBake", true);
                 DateTime testDate = new DateTime(1990, 8, 7);
                 List<string> tagList = new List<string> {
@@ -163,7 +163,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpCache_TagInvalidationListString() {
             // reviewed 20190107
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 cp.core.siteProperties.setProperty("AllowBake", true);
                 var dependentKeyList = new List<string>() { { "a" }, { "b" }, { "c" }, { "d" }, { "e" }, };
@@ -188,7 +188,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpCache_TagInvalidationCommaString() {
             // reviewed 20190107
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 cp.core.siteProperties.setProperty("AllowBake", true);
                 string dependentKeyCommaList = "a,b,c,d,e";

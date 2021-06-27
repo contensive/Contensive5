@@ -36,7 +36,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void controllers_db_csSetCloseOpenGetTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 int testId_test1 = 0;
                 int testId_test2 = 0;
@@ -81,7 +81,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void controllers_db_csSetGetTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 cp.core.db.executeNonQuery("delete from ccMembers where (username='a')or(username='c')");
                 //
@@ -104,7 +104,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void controllers_db_csSetSaveGetTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 cp.core.db.executeNonQuery("delete from ccMembers where (username='a')or(username='c')");
                 //
@@ -127,7 +127,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_db_csGetRowCount() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 int resultNoData = -1;
                 using (CPCSBaseClass cs = cp.CSNew()) {
@@ -146,7 +146,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_db_isSqlTableField() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
                 // assert
@@ -160,7 +160,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_db_csGoNext() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string name = GenericController.getGUID();
                 //
@@ -199,7 +199,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_db_csGoFirst() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string name = GenericController.getGUID();
                 //

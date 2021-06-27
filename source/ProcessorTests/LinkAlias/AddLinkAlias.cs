@@ -15,7 +15,7 @@ namespace Tests {
         //
         [TestMethod]
         public void test_AddLinkAlias_simple() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
@@ -38,7 +38,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void test_AddLinkAlias_SameLink_NewPage() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
@@ -60,7 +60,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void test_AddLinkAlias_SameLink_SamePage_NewQS() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
@@ -82,7 +82,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void test_AddLinkAlias_NewLink_SamePage_NewQS() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
@@ -109,7 +109,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void test_AddLinkAlias_NewLink_SamePage_SameQS() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
@@ -135,7 +135,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void test_AddLinkAlias_ReAddLink_SamePageAndQS() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);

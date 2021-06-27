@@ -304,75 +304,75 @@ namespace Contensive.Processor.Controllers.Tests {
             DbBaseModel.delete<AddonModel>(cp, a.id);
         }
 
-        [TestMethod()]
-        public void executeaAsProcessTest1() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void executeaAsProcessTest1() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void executeaAsProcessTest2() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void executeaAsProcessTest2() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void executeaAsProcessByNameTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void executeaAsProcessByNameTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void buildAddonOptionLists2Test() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void buildAddonOptionLists2Test() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void buildAddonOptionListsTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void buildAddonOptionListsTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void getPrivateFilesAddonPathTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void getPrivateFilesAddonPathTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void xml_GetAttributeTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void xml_GetAttributeTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void getDefaultAddonOptionsTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void getDefaultAddonOptionsTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void getAddonDescriptionTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void getAddonDescriptionTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void getAddonManagerTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void getAddonManagerTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void throwEventTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void throwEventTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void getAddonIconImgTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void getAddonIconImgTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void getIconSpriteTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void getIconSpriteTest() {
+        //    Assert.Fail();
+        //}
 
-        [TestMethod()]
-        public void DisposeTest() {
-            Assert.Fail();
-        }
+        //[TestMethod()]
+        //public void DisposeTest() {
+        //    Assert.Fail();
+        //}
         //
         private bool localPropertyToFoolCodacyStaticMethodRequirement;
         //
@@ -380,7 +380,7 @@ namespace Contensive.Processor.Controllers.Tests {
         //
         [TestMethod]
         public void controllers_Addon_simpleDoNothingAddon() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var addon = DbBaseModel.addDefault<AddonModel>(cp, ContentMetadataModel.getDefaultValueDict(cp.core, AddonModel.tableMetadata.contentName));
                 addon.save(cp);
@@ -420,7 +420,7 @@ namespace Contensive.Processor.Controllers.Tests {
         //====================================================================================================
         //
         public void controllers_Addon_copy() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 var addon = AddonModel.addDefault<AddonModel>(cp, ContentMetadataModel.getDefaultValueDict(cp.core, AddonModel.tableMetadata.contentName));
                 addon.copy = "test" + GenericController.getRandomInteger(cp.core).ToString();

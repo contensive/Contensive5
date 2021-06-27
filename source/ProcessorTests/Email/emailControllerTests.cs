@@ -14,10 +14,14 @@ namespace Tests {
         //
         [TestMethod]
         public void processConditional_DaysBeforeExpire_Test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 //
                 // arrange, now = 1/1/2020 at 12:00 am
                 cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 cp.core.mockDateTimeNow(new DateTime(2020, 1, 1, 0, 0, 0));
                 //
                 // -- group
@@ -90,8 +94,12 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Email_GetBlockedList_test1() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
                 string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
@@ -106,8 +114,12 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Email_VerifyEmailAddress_test1() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 // act
                 // assert
@@ -121,8 +133,12 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Email_queueAdHocEmail_test1() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 string body = GenericController.getRandomInteger(cp.core).ToString();
                 string sendStatus = "";
@@ -146,8 +162,12 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Email_queuePersonEmail_test1() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 string body = GenericController.getRandomInteger(cp.core).ToString();
                 var toPerson = DbBaseModel.addDefault<PersonModel>(cp, ContentMetadataModel.getDefaultValueDict(cp.core, PersonModel.tableMetadata.contentName));
@@ -186,7 +206,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_Email_queueSystemEmail_test1() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
                 // arrange
                 string htmlBody = "a<b>1</b><br>2<p>3</p><div>4</div>";

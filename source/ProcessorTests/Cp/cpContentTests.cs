@@ -16,7 +16,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_AddRecordTest() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) { }
                 int recordAId = 0;
                 int recordBId = 0;
@@ -39,7 +39,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_DeleteRecordTest() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) {
                     int peopleCntBefore = 0;
                     int peopleCntAfter = 0;
@@ -68,7 +68,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_GetCopyTest() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) { }
                 int recordId = 0;
                 string testCopy = "test copy " + cp.Utils.GetRandomInteger().ToString();
@@ -90,7 +90,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_SetCopyTest() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string testCopyA = "test copy A " + cp.Utils.GetRandomInteger().ToString();
                 string testCopyB = "test copy B " + cp.Utils.GetRandomInteger().ToString();
                 string copyName = "copy record name " + cp.Utils.GetRandomInteger().ToString();
@@ -113,7 +113,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_GetId() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) {
                     int peopleContentId = 0;
                     string peopleContentName = "people";
@@ -135,7 +135,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_AddContentTest() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) {
                     string contentName1 = "testContent" + cp.Utils.GetRandomInteger().ToString();
                     string contentName2 = "testContent" + cp.Utils.GetRandomInteger().ToString();
@@ -178,7 +178,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_AddContentFieldTest() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) { 
+            using (CPClass cp = new(testAppName)) { 
                 using (CPCSBaseClass cs = cp.CSNew()) {
                     int recordId = 0;
                     string contentName1 = "testContent" + cp.Utils.GetRandomInteger().ToString();

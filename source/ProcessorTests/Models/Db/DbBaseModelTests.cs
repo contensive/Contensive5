@@ -28,7 +28,7 @@ namespace Tests {
 
         [TestMethod()]
         public void addDefaultTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 //
                 AddonModel test_withoutUser = DbBaseModel.addDefault<AddonModel>(cp);
                 AddonModel test_withUser = DbBaseModel.addDefault<AddonModel>(cp, 99);
@@ -49,7 +49,7 @@ namespace Tests {
         //
         [TestMethod()]
         public void addDefaultTest_DefaultValues() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 var defaultValues = new Dictionary<string, string> {
                     //
                     // -- bool
@@ -104,7 +104,7 @@ namespace Tests {
         //
         [TestMethod()]
         public void addDefaultTest_CreatedBy() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string defaultRootUserGuid = "{4445cd14-904f-480f-a7b7-29d70d0c22ca}";
                 var root = Contensive.Models.Db.DbBaseModel.create<Contensive.Models.Db.PersonModel>(cp, defaultRootUserGuid);
                 if(root == null ) {
@@ -135,7 +135,7 @@ namespace Tests {
         //
         [TestMethod()]
         public void fieldFileTypes_HtmlFieldTypeTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string contentSaved = new string('*', 65535);
                 var pageCreated = PageContentModel.addEmpty<PageContentModel>(cp);
                 pageCreated.copyfilename.content = contentSaved;
@@ -172,7 +172,7 @@ namespace Tests {
         //
         [TestMethod()]
         public void fieldFileTypes_TextFieldTypeTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string contentSaved = new string('*', 65535);
                 var contentCreated = DownloadModel.addEmpty<DownloadModel>(cp);
                 contentCreated.filename.content = contentSaved;
@@ -211,7 +211,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void addDefaultTest_inheritFields() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 ConditionalEmailModel email = DbBaseModel.addDefault<ConditionalEmailModel>(cp);
                 // act
@@ -227,7 +227,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void create_FieldTypeFile_() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 ConditionalEmailModel email = DbBaseModel.addDefault<ConditionalEmailModel>(cp);
                 // act

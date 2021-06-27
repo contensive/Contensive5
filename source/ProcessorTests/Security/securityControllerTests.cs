@@ -17,7 +17,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_Security_blank() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
                 // assert
@@ -29,7 +29,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_Security_twoWayEncode_des() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string source = "All work and no play makes johnny a dull boy.";
                 // act
@@ -53,7 +53,7 @@ namespace Tests {
         //
         [TestMethod]
         public void Controllers_Security_twoWayEncode_aes() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string source = "All work and no play makes johnny a dull boy again.";
                 // act
@@ -76,7 +76,7 @@ namespace Tests {
         [TestMethod]
         public void Controllers_Security_EncryptDecrypt() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 int testNumber = 12345;
                 DateTime testDate = new DateTime(1990, 8, 7, 8, 8, 8);
                 //

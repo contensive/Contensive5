@@ -17,7 +17,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_ActiveContent_Content()  {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 string source = "<ac Type=\"content\">";
                 // act

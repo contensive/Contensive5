@@ -193,7 +193,7 @@ namespace Tests {
         //
         [TestMethod]
         public void controllers_getRandomInteger_test() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
                 int test1 = GenericController.getRandomInteger(cp.core);

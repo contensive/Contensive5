@@ -84,7 +84,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void views_cpBlock_ClearTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 CPBlockBaseClass block = cp.BlockNew();
                 // act
                 block.Load(layoutC);
@@ -101,7 +101,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void views_cpBlock_ImportFileTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string filename = "cpBlockTest" + getRandomInteger(cp.core).ToString() + ".html";
                 try {
                     CPBlockBaseClass block = cp.BlockNew();
@@ -124,7 +124,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void views_cpBlock_OpenCopyTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string recordName = "cpBlockTest" + getRandomInteger(cp.core).ToString();
                 int recordId = 0;
                 try {
@@ -154,7 +154,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void views_cpBlock_OpenFileTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string filename = "cpBlockTest" + getRandomInteger(cp.core).ToString() + ".html";
                 // act
                 cp.core.wwwFiles.saveFile(filename, layoutA,cp.core.wwwFiles.isLocal);
@@ -173,7 +173,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void views_cpBlock_OpenLayoutTest() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string recordName = "cpBlockTest" + getRandomInteger(cp.core).ToString();
                 int recordId = 0;
                 // arrange

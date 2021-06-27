@@ -31,7 +31,7 @@ namespace Tests {
         [TestMethod]
         public void views_cp_ConstructorWithApp() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // act
                 bool clusterOK = cp.serverOk;
                 bool appOK = cp.appOk;
@@ -47,7 +47,7 @@ namespace Tests {
         [TestMethod]
         public void views_cp_ExecuteAddontest() {
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) {
                     string addonName = "testAddon-1-" + cp.Utils.GetRandomInteger().ToString();
                     int recordId = 0;
@@ -86,7 +86,7 @@ namespace Tests {
         public void views_cp_ExecuteRouteTest() {
             //
             // arrange
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string addonName = "testAddon-2-" + cp.Utils.GetRandomInteger().ToString();
                 int recordId = 0;
                 string htmlText = "12345";

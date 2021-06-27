@@ -42,7 +42,7 @@ namespace Tests {
         /// </summary>
         [TestMethod]
         public void csTests_InsertSetReadVerify() {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 // arrange
                 using (CPCSBaseClass csAddon = cp.CSNew()) {
                     if (!csAddon.Insert(AddonModel.tableMetadata.contentName)) Assert.Fail("Insert addon failed");
@@ -208,7 +208,7 @@ namespace Tests {
         //
         //
         public static void createAndReadFileField_Util(CPContentClass.FieldTypeIdEnum fieldType, string expectedExtensionLower) {
-            using (CPClass cp = new CPClass(testAppName)) {
+            using (CPClass cp = new(testAppName)) {
                 string testContent = "testContent" + cp.Utils.GetRandomInteger().ToString();
                 string testField = "testField" + cp.Utils.GetRandomInteger().ToString();
                 string contentSaved = new string('*', 65535);
