@@ -90,7 +90,7 @@ namespace Contensive.Processor.Controllers {
                         fieldName = "copyfilename",
                         recordId = core.doc.pageController.page.id
                     },
-                    isIncludeAddon = false
+                    isDependency = false
                 };
                 //
                 // -- execute template Dependencies

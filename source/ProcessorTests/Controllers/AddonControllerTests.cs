@@ -400,7 +400,7 @@ namespace Contensive.Processor.Controllers.Tests {
                     },
                     argumentKeyValuePairs = new Dictionary<string, string>(),
                     instanceGuid = "",
-                    isIncludeAddon = false,
+                    isDependency = false,
                     wrapperID = 0
                 });
                 // assert
@@ -441,7 +441,7 @@ namespace Contensive.Processor.Controllers.Tests {
                     },
                     argumentKeyValuePairs = new Dictionary<string, string>(),
                     instanceGuid = "",
-                    isIncludeAddon = false,
+                    isDependency = false,
                     wrapperID = 0
                 });
                 // assert

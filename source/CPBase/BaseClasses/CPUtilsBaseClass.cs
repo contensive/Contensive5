@@ -149,7 +149,7 @@ namespace Contensive.BaseClasses {
             /// Optional. If true, this addon is called because it was a dependancy, and can only be called once within a document.
             /// </summary>
             /// <returns></returns>
-            public bool isIncludeAddon { get; set; }
+            public bool isDependency { get; set; }
             /// <summary>
             /// Optional. If set true, the addon being called will be delivered as ah html document, with head, body and html tags. This forces the addon's htmlDocument setting.
             /// </summary>
