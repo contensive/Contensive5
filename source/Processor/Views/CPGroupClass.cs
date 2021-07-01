@@ -28,7 +28,7 @@ namespace Contensive.Processor {
         /// Add a group
         /// </summary>
         /// <param name="groupName"></param>
-        public override void Add(string groupName) 
+        public override void Add(string groupName)
             => GroupController.add(core, groupName);
         //
         //====================================================================================================
@@ -37,7 +37,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="groupName"></param>
         /// <param name="groupCaption"></param>
-        public override void Add(string groupName, string groupCaption) 
+        public override void Add(string groupName, string groupCaption)
             => GroupController.add(core, groupName, groupCaption);
         //
         //====================================================================================================
@@ -45,7 +45,7 @@ namespace Contensive.Processor {
         /// Add current user to a group
         /// </summary>
         /// <param name="groupNameOrGuid"></param>
-        public override void AddUser(string groupNameOrGuid) 
+        public override void AddUser(string groupNameOrGuid)
             => GroupController.addUser(core, groupNameOrGuid, core.session.user.id, DateTime.MinValue);
         //
         //====================================================================================================
@@ -53,7 +53,7 @@ namespace Contensive.Processor {
         /// Add current user to a group
         /// </summary>
         /// <param name="groupId"></param>
-        public override void AddUser(int groupId) 
+        public override void AddUser(int groupId)
             => GroupController.addUser(core, groupId.ToString(), core.session.user.id, DateTime.MinValue);
         //
         //====================================================================================================
@@ -62,7 +62,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="GroupNameIdOrGuid"></param>
         /// <param name="UserId"></param>
-        public override void AddUser(string GroupNameIdOrGuid, int UserId) 
+        public override void AddUser(string GroupNameIdOrGuid, int UserId)
             => GroupController.addUser(core, GroupNameIdOrGuid, UserId, DateTime.MinValue);
         //
         //====================================================================================================
@@ -72,7 +72,7 @@ namespace Contensive.Processor {
         /// <param name="GroupNameIdOrGuid"></param>
         /// <param name="UserId"></param>
         /// <param name="DateExpires"></param>
-        public override void AddUser(string GroupNameIdOrGuid, int UserId, DateTime DateExpires) 
+        public override void AddUser(string GroupNameIdOrGuid, int UserId, DateTime DateExpires)
             => GroupController.addUser(core, GroupNameIdOrGuid, UserId, DateExpires);
         //
         //====================================================================================================
@@ -81,7 +81,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="GroupId"></param>
         /// <param name="UserId"></param>
-        public override void AddUser(int GroupId, int UserId) 
+        public override void AddUser(int GroupId, int UserId)
             => GroupController.addUser(core, GroupId, UserId, DateTime.MinValue);
         //
         //====================================================================================================
@@ -91,7 +91,7 @@ namespace Contensive.Processor {
         /// <param name="GroupId"></param>
         /// <param name="UserId"></param>
         /// <param name="DateExpires"></param>
-        public override void AddUser(int GroupId, int UserId, DateTime DateExpires) 
+        public override void AddUser(int GroupId, int UserId, DateTime DateExpires)
             => GroupController.addUser(core, GroupId.ToString(), UserId, DateExpires);
         //
         //====================================================================================================
@@ -168,28 +168,43 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// remove user from group. If userId is 0, the current user is removed
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        public override void RemoveUser(int groupId, int userId) {
+            if (groupId == 0) { return; }
+            if (userId == 0) {
+                GroupController.removeUser(core, groupId);
+                return;
+            }
+            GroupController.removeUser(core, groupId, userId);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// remove user from group
         /// </summary>
-        /// <param name="GroupNameIdOrGuid"></param>
-        /// <param name="removeUserId"></param>
-        public override void RemoveUser(string GroupNameIdOrGuid, int removeUserId) {
-            int groupId = GetId(GroupNameIdOrGuid);
-            int userId = removeUserId;
-            if (groupId != 0) {
-                if (userId == 0) {
-                    GroupController.removeUser(core, groupId);
-                } else {
-                    GroupController.removeUser(core, groupId, userId);
-                }
-            }
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        public override void RemoveUser(string GroupNameOrGuid, int userId) {
+            int groupId = GetId(GroupNameOrGuid);
+            RemoveUser(groupId, userId);
         }
         //
         //====================================================================================================
         /// <summary>
         /// remove current user from group
         /// </summary>
-        /// <param name="GroupNameIdOrGuid"></param>
-        public override void RemoveUser(string GroupNameIdOrGuid) => RemoveUser(GroupNameIdOrGuid, 0);
+        /// <param name="GroupNameOrGuid"></param>
+        public override void RemoveUser(string GroupNameOrGuid) => RemoveUser(GroupNameOrGuid, 0);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// remove current user from group
+        /// </summary>
+        /// <param name="GroupNameOrGuid"></param>
+        public override void RemoveUser(int groupId) => RemoveUser(groupId, 0);
         //
         //====================================================================================================
         /// <summary>

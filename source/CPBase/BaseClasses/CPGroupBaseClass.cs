@@ -112,16 +112,31 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Remove the current user from a group
         /// </summary>
-        /// <param name="groupNameIdOrGuid"></param>
-        public abstract void RemoveUser(string groupNameIdOrGuid);
+        /// <param name="groupNameOrGuid"></param>
+        public abstract void RemoveUser(string groupNameOrGuid);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Remove the current user from a group
+        /// </summary>
+        /// <param name="groupId"></param>
+        public abstract void RemoveUser(int groupId);
         //
         //==========================================================================================
         /// <summary>
         /// Remove a user from a group
         /// </summary>
-        /// <param name="groupNameIdOrGuid"></param>
+        /// <param name="groupNameOrGuid"></param>
         /// <param name="userId"></param>
-        public abstract void RemoveUser(string groupNameIdOrGuid, int userId);
+        public abstract void RemoveUser(string groupNameOrGuid, int userId);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Remove a user from a group
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="userId"></param>
+        public abstract void RemoveUser(int  groupId, int userId);
         //
         //====================================================================================================
         // deprecated

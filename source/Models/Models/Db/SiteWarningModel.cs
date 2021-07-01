@@ -9,7 +9,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// table definition
         /// </summary>
-        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("content", "table", "default", false);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Site Warnings", "ccSiteWarnings", "default", false);
         //
         //====================================================================================================
         //

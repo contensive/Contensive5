@@ -1,12 +1,12 @@
 ﻿
 namespace Contensive.Models.Db {
-    public class CountryModelModel : DbBaseModel {
+    public class CountryModel : DbBaseModel {
         //
         //====================================================================================================
         /// <summary>
         /// table definition
         /// </summary>
-        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("content", "table", "default", false);
+        public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("Countries", "ccCountries", "default", false);
         //
         //====================================================================================================
         //
