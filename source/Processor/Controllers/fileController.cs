@@ -502,7 +502,7 @@ namespace Contensive.Processor.Controllers {
                             Key = remoteUnixPathFilename
                         };
                         LogController.logInfo(core, "deleteFile_remote, s3Client.DeleteObject");
-                        s3Client.DeleteObjectAsync(deleteObjectRequest).WaitSynchronously();
+                        s3Client.DeleteObjectAsync(deleteObjectRequest).waitSynchronously();
                     }
                 }
             } catch (Exception ex) {
@@ -560,7 +560,7 @@ namespace Contensive.Processor.Controllers {
                                 BucketName = core.serverConfig.awsBucketName,
                                 Prefix = unixPath
                             };
-                            ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).WaitSynchronously();
+                            ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).waitSynchronously();
                             //
                             // -- create delete request from object list
                             DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest {
@@ -570,7 +570,7 @@ namespace Contensive.Processor.Controllers {
                                 deleteRequest.AddKey(entry.Key);
                             }
                             if (deleteRequest.Objects.Count>0) {
-                                DeleteObjectsResponse deleteResponse = s3Client.DeleteObjectsAsync(deleteRequest).WaitSynchronously();
+                                DeleteObjectsResponse deleteResponse = s3Client.DeleteObjectsAsync(deleteRequest).waitSynchronously();
                             }
                         }
                     }
@@ -713,7 +713,7 @@ namespace Contensive.Processor.Controllers {
                     BucketName = core.serverConfig.awsBucketName,
                     Prefix = remoteUnixPath
                 };
-                ListObjectsResponse response = s3Client.ListObjectsAsync(request).WaitSynchronously();
+                ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
                 IEnumerable<S3Object> fileList = response.S3Objects.Where(x => !x.Key.EndsWith(@"/"));
                 var returnFileList = new List<FileDetail>();
                 foreach (S3Object file in fileList) {
@@ -859,7 +859,7 @@ namespace Contensive.Processor.Controllers {
                 // Build your call out to S3 and store the response
                 var returnFolders = new List<FolderDetail>();
                 LogController.logInfo(core, "getFolderList_remote, s3Client.ListObjects, path [" + path + "]");
-                ListObjectsResponse response = s3Client.ListObjectsAsync(request).WaitSynchronously();
+                ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
                 foreach (var commonPrefix in response.CommonPrefixes) {
                     string subFolder = commonPrefix.Substring(prefixLength);
                     if (string.IsNullOrWhiteSpace(subFolder)) { continue; }
@@ -969,7 +969,7 @@ namespace Contensive.Processor.Controllers {
                     BucketName = core.serverConfig.awsBucketName,
                     Prefix = remoteUnixPathFilename
                 };
-                var response = s3Client.ListObjectsAsync(request).WaitSynchronously();
+                var response = s3Client.ListObjectsAsync(request).waitSynchronously();
                 return response.S3Objects.Count.Equals(1);
             } catch (AmazonS3Exception ex) {
                 //
@@ -1055,7 +1055,7 @@ namespace Contensive.Processor.Controllers {
                     Prefix = unixPath,
                     MaxKeys = 1
                 };
-                ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).WaitSynchronously();
+                ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).waitSynchronously();
                 return listResponse.S3Objects.Count > 0;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1705,7 +1705,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 //
                 // -- Make service call and get back the response.
-                PutObjectResponse response = s3Client.PutObjectAsync(request).WaitSynchronously();
+                PutObjectResponse response = s3Client.PutObjectAsync(request).waitSynchronously();
                 result = true;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1746,14 +1746,14 @@ namespace Contensive.Processor.Controllers {
                     BucketName = core.serverConfig.awsBucketName,
                     Key = remoteUnixAbsPathFilename
                 };
-                using (GetObjectResponse response = s3Client.GetObjectAsync(request).WaitSynchronously())
+                using (GetObjectResponse response = s3Client.GetObjectAsync(request).waitSynchronously())
                 using (var source = new CancellationTokenSource()) {
                     try {
-                        response.WriteResponseStreamToFileAsync(joinPath(localAbsRootPath, localDosPathFilename), true, source.Token).WaitSynchronously();
+                        response.WriteResponseStreamToFileAsync(joinPath(localAbsRootPath, localDosPathFilename), true, source.Token).waitSynchronously();
                     } catch (System.IO.IOException) {
                         // -- pause 1 second and retry
                         System.Threading.Thread.Sleep(1000);
-                        response.WriteResponseStreamToFileAsync(joinPath(localAbsRootPath, localDosPathFilename), true, source.Token).WaitSynchronously();
+                        response.WriteResponseStreamToFileAsync(joinPath(localAbsRootPath, localDosPathFilename), true, source.Token).waitSynchronously();
                     }
                 }
                 return true;
@@ -1839,7 +1839,7 @@ namespace Contensive.Processor.Controllers {
                                 Prefix = unixPath,
                                 MaxKeys = 1
                             };
-                            ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).WaitSynchronously();
+                            ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).waitSynchronously();
                             if (listResponse.S3Objects.Count == 0) {
                                 //
                                 // -- creates a zero-length object with the name of the folder (hack AWS uses for thier consol)
@@ -2020,7 +2020,7 @@ namespace Contensive.Processor.Controllers {
                     BucketName = core.serverConfig.awsBucketName,
                     Prefix = remoteUnixPathFilename
                 };
-                ListObjectsResponse response = s3Client.ListObjectsAsync(request).WaitSynchronously();
+                ListObjectsResponse response = s3Client.ListObjectsAsync(request).waitSynchronously();
                 IEnumerable<S3Object> s3fileList = response.S3Objects.Where(x => x.Key == remoteUnixPathFilename);
                 foreach (var s3File in s3fileList) {
                     //

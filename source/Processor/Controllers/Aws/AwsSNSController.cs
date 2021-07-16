@@ -31,7 +31,7 @@ namespace Contensive.Processor.Controllers {
         public static string createTopic(CoreController core, AmazonSimpleNotificationServiceClient snsClient, string topic) {
             try
             {
-                var topicResponse = snsClient.CreateTopicAsync(core.appConfig.name + "_" + topic).WaitSynchronously();
+                var topicResponse = snsClient.CreateTopicAsync(core.appConfig.name + "_" + topic).waitSynchronously();
                 return topicResponse.TopicArn;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -48,7 +48,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static List<string> getTopicList( CoreController core, AmazonSimpleNotificationServiceClient snsClient) {
             var result = new List<string>();
-            var listTopicsResponse = snsClient.ListTopicsAsync().WaitSynchronously();
+            var listTopicsResponse = snsClient.ListTopicsAsync().waitSynchronously();
             foreach ( var topic in listTopicsResponse.Topics) {
                 result.Add(topic.ToString());
             }
@@ -58,7 +58,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         public void subscribeQueue( CoreController core, AmazonSimpleNotificationServiceClient snsClient, AmazonSQSClient sqsClient, string topicArn, string queueURL) {
-            snsClient.SubscribeQueueAsync(topicArn, sqsClient, queueURL).WaitSynchronously();
+            snsClient.SubscribeQueueAsync(topicArn, sqsClient, queueURL).waitSynchronously();
         }
         //
         //====================================================================================================

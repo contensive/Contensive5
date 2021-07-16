@@ -64,4 +64,10 @@
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <PackageReference Include="Microsoft.Win32.Primitives">
+      <Version>4.3.0</Version>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>

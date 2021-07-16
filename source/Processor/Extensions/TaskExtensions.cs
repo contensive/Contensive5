@@ -4,12 +4,12 @@ namespace Contensive.Processor.Extensions
 {
     internal static class TaskExtensions
     {
-        public static T WaitSynchronously<T>(this Task<T> task)
+        public static T waitSynchronously<T>(this Task<T> task)
         {
             return Task.Run(async () => await task).Result;
         }
 
-        public static void WaitSynchronously(this Task task)
+        public static void waitSynchronously(this Task task)
         {
             Task.Run(async () => await task).Wait();
         }

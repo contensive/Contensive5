@@ -68,7 +68,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 try {
                     LogController.logInfo(core, "Sending SES email" + logShortDetail);
-                    var response = client.SendEmailAsync(sendRequest).WaitSynchronously();
+                    var response = client.SendEmailAsync(sendRequest).waitSynchronously();
                     return true;
                 } catch (Exception ex) {
                     reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
