@@ -237,7 +237,7 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// Handle a file upload from a submitted post. If successful, return true and the filename.
+        /// Handle a file upload from a submitted post to the /upload path. If successful, return true and the filename.
         /// </summary>
         /// <param name="htmlformName"></param>
         /// <param name="returnFilename"></param>
