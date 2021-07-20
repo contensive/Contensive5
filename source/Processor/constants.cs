@@ -937,7 +937,7 @@ namespace Contensive.Processor {
         internal const int EmailLogTypeBounce = 4; // Email was processed by bounce processing
         internal const int EmailLogTypeBlockRequest = 5; // recipient asked us to stop sending email
         internal const int EmailLogTypeImmediateSend = 6; // Email was dropped                                                        
-        internal const string DefaultSpamFooter = "<p>To block future emails from this site, <link>click here</link></p>";
+        internal const string DefaultSpamFooter = "<p><link>Unsubscribe</link> to block all future emails from this site.</p>";
         internal const string FeedbackFormNotSupportedComment = "<!--\r\nFeedback form is not supported in this context\r\n-->";
         //
         //-------------------------------------------------------------------------------------

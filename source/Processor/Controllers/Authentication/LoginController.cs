@@ -69,7 +69,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- process send password
                     PasswordRecoveryController.processPasswordRecoveryForm(core);
-                    result += "<p>If this email was found on the system an email was sent with login instructions.</p>";
+                    result += "<p>If this email address was found, an email was sent to it with login instructions.</p>";
                 }
                 if (needLoginForm) {
                     string layout;
