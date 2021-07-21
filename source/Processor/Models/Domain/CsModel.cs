@@ -122,7 +122,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true));
                 LogController.logError(core, ex);
                 throw;
             }
@@ -276,85 +276,93 @@ namespace Contensive.Processor {
                 var sqlList = new NameValueCollection();
                 foreach (KeyValuePair<string, Models.Domain.ContentFieldMetadataModel> keyValuePair in meta.fields) {
                     ContentFieldMetadataModel field = keyValuePair.Value;
-                    if ((!string.IsNullOrEmpty(field.nameLc)) && (!string.IsNullOrEmpty(field.defaultValue))) {
+                    if (!string.IsNullOrEmpty(field.nameLc)) {
                         switch (field.nameLc) {
-                            case "createkey":
-                            case "dateadded":
-                            case "createdby":
-                            case "contentcontrolid":
-                            case "id": {
+                            case "modifieddate":
+                            case "dateadded": {
                                     //
-                                    // Block control fields
+                                    // -- 
+                                    sqlList.Add(field.nameLc, DbController.encodeSQLDate(DateTime.Now));
+                                    break;
+                                }
+                            case "contentcontrolid": {
+                                    if (meta.parentId > 0) {
+                                        sqlList.Add(field.nameLc, meta.id.ToString());
+                                    }
                                     break;
                                 }
                             default: {
-                                    switch (field.fieldTypeId) {
-                                        case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement: {
-                                                //
-                                                // cannot insert an autoincremnt
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Redirect:
-                                        case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
-                                                //
-                                                // ignore these fields, they have no associated DB field
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                                                sqlList.Add(field.nameLc, DbController.encodeSQLBoolean(GenericController.encodeBoolean(field.defaultValue)));
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Currency:
-                                        case CPContentBaseClass.FieldTypeIdEnum.Float: {
-                                                sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeNumber(field.defaultValue)));
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Integer:
-                                        case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
-                                                sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeInteger(field.defaultValue)));
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                                                sqlList.Add(field.nameLc, DbController.encodeSQLDate(GenericController.encodeDate(field.defaultValue)));
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
-                                                //
-                                                // refactor --
-                                                // This is a problem - the defaults should come in as the ID values, not the names
-                                                //   so a select can be added to the default configuration page
-                                                //
-                                                string DefaultValueText = GenericController.encodeText(field.defaultValue);
-                                                if (string.IsNullOrEmpty(DefaultValueText)) {
-                                                    DefaultValueText = "null";
-                                                } else {
-                                                    if (field.lookupContentId != 0) {
-                                                        string LookupContentName = MetadataController.getContentNameByID(core, field.lookupContentId);
-                                                        if (!string.IsNullOrEmpty(LookupContentName)) {
-                                                            DefaultValueText = MetadataController.getRecordIdByUniqueName(core, LookupContentName, DefaultValueText).ToString();
-                                                        }
-                                                    } else if (field.lookupList != "") {
-                                                        string UCaseDefaultValueText = GenericController.toUCase(DefaultValueText);
-                                                        string[] lookups = field.lookupList.Split(',');
+                                    //
+                                    // -- save defaultValue to the insert
+                                    if (!string.IsNullOrEmpty(field.defaultValue)) {
+                                        switch (field.fieldTypeId) {
+                                            case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement: {
+                                                    //
+                                                    // cannot insert an autoincremnt
+                                                    break;
+                                                }
+                                            case CPContentBaseClass.FieldTypeIdEnum.Redirect:
+                                            case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
+                                                    //
+                                                    // ignore these fields, they have no associated DB field
+                                                    break;
+                                                }
+                                            case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLBoolean(GenericController.encodeBoolean(field.defaultValue)));
+                                                    break;
+                                                }
+                                            case CPContentBaseClass.FieldTypeIdEnum.Currency:
+                                            case CPContentBaseClass.FieldTypeIdEnum.Float: {
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeNumber(field.defaultValue)));
+                                                    break;
+                                                }
+                                            case CPContentBaseClass.FieldTypeIdEnum.Integer:
+                                            case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeInteger(field.defaultValue)));
+                                                    break;
+                                                }
+                                            case CPContentBaseClass.FieldTypeIdEnum.Date: {
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLDate(GenericController.encodeDate(field.defaultValue)));
+                                                    break;
+                                                }
+                                            case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
+                                                    //
+                                                    // refactor --
+                                                    // This is a problem - the defaults should come in as the ID values, not the names
+                                                    //   so a select can be added to the default configuration page
+                                                    //
+                                                    string DefaultValueText = GenericController.encodeText(field.defaultValue);
+                                                    if (string.IsNullOrEmpty(DefaultValueText)) {
+                                                        DefaultValueText = "null";
+                                                    } else {
+                                                        if (field.lookupContentId != 0) {
+                                                            string LookupContentName = MetadataController.getContentNameByID(core, field.lookupContentId);
+                                                            if (!string.IsNullOrEmpty(LookupContentName)) {
+                                                                DefaultValueText = MetadataController.getRecordIdByUniqueName(core, LookupContentName, DefaultValueText).ToString();
+                                                            }
+                                                        } else if (field.lookupList != "") {
+                                                            string UCaseDefaultValueText = GenericController.toUCase(DefaultValueText);
+                                                            string[] lookups = field.lookupList.Split(',');
 
-                                                        int Ptr = 0;
-                                                        for (Ptr = 0; Ptr <= lookups.GetUpperBound(0); Ptr++) {
-                                                            if (UCaseDefaultValueText == GenericController.toUCase(lookups[Ptr])) {
-                                                                DefaultValueText = (Ptr + 1).ToString();
+                                                            int Ptr = 0;
+                                                            for (Ptr = 0; Ptr <= lookups.GetUpperBound(0); Ptr++) {
+                                                                if (UCaseDefaultValueText == GenericController.toUCase(lookups[Ptr])) {
+                                                                    DefaultValueText = (Ptr + 1).ToString();
+                                                                }
                                                             }
                                                         }
                                                     }
+                                                    sqlList.Add(field.nameLc, DefaultValueText);
+                                                    break;
                                                 }
-                                                sqlList.Add(field.nameLc, DefaultValueText);
-                                                break;
-                                            }
-                                        default: {
-                                                //
-                                                // else text
-                                                //
-                                                sqlList.Add(field.nameLc, DbController.encodeSQLText(field.defaultValue));
-                                                break;
-                                            }
+                                            default: {
+                                                    //
+                                                    // else text
+                                                    //
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLText(field.defaultValue));
+                                                    break;
+                                                }
+                                        }
                                     }
                                     break;
                                 }
@@ -368,7 +376,7 @@ namespace Contensive.Processor {
                     this.readable = true;
                     this.createdWithMetaData = true;
                     this.contentName = contentName;
-                    this.sqlSource = "select * from " + meta.tableName + " where id=" + ((int)dt.Rows[0]["id"]).ToString() ;
+                    this.sqlSource = "select * from " + meta.tableName + " where id=" + ((int)dt.Rows[0]["id"]).ToString();
                     this.contentMeta = meta;
                     initAfterOpen();
                 }
@@ -925,7 +933,7 @@ namespace Contensive.Processor {
                         string ContentName = MetadataController.getContentNameByID(core, field.manyToManyRuleContentId);
                         string DbTable = MetadataController.getContentTablename(core, ContentName);
                         string sql = "Select " + field.manyToManyRuleSecondaryField + " from " + DbTable + " where " + field.manyToManyRulePrimaryField + "=" + RecordId;
-                        using DataTable dtResult = core.db.executeQuery(sql); 
+                        using DataTable dtResult = core.db.executeQuery(sql);
                         if (DbController.isDataTableOk(dtResult)) {
                             foreach (DataRow dr in dtResult.Rows) {
                                 result.Append("," + dr[0].ToString());
@@ -965,7 +973,7 @@ namespace Contensive.Processor {
                                 if (!string.IsNullOrEmpty(LookupContentName)) {
                                     //
                                     // -- First try Lookup Content
-                                    using var cs = new CsModel(core); 
+                                    using var cs = new CsModel(core);
                                     if (cs.open(LookupContentName, "ID=" + DbController.encodeSQLNumber(encodeInteger(rawData)), "", true, 0, "name", 1)) {
                                         return cs.getText("name");
                                     }
