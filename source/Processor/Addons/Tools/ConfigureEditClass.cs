@@ -235,7 +235,7 @@ namespace Contensive.Processor.Addons.Tools {
                     contentMetadata = Processor.Models.Domain.ContentMetadataModel.create(core, ContentId, true, true);
                 }
                 string ButtonList = ButtonCancel + "," + ButtonSelect;
-                if (ContentId == 0) {
+                if (contentMetadata == null) {
                     //
                     // content tables that have edit forms to Configure
                     bool isEmptyList = false;

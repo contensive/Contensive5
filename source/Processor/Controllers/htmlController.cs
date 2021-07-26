@@ -3016,8 +3016,8 @@ namespace Contensive.Processor.Controllers {
                 string htmlBeforeEndOfBody = getHtmlBodyEnd(allowLogin, allowTools);
                 result = ""
                     + core.siteProperties.docTypeDeclaration
-                    + Environment.NewLine + "<html>"
-                    + Environment.NewLine + "<head>"
+                    + Environment.NewLine + "<html lang=\"en-US\">"
+                      + Environment.NewLine + "<head>"
                     + Environment.NewLine + htmlHead
                     + Environment.NewLine + "</head>"
                     + Environment.NewLine + htmlBodyTag + htmlBody + htmlBeforeEndOfBody + Environment.NewLine + "</body>"

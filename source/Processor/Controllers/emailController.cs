@@ -1072,7 +1072,7 @@ namespace Contensive.Processor.Controllers {
             }
             //
             // -- html without an html tag. wrap it
-            return "<html>"
+            return "<html lang=\"en-US\">"
                 + "<head>"
                 + "<Title>" + subject + "</Title>"
                 + "<Base href=\"" + webAddressProtocolDomain + "\" >"

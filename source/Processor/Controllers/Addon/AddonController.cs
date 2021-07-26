@@ -590,7 +590,7 @@ namespace Contensive.Processor.Controllers {
 
                         result = new StringBuilder(""
                             + core.siteProperties.docTypeDeclaration
-                            + Environment.NewLine + "<html>"
+                            + Environment.NewLine + "<html lang=\"en-US\">"
                             + Environment.NewLine + "<head>"
                             + core.html.getHtmlHead()
                             + Environment.NewLine + "</head>"

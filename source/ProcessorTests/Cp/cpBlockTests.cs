@@ -16,7 +16,7 @@ namespace Tests {
         public const string layoutB = "<div id=\"bid\" class=\"bclass\">" + layoutA + "</div>";
         public const string layoutC = "<div id=\"cid\" class=\"cclass\">" + layoutB + "</div>";
         public const string templateHeadTag = "<meta http-equiv=\"content-type\" content=\"text/html; charset=utf-8\" >";
-        public const string templateA = "<html><head>" + templateHeadTag + "</head><body>" + layoutC + "</body></html>";
+        public const string templateA = "<html lang=\"en-US\"><head>" + templateHeadTag + "</head><body>" + layoutC + "</body></html>";
         //
         //====================================================================================================
         // unit test - cp.blockNew

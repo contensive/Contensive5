@@ -85,6 +85,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- create executable file list, test for missing files
+                    List<string> removeFileList = new();
                     List<string> execUnixFileList = ExportResourceListController.getUnixPathFilenameList(cp, CS.GetText("execFileList"));
                     foreach (var pathFilename in execUnixFileList) {
                         if (!pathFilename.Length.Equals(0)) {
@@ -97,11 +98,17 @@ namespace Contensive.Processor.Controllers {
                             if (!CollectionPath.Length.Equals(0)) { CollectionPath += @"\"; }
                             string AddonPath = @"addons\";
                             if (!cp.PrivateFiles.FileExists(AddonPath + CollectionPath + filename)) {
-                                cp.UserError.Add("The cCollection includes an executable file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
-                                return "";
+                                cp.UserError.Add("Warning, a collection file was skipped [" + pathFilename + "]. The collection record includes an executable file in the resources tab that could not be found in the collection folder. If it is not needed, remove it from the resources tab. If needed, verify upper/lower case, locate and restore the file.");
+                                removeFileList.Add(pathFilename);
                             }
                         }
                     }
+                    //
+                    // -- remove any files not found
+                    foreach (string pathFilename in removeFileList) {
+                        if (execUnixFileList.Contains(pathFilename)) { execUnixFileList.Remove(pathFilename); };
+                    }
+
                     //
                     string execResourceNodeList = ExportResourceListController.getResourceNodeList(cp, execUnixFileList, CollectionGuid, tempPathFileList, tempExportPath);
                     // 
@@ -120,7 +127,7 @@ namespace Contensive.Processor.Controllers {
                         // -- style sheet link
                         if (!string.IsNullOrEmpty(addon.stylesLinkHref)) {
                             string href = addon.stylesLinkHref.ToLowerInvariant();
-                            if ( !href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
+                            if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
                                 //
                                 // -- href is to a local file, add it to file list
                                 string dosPathFilename = addon.stylesLinkHref.Replace("/", "\\");
