@@ -17,7 +17,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <returns></returns>
         public static AmazonSQSClient getSqsClient(CoreController core) {
-            BasicAWSCredentials cred = new BasicAWSCredentials(core.awsCredentials.awsAccessKeyId, core.awsCredentials.awsSecretAccessKey);
+            BasicAWSCredentials cred = new(core.awsCredentials.awsAccessKeyId, core.awsCredentials.awsSecretAccessKey);
             return new AmazonSQSClient(cred, core.awsCredentials.awsRegion);
         }
         //
@@ -25,13 +25,13 @@ namespace Contensive.Processor.Controllers {
         //
         public static string createQueue(CoreController core, AmazonSQSClient sqsClient, string queueName) {
             try {
-                var queueRequest = new Amazon.SQS.Model.CreateQueueRequest(core.appConfig.name.ToLowerInvariant() + "_" + queueName);
+                var queueRequest = new CreateQueueRequest(core.appConfig.name.ToLowerInvariant() + "_" + queueName);
                 queueRequest.Attributes.Add("VisibilityTimeout", "600");
                 var queueResponse = sqsClient.CreateQueueAsync(queueRequest).waitSynchronously();
                 return queueResponse.QueueUrl;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
-                return "";
+                throw;
             }
         }
         //
@@ -62,20 +62,20 @@ namespace Contensive.Processor.Controllers {
         //
         public static void sendMessage(CoreController core, AmazonSQSClient sqsClient, string queueUrl, string message) {
             SendMessageRequest request = new(queueUrl, message);
-            var sendMessageResponse = sqsClient.SendMessageAsync(request).waitSynchronously();
+            _ = sqsClient.SendMessageAsync(request).waitSynchronously();
             // metadata in sendMessageResponse
         }
         //
         //====================================================================================================
         //
-        public static List<QueueMessageDetail> getMessageList(CoreController core, string queueURL) {
+        public static List<BaseClasses.QueueMessageDetail> getMessageList(CoreController core, AmazonSQSClient sqsClient, string queueURL) {
             var receiveMessageRequest = new ReceiveMessageRequest {
                 QueueUrl = queueURL
             };
-            var receiveMessageResponse = getSqsClient(core).ReceiveMessageAsync(receiveMessageRequest).waitSynchronously();
-            var result = new List<QueueMessageDetail>();
+            var receiveMessageResponse = sqsClient.ReceiveMessageAsync(receiveMessageRequest).waitSynchronously();
+            var result = new List<BaseClasses.QueueMessageDetail>();
             foreach (var message in receiveMessageResponse.Messages) {
-                result.Add(new QueueMessageDetail {
+                result.Add(new BaseClasses.QueueMessageDetail {
                     message = message.Body,
                     messageHandle = message.ReceiptHandle,
                     messageId = message.MessageId

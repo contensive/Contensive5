@@ -200,6 +200,12 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// read and write messages to a standard message queue
+        /// </summary>
+        public abstract CPMessageQueueBaseClass MessageQueue { get; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Manage mustache compatible template language operations
         /// </summary>
         public abstract CPMustacheBaseClass Mustache { get; }

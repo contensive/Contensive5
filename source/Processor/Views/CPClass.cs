@@ -162,6 +162,7 @@ namespace Contensive.Processor {
                 }
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
+                throw;
             }
             return string.Empty;
         }
@@ -191,8 +192,8 @@ namespace Contensive.Processor {
                 }
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
+                throw;
             }
-            return string.Empty;
         }
         //
         //=========================================================================================================
@@ -475,6 +476,20 @@ namespace Contensive.Processor {
         /// <summary>
         /// Return a persistent object for this functionality
         /// </summary>
+        public override CPMessageQueueBaseClass MessageQueue {
+            get {
+                if (MessageQueueObj == null) {
+                    MessageQueueObj = new CPMessageQueueClass(this);
+                }
+                return MessageQueueObj;
+            }
+        }
+        private CPMessageQueueClass MessageQueueObj;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return a persistent object for this functionality
+        /// </summary>
         public override CPMustacheBaseClass Mustache {
             get {
                 if (mustacheObj == null) {
@@ -740,6 +755,7 @@ namespace Contensive.Processor {
                 }
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
+                throw;
             }
         }
         //
