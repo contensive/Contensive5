@@ -4,7 +4,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFrameworks>
-      net472;netcoreapp3.1
+      net472
     </TargetFrameworks>
     <RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
