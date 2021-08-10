@@ -2049,9 +2049,10 @@ namespace Contensive.Processor.Controllers {
             try {
                 using (var cs = new CsModel(core)) {
                     string sql = "select e.id,c.addonId"
-                        + " from (ccAddonEvents e"
+                        + " from ((ccAddonEvents e"
                         + " left join ccAddonEventCatchers c on c.eventId=e.id)"
-                        + " where ";
+                        + " left join ccAggregateFunctions a on a.id=c.addonid)"
+                        + " where (a.id is not null)and  ";
                     if (eventNameIdOrGuid.isNumeric()) {
                         sql += "e.id=" + DbController.encodeSQLNumber(double.Parse(eventNameIdOrGuid));
                     } else if (GenericController.isGuid(eventNameIdOrGuid)) {
