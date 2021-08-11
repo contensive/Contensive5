@@ -107,10 +107,10 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="ContensiveDbModels, Version=4.1.2.0, Culture=neutral, PublicKeyToken=c014b235a9c6bb22, processorArchitecture=MSIL">
-      <HintPath>..\packages\Contensive.DbModels.21.8.6.2\lib\net45\ContensiveDbModels.dll</HintPath>
+      <HintPath>..\packages\Contensive.DbModels.21.8.11.1\lib\net45\ContensiveDbModels.dll</HintPath>
     </Reference>
     <Reference Include="CPBase, Version=4.1.2.0, Culture=neutral, PublicKeyToken=10b3c53389b845fb, processorArchitecture=MSIL">
-      <HintPath>..\packages\Contensive.CPBaseClass.21.8.6.2\lib\net45\CPBase.dll</HintPath>
+      <HintPath>..\packages\Contensive.CPBaseClass.21.8.11.1\lib\net45\CPBase.dll</HintPath>
     </Reference>
     <Reference Include="Enyim.Caching, Version=2.16.0.0, Culture=neutral, PublicKeyToken=cec98615db04012e, processorArchitecture=MSIL">
       <HintPath>..\packages\EnyimMemcached.2.16.0\lib\net35\Enyim.Caching.dll</HintPath>
@@ -190,8 +190,8 @@
       <HintPath>..\packages\Pipelines.Sockets.Unofficial.2.2.0\lib\net472\Pipelines.Sockets.Unofficial.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Processor, Version=21.8.6.2, Culture=neutral, PublicKeyToken=0777f439e33f89f3, processorArchitecture=MSIL">
-      <HintPath>..\packages\Contensive.Processor.21.8.6.2\lib\net472\Processor.dll</HintPath>
+    <Reference Include="Processor, Version=21.8.11.1, Culture=neutral, PublicKeyToken=0777f439e33f89f3, processorArchitecture=MSIL">
+      <HintPath>..\packages\Contensive.Processor.21.8.11.1\lib\net472\Processor.dll</HintPath>
     </Reference>
     <Reference Include="SixLabors.ImageSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13">
       <HintPath>..\packages\SixLabors.ImageSharp.1.0.3\lib\net472\SixLabors.ImageSharp.dll</HintPath>
