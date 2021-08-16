@@ -52,7 +52,9 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- aws send
                 // -- based off of aws guide at https://docs.aws.amazon.com/sns/latest/dg/sms_publish-to-phone.html
-                AmazonSimpleNotificationServiceClient snsClient = new(cp.ServerConfig.awsAccessKey, cp.ServerConfig.awsSecretAccessKey);
+                var credentials = new Amazon.Runtime.BasicAWSCredentials(cp.ServerConfig.awsAccessKey, cp.ServerConfig.awsSecretAccessKey);
+                var region = Amazon.RegionEndpoint.GetBySystemName(cp.ServerConfig.awsRegionName);
+                AmazonSimpleNotificationServiceClient snsClient = new(credentials, region);
                 PublishRequest request = new() {
                     Message = normalizedContent,
                     PhoneNumber = normalizedPhoneNumber

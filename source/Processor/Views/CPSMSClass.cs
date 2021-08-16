@@ -1,4 +1,5 @@
 ﻿
+using Contensive.Processor.Controllers;
 using System;
 
 namespace Contensive.Processor {
@@ -37,7 +38,7 @@ namespace Contensive.Processor {
             try {
                 cp.Doc.SetProperty("SMS Phone Number", smsPhoneNumber);
                 cp.Doc.SetProperty("SMS Message", smsMessage);
-                return cp.Utils.EncodeBoolean(cp.Addon.Execute("{D7A7810E-ECF6-4ABE-A1C0-2188C2AD42AC}"));
+                return SmsController.sendMessage(cp, smsPhoneNumber, smsMessage);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
