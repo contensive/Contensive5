@@ -2052,7 +2052,7 @@ namespace Contensive.Processor.Controllers {
                         + " from ((ccAddonEvents e"
                         + " left join ccAddonEventCatchers c on c.eventId=e.id)"
                         + " left join ccAggregateFunctions a on a.id=c.addonid)"
-                        + " where (a.id is not null)and  ";
+                        + " where ";
                     if (eventNameIdOrGuid.isNumeric()) {
                         sql += "e.id=" + DbController.encodeSQLNumber(double.Parse(eventNameIdOrGuid));
                     } else if (GenericController.isGuid(eventNameIdOrGuid)) {
@@ -2060,6 +2060,7 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         sql += "e.name=" + DbController.encodeSQLText(eventNameIdOrGuid);
                     }
+                    sql += " order by c.addonid desc";
                     if (!cs.openSql(sql)) {
                         //
                         // event not found
@@ -2081,6 +2082,8 @@ namespace Contensive.Processor.Controllers {
                             cs.set("name", eventNameIdOrGuid);
                         }
                     } else {
+                        //
+                        // -- event found, check if there are addons to run
                         while (cs.ok()) {
                             int addonid = cs.getInteger("addonid");
                             if (addonid != 0) {

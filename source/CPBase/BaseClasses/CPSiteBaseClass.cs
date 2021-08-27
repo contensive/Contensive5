@@ -189,7 +189,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log a message at level Warn
+        /// Log a message to the site-warning log.The site warning log lets admins know there are issues they need to resolve. This is not code bugs, but content or setting relalted issues.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="description"></param>
@@ -199,7 +199,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log a message at level Alarm
+        /// Log an Alarm. Alarms are saved in the \Contensive\Alarms folder, and will automatically cause the server alarm to fail.
         /// </summary>
         /// <param name="cause"></param>
         public abstract void LogAlarm(string cause);
