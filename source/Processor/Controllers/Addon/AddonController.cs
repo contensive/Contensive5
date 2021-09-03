@@ -232,10 +232,10 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- Track that this addon has been executed (to provide dependancy verification)
                 bool isDependencyThatAlreadyRan = false;
-                if (!core.doc.addonsExecuted.Contains(addon.id)) { 
+                if (!core.doc.addonsExecuted.Contains(addon.id)) {
                     //
                     // -- addon not run yet this page, add it to addonsExecuted list
-                    core.doc.addonsExecuted.Add(addon.id); 
+                    core.doc.addonsExecuted.Add(addon.id);
                 } else {
                     // -- addon has aleady run once. If just a dependency, set flag to signal this is running just to check js-in-head and all else should be skipped
                     isDependencyThatAlreadyRan = executeContext.isDependency;
@@ -363,7 +363,7 @@ namespace Contensive.Processor.Controllers {
                 // -- build content
                 //
                 string AddedByName = addon.name + " addon";
-                if (!isDependencyThatAlreadyRan &&  addon.inFrame && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
+                if (!isDependencyThatAlreadyRan && addon.inFrame && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
                     //
                     // -- inframe execution, deliver iframe with link back to remote method. remote is intercepted in routing and execute is called with context ContextRemoteMethodHtml or ContextRemoteMethodJson
                     //
@@ -708,11 +708,11 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // -- create html document from returned body
-                        result = new StringBuilder( core.html.getHtmlDoc(result.ToString(), "<body>"));
+                        result = new StringBuilder(core.html.getHtmlDoc(result.ToString(), "<body>"));
                         //
                         // -- minify results
                         if ((!core.doc.visitPropertyAllowDebugging) && (core.siteProperties.getBoolean("Allow Html Minify", true))) {
-                            result = new StringBuilder( NUglify.Uglify.Html(result.ToString()).Code);
+                            result = new StringBuilder(NUglify.Uglify.Html(result.ToString()).Code);
                         }
                     }
                 }
@@ -2048,7 +2048,7 @@ namespace Contensive.Processor.Controllers {
             string returnString = "";
             try {
                 using (var cs = new CsModel(core)) {
-                    string sql = "select e.id,c.addonId"
+                    string sql = "select distinct c.addonId"
                         + " from ((ccAddonEvents e"
                         + " left join ccAddonEventCatchers c on c.eventId=e.id)"
                         + " left join ccAggregateFunctions a on a.id=c.addonid)"
@@ -2070,16 +2070,16 @@ namespace Contensive.Processor.Controllers {
                         } else if (GenericController.isGuid(eventNameIdOrGuid)) {
                             //
                             // create event with Guid and id for name
-                            cs.close();
-                            cs.insert("add-on Events");
-                            cs.set("ccguid", eventNameIdOrGuid);
-                            cs.set("name", "Event " + cs.getInteger("id").ToString());
+                            using var cs2 = new CsModel(core); 
+                            cs2.insert("add-on Events");
+                            cs2.set("ccguid", eventNameIdOrGuid);
+                            cs2.set("name", "Event " + cs2.getInteger("id").ToString());
                         } else if (!string.IsNullOrEmpty(eventNameIdOrGuid)) {
                             //
                             // create event with name
-                            cs.close();
-                            cs.insert("add-on Events");
-                            cs.set("name", eventNameIdOrGuid);
+                            using var cs3 = new CsModel(core); 
+                            cs3.insert("add-on Events");
+                            cs3.set("name", eventNameIdOrGuid);
                         }
                     } else {
                         //
