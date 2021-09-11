@@ -878,7 +878,15 @@ namespace Contensive.Processor.Controllers {
                             }
                             string reasonForFail = "";
                             bool sendSuccess = false;
-                            if (sendWithSES) {
+                            if (!verifyEmailAddress(core, emailData.toAddress)) {
+                                //
+                                // -- to address is reasonForFail
+                                reasonForFail = $"Send-to address is invalid [{emailData.toAddress}]";
+                            } else if (!verifyEmailAddress(core, emailData.fromAddress)) {
+                                //
+                                // -- from address is reasonForFail
+                                reasonForFail = $"Send-from address is invalid [{emailData.fromAddress}]";
+                            } else if (sendWithSES) {
                                 //
                                 // -- send with Amazon SES
                                 sendSuccess = AwsSesController.send(core, sesClient, emailData, ref reasonForFail);

@@ -25,36 +25,51 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <returns></returns>
         public static string getTab(CoreController core, AdminDataModel adminData, EditorEnvironmentModel editorEnv, int RecordID, int ContentID, string EditTab) {
             string returnHtml = "";
+            int hint = 0;
             try {
                 //
                 // ----- Open the panel
                 if (adminData.adminContent.fields.Count <= 0) {
+                    hint = 10;
                     //
                     // There are no visible fiels, return empty
                     LogController.logError(core, new GenericException("There is no metadata for this field."));
                 } else {
+                    hint = 20;
                     //
                     // ----- Build an index to sort the fields by EditSortOrder
-                    Dictionary<string, ContentFieldMetadataModel> sortingFields = new Dictionary<string, ContentFieldMetadataModel>();
+                    Dictionary<string, ContentFieldMetadataModel> sortingFields = new();
+                    hint = 30;
                     foreach (var keyValuePair in adminData.adminContent.fields) {
+                        hint = 40;
                         ContentFieldMetadataModel field = keyValuePair.Value;
+                        hint = 50;
                         if (field.editTabName.ToLowerInvariant() == EditTab.ToLowerInvariant()) {
+                            hint = 60;
                             if (AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, adminData.adminContent.tableName)) {
+                                hint = 70;
                                 string AlphaSort = GenericController.getIntegerString(field.editSortPriority, 10) + "-" + GenericController.getIntegerString(field.id, 10);
+                                hint = 80;
                                 sortingFields.Add(AlphaSort, field);
                             }
                         }
                     }
+                    hint = 90;
                     //
                     // ----- display the record fields
                     bool AllowHelpIcon = core.visitProperty.getBoolean("AllowHelpIcon");
-                    StringBuilderLegacyController resultBody = new StringBuilderLegacyController();
+                    StringBuilderLegacyController resultBody = new();
                     bool needUniqueEmailMessage = false;
+                    hint = 100;
                     foreach (var kvp in sortingFields) {
+                        hint = 110;
                         ContentFieldMetadataModel field = kvp.Value;
+                        hint = 120;
                         string editorRow = EditorRowClass.getEditorRow(core, field, adminData, editorEnv);
+                        hint = 130;
                         resultBody.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                     }
+                    hint = 140;
                     //
                     // ----- add the *Required Fields footer
                     resultBody.add("<tr><td colspan=2 style=\"padding-top:10px;font-size:70%\"><div>* Field is required.</div><div>** Field must be unique.</div>");
@@ -62,14 +77,16 @@ namespace Contensive.Processor.Addons.AdminSite {
                         resultBody.add("<div>*** Field must be unique because this site allows login by email.</div>");
                     }
                     resultBody.add("</td></tr>");
+                    hint = 150;
                     //
                     // ----- close the panel
                     returnHtml = AdminUIController.getEditPanel(core, false, "", "", AdminUIController.editTable(resultBody.text));
                     adminData.editSectionPanelCount += 1;
                     resultBody = null;
+                    hint = 160;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogController.logError(core, ex, "hint [" + hint + "]");
                 throw;
             }
             return returnHtml;

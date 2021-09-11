@@ -85,24 +85,24 @@ namespace Contensive.Processor.Controllers {
                 this.remotePathPrefix = normalizeDosPath(remotePathPrefix);
             }
         }
-        //
-        //==============================================================================================================
-        /// <summary>
-        /// Create a remote filesystem
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="rootLocalPath"></param>
-        /// <param name="remotePathPrefix">If not isLocal, this is added to the remote content path. Ex a\ with content b\c.txt = a\b\c.txt</param>
-        public FileController(CoreController core, string rootLocalPath, string remotePathPrefix) {
-            if (string.IsNullOrEmpty(rootLocalPath)) {
-                LogController.logError(core, new ArgumentException("Attempt to create a FileController with blank rootLocalpath."));
-                throw new GenericException("Attempt to create a FileController with blank rootLocalpath");
-            }
-            this.core = core;
-            this.isLocal = false;
-            this.localAbsRootPath = normalizeDosPath(rootLocalPath);
-            this.remotePathPrefix = normalizeDosPath(remotePathPrefix);
-        }
+        ////
+        ////==============================================================================================================
+        ///// <summary>
+        ///// Create a remote filesystem
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="rootLocalPath"></param>
+        ///// <param name="remotePathPrefix">If not isLocal, this is added to the remote content path. Ex a\ with content b\c.txt = a\b\c.txt</param>
+        //public FileController(CoreController core, string rootLocalPath, string remotePathPrefix) {
+        //    if (string.IsNullOrEmpty(rootLocalPath)) {
+        //        LogController.logError(core, new ArgumentException("Attempt to create a FileController with blank rootLocalpath."));
+        //        throw new GenericException("Attempt to create a FileController with blank rootLocalpath");
+        //    }
+        //    this.core = core;
+        //    this.isLocal = false;
+        //    this.localAbsRootPath = normalizeDosPath(rootLocalPath);
+        //    this.remotePathPrefix = normalizeDosPath(remotePathPrefix);
+        //}
         //
         //==============================================================================================================
         /// <summary>
@@ -240,6 +240,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="FileContent"></param>
         /// <param name="isLocalFileSystem"></param>
         public void saveFile(string pathFilename, string FileContent, bool isLocalFileSystem) {
+            //
+            LogController.logTrace(core, $"FileController.saveFile, [{pathFilename}], isLocalFileSystem [{isLocalFileSystem}]");
+            //
             saveFile_TextBinary(pathFilename, FileContent, null, false, isLocalFileSystem);
         }
         //
@@ -285,6 +288,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isLocalFileSystem"></param>
         private void saveFile_TextBinary(string pathFilename, string textContent, byte[] binaryContent, bool isBinary, bool isLocalFileSystem) {
             try {
+                //
+                LogController.logTrace(core, $"FileController.saveFile_TextBinary, [{pathFilename}], isLocalFileSystem [{isLocalFileSystem}]");
+                //
                 pathFilename = normalizeDosPathFilename(pathFilename);
                 //
                 // -- write local file
@@ -1687,6 +1693,8 @@ namespace Contensive.Processor.Controllers {
             bool result = false;
             try {
                 //
+                LogController.logTrace(core, $"copyFileLocalToRemote, [{pathFilename}], isLocal [{isLocal}]");
+                //
                 // -- if local mode, done
                 if (isLocal) return false;
                 //
@@ -1707,6 +1715,9 @@ namespace Contensive.Processor.Controllers {
                 // -- Make service call and get back the response.
                 PutObjectResponse response = s3Client.PutObjectAsync(request).waitSynchronously();
                 result = true;
+                //
+                LogController.logTrace(core, $"copyFileLocalToRemote, exit [{result}]");
+                //
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }

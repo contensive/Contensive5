@@ -356,10 +356,10 @@ namespace Contensive.Processor {
         public override string RadioBox(string HtmlName, int HtmlValue, int CurrentValue, string HtmlClass = "", string HtmlId = "") {
             return HtmlController.inputRadio(HtmlName, HtmlValue, CurrentValue, HtmlId, HtmlClass);
         }
-        //
+        // removed optional width and class because there is already a signature for (string) and (string, string)
         [Obsolete("Use html5 methods instead", false)]
-        public override string InputDate(string HtmlName, string HtmlValue = "", string Width = "", string HtmlClass = "", string HtmlId = "")
-             => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue), "", HtmlId, HtmlClass);
+        public override string InputDate(string HtmlName, string HtmlValue, string Width, string HtmlClass = "", string HtmlId = "") 
+            => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue), "", HtmlId, HtmlClass);
         //
         [Obsolete("Use html5 methods instead", false)]
         public override string Hidden(string HtmlName, int HtmlValue)
@@ -368,9 +368,9 @@ namespace Contensive.Processor {
         [Obsolete("Use html5 methods instead", false)]
         public override string Hidden(string HtmlName, int HtmlValue, string HtmlClass)
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass);
-        //
+        // removed last optional because there is already (string, int, string)
         [Obsolete("Use html5 methods instead", false)]
-        public override string Hidden(string HtmlName, int HtmlValue, string HtmlClass, string HtmlId = "")
+        public override string Hidden(string HtmlName, int HtmlValue, string HtmlClass, string HtmlId) 
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass, HtmlId);
         //
         [Obsolete("Use html5 methods instead", false)]
@@ -380,9 +380,9 @@ namespace Contensive.Processor {
         [Obsolete("Use html5 methods instead", false)]
         public override string Hidden(string HtmlName, bool HtmlValue, string HtmlClass)
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass);
-        //
+        // removed last optional becuase there is already a signature for (string,bool,string)
         [Obsolete("Use html5 methods instead", false)]
-        public override string Hidden(string HtmlName, bool HtmlValue, string HtmlClass, string HtmlId = "")
+        public override string Hidden(string HtmlName, bool HtmlValue, string HtmlClass, string HtmlId)
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass, HtmlId);
         //
         [Obsolete("Use html5 methods instead", false)]
