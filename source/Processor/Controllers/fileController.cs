@@ -85,24 +85,6 @@ namespace Contensive.Processor.Controllers {
                 this.remotePathPrefix = normalizeDosPath(remotePathPrefix);
             }
         }
-        ////
-        ////==============================================================================================================
-        ///// <summary>
-        ///// Create a remote filesystem
-        ///// </summary>
-        ///// <param name="core"></param>
-        ///// <param name="rootLocalPath"></param>
-        ///// <param name="remotePathPrefix">If not isLocal, this is added to the remote content path. Ex a\ with content b\c.txt = a\b\c.txt</param>
-        //public FileController(CoreController core, string rootLocalPath, string remotePathPrefix) {
-        //    if (string.IsNullOrEmpty(rootLocalPath)) {
-        //        LogController.logError(core, new ArgumentException("Attempt to create a FileController with blank rootLocalpath."));
-        //        throw new GenericException("Attempt to create a FileController with blank rootLocalpath");
-        //    }
-        //    this.core = core;
-        //    this.isLocal = false;
-        //    this.localAbsRootPath = normalizeDosPath(rootLocalPath);
-        //    this.remotePathPrefix = normalizeDosPath(remotePathPrefix);
-        //}
         //
         //==============================================================================================================
         /// <summary>

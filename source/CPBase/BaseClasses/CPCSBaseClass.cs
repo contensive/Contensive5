@@ -585,7 +585,6 @@ namespace Contensive.BaseClasses {
         /// support IDisposable
         /// </summary>
         public abstract void Dispose();
-        //public abstract void Dispose(bool itIsSafeToAlsoFreeManagedObjects);
     }
 
 }
