@@ -6,6 +6,7 @@ using NLog.Config;
 using System.Collections.Generic;
 using NLog.AWS.Logger;
 using System.Globalization;
+using Contensive.BaseClasses;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -325,7 +326,11 @@ namespace Contensive.Processor.Controllers {
                         + " set count=count+1,"
                         + " dateLastReported=" + DbController.encodeSQLDate(core.dateTimeNowMockable) + " "
                         + " where id=" + warningId;
-                    core.db.executeNonQuery(SQL);
+                    //
+                    // -- ASYNC test
+                    LogController.log(core, "addSiteWarning, async test 1 of 3", CPLogBaseClass.LogLevel.Debug);
+                    //
+                    core.db.executeNonQueryAsync(SQL);
                     return;
                 }
             }

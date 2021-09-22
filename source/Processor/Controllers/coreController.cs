@@ -1,4 +1,5 @@
 ﻿
+using Contensive.BaseClasses;
 using Contensive.BaseModels;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
@@ -878,7 +879,10 @@ namespace Contensive.Processor.Controllers {
                                 + "," + DbController.encodeSQLText(pagetitle)
                                 + "," + DbController.encodeSQLText(doc.docGuid);
                             sql += ");";
-                            db.executeNonQuery(sql);
+                            //
+                            // -- ASYNC test
+                            LogController.log(this, "authenticate, async test 3 of 3", CPLogBaseClass.LogLevel.Debug);
+                            db.executeNonQueryAsync(sql);
                         }
                     }
                     //
