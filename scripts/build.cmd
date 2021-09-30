@@ -206,6 +206,30 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
+
+rem ==============================================================
+rem
+rem web.config must be manually updated from processor.dll.config
+rem
+@echo off
+cls
+
+@echo +++++++++++++++++++++++++++++
+@echo Manually update web.config if there were nuget package changes
+@echo 
+@echo nuget packages automatically update Processor project appconfig, but not the iisDefault web.config file. It must be manually updated if there were any nuget changes.
+@echo 
+@echo edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
+@echo copy the assembly redirect section
+@echo 
+@echo edit C:\Git\Contensive5\source\iisDefaultSite\Web.config
+@echo replace the assembly redirect section
+@echo 
+@echo +++++++++++++++++++++++++++++
+pause
+
+
+
 rem ==============================================================
 rem
 rem update aspx site nuget packages 
@@ -256,5 +280,4 @@ rem ==============================================================
 rem
 rem done
 rem
-
 pause

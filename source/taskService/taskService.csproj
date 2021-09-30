@@ -10,6 +10,8 @@
     <PackageIcon>LogoBalls.png</PackageIcon>
     <RepositoryUrl>https://github.com/contensive/Contensive5</RepositoryUrl>
     <OutputType>WinExe</OutputType>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">

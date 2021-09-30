@@ -9,6 +9,7 @@
     <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
     <PackageIcon>LogoBalls.png</PackageIcon>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
