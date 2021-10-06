@@ -592,6 +592,11 @@ namespace Contensive.Processor.Controllers {
                     throw new ArgumentException("Invalid source file.");
                 } else if (string.IsNullOrEmpty(dstPathFilename)) {
                     throw new ArgumentException("Invalid destination file.");
+                } else if (srcPathFilename.ToLowerInvariant().Equals(dstPathFilename.ToLowerInvariant())) {
+                    //
+                    // copy file to itself, deletes the file
+                    //
+                    return;
                 } else {
                     hint += ",normalize";
                     srcPathFilename = normalizeDosPathFilename(srcPathFilename);

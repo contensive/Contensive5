@@ -310,9 +310,11 @@ namespace Contensive.Processor.Controllers {
                                                 //
                                                 // -- 
                                                 switch (resourceType.ToLowerInvariant()) {
+                                                    case "wwwfiles":
+                                                    case "wwwroot":
                                                     case "www": {
                                                             wwwFileList += Environment.NewLine + dstDosPath + filename;
-                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to www, src [" + CollectionVersionFolder + SrcPath + "], dst [" + core.appConfig.localWwwPath + dstDosPath + "].");
+                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to wwwFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + core.appConfig.localWwwPath + dstDosPath + "].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.wwwFiles);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping www file [" + core.appConfig.localWwwPath + dstDosPath + filename + "].");
@@ -321,13 +323,27 @@ namespace Contensive.Processor.Controllers {
                                                             }
                                                             break;
                                                         }
+                                                    case "privatefiles":
+                                                    case "private": {
+                                                            ContentFileList += Environment.NewLine + dstDosPath + filename;
+                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to privateFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
+                                                            core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename);
+                                                            if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
+                                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping privateFiles file [" + dstDosPath + filename + "].");
+                                                                core.privateFiles.unzipFile(dstDosPath + filename);
+                                                                core.privateFiles.deleteFile(dstDosPath + filename);
+                                                            }
+                                                            break;
+                                                        }
                                                     case "file":
+                                                    case "files":
+                                                    case "cdnfiles":
                                                     case "content": {
                                                             ContentFileList += Environment.NewLine + dstDosPath + filename;
-                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to content, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
+                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to cdnFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.cdnFiles);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
-                                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping content file [" + dstDosPath + filename + "].");
+                                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping cdnFiles [" + dstDosPath + filename + "].");
                                                                 core.cdnFiles.unzipFile(dstDosPath + filename);
                                                                 core.cdnFiles.deleteFile(dstDosPath + filename);
                                                             }

@@ -17,6 +17,9 @@
                 ' -- execute route
                 Dim content As String = cp.executeRoute()
                 '
+                ' -- exit now if response headers sent. This technique is used to write binary
+                If Response.HeadersWritten Then Return
+                '
                 ' -- delete uploaded temp files in request
                 For Each file In context.Request.Files
                     DefaultSite.WindowsTempFileController.deleteTmpFile(file.windowsTempfilename)
