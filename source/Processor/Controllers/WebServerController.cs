@@ -848,7 +848,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // Loop redirect error, throw trap and block redirect to prevent loop
                     //
-                    LogController.logError(core, new GenericException("Redirect was called to the same URL, main_ServerLink is [" + requestUrl + "], main_ServerLinkSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
+                    LogController.logError(core, new GenericException("Redirect was called to the same URL, requestUrl is [" + requestUrl + "], requestUrlSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
                     return result;
                 }
                 if (isPageNotFound) {
