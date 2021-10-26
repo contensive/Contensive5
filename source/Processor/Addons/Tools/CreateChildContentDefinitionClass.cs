@@ -64,11 +64,11 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add(SpanClassAdminNormal);
                 //
                 Stream.add("Parent Content Name<br>");
-                Stream.add(core.html.selectFromContent("ParentContentID", ParentContentId, "Content", ""));
+                Stream.add(core.html.selectFromContent("ParentContentID", ParentContentId, "Content", "").replace("<select ", "<select class=\"form-control\" ",StringComparison.InvariantCultureIgnoreCase));
                 Stream.add("<br><br>");
                 //
                 Stream.add("Child Content Name<br>");
-                Stream.add(HtmlController.inputText_Legacy(core, "ChildContentName", ChildContentName, 1, 40));
+                Stream.add(HtmlController.inputText_Legacy(core, "ChildContentName", ChildContentName, 1, 40,"",false,false,"form-control"));
                 Stream.add("<br><br>");
                 //
                 Stream.add("Add Admin Menu Entry under Parent's Menu Entry<br>");

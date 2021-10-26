@@ -92,13 +92,13 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 Stream.add(SpanClassAdminNormal);
                 Stream.add("Data Source<br>");
-                Stream.add(core.html.selectFromContent("DataSourceID", datasource.id, "Data Sources", "", "Default"));
+                Stream.add(core.html.selectFromContent("DataSourceID", datasource.id, "Data Sources", "", "Default").replace("<select ", "<select class=\"form-control\" ", StringComparison.InvariantCultureIgnoreCase));
                 Stream.add("<br><br>");
                 Stream.add("Content Name<br>");
-                Stream.add(HtmlController.inputText_Legacy(core, "ContentName", ContentName, 1, 40));
+                Stream.add(HtmlController.inputText_Legacy(core, "ContentName", ContentName, 1, 40,"",false,false,"form-control"));
                 Stream.add("<br><br>");
                 Stream.add("Table Name<br>");
-                Stream.add(HtmlController.inputText_Legacy(core, "TableName", TableName, 1, 40));
+                Stream.add(HtmlController.inputText_Legacy(core, "TableName", TableName, 1, 40, "", false, false, "form-control"));
                 Stream.add("<br><br>");
                 Stream.add("</SPAN>");
                 result = AdminUIController.getToolBody(core, Caption, ButtonList, "", false, false, Description, "", 10, Stream.text);
