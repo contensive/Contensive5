@@ -582,7 +582,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.logTrace(core, "SessionController.isAuthenticatedDeveloper, enter");
                 //
-                return visit.visitAuthenticated && (user.admin || user.developer);
+                return visit.visitAuthenticated && user.developer;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

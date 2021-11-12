@@ -15,12 +15,24 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// field properties
+        /// display on admin navigator under collection
         /// </summary>
         public bool admin { get; set; }
+        /// <summary>
+        /// name=value pairs added to doc properties before execution, if the name does not already exist. Can be added to {% {json} %} execution to override properties
+        /// </summary>
         public string argumentList { get; set; }
+        /// <summary>
+        /// other names that can be used to execute the addon (routes for example)
+        /// </summary>
         public string aliasList { get; set; }
+        /// <summary>
+        /// deprecated
+        /// </summary>
         public bool asAjax { get; set; }
+        /// <summary>
+        /// when true, pageManager does not display the advanced edit tool
+        /// </summary>
         public bool blockEditTools { get; set; }
         public int collectionId { get; set; }
         public bool content { get; set; }
