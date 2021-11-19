@@ -37,7 +37,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ---- prepopulate inserted records
                 // ---- create filters for gridList
                 // -- wherepair wr0=id, wl=1 (means id=1)
-                Dictionary<string, string> wherePairs = new Dictionary<string, string>();
+                Dictionary<string, string> wherePairs = new();
                 for (int wpCnt = 0; wpCnt <= 99; wpCnt++) {
                     string key = cp.Doc.GetText("wl" + wpCnt);
                     if (string.IsNullOrEmpty(key)) { break; }
@@ -898,6 +898,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
+                throw;
             }
         }
         //

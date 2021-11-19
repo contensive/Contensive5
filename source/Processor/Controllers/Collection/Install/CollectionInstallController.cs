@@ -364,7 +364,6 @@ namespace Contensive.Processor.Controllers {
                                                 //
                                                 // Get path to this collection and call into it
                                                 //
-                                                bool Found = false;
                                                 string ChildCollectionName = XmlController.getXMLAttribute(core, MetaDataSection, "name", "");
                                                 string ChildCollectionGUId = XmlController.getXMLAttribute(core, MetaDataSection, "guid", MetaDataSection.InnerText);
                                                 if (string.IsNullOrEmpty(ChildCollectionGUId)) {
@@ -1087,9 +1086,12 @@ namespace Contensive.Processor.Controllers {
                             // Upgrade all apps failed
                             //
                             returnSuccess = false;
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Error, Collection(s) install failed, UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
+                            break;
                         }
                     }
+                }
+                if (returnSuccess) {
                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Collection(s) installed successfully.");
                 }
                 //

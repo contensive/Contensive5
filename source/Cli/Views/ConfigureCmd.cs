@@ -176,15 +176,6 @@ namespace Contensive.CLI {
                                 if (String.IsNullOrEmpty(reply)) { reply = cp.core.serverConfig.awsElastiCacheConfigurationEndpoint; }
                                 cp.core.serverConfig.awsElastiCacheConfigurationEndpoint = reply;
                             } while (string.IsNullOrEmpty(reply));
-                            //
-                            // -- enableEnyimNLog
-                            {
-                                Console.WriteLine("\n\nEnable Remote Cache Debug Logging.");
-                                Console.WriteLine("Enables remote cache logging (Enyim Logging). This is helpful as a diagnostic but is a serious performance hit.");
-                                string prompt = "Enable Logging (y/n)?";
-                                String defaultLoggingValue = (cp.core.serverConfig.enableEnyimNLog) ? "y" : "n";
-                                cp.core.serverConfig.enableEnyimNLog = Equals(GenericController.promptForReply(prompt, defaultLoggingValue).ToLowerInvariant(), "y");
-                            }
                         }
                     }
                     //

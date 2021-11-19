@@ -256,7 +256,7 @@ namespace Contensive.Processor.Controllers {
                                         }
                                         RecordNodes.Append(""
                                                 + Environment.NewLine + "\t\t" + "<record content=\"" + System.Net.WebUtility.HtmlEncode(dataExport.contentName) + "\" guid=\"" + dataExport.recordGuid + "\" name=\"" + System.Net.WebUtility.HtmlEncode(dataExport.recordName) + "\">"
-                                                + ExportController.tabIndent(cp, FieldNodes)
+                                                + FieldNodes
                                                 + Environment.NewLine + "\t\t" + "</record>");
                                         csDataExportRecords.GoNext();
                                     }
@@ -268,7 +268,7 @@ namespace Contensive.Processor.Controllers {
                     if (RecordNodes.Length > 0)
                         nodeList.Append(""
                             + Environment.NewLine + "\t" + "<data>"
-                            + ExportController.tabIndent(cp, RecordNodes.ToString())
+                            + RecordNodes.ToString()
                             + Environment.NewLine + "\t" + "</data>");
                 }
                 return nodeList.ToString();

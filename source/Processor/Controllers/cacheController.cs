@@ -81,7 +81,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// AWS client. Dispose on close
         /// </summary>
-        //private Enyim.Caching.MemcachedClient cacheClientMemCacheD = null;
         private readonly ConnectionMultiplexer redisConnectionGroup;
         //
         private readonly IDatabase redisDb;

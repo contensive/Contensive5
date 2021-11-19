@@ -164,7 +164,6 @@ namespace Contensive.Processor {
                 Site.ErrorReport(ex);
                 throw;
             }
-            return string.Empty;
         }
         //
         //====================================================================================================

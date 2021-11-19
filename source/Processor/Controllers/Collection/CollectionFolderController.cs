@@ -161,7 +161,6 @@ namespace Contensive.Processor.Controllers {
                                 foreach (XmlNode metaDataSection in CollectionFile.DocumentElement.ChildNodes) {
                                     string ChildCollectionGUID = null;
                                     string ChildCollectionName = null;
-                                    bool Found = false;
                                     switch (GenericController.toLCase(metaDataSection.Name)) {
                                         case "resource":
                                             break;

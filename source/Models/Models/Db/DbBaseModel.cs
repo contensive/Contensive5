@@ -1468,19 +1468,6 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// if invalid application, log the error and return true
-        /// </summary>
-        /// <returns></returns>
-        private static bool isAppInvalid(CPBaseClass cp) {
-            return false;
-            //
-            //if ((cp.serverConfig != null) && (cp.appConfig != null)) { return false; }
-            //cp.Site.ErrorReport( new GenericException("Cannot use data models without a valid server and application configuration."));
-            //return true;
-        }
-        //
-        //====================================================================================================
-        /// <summary>
         /// return true if this type contains a property matching the field name argument
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -1777,7 +1764,6 @@ namespace Contensive.Models.Db {
             else if (!string.IsNullOrWhiteSpace(fileField.uploadRequestName)) {
                 // 
                 // -- upload a file from the request
-                string srcFilename = cp.Doc.GetText(fileField.uploadRequestName);
                 string dstPath = cp.Db.CreateUploadFieldPath(tablename, fieldname, recordId);
                 string dstPathFilename = "";
                 cp.CdnFiles.SaveUpload(fileField.uploadRequestName, dstPath, ref dstPathFilename);

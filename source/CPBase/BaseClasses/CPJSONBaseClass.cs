@@ -25,7 +25,6 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Deserialize to an object of a unknown class
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="JSON"></param>
         /// <returns></returns>
         public abstract object Deserialize(string JSON);

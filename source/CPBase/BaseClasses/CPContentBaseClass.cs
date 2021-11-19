@@ -154,33 +154,52 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Get an icon linked to the administration site which adds a new record to the content.
         /// </summary>
-        /// <param name="ContentName"></param>
-        /// <param name="PresetNameValueList">A comma delimited list of name=value pairs. Each name is a field name and the value is used to prepopulate the new record.</param>
-        /// <param name="AllowPaste">If true and the content supports cut-paste from the public site, the returned string will include a cut icon.</param>
-        /// <param name="IsEditing">If false, this call returns nothing. Set it true if IsEdiing( contentname ) is true.</param>
+        /// <param name="contentName"></param>
+        /// <param name="presetNameValueList">A comma delimited list of name=value pairs. Each name is a field name and the value is used to prepopulate the new record.</param>
+        /// <param name="allowPaste">If true and the content supports cut-paste from the public site, the returned string will include a cut icon.</param>
+        /// <param name="isEditing">If false, this call returns nothing. Set it true if IsEdiing( contentname ) is true.</param>
+        /// <param name="includechildContent">If true, return a crlf delimited list of add tags, including add links for child content</param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public abstract string GetAddLink(string ContentName, string PresetNameValueList, bool AllowPaste, bool IsEditing);
+        public abstract string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing, bool includechildContent);
         /// <summary>
         /// Get an icon linked to the administration site which adds a new record to the content.
         /// </summary>
-        /// <param name="ContentName"></param>
-        /// <param name="PresetNameValueList"></param>
+        /// <param name="contentName"></param>
+        /// <param name="presetNameValueList">A comma delimited list of name=value pairs. Each name is a field name and the value is used to prepopulate the new record.</param>
+        /// <param name="allowPaste">If true and the content supports cut-paste from the public site, the returned string will include a cut icon.</param>
+        /// <param name="isEditing">If false, this call returns nothing. Set it true if IsEdiing( contentname ) is true.</param>
         /// <returns></returns>
-        public abstract string GetAddLink(string ContentName, string PresetNameValueList);
+        /// <remarks></remarks>
+        public abstract string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing);
         /// <summary>
         /// Get an icon linked to the administration site which adds a new record to the content.
         /// </summary>
-        /// <param name="ContentName"></param>
+        /// <param name="contentName"></param>
+        /// <param name="presetNameValueList"></param>
         /// <returns></returns>
-        public abstract string GetAddLink(string ContentName);
+        public abstract string GetAddLink(string contentName, string presetNameValueList);
+        /// <summary>
+        /// Get an icon linked to the administration site which adds a new record to the content.
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <returns></returns>
+        public abstract string GetAddLink(string contentName);
         /// <summary>
         /// Get an icon linked to the administration site which adds a new record to the content.
         /// </summary>
         /// <param name="contentId"></param>
-        /// <param name="PresetNameValueList"></param>
+        /// <param name="presetNameValueList"></param>
+        /// <param name="includeChildContent">If true, return a crlf delimited list of add tags, including add links for child content</param>
         /// <returns></returns>
-        public abstract string GetAddLink(int contentId, string PresetNameValueList);
+        public abstract string GetAddLink(int contentId, string presetNameValueList, bool includeChildContent);
+        /// <summary>
+        /// Get an icon linked to the administration site which adds a new record to the content.
+        /// </summary>
+        /// <param name="contentId"></param>
+        /// <param name="presetNameValueList"></param>
+        /// <returns></returns>
+        public abstract string GetAddLink(int contentId, string presetNameValueList);
         /// <summary>
         /// Get an icon linked to the administration site which adds a new record to the content.
         /// </summary>
@@ -192,10 +211,10 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Returns an SQL compatible where-clause which includes all the contentcontentid values allowed for this content name.
         /// </summary>
-        /// <param name="ContentName"></param>
+        /// <param name="contentName"></param>
         /// <returns></returns>
         /// <remarks></remarks>
-        public abstract string GetContentControlCriteria(string ContentName);
+        public abstract string GetContentControlCriteria(string contentName);
         //
         //====================================================================================================
         /// <summary>

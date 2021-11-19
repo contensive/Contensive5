@@ -267,6 +267,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                throw;
             }
         }
         //========================================================================
@@ -869,7 +870,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 //
                 object DBValueVariant = null;
-                object NullVariant = null;
                 //
                 // ----- test for content problem
                 //
@@ -934,10 +934,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // removed because it was throwing too many false positives (1/14/04 - tried to do it again)
                             // If a CM hits the edit tag for a deleted record, this is hit. It should not cause the Developers to spend hours running down.
                         } else {
-                            //
-                            // Read database values into RecordValuesVariant array
-                            //
-                            NullVariant = null;
                             foreach (var keyValuePair in adminContent.fields) {
                                 ContentFieldMetadataModel adminContentcontent = keyValuePair.Value;
                                 string fieldNameLc = adminContentcontent.nameLc;

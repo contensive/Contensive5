@@ -17,8 +17,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <NoWarn>;CS1591</NoWarn>
+  <PropertyGroup>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Label="Signing">
@@ -38,7 +38,7 @@
     <FileVersion>4.1.2.0</FileVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn Label="FIX IT: Disable missing docs warnings">$(NoWarn);1570;1572;1573;1587;1591</NoWarn>
+    <NoWarn>1570;1572;1573;1587;1591</NoWarn>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageId>Contensive.CPBaseClass</PackageId>

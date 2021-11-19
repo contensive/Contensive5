@@ -124,27 +124,23 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         //
         public static List<AddonModel> createList_pageDependencies(CPBaseClass cp, int pageId) {
-            List<AddonModel> result = new List<AddonModel>();
             try {
-                result = createList<AddonModel>(cp, "(id in (select addonId from ccAddonPageRules where (pageId=" + pageId + ")))");
+                return createList<AddonModel>(cp, "(id in (select addonId from ccAddonPageRules where (pageId=" + pageId + ")))");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
-            return result;
         }
         //
         //====================================================================================================
         //
         public static List<AddonModel> createList_templateDependencies(CPBaseClass cp, int templateId) {
-            List<AddonModel> result = new List<AddonModel>();
             try {
-                result = createList<AddonModel>(cp, "(id in (select addonId from ccAddonTemplateRules where (templateId=" + templateId + ")))");
+                return createList<AddonModel>(cp, "(id in (select addonId from ccAddonTemplateRules where (templateId=" + templateId + ")))");
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
-            return result;
         }
         //
         //====================================================================================================

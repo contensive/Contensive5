@@ -45,7 +45,7 @@ namespace Contensive.Processor.Controllers {
                 return HtmlController.section(result);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
-                return "";
+                throw;
             }
         }
         //
@@ -89,7 +89,7 @@ namespace Contensive.Processor.Controllers {
                 return getSectionButtonBar(core, buttonsLeft, buttonsRight);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
-                return toolExceptionMessage;
+                throw;
             }
         }
         //
@@ -112,11 +112,18 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// get list of buttons html
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="ButtonList"></param>
+        /// <param name="AllowDelete"></param>
+        /// <param name="AllowAdd"></param>
+        /// <returns></returns>
         public static string getButtonHtmlFromList(CoreController core, List<ButtonMetadata> ButtonList, bool AllowDelete, bool AllowAdd) {
-            var result = new StringBuilder();
             try {
+                var result = new StringBuilder();
                 foreach (ButtonMetadata button in ButtonList) {
-
                     if (button.isDelete) {
                         result.Append(getButtonDanger(button.value, "if(!DeleteCheck()) { return false; }", !AllowDelete));
                     } else if (button.isAdd) {
@@ -128,13 +135,23 @@ namespace Contensive.Processor.Controllers {
                     }
 
                 }
+                return result.ToString();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                throw;
             }
-            return result.ToString();
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// get list of buttons html
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="ButtonList"></param>
+        /// <param name="AllowDelete"></param>
+        /// <param name="AllowAdd"></param>
+        /// <param name="ButtonName"></param>
+        /// <returns></returns>
         public static string getButtonHtmlFromCommaList(CoreController core, string ButtonList, bool AllowDelete, bool AllowAdd, string ButtonName) {
             return getButtonHtmlFromList(core, buttonStringToButtonList(ButtonList), AllowDelete, AllowAdd);
         }
@@ -258,7 +275,7 @@ namespace Contensive.Processor.Controllers {
                     + cr + "</div>";
             } catch (Exception ex) {
                 LogController.logError(core, ex);
-                return string.Empty;
+                throw;
             }
         }
         //
@@ -1036,7 +1053,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="allowPaste"></param>
         /// <param name="allowUserAdd"></param>
         /// <returns></returns>
-        public static List<string> getRecordAddAnchorTag(CoreController core, string contentName, string presetNameValueList, bool allowPaste, bool allowUserAdd) {
+        public static List<string> getRecordAddAnchorTag(CoreController core, string contentName, string presetNameValueList, bool allowPaste, bool allowUserAdd, bool includeChildContent) {
             try {
                 List<string> result = new List<string>();
                 if (!allowUserAdd) { return result; }
@@ -1045,7 +1062,7 @@ namespace Contensive.Processor.Controllers {
                 // -- convert older QS format to command delimited format
                 presetNameValueList = presetNameValueList.Replace("&", ",");
                 var content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
-                result.AddRange(getRecordAddAnchorTag_GetChildContentLinks(core, content, presetNameValueList, new List<int>()));
+                result.AddRange(getRecordAddAnchorTag_GetChildContentLinks(core, content, presetNameValueList, includeChildContent, new List<int>()));
                 //
                 // -- Add in the paste entry, if needed
                 if (!allowPaste) { return result; }
@@ -1088,13 +1105,13 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
-        public static List<string> getRecordAddAnchorTag(CoreController core, string ContentName, string PresetNameValueList, bool AllowPaste) => getRecordAddAnchorTag(core, ContentName, PresetNameValueList, AllowPaste, core.session.isEditing(ContentName));
+        public static List<string> getRecordAddAnchorTag(CoreController core, string ContentName, string PresetNameValueList, bool AllowPaste) => getRecordAddAnchorTag(core, ContentName, PresetNameValueList, AllowPaste, core.session.isEditing(ContentName), false);
         //
-        public static List<string> getRecordAddAnchorTag(CoreController core, string ContentName, string PresetNameValueList) => getRecordAddAnchorTag(core, ContentName, PresetNameValueList, false, core.session.isEditing(ContentName));
+        public static List<string> getRecordAddAnchorTag(CoreController core, string ContentName, string PresetNameValueList) => getRecordAddAnchorTag(core, ContentName, PresetNameValueList, false, core.session.isEditing(ContentName), false);
         //
         //====================================================================================================
         /// <summary>
-        /// return record add links for all the child
+        /// return a list of record add links. If not includechildContent, the list has 1 entry, else it also includes links for all the child
         /// </summary>
         /// <param name="core"></param>
         /// <param name="content"></param>
@@ -1103,7 +1120,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="MenuName"></param>
         /// <param name="ParentMenuName"></param>
         /// <returns></returns>
-        private static List<string> getRecordAddAnchorTag_GetChildContentLinks(CoreController core, ContentModel content, string PresetNameValueList, List<int> usedContentIdList) {
+        private static List<string> getRecordAddAnchorTag_GetChildContentLinks(CoreController core, ContentModel content, string PresetNameValueList, bool includeChildContent, List<int> usedContentIdList) {
             var result = new List<string>();
             string Link = "";
             if (content != null) {
@@ -1196,13 +1213,16 @@ namespace Contensive.Processor.Controllers {
                         }
                         result.Add(HtmlController.div(HtmlController.a(iconAdd_Green + "&nbsp;Add " + shortName, Link, "ccRecordAddLink", "", "-1") + HtmlController.div("&nbsp;", "ccEditLinkEndCap"), "ccRecordLinkCon"));
                         //
+                        // -- exit now if no child content
+                        if (!includeChildContent) { return result;  }
+                        //
                         // Create child submenu if Child Entries found
                         var childList = DbBaseModel.createList<ContentModel>(core.cpParent, "ParentID=" + content.id);
                         if (childList.Count > 0) {
                             //
                             // ----- Create the ChildPanel with all Children found
                             foreach (var child in childList) {
-                                result.AddRange(getRecordAddAnchorTag_GetChildContentLinks(core, child, PresetNameValueList, usedContentIdList));
+                                result.AddRange(getRecordAddAnchorTag_GetChildContentLinks(core, child, PresetNameValueList, includeChildContent, usedContentIdList));
                             }
                         }
                     }

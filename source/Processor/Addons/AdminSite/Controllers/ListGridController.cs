@@ -64,7 +64,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                     // if this is a current sort ,add the reverse flag
                     //
-                    StringBuilder buttonHref = new StringBuilder();
+                    StringBuilder buttonHref = new();
                     buttonHref.Append("/" + core.appConfig.adminRoute + "?" + rnAdminForm + "=" + AdminFormIndex + "&SetSortField=" + column.Name + "&RT=0&" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(adminData.editViewTitleSuffix) + "&cid=" + adminData.adminContent.id);
                     if (!indexConfig.sorts.ContainsKey(column.Name)) {
                         buttonHref.Append("&SetSortDirection=1");
@@ -186,14 +186,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 if (FieldUsedInColumns.ContainsKey(columnNameLc)) {
                                     if (FieldUsedInColumns[columnNameLc]) {
                                         dataTableRows.Append((Environment.NewLine + "<td valign=\"middle\" " + rowColor + " align=\"left\">" + SpanClassAdminNormal));
-                                        dataTableRows.Append(getGridCell(core, adminData, column.Name, csData, IsLookupFieldValid[columnNameLc], GenericController.toLCase(adminData.adminContent.tableName) == "ccemail"));
+                                        dataTableRows.Append(getGridCell(core, adminData, column.Name, csData, IsLookupFieldValid[columnNameLc]));
                                         dataTableRows.Append(("&nbsp;</span></td>"));
                                     }
                                 }
                             }
                             dataTableRows.Append(("\n    </tr>"));
                             csData.goNext();
-                            rowNumber = rowNumber + 1;
+                            rowNumber++;
                         }
                         dataTableRows.Append("<input type=hidden name=rowcnt value=" + rowNumber + ">");
                         //
@@ -232,7 +232,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (indexConfig.allowAddRow) {
                     //
                     // optional AddRow
-                    foreach (var addTag in getRecordAddAnchorTag(core, adminData.adminContent.name, adminEditPresetArgQsList, false, userContentPermissions.allowAdd)) {
+                    foreach (var addTag in getRecordAddAnchorTag(core, adminData.adminContent.name, adminEditPresetArgQsList, false, userContentPermissions.allowAdd, true)) {
                         dataTableRows.Append(blankRow.Replace("{msg}", addTag));
                     }
                 }
@@ -276,12 +276,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + "<table ID=\"DataTable\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"Background-Color:white;\">"
                     + DataTable_HdrRow + dataTableRows + DataTable_FindRow + "</table>";
                 return grid;
-
-
-
             } catch (Exception ex) {
                 LogController.logError(core, ex);
-                return HtmlController.div("There was an error creating the record list.");
+                throw;
             }
         }
         //   
@@ -294,9 +291,8 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="fieldName"></param>
         /// <param name="CS"></param>
         /// <param name="IsLookupFieldValid"></param>
-        /// <param name="IsEmailContent"></param>
         /// <returns></returns>
-        public static string getGridCell(CoreController core, AdminDataModel adminData, string fieldName, CsModel csData, bool IsLookupFieldValid, bool IsEmailContent) {
+        public static string getGridCell(CoreController core, AdminDataModel adminData, string fieldName, CsModel csData, bool IsLookupFieldValid) {
             try {
                 var Stream = new StringBuilderLegacyController();
                 var field = adminData.adminContent.fields[fieldName.ToLowerInvariant()];
@@ -321,7 +317,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
                                 if (IsLookupFieldValid) {
                                     Stream.add(csData.getText("LookupTable" + field.id + "Name"));
-                                } else if (field.lookupList != "") {
+                                } else if (!string.IsNullOrEmpty(field.lookupList)) {
                                     string[] lookups = field.lookupList.Split(',');
                                     int LookupPtr = csData.getInteger(field.nameLc) - 1;
                                     if (LookupPtr <= lookups.GetUpperBound(0)) {

@@ -58,7 +58,6 @@ namespace Contensive.CLI {
             using (CPClass cpApp = new CPClass(appName)) {
                 var contextLog = new Stack<string>();
                 contextLog.Push("command line interface install command [" + collectionPhysicalPathFilename + "]");
-                string returnErrorMessage = "";
                 //
                 // todo - this interface should all be tempFiles not private files (to avoid all the remote file system copies
                 //
@@ -76,14 +75,16 @@ namespace Contensive.CLI {
                 cpApp.TempFiles.CopyLocalToRemote(tempPathFilename);
                 //
                 // -- build the collection folders for all collection files in the download path and created a list of collection Guids that need to be installed
-                var collectionsDownloaded = new List<string>();
-                string return_ErrorMessage = "";
+                string errorMessage = "";
                 var nonCriticalErrorList = new List<string>();
                 var collectionsInstalled = new List<string>();
                 string collectionGuidsInstalled = "";
-                CollectionInstallController.installCollectionFromTempFile(cpApp.core, false, contextLog, tempPathFilename, ref return_ErrorMessage, ref collectionGuidsInstalled, false, false, ref nonCriticalErrorList, logPrefix, ref collectionsInstalled);
-                if (!string.IsNullOrEmpty(returnErrorMessage)) {
-                    Console.WriteLine("There was an error installing the collection: " + returnErrorMessage);
+                if (!CollectionInstallController.installCollectionFromTempFile(cpApp.core, false, contextLog, tempPathFilename, ref errorMessage, ref collectionGuidsInstalled, false, false, ref nonCriticalErrorList, logPrefix, ref collectionsInstalled)) {
+                    if (!string.IsNullOrEmpty(errorMessage)) {
+                        Console.WriteLine("***** Error installing the collection: " + errorMessage);
+                    } else {
+                        Console.WriteLine("***** Error installing the collection. The detail message available.");
+                    }
                 } else {
                     Console.WriteLine("Command line collection installation completed with no errors.");
                 }

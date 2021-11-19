@@ -560,62 +560,6 @@ namespace Contensive.Processor.Controllers {
                 cp.Site.ErrorReport(ex);
             }
         }
-        // 
-        // =======================================================================================
-        /// <summary>
-        /// Indent every line by 1 tab
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="Source"></param>
-        /// <returns></returns>
-        public static string tabIndent(CPBaseClass cp, string Source) {
-            return Source;
-            //
-            int posStart = Strings.InStr(1, Source, "<![CDATA[", CompareMethod.Text);
-            if (posStart == 0) {
-                // 
-                // no cdata
-                posStart = Strings.InStr(1, Source, "<textarea", CompareMethod.Text);
-                if (posStart == 0)
-                    // 
-                    // no textarea
-                    // 
-                    return Strings.Replace(Source, System.Environment.NewLine + "\t", System.Environment.NewLine + "\t" + "\t");
-                else {
-                    // 
-                    // text area found, isolate it and indent before and after
-                    int posEnd = Strings.InStr(posStart, Source, "</textarea>", CompareMethod.Text);
-                    if (posEnd == 0) {
-                        //
-                        // -- append target, no post
-                        return ""
-                            + tabIndent(cp, Strings.Mid(Source, 1, posStart - 1))
-                            + Strings.Mid(Source, posStart);
-                    } else {
-                        //
-                        // -- append target
-                        return ""
-                            + tabIndent(cp, Strings.Mid(Source, 1, posStart - 1))
-                            + Strings.Mid(Source, posStart, posEnd - posStart + Strings.Len("</textarea>"))
-                            + tabIndent(cp, Strings.Mid(Source, posEnd + Strings.Len("</textarea>")));
-                    }
-                }
-            } else {
-                // 
-                // cdata found, isolate it and indent before and after
-                int posEnd = Strings.InStr(posStart, Source, "]]>", CompareMethod.Text);
-                if (posEnd == 0) {
-                    return ""
-                        + tabIndent(cp, Strings.Mid(Source, 1, posStart - 1))
-                        + Strings.Mid(Source, posStart);
-                } else {
-                    return ""
-                        + tabIndent(cp, Strings.Mid(Source, 1, posStart - 1))
-                        + Strings.Mid(Source, posStart, posEnd - posStart + Strings.Len("]]>"))
-                        + tabIndent(cp, Strings.Mid(Source, posEnd + 3));
-                }
-            }
-        }
         //
         // =======================================================================================
         /// <summary>

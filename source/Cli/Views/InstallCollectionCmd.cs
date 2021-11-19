@@ -75,7 +75,7 @@ namespace Contensive.CLI {
                         string returnErrorMessage = "";
                         CollectionLibraryController.installCollectionFromLibrary(cpApp.core, false, context, collectionGuid, ref returnErrorMessage, false, false, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList);
                         if (!string.IsNullOrEmpty(returnErrorMessage)) {
-                            Console.WriteLine("There was an error installing the collection: " + returnErrorMessage);
+                            Console.WriteLine("***** Error installing the collection: " + returnErrorMessage);
                         }
                         cpApp.Cache.InvalidateAll();
                     }

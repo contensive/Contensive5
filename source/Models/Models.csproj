@@ -47,7 +47,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+  <PropertyGroup>
     <NoWarn>1701;1702;1570;1572;1573;1587;1591</NoWarn>
   </PropertyGroup>
 

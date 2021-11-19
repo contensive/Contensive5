@@ -237,7 +237,7 @@ namespace Contensive.Processor.Controllers {
                             NavType = "Add-on";
                         result = ""
                         + System.Environment.NewLine + "\t" + "<Addon name=\"" + System.Net.WebUtility.HtmlEncode(addonName) + "\" guid=\"" + addonGuid + "\" type=\"" + NavType + "\">"
-                        + ExportController.tabIndent(cp, result)
+                        + result
                         + System.Environment.NewLine + "\t" + "</Addon>";
                     }
                     CS.Close();

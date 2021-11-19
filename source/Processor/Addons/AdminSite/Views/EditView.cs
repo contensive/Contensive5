@@ -94,7 +94,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     contentType = CPHtml5BaseClass.EditorContentType.contentTypeWeb;
                 }
 
-                EditorEnvironmentModel editorEnv = new EditorEnvironmentModel {
+                EditorEnvironmentModel editorEnv = new() {
                     allowHelpMsgCustom = false,
                     editorAddonListJSON = core.html.getWysiwygAddonList(contentType),
                     isRootPage = adminData.adminContent.tableName.ToLowerInvariant().Equals(PageContentModel.tableMetadata.tableNameLower) && (adminData.editRecord.parentId == 0) && (adminData.editRecord.id != 0),
@@ -214,7 +214,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- update page title
                 if (adminData.editRecord.id == 0) {
                     core.html.addTitle("Add " + adminData.adminContent.name);
-                } else if (adminData.editRecord.nameLc == "") {
+                } else if (string.IsNullOrEmpty( adminData.editRecord.nameLc )) {
                     core.html.addTitle("Edit #" + adminData.editRecord.id + " in " + adminData.editRecord.contentControlId_Name);
                 } else {
                     core.html.addTitle("Edit " + adminData.editRecord.nameLc + " in " + adminData.editRecord.contentControlId_Name);
@@ -243,7 +243,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 });
             } catch (Exception ex) {
                 LogController.logError(core, ex);
-                return innerHtml;
+                throw;
             }
         }
         //

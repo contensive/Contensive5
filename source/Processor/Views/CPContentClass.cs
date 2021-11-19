@@ -59,9 +59,19 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing, bool includechildContent) {
+            string result = "";
+            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, allowPaste, isEditing, includechildContent)) {
+                result += link;
+            }
+            return result;
+        }
+        //
+        //====================================================================================================
+        //
         public override string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing) {
             string result = "";
-            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, allowPaste, isEditing)) {
+            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, allowPaste, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -72,7 +82,7 @@ namespace Contensive.Processor {
         public override string GetAddLink(string contentName, string presetNameValueList) {
             string result = "";
             bool isEditing = cp.core.session.isEditing(contentName);
-            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, false, isEditing)) {
+            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, false, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -83,7 +93,7 @@ namespace Contensive.Processor {
         public override string GetAddLink(string contentName) {
             string result = "";
             bool isEditing = cp.core.session.isEditing(contentName);
-            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, "", false, isEditing)) {
+            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, "", false, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -91,14 +101,23 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override string GetAddLink(int contentId, string PresetNameValueList, bool includeChildContent) {
+            bool isEditing = cp.core.session.isEditing(contentId.ToString());
+            return GetAddLink(cp.Content.GetName(contentId), PresetNameValueList, false, isEditing, includeChildContent);
+        }
+        //
+        //====================================================================================================
+        //
         public override string GetAddLink(int contentId, string PresetNameValueList) {
-            return GetAddLink(cp.Content.GetName(contentId), PresetNameValueList);
+            bool isEditing = cp.core.session.isEditing(contentId.ToString());
+            return GetAddLink(cp.Content.GetName(contentId), PresetNameValueList, false, isEditing, false);
         }
         //
         //====================================================================================================
         //
         public override string GetAddLink(int contentId) {
-            return GetAddLink(cp.Content.GetName(contentId));
+            bool isEditing = cp.core.session.isEditing(contentId.ToString());
+            return GetAddLink(cp.Content.GetName(contentId), "", false, isEditing, false);
         }
         //
         //====================================================================================================
@@ -309,7 +328,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="layoutid"></param>
         /// <returns></returns>
-        [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)] public override string GetLayout(int layoutid) {
+        [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)]
+        public override string GetLayout(int layoutid) {
             return cp.Layout.GetLayout(layoutid);
         }
         //

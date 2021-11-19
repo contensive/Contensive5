@@ -52,7 +52,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public override string awsElastiCacheConfigurationEndpoint { get; set; }
         /// <summary>
-        /// includes NLog logging into Enyim. Leave off as it causes performance issues
+        /// deprecated
         /// </summary>
         public override bool enableEnyimNLog { get; set; }
         /// <summary>

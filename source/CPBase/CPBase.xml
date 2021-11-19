@@ -7812,17 +7812,17 @@
         </member>
         <member name="P:Contensive.BaseModels.ServerConfigBaseModel.enableRemoteCache">
             <summary>
-            AWS dotnet elaticcache client wraps enyim, and provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
+            AWS dotnet elaticcache client provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
             </summary>
         </member>
         <member name="P:Contensive.BaseModels.ServerConfigBaseModel.awsElastiCacheConfigurationEndpoint">
             <summary>
-            AWS dotnet elaticcache client wraps enyim, and provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
+            AWS dotnet elaticcache client provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
             </summary>
         </member>
         <member name="P:Contensive.BaseModels.ServerConfigBaseModel.enableEnyimNLog">
             <summary>
-            includes NLog logging into Enyim. Leave off as it causes performance issues
+            deprecated
             </summary>
         </member>
         <member name="P:Contensive.BaseModels.ServerConfigBaseModel.defaultDataSourceType">

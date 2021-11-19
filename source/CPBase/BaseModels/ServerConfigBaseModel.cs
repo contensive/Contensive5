@@ -43,16 +43,16 @@ namespace Contensive.BaseModels {
         public abstract bool enableLocalFileCache { get; set; }
         //
         /// <summary>
-        /// AWS dotnet elaticcache client wraps enyim, and provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
+        /// AWS dotnet elaticcache client and provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
         /// </summary>
         public abstract bool enableRemoteCache { get; set; }
         /// <summary>
-        /// AWS dotnet elaticcache client wraps enyim, and provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
+        /// AWS dotnet elaticcache client and provides node autodiscovery through the configuration object. this is the srver:port to the config file it uses.
         /// </summary>
         public abstract string awsElastiCacheConfigurationEndpoint { get; set; }
         //
         /// <summary>
-        /// includes NLog logging into Enyim. Leave off as it causes performance issues
+        /// deprecated
         /// </summary>
         public abstract bool enableEnyimNLog { get; set; }
         //
