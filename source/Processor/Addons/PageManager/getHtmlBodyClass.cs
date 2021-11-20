@@ -15,8 +15,7 @@ namespace Contensive.Processor.Addons.PageManager {
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
             try {
                 CoreController core = ((CPClass)cp).core;
-
-                // removed "<div class=\"ccBodyWeb\">" + PageContentController.getHtmlBody(core) + "</div>";
+                cp.Doc.SetProperty("allowToolPanel", true);
                 string result = PageContentController.getHtmlBody(core);
                 if (core.doc.pageController.page !=null ) {
                     //
