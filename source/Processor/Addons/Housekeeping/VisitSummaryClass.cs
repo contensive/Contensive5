@@ -223,13 +223,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         //
                         // Total Visits
                         //
-                        SQL = "select count(v.id) as VisitCnt ,Sum(v.PageVisits) as HitCnt ,sum(v.TimetoLastHit) as TimeOnSite"
+                        SQL = "select count(v.id) as VisitCnt ,Sum(v.PageVisits) as HitCnt"
                             + " from ccvisits v"
                             + " where (v.CookieSupport<>0)"
                             + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
                             + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                             + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                             + "";
+                        // ,sum(v.TimetoLastHit) as TimeOnSite
                         //
                         int VisitCnt = 0;
                         int HitCnt = 0;
@@ -239,9 +240,12 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             if (csData.ok()) {
                                 VisitCnt = csData.getInteger("VisitCnt");
                                 HitCnt = csData.getInteger("HitCnt");
-                                double TimeOnSite = csData.getNumber("TimeOnSite");
+                                //double TimeOnSite = csData.getNumber("TimeOnSite");
                             }
                         }
+                        //
+
+                        // -- ERROR this can overrun sql integer -- sum(v.TimetoLastHit)
                         //
                         // -- Visits by new visitors
                         int NewVisitorVisits = 0;
@@ -286,8 +290,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             }
                             //
                             // Multipage Visits
-                            //
-                            SQL = "select count(v.id) as VisitCnt ,sum(v.PageVisits) as HitCnt ,sum(v.TimetoLastHit) as TimetoLastHitSum "
+                            // ERROR: this overran sql integer --  ,sum(v.TimetoLastHit) as TimetoLastHitSum
+                            SQL = "select count(v.id) as VisitCnt ,sum(v.PageVisits) as HitCnt "
                                 + " from ccvisits v"
                                 + " where (v.CookieSupport<>0)"
                                 + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
@@ -304,7 +308,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 if (csData.ok()) {
                                     MultiPageVisitCnt = csData.getInteger("VisitCnt");
                                     MultiPageHitCnt = csData.getInteger("HitCnt");
-                                    MultiPageTimetoLastHitSum = csData.getNumber("TimetoLastHitSum");
+                                    //MultiPageTimetoLastHitSum = csData.getNumber("TimetoLastHitSum");
                                 }
                             }
                             //

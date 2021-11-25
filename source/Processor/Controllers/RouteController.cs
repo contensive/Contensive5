@@ -423,7 +423,6 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             } finally {
-                // if (core.doc.routeDictionaryChanges) { DefaultSite.configurationClass.loadRouteMap(cp))}
                 LogController.log(core, "CoreController executeRoute, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
             }
             return result;
