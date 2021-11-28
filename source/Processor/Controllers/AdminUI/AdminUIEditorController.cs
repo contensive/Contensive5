@@ -695,7 +695,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     //
                     // -- for redirect fields, only include connected records that match the redirect criteria
-                    sqlWhere += (string.IsNullOrEmpty(field.redirectId)) ? "" : "and(" + adminData.adminContent.tableName + "." + field.redirectId + "=" + editRecord.id + ")";
+                    sqlWhere += (string.IsNullOrEmpty(field.redirectId)) ? "" : "and(" + gridData.adminContent.tableName + "." + field.redirectId + "=" + editRecord.id + ")";
                     //
                     // Get the total record count
                     string sql = "select count(" + gridData.adminContent.tableName + ".ID) as cnt from " + sqlFrom;

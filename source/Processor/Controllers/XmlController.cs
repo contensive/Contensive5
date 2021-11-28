@@ -120,8 +120,8 @@ namespace Contensive.Processor.Controllers {
         /// 
         /// </summary>
         private class TableClass {
-            public string tableName;
-            public string dataSourceName;
+            public string tableName { get; set; }
+            public string dataSourceName { get; set; }
         }
         // 
         // ====================================================================================================
@@ -178,20 +178,19 @@ namespace Contensive.Processor.Controllers {
                 string iContentName;
                 string sql;
                 bool FoundMenuTable = false;
-                //;
+                //
                 CPCSBaseClass cs = cp.CSNew();
                 // 
-                string appName = cp.Site.Name;
                 iContentName = ContentName;
-                if (iContentName != "") {
+                if ( !string.IsNullOrEmpty( iContentName )) {
                     sql = "select id from cccontent where name=" + cp.Db.EncodeSQLText(iContentName);
-                    if (cs.OpenSQL(sql))
-                        ContentID = cs.GetInteger("id");
+                    if (cs.OpenSQL(sql)) { ContentID = cs.GetInteger("id"); }
                     cs.Close();
                 }
-                if (iContentName != "" & (ContentID == 0)) {
+                if (!string.IsNullOrEmpty(iContentName ) && (ContentID == 0)) {
                     return string.Empty;
-                } else {
+                }
+                {
                     // 
                     // Build table lookup
                     // 
@@ -248,244 +247,219 @@ namespace Contensive.Processor.Controllers {
                         while (cs.OK());
                     }
                     cs.Close();
-                    // '
-                    // ' select all the fields
-                    // '
-                    // If ContentID <> 0 Then
-                    // SQL = "select " & FieldSelectList & "" _
-                    // & " from ccfields f left join ccfieldhelp h on h.fieldid=f.id" _
-                    // & " where (f.Type<>0)and(f.contentid=" & ContentID & ")" _
-                    // & ""
-                    // Else
-                    // SQL = "select " & FieldSelectList & "" _
-                    // & " from ccfields f left join ccfieldhelp h on h.fieldid=f.id" _
-                    // & " where (f.Type<>0)" _
-                    // & ""
-                    // End If
-                    // If Not IncludeBaseFields Then
-                    // SQL = SQL & " and ((f.IsBaseField is null)or(f.IsBaseField=0))"
-                    // End If
-                    // SQL = SQL & " order by f.contentid,f.id,h.id desc"
-
-                    // RS = cpCore.app.executeSql(SQL)
-                    // CFields = convertDataTabletoArray(RS)
-                    // CFieldCnt = UBound(CFields, 2) + 1
                     // 
-                    // select the content
-                    // 
-                    if (ContentID != 0)
+                    if (ContentID != 0) {
                         sql = "select " + ContentSelectList + " from ccContent where (id=" + ContentID + ")and(contenttableid is not null)and(contentcontrolid is not null) order by id";
-                    else
+                    } else {
                         sql = "select " + ContentSelectList + " from ccContent where (name<>'')and(name is not null)and(contenttableid is not null)and(contentcontrolid is not null) order by id";
-                    CPCSBaseClass csContent = cp.CSNew();
-                    if (csContent.OpenSQL(sql)) {
-                        // 
-                        // ----- <cdef>
-                        // 
-                        IsBaseContent = (csContent.GetBoolean("isBaseContent"));
-                        iContentName = GetRSXMLAttribute(csContent, "Name");
-                        ContentID = (csContent.GetInteger("ID"));
-                        sb.Append(System.Environment.NewLine + "\t" + "<CDef");
-                        sb.Append(" Name=\"" + iContentName + "\"");
-                        if ((!IsBaseContent) | IncludeBaseFields) {
-                            sb.Append(" Active=\"" + GetRSXMLAttribute(csContent, "Active") + "\"");
-                            sb.Append(" AdminOnly=\"" + GetRSXMLAttribute(csContent, "AdminOnly") + "\"");
-                            // sb.Append( " AliasID=""" & GetRSXMLAttribute( appname,RS, "AliasID") & """")
-                            // sb.Append( " AliasName=""" & GetRSXMLAttribute( appname,RS, "AliasName") & """")
-                            sb.Append(" AllowAdd=\"" + GetRSXMLAttribute(csContent, "AllowAdd") + "\"");
-                            sb.Append(" AllowCalendarEvents=\"" + GetRSXMLAttribute(csContent, "AllowCalendarEvents") + "\"");
-                            sb.Append(" AllowContentChildTool=\"" + GetRSXMLAttribute(csContent, "AllowContentChildTool") + "\"");
-                            sb.Append(" AllowContentTracking=\"" + GetRSXMLAttribute(csContent, "AllowContentTracking") + "\"");
-                            sb.Append(" AllowDelete=\"" + GetRSXMLAttribute(csContent, "AllowDelete") + "\"");
-                            sb.Append(" AllowMetaContent=\"" + GetRSXMLAttribute(csContent, "AllowMetaContent") + "\"");
-                            sb.Append(" AllowTopicRules=\"" + GetRSXMLAttribute(csContent, "AllowTopicRules") + "\"");
-                            sb.Append(" AllowWorkflowAuthoring=\"" + GetRSXMLAttribute(csContent, "AllowWorkflowAuthoring") + "\"");
-                            // 
-                            AuthoringTableID = (csContent.GetInteger("AuthoringTableID"));
-                            TableName = "";
-                            DataSourceName = "";
-                            if ((tables.ContainsKey(AuthoringTableID))) {
-                                TableName = tables[AuthoringTableID].tableName;
-                                DataSourceName = tables[AuthoringTableID].dataSourceName;
-                            }
-                            if (DataSourceName == "")
-                                DataSourceName = "Default";
-                            if (Strings.UCase(TableName) == "CCMENUENTRIES")
-                                FoundMenuTable = true;
-                            sb.Append(" AuthoringDataSourceName=\"" + EncodeXMLattribute(DataSourceName) + "\"");
-                            sb.Append(" AuthoringTableName=\"" + EncodeXMLattribute(TableName) + "\"");
-                            // 
-                            ContentTableID = (csContent.GetInteger("ContentTableID"));
-                            if (ContentTableID != AuthoringTableID) {
-                                if (ContentTableID != 0) {
-                                    TableName = "";
-                                    DataSourceName = "";
-                                    if ((tables.ContainsKey(ContentTableID))) {
-                                        TableName = tables[ContentTableID].tableName;
-                                        DataSourceName = tables[ContentTableID].dataSourceName;
-                                        if (DataSourceName == "")
-                                            DataSourceName = "Default";
-                                    }
-                                }
-                            }
-                            sb.Append(" ContentDataSourceName=\"" + EncodeXMLattribute(DataSourceName) + "\"");
-                            sb.Append(" ContentTableName=\"" + EncodeXMLattribute(TableName) + "\"");
-                            // 
-                            DefaultSortMethod = "";
-                            DefaultSortMethodID = (csContent.GetInteger("DefaultSortMethodID"));
-                            if ((sorts.ContainsKey(DefaultSortMethodID)))
-                                DefaultSortMethod = sorts[DefaultSortMethodID];
-                            sb.Append(" DefaultSortMethod=\"" + EncodeXMLattribute(DefaultSortMethod) + "\"");
-                            // 
-                            sb.Append(" DeveloperOnly=\"" + GetRSXMLAttribute(csContent, "DeveloperOnly") + "\"");
-                            sb.Append(" DropDownFieldList=\"" + GetRSXMLAttribute(csContent, "DropDownFieldList") + "\"");
-                            // 
-                            EditorGroupName = "";
-                            EditorGroupID = (csContent.GetInteger("EditorGroupID"));
-                            if ((groups.ContainsKey(EditorGroupID)))
-                                EditorGroupName = groups[EditorGroupID];
-                            sb.Append(" EditorGroupName=\"" + EncodeXMLattribute(EditorGroupName) + "\"");
-                            // 
-                            ParentName = "";
-                            ParentID = (csContent.GetInteger("ParentID"));
-                            if ((contents.ContainsKey(ParentID)))
-                                ParentName = contents[ParentID];
-                            sb.Append(" Parent=\"" + EncodeXMLattribute(ParentName) + "\"");
-                            // 
-                            sb.Append(" IconLink=\"" + GetRSXMLAttribute(csContent, "IconLink") + "\"");
-                            sb.Append(" IconHeight=\"" + GetRSXMLAttribute(csContent, "IconHeight") + "\"");
-                            sb.Append(" IconWidth=\"" + GetRSXMLAttribute(csContent, "IconWidth") + "\"");
-                            sb.Append(" IconSprites=\"" + GetRSXMLAttribute(csContent, "IconSprites") + "\"");
-                            // 
-                            // -- Add IsBaseContent
-                            sb.Append(" isbasecontent=\"" + GetRSXMLAttribute(csContent, "IsBaseContent") + "\"");
-                        }
-                        // 
-                        if (true)
-                            // 
-                            // Add guid
-                            // 
-                            sb.Append(" guid=\"" + GetRSXMLAttribute(csContent, "ccGuid") + "\"");
-                        sb.Append(" >");
-                        // 
-                        // create output
-                        // 
-                        if (ContentID != 0)
-                            sql = "select " + FieldSelectList + ""
-                                + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id"
-                                + " where (f.Type<>0)and(f.contentid=" + ContentID + ")"
-                                + "";
-                        else
-                            sql = "select " + FieldSelectList + ""
-                            + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id"
-                            + " where (f.Type<>0)"
-                            + "";
-                        if (!IncludeBaseFields)
-                            sql += " and ((f.IsBaseField is null)or(f.IsBaseField=0))";
-                        sql += " order by f.contentid,f.editTab,f.editSortPriority,f.id";
-                        CPCSBaseClass CFields = cp.CSNew();
-                        if ((CFields.OpenSQL(sql))) {
-                            fieldId = 0;
-                            do {
-                                LastFieldID = fieldId;
-                                fieldId = CFields.GetInteger("ID");
-                                FieldName = CFields.GetText("Name");
-                                FieldContentID = CFields.GetInteger("contentid");
-                                if (FieldContentID > ContentID)
-                                    break;
-                                else if ((FieldContentID == ContentID) & (fieldId != LastFieldID)) {
-                                    if (IncludeBaseFields | (Strings.InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + FieldName + ",", CompareMethod.Text) == 0)) {
-                                        int memberSelectGroupId = CFields.GetInteger("MemberSelectGroupID");
-                                        string memberSelectGroup = memberSelectGroupId <= 0 ? "" : cp.Group.GetName(memberSelectGroupId.ToString());
-                                        sb.Append(System.Environment.NewLine + "\t" + "\t" + "<Field");
-                                        fieldType = csv_GetFieldDescriptorByType(CFields.GetInteger("Type"));
-                                        sb.Append(" Name=\"" + FieldName + "\"");
-                                        sb.Append(" Caption=\"" + CFields.GetText("Caption") + "\"");
-                                        sb.Append(" EditTab=\"" + CFields.GetText("EditTab") + "\"");
-                                        sb.Append(" FieldType=\"" + fieldType + "\"");
-                                        sb.Append(" Authorable=\"" + CFields.GetBoolean("Authorable") + "\"");
-                                        sb.Append(" EditSortPriority=\"" + CFields.GetText("EditSortPriority") + "\"");
-                                        sb.Append(" DefaultValue=\"" + CFields.GetText("DefaultValue") + "\"");
-                                        sb.Append(" active=\"" + CFields.GetBoolean("Active") + "\"");
-                                        sb.Append(" AdminOnly=\"" + CFields.GetBoolean("AdminOnly") + "\"");
-                                        sb.Append(" DeveloperOnly=\"" + CFields.GetBoolean("DeveloperOnly") + "\"");
-                                        sb.Append(" HTMLContent=\"" + CFields.GetBoolean("HTMLContent") + "\"");
-                                        sb.Append(" Required=\"" + CFields.GetBoolean("Required") + "\"");
-                                        sb.Append(" TextBuffered=\"" + CFields.GetBoolean("TextBuffered") + "\"");
-                                        sb.Append(" UniqueName=\"" + CFields.GetBoolean("UniqueName") + "\"");
-                                        sb.Append(" RSSTitle=\"" + CFields.GetBoolean("RSSTitleField") + "\"");
-                                        sb.Append(" RSSDescription=\"" + CFields.GetBoolean("RSSDescriptionField") + "\"");
-                                        sb.Append(" MemberSelectGroup=\"" + memberSelectGroup + "\"");
-                                        sb.Append(" Scramble=\"" + CFields.GetBoolean("Scramble") + "\"");
-                                        sb.Append(" LookupList=\"" + CFields.GetText("LookupList") + "\"");
-                                        sb.Append(" NotEditable=\"" + CFields.GetBoolean("NotEditable") + "\"");
-                                        sb.Append(" Password=\"" + CFields.GetBoolean("Password") + "\"");
-                                        sb.Append(" ReadOnly=\"" + CFields.GetBoolean("ReadOnly") + "\"");
-                                        sb.Append(" ManyToManyRulePrimaryField=\"" + CFields.GetText("ManyToManyRulePrimaryField") + "\"");
-                                        sb.Append(" ManyToManyRuleSecondaryField=\"" + CFields.GetText("ManyToManyRuleSecondaryField") + "\"");
-                                        sb.Append(" IsModified=\"" + (CFields.GetInteger("ModifiedBy") != 0) + "\"");
-                                        sb.Append(" IndexColumn=\"" + CFields.GetText("IndexColumn") + "\"");
-                                        sb.Append(" IndexSortDirection=\"" + CFields.GetText("IndexSortDirection") + "\"");
-                                        sb.Append(" IndexSortOrder=\"" + CFields.GetText("IndexSortPriority") + "\"");
-                                        sb.Append(" IndexWidth=\"" + CFields.GetText("IndexWidth") + "\"");
-                                        sb.Append(" RedirectID=\"" + CFields.GetText("RedirectID") + "\"");
-                                        sb.Append(" RedirectPath=\"" + CFields.GetText("RedirectPath") + "\"");
-                                        if (true)
-                                            sb.Append(" IsBaseField=\"" + CFields.GetBoolean("IsBaseField") + "\"");
-                                        // 
-                                        RecordName = "";
-                                        RecordID = CFields.GetInteger("LookupContentID");
-                                        if ((contents.ContainsKey(RecordID)))
-                                            RecordName = contents[RecordID];
-                                        sb.Append(" LookupContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
-                                        // 
-                                        RecordName = "";
-                                        RecordID = CFields.GetInteger("RedirectContentID");
-                                        if ((contents.ContainsKey(RecordID)))
-                                            RecordName = contents[RecordID];
-                                        sb.Append(" RedirectContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
-                                        // 
-                                        RecordName = "";
-                                        RecordID = CFields.GetInteger("ManyToManyContentID");
-                                        if ((contents.ContainsKey(RecordID)))
-                                            RecordName = contents[RecordID];
-                                        sb.Append(" ManyToManyContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
-                                        // 
-                                        RecordName = "";
-                                        RecordID = CFields.GetInteger("ManyToManyRuleContentID");
-                                        if ((contents.ContainsKey(RecordID)))
-                                            RecordName = contents[RecordID];
-                                        sb.Append(" ManyToManyRuleContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
-                                        // 
-                                        sb.Append(" >");
-                                        // 
-                                        HelpCnt = 0;
-                                        HelpDefault = CFields.GetText("helpcustom");
-                                        if (string.IsNullOrEmpty(HelpDefault)) {
-                                            HelpDefault = CFields.GetText("helpdefault");
-                                        }
-                                        if (!string.IsNullOrEmpty(HelpDefault)) {
-                                            sb.Append(System.Environment.NewLine + "\t" + "\t" + "\t" + "<HelpDefault>" + EncodeCData(HelpDefault) + "</HelpDefault>");
-                                            HelpCnt += 1;
-                                        }
-                                        if (HelpCnt > 0) {
-                                            sb.Append(System.Environment.NewLine + "\t" + "\t");
-                                        }
-                                        sb.Append("</Field>");
-                                    }
-                                    FieldCnt += 1;
-                                }
-                                CFields.GoNext();
-                            }
-                            while (CFields.OK());
-                        }
-                        CFields.Close();
-                        if (FieldCnt > 0) {
-                            sb.Append(Environment.NewLine + "\t");
-                        }
-                        sb.Append("</CDef>");
                     }
-                    csContent.Close();
+                    using (CPCSBaseClass contentCs = cp.CSNew()) {
+                        if (contentCs.OpenSQL(sql)) {
+                            // 
+                            // ----- <cdef>
+                            // 
+                            IsBaseContent = (contentCs.GetBoolean("isBaseContent"));
+                            iContentName = GetRSXMLAttribute(contentCs, "Name");
+                            ContentID = (contentCs.GetInteger("ID"));
+                            sb.Append(System.Environment.NewLine + "\t" + "<CDef");
+                            sb.Append(" Name=\"" + iContentName + "\"");
+                            if ((!IsBaseContent) || IncludeBaseFields) {
+                                sb.Append(" Active=\"" + GetRSXMLAttribute(contentCs, "Active") + "\"");
+                                sb.Append(" AdminOnly=\"" + GetRSXMLAttribute(contentCs, "AdminOnly") + "\"");
+                                sb.Append(" AllowAdd=\"" + GetRSXMLAttribute(contentCs, "AllowAdd") + "\"");
+                                sb.Append(" AllowCalendarEvents=\"" + GetRSXMLAttribute(contentCs, "AllowCalendarEvents") + "\"");
+                                sb.Append(" AllowContentChildTool=\"" + GetRSXMLAttribute(contentCs, "AllowContentChildTool") + "\"");
+                                sb.Append(" AllowContentTracking=\"" + GetRSXMLAttribute(contentCs, "AllowContentTracking") + "\"");
+                                sb.Append(" AllowDelete=\"" + GetRSXMLAttribute(contentCs, "AllowDelete") + "\"");
+                                sb.Append(" AllowMetaContent=\"" + GetRSXMLAttribute(contentCs, "AllowMetaContent") + "\"");
+                                sb.Append(" AllowTopicRules=\"" + GetRSXMLAttribute(contentCs, "AllowTopicRules") + "\"");
+                                sb.Append(" AllowWorkflowAuthoring=\"" + GetRSXMLAttribute(contentCs, "AllowWorkflowAuthoring") + "\"");
+                                // 
+                                AuthoringTableID = (contentCs.GetInteger("AuthoringTableID"));
+                                TableName = "";
+                                DataSourceName = "";
+                                if ((tables.ContainsKey(AuthoringTableID))) {
+                                    TableName = tables[AuthoringTableID].tableName;
+                                    DataSourceName = tables[AuthoringTableID].dataSourceName;
+                                }
+                                if (DataSourceName == "")
+                                    DataSourceName = "Default";
+                                if (Strings.UCase(TableName) == "CCMENUENTRIES")
+                                    FoundMenuTable = true;
+                                sb.Append(" AuthoringDataSourceName=\"" + EncodeXMLattribute(DataSourceName) + "\"");
+                                sb.Append(" AuthoringTableName=\"" + EncodeXMLattribute(TableName) + "\"");
+                                // 
+                                ContentTableID = (contentCs.GetInteger("ContentTableID"));
+                                if (ContentTableID != AuthoringTableID) {
+                                    if (ContentTableID != 0) {
+                                        TableName = "";
+                                        DataSourceName = "";
+                                        if ((tables.ContainsKey(ContentTableID))) {
+                                            TableName = tables[ContentTableID].tableName;
+                                            DataSourceName = tables[ContentTableID].dataSourceName;
+                                            if (DataSourceName == "")
+                                                DataSourceName = "Default";
+                                        }
+                                    }
+                                }
+                                sb.Append(" ContentDataSourceName=\"" + EncodeXMLattribute(DataSourceName) + "\"");
+                                sb.Append(" ContentTableName=\"" + EncodeXMLattribute(TableName) + "\"");
+                                // 
+                                DefaultSortMethod = "";
+                                DefaultSortMethodID = (contentCs.GetInteger("DefaultSortMethodID"));
+                                if (sorts.ContainsKey(DefaultSortMethodID)) { DefaultSortMethod = sorts[DefaultSortMethodID]; }
+                                sb.Append(" DefaultSortMethod=\"" + EncodeXMLattribute(DefaultSortMethod) + "\"");
+                                // 
+                                sb.Append(" DeveloperOnly=\"" + GetRSXMLAttribute(contentCs, "DeveloperOnly") + "\"");
+                                sb.Append(" DropDownFieldList=\"" + GetRSXMLAttribute(contentCs, "DropDownFieldList") + "\"");
+                                // 
+                                EditorGroupName = "";
+                                EditorGroupID = (contentCs.GetInteger("EditorGroupID"));
+                                if ((groups.ContainsKey(EditorGroupID)))
+                                    EditorGroupName = groups[EditorGroupID];
+                                sb.Append(" EditorGroupName=\"" + EncodeXMLattribute(EditorGroupName) + "\"");
+                                // 
+                                ParentName = "";
+                                ParentID = (contentCs.GetInteger("ParentID"));
+                                if ((contents.ContainsKey(ParentID)))
+                                    ParentName = contents[ParentID];
+                                sb.Append(" Parent=\"" + EncodeXMLattribute(ParentName) + "\"");
+                                // 
+                                sb.Append(" IconLink=\"" + GetRSXMLAttribute(contentCs, "IconLink") + "\"");
+                                sb.Append(" IconHeight=\"" + GetRSXMLAttribute(contentCs, "IconHeight") + "\"");
+                                sb.Append(" IconWidth=\"" + GetRSXMLAttribute(contentCs, "IconWidth") + "\"");
+                                sb.Append(" IconSprites=\"" + GetRSXMLAttribute(contentCs, "IconSprites") + "\"");
+                                // 
+                                // -- Add IsBaseContent
+                                sb.Append(" isbasecontent=\"" + GetRSXMLAttribute(contentCs, "IsBaseContent") + "\"");
+                            }
+                            // 
+                            if (true)
+                                // 
+                                // Add guid
+                                // 
+                                sb.Append(" guid=\"" + GetRSXMLAttribute(contentCs, "ccGuid") + "\"");
+                            sb.Append(" >");
+                            // 
+                            // create output
+                            // 
+                            if (ContentID != 0)
+                                sql = "select " + FieldSelectList + ""
+                                    + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id"
+                                    + " where (f.Type<>0)and(f.contentid=" + ContentID + ")"
+                                    + "";
+                            else
+                                sql = "select " + FieldSelectList + ""
+                                + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id"
+                                + " where (f.Type<>0)"
+                                + "";
+                            if (!IncludeBaseFields) { sql += " and ((f.IsBaseField is null)or(f.IsBaseField=0))"; }
+                            sql += " order by f.contentid,f.editTab,f.editSortPriority,f.id";
+                            using (CPCSBaseClass fieldsCs = cp.CSNew()) {
+                                if (fieldsCs.OpenSQL(sql)) {
+                                    fieldId = 0;
+                                    do {
+                                        LastFieldID = fieldId;
+                                        fieldId = fieldsCs.GetInteger("ID");
+                                        FieldName = fieldsCs.GetText("Name");
+                                        FieldContentID = fieldsCs.GetInteger("contentid");
+                                        if (FieldContentID > ContentID)
+                                            break;
+                                        else if ((FieldContentID == ContentID) && (fieldId != LastFieldID)) {
+                                            if (IncludeBaseFields || (Strings.InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + FieldName + ",", CompareMethod.Text) == 0)) {
+                                                int memberSelectGroupId = fieldsCs.GetInteger("MemberSelectGroupID");
+                                                string memberSelectGroup = memberSelectGroupId <= 0 ? "" : cp.Group.GetName(memberSelectGroupId.ToString());
+                                                sb.Append(System.Environment.NewLine + "\t" + "\t" + "<Field");
+                                                fieldType = csv_GetFieldDescriptorByType(fieldsCs.GetInteger("Type"));
+                                                sb.Append(" Name=\"" + FieldName + "\"");
+                                                sb.Append(" Caption=\"" + fieldsCs.GetText("Caption") + "\"");
+                                                sb.Append(" EditTab=\"" + fieldsCs.GetText("EditTab") + "\"");
+                                                sb.Append(" FieldType=\"" + fieldType + "\"");
+                                                sb.Append(" Authorable=\"" + fieldsCs.GetBoolean("Authorable") + "\"");
+                                                sb.Append(" EditSortPriority=\"" + fieldsCs.GetText("EditSortPriority") + "\"");
+                                                sb.Append(" DefaultValue=\"" + fieldsCs.GetText("DefaultValue") + "\"");
+                                                sb.Append(" active=\"" + fieldsCs.GetBoolean("Active") + "\"");
+                                                sb.Append(" AdminOnly=\"" + fieldsCs.GetBoolean("AdminOnly") + "\"");
+                                                sb.Append(" DeveloperOnly=\"" + fieldsCs.GetBoolean("DeveloperOnly") + "\"");
+                                                sb.Append(" HTMLContent=\"" + fieldsCs.GetBoolean("HTMLContent") + "\"");
+                                                sb.Append(" Required=\"" + fieldsCs.GetBoolean("Required") + "\"");
+                                                sb.Append(" TextBuffered=\"" + fieldsCs.GetBoolean("TextBuffered") + "\"");
+                                                sb.Append(" UniqueName=\"" + fieldsCs.GetBoolean("UniqueName") + "\"");
+                                                sb.Append(" RSSTitle=\"" + fieldsCs.GetBoolean("RSSTitleField") + "\"");
+                                                sb.Append(" RSSDescription=\"" + fieldsCs.GetBoolean("RSSDescriptionField") + "\"");
+                                                sb.Append(" MemberSelectGroup=\"" + memberSelectGroup + "\"");
+                                                sb.Append(" Scramble=\"" + fieldsCs.GetBoolean("Scramble") + "\"");
+                                                sb.Append(" LookupList=\"" + fieldsCs.GetText("LookupList") + "\"");
+                                                sb.Append(" NotEditable=\"" + fieldsCs.GetBoolean("NotEditable") + "\"");
+                                                sb.Append(" Password=\"" + fieldsCs.GetBoolean("Password") + "\"");
+                                                sb.Append(" ReadOnly=\"" + fieldsCs.GetBoolean("ReadOnly") + "\"");
+                                                sb.Append(" ManyToManyRulePrimaryField=\"" + fieldsCs.GetText("ManyToManyRulePrimaryField") + "\"");
+                                                sb.Append(" ManyToManyRuleSecondaryField=\"" + fieldsCs.GetText("ManyToManyRuleSecondaryField") + "\"");
+                                                sb.Append(" IsModified=\"" + (fieldsCs.GetInteger("ModifiedBy") != 0) + "\"");
+                                                sb.Append(" IndexColumn=\"" + fieldsCs.GetText("IndexColumn") + "\"");
+                                                sb.Append(" IndexSortDirection=\"" + fieldsCs.GetText("IndexSortDirection") + "\"");
+                                                sb.Append(" IndexSortOrder=\"" + fieldsCs.GetText("IndexSortPriority") + "\"");
+                                                sb.Append(" IndexWidth=\"" + fieldsCs.GetText("IndexWidth") + "\"");
+                                                sb.Append(" RedirectID=\"" + fieldsCs.GetText("RedirectID") + "\"");
+                                                sb.Append(" RedirectPath=\"" + fieldsCs.GetText("RedirectPath") + "\"");
+                                                if (true)
+                                                    sb.Append(" IsBaseField=\"" + fieldsCs.GetBoolean("IsBaseField") + "\"");
+                                                // 
+                                                RecordName = "";
+                                                RecordID = fieldsCs.GetInteger("LookupContentID");
+                                                if ((contents.ContainsKey(RecordID)))
+                                                    RecordName = contents[RecordID];
+                                                sb.Append(" LookupContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                // 
+                                                RecordName = "";
+                                                RecordID = fieldsCs.GetInteger("RedirectContentID");
+                                                if ((contents.ContainsKey(RecordID)))
+                                                    RecordName = contents[RecordID];
+                                                sb.Append(" RedirectContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                // 
+                                                RecordName = "";
+                                                RecordID = fieldsCs.GetInteger("ManyToManyContentID");
+                                                if ((contents.ContainsKey(RecordID)))
+                                                    RecordName = contents[RecordID];
+                                                sb.Append(" ManyToManyContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                // 
+                                                RecordName = "";
+                                                RecordID = fieldsCs.GetInteger("ManyToManyRuleContentID");
+                                                if ((contents.ContainsKey(RecordID)))
+                                                    RecordName = contents[RecordID];
+                                                sb.Append(" ManyToManyRuleContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                // 
+                                                sb.Append(" >");
+                                                // 
+                                                HelpCnt = 0;
+                                                HelpDefault = fieldsCs.GetText("helpcustom");
+                                                if (string.IsNullOrEmpty(HelpDefault)) {
+                                                    HelpDefault = fieldsCs.GetText("helpdefault");
+                                                }
+                                                if (!string.IsNullOrEmpty(HelpDefault)) {
+                                                    sb.Append(System.Environment.NewLine + "\t" + "\t" + "\t" + "<HelpDefault>" + EncodeCData(HelpDefault) + "</HelpDefault>");
+                                                    HelpCnt += 1;
+                                                }
+                                                if (HelpCnt > 0) {
+                                                    sb.Append(System.Environment.NewLine + "\t" + "\t");
+                                                }
+                                                sb.Append("</Field>");
+                                            }
+                                            FieldCnt += 1;
+                                        }
+                                        fieldsCs.GoNext();
+                                    }
+                                    while (fieldsCs.OK());
+                                }
+                                fieldsCs.Close();
+                            }
+                            if (FieldCnt > 0) {
+                                sb.Append(Environment.NewLine + "\t");
+                            }
+                            sb.Append("</CDef>");
+                        }
+                        contentCs.Close();
+                    }
                     if (string.IsNullOrEmpty(ContentName)) {
                         // 
                         // Add other areas of the CDef file

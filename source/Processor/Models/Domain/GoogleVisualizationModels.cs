@@ -7,29 +7,29 @@ namespace Contensive.Processor.Models.Domain {
     //
     //
     public class ColsType {
-        public string Type;
-        public string Id;
-        public string Label;
-        public string Pattern;
+        public string Type { get; set; }
+        public string Id { get; set; }
+        public string Label { get; set; }
+        public string Pattern { get; set; }
     }
     //
     //
     public class CellType {
-        public string v;
-        public string f;
-        public string p;
+        public string v { get; set; }
+        public string f { get; set; }
+        public string p { get; set; }
     }
     //
     //
     public class RowsType {
-        public List<CellType> Cell;
+        public List<CellType> Cell { get; set; }
     }
     //
     //
     public class GoogleDataType {
-        public bool IsEmpty;
-        public List<ColsType> col;
-        public List<RowsType> row;
+        public bool IsEmpty { get; set; }
+        public List<ColsType> col { get; set; }
+        public List<RowsType> row { get; set; }
     }
     //
     //
@@ -41,13 +41,13 @@ namespace Contensive.Processor.Models.Domain {
     //
     //
     public class GoogleVisualizationType {
-        public string version;
-        public string reqid;
-        public GoogleVisualizationStatusEnum status;
-        public string[] warnings;
-        public string[] errors;
-        public string sig;
-        public GoogleDataType table;
+        public string version { get; set; }
+        public string reqid { get; set; }
+        public GoogleVisualizationStatusEnum status { get; set; }
+        public string[] warnings { get; set; }
+        public string[] errors { get; set; }
+        public string sig { get; set; }
+        public GoogleDataType table { get; set; }
     }
 
 }
