@@ -98,7 +98,10 @@ namespace Contensive.Processor.Controllers {
                             if (!CollectionPath.Length.Equals(0)) { CollectionPath += @"\"; }
                             string AddonPath = @"addons\";
                             if (!cp.PrivateFiles.FileExists(AddonPath + CollectionPath + filename)) {
-                                cp.UserError.Add("Warning, a collection file was skipped [" + pathFilename + "]. The collection record includes an executable file in the resources tab that could not be found in the collection folder. If it is not needed, remove it from the resources tab. If needed, verify upper/lower case, locate and restore the file.");
+                                //
+                                // -- if a file in the executable list is not found, skip it as it is not needed in the current installation.
+                                // -- files added to this list are included when found. If not found they are skipped. This is a way to add files, not remove files
+                                // c p . U s e r E r r o r . A d d("Warning, an executable file for this collection was not and was skipped [" + pathFilename + "]. The collection record includes an executable file in the resources tab that could not be found in the collection folder. If it is not needed, remove it from the resources tab. If needed, verify upper/lower case, locate and restore the file.");
                                 removeFileList.Add(pathFilename);
                             }
                         }

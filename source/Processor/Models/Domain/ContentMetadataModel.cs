@@ -927,7 +927,7 @@ namespace Contensive.Processor.Models.Domain {
                             { "UNIQUENAME", DbController.encodeSQLBoolean(fieldMetadata.uniqueName) },
                             { "RSSTITLEFIELD", DbController.encodeSQLBoolean(fieldMetadata.rssTitleField) },
                             { "RSSDESCRIPTIONFIELD", DbController.encodeSQLBoolean(fieldMetadata.rssDescriptionField) },
-                            { "MEMBERSELECTGROUPID", DbController.encodeSQLNumber(fieldMetadata.memberSelectGroupId_get(core)) },
+                            { "MEMBERSELECTGROUPID", DbController.encodeSQLNumber(fieldMetadata.memberSelectGroupId_get(core, name, fieldMetadata.nameLc)) },
                             { "installedByCollectionId", DbController.encodeSQLNumber(InstalledByCollectionId) },
                             { "EDITTAB", DbController.encodeSQLText(fieldMetadata.editTabName) },
                             { "SCRAMBLE", DbController.encodeSQLBoolean(false) },

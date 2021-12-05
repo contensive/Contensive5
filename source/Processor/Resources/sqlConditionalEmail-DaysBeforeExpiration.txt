@@ -35,4 +35,6 @@ AND (ccMembers.ID IS NOT NULL)
 AND (ccMembers.Active <> 0)
 AND (ccMembers.AllowBulkEmail <> 0)
 AND (ccMembers.email<>'')
-AND (ccEmail.ID Not In (Select ccEmailLog.EmailID from ccEmailLog where ccEmailLog.memberId=ccMembers.ID))
+AND (ccEmail.ID Not In (
+Select ccEmailLog.EmailID from ccEmailLog where ccEmailLog.memberId=ccMembers.ID AND(DATEADD(day, +1, ccEmailLog.DateAdded) > {{sqldatenow}})
+))

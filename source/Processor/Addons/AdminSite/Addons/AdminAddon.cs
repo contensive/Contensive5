@@ -74,83 +74,19 @@ namespace Contensive.Processor.Addons.AdminSite {
         public string getAdminSite(CPClass cp) {
             try {
                 //
-                // -- get layout
+                // -- get layout - first layout record, then layout-file, then layout-resource
+                // todo -- plan is to include layout-files with base51.zip file, instead of base51.xml file -- need to review the build process to better understand first
                 string layout = cp.Layout.GetLayout(Constants.guidLayoutAdminSite, "Admin Site Layout", @"adminsite\AdminSiteLayout.html");
                 if (string.IsNullOrEmpty(layout)) { layout = Processor.Properties.Resources.AdminSiteLayoutBackup; }
                 //
                 // -- get static data
                 // todo -- move this to the dataViewModel to create content during render
-                AdminSiteDataModel data = new AdminSiteDataModel(cp) {
-                    adminExceptions = cp.core.session.user.developer ? ErrorController.getDocExceptionHtmlList(cp.core) : "",
-                    leftSideMessage = cp.Site.GetText("AdminHeaderHTML", "Administration Site"),
-                    navBrand = cp.Site.Name,
-                    rightSideMessage = cp.Html5.A(cp.User.Name, new CPBase.BaseModels.HtmlAttributesA {
-                        href = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
-                    }),
-                    rightSideNavHtml = ""
-                        + "<form class=\"form-inline\" method=post action=\"?method=logout\">"
-                        + "<button class=\"btn btn-warning btn-sm ml-2\" type=\"submit\">Logout</button>"
-                        + "</form>",
-                    adminNav = cp.core.addon.execute(DbBaseModel.create<AddonModel>(cp, AdminNavigatorGuid), new CPUtilsBaseClass.addonExecuteContext {
-                        addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
-                        errorContextMessage = "executing Admin Navigator in Admin"
-                    })
-                };
-                return cp.Mustache.Render(layout, data);
+                AdminSiteViewModel viewModel = new AdminSiteViewModel(cp);
+                return cp.Mustache.Render(layout, viewModel);
             } catch (Exception) {
                 throw;
             }
         }
     }
     //
-    // -- admin site data model
-    internal class AdminSiteDataModel {
-        /// <summary>
-        /// callback added during construct
-        /// </summary>
-        private readonly CPClass cp;
-        /// <summary>
-        /// constructor
-        /// </summary>
-        /// <param name="cp"></param>
-        public AdminSiteDataModel(CPClass cp) {
-            this.cp = cp;
-        }
-        /// <summary>
-        /// exceptions to display at top of admin site
-        /// </summary>
-        public string adminExceptions { get; set; }
-        /// <summary>
-        /// navigator
-        /// </summary>
-        public string adminNav { get; set; }
-        /// <summary>
-        /// content
-        /// </summary>
-        public string adminContent { 
-            get {
-                return AdminContentController.getAdminContent(cp);
-            }
-        }
-        /// <summary>
-        /// footer
-        /// </summary>
-        public string adminFooter { get; set; }
-        /// <summary>
-        /// header left side (typically "administration site")
-        /// </summary>
-        public string leftSideMessage { get; set; }
-        /// <summary>
-        /// header brand (typicall the site name)
-        /// </summary>
-        public string navBrand { get; set; }
-        /// <summary>
-        /// header text on the right side to the left, typically user name 
-        /// </summary>
-        public string rightSideMessage { get; set; }
-        /// <summary>
-        /// header nav, typcially login/logout buttons
-        /// </summary>
-        public string rightSideNavHtml { get; set; }
-    }
 }

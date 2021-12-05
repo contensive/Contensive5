@@ -252,7 +252,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Member Select ReadOnly
                                     editorEnv.formFieldList += "," + field.nameLc;
-                                    EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.memberSelectGroupId_get(core), field.memberSelectGroupName_get(core), editorReadOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
+                                    EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.memberSelectGroupId_get(core, adminData.adminContent.name, field.nameLc), field.memberSelectGroupName_get(core), editorReadOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
                                     editorWrapperSyle = "max-width:400px";
                                     break;
                                 }
@@ -431,7 +431,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Member Select
                                     editorEnv.formFieldList += "," + field.nameLc;
-                                    EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.memberSelectGroupId_get(core), field.memberSelectGroupName_get(core), field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
+                                    EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.memberSelectGroupId_get(core,adminData.adminContent.name, field.nameLc), field.memberSelectGroupName_get(core), field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
                                     editorWrapperSyle = "max-width:400px";
                                     break;
                                 }

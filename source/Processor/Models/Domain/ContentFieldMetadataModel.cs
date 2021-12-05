@@ -391,7 +391,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public int lookupContentId { get; set; }
         public string get_lookupContentName(CoreController core) {
-            if ((_lookupContentName == null) && (lookupContentId>0)) {
+            if ((_lookupContentName == null) && (lookupContentId > 0)) {
                 _lookupContentName = "";
                 var content = ContentModel.create<ContentModel>(core.cpParent, lookupContentId);
                 if (content != null) { _lookupContentName = content.name; }
@@ -438,16 +438,50 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// For memberSelect type content. memberSelectGroup, name set by xml file load, name get for xml file save, id and name get and set in code
         /// </summary>
-        public int memberSelectGroupId_get(CoreController core) {
-            if ((_memberSelectGroupId == null) && (_memberSelectGroupName != null)) {
-                if (string.IsNullOrEmpty(_memberSelectGroupName)) {
-                    _memberSelectGroupId = 0;
-                } else {
-                    var group = DbBaseModel.createByUniqueName<GroupModel>(core.cpParent, _memberSelectGroupName);
-                    _memberSelectGroupId = (group == null) ? 0 : group.id;
-                };
+        public int memberSelectGroupId_get(CoreController core, string contentName, string fieldName ) {
+            if (_memberSelectGroupId != null) { return GenericController.encodeInteger(_memberSelectGroupId); }
+            //
+            // -- memberSelectGroupId is not provided
+            if (string.IsNullOrEmpty(_memberSelectGroupName)) {
+                //
+                // -- memberSelectGroupName is not provided
+                _memberSelectGroupId = 0;
+                return 0;
             }
-            return (GenericController.encodeInteger(_memberSelectGroupId));
+            //
+            // -- memberSelectGroupName provided
+            if (GenericController.isGuid(_memberSelectGroupName)) {
+                //
+                // -- the name is a guid, attempt to find group with this guid
+                var groupByGuid = DbBaseModel.create<GroupModel>(core.cpParent, _memberSelectGroupName);
+                if ( groupByGuid == null ) {
+                    core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
+                    LogController.logError(core, new ApplicationException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+                    _memberSelectGroupId = 0;
+                    return 0;
+                }
+            }
+            //
+            // -- a name was provided. if the group does not exisit, create it
+            var groupByName = DbBaseModel.createByUniqueName<GroupModel>(core.cpParent, _memberSelectGroupName);
+            if (groupByName == null) {
+                groupByName = DbBaseModel.addDefault<GroupModel>(core.cpParent);
+                groupByName.name = _memberSelectGroupName;
+                groupByName.caption = _memberSelectGroupName;
+                groupByName.save(core.cpParent);
+                _memberSelectGroupId = groupByName.id;
+                return groupByName.id;
+            }
+            if ( groupByName != null) {
+                _memberSelectGroupId = groupByName.id;
+                return GenericController.encodeInteger(_memberSelectGroupId);
+            }
+            //
+            // -- memberSelectGroupName was not valid
+            LogController.logError(core, new ApplicationException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+            core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
+            _memberSelectGroupId = 0;
+            return 0;
         }
         private string _memberSelectGroupName = null;
         private int? _memberSelectGroupId = null;
@@ -456,7 +490,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// Create a clone of this object
         /// </summary>
-        public object Clone()  {
+        public object Clone() {
             return this.MemberwiseClone();
         }
         //

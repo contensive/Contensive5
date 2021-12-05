@@ -1261,17 +1261,17 @@ namespace Contensive.Processor.Controllers {
         /// Return an html input element for the field in the current dataset
         /// </summary>
         /// <param name="cs"></param>
-        /// <param name="ContentName"></param>
+        /// <param name="contentName"></param>
         /// <param name="fieldName"></param>
         /// <param name="Height"></param>
         /// <param name="Width"></param>
         /// <param name="htmlId"></param>
         /// <returns></returns>
-        public string inputCs(CsModel cs, string ContentName, string fieldName, int Height = 1, int Width = 40, string htmlId = "") {
+        public string inputCs(CsModel cs, string contentName, string fieldName, int Height = 1, int Width = 40, string htmlId = "") {
             string returnResult = "";
             try {
                 bool fieldFound = false;
-                var contentMetadata = ContentMetadataModel.createByUniqueName(core, ContentName);
+                var contentMetadata = ContentMetadataModel.createByUniqueName(core, contentName);
                 string FieldValueVariant = "";
                 CPContentBaseClass.FieldTypeIdEnum fieldTypeId = 0;
                 bool FieldReadOnly = false;
@@ -1291,13 +1291,13 @@ namespace Contensive.Processor.Controllers {
                         FieldHTMLContent = field.htmlContent;
                         FieldLookupContentId = field.lookupContentId;
                         FieldLookupList = field.lookupList;
-                        FieldMemberSelectGroupId = field.memberSelectGroupId_get(core);
+                        FieldMemberSelectGroupId = field.memberSelectGroupId_get(core, contentName, fieldName );
                         fieldFound = true;
                         break;
                     }
                 }
                 if (!fieldFound) {
-                    LogController.logError(core, new Exception("Field [" + fieldName + "] was not found in Content Definition [" + ContentName + "]"));
+                    LogController.logError(core, new Exception("Field [" + fieldName + "] was not found in Content Definition [" + contentName + "]"));
                 } else {
                     //
                     // main_Get the current value if the record was found
