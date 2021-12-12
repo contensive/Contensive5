@@ -28,7 +28,7 @@ namespace Contensive.Processor.Controllers {
                     + Environment.NewLine + "\t" + "<Template"
                         + " name=\"" + System.Net.WebUtility.HtmlEncode(template.name) + "\""
                         + " guid=\"" + template.ccguid + "\""
-                        + " issecure=\"" + GenericController.getYesNo(template.isSecure) + "\""
+                        //+ " issecure=\"" + GenericController.getYesNo(template.isSecure) + "\""
                         + " >"
                         + includeAddonNodeList
                         + System.Environment.NewLine + "\t\t" + "<BodyHtml>" + ExportController.encodeCData(template.bodyHTML) + "</BodyHtml>"

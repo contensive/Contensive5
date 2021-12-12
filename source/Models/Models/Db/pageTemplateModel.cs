@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace Contensive.Models.Db {
     //
     public class PageTemplateModel : DbBaseModel {
@@ -12,6 +14,10 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         public string addonList { get; set; }
         public string bodyHTML { get; set; }
+        /// <summary>
+        /// deprecated
+        /// </summary>
+        [Obsolete("Deprecated. https vs http should be controlled by the webserver software.", false)]
         public bool isSecure { get; set; }
         public int collectionId { get; set; }
     }

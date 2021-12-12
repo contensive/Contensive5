@@ -401,34 +401,34 @@ namespace Contensive.Processor.Controllers {
                 string htmlDocBody = getHtmlBody_BodyTag(core);
                 //
                 // -- check secure certificate required
-                {
-                    bool SecureLink_Page_Required = false;
-                    foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
-                        SecureLink_Page_Required = core.doc.pageController.page.isSecure;
-                        if (SecureLink_Page_Required) { break; }
-                    }
-                    bool SecureLink_Required = core.doc.pageController.template.isSecure || SecureLink_Page_Required;
-                    bool SecureLink_CurrentURL = (core.webServer.requestUrl.ToLowerInvariant().left(8) == "https://");
-                    if (SecureLink_CurrentURL && (!SecureLink_Required)) {
-                        //
-                        // -- redirect to non-secure
-                        core.doc.redirectLink = GenericController.strReplace(core.webServer.requestUrl, "https://", "http://");
-                        core.doc.redirectReason = "Redirecting because neither the page or the template requires a secure link.";
-                        core.doc.redirectBecausePageNotFound = false;
-                        return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
-                    } else if ((!SecureLink_CurrentURL) && SecureLink_Required) {
-                        //
-                        // -- redirect to secure
-                        core.doc.redirectLink = GenericController.strReplace(core.webServer.requestUrl, "http://", "https://");
-                        if (SecureLink_Page_Required) {
-                            core.doc.redirectReason = "Redirecting because this page [" + core.doc.pageController.pageToRootList[0].name + "] requires a secure link.";
-                        } else {
-                            core.doc.redirectReason = "Redirecting because this template [" + core.doc.pageController.template.name + "] requires a secure link.";
-                        }
-                        core.doc.redirectBecausePageNotFound = false;
-                        return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
-                    }
-                }
+                //{
+                //    bool SecureLink_Page_Required = false;
+                //    foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
+                //        SecureLink_Page_Required = core.doc.pageController.page.isSecure;
+                //        if (SecureLink_Page_Required) { break; }
+                //    }
+                //    bool SecureLink_Required = core.doc.pageController.template.isSecure || SecureLink_Page_Required;
+                //    bool SecureLink_CurrentURL = (core.webServer.requestUrl.ToLowerInvariant().left(8) == "https://");
+                //    if (SecureLink_CurrentURL && (!SecureLink_Required)) {
+                //        //
+                //        // -- redirect to non-secure
+                //        core.doc.redirectLink = GenericController.strReplace(core.webServer.requestUrl, "https://", "http://");
+                //        core.doc.redirectReason = "Redirecting because neither the page or the template requires a secure link.";
+                //        core.doc.redirectBecausePageNotFound = false;
+                //        return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
+                //    } else if ((!SecureLink_CurrentURL) && SecureLink_Required) {
+                //        //
+                //        // -- redirect to secure
+                //        core.doc.redirectLink = GenericController.strReplace(core.webServer.requestUrl, "http://", "https://");
+                //        if (SecureLink_Page_Required) {
+                //            core.doc.redirectReason = "Redirecting because this page [" + core.doc.pageController.pageToRootList[0].name + "] requires a secure link.";
+                //        } else {
+                //            core.doc.redirectReason = "Redirecting because this template [" + core.doc.pageController.template.name + "] requires a secure link.";
+                //        }
+                //        core.doc.redirectBecausePageNotFound = false;
+                //        return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
+                //    }
+                //}
                 //
                 // -- check that this template exists on this domain
                 // -- if endpoint is just domain -> the template is automatically compatible by default (domain determined the landing page)
@@ -1611,7 +1611,15 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Get the page url for the pageid (and additional querystring)
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="PageID"></param>
+        /// <param name="QueryStringSuffix"></param>
+        /// <param name="AllowLinkAliasIfEnabled"></param>
+        /// <param name="UseContentWatchNotDefaultPage"></param>
+        /// <returns></returns>
         public static string getPageLink(CoreController core, int PageID, string QueryStringSuffix, bool AllowLinkAliasIfEnabled = true, bool UseContentWatchNotDefaultPage = false) {
             string result = "";
             try {
@@ -1681,13 +1689,19 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                // -- protocol
-                string linkprotocol = "";
-                if (core.doc.pageController.page.isSecure || core.doc.pageController.template.isSecure) {
-                    linkprotocol = "https://";
-                } else {
-                    linkprotocol = "http://";
+                // -- protocol, assume http and let hosting system forward. No other way to know
+                string linkprotocol = "http://";
+                if(core.webServer.httpContext!=null) {
+                    //
+                    // -- this is a website hit, use the current protocol
+                    linkprotocol = (core.webServer.requestSecure ? "https://" : "http://");
                 }
+
+                //if (core.doc.pageController.page.isSecure || core.doc.pageController.template.isSecure) {
+                //    linkprotocol = "https://";
+                //} else {
+                //    linkprotocol = "http://";
+                //}
                 //
                 // -- assemble
                 result = linkprotocol + linkDomain + linkPathPage;

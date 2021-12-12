@@ -132,9 +132,14 @@ namespace Contensive.Processor.Controllers {
                             string href = addon.stylesLinkHref.ToLowerInvariant();
                             if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
                                 //
-                                // -- href is to a local file, add it to file list
+                                // -- it is a local file, convert to filename (remove querystring, convert unix to dos slash, remove leading slash) and add it to file list
                                 string dosPathFilename = addon.stylesLinkHref.Replace("/", "\\");
+                                int pos = dosPathFilename.IndexOf("?");
+                                if (pos == 0) { continue; }
+                                if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
                                 if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                                //
+                                // -- remove 
                                 if (!cp.WwwFiles.FileExists(dosPathFilename)) {
                                     cp.WwwFiles.Save(dosPathFilename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
                                 }
@@ -150,9 +155,13 @@ namespace Contensive.Processor.Controllers {
                             string href = addon.jsHeadScriptSrc.ToLowerInvariant();
                             if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
                                 //
-                                // -- href is to a local file, add it to file list
+                                // -- it is a local file, convert to filename (remove querystring, convert unix to dos slash, remove leading slash) and add it to file list
                                 string dosPathFilename = addon.jsHeadScriptSrc.Replace("/", "\\");
+                                int pos = dosPathFilename.IndexOf("?");
+                                if (pos == 0) { continue; }
+                                if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
                                 if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                                //
                                 if (!cp.WwwFiles.FileExists(dosPathFilename)) {
                                     cp.WwwFiles.Save(dosPathFilename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
                                 }

@@ -1,15 +1,12 @@
 ﻿
 using Contensive.BaseClasses;
-using Contensive.Processor;
-using Contensive.Processor.Controllers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using static Contensive.Processor.Controllers.GenericController;
-using static Tests.TestConstants;
-using System.Collections.Generic;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using static Tests.TestConstants;
 
 namespace Contensive.Processor.Controllers.Tests {
     [TestClass()]
@@ -40,13 +37,17 @@ namespace Contensive.Processor.Controllers.Tests {
         [TestMethod()]
         public void executeOnBodyStartTest() {
             using CPClass cp = new(testAppName);
+            cp.core.visitProperty.setProperty("AllowDebugging", false);
+            cp.Db.DeleteRows("ccaggregatefunctions", "onbodystart>0");
             var a = DbBaseModel.addDefault<AddonModel>(cp);
             string testString = cp.Utils.CreateGuid();
             a.name = "test addon";
             a.onBodyStart = true;
             a.copyText = testString;
             a.save(cp);
-            Assert.IsTrue(cp.core.addon.executeOnBodyStart().Contains(testString));
+            cp.Cache.InvalidateAll();
+            string result = cp.core.addon.executeOnBodyStart();
+            Assert.IsTrue(result.Contains(testString), "result should have been [" + testString + "], but was [" + result + "]");
             DbBaseModel.delete<AddonModel>(cp, a.id);
         }
         /// <summary>
@@ -55,13 +56,17 @@ namespace Contensive.Processor.Controllers.Tests {
         [TestMethod()]
         public void executeOnBodyEndTest() {
             using CPClass cp = new(testAppName);
+            cp.core.visitProperty.setProperty("AllowDebugging", false);
+            cp.Db.DeleteRows("ccaggregatefunctions", "onBodyEnd>0");
             var a = DbBaseModel.addDefault<AddonModel>(cp);
             string testString = cp.Utils.CreateGuid();
             a.name = "test addon";
             a.onBodyEnd = true;
             a.copyText = testString;
             a.save(cp);
-            Assert.IsTrue(cp.core.addon.executeOnBodyEnd().Contains(testString));
+            cp.Cache.InvalidateAll();
+            string result = cp.core.addon.executeOnBodyEnd();
+            Assert.IsTrue(result.Contains(testString));
             DbBaseModel.delete<AddonModel>(cp, a.id);
         }
         /// <summary>

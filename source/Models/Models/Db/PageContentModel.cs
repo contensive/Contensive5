@@ -45,6 +45,10 @@ namespace Contensive.Models.Db {
         public DateTime? dateReviewed { get; set; }
         public string headline { get; set; }
         public string imageFilename { get; set; }
+        /// <summary>
+        /// deprecated. https vs http should be controlled by the webserver software.
+        /// </summary>
+        [Obsolete("Deprecated. https vs http should be controlled by the webserver software.", false)]
         public bool isSecure { get; set; }
         public string jSEndBody { get; set; }
         public string jSFilename { get; set; }
