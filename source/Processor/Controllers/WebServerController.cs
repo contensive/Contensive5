@@ -673,7 +673,25 @@ namespace Contensive.Processor.Controllers {
         /// <param name="secure">If true, this cookie will only be served over https.</param>
         public void addResponseCookie(string name, string value, DateTime dateExpires, string domain, string path, bool secure) {
             try {
-                if ((httpContext == null) || (httpContext.Response == null) || (httpContext.Response.cookies == null)) { return; }
+                //
+                LogController.log(core, "addResponseCookie enter, cookie name [" + name + "],  value [" + value + "]", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                //
+                if ((httpContext == null) || (httpContext.Response == null) || (httpContext.Response.cookies == null)) {
+                    if (httpContext == null) {
+                        LogController.log(core, "addResponseCookie exit, httpContext null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                        return;
+                    }
+                    if (httpContext.Response == null) {
+                        LogController.log(core, "addResponseCookie exit, httpContext.Response null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                        return;
+                    }
+                    if (httpContext.Response.cookies == null) {
+                        LogController.log(core, "addResponseCookie exit, httpContext.Response.cookies null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                        return;
+                    }
+                    LogController.log(core, "addResponseCookie exit, httpContext.Response null hood but nothing null?", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                    return; 
+                }
                 //
                 // -- add cookie to httpContext response
                 if (!httpContext.Response.cookies.ContainsKey(name)) {

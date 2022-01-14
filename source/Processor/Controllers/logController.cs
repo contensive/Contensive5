@@ -57,11 +57,9 @@ namespace Contensive.Processor.Controllers {
             //
             // -- add to doc exception list to display at top of webpage
             if (!addtoUI) { return result; }
-            if (core.doc.errorList.Count >= 10) { 
-                core.doc.errorList.Add("Exception limit exceeded");
-                return result;
-            }
             if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
+            if (core.doc.errorList.Count == 10) { core.doc.errorList.Add("Exception limit exceeded"); }
+            if (core.doc.errorList.Count >= 10) { return result; }
             core.doc.errorList.Add(result);
             return result;
         }
@@ -124,7 +122,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="message"></param>
         /// <remarks></remarks>
-        [Obsolete("Use nlog instance in each class",false)] 
+        [Obsolete("Use nlog instance in each class", false)]
         public static void logFatal(CoreController core, string message)
             => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Fatal);
         //

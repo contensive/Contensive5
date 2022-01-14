@@ -47,6 +47,12 @@ namespace Contensive.CLI {
                         return;
                     }
                     //
+                    // -- make sure this app does not already exist
+                    if (cp.GetAppNameList().Contains(appName, StringComparer.OrdinalIgnoreCase)){
+                        Console.WriteLine("The application name you seleted is in use [" + appName + "]");
+                        return;
+                    }
+                    //
                     // -- verify program files folder
                     string currentPath = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                     if (!cp.core.serverConfig.programFilesPath.Equals(currentPath)) {

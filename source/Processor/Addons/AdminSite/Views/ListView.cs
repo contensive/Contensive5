@@ -304,11 +304,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 }
                             case FindWordMatchEnum.MatchEquals: {
-                                    filterLine.Append(", " + FieldCaption + " = '" + findWord.Value + "'");
+                                    filterLine.Append(", " + FieldCaption + " = " + findWord.Value);
                                     break;
                                 }
                             case FindWordMatchEnum.MatchGreaterThan: {
-                                    filterLine.Append(", " + FieldCaption + " &gt; '" + findWord.Value + "'");
+                                    filterLine.Append(", " + FieldCaption + " > " + findWord.Value);
                                     break;
                                 }
                             case FindWordMatchEnum.matchincludes: {
@@ -316,7 +316,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 }
                             case FindWordMatchEnum.MatchLessThan: {
-                                    filterLine.Append(", " + FieldCaption + " &lt; '" + findWord.Value + "'");
+                                    filterLine.Append(", " + FieldCaption + " < " + findWord.Value + " ");
                                     break;
                                 }
                             case FindWordMatchEnum.MatchNotEmpty: {

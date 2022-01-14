@@ -650,10 +650,12 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     if (csData.ok()) {
-                        csData.set("NAME", name);
+                        csData.set("NAME", encodeInitialCaps(name));
                         csData.set("Abbreviation", abbreviation);
-                        if (GenericController.toLCase(name) == "united states") {
-                            csData.set("DomesticShipping", "1");
+                        if (name.ToLowerInvariant() == "united states") {
+                            csData.set("DomesticShipping", 1);
+                        } else {
+                            csData.set("DomesticShipping", 0);
                         }
                     }
                     csData.close();
@@ -674,15 +676,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 appendUpgradeLogAddStep(core, core.appConfig.name, "VerifyCountries", "Verify Countries");
                 //
-                string list = core.wwwFiles.readFileText("cclib\\config\\DefaultCountryList.txt");
+                string list = core.programFiles.readFileText("DefaultCountryList.txt");
                 string[] rows = GenericController.stringSplit(list, Environment.NewLine);
                 foreach (var row in rows) {
-                    if (!string.IsNullOrEmpty(row)) {
-                        string[] attrs = row.Split(';');
-                        foreach (var attr in attrs) {
-                            verifyCountry(core, encodeInitialCaps(attr), attrs[1]);
-                        }
-                    }
+                    if (string.IsNullOrEmpty(row)) { continue; }
+                    string[] attrs = row.Split(';');
+                    if (attrs.Length < 2) { continue; }
+                    verifyCountry(core, attrs[0], attrs[1]);
+
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);

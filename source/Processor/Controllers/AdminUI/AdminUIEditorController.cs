@@ -161,18 +161,30 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         //
-        public static string getImageEditor(CoreController core, string fieldName, string currentPathFilename, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
-            if (readOnly && string.IsNullOrEmpty(currentPathFilename)) {
-                return HtmlController.div("[no image]") + HtmlController.inputHidden(fieldName, currentPathFilename);
+        public static string getImageEditor(CoreController core, string fieldName, string imagePathFilename, string thumbnailPathFilename, bool readOnly, string htmlId) {
+            if (readOnly && string.IsNullOrEmpty(imagePathFilename)) { 
+                //
+                // -- read-only and no current image, show [no image]
+                return HtmlController.div("[no image]") + HtmlController.inputHidden(fieldName, imagePathFilename); 
             }
-            if (string.IsNullOrEmpty(currentPathFilename)) {
+            if (string.IsNullOrEmpty(imagePathFilename)) {
+                //
+                // -- no current image, just use file input
                 return HtmlController.inputFile(fieldName, htmlId, "form-control-file");
             }
-            string nonEncodedLink = getCdnFileLink(core, currentPathFilename);
-            string encodedLink = HtmlController.encodeHtml(nonEncodedLink);
+            if (string.IsNullOrEmpty(imagePathFilename)) {
+                //
+                // -- thumbnail required
+                thumbnailPathFilename = imagePathFilename; 
+            }
+            //
+            // -- show current thumbnail, link to current image, and file input
+            string image_nonEncodedLink = getCdnFileLink(core, imagePathFilename);
+            string image_encodedLink = HtmlController.encodeHtml(image_nonEncodedLink);
+            string thumbnail_encodedLink = HtmlController.encodeHtml(getCdnFileLink(core, thumbnailPathFilename));
             string fieldValuefilename = "";
             string fieldValuePath = "";
-            core.privateFiles.splitDosPathFilename(currentPathFilename, ref fieldValuePath, ref fieldValuefilename);
+            core.privateFiles.splitDosPathFilename(imagePathFilename, ref fieldValuePath, ref fieldValuefilename);
             string deleteCheckbox = "";
             string uploadControl = "";
             if (!readOnly) {
@@ -184,8 +196,8 @@ namespace Contensive.Processor.Controllers {
                     "form-check");
                 uploadControl = HtmlController.inputFile(fieldName, htmlId, "form-control-file");
             }
-            string resultImage = HtmlController.a(HtmlController.img(encodedLink, "", 0, 0, "w-100"), encodedLink, "", "", "", "_blank");
-            string resultAnchor = HtmlController.a("[" + fieldValuefilename + "]", encodedLink, "", "", "", "_blank");
+            string resultImage = HtmlController.a(HtmlController.img(thumbnail_encodedLink, "", 0, 0, "w-100"), image_encodedLink, "", "", "", "_blank");
+            string resultAnchor = HtmlController.a("[" + fieldValuefilename + "]", image_encodedLink, "", "", "", "_blank");
             return ""
                 + HtmlController.div(resultImage, "d-table-cell", "", "width:100px;max-height:200px;")
                 + HtmlController.div(resultAnchor + deleteCheckbox + uploadControl, "d-table-cell pl-4 align-top");
@@ -837,7 +849,7 @@ namespace Contensive.Processor.Controllers {
                                     idHidden = HtmlController.inputHidden("Memberrules." + GroupCount + ".ID", GroupID),
                                     checkboxInput = HtmlController.checkbox("MemberRules." + GroupCount, GroupActive),
                                     groupCaption = GroupCaption,
-                                    expiresInput = getDateTimeEditor(core, "MemberRules." + GroupCount + ".DateExpires", DateExpire,false,"",false),
+                                    expiresInput = getDateTimeEditor(core, "MemberRules." + GroupCount + ".DateExpires", DateExpire, false, "", false),
                                     //expiresInput = HtmlController.inputDate(core, "MemberRules." + GroupCount + ".DateExpires", DateExpire, "","", "text form-control", false,false,false),
                                     //expiresInput = HtmlController.inputText_Legacy(core, "MemberRules." + GroupCount + ".DateExpires", DateExpireValue, 1, 20, "", false, false, "text form-control", -1, false, "expires"),
                                     relatedButtonList = relatedButtonList,

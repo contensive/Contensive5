@@ -1082,7 +1082,7 @@ namespace Contensive.Processor.Controllers {
                                                                                     break;
                                                                                 }
                                                                             case "imagefile": {
-                                                                                    Copy = AdminUIEditorController.getImageEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
+                                                                                    Copy = AdminUIEditorController.getImageEditor(core, fieldName, fieldValue, fieldValue, fieldReadOnly, "");
                                                                                     break;
                                                                                 }
                                                                             case "currency": {

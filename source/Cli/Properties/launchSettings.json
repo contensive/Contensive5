@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a menucrm --installfile ecommerce.zip"
+      "commandLineArgs": "-a menucrm -u"
     }
   }
 }

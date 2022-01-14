@@ -337,7 +337,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Image ReadOnly
                                     editorEnv.formFieldList += "," + field.nameLc;
-                                    EditorString = AdminUIEditorController.getImageEditor(core, field.nameLc, fieldValue_text, field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
+                                    string[] imageAltSizeList = { };
+                                    string resizedImageUrl = ImageController.getBestFit(core, fieldValue_text, 80, 80, new System.Collections.Generic.List<string>());
+                                    EditorString = AdminUIEditorController.getImageEditor(core, field.nameLc, fieldValue_text, resizedImageUrl, field.readOnly, fieldHtmlId);
                                     break;
                                 }
                             default: {
@@ -452,9 +454,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Image ReadOnly
                                     editorEnv.formFieldList += "," + field.nameLc;
-                                    EditorString = AdminUIEditorController.getImageEditor(core, field.nameLc, fieldValue_text, field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
+                                    string[] imageAltSizeList = { };
+                                    string resizedImageUrl = ImageController.getBestFit(core, fieldValue_text, 80, 80, new System.Collections.Generic.List<string>());
+                                    EditorString = AdminUIEditorController.getImageEditor(core, field.nameLc, fieldValue_text, resizedImageUrl, field.readOnly, fieldHtmlId);
                                     break;
-                                }
+                               }
                             case CPContentBaseClass.FieldTypeIdEnum.Currency: {
                                     //
                                     // ----- currency

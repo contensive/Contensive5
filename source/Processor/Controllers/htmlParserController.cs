@@ -359,7 +359,7 @@ namespace Contensive.Processor.Controllers {
                 int AttrValueLen = 0;
                 //
                 TagString = LocalElements[ElementPointer].Text.Substring(1, LocalElements[ElementPointer].Text.Length - 2);
-                if (TagString.Substring(TagString.Length - 1) == "/") {
+                if (!string.IsNullOrEmpty(TagString) && (TagString.Substring(TagString.Length - 1) == "/")) {
                     TagString = TagString.left(TagString.Length - 1);
                 }
                 TagString = GenericController.strReplace(TagString, "\r", " ");

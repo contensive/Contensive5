@@ -93,7 +93,7 @@ namespace Contensive.Processor.Models.Domain {
                             string localRoute = GenericController.normalizeRoute(remoteMethod.name);
                             if (!string.IsNullOrWhiteSpace(localRoute)) {
                                 if (result.routeDictionary.ContainsKey(localRoute)) {
-                                    LogController.logWarn(core, new GenericException("Route [" + localRoute + "] cannot be added because it is a matches the Admin Route or another Remote Method."));
+                                    LogController.logWarn(core, new GenericException("Route [" + localRoute + "] cannot be added because it matches the Admin Route or another Remote Method."));
                                 } else {
                                     //
                                     // -- add routeSuffix wildcard to all remote methods that do not have a wildcard so /a/b/c will match addons a, or a/b, or a/b/c
@@ -119,7 +119,7 @@ namespace Contensive.Processor.Models.Domain {
                             string localRoute = GenericController.normalizeRoute(linkForward.sourceLink);
                             if (!string.IsNullOrEmpty(localRoute)) {
                                 if (result.routeDictionary.ContainsKey(localRoute)) {
-                                    LogController.logError(core, new GenericException("Link Forward Route [" + localRoute + "] cannot be added because it is a matches the Admin Route, a Remote Method or another Link Forward."));
+                                    LogController.logError(core, new GenericException("Link Forward Route [" + localRoute + "] cannot be added because it matches the Admin Route, a Remote Method or another Link Forward."));
                                 } else {
                                     //
                                     // -- link alias does not modify the route 
@@ -140,7 +140,7 @@ namespace Contensive.Processor.Models.Domain {
                             string localRoute = GenericController.normalizeRoute(linkAlias.name);
                             if (!string.IsNullOrEmpty(localRoute)) {
                                 if (result.routeDictionary.ContainsKey(localRoute)) {
-                                    LogController.logError(core, new GenericException("Link Alias route [" + localRoute + "] cannot be added because it is a matches the Admin Route, a Remote Method, a Link Forward o another Link Alias."));
+                                    LogController.logError(core, new GenericException("Link Alias route [" + localRoute + "] cannot be added because it matches the Admin Route, a Remote Method, a Link Forward o another Link Alias."));
                                 } else {
                                     //
                                     // -- add routeSuffix wildcard to all remote methods that do not have a wildcard so /a/b/c will match addons a, or a/b, or a/b/c

@@ -79,6 +79,9 @@
     <None Include="aoBase51.xml" Pack="true" PackagePath="">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="DefaultCountryList.txt" Pack="true" PackagePath="">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="app.ico" Pack="true" PackagePath="" />
     <!--<None Include="bin\debug\net472\Stubble.Core.dll" Pack="true" PackagePath="" />-->
   </ItemGroup>
