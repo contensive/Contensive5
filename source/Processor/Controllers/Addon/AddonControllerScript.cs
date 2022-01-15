@@ -176,6 +176,10 @@ namespace Contensive.Processor.Controllers {
                         engine.Execute(addon.scriptingCode);
                         object returnObj = engine.Evaluate(entryPoint);
                         returnText = AddonController.convertAddonReturntoString(returnObj);
+                        //
+                        // -- special case. Scripts that do not set return value, create empty object. It is a script bug, but too hard to fix all.
+                        if (returnText == "{}") { return ""; }
+                        return returnText;
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "executing script");
                         LogController.logError(core, ex, errorMessage);
@@ -190,7 +194,6 @@ namespace Contensive.Processor.Controllers {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnText;
         }
         //
         //====================================================================================================
