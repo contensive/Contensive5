@@ -148,6 +148,15 @@ namespace Contensive.Processor.Controllers {
         //
         //=============================================================================
         /// <summary>
+        /// log for special cases, debugging
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="message"></param>
+        public static void logDebug(CoreController core, string message)
+            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Debug);
+        //
+        //=============================================================================
+        /// <summary>
         /// log incorrect behavior but the application can continue
         /// </summary>
         /// <param name="core"></param>

@@ -874,7 +874,7 @@ namespace Contensive.Processor.Models.Domain {
                 if ((!fieldMetadata.isBaseField) && (RecordIsBaseField)) {
                     //
                     // This update is not allowed
-                    LogController.logWarn(core, new GenericException("Warning, updating base field from non-base collection, context [" + logMsgContext + "], content [" + name + "], field [" + fieldMetadata.nameLc + "]"));
+                    LogController.logDebug(core, "Warning, updating base field from non-base collection, context [" + logMsgContext + "], content [" + name + "], field [" + fieldMetadata.nameLc + "]");
                 }
                 using var db = new DbController(core, dataSourceName);
                 //

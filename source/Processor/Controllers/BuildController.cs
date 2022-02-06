@@ -816,7 +816,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         private static void verifyManyManyDeleteTriggers(CoreController core) {
-            LogController.logWarn(core, "verifyManyManyDeleteTriggers not implemented");
+            LogController.logDebug(core, "verifyManyManyDeleteTriggers not implemented");
         }
         //
         //====================================================================================================

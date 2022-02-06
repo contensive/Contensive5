@@ -1471,7 +1471,7 @@ namespace Contensive.Processor {
                         //
                         // -- unique violation
                         if (dtRecords.Rows.Count > 0) {
-                            LogController.logWarn(core, "Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]");
+                            LogController.logDebug(core, "Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]");
                             return;
                         }
                     }

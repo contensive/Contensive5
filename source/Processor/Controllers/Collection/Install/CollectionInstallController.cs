@@ -756,7 +756,7 @@ namespace Contensive.Processor.Controllers {
                                             case "add-on": {
                                                     //
                                                     // Add-on Node, do part 1, verify the addon in the table with name and guid
-                                                    setAddonDependencies(core, collectionNode, "ccguid", core.siteProperties.dataBuildVersion, collection.id, ref result, ref return_ErrorMessage);
+                                                    setAddonDependencies(core, CollectionName, collectionNode, "ccguid", core.siteProperties.dataBuildVersion, collection.id, ref result, ref return_ErrorMessage);
                                                     if (!result) { return result; }
                                                     break;
                                                 }
@@ -765,7 +765,7 @@ namespace Contensive.Processor.Controllers {
                                                     // Legacy Interface Node
                                                     //
                                                     foreach (XmlNode metaDataInterfaces in collectionNode.ChildNodes) {
-                                                        setAddonDependencies(core, metaDataInterfaces, "ccguid", core.siteProperties.dataBuildVersion, collection.id, ref result, ref return_ErrorMessage);
+                                                        setAddonDependencies(core, CollectionName, metaDataInterfaces, "ccguid", core.siteProperties.dataBuildVersion, collection.id, ref result, ref return_ErrorMessage);
                                                         if (!result) { return result; }
                                                     }
                                                     break;
@@ -1115,10 +1115,11 @@ namespace Contensive.Processor.Controllers {
         /// this is the second pass, so all add-ons should be added
         /// no errors for missing addones, except the include add-on case
         /// </summary>
-        private static void setAddonDependencies(CoreController core, XmlNode AddonNode, string AddonGuidFieldName, string ignore_BuildVersion, int CollectionID, ref bool ReturnUpgradeOK, ref string ReturnErrorMessage) {
+        private static void setAddonDependencies(CoreController core, string parentCollectionName, XmlNode AddonNode, string AddonGuidFieldName, string ignore_BuildVersion, int CollectionID, ref bool ReturnUpgradeOK, ref string ReturnErrorMessage) {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
+                    string parentAddonName = "?";
                     string addonName = XmlController.getXMLAttribute(core, AddonNode, "name", "No Name");
                     if (string.IsNullOrEmpty(addonName)) { addonName = "No Name"; }
                     string addonGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", addonName);
@@ -1136,31 +1137,10 @@ namespace Contensive.Processor.Controllers {
                             if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                 //
                                 // Could not find add-on, this is an error, but do not abort
-                                LogController.logError(core, new ApplicationException( MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]"));
+                                LogController.logError(core, new ApplicationException( MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
                                 return;
                             }
                         }
-                        //if (csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
-                        //    //
-                        //    // Update the Addon, done
-                        //    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
-                        //    return result;
-                        //}
-                        ////
-                        //// -- not found by GUID - search name against name to update legacy Add-ons
-                        //Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
-                        //csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
-                        //if (!csData.ok()) {
-                        //    //
-                        //    // Could not find add-on, done
-                        //    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
-                        //    return result;
-                        //}
-                        //if (AddonNode.ChildNodes.Count == 0) {
-                        //    //
-                        //    // -- no child nodes, done
-                        //    return result;
-                        //}
                         foreach (XmlNode PageInterface in AddonNode.ChildNodes) {
                             switch (GenericController.toLCase(PageInterface.Name)) {
                                 case "includeaddon":
@@ -1190,7 +1170,7 @@ namespace Contensive.Processor.Controllers {
                                             }
                                             bool AddRule = false;
                                             if (IncludeAddonId == 0) {
-                                                string UserError = "The include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
+                                                string UserError = "While installng collection/addon [" + parentCollectionName + "/" + parentAddonName + "], the include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
                                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
                                                 ReturnUpgradeOK = false;
                                                 ReturnErrorMessage = ReturnErrorMessage + "<P>The collection was not installed because the add-on [" + addonName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>";

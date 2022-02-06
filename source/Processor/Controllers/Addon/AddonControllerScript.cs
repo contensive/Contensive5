@@ -23,9 +23,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="addon"></param>
         /// <returns></returns>
         public static string execute_Script_VBScript( CoreController core, ref AddonModel addon) {
-            string returnText = "";
+            string hint = "";
             try {
                 // todo - move locals
+                hint += "enter";
                 using (var engine = new Microsoft.ClearScript.Windows.VBScriptEngine()) {
                     //var engine = new Microsoft.ClearScript.Windows.VBScriptEngine(Microsoft.ClearScript.Windows.WindowsScriptEngineFlags.EnableDebugging);
                     string entryPoint = addon.scriptingEntryPoint;
@@ -56,52 +57,59 @@ namespace Contensive.Processor.Controllers {
                             entryPoint = entryPoint.Substring(0, pos);
                         }
                     }
+                    hint += ",entrypoint[" + entryPoint + "]";
                     //
                     // -- adding cclib
                     try {
-                        MainCsvScriptCompatibilityClass mainCsv = new MainCsvScriptCompatibilityClass(core);
+                        hint += ",add cclib";
+                        MainCsvScriptCompatibilityClass mainCsv = new(core);
                         engine.AddHostObject("ccLib", mainCsv);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
-                        string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object ");
+                        string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object ex-6, hint[" + hint + "]");
                         LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        LogController.logError(core, ex);
+                        LogController.logError(core, ex, "ex-7, hint[" + hint + "]");
                         throw;
                     }
                     //
                     // -- adding cp
                     try {
+                        hint += ",add cp";
                         engine.AddHostObject("cp", core.cpParent);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
-                        string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cp object ");
+                        string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cp object, ex-5, hint[" + hint + "] ");
                         LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        LogController.logError(core, ex);
+                        LogController.logError(core, ex, "ex-4, hint[" + hint + "]");
                         throw;
                     }
                     //
                     // -- execute code
                     try {
+                        hint += ",execute code";
                         engine.Execute(addon.scriptingCode);
                         object returnObj = engine.Evaluate(entryPoint);
-                        returnText = AddonController.convertAddonReturntoString(returnObj);
+                        string returnText = AddonController.convertAddonReturntoString(returnObj);
+                        //
+                        // -- special case. Scripts that do not set return value, create empty object. It is a script bug, but too hard to fix all.
+                        if (returnText == "{}") { return ""; }
+                        return returnText;
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
-                        string errorMessage = getScriptEngineExceptionMessage(ex, "executing script ");
+                        string errorMessage = getScriptEngineExceptionMessage(ex, "executing script, ex-2, hint[" + hint + "]");
                         LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
                         string addonDescription = AddonController.getAddonDescription(core, addon);
-                        string errorMessage = "Error executing addon script, " + addonDescription;
+                        string errorMessage = "Error executing addon script, ex-3, hint[" + hint + "], " + addonDescription;
                         throw new GenericException(errorMessage, ex);
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogController.logError(core, ex, "ex-1, hint [" + hint + "]");
                 throw;
             }
-            return returnText;
         }
         //
         //====================================================================================================

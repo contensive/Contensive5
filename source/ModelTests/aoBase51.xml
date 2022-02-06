@@ -3275,6 +3275,9 @@
     <record content="groups" guid="{0685bd36-fe24-4542-be42-27337af50da8}" name="Site Managers">
       <field name="caption">Site Managers</field>
     </record>
+    <record content="groups" guid="{13920933-22EC-4314-B8CF-5B8D6A25901E}" name="Staff">
+      <field name="caption">Staff</field>
+    </record>
     <record content="add-on categories" guid="{3e6055bf-7e7c-41fc-94b1-1d1a81c2842b}" name="Applications">
       <field name="iconhtml"><![CDATA[<i class="fas fa-cogs"></i>]]></field>
     </record>

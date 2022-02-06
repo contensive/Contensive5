@@ -193,6 +193,7 @@ rem ==============================================================
 rem
 rem build cli installer
 rem
+
 cd ..\source
 rem "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\msbuild.exe" ContensiveCLIInstaller\ContensiveCLIInstaller.wixproj
 "%msbuildLocation%msbuild.exe" cli.installer\cli.installer.wixproj
@@ -280,4 +281,3 @@ rem ==============================================================
 rem
 rem done
 rem
-pause

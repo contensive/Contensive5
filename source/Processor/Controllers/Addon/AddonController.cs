@@ -66,8 +66,6 @@ namespace Contensive.Processor.Controllers {
             if (AddonObjResult.GetType() == typeof(double)) { return ((double)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
             if (AddonObjResult.GetType() == typeof(bool)) { return ((bool)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
             if (AddonObjResult.GetType() == typeof(DateTime)) { return ((DateTime)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
-            //if (AddonObjResult = (new object())) { return string.Empty; }
-            //if (AddonObjResult.ToString() == "[undefined]") { return string.Empty; }
             //
             // -- all objects serialize to JSON
             string result = SerializeObject(AddonObjResult);

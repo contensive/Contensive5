@@ -15,19 +15,22 @@ namespace Contensive.Processor.Addons.RobotsTxt {
             string result = "";
             try {
                 CoreController core = ((CPClass)cp).core;
-                //
-                // -- Robots.txt
-                string Filename = "config/RobotsTxtBase.txt";
-                // 
-                // set this way because the preferences page needs a filename in a site property (enhance later)
-                core.siteProperties.setProperty("RobotsTxtFilename", Filename);
-                result = core.cdnFiles.readFileText(Filename);
+                string cacheKey = cp.Cache.CreateKey( "RobotsTxt Base Text");
+                result = cp.Cache.GetText(cacheKey);
                 if (string.IsNullOrEmpty(result)) {
+                    // -- settings page needs a filename
+                    string Filename = core.siteProperties.getText("RobotsTxtFilename", "config/RobotsTxtBase.txt");
+                    result = core.cdnFiles.readFileText(Filename);
+                    if (string.IsNullOrEmpty(result)) {
+                        //
+                        // save default robots.txt
+                        //
+                        result = "User-agent: *\r\nDisallow: /admin/\r\nDisallow: /images/";
+                        core.wwwFiles.saveFile(Filename, result);
+                    }
                     //
-                    // save default robots.txt
-                    //
-                    result = "User-agent: *\r\nDisallow: /admin/\r\nDisallow: /images/";
-                    core.wwwFiles.saveFile(Filename, result);
+                    // -- 15 minute cache. Add this to settings page 
+                    cp.Cache.Store(cacheKey, result, DateTime.Now.AddMinutes(15));
                 }
                 result += core.addonCache.robotsTxt;
                 core.webServer.responseContentType = "text/plain";
