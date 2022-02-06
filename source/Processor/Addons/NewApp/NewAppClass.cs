@@ -108,7 +108,7 @@ namespace Contensive.Processor.Addons.NewApp {
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_ServerPageDefault, iisDefaultDoc);
                     //
                     LogController.logInfo(cp.core, "Upgrade complete.");
-                    LogController.logInfo(cp.core, "Use IIS Import Application to install either you web application, or the Contensive IISDefault.zip application.");
+                    LogController.logInfo(cp.core, "Use IIS Import Application to install either you web application, or the Contensive DefaultAspxSite.zip application.");
                 }
                 //
                 return string.Empty;

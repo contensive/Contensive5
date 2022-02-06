@@ -261,14 +261,14 @@ namespace Contensive.CLI {
                     Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Create database.");
                     cp.core.dbServer.createCatalog(appConfig.name);
                     //
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "When app creating is complete, use IIS Import Application to install either you web application, or the Contensive IISDefault.zip application.");
+                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "When app creation is complete, use IIS Import Application to install either you web application, or the Contensive DefaultAspxSite.zip application.");
                     //// copy in the pattern files 
                     ////  - the only pattern is aspx
                     ////  - this is cc running, so they are setting up new application which may or may not have a webrole here.
                     ////  - setup a basic webrole just in case this will include one -- maybe later make it an option
                     ////
                     // - Contensive.Processor.Controllers.logController.logInfo(cp.core, "Copy default site to www folder.");
-                    // - cp.core.programFiles.copyFolder("resources\\iisDefaultSite\\", "\\", cp.core.appRootFiles);
+                    // - cp.core.programFiles.copyFolder("resources\\DefaultAspxSite\\", "\\", cp.core.appRootFiles);
                 }
                 //
                 // initialize the new app, use the save authentication that was used to authorize this object
@@ -277,7 +277,8 @@ namespace Contensive.CLI {
                     Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Verify website.");
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.localWwwPath);
                     //
-                    Processor.Controllers.LogController.logInfo(cp.core, "Install iisDefaultSite.");
+                    bool DefaultAspxSiteInstalled = false;
+                    Processor.Controllers.LogController.logInfo(cp.core, "Install DefaultAspxSite.");
                     if (!cp.core.programFiles.fileExists(@"\defaultaspxsite.zip")) {
                         //
                         // -- message to install defaultsite manually
@@ -285,11 +286,12 @@ namespace Contensive.CLI {
                     } else {
                         //
                         // -- install defaultaspxsite
+                        DefaultAspxSiteInstalled = true;
                         cp.core.programFiles.copyFile(@"\defaultaspxsite.zip", @"\defaultaspxsite.zip", cp.core.tempFiles);
                         cp.TempFiles.UnzipFile(@"\defaultaspxsite.zip");
                         string srcPath = getZipSrcTempPath(cp, "Content", "Web.config");
                         if (string.IsNullOrWhiteSpace(srcPath)) {
-                            Console.WriteLine("The installation on this server does not include a valid DefaultAspxSite.zip file.");
+                            Console.WriteLine("The installation on this server does not include a valid DefaultAspxSite.zip file. Replace this file with a valid DefaultAspxSite.zip file or delete the invalid file and retry.");
                             return;
                         }
                         cp.TempFiles.CopyPath(srcPath, @"", cp.WwwFiles);
@@ -305,7 +307,11 @@ namespace Contensive.CLI {
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_ServerPageDefault, iisDefaultDoc);
                     //
                     Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Upgrade complete.");
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Use IIS Import Application to install either you web application, or the Contensive IISDefault.zip application.");
+                    if (DefaultAspxSiteInstalled) {
+                        Contensive.Processor.Controllers.LogController.logInfo(cp.core, "A default website was imported into an iis website with this applicaiton name.");
+                    } else {
+                        Contensive.Processor.Controllers.LogController.logInfo(cp.core, "The Contensive website was not imported because the file DefaultAspxSite.zip was not found in path [" + cp.core.programFiles.localAbsRootPath + "].");
+                    }
                 }
                 //
             } catch (Exception ex) {

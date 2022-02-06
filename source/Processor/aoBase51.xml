@@ -3118,6 +3118,7 @@
   <SQLIndex IndexName="ccEmailSubmitted" DataSourceName="Default" TableName="ccEmail" FieldNameList="Submitted"  />
   <SQLIndex IndexName="ccVisitSummaryDateTimeDuration" DataSourceName="Default" TableName="ccVisitSummary" FieldNameList="DateNumber,TimeNumber,TimeDuration"  />
   <SQLIndex IndexName="ccPropertiesTypeidKeyIdActive" DataSourceName="Default" TableName="ccProperties" FieldNameList="typeid,keyid,active"  />
+  <SQLIndex IndexName="ccFieldHelpFieldIdAcive" DataSourceName="Default" TableName="ccFieldHelp" FieldNameList="FieldID,active"  />
 
   <!-- Manage Add-ons -->
   <NavigatorEntry Name="Manage Add-ons" NameSpace="" NavIconTitle="" NavIconType="Addon" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" active="1" AddonGuid="" guid="{DBA354AB-5D3E-4882-8718-CF23CAAB7927}" />

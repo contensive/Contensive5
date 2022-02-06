@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a menucrm02052014 --install \"menucrm content\""
+      "commandLineArgs": "-n menucrm02060926"
     }
   }
 }
