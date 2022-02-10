@@ -1118,6 +1118,27 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// remove a site by its name
+        /// </summary>
+        /// <param name="appName"></param>
+        public void deleteWebsite( string appName ) {
+            try {
+                using ServerManager iisManager = new();
+                foreach (Site site in iisManager.Sites) {
+                    if (site.Name.ToLowerInvariant() == appName.ToLowerInvariant()) {
+                        iisManager.Sites.Remove(site);
+                        iisManager.CommitChanges();
+                        return;
+                    }
+                }
+            } catch (Exception ex) {
+                LogController.logError(core, ex, "verifyWebsite");
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// verify the website. If it exists, update it. If not, create it
         /// </summary>
         /// <param name="appName"></param>

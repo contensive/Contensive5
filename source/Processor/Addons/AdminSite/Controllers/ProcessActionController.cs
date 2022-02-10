@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using Contensive.BaseClasses;
 using Contensive.Exceptions;
@@ -132,6 +133,75 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                                     adminData.admin_Action = Constants.AdminActionNop;
                                     break;
+                                case Constants.AdminActionSendEmailTest:
+                                    if (adminData.editRecord.userReadOnly) {
+                                        ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
+                                    } else {
+                                        //
+                                        adminData.loadEditRecord(cp.core);
+                                        adminData.loadEditRecord_Request(cp.core);
+                                        processActionSave(cp, adminData, useContentWatchLink);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        //
+                                        if (cp.core.doc.userErrorList.Count.Equals(0)) {
+                                            //
+                                            int EmailToConfirmationMemberId = 0;
+                                            if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
+                                                EmailToConfirmationMemberId = GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value);
+                                                EmailController.queueConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
+                                                //
+                                                if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
+                                                    //
+                                                    // -- if there were no errors, and the table supports lastsendtestdate, update it
+                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
+                                                    db.executeQuery("update ccemail Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                                }
+                                            }
+                                        }
+                                    }
+                                    // convert so action can be used in as a refresh
+                                    adminData.admin_Action = Constants.AdminActionNop;
+                                    break;
+                                case Constants.AdminActionSendTextMessageTest:
+                                    if (adminData.editRecord.userReadOnly) {
+                                        ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
+                                    } else {
+                                        //
+                                        adminData.loadEditRecord(cp.core);
+                                        adminData.loadEditRecord_Request(cp.core);
+                                        processActionSave(cp, adminData, useContentWatchLink);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        //
+                                        if (cp.core.doc.userErrorList.Count.Equals(0)) {
+                                            //
+                                            
+                                            int EmailToConfirmationMemberId =  GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value);
+                                            EmailController.queueConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
+                                            //
+                                            // -- if there were no errors, and the table supports lastsendtestdate, update it
+                                            adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
+                                            db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                        }
+                                    }
+                                    // convert so action can be used in as a refresh
+                                    adminData.admin_Action = Constants.AdminActionNop;
+                                    break;
+                                case Constants.AdminActionSendTextMessage:
+                                    //
+                                    // ----- Send (Group Text Message Only)
+                                    if (adminData.editRecord.userReadOnly) {
+                                        ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
+                                    } else {
+                                        adminData.loadEditRecord(cp.core);
+                                        adminData.loadEditRecord_Request(cp.core);
+                                        processActionSave(cp, adminData, useContentWatchLink);
+                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                        if (cp.core.doc.userErrorList.Count.Equals(0)) {
+                                            GroupTextMessageModel.setSubmitted(cp, adminData.editRecord.id);
+                                        }
+                                    }
+                                    adminData.admin_Action = Constants.AdminActionNop;
+                                    break;
                                 case Constants.AdminActionDeactivateEmail:
                                     //
                                     // ----- Deactivate (Conditional Email Only)
@@ -181,35 +251,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                                     //
                                     //// convert so action can be used in as a refresh
-                                    adminData.admin_Action = Constants.AdminActionNop;
-                                    break;
-                                case Constants.AdminActionSendEmailTest:
-                                    if (adminData.editRecord.userReadOnly) {
-                                        ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
-                                    } else {
-                                        //
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink);
-                                        ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
-                                        //
-                                        if (cp.core.doc.userErrorList.Count.Equals(0)) {
-                                            //
-                                            int EmailToConfirmationMemberId = 0;
-                                            if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
-                                                EmailToConfirmationMemberId = GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value);
-                                                EmailController.queueConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
-                                                //
-                                                if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
-                                                    //
-                                                    // -- if there were no errors, and the table supports lastsendtestdate, update it
-                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
-                                                    db.executeQuery("update ccemail Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
-                                                }
-                                            }
-                                        }
-                                    }
-                                    // convert so action can be used in as a refresh
                                     adminData.admin_Action = Constants.AdminActionNop;
                                     break;
                                 case Constants.AdminActionDeleteRows:

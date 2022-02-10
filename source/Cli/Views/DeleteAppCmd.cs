@@ -37,6 +37,12 @@ namespace Contensive.CLI {
                             Console.WriteLine("Cannot delete app [" + appName + "] because delete protection is on. Use --deleteprotection off to disable it.");
                             return;
                         }
+                        //
+                        // -- delete files the really slow ways
+                        cp.core.cdnFiles.deleteFolder("\\");
+                        cp.core.privateFiles.deleteFolder("\\");
+                        cp.core.tempFiles.deleteFolder("\\");
+                        cp.core.wwwFiles.deleteFolder("\\");
                     }
                 } catch (Exception) {
                     Console.WriteLine("ERROR, the application would not startup correctly. You may need to work with it manually.");
@@ -58,6 +64,9 @@ namespace Contensive.CLI {
                     // -- drop db failed
                     Console.WriteLine("Could not delete database [" + appName + "], open Sql Management Studio and delete the database.");
                 }
+                //
+                // -- delete the iis site
+                cpServer.core.webServer.deleteWebsite(appName);
                 //
                 // -- remove the configuraion
                 cpServer.core.serverConfig.apps.Remove( appName );

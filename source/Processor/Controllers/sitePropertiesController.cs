@@ -45,7 +45,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// The site property for the system bounce address
         /// </summary>
-        public string  emailBounceAddress {
+        public string emailBounceAddress {
             get {
                 if (_emailBounceAddress == null) {
                     _emailBounceAddress = getText("EmailBounceAddress");
@@ -54,6 +54,20 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private string _emailBounceAddress = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// The site property for the default system email from-address
+        /// </summary>
+        public string emailFromAddress {
+            get {
+                if (_emailFromAddress == null) {
+                    _emailFromAddress = getText("emailFromAddress");
+                }
+                return Convert.ToString(_emailFromAddress);
+            }
+        }
+        private string _emailFromAddress = null;
         //
         //====================================================================================================
         /// <summary>

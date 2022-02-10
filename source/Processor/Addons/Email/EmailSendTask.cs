@@ -1,14 +1,11 @@
-﻿//
-using System;
-using Contensive.Processor.Controllers;
-using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
+﻿
 using Contensive.BaseClasses;
-using Contensive.Processor.Exceptions;
-using Contensive.Models.Db;
+using Contensive.Processor.Controllers;
+using System;
+using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Addons.Email {
-    public class ProcessEmailClass : AddonBaseClass {
+    public class EmailSendTask : AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>

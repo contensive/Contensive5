@@ -80,8 +80,12 @@ namespace Contensive.CLI {
                                 //
                                 // set application name
                                 appName = getNextCmdArg(args, ref argPtr);
-                                if ((String.IsNullOrEmpty(appName)) || (!cpServer.core.serverConfig.apps.ContainsKey(appName))) {
-                                    Console.WriteLine("The appName [" + appName + "] was not found.");
+                                if (string.IsNullOrEmpty(appName)) {
+                                    Console.WriteLine("The application name following (-a) cannot be blank.");
+                                    return;
+                                }
+                                if (!cpServer.core.serverConfig.apps.ContainsKey(appName)) {
+                                    Console.WriteLine("The application name following (-a) [" + appName + "] was not found.");
                                     return;
                                 }
                                 Console.WriteLine("Set application to [" + appName + "].");
@@ -192,6 +196,12 @@ namespace Contensive.CLI {
                                 DeleteProtectionCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
                                 break;
                             case "--delete":
+                                //
+                                // -- require elevated permissions
+                                if (!WindowsIdentity.GetCurrent().Owner.IsWellKnown(WellKnownSidType.BuiltinAdministratorsSid)) {
+                                    Console.WriteLine("This command requires elevated permissions (run as administrator).");
+                                    return;
+                                }
                                 //
                                 // delete 
                                 DeleteAppCmd.deleteApp(cpServer, appName);

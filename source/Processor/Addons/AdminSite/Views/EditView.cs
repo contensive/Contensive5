@@ -115,72 +115,107 @@ namespace Contensive.Processor.Addons.AdminSite {
                 bool allowLinkAlias = adminContentTableNameLc.Equals(PageContentModel.tableMetadata.tableNameLower);
                 bool allowPeopleGroups = adminContentTableNameLc.Equals(PersonModel.tableMetadata.tableNameLower); ;
                 //
-                //-----Create edit page
-                if (adminContentTableNameLc.Equals(EmailModel.tableMetadata.tableNameLower)) {
-                    //
-                    LogController.logTrace(core, "getFormEdit, treat as email, adminContentTableNameLower [" + adminContentTableNameLc + "]");
-                    //
-                    // -- email
-                    bool emailSubmitted = false;
-                    bool emailSent = false;
-                    DateTime LastSendTestDate = DateTime.MinValue;
-                    bool AllowEmailSendWithoutTest = (core.siteProperties.getBoolean("AllowEmailSendWithoutTest", false));
-                    if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
-                        LastSendTestDate = GenericController.encodeDate(adminData.editRecord.fieldsLc["lastsendtestdate"].value);
-                    }
-                    if (adminData.adminContent.id.Equals(ContentMetadataModel.getContentId(core, "System Email"))) {
-                        //
-                        LogController.logTrace(core, "getFormEdit, System email");
-                        //
-                        // System Email
-                        emailSubmitted = false;
-                        if (adminData.editRecord.id != 0) {
-                            if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
+                // -- determine buttons
+                // -- these customizations should be included in the content definition
+                switch (adminContentTableNameLc) {
+                    case "ccsystemtextmessages": {
+                            //
+                            // System SMS
+                            bool submitted = false;
+                            bool sent = false;
+                            if (adminData.editRecord.id != 0) {
                                 if (encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value) == 0) {
                                     adminData.editRecord.fieldsLc["testmemberid"].value = core.session.user.id;
                                 }
                             }
+                            editButtonBarInfo.allowSave = userContentPermissions.allowSave && adminData.editRecord.allowUserSave && (!submitted) && (!sent);
+                            editButtonBarInfo.allowSendTest = (!submitted) && (!sent);
+                            break;
                         }
-                        editButtonBarInfo.allowSave = (userContentPermissions.allowSave && adminData.editRecord.allowUserSave && (!emailSubmitted) && (!emailSent));
-                        editButtonBarInfo.allowSendTest = ((!emailSubmitted) && (!emailSent));
-                    } else if (adminData.adminContent.id.Equals(ContentMetadataModel.getContentId(core, "Conditional Email"))) {
-                        //
-                        // Conditional Email
-                        emailSubmitted = false;
-                        editorEnv.record_readOnly = adminData.editRecord.userReadOnly || emailSubmitted;
-                        if (adminData.editRecord.id != 0) {
-                            if (adminData.editRecord.fieldsLc.ContainsKey("submitted")) { emailSubmitted = GenericController.encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value); }
+                    case "ccgrouptextmessages": {
+                            //
+                            // System SMS
+                            bool submitted = false;
+                            bool sent = false;
+                            DateTime LastSendTestDate = DateTime.MinValue;
+                            bool allowSendWithoutTest = core.siteProperties.getBoolean("AllowEmailSendWithoutTest", false);
+                            if (adminData.editRecord.id != 0) {
+                                submitted = encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value);
+                                sent = encodeBoolean(adminData.editRecord.fieldsLc["sent"].value);
+                                LastSendTestDate = encodeDate(adminData.editRecord.fieldsLc["lastsendtestdate"].value);
+                            }
+                            editButtonBarInfo.allowSave = !submitted && (userContentPermissions.allowSave && adminData.editRecord.allowUserSave);
+                            editButtonBarInfo.allowSend = !submitted && ((LastSendTestDate != DateTime.MinValue) || allowSendWithoutTest);
+                            editButtonBarInfo.allowSendTest = !submitted;
+                            editorEnv.record_readOnly = adminData.editRecord.userReadOnly || submitted || sent;
+                            break;
                         }
-                        editButtonBarInfo.allowActivate = !emailSubmitted && ((LastSendTestDate != DateTime.MinValue) || AllowEmailSendWithoutTest);
-                        editButtonBarInfo.allowDeactivate = emailSubmitted;
-                        editButtonBarInfo.allowSave = userContentPermissions.allowSave && adminData.editRecord.allowUserSave && !emailSubmitted;
-                    } else {
-                        //
-                        // Group Email
-                        if (adminData.editRecord.id != 0) {
-                            emailSubmitted = encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value);
-                            emailSent = encodeBoolean(adminData.editRecord.fieldsLc["sent"].value);
+                    case "ccemail": {
+                            //
+                            // -- email
+                            bool emailSubmitted = false;
+                            bool emailSent = false;
+                            DateTime LastSendTestDate = DateTime.MinValue;
+                            bool AllowEmailSendWithoutTest = (core.siteProperties.getBoolean("AllowEmailSendWithoutTest", false));
+                            if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
+                                LastSendTestDate = GenericController.encodeDate(adminData.editRecord.fieldsLc["lastsendtestdate"].value);
+                            }
+                            if (adminData.adminContent.id.Equals(ContentMetadataModel.getContentId(core, "System Email"))) {
+                                //
+                                // System Email
+                                emailSubmitted = false;
+                                if (adminData.editRecord.id != 0) {
+                                    if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
+                                        if (encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value) == 0) {
+                                            adminData.editRecord.fieldsLc["testmemberid"].value = core.session.user.id;
+                                        }
+                                    }
+                                }
+                                editButtonBarInfo.allowSave = (userContentPermissions.allowSave && adminData.editRecord.allowUserSave && (!emailSubmitted) && (!emailSent));
+                                editButtonBarInfo.allowSendTest = ((!emailSubmitted) && (!emailSent));
+                            } else if (adminData.adminContent.id.Equals(ContentMetadataModel.getContentId(core, "Conditional Email"))) {
+                                //
+                                // Conditional Email
+                                emailSubmitted = false;
+                                editorEnv.record_readOnly = adminData.editRecord.userReadOnly || emailSubmitted;
+                                if (adminData.editRecord.id != 0) {
+                                    if (adminData.editRecord.fieldsLc.ContainsKey("submitted")) { emailSubmitted = GenericController.encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value); }
+                                }
+                                editButtonBarInfo.allowActivate = !emailSubmitted && ((LastSendTestDate != DateTime.MinValue) || AllowEmailSendWithoutTest);
+                                editButtonBarInfo.allowDeactivate = emailSubmitted;
+                                editButtonBarInfo.allowSave = userContentPermissions.allowSave && adminData.editRecord.allowUserSave && !emailSubmitted;
+                            } else {
+                                //
+                                // Group Email
+                                if (adminData.editRecord.id != 0) {
+                                    emailSubmitted = encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value);
+                                    emailSent = encodeBoolean(adminData.editRecord.fieldsLc["sent"].value);
+                                }
+                                editButtonBarInfo.allowSave = !emailSubmitted && (userContentPermissions.allowSave && adminData.editRecord.allowUserSave);
+                                editButtonBarInfo.allowSend = !emailSubmitted && ((LastSendTestDate != DateTime.MinValue) || AllowEmailSendWithoutTest);
+                                editButtonBarInfo.allowSendTest = !emailSubmitted;
+                                editorEnv.record_readOnly = adminData.editRecord.userReadOnly || emailSubmitted || emailSent;
+                            }
+                            break;
                         }
-                        editButtonBarInfo.allowSave = !emailSubmitted && (userContentPermissions.allowSave && adminData.editRecord.allowUserSave);
-                        editButtonBarInfo.allowSend = !emailSubmitted && ((LastSendTestDate != DateTime.MinValue) || AllowEmailSendWithoutTest);
-                        editButtonBarInfo.allowSendTest = !emailSubmitted;
-                        editorEnv.record_readOnly = adminData.editRecord.userReadOnly || emailSubmitted || emailSent;
-                    }
-                } else if (adminContentTableNameLc.Equals(PageContentModel.tableMetadata.tableNameLower)) {
-                    //
-                    // Page Content
-                    //
-                    editButtonBarInfo.allowMarkReviewed = true;
-                    editButtonBarInfo.isPageContent = true;
-                    editButtonBarInfo.hasChildRecords = true;
-                    allowLinkAlias = true;
-                } else {
-                    //
-                    // All other tables (User definined)
-                    var pageContentMetadata = ContentMetadataModel.createByUniqueName(core, "page content");
-                    editButtonBarInfo.isPageContent = pageContentMetadata.isParentOf(core, adminData.adminContent.id);
-                    editButtonBarInfo.hasChildRecords = adminData.adminContent.containsField(core, "parentid");
-                    editButtonBarInfo.allowMarkReviewed = core.db.isSQLTableField(adminData.adminContent.tableName, "DateReviewed");
+                    case "ccpagecontent": {
+                            //
+                            // -- Page Content
+                            editButtonBarInfo.allowMarkReviewed = true;
+                            editButtonBarInfo.isPageContent = true;
+                            editButtonBarInfo.hasChildRecords = true;
+                            allowLinkAlias = true;
+                            break;
+                        }
+                    default: {
+                            //
+                            // All other tables (User definined)
+                            var pageContentMetadata = ContentMetadataModel.createByUniqueName(core, "page content");
+                            editButtonBarInfo.isPageContent = pageContentMetadata.isParentOf(core, adminData.adminContent.id);
+                            editButtonBarInfo.hasChildRecords = adminData.adminContent.containsField(core, "parentid");
+                            editButtonBarInfo.allowMarkReviewed = core.db.isSQLTableField(adminData.adminContent.tableName, "DateReviewed");
+                            break;
+                        }
                 }
                 //
                 // Print common form elements
@@ -214,7 +249,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- update page title
                 if (adminData.editRecord.id == 0) {
                     core.html.addTitle("Add " + adminData.adminContent.name);
-                } else if (string.IsNullOrEmpty( adminData.editRecord.nameLc )) {
+                } else if (string.IsNullOrEmpty(adminData.editRecord.nameLc)) {
                     core.html.addTitle("Edit #" + adminData.editRecord.id + " in " + adminData.editRecord.contentControlId_Name);
                 } else {
                     core.html.addTitle("Edit " + adminData.editRecord.nameLc + " in " + adminData.editRecord.contentControlId_Name);

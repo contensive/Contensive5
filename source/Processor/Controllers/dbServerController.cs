@@ -26,7 +26,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 this.core = core;
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -37,7 +37,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <returns>
         /// </returns>
-        public string getConnectionStringADONET()  {
+        public string getConnectionStringADONET() {
             //
             // (OLEDB) OLE DB Provider for SQL Server > "Provider=sqloledb;Data Source=MyServerName;Initial Catalog=MyDatabaseName;User Id=MyUsername;Password=MyPassword;"
             //     https://www.codeproject.com/Articles/2304/ADO-Connection-Strings#OLE%20DB%20SqlServer
@@ -52,7 +52,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 string serverUrl = core.serverConfig.defaultDataSourceAddress;
                 if (serverUrl.IndexOf(":") > 0) {
-                    serverUrl = serverUrl.left( serverUrl.IndexOf(":"));
+                    serverUrl = serverUrl.left(serverUrl.IndexOf(":"));
                 }
                 returnConnString += ""
                     + "server=" + serverUrl + ";"
@@ -65,7 +65,7 @@ namespace Contensive.Processor.Controllers {
                     returnConnString += "Encrypt=yes;";
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnConnString;
@@ -92,23 +92,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="catalogName"></param>
         public void deleteCatalog(string catalogName) {
             try {
-                // -- close connections and drop database
-                string sql = ""
-                    + "\r Use Master"
-                    + "\r Go"
-                    + "\r Declare @dbname sysname"
-                    + "\r Set @dbname = '" + catalogName + "'"
-                    + "\r Declare @spid int"
-                    + "\r Select @spid = min(spid) from master.dbo.sysprocesses"
-                    + "\r where dbid = db_id(@dbname)"
-                    + "\r While @spid Is Not Null"
-                    + "\r Begin"
-                    + "\r  Execute('Kill ' + @spid)"
-                    + "\r  Select @spid = min(spid) from master.dbo.sysprocesses"
-                    + "\r  where dbid = db_id(@dbname) and spid > @spid"
-                    + "\r End"
-                    + "\r drop database app2103141833";
-                executeQuery(sql);
+                //
+                // -- try a simple drop
+                executeQuery("ALTER DATABASE " + catalogName + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE;");
+                executeQuery("DROP DATABASE " + catalogName);
+                return;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -132,7 +120,7 @@ namespace Contensive.Processor.Controllers {
                 returnOk = (dt.Rows.Count > 0);
                 dt.Dispose();
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnOk;
@@ -158,7 +146,7 @@ namespace Contensive.Processor.Controllers {
                 adptSQL.Fill(returnData);
             } catch (Exception ex) {
                 var newEx = new GenericException("Exception [" + ex.Message + "] executing master sql [" + sql + "]", ex);
-                LogController.logError( core,newEx);
+                LogController.logError(core, newEx);
             }
             return returnData;
         }
@@ -196,14 +184,14 @@ namespace Contensive.Processor.Controllers {
         }
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
-        public void Dispose()  {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        ~DbServerController()  {
+        ~DbServerController() {
             Dispose(false);
-            
-            
+
+
         }
         #endregion
     }

@@ -160,7 +160,7 @@ namespace Tests {
                 string ResultLogFilename = "";
                 // act
                 EmailController.queueAdHocEmail(cp.core, "Unit Test", 0, "to@kma.net", "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", ResultLogFilename, true, true, 0, ref sendStatus);
-                Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.ProcessEmailClass();
+                Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.EmailSendTask();
                 addon.Execute(cp);
                 // assert
                 Assert.AreEqual(1, cp.core.mockEmailList.Count);
@@ -196,7 +196,7 @@ namespace Tests {
                 string sendStatus = "";
                 // act
                 Assert.IsTrue(EmailController.tryQueuePersonEmail(cp.core, "Function Test", toPerson, "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", true, true, 0, "", true, ref sendStatus));
-                Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.ProcessEmailClass();
+                Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.EmailSendTask();
                 addon.Execute(cp);
                 // assert
                 Assert.AreEqual(1, cp.core.mockEmailList.Count);
@@ -274,7 +274,7 @@ namespace Tests {
                 int additionalMemberId = 0;
                 string appendedCopy = "";
                 Assert.IsTrue(EmailController.tryQueueSystemEmail(cp.core, systemEmail.name, appendedCopy, additionalMemberId, ref userErrorMessage));
-                Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.ProcessEmailClass();
+                Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.EmailSendTask();
                 addon.Execute(cp);
                 //
                 // assert 2 emails, first the confirmation, then to-address

@@ -533,44 +533,46 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isLocalFileSystem"></param>
         public void deleteFolder(string path, bool isLocalFileSystem) {
             try {
+                //
+                // -- block empty argument. To delete root folder, delete "\"
+                if (string.IsNullOrEmpty(path)) { return; }
+                //
                 string dosPath = normalizeDosPath(path);
-                if (!string.IsNullOrEmpty(dosPath)) {
-                    if (!isLocalFileSystem) {
-                        string remoteUnixPath = joinPath(remotePathPrefix, dosPath).Trim();
-                        if ((remoteUnixPath.Length > 1) && (remoteUnixPath.Substring(0, 1) == "\\")) {
-                            remoteUnixPath = remoteUnixPath.Substring(1);
+                if (!isLocalFileSystem) {
+                    string remoteUnixPath = joinPath(remotePathPrefix, dosPath).Trim();
+                    if ((remoteUnixPath.Length > 1) && (remoteUnixPath.Substring(0, 1) == "\\")) {
+                        remoteUnixPath = remoteUnixPath.Substring(1);
+                    }
+                    if (!string.IsNullOrEmpty(remoteUnixPath)) {
+                        //
+                        // -- get a list of all objects to delete (the delete call does not include prefix)
+                        string unixPath = convertToUnixSlash(joinPath(remotePathPrefix, dosPath));
+                        ListObjectsRequest listrequest = new() {
+                            BucketName = core.serverConfig.awsBucketName,
+                            Prefix = unixPath
+                        };
+                        ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).waitSynchronously();
+                        //
+                        // -- create delete request from object list
+                        DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest {
+                            BucketName = core.serverConfig.awsBucketName
+                        };
+                        foreach (S3Object entry in listResponse.S3Objects) {
+                            deleteRequest.AddKey(entry.Key);
                         }
-                        if (!string.IsNullOrEmpty(remoteUnixPath)) {
-                            //
-                            // -- get a list of all objects to delete (the delete call does not include prefix)
-                            string unixPath = convertToUnixSlash(joinPath(remotePathPrefix, dosPath));
-                            ListObjectsRequest listrequest = new ListObjectsRequest {
-                                BucketName = core.serverConfig.awsBucketName,
-                                Prefix = unixPath
-                            };
-                            ListObjectsResponse listResponse = s3Client.ListObjectsAsync(listrequest).waitSynchronously();
-                            //
-                            // -- create delete request from object list
-                            DeleteObjectsRequest deleteRequest = new DeleteObjectsRequest {
-                                BucketName = core.serverConfig.awsBucketName
-                            };
-                            foreach (S3Object entry in listResponse.S3Objects) {
-                                deleteRequest.AddKey(entry.Key);
-                            }
-                            if (deleteRequest.Objects.Count>0) {
-                                DeleteObjectsResponse deleteResponse = s3Client.DeleteObjectsAsync(deleteRequest).waitSynchronously();
-                            }
+                        if (deleteRequest.Objects.Count > 0) {
+                            DeleteObjectsResponse deleteResponse = s3Client.DeleteObjectsAsync(deleteRequest).waitSynchronously();
                         }
                     }
-                    //
-                    // -- delete local file if local or remote
-                    string localDosAbsPath = joinPath(localAbsRootPath, dosPath);
-                    if (localDosAbsPath.Substring(localDosAbsPath.Length - 1) == "\\") {
-                        localDosAbsPath = localDosAbsPath.left(localDosAbsPath.Length - 1);
-                    }
-                    if (pathExists_local(dosPath)) {
-                        Directory.Delete(localDosAbsPath, true);
-                    }
+                }
+                //
+                // -- delete local file if local or remote
+                string localDosAbsPath = joinPath(localAbsRootPath, dosPath);
+                if (localDosAbsPath.Substring(localDosAbsPath.Length - 1) == "\\") {
+                    localDosAbsPath = localDosAbsPath.left(localDosAbsPath.Length - 1);
+                }
+                if (pathExists_local(dosPath)) {
+                    Directory.Delete(localDosAbsPath, true);
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);

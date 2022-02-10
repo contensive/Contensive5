@@ -721,6 +721,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // Edit Form
                                 //
+                                string tableName = adminData.adminContent.tableName.ToLowerInvariant();
                                 switch (adminData.srcFormButton) {
                                     case ButtonRefresh: {
                                             //
@@ -781,15 +782,48 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             break;
 
                                         }
-
+                                    case ButtonSendTest: {
+                                            if (tableName == "ccemail") {
+                                                //
+                                                // -- Test email
+                                                adminData.admin_Action = Constants.AdminActionSendEmailTest;
+                                                adminData.dstFormId = AdminFormEdit;
+                                                break;
+                                            }
+                                            if (tableName == "ccgrouptextmessages") {
+                                                //
+                                                // -- Test text message
+                                                adminData.admin_Action = Constants.AdminActionSendTextMessageTest;
+                                                adminData.dstFormId = AdminFormEdit;
+                                                break;
+                                            }
+                                            if (tableName == "ccsystemtextmessages") {
+                                                //
+                                                // -- Test text message
+                                                adminData.admin_Action = Constants.AdminActionSendTextMessageTest;
+                                                adminData.dstFormId = AdminFormEdit;
+                                                break;
+                                            }
+                                            break;
+                                        }
                                     case ButtonSend: {
-                                            //
-                                            // Send a Group Email
-                                            //
-                                            adminData.admin_Action = Constants.AdminActionSendEmail;
+                                            if (tableName == "ccemail") {
+                                                //
+                                                // -- Send a Group Email
+                                                adminData.admin_Action = Constants.AdminActionSendEmail;
+                                                adminData.dstFormId = AdminFormEdit;
+                                                break;
+                                            }
+                                            if (tableName == "ccgrouptextmessages") {
+                                                //
+                                                // -- Send a Group Text Message
+                                                adminData.admin_Action = Constants.AdminActionSendTextMessage;
+                                                adminData.dstFormId = AdminFormEdit;
+                                                break;
+                                            }
+                                            adminData.admin_Action = Constants.AdminActionNop;
                                             adminData.dstFormId = AdminFormEdit;
                                             break;
-
                                         }
 
                                     case ButtonActivate: {
@@ -809,14 +843,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             adminData.dstFormId = AdminFormEdit;
                                             break;
 
-                                        }
-                                    case ButtonSendTest: {
-                                            //
-                                            // Test an Email (Group, System, or Conditional)
-                                            //
-                                            adminData.admin_Action = Constants.AdminActionSendEmailTest;
-                                            adminData.dstFormId = AdminFormEdit;
-                                            break;
                                         }
                                     case ButtonCreateDuplicate: {
                                             //

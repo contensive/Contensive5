@@ -35,6 +35,10 @@ namespace Contensive.Models.Db {
         /// </summary>
         public bool allowBulkEmail { get; set; }
         /// <summary>
+        /// if true, text messages can be sent to the person
+        /// </summary>
+        public bool blockTextMessage { get; set; }
+        /// <summary>
         /// enable/disable tool panel
         /// </summary>
         public bool allowToolsPanel { get; set; }
@@ -200,6 +204,44 @@ namespace Contensive.Models.Db {
             using ( DataTable dt = cp.Db.ExecuteQuery(sqlCriteria)) {
                 foreach (DataRow row in dt.Rows ) {
                     result.Add( cp.Utils.EncodeInteger( row["id"]));
+                }
+            }
+            return result;
+        }
+        //
+        //====================================================================================================
+        //
+        public static List<int> createidListForGroupTextMessage(CPBaseClass cp, int textMessageId) {
+            var result = new List<int> { };
+            string sqlCriteria = ""
+                    + " select"
+                    + " u.id as id"
+                    + " "
+                    + " from "
+                    + " (((ccMembers u"
+                    + " left join ccMemberRules mr on mr.memberid=u.id)"
+                    + " left join ccGroups g on g.id=mr.groupid)"
+                    + " left join groupTextMessageId r on r.groupid=g.id)"
+                    + " "
+                    + " where "
+                    + " (r.EmailID=" + textMessageId + ")"
+                    + " and(r.Active<>0)"
+                    + " and(g.Active<>0)"
+                    + " and(mr.Active<>0)"
+                    + " and(u.Active<>0)"
+                    + " and((u.blockTextMessage is null)or(u.blockTextMessage=0))"
+                    + " and((mr.DateExpires is null)OR(mr.DateExpires>" + cp.Db.EncodeSQLDate(DateTime.Now) + ")) "
+                    + " "
+                    + " group by "
+                    + " u.ID, u.Name, u.phone "
+                    + " "
+                    + " having ((u.phone Is Not Null) and(u.phone<>'')) "
+                    + " "
+                    + " order by u.phone,u.ID"
+                    + " ";
+            using (DataTable dt = cp.Db.ExecuteQuery(sqlCriteria)) {
+                foreach (DataRow row in dt.Rows) {
+                    result.Add(cp.Utils.EncodeInteger(row["id"]));
                 }
             }
             return result;

@@ -40,6 +40,8 @@ namespace Contensive.Processor.Addons.AdminSite {
         internal const int AdminActionSavePaths = 13; // Save a record that is in the BathBlocking Format
         internal const int AdminActionSendEmail = 9;
         internal const int AdminActionSendEmailTest = 10;
+        internal const int AdminActionSendTextMessage = 11;
+        internal const int AdminActionSendTextMessageTest = 12;
         internal const int AdminActionNext = 14;
         internal const int AdminActionPrevious = 15;
         internal const int AdminActionFirst = 16;

@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-n menucrm02060926"
+      "commandLineArgs": "-a menucrm0209b --execute \"text message send task\""
     }
   }
 }
