@@ -22,7 +22,10 @@ namespace Contensive.Processor {
         private readonly LastestDateTracker _LatestContentModifiedDate = new LastestDateTracker();
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// construct
+        /// </summary>
+        /// <param name="cp"></param>
         public CPContentClass(CPClass cp) {
             this.cp = cp;
         }

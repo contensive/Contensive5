@@ -80,7 +80,6 @@ namespace Contensive.Models.Db {
         public string notesFilename { get; set; }
         public int organizationId { get; set; }
         public string password { get; set; }
-        public string phone { get; set; }
         public string shipAddress { get; set; }
         public string shipAddress2 { get; set; }
         public string shipCity { get; set; }
@@ -93,10 +92,29 @@ namespace Contensive.Models.Db {
         public string state { get; set; }
         public string thumbnailFilename { get; set; }
         public string thumbnailAltSizeList { get; set; }
-        public string title { get; set; }
         public string username { get; set; }
         public int visits { get; set; }
         public string zip { get; set; }
+        /// <summary>
+        /// contact cell-phone, moved here from ecommerce to support SMS interface
+        /// </summary>
+        public string cellPhone { get; set; }
+        /// <summary>
+        /// content alt-phone, previous phone
+        /// </summary>
+        public string phone { get; set; }
+        /// <summary>
+        /// optional. like CEO or President
+        /// </summary>
+        public string title { get; set; }
+        /// <summary>
+        /// Optional, like Mr, or Ms
+        /// </summary>
+        public string prefix { get; set; }
+        /// <summary>
+        /// optional, like Jr, or Sr
+        /// </summary>
+        public string suffix { get; set; }
         //
         // -- to be deprecated
         public string resumeFilename { get; set; }
@@ -201,9 +219,9 @@ namespace Contensive.Models.Db {
                     + " "
                     + " order by u.Email,u.ID"
                     + " ";
-            using ( DataTable dt = cp.Db.ExecuteQuery(sqlCriteria)) {
-                foreach (DataRow row in dt.Rows ) {
-                    result.Add( cp.Utils.EncodeInteger( row["id"]));
+            using (DataTable dt = cp.Db.ExecuteQuery(sqlCriteria)) {
+                foreach (DataRow row in dt.Rows) {
+                    result.Add(cp.Utils.EncodeInteger(row["id"]));
                 }
             }
             return result;
@@ -211,20 +229,21 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         //
-        public static List<int> createidListForGroupTextMessage(CPBaseClass cp, int textMessageId) {
+        public static List<int> createidListForSystemTextMessage(CPBaseClass cp, int textMessageId) {
             var result = new List<int> { };
+            if (textMessageId == 0) { return result; }
             string sqlCriteria = ""
-                    + " select"
+                    + " select "
                     + " u.id as id"
                     + " "
                     + " from "
                     + " (((ccMembers u"
                     + " left join ccMemberRules mr on mr.memberid=u.id)"
                     + " left join ccGroups g on g.id=mr.groupid)"
-                    + " left join groupTextMessageId r on r.groupid=g.id)"
+                    + " left join ccSystemTextMessageGroupRules r on r.groupid=g.id)"
                     + " "
                     + " where "
-                    + " (r.EmailID=" + textMessageId + ")"
+                    + " (r.systemTextMessageId=" + textMessageId + ")"
                     + " and(r.Active<>0)"
                     + " and(g.Active<>0)"
                     + " and(mr.Active<>0)"
@@ -233,11 +252,11 @@ namespace Contensive.Models.Db {
                     + " and((mr.DateExpires is null)OR(mr.DateExpires>" + cp.Db.EncodeSQLDate(DateTime.Now) + ")) "
                     + " "
                     + " group by "
-                    + " u.ID, u.Name, u.phone "
+                    + " u.ID, u.Name, u.cellPhone "
                     + " "
-                    + " having ((u.phone Is Not Null) and(u.phone<>'')) "
+                    + " having ((u.cellPhone Is Not Null) and(u.cellPhone<>'')) "
                     + " "
-                    + " order by u.phone,u.ID"
+                    + " order by u.cellPhone,u.ID"
                     + " ";
             using (DataTable dt = cp.Db.ExecuteQuery(sqlCriteria)) {
                 foreach (DataRow row in dt.Rows) {

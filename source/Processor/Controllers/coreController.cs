@@ -140,6 +140,18 @@ namespace Contensive.Processor.Controllers {
         //
         //===================================================================================================
         /// <summary>
+        /// Set true and email send adds all text messages to mockTextMessageList
+        /// </summary>
+        public bool mockTextMessages { get; set; }
+        //
+        //===================================================================================================
+        /// <summary>
+        /// In text message mock mode, this list includes all text messages sent
+        /// </summary>
+        public List<MockTextMessageClass> mockTextMessageList { get; set; } = new List<MockTextMessageClass>();
+        //
+        //===================================================================================================
+        /// <summary>
         /// Dictionary of cdef, index by name
         /// </summary>
         internal Dictionary<string, Models.Domain.ContentMetadataModel> metaDataDictionary { get; set; }

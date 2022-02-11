@@ -14,8 +14,7 @@ namespace Contensive.Processor.Addons.AdminSite {
     /// <summary>
     /// Create the List Grid in the List View
     /// </summary>
-    public static class ListGridController
-        {
+    public static class ListGridController {
         //
         //===========================================================================
         /// <summary>
@@ -88,8 +87,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // -- column header includes WherePairCount
                     if (!adminData.wherePair.Count.Equals(0)) {
                         int ptr = 0;
-                        foreach ( var kvp in adminData.wherePair) {
-                            if(!string.IsNullOrWhiteSpace(kvp.Key)) {
+                        foreach (var kvp in adminData.wherePair) {
+                            if (!string.IsNullOrWhiteSpace(kvp.Key)) {
                                 buttonHref.Append("&wl" + ptr + "=" + GenericController.encodeRequestVariable(kvp.Value));
                                 buttonHref.Append("&wr" + ptr + "=" + GenericController.encodeRequestVariable(kvp.Value));
                                 ptr++;
@@ -119,7 +118,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 }
                         }
                     }
-                    if(indexConfig.allowColumnSort) {
+                    if (indexConfig.allowColumnSort) {
                         buttonFace = HtmlController.a(buttonFace, new CPBase.BaseModels.HtmlAttributesA {
                             title = SortTitle,
                             href = buttonHref.ToString(),
@@ -136,7 +135,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- generic admin url for edit and add links
                 string adminEditPresetArgQsList = "";
                 string adminUrlBase = "\\" + core.appConfig.adminRoute + "?" + rnAdminAction + "=" + Constants.AdminActionNop + "&cid=" + adminData.adminContent.id + "&" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(adminData.editViewTitleSuffix) + "&" + rnAdminSourceForm + "=" + adminData.dstFormId + "&" + rnAdminForm + "=" + AdminFormEdit;
-                if(!adminData.wherePair.Count.Equals(0)) {
+                if (!adminData.wherePair.Count.Equals(0)) {
                     int WhereCount = 0;
                     foreach (var kvp in adminData.wherePair) {
                         adminEditPresetArgQsList += "&" + encodeRequestVariable(kvp.Key) + "=" + GenericController.encodeRequestVariable(kvp.Value);
@@ -183,13 +182,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // --- field columns
                             foreach (var column in indexConfig.columns) {
                                 string columnNameLc = column.Name.ToLowerInvariant();
-                                if (FieldUsedInColumns.ContainsKey(columnNameLc)) {
-                                    if (FieldUsedInColumns[columnNameLc]) {
-                                        dataTableRows.Append((Environment.NewLine + "<td valign=\"middle\" " + rowColor + " align=\"left\">" + SpanClassAdminNormal));
-                                        dataTableRows.Append(getGridCell(core, adminData, column.Name, csData, IsLookupFieldValid[columnNameLc]));
-                                        dataTableRows.Append(("&nbsp;</span></td>"));
-                                    }
+                                dataTableRows.Append((Environment.NewLine + "<td valign=\"middle\" " + rowColor + " align=\"left\">" + SpanClassAdminNormal));
+                                if ((FieldUsedInColumns.ContainsKey(columnNameLc)) && (FieldUsedInColumns[columnNameLc])) {
+                                    //
+                                    // -- field can be displayed
+                                    dataTableRows.Append(getGridCell(core, adminData, column.Name, csData, IsLookupFieldValid[columnNameLc]));
+                                } else {
+                                    //
+                                    // -- field cannot be displayed
+                                    dataTableRows.Append("(invalid column)");
                                 }
+                                dataTableRows.Append(("&nbsp;</span></td>"));
                             }
                             dataTableRows.Append(("\n    </tr>"));
                             csData.goNext();

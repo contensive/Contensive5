@@ -305,6 +305,19 @@ namespace Contensive.Processor {
         //
         //=========================================================================================================
         /// <summary>
+        /// manage time for user's, the primary business location and secondary locations
+        /// </summary>
+        public override CPDateBaseClass Date {
+            get {
+                if (_Date != null) { return _Date; }
+                _Date = new CPDateClass(this);
+                return _Date;
+            }
+        }
+        private CPDateClass _Date;
+        //
+        //=========================================================================================================
+        /// <summary>
         /// Properties and methods helpful in access the database
         /// </summary>
         public override CPDbBaseClass Db {

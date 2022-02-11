@@ -11,7 +11,7 @@ namespace Tests {
             string appPoolName = "testAppPool";
             using (ServerManager serverManager = new ServerManager()) {
                 // act
-                using (CPClass cp = new CPClass()) {
+                using (CPClass cp = new()) {
                     cp.core.webServer.verifyAppPool(appPoolName);
                 }
             }

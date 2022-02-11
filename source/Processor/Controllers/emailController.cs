@@ -81,7 +81,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="email"></param>
         /// <param name="returnUserWarning"></param>
         /// <returns></returns>
-        public static bool tryVerifyEmail(CoreController core, EmailSendDomainModel email, ref string returnUserWarning) {
+        public static bool tryVerifyEmail(CoreController core, EmailSendRequest email, ref string returnUserWarning) {
             try {
                 if (!verifyEmailAddress(core, email.toAddress)) {
                     //
@@ -186,7 +186,7 @@ namespace Contensive.Processor.Controllers {
                     string subjectRendered = encodeEmailTextBody(core, false, subject, null);
                     string htmlBody = encodeEmailHtmlBody(core, isHTML, body, "", subject, null, "", false);
                     string textBody = encodeEmailTextBody(core, isHTML, body, null);
-                    queueEmail(core, isImmediate, emailContextMessage, new EmailSendDomainModel {
+                    queueEmail(core, isImmediate, emailContextMessage, new EmailSendRequest {
                         attempts = 0,
                         bounceAddress = bounceAddress,
                         fromAddress = fromAddress,
@@ -251,7 +251,7 @@ namespace Contensive.Processor.Controllers {
                             + ((!string.IsNullOrWhiteSpace(recipient.lastName) && !recipient.lastName.ToLower().Equals("guest")) ? recipient.lastName : string.Empty);
                     }
                     recipientName = recipientName.Trim();
-                    var email = new EmailSendDomainModel {
+                    var email = new EmailSendRequest {
                         attempts = 0,
                         bounceAddress = bounceAddress,
                         emailId = emailId,
@@ -826,7 +826,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="immediate"></param>
         /// <param name="email"></param>
         /// <param name="emailContextMessage">A short description of the email (Conditional Email, Group Email, Confirmation for Group Email, etc.)</param>
-        private static void queueEmail(CoreController core, bool immediate, string emailContextMessage, EmailSendDomainModel email) {
+        private static void queueEmail(CoreController core, bool immediate, string emailContextMessage, EmailSendRequest email) {
             try {
                 var emailQueue = EmailQueueModel.addEmpty<EmailQueueModel>(core.cpParent);
                 emailQueue.name = emailContextMessage;
@@ -871,7 +871,7 @@ namespace Contensive.Processor.Controllers {
                             // -- this queue record is not shared with another process, send it
                             DbBaseModel.delete<EmailQueueModel>(core.cpParent, targetQueueRecord.id);
                             int emailDropId = 0;
-                            EmailSendDomainModel emailData = DeserializeObject<EmailSendDomainModel>(targetQueueRecord.content);
+                            EmailSendRequest emailData = DeserializeObject<EmailSendRequest>(targetQueueRecord.content);
                             List<EmailDropModel> DropList = DbBaseModel.createList<EmailDropModel>(core.cpParent, "(emailId=" + emailData.emailId + ")", "id desc");
                             if (DropList.Count > 0) {
                                 emailDropId = DropList.First().id;

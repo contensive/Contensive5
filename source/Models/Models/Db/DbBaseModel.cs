@@ -1450,14 +1450,16 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// Delete a selection of records
+        /// Delete a selection of records. sqlCriteria is required and cannot be blank
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
         /// <param name="sqlCriteria"></param>
         public static void deleteRows<T>(CPBaseClass cp, string sqlCriteria) where T : DbBaseModel {
             try {
-                if (string.IsNullOrEmpty(sqlCriteria)) { return; }
+                if (string.IsNullOrEmpty(sqlCriteria)) { 
+                    throw new ArgumentException("deleteRows cannot be called with a blank sqlCriteria."); 
+                }
                 cp.Db.DeleteRows(derivedTableName(typeof(T)), sqlCriteria);
                 invalidateCacheOfTable<T>(cp);
             } catch (Exception ex) {

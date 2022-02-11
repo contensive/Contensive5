@@ -1,5 +1,6 @@
 ﻿
 using Contensive.BaseClasses;
+using Contensive.Processor.Models.Domain;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -10,19 +11,26 @@ namespace Contensive.Processor.Controllers {
         /// send SMS text messages
         /// </summary>
         /// <returns></returns>
-        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content) {
+        public static bool sendMessage(CoreController core, TextMessageSendRequest textMessageRequest) {
             try {
-                int providerId = cp.Site.GetInteger("SMS Provider Id", 0);
+                if (core.mockTextMessages) {
+                    //
+                    // -- for unit tests, mock interface by adding to list
+                    core.mockTextMessageList.Add(new MockTextMessageClass {
+                        textMessageRequest = textMessageRequest
+                    });
+                    return true;
+                }
+
+                int providerId = core.cpParent.Site.GetInteger("SMS Provider Id", 0);
                 if (providerId.Equals(1)) {
-                    return TwillioSmsController.sendMessage(cp, phoneNumber, content);
+                    return TwillioSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody);
                 }
-                if (providerId.Equals(2)) {
-                    return AwsSmsController.sendMessage(cp, phoneNumber, content);
-                }
-                cp.Site.ErrorReport("No sms provider selected");
-                return false;
+                //
+                // -- default to AWS (provider id 2)
+                return AwsSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody);
             } catch (System.Exception ex) {
-                cp.Site.ErrorReport(ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }

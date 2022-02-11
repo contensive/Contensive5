@@ -11,7 +11,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Send email by SMTP. return 'ok' if success, else return a user compatible error message
         /// </summary>
-        public static bool send(CoreController core, EmailSendDomainModel email, ref string returnErrorMessage) {
+        public static bool send(CoreController core, EmailSendRequest email, ref string returnErrorMessage) {
             bool status = false;
             returnErrorMessage = "";
             try {

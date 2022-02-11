@@ -18,11 +18,11 @@ namespace Tests {
                 //
                 // arrange, now = 1/1/2020 at 12:00 am
                 cp.core.mockEmail = true;
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
-                DbBaseModel.deleteRows<TaskModel>(cp, "");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "");
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 cp.core.mockDateTimeNow(new DateTime(2020, 1, 1, 0, 0, 0));
                 //
@@ -93,11 +93,11 @@ namespace Tests {
                 Assert.AreEqual(0, EmailController.processConditionalEmail(cp.core));
                 //
                 // -- cleanup
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
-                DbBaseModel.deleteRows<TaskModel>(cp, "");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "");
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
             }
         }
         //
@@ -105,11 +105,11 @@ namespace Tests {
         public void controllers_Email_GetBlockedList_test1() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
-                DbBaseModel.deleteRows<TaskModel>(cp, "");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "");
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
@@ -127,11 +127,11 @@ namespace Tests {
         public void controllers_Email_VerifyEmailAddress_test1() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
-                DbBaseModel.deleteRows<TaskModel>(cp, "");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "");
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 // act
@@ -148,11 +148,11 @@ namespace Tests {
         public void controllers_Email_queueAdHocEmail_test1() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
-                DbBaseModel.deleteRows<TaskModel>(cp, "");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "");
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 string body = GenericController.getRandomInteger(cp.core).ToString();
@@ -179,11 +179,11 @@ namespace Tests {
         public void controllers_Email_queuePersonEmail_test1() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
-                DbBaseModel.deleteRows<TaskModel>(cp, "");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "");
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 string body = GenericController.getRandomInteger(cp.core).ToString();
@@ -225,11 +225,11 @@ namespace Tests {
         public void controllers_Email_queueSystemEmail_test1() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "");
-                DbBaseModel.deleteRows<TaskModel>(cp, "");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "");
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
                 string htmlBody = "a<b>1</b><br>2<p>3</p><div>4</div>";

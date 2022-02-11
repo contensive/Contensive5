@@ -13,6 +13,9 @@ namespace Contensive.BaseClasses {
         /// <param name="smsMessage"></param>
         /// <returns></returns>
         public abstract bool Send(string smsPhoneNumber, string smsMessage);
+        //
+        //==========================================================================================
+        public abstract bool SendSystem(string systemTextMessageGuid, string additionalCopy, int additionalUserID);
     }
 }
 

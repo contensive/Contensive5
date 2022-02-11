@@ -127,6 +127,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                     if (csData.getDate("ScheduleDate") == DateTime.MinValue) {
                                                         csData.set("ScheduleDate", cp.core.doc.profileStartTime);
                                                     }
+                                                    //
+                                                    // -- force a sent task process
+                                                    cp.Addon.ExecuteAsProcess(addonGuidEmailSendTask);
                                                 }
                                             }
                                         }
@@ -155,6 +158,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                     // -- if there were no errors, and the table supports lastsendtestdate, update it
                                                     adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
                                                     db.executeQuery("update ccemail Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                                    //
+                                                    // -- force a sent task process
+                                                    cp.Addon.ExecuteAsProcess(addonGuidEmailSendTask);
                                                 }
                                             }
                                         }
@@ -174,13 +180,26 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         //
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             //
-                                            
-                                            int EmailToConfirmationMemberId =  GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value);
-                                            EmailController.queueConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
-                                            //
-                                            // -- if there were no errors, and the table supports lastsendtestdate, update it
-                                            adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
-                                            db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                            PersonModel recipient = DbBaseModel.create<PersonModel>(cp, GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value));
+                                            if ( recipient == null ) {
+                                                ErrorController.addUserError(cp.core, "The test text message could not be sent because the 'Send Confirmation To' selection is not valid.");
+                                            } else {
+                                                string textBody = encodeText(adminData.editRecord.fieldsLc["body"].value);
+                                                int  textMessageId = adminData.editRecord.id;
+                                                string userErrorMessage = "";
+                                                TextMessageController.queuePersonTextMessage(cp.core, recipient, textBody, true, adminData.editRecord.id, ref userErrorMessage , "Admin Send Test" );
+                                                if (!string.IsNullOrEmpty(userErrorMessage)) {
+                                                    ErrorController.addUserError(cp.core, "There was an error sending the test text message [" + userErrorMessage + "]");
+                                                } else {
+                                                    //
+                                                    // -- if there were no errors, and the table supports lastsendtestdate, update it
+                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
+                                                    db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                                    //
+                                                    // -- force a sent task process
+                                                    cp.Addon.ExecuteAsProcess(addonGuidTextMessageSendTask);
+                                                }
+                                            }
                                         }
                                     }
                                     // convert so action can be used in as a refresh
@@ -198,6 +217,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             GroupTextMessageModel.setSubmitted(cp, adminData.editRecord.id);
+                                            //
+                                            // -- force a sent task process
+                                            cp.Addon.ExecuteAsProcess(addonGuidTextMessageSendTask);
                                         }
                                     }
                                     adminData.admin_Action = Constants.AdminActionNop;

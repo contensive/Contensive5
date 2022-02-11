@@ -86,8 +86,8 @@ namespace Tests {
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
                 core.session.verifyUser();
-                DbBaseModel.deleteRows<GroupModel>(cp, "");
-                DbBaseModel.deleteRows<MemberRuleModel>(cp, "");
+                DbBaseModel.deleteRows<GroupModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<MemberRuleModel>(cp, "(1=1)");
                 GroupController.add(core, "Group1");
                 //
                 // act - add current use to new group
@@ -111,8 +111,8 @@ namespace Tests {
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
                 core.session.verifyUser();
-                DbBaseModel.deleteRows<GroupModel>(cp, "");
-                DbBaseModel.deleteRows<MemberRuleModel>(cp, "");
+                DbBaseModel.deleteRows<GroupModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<MemberRuleModel>(cp, "(1=1)");
                 GroupController.add(core, "GroupInclude");
                 GroupModel groupToInclude = DbBaseModel.createByUniqueName<GroupModel>(cp, "GroupInclude");
                 GroupController.add(core, "GroupExclude");
@@ -151,8 +151,8 @@ namespace Tests {
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
                 core.session.verifyUser();
-                DbBaseModel.deleteRows<GroupModel>(cp, "");
-                DbBaseModel.deleteRows<MemberRuleModel>(cp, "");
+                DbBaseModel.deleteRows<GroupModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<MemberRuleModel>(cp, "(1=1)");
                 GroupController.add(core, "Group1");
                 GroupModel group = DbBaseModel.createByUniqueName<GroupModel>(cp, "Group1");
                 PersonModel user = DbBaseModel.addEmpty<PersonModel>(cp);

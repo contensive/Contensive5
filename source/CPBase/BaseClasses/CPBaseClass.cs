@@ -98,6 +98,15 @@ namespace Contensive.BaseClasses {
         /// <value></value>
         /// <returns></returns>
         /// <remarks></remarks>
+        public abstract CPDateBaseClass Date { get; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// The Db object handles direct access to the Database. The ContentSet functions in the CPCSBaseClass are prefered for general use. See the CPDBBaseClass for more details.
+        /// </summary>
+        /// <value></value>
+        /// <returns></returns>
+        /// <remarks></remarks>
         public abstract CPDbBaseClass Db { get; }
         //
         //====================================================================================================
