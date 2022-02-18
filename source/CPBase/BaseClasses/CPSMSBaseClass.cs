@@ -7,7 +7,7 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// Send an text message with SMS to the phone numnber
+        /// Send an text message with SMS to the phone numnber.
         /// </summary>
         /// <param name="smsPhoneNumber"></param>
         /// <param name="smsMessage"></param>
@@ -15,6 +15,13 @@ namespace Contensive.BaseClasses {
         public abstract bool Send(string smsPhoneNumber, string smsMessage);
         //
         //==========================================================================================
+        /// <summary>
+        /// Send s system text message
+        /// </summary>
+        /// <param name="systemTextMessageGuid"></param>
+        /// <param name="additionalCopy"></param>
+        /// <param name="additionalUserID"></param>
+        /// <returns></returns>
         public abstract bool SendSystem(string systemTextMessageGuid, string additionalCopy, int additionalUserID);
     }
 }

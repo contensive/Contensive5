@@ -77,14 +77,15 @@ namespace Contensive.Processor.Properties {
         /// <summary>
         ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid ccBodyAdmin ccCon&quot;&gt;
         ///    {{{adminExceptions}}}
-        ///    {{{adminHeader}}}
+        ///    &lt;nav class=&quot;navbar navbar-expand-md navbar-dark bg-dark&quot;&gt;
+        ///        &lt;a class=&quot;navbar-brand&quot; href=&quot;/&quot;&gt;{{{navBrand}}}&lt;/a&gt;
+        ///        &lt;div class=&quot;navbar-text mr-auto&quot;&gt;{{{leftSideMessage}}}&lt;/div&gt;
+        ///        &lt;div class=&quot;navbar-text ml-auto&quot;&gt;{{{rightSideMessage}}}&lt;/div&gt;
+        ///        {{{rightSideNavHtml}}}
+        ///    &lt;/nav&gt;
         ///    &lt;table border=0 cellpadding=0 cellspacing=0&gt;
         ///        &lt;tr&gt;
-        ///            &lt;td class=&quot;ccToolsCon&quot; valign=top&gt;{{{adminNav}}}&lt;/td&gt;
-        ///            &lt;td class=&quot;ccContentCon&quot; valign=top id=&quot;desktop&quot;&gt;{{{adminContent}}}&lt;/td&gt;
-        ///        &lt;/tr&gt;
-        ///    &lt;/table&gt;
-        ///&lt;/div&gt;.
+        ///            &lt;td class=&quot;ccToolsCon&quot; valign=top&gt;{{{adminNav}}}&lt;/t [rest of string was truncated]&quot;;.
         /// </summary>
         public static string AdminSiteLayoutBackup {
             get {
@@ -114,7 +115,7 @@ namespace Contensive.Processor.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to 
-        ///&lt;html&gt;
+        ///&lt;html lang=\&quot;en-US\&quot;&gt;
         ///&lt;head&gt;
         ///    &lt;title&gt;Future emails have been blocked&lt;/title&gt;
         ///&lt;/head&gt;

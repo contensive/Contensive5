@@ -177,6 +177,11 @@ namespace Contensive.BaseClasses {
             /// </summary>
             /// <returns></returns>
             public bool personalizationAuthenticated { get; set; }
+            ///// <summary>
+            ///// A stack of addon ids that were called to get to this one. No addon is allowed to be in this list twice
+            ///// If addon 1 is dependent on addon 2, which is dependent on addon 3, and we execute addon 3, it would have 3, then 2, then 1
+            ///// </summary>
+            public Stack<int> dependencyRecursionTestStack { get; set; } = new();
         }
         //
         //====================================================================================================

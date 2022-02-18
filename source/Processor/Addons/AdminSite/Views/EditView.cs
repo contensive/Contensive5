@@ -184,6 +184,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 editButtonBarInfo.allowActivate = !emailSubmitted && ((LastSendTestDate != DateTime.MinValue) || AllowEmailSendWithoutTest);
                                 editButtonBarInfo.allowDeactivate = emailSubmitted;
                                 editButtonBarInfo.allowSave = userContentPermissions.allowSave && adminData.editRecord.allowUserSave && !emailSubmitted;
+                                editButtonBarInfo.allowSendTest = !emailSubmitted;
                             } else {
                                 //
                                 // Group Email

@@ -70,7 +70,7 @@ namespace Contensive.Processor.Controllers.Tests {
             DbBaseModel.delete<AddonModel>(cp, a.id);
         }
         /// <summary>
-        /// dependency addon only executes once per document
+        /// execute dependency test
         /// </summary>
         [TestMethod()]
         public void executeDependencyTest() {
@@ -85,6 +85,74 @@ namespace Contensive.Processor.Controllers.Tests {
             Assert.IsTrue(result.Contains(testString));
             Assert.IsFalse(result.Contains(testString + testString));
             DbBaseModel.delete<AddonModel>(cp, a.id);
+        }
+        /// <summary>
+        /// addon rule, a dependent addon is runs first
+        /// </summary>
+        [TestMethod()]
+        public void executeDependency_addonIncludeRule_Test() {
+            using CPClass cp = new(testAppName);
+            //
+            var a = DbBaseModel.addDefault<AddonModel>(cp);
+            string aTestString = cp.Utils.CreateGuid();
+            a.name = "a test addon";
+            a.copyText = aTestString;
+            a.save(cp);
+            //
+            var b = DbBaseModel.addDefault<AddonModel>(cp);
+            string bTestString = cp.Utils.CreateGuid();
+            b.name = "b test addon";
+            b.copyText = bTestString;
+            b.save(cp);
+            //
+            var rule = DbBaseModel.addDefault<AddonIncludeRuleModel>(cp);
+            rule.addonId = a.id;
+            rule.includedAddonId = b.id;
+            rule.save(cp);
+            //
+            string result = cp.core.addon.execute(a, new CPUtilsBaseClass.addonExecuteContext { });
+            DbBaseModel.delete<AddonModel>(cp, a.id);
+            DbBaseModel.delete<AddonModel>(cp, b.id);
+            //
+            Assert.AreEqual(bTestString + aTestString, result);
+
+        }
+        /// <summary>
+        /// dependency recursion is blocked
+        /// </summary>
+        [TestMethod()]
+        public void executeDependency_blockRecursion_Test() {
+            using CPClass cp = new(testAppName);
+            //
+            var a = DbBaseModel.addDefault<AddonModel>(cp);
+            string aTestString = cp.Utils.CreateGuid();
+            a.name = "a test addon";
+            a.copyText = aTestString;
+            a.save(cp);
+            //
+            var b = DbBaseModel.addDefault<AddonModel>(cp);
+            string bTestString = cp.Utils.CreateGuid();
+            b.name = "b test addon";
+            b.copyText = bTestString;
+            b.save(cp);
+            //
+            var rule1 = DbBaseModel.addDefault<AddonIncludeRuleModel>(cp);
+            rule1.addonId = a.id;
+            rule1.includedAddonId = b.id;
+            rule1.save(cp);
+            //
+            // -- create loop
+            var rule2 = DbBaseModel.addDefault<AddonIncludeRuleModel>(cp);
+            rule2.addonId = b.id;
+            rule2.includedAddonId = a.id;
+            rule2.save(cp);
+            //
+            string result = cp.core.addon.execute(a, new CPUtilsBaseClass.addonExecuteContext { });
+            DbBaseModel.delete<AddonModel>(cp, a.id);
+            DbBaseModel.delete<AddonModel>(cp, b.id);
+            //
+            Assert.AreEqual(bTestString + aTestString, result);
+
         }
         /// <summary>
         /// execute addon by guid

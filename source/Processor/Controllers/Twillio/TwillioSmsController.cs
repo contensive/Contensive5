@@ -15,18 +15,18 @@ namespace Contensive.Processor.Controllers {
         /// <param name="phoneNumber">phone number formatted +11234567890. Other characters are removed</param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content)
-            => sendMessage(cp, phoneNumber, content, false);
+        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, ref string userError)
+            => sendMessage(cp, phoneNumber, content, false, ref userError);
         //
         /// <summary>
         /// Send an SMS text or html message through Twillio. Html messages are converted to text.
         /// </summary>
         /// <param name="cp"></param>
-        /// <param name="phoneNumber">phone number formatted +11234567890. Other characters are removed</param>
-        /// <param name="content"></param>
+        /// <param name="phoneNumber">phone number formatted +11234567890. Other characters are removed. must be a valid phone number. cannot be blank.</param>
+        /// <param name="content">cannot be blank.</param>
         /// <param name="contentIsHtml"></param>
         /// <returns></returns>
-        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, bool contentIsHtml) {
+        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, bool contentIsHtml, ref string userError) {
             try {
                 //
                 // -- argument check
@@ -74,9 +74,13 @@ namespace Contensive.Processor.Controllers {
                 TwilioClient.Init(accountSid, authToken);
                 MessageResource.Create(new PhoneNumber(normalizedPhoneNumber), accountSid, from: new PhoneNumber(twilioPhoneNumber), null, normalizedContent);
                 return true;
+            } catch (Twilio.Exceptions.ApiException ex) {
+                userError = ex.Message;
+                return false;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                throw;
+                userError = "Unexpected exception sending Text Message [" + ex.ToString() + "]";
+                return false;
             }
         }
     }

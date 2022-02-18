@@ -13,8 +13,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="phoneNumber">phone number formatted +11234567890. Other characters are removed</param>
         /// <param name="content"></param>
         /// <returns></returns>
-        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content)
-            => sendMessage(cp, phoneNumber, content, false);
+        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, ref string userError)
+            => sendMessage(cp, phoneNumber, content, false, ref userError);
         //
         /// <summary>
         /// Send an SMS text or html message through AWS. Html messages are converted to text.
@@ -24,7 +24,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="content"></param>
         /// <param name="contentIsHtml"></param>
         /// <returns></returns>
-        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, bool contentIsHtml) {
+        public static bool sendMessage(CPBaseClass cp, string phoneNumber, string content, bool contentIsHtml, ref string userError) {
             try {
                 //
                 // -- argument check
@@ -62,8 +62,10 @@ namespace Contensive.Processor.Controllers {
                 request.MessageAttributes["AWS.SNS.SMS.SMSType"] = new MessageAttributeValue { StringValue = "Transactional", DataType = "String" };
 #if NET472
                 PublishResponse awsResponse = snsClient.Publish(request);
+                userError = "";
                 return true;
 #else
+                userError = "Core AWS Text Message not implemented";
                 return false;
 #endif
             } catch (Exception ex) {

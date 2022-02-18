@@ -38,13 +38,14 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override bool Send(string smsPhoneNumber, string smsMessage) {
             try {
+                string userError = "";
                 return SmsController.sendMessage(cp.core, new TextMessageSendRequest {
                     textBody = smsMessage,
                     toPhone = smsPhoneNumber,
                     attempts = 0,
                     textMessageId = 0,
                     toMemberId = 0
-                });
+                }, ref userError);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

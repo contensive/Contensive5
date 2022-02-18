@@ -90,11 +90,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="ContensiveDbModels, Version=4.1.2.0, Culture=neutral, PublicKeyToken=c014b235a9c6bb22">
-      <HintPath>..\packages\Contensive.DbModels.22.2.11.2\lib\net472\ContensiveDbModels.dll</HintPath>
+      <HintPath>..\packages\Contensive.DbModels.22.2.17.2\lib\net472\ContensiveDbModels.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CPBase, Version=4.1.2.0, Culture=neutral, PublicKeyToken=10b3c53389b845fb">
-      <HintPath>..\packages\Contensive.CPBaseClass.22.2.11.2\lib\net472\CPBase.dll</HintPath>
+      <HintPath>..\packages\Contensive.CPBaseClass.22.2.17.2\lib\net472\CPBase.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Enyim.Caching, Version=2.16.0.0, Culture=neutral, PublicKeyToken=cec98615db04012e, processorArchitecture=MSIL">
@@ -185,8 +185,8 @@
       <HintPath>..\packages\Pipelines.Sockets.Unofficial.2.2.0\lib\net472\Pipelines.Sockets.Unofficial.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Processor, Version=22.2.11.2, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
-      <HintPath>..\packages\Contensive.Processor.22.2.11.2\lib\net472\Processor.dll</HintPath>
+    <Reference Include="Processor, Version=22.2.17.2, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
+      <HintPath>..\packages\Contensive.Processor.22.2.17.2\lib\net472\Processor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SixLabors.ImageSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13">
@@ -312,7 +312,9 @@
     <Error Condition="!Exists('..\packages\Microsoft.ClearScript.V8.ICUData.7.1.7\build\Microsoft.ClearScript.V8.ICUData.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ClearScript.V8.ICUData.7.1.7\build\Microsoft.ClearScript.V8.ICUData.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.ClearScript.V8.Native.win-x64.7.1.7\build\Microsoft.ClearScript.V8.Native.win-x64.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ClearScript.V8.Native.win-x64.7.1.7\build\Microsoft.ClearScript.V8.Native.win-x64.props'))" />
     <Error Condition="!Exists('..\packages\Microsoft.ClearScript.V8.Native.win-x86.7.1.7\build\Microsoft.ClearScript.V8.Native.win-x86.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.ClearScript.V8.Native.win-x86.7.1.7\build\Microsoft.ClearScript.V8.Native.win-x86.props'))" />
+    <Error Condition="!Exists('..\packages\StrongNamer.0.2.5\build\StrongNamer.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\StrongNamer.0.2.5\build\StrongNamer.targets'))" />
   </Target>
   <Import Project="..\packages\MSTest.TestAdapter.2.1.0\build\net45\MSTest.TestAdapter.targets" Condition="Exists('..\packages\MSTest.TestAdapter.2.1.0\build\net45\MSTest.TestAdapter.targets')" />
   <Import Project="..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('..\packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
+  <Import Project="..\packages\StrongNamer.0.2.5\build\StrongNamer.targets" Condition="Exists('..\packages\StrongNamer.0.2.5\build\StrongNamer.targets')" />
 </Project>

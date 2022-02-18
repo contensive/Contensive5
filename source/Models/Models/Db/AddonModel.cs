@@ -162,5 +162,15 @@ namespace Contensive.Models.Db {
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// set an addon execute in the next few seconds
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="addonGuid"></param>
+        public static void setRunNow(CPBaseClass cp, string addonGuid) {
+            cp.Db.ExecuteNonQuery("update ccaggregatefunctions set processRunOnce=1 where ccguid=" + cp.Db.EncodeSQLText(addonGuid));
+        }
     }
 }

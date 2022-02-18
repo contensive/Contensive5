@@ -160,6 +160,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                     db.executeQuery("update ccemail Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
                                                     //
                                                     // -- force a sent task process
+                                                    AddonModel.setRunNow(cp, addonGuidEmailSendTask);
                                                     cp.Addon.ExecuteAsProcess(addonGuidEmailSendTask);
                                                 }
                                             }

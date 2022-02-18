@@ -11,7 +11,7 @@ namespace Contensive.Processor.Controllers {
         /// send SMS text messages
         /// </summary>
         /// <returns></returns>
-        public static bool sendMessage(CoreController core, TextMessageSendRequest textMessageRequest) {
+        public static bool sendMessage(CoreController core, TextMessageSendRequest textMessageRequest, ref string userError) {
             try {
                 if (core.mockTextMessages) {
                     //
@@ -24,11 +24,11 @@ namespace Contensive.Processor.Controllers {
 
                 int providerId = core.cpParent.Site.GetInteger("SMS Provider Id", 0);
                 if (providerId.Equals(1)) {
-                    return TwillioSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody);
+                    return TwillioSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody, ref userError);
                 }
                 //
                 // -- default to AWS (provider id 2)
-                return AwsSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody);
+                return AwsSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody, ref userError);
             } catch (System.Exception ex) {
                 LogController.logError(core, ex);
                 throw;

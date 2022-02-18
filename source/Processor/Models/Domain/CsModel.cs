@@ -1471,7 +1471,7 @@ namespace Contensive.Processor {
                         //
                         // -- unique violation
                         if (dtRecords.Rows.Count > 0) {
-                            LogController.logDebug(core, "Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]");
+                            LogController.logError(core, new ApplicationException("Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]"));
                             return;
                         }
                     }
@@ -1714,71 +1714,69 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <param name="requestName"></param>
         public void setFormInput(CoreController core, string fieldName, string requestName) {
-            if (!ok()) {
-                throw new GenericException("Data is invalid, empty, or end-of-file");
-            } else if (string.IsNullOrEmpty(fieldName.Trim(' '))) {
-                throw new GenericException("FieldName is invalid or blank");
-            } else {
-                string LocalRequestName = requestName;
-                if (string.IsNullOrEmpty(LocalRequestName)) {
-                    LocalRequestName = fieldName;
-                }
-                switch (getFieldTypeId(fieldName)) {
-                    case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                            //
-                            // -- Boolean
-                            set(fieldName, core.docProperties.getBoolean(LocalRequestName));
-                            break;
-                        }
-                    case CPContentBaseClass.FieldTypeIdEnum.Currency:
-                    case CPContentBaseClass.FieldTypeIdEnum.Float:
-                    case CPContentBaseClass.FieldTypeIdEnum.Integer:
-                    case CPContentBaseClass.FieldTypeIdEnum.Lookup:
-                    case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
-                            //
-                            // -- Numbers
-                            set(fieldName, core.docProperties.getNumber(LocalRequestName));
-                            break;
-                        }
-                    case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                            //
-                            // -- Date
-                            set(fieldName, core.docProperties.getDate(LocalRequestName));
-                            break;
-                        }
-                    case CPContentBaseClass.FieldTypeIdEnum.File:
-                    case CPContentBaseClass.FieldTypeIdEnum.FileImage: {
-                            //
-                            // -- upload file
-                            if (core.docProperties.containsKey(LocalRequestName)) {
-                                var docProperty = core.docProperties.getProperty(LocalRequestName);
-                                string filename = docProperty.value;
-                                //
-                                // -- make filename compatible with dos and unix
-                                filename = FileController.encodeDosFilename(filename);
-                                filename = FileController.encodeUnixFilename(filename);
-                                //
-                                string unixPathFilename = getFilename(fieldName, filename);
-                                string dosPathFilename = FileController.convertToDosSlash(unixPathFilename);
-                                string dosPath = FileController.getPath(dosPathFilename);
-                                //
-                                // -- copy windowsTemp file to cdnFiles and force upload
-                                var WindowsTempFiles = new FileController(core, System.IO.Path.GetTempPath());
-                                WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dosPathFilename, core.cdnFiles);
-                                core.cdnFiles.upload(fieldName, dosPath, ref filename);
-                                //
-                                // -- update record with unix pathFilename to saved uploaded file
-                                set(fieldName, unixPathFilename);
-                            }
-                            break;
-                        }
-                    default: {
-                            //
-                            // -- text files
-                            set(fieldName, core.docProperties.getText(LocalRequestName));
-                            break;
-                        }
-                }
+            //
+            // -- check arguments
+            if (!ok()) { throw new GenericException("Data is invalid, empty, or end-of-file"); }
+            if (string.IsNullOrEmpty(fieldName.Trim(' '))) { throw new GenericException("FieldName is invalid or blank"); }
+            string LocalRequestName = requestName;
+            if (string.IsNullOrEmpty(LocalRequestName)) {
+                LocalRequestName = fieldName;
+            }
+            switch (getFieldTypeId(fieldName)) {
+                case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
+                        //
+                        // -- Boolean
+                        set(fieldName, core.docProperties.getBoolean(LocalRequestName));
+                        return;
+                    }
+                case CPContentBaseClass.FieldTypeIdEnum.Currency:
+                case CPContentBaseClass.FieldTypeIdEnum.Float:
+                case CPContentBaseClass.FieldTypeIdEnum.Integer:
+                case CPContentBaseClass.FieldTypeIdEnum.Lookup:
+                case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
+                        //
+                        // -- Numbers
+                        set(fieldName, core.docProperties.getNumber(LocalRequestName));
+                        return;
+                    }
+                case CPContentBaseClass.FieldTypeIdEnum.Date: {
+                        //
+                        // -- Date
+                        set(fieldName, core.docProperties.getDate(LocalRequestName));
+                        return;
+                    }
+                case CPContentBaseClass.FieldTypeIdEnum.File:
+                case CPContentBaseClass.FieldTypeIdEnum.FileImage: {
+                        //
+                        // -- upload file
+                        if (!core.docProperties.containsKey(LocalRequestName)) { return; }
+                        var docProperty = core.docProperties.getProperty(LocalRequestName);
+                        string filename = docProperty.value;
+                        if (string.IsNullOrEmpty(filename) || filename.ToLowerInvariant() == "null") { return; }
+                        //
+                        // -- make filename compatible with dos and unix
+                        filename = FileController.encodeDosFilename(filename);
+                        filename = FileController.encodeUnixFilename(filename);
+                        //
+                        string unixPathFilename = getFilename(fieldName, filename);
+                        string dosPathFilename = FileController.convertToDosSlash(unixPathFilename);
+                        string dosPath = FileController.getPath(dosPathFilename);
+                        //
+                        // -- copy windowsTemp file to cdnFiles and force upload
+                        var WindowsTempFiles = new FileController(core, System.IO.Path.GetTempPath());
+                        WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dosPathFilename, core.cdnFiles);
+                        core.cdnFiles.upload(fieldName, dosPath, ref filename);
+                        //
+                        // -- update record with unix pathFilename to saved uploaded file
+                        set(fieldName, unixPathFilename);
+                        return;
+                    }
+                default: {
+                        //
+                        // -- text files
+                        set(fieldName, core.docProperties.getText(LocalRequestName));
+                        return;
+                    }
             }
         }
         //

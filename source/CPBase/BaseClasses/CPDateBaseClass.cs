@@ -33,6 +33,7 @@ namespace Contensive.BaseClasses {
         //==========================================================================================
         /// <summary>
         /// Not yet implemented. The TimeZone for the business's primary location (the store).
+        /// </summary>
         /// <returns></returns>
         public abstract TimeZone TimeZone { get; }
         //
@@ -47,12 +48,14 @@ namespace Contensive.BaseClasses {
         //==========================================================================================
         /// <summary>
         /// Not yet implemented. The current date and time in UTC (the server time). DateTime should be saved to the Db in UTC
+        /// </summary>
         /// <returns></returns>
         public abstract DateTime NowUtc { get; }
         //
         //==========================================================================================
         /// <summary>
         /// Not yet implemented. The current date and time in UTC (the server time)
+        /// </summary>
         /// <returns></returns>
         public abstract DateTime ConvertToLocal( DateTime utcDateToConvert, TimeZone localTimeZone  );
         //
