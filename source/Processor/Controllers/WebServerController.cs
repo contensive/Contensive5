@@ -328,20 +328,6 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// when set, Meta no follow is added
-        /// </summary>
-        public bool responseNoFollow {
-            get {
-                return _responseNoFollow;
-            }
-            set {
-                _responseNoFollow = value;
-            }
-        }
-        private bool _responseNoFollow = false;
-        //
-        // ====================================================================================================
-        /// <summary>
         /// 
         /// </summary>
         public Dictionary<string, CookieClass> requestCookies {
@@ -504,99 +490,41 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                //   verify Domain table entry
-                bool updateDomainCache = false;
-                //
-                core.domain.name = requestDomain;
-                core.domain.rootPageId = 0;
-                core.domain.noFollow = false;
-                core.domain.typeId = 1;
-                core.domain.visited = false;
-                core.domain.id = 0;
-                core.domain.forwardUrl = "";
-                core.domainDictionary = core.cache.getObject<Dictionary<string, DomainModel>>("domainContentList");
-                if (core.domainDictionary == null) {
+                // -- assign domain
+                // -- find match in domain table, else check for match in app.domains and verify domain table record, else verify wildcard match "*" domain record
+                DomainModel testDomain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, requestDomain.ToLowerInvariant());
+                if (testDomain == null) {
                     //
-                    //  no cache found, build domainContentList from database
-                    core.domainDictionary = DomainModel.createDictionary(core.cpParent, "(active<>0)and(name is not null)");
-                    updateDomainCache = true;
-                }
-                //
-                // verify app config domainlist is in the domainlist cache
-                foreach (string domain in core.appConfig.domainList) {
-                    if (!core.domainDictionary.ContainsKey(domain.ToLowerInvariant())) {
-                        LogController.logTrace(core, "adding domain record because configList domain not found [" + domain.ToLowerInvariant() + "]");
-                        var newDomain = DbBaseModel.addEmpty<DomainModel>(core.cpParent, 0);
-                        newDomain.name = domain;
-                        newDomain.rootPageId = 0;
-                        newDomain.noFollow = false;
-                        newDomain.typeId = 1;
-                        newDomain.visited = false;
-                        newDomain.forwardUrl = "";
-                        newDomain.defaultTemplateId = 0;
-                        newDomain.pageNotFoundPageId = 0;
-                        newDomain.forwardDomainId = 0;
-                        newDomain.defaultRouteId = core.siteProperties.getInteger("");
-                        newDomain.save(core.cpParent, 0);
-                        core.domainDictionary.Add(domain.ToLowerInvariant(), newDomain);
-                        updateDomainCache = true;
+                    // -- domain not found, if a match is in app.config list, add the record
+                    if (core.appConfig.domainList.Count > 0) {
+                        //
+                        // -- find match to an app-config domain
+                        foreach (var appDomain in core.appConfig.domainList) {
+                            if (appDomain.ToLowerInvariant() == requestDomain.ToLowerInvariant()) {
+                                //
+                                // -- matching domain found, add it to the domains table and go with it
+                                testDomain = DbBaseModel.addDefault<DomainModel>(core.cpParent);
+                                testDomain.name = appDomain;
+                                testDomain.save(core.cpParent);
+                                break;
+                            }
+                        }
                     }
                 }
-                //
-                // -- verify request domain
-                if (!core.domainDictionary.ContainsKey(requestDomain.ToLowerInvariant())) {
-                    LogController.logTrace(core, "adding domain record because requestDomain [" + requestDomain.ToLowerInvariant() + "] not found");
-                    var newDomain = DomainModel.addEmpty<DomainModel>(core.cpParent, 0);
-                    newDomain.name = requestDomain;
-                    newDomain.rootPageId = 0;
-                    newDomain.noFollow = false;
-                    newDomain.typeId = 1;
-                    newDomain.visited = false;
-                    newDomain.forwardUrl = "";
-                    newDomain.defaultTemplateId = 0;
-                    newDomain.pageNotFoundPageId = 0;
-                    newDomain.forwardDomainId = 0;
-                    newDomain.save(core.cpParent, 0);
-                    core.domainDictionary.Add(requestDomain.ToLowerInvariant(), newDomain);
-                    updateDomainCache = true;
+                if (testDomain == null) {
+                    //
+                    // -- request domain not in domains table  and not in app.config - use the wildcard domain
+                    testDomain = DomainModel.getWildcardDomain(core.cpParent);
+                    LogController.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
                 }
-                if (updateDomainCache) {
-                    //
-                    // if there was a change, update the cache
-                    //
-                    string dependencyKey = DbBaseModel.createDependencyKeyInvalidateOnChange<DomainModel>(core.cpParent);
-                    CacheKeyHashClass dependencyKeyHash = core.cache.createKeyHash(dependencyKey);
-                    List<CacheKeyHashClass> keyHashList = new List<CacheKeyHashClass> { dependencyKeyHash };
-                    core.cache.storeObject("domainContentList", core.domainDictionary, keyHashList);
-                }
+                core.domain = testDomain;
                 //
-                // domain found
-                //
-                core.domain = core.domainDictionary[requestDomain.ToLowerInvariant()];
-                if (core.domain.id == 0) {
-                    //
-                    // this is a default domain or a new domain -- add to the domain table
-                    var domain = new DomainModel {
-                        name = requestDomain,
-                        typeId = 1,
-                        rootPageId = core.domain.rootPageId,
-                        forwardUrl = core.domain.forwardUrl,
-                        noFollow = core.domain.noFollow,
-                        visited = core.domain.visited,
-                        defaultTemplateId = core.domain.defaultTemplateId,
-                        pageNotFoundPageId = core.domain.pageNotFoundPageId
-                    };
-                    //
-                    // todo - would prefer not save new template
-                    // -- fix, must save or template selection fails.
-                    domain.save(core.cpParent, 0);
-                    core.domain.id = domain.id;
-                }
+                // -- act on domain
                 if (!core.domain.visited) {
                     //
                     // set visited true
                     //
-                    core.db.executeNonQuery("update ccdomains set visited=1 where name=" + DbController.encodeSQLText(requestDomain));
+                    core.db.executeNonQuery("update ccdomains set visited=1 where id=" + core.domain.id);
                     core.cache.invalidate("domainContentList");
                 }
                 if (core.domain.typeId == 1) {
@@ -630,24 +558,20 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                // todo - CORS cannot be generated dynamically because info http method does not execute code
-                // -- add default CORS headers to approved domains
-                if ((httpContext != null) && (httpContext.Request != null) && (httpContext.Request.UrlReferrer != null)) {
-                    Uri originUri = httpContext.Request.UrlReferrer;
-                    if (originUri != null) {
-                        if (core.domainDictionary.ContainsKey(originUri.Host.ToLowerInvariant())) {
-                            if (core.domainDictionary[originUri.Host.ToLowerInvariant()].allowCORS) {
-                                addResponseHeader("Access-Control-Allow-Credentials", "true");
-                                addResponseHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
-                                addResponseHeader("Access-Control-Headers", "Content-Type,soapaction,X-Requested-With");
-                                addResponseHeader("Access-Control-Allow-Origin", originUri.GetLeftPart(UriPartial.Authority));
-                            }
-                        }
-                    }
-                }
-                if (core.domain.noFollow) {
-                    responseNoFollow = true;
-                }
+                // -- prefer a manual solution, adding CORS to web.config because this requires an extra query and http INFO does not execute code, called before uploads in some frameworks
+                ////
+                //// todo - CORS cannot be generated dynamically because info http method does not execute code
+                //// -- add default CORS headers to approved domains
+                //if ((httpContext != null) && (httpContext.Request != null) && (httpContext.Request.UrlReferrer != null)) {
+                //    Uri originUri = httpContext.Request.UrlReferrer;
+                //    if ((originUri?.Host != null) && (core?.domain?.name != null) && ((originUri.Host.ToLowerInvariant() == core.domain.name.ToLowerInvariant()) || DomainModel.testCORS(core.cpParent, originUri.Host))) {
+                //        addResponseHeader("Access-Control-Allow-Credentials", "true");
+                //        addResponseHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
+                //        addResponseHeader("Access-Control-Headers", "Content-Type,soapaction,X-Requested-With");
+                //        addResponseHeader("Access-Control-Allow-Origin", originUri.GetLeftPart(UriPartial.Authority));
+
+                //    }
+                //}
                 //
                 LogController.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
@@ -690,7 +614,7 @@ namespace Contensive.Processor.Controllers {
                         return;
                     }
                     LogController.log(core, "addResponseCookie exit, httpContext.Response null hood but nothing null?", BaseClasses.CPLogBaseClass.LogLevel.Debug);
-                    return; 
+                    return;
                 }
                 //
                 // -- add cookie to httpContext response
@@ -1121,7 +1045,7 @@ namespace Contensive.Processor.Controllers {
         /// remove a site by its name
         /// </summary>
         /// <param name="appName"></param>
-        public void deleteWebsite( string appName ) {
+        public void deleteWebsite(string appName) {
             try {
                 using ServerManager iisManager = new();
                 foreach (Site site in iisManager.Sites) {

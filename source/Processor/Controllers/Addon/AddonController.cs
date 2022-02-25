@@ -203,12 +203,13 @@ namespace Contensive.Processor.Controllers {
                 return "";
             }
             //
-            // -- block cyclic recursion for dependent addons
+            // -- test dependency-recursion (where a depends on b, and b depends on a)
+            // -- block the second running on any dependency
             if (executeContext.isDependency && executeContext.dependencyRecursionTestStack.Contains(addon.id)) {
                 //
-                // -- error -- cannot call an addon within an addon
+                // -- error -- recursive addon dependencies. Exit now
                 string recursionTraceMsg = "addon stack ";
-                foreach (var addonInStack in core.doc.addonModelStack) {
+                foreach (var addonInStack in core.doc.addonExecutionStack) {
                     recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
                 }
                 recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
@@ -216,51 +217,47 @@ namespace Contensive.Processor.Controllers {
                 return "";
             }
             //
-            // -- setup values that have to be in finalize
+            // -- test developer-recursion - if a developer inside and addon calls other addons, and that addon then calls the first
+            // -- track how many times each addon is being executed with an array that includes the number of times each addon is executing
+            // -- within one execution environment, an addon can only be currently executing 5 times.
+            bool inDeveloperRecursionList = core.doc.addonDeveloperRecursionCount.ContainsKey(addon.id);
+            if (inDeveloperRecursionList && (core.doc.addonDeveloperRecursionCount[addon.id] > addonRecursionLimit)) {
+                //
+                // -- error -- cannot call an addon within an addon
+                string recursionTraceMsg = "addon stack ";
+                foreach (var addonInStack in core.doc.addonExecutionStack) {
+                    recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
+                }
+                recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
+                LogController.logError(core, new ApplicationException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
+                return "";
+            }
+            //
+            // -- setup values that have to be within finalize
             var result = new StringBuilder();
             string parentInstanceId = core.docProperties.getText("instanceId");
-            bool rootLevelAddon = core.doc.addonRecursionDepth.Count.Equals(0);
+            bool rootLevelAddon = core.doc.addonDeveloperRecursionCount.Count.Equals(0);
             try {
                 hint = 1;
                 //
+                // -- test developer-recursion
                 // -- save the addon details in a fifo stack to popoff during exit.
                 // -- Used to track the current addon being executed
-                core.doc.addonModelStack.Push(addon);
-                if (executeContext.isDependency) { executeContext.dependencyRecursionTestStack.Push(addon.id); }
-                //
-                // -- check recursion limit (addonRecursionLimit)
-                // -- if this addon has been called recursively too many timee (either by dependnecy rules or because it is embedded in it's own content, then block it's dependencies.
-                // -- if there is a dependency recursion, and we abort here, then this addon will never be added (ex. boostrap will not be added)
-                // -- so for now, block dependencies
-                // -- maybe this is best handled with two different tests, one for dependency recursion where you cannot exceed on and if you do, you just block it's dependencies
-                bool blockRecursion = false;
-                bool blockDependencies = false;
-                bool inRecursionList = core.doc.addonRecursionDepth.ContainsKey(addon.id);
-                if (inRecursionList) { blockRecursion = (core.doc.addonRecursionDepth[addon.id] > addonRecursionLimit); }
-                if (blockRecursion) {
-                    //
-                    // -- error -- cannot call an addon within an addon
-                    string recursionTraceMsg = "addon stack ";
-                    foreach (var addonInStack in core.doc.addonModelStack) {
-                        recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
-                    }
-                    recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
-                    LogController.logError(core, new ApplicationException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
-                    blockDependencies = true;
-                }
+                core.doc.addonExecutionStack.Push(addon);
+                executeContext.dependencyRecursionTestStack.Push(addon.id);
+                // -- add all addons to the dependencyrecursionTestStack, only test them if they are dependencies - but block them even if they were first run as non-dependencies
+                //if (executeContext.isDependency) { executeContext.dependencyRecursionTestStack.Push(addon.id); }
                 hint = 2;
                 //
                 // -- track recursion and continue
-                if (!inRecursionList) {
-                    core.doc.addonRecursionDepth.Add(addon.id, 1);
+                if (!inDeveloperRecursionList) {
+                    core.doc.addonDeveloperRecursionCount.Add(addon.id, 1);
                 } else {
-                    core.doc.addonRecursionDepth[addon.id] += 1;
+                    core.doc.addonDeveloperRecursionCount[addon.id] += 1;
                 }
                 //
-                // -- execute dependencies
-                if (!blockDependencies) {
-                    //
-                    // -- if the addon's javascript is required in the head, set it in the executeContext now so it will propigate into the dependant addons as well
+                // -- execute dependencies, if the addon's javascript is required in the head, set it in the executeContext now so it will propigate into the dependant addons as well
+                {
                     bool save_forceJavascriptToHead = executeContext.forceJavascriptToHead;
                     executeContext.forceJavascriptToHead = executeContext.forceJavascriptToHead || addon.javascriptForceHead;
                     //
@@ -274,10 +271,10 @@ namespace Contensive.Processor.Controllers {
                         result.Append(executeDependency(dependentAddon, executeContext));
                     }
                     executeContext.forceJavascriptToHead = save_forceJavascriptToHead;
+                    hint = 3;
                 }
-                hint = 3;
                 //
-                // -- Track that this addon has been executed (to provide dependancy verification)
+                // -- Track that this addon has been executed (to provide dependency verification)
                 bool isDependencyThatAlreadyRan = false;
                 if (!core.doc.addonsExecuted.Contains(addon.id)) {
                     //
@@ -725,9 +722,9 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- unwind recursion count
                 hint = 29;
-                if (core.doc.addonRecursionDepth.ContainsKey(addon.id)) {
-                    if (--core.doc.addonRecursionDepth[addon.id] <= 0) {
-                        core.doc.addonRecursionDepth.Remove(addon.id);
+                if (core.doc.addonDeveloperRecursionCount.ContainsKey(addon.id)) {
+                    if (--core.doc.addonDeveloperRecursionCount[addon.id] <= 0) {
+                        core.doc.addonDeveloperRecursionCount.Remove(addon.id);
                     }
                 }
             } catch (Exception ex) {
@@ -784,10 +781,12 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- remove this addon from the recursion test stack
-                if (executeContext.isDependency) { executeContext.dependencyRecursionTestStack.Pop(); }
+                // -- add all addons to the dependencyrecursionTestStack, only test them if they are dependencies - but block them even if they were first run as non-dependencies
+                executeContext.dependencyRecursionTestStack.Pop();
+                //if (executeContext.isDependency) { executeContext.dependencyRecursionTestStack.Pop(); }
                 //
                 // -- pop modelstack and test point message
-                core.doc.addonModelStack.Pop();
+                core.doc.addonExecutionStack.Pop();
             }
             return result.ToString();
         }

@@ -2273,9 +2273,6 @@
     <Field Name="NoFollow" active="1" AdminOnly="0" Authorable="1" Caption="Block Spiders with No-Follow" DeveloperOnly="0" EditSortPriority="1080" FieldType="Boolean" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[When checked, all website hits to this domain will include meta data to prevent search engine spiders from following links on this page.]]></HelpDefault>
     </Field>
-    <Field Name="allowCORS" active="1" AdminOnly="0" Authorable="1" Caption="Include Default CORS Headers" DeveloperOnly="0" EditSortPriority="1090" FieldType="Boolean" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
-      <HelpDefault><![CDATA[When checked, requests from this domain will respond with default CORS headers allowing this origin.]]></HelpDefault>
-    </Field>
     <Field Name="Visited" active="1" AdminOnly="0" Authorable="1" Caption="Has Been Visited" DeveloperOnly="0" EditSortPriority="1090" FieldType="Boolean" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[If checked, this domain has been visited.]]></HelpDefault>
     </Field>
@@ -2283,7 +2280,12 @@
       Templates required
     -->
     <Field Name="Templates" active="1" AdminOnly="0" Authorable="1" Caption="Templates Required By This Domain" DeveloperOnly="0" EditSortPriority="1000" FieldType="ManyToMany" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="1" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="Templates" Scramble="0" LookupList="" ManyToManyContent="Page Templates" ManyToManyRuleContent="Template Domain Rules" ManyToManyRulePrimaryField="domainId" ManyToManyRuleSecondaryField="templateId" />
-
+    <!--
+      deprecated
+    -->
+    <Field Name="allowCORS" active="0" AdminOnly="0" Authorable="0" Caption="Deprecated (Include Default CORS Headers)" DeveloperOnly="0" EditSortPriority="1090" FieldType="Boolean" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[When checked, requests from this domain will respond with default CORS headers allowing this origin.]]></HelpDefault>
+    </Field>
   </CDef>
   <CDef Name="Templates" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccTemplates" ContentDataSourceName="DEFAULT" ContentTableName="ccTemplates" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/images/icons/pagetemplates.png" IconWidth="57" IconHeight="59" IconSprites="1"  guid="{68B588F4-DD16-411C-A653-7216FFCC0652}">
   </CDef>

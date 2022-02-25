@@ -360,8 +360,8 @@ namespace Contensive.Processor.Addons.Tools {
                                 //
                                 // CDef has a parent, but the field is non-inherited, test for a matching Parent Field
                                 //
-                                if (ParentCDef == null) {
-                                    foreach (KeyValuePair<string, Processor.Models.Domain.ContentFieldMetadataModel> kvp in ParentCDef.fields) {
+                                if (ParentCDef != null) {
+                                    foreach (KeyValuePair<string, ContentFieldMetadataModel> kvp in ParentCDef.fields) {
                                         if (kvp.Value.nameLc == fieldsort.field.nameLc) {
                                             parentField = kvp.Value;
                                             break;

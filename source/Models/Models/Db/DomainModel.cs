@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Contensive.Models.Db {
     //
@@ -49,21 +50,66 @@ namespace Contensive.Models.Db {
         /// the default code to execute for this domain
         /// </summary>
         public int defaultRouteId { get; set; }
-        /// <summary>
-        /// if true, add the default CORS headers
-        /// </summary>
-        public bool allowCORS { get; set; }
+        ///// <summary>
+        ///// deprecated (if true, add the default CORS headers)
+        ///// </summary>
+        //public bool allowCORS { get; set; }
         //
         //====================================================================================================
-        public static Dictionary<string, DomainModel> createDictionary(CPBaseClass cp, string sqlCriteria) {
-            var result = new Dictionary<string, DomainModel> { };
-            foreach (var domain in DbBaseModel.createList<DomainModel>(cp, sqlCriteria)) {
-                if (!result.ContainsKey(domain.name.ToLowerInvariant())) {
-                    result.Add(domain.name.ToLowerInvariant(), domain);
-                }
-            }
-            return result;
+        /// <summary>
+        /// Return (do not save) a domain record with name = '*' that can be used when no domain is available.
+        /// This domain will be used when no other matching domain is found
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="requestDomain"></param>
+        /// <returns></returns>
+        public static DomainModel getWildcardDomain(CPBaseClass cp) {
+            //
+            // -- attempt to get existing wildcard domain
+            DomainModel domain = createByUniqueName<DomainModel>(cp, "*");
+            if (domain != null) { return domain; }
+            //
+            // -- create new wildcard domain
+            domain = DbBaseModel.addDefault<DomainModel>(cp);
+            domain.name = "*";
+            domain.rootPageId = 0;
+            domain.noFollow = false;
+            domain.typeId = 1;
+            domain.visited = false;
+            domain.forwardUrl = "";
+            domain.defaultTemplateId = 0;
+            domain.pageNotFoundPageId = 0;
+            domain.forwardDomainId = 0;
+            domain.defaultRouteId = cp.Site.GetInteger("DEFAULT ROUTE ADDONID");
+            domain.save(cp);
+            return domain;
         }
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// test if this domain allows CORS. Not called for now, using webconfig solution
+        ///// </summary>
+        ///// <param name="cp"></param>
+        ///// <param name="requestDomain"></param>
+        ///// <returns></returns>
+        //public static bool testCORS(CPBaseClass cp, string requestDomain) {
+        //    if (string.IsNullOrEmpty(requestDomain)) { return false; }
+        //    DataTable dt = cp.Db.ExecuteQuery("select top 1 id from ccdomains where name=" + cp.Db.EncodeSQLText(requestDomain) + " and allowCORS>0");
+        //    if (dt?.Rows == null) { return false; }
+        //    return dt.Rows.Count == 1;
+        //}
+        ////
+        ////====================================================================================================
+        ////
+        //public static Dictionary<string, DomainModel> createDictionary(CPBaseClass cp, string sqlCriteria) {
+        //    var result = new Dictionary<string, DomainModel> { };
+        //    foreach (var domain in DbBaseModel.createList<DomainModel>(cp, sqlCriteria)) {
+        //        if (!result.ContainsKey(domain.name.ToLowerInvariant())) {
+        //            result.Add(domain.name.ToLowerInvariant(), domain);
+        //        }
+        //    }
+        //    return result;
+        //}
         //
         public enum DomainTypeEnum {
             Normal = 1,

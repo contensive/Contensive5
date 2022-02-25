@@ -39,11 +39,10 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override bool NoFollow {
             get {
-                if (cp.core.webServer == null) { return false; }
-                return cp.core.webServer.responseNoFollow;
+                return cp.core.doc.noFollow; 
             }
             set {
-                cp.core.webServer.responseNoFollow = value;
+                cp.core.doc.noFollow = value;
             }
         }
         //

@@ -7,6 +7,7 @@ using Contensive.Processor.Exceptions;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
@@ -26,6 +27,17 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string getAdminContent(CPClass cp) {
             try {
                 if (!cp.core.doc.continueProcessing) { return ""; }
+                //
+                // -- consider
+                // -- use route segments to run addons in admin content, ex /admin/invoicemanager should run addon /invoicemanager in the admin content
+                // -- /admin = [0] blank, [1] admin
+                // -- /admin/ = [0] blank, [1] admin, [2] blank
+                // -- /admin/backoffice = [0] blank, [1] admin, [2] backoffice
+                string[] pathSegments = cp.Request.PathPage.Split('/');
+                if(pathSegments.Length>2 && !string.IsNullOrEmpty( pathSegments[2])) {
+                    string subroute = cp.Request.Path.Substring(pathSegments[0].Length + 1 + pathSegments[1].Length);
+                    return cp.executeRoute(subroute);
+                }
                 //
                 // turn off chrome protection against submitting html content
                 cp.core.webServer.addResponseHeader("X-XSS-Protection", "0");

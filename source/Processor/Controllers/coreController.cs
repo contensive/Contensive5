@@ -574,7 +574,7 @@ namespace Contensive.Processor.Controllers {
         //
         //===================================================================================================
         /// <summary>
-        /// 
+        /// The current domain. If not set, an empty domain model is returned
         /// </summary>
         /// <value></value>
         /// <returns></returns>
@@ -654,7 +654,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="appName"></param>
         /// <remarks></remarks>
-        public CoreController(CPClass cp, string appName) : this(cp) {
+        public CoreController(CPClass cp, string appName) {
             coreController_Initialize(cp, appName, null, false);
         }
         //

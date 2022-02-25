@@ -93,6 +93,8 @@ namespace Contensive.Processor.Controllers.Tests {
         public void executeDependency_addonIncludeRule_Test() {
             using CPClass cp = new(testAppName);
             //
+            cp.Cache.InvalidateAll();
+            //
             var a = DbBaseModel.addDefault<AddonModel>(cp);
             string aTestString = cp.Utils.CreateGuid();
             a.name = "a test addon";
@@ -121,37 +123,81 @@ namespace Contensive.Processor.Controllers.Tests {
         /// dependency recursion is blocked
         /// </summary>
         [TestMethod()]
-        public void executeDependency_blockRecursion_Test() {
+        public void execute_DependencyRecursion_Test() {
             using CPClass cp = new(testAppName);
             //
+            cp.Cache.InvalidateAll();
+            //
             var a = DbBaseModel.addDefault<AddonModel>(cp);
-            string aTestString = cp.Utils.CreateGuid();
+            string aTestString = "A";
             a.name = "a test addon";
             a.copyText = aTestString;
             a.save(cp);
             //
             var b = DbBaseModel.addDefault<AddonModel>(cp);
-            string bTestString = cp.Utils.CreateGuid();
+            string bTestString = "B";
             b.name = "b test addon";
             b.copyText = bTestString;
             b.save(cp);
             //
+            // -- a depends on b
             var rule1 = DbBaseModel.addDefault<AddonIncludeRuleModel>(cp);
             rule1.addonId = a.id;
             rule1.includedAddonId = b.id;
             rule1.save(cp);
             //
-            // -- create loop
+            // -- b depends on a
             var rule2 = DbBaseModel.addDefault<AddonIncludeRuleModel>(cp);
             rule2.addonId = b.id;
             rule2.includedAddonId = a.id;
             rule2.save(cp);
             //
+            // -- execute a and expect the content to be "BA", not "ABA" or worse
             string result = cp.core.addon.execute(a, new CPUtilsBaseClass.addonExecuteContext { });
             DbBaseModel.delete<AddonModel>(cp, a.id);
             DbBaseModel.delete<AddonModel>(cp, b.id);
             //
             Assert.AreEqual(bTestString + aTestString, result);
+
+        }
+        /// <summary>
+        /// a developer may create an addon that calls a second, and the second calls the first.
+        /// Since the developer may include logic that prevents a recursive loop, this is allowed up to a limit (5)
+        /// </summary>
+        [TestMethod()]
+        public void execute_DeveloperRecursion_Test() {
+            using CPClass cp = new(testAppName);
+            //
+            cp.Cache.InvalidateAll();
+            //
+            var a = DbBaseModel.addDefault<AddonModel>(cp);
+            string aTestString = "A";
+            a.name = "a test addon";
+            a.copyText = aTestString;
+            a.ccguid = "{addon-a}";
+            a.scriptingCode = ""
+                + "\n\rfunction m"
+                + "\n\rm = cp.addon.execute(\"{addon-b}\")"
+                + "\n\rend function";
+            a.save(cp);
+            //
+            var b = DbBaseModel.addDefault<AddonModel>(cp);
+            string bTestString = "B";
+            b.name = "b test addon";
+            b.copyText = bTestString;
+            b.ccguid = "{addon-b}";
+            b.scriptingCode = ""
+                + "\n\rfunction m"
+                + "\n\rm = cp.addon.execute(\"{addon-a}\")"
+                + "\n\rend function";
+            b.save(cp);
+            //
+            // -- execute a and expect the content to be "BA", not "BAB..."
+            string result = cp.core.addon.execute(a, new CPUtilsBaseClass.addonExecuteContext { });
+            DbBaseModel.delete<AddonModel>(cp, a.id);
+            DbBaseModel.delete<AddonModel>(cp, b.id);
+            //
+            Assert.AreEqual("ABABABABABAB", result);
 
         }
         /// <summary>

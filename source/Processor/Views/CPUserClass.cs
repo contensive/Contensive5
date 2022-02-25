@@ -37,6 +37,7 @@ namespace Contensive.Processor {
         /// </summary>
         public override string Email {
             get {
+                if (cp?.core?.session?.user == null) { return ""; }
                 return cp.core.session.user.email;
             }
         }
@@ -49,6 +50,7 @@ namespace Contensive.Processor {
         /// <param name="password"></param>
         /// <returns></returns>
         public override int GetIdByLogin(string username, string password) {
+            if (cp?.core?.session == null) { return 0; }
             return cp.core.session.getUserIdForUsernameCredentials(username, password, false);
         }
         //
@@ -59,9 +61,9 @@ namespace Contensive.Processor {
         /// </summary>
         public override int Id {
             get {
-                if (cp.core.session.user.id==0) {
-                    cp.core.session.verifyUser();
-                }
+                if (cp?.core?.session?.user == null) { return 0; }
+                if (cp.core.session.user.id != 0) { return cp.core.session.user.id; }
+                cp.core.session.verifyUser();
                 return cp.core.session.user.id;
             }
         }
@@ -72,6 +74,7 @@ namespace Contensive.Processor {
         /// </summary>
         public override bool IsAdmin {
             get {
+                if (cp?.core?.session  == null) { return false; }
                 return cp.core.session.isAuthenticatedAdmin();
             }
         }
@@ -83,6 +86,7 @@ namespace Contensive.Processor {
         /// <param name="contentName"></param>
         /// <returns></returns>
         public override bool IsAdvancedEditing(string contentName) {
+            if (cp?.core?.session == null) { return false; }
             return cp.core.session.isAdvancedEditing();
         }
         //
@@ -96,7 +100,8 @@ namespace Contensive.Processor {
         /// </summary>
         public override bool IsAuthenticated {
             get {
-                return (cp.core.session.isAuthenticated);
+                if (cp?.core?.session == null) { return false; }
+                return cp.core.session.isAuthenticated;
             }
         }
         //
@@ -107,6 +112,7 @@ namespace Contensive.Processor {
         /// <param name="contentName"></param>
         /// <returns></returns>
         public override bool IsContentManager(string contentName) {
+            if (cp?.core?.session == null) { return false; }
             return cp.core.session.isAuthenticatedContentManager(contentName);
         }
         //
@@ -114,6 +120,7 @@ namespace Contensive.Processor {
         //
         public override bool IsDeveloper {
             get {
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isAuthenticatedDeveloper();
             }
         }
@@ -121,6 +128,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool IsEditing(string contentName) {
+            if (cp?.core?.session == null) { return false; }
             return cp.core.session.isEditing(contentName);
         }
         //
@@ -128,6 +136,7 @@ namespace Contensive.Processor {
         //
         public override bool IsEditingAnything {
             get {
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isEditing();
             }
         }
@@ -136,6 +145,7 @@ namespace Contensive.Processor {
         //
         public override bool IsTemplateEditing {
             get {
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isTemplateEditing();
             }
         }
@@ -144,6 +154,7 @@ namespace Contensive.Processor {
         //
         public override bool IsPageBuilderEditing {
             get {
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isPageBuilderEditing();
             }
         }
@@ -152,6 +163,7 @@ namespace Contensive.Processor {
         //
         public override bool IsDebugging {
             get {
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isDebugging();
             }
         }
@@ -161,6 +173,7 @@ namespace Contensive.Processor {
         //
         public override bool IsGuest {
             get {
+                if (cp?.core?.session == null) { return true; }
                 return cp.core.session.isGuest();
             }
         }
@@ -174,13 +187,14 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override bool IsInGroup(string groupName, int userId) {
             try {
+                if (cp?.Group == null) { return false; }
                 int groupId = cp.Group.GetId(groupName);
                 if (groupId == 0) {
                     return false;
                 }
                 return IsInGroupList(groupId.ToString(), userId);
             } catch (Exception ex) {
-                LogController.logError(cp.core,ex);
+                LogController.logError(cp.core, ex);
                 return false;
             }
         }
@@ -220,9 +234,10 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        [Obsolete("deprecated",true)]
+        [Obsolete("deprecated", true)]
         public override bool IsMember {
             get {
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isAuthenticatedMember();
             }
         }
@@ -230,6 +245,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool IsQuickEditing(string contentName) {
+            if (cp?.core?.session == null) { return false; }
             return cp.core.session.isQuickEditing(contentName);
         }
         //
@@ -237,13 +253,14 @@ namespace Contensive.Processor {
         //
         public override bool IsRecognized {
             get {
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isRecognized();
             }
         }
         //
         //====================================================================================================
         //
-        [Obsolete("deprecated",true)]
+        [Obsolete("deprecated", true)]
         public override bool IsWorkflowRendering {
             get {
                 return false;
@@ -254,6 +271,7 @@ namespace Contensive.Processor {
         //
         public override string Language {
             get {
+                if (cp?.core?.session == null) { return string.Empty; }
                 if (cp.core.session.userLanguage != null) {
                     return cp.core.session.userLanguage.name;
                 }
@@ -265,6 +283,7 @@ namespace Contensive.Processor {
         //
         public override int LanguageID {
             get {
+                if (cp?.core?.session == null) { return 0; }
                 return cp.core.session.user.languageId;
             }
         }
@@ -272,20 +291,23 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool Login(string usernameOrEmail, string password, bool setAutoLogin) {
+            if (cp?.core?.session == null) { return false; }
             return cp.core.session.authenticate(usernameOrEmail, password, setAutoLogin);
         }
-        public override bool Login(string usernameOrEmail, string password) 
+        public override bool Login(string usernameOrEmail, string password)
             => Login(usernameOrEmail, password, false);
         //
         //====================================================================================================
         //
         public override bool LoginByID(int userId) {
+            if (cp?.core?.session == null) { return false; }
             return cp.core.session.authenticateById(userId, cp.core.session);
         }
         //
         //====================================================================================================
         //
         public override bool LoginByID(int userId, bool setAutoLogin) {
+            if (cp?.core?.session == null) { return false; }
             bool result = cp.core.session.authenticateById(userId, cp.core.session);
             if (result) {
                 cp.core.session.user.autoLogin = setAutoLogin;
@@ -297,12 +319,14 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool LoginIsOK(string usernameOrEmail, string password) {
-            return cp.core.session.isLoginOK( usernameOrEmail, password);
+            if (cp?.core?.session == null) { return false; }
+            return cp.core.session.isLoginOK(usernameOrEmail, password);
         }
         //
         //====================================================================================================
         //
-        public override void Logout()  {
+        public override void Logout() {
+            if (cp?.core?.session == null) { return; }
             cp.core.session.logout();
         }
         //
@@ -310,6 +334,7 @@ namespace Contensive.Processor {
         //
         public override string Name {
             get {
+                if (cp?.core?.session?.user == null) { return ""; }
                 return cp.core.session.user.name;
             }
         }
@@ -318,6 +343,7 @@ namespace Contensive.Processor {
         //
         public override bool IsNew {
             get {
+                if (cp?.core?.session?.visit == null) { return true; }
                 return cp.core.session.visit.memberNew;
             }
         }
@@ -325,6 +351,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool IsNewLoginOK(string username, string password) {
+            if (cp?.core?.session == null) { return false; }
             string errorMessage = "";
             int errorCode = 0;
             return cp.core.session.isNewCredentialOK(username, password, ref errorMessage, ref errorCode);
@@ -334,6 +361,7 @@ namespace Contensive.Processor {
         //
         public override int OrganizationID {
             get {
+                if (cp?.core?.session?.user == null) { return 0; }
                 return cp.core.session.user.organizationId;
             }
         }
@@ -348,37 +376,38 @@ namespace Contensive.Processor {
         //
         public override string Username {
             get {
+                if (cp?.core?.session == null) { return ""; }
                 return cp.core.session.user.username;
             }
         }
         //
         //=======================================================================================================
         //
-        public override void SetProperty(string key, string value) 
+        public override void SetProperty(string key, string value)
             => cp.core.userProperty.setProperty(key, value);
         //
         public override void SetProperty(string PropertyName, string Value, int TargetMemberId)
             => cp.core.userProperty.setProperty(PropertyName, Value, TargetMemberId);
         //
-        public override void SetProperty(string key, int value) 
+        public override void SetProperty(string key, int value)
             => cp.core.userProperty.setProperty(key, value);
         //
         public override void SetProperty(string PropertyName, int Value, int TargetMemberId)
             => cp.core.userProperty.setProperty(PropertyName, Value, TargetMemberId);
         //
-        public override void SetProperty(string key, double value) 
+        public override void SetProperty(string key, double value)
             => cp.core.userProperty.setProperty(key, value);
         //
         public override void SetProperty(string PropertyName, double Value, int TargetMemberId)
             => cp.core.userProperty.setProperty(PropertyName, Value, TargetMemberId);
         //
-        public override void SetProperty(string key, bool value) 
+        public override void SetProperty(string key, bool value)
             => cp.core.userProperty.setProperty(key, value);
         //
         public override void SetProperty(string PropertyName, bool Value, int TargetMemberId)
             => cp.core.userProperty.setProperty(PropertyName, Value, TargetMemberId);
         //
-        public override void SetProperty(string key, DateTime value) 
+        public override void SetProperty(string key, DateTime value)
             => cp.core.userProperty.setProperty(key, value);
         //
         public override void SetProperty(string PropertyName, DateTime Value, int TargetMemberId)
@@ -418,7 +447,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         // todo  obsolete
         //
-        public override void Track()   {
+        public override void Track() {
             //
             // -- reading the id causes forces the user to be tracked. private nonsense to defeat compile warning
             ignore_localId = Id;
@@ -429,19 +458,19 @@ namespace Contensive.Processor {
         //====================================================================================================
         // deprecated methods
         //
-        [Obsolete("deprecated",true)]
+        [Obsolete("deprecated", true)]
         public override double GetNumber(string key, string defaultValue) => cp.core.userProperty.getNumber(key, encodeNumber(defaultValue));
         //
-        [Obsolete("deprecated",true)]
+        [Obsolete("deprecated", true)]
         public override int GetInteger(string key, string defaultValue) => cp.core.userProperty.getInteger(key, encodeInteger(defaultValue));
         //
-        [Obsolete("deprecated",true)]
+        [Obsolete("deprecated", true)]
         public override DateTime GetDate(string key, string defaultValue) => cp.core.userProperty.getDate(key, encodeDate(defaultValue));
         //
-        [Obsolete("deprecated",true)]
+        [Obsolete("deprecated", true)]
         public override bool GetBoolean(string key, string defaultValue) => cp.core.userProperty.getBoolean(key, encodeBoolean(defaultValue));
         //
-        [Obsolete("Use IsEditing",true)]
+        [Obsolete("Use IsEditing", true)]
         public override bool IsAuthoring(string contentName) => cp.core.session.isEditing(contentName);
         //
         [Obsolete("Use IsContentManager( Page Content )", false)]
@@ -502,11 +531,11 @@ namespace Contensive.Processor {
         protected bool disposed_user;
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
-        public void Dispose()  {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        ~CPUserClass()  {
+        ~CPUserClass() {
             Dispose(false);
         }
         #endregion

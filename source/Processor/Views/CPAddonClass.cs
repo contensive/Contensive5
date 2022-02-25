@@ -29,13 +29,13 @@ namespace Contensive.Processor {
         /// <summary>
         /// The id of the addon currently executing
         /// </summary>
-        public override int ID => cp.core.doc.addonModelStack.Peek().id;
+        public override int ID => cp.core.doc.addonExecutionStack.Peek().id;
         //
         //====================================================================================================
         /// <summary>
         /// The guid of the addon currently executing
         /// </summary>
-        public override string ccGuid => cp.core.doc.addonModelStack.Peek().ccguid;
+        public override string ccGuid => cp.core.doc.addonExecutionStack.Peek().ccguid;
         //
         //====================================================================================================
         //
@@ -301,17 +301,17 @@ namespace Contensive.Processor {
         // Deprecated methods
         //
         [Obsolete("Deprecated", false)]
-        public override bool Admin => cp.core.doc.addonModelStack.Peek().admin;
+        public override bool Admin => cp.core.doc.addonExecutionStack.Peek().admin;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string ArgumentList => cp.core.doc.addonModelStack.Peek().argumentList;
+        public override string ArgumentList => cp.core.doc.addonExecutionStack.Peek().argumentList;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool AsAjax => cp.core.doc.addonModelStack.Peek().admin;
+        public override bool AsAjax => cp.core.doc.addonExecutionStack.Peek().admin;
         //
         //====================================================================================================
         //
@@ -321,22 +321,22 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override int CollectionID => cp.core.doc.addonModelStack.Peek().collectionId;
+        public override int CollectionID => cp.core.doc.addonExecutionStack.Peek().collectionId;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool Content => cp.core.doc.addonModelStack.Peek().content;
+        public override bool Content => cp.core.doc.addonExecutionStack.Peek().content;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string Copy => cp.core.doc.addonModelStack.Peek().copy;
+        public override string Copy => cp.core.doc.addonExecutionStack.Peek().copy;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string CopyText => cp.core.doc.addonModelStack.Peek().copyText;
+        public override string CopyText => cp.core.doc.addonExecutionStack.Peek().copyText;
         //
         //====================================================================================================
         //
@@ -346,7 +346,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string DefaultStyles => cp.core.doc.addonModelStack.Peek().stylesFilename.content;
+        public override string DefaultStyles => cp.core.doc.addonExecutionStack.Peek().stylesFilename.content;
         //
         //====================================================================================================
         // 
@@ -356,52 +356,52 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string DotNetClass => cp.core.doc.addonModelStack.Peek().dotNetClass;
+        public override string DotNetClass => cp.core.doc.addonExecutionStack.Peek().dotNetClass;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string FormXML => cp.core.doc.addonModelStack.Peek().formXML;
+        public override string FormXML => cp.core.doc.addonExecutionStack.Peek().formXML;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string Help => cp.core.doc.addonModelStack.Peek().help;
+        public override string Help => cp.core.doc.addonExecutionStack.Peek().help;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string HelpLink => cp.core.doc.addonModelStack.Peek().helpLink;
+        public override string HelpLink => cp.core.doc.addonExecutionStack.Peek().helpLink;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string IconFilename => cp.core.doc.addonModelStack.Peek().iconFilename;
+        public override string IconFilename => cp.core.doc.addonExecutionStack.Peek().iconFilename;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override int IconHeight => GenericController.encodeInteger(cp.core.doc.addonModelStack.Peek().iconHeight);
+        public override int IconHeight => GenericController.encodeInteger(cp.core.doc.addonExecutionStack.Peek().iconHeight);
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override int IconSprites => GenericController.encodeInteger(cp.core.doc.addonModelStack.Peek().iconSprites);
+        public override int IconSprites => GenericController.encodeInteger(cp.core.doc.addonExecutionStack.Peek().iconSprites);
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override int IconWidth => GenericController.encodeInteger(cp.core.doc.addonModelStack.Peek().iconWidth);
+        public override int IconWidth => GenericController.encodeInteger(cp.core.doc.addonExecutionStack.Peek().iconWidth);
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool InFrame => cp.core.doc.addonModelStack.Peek().inFrame;
+        public override bool InFrame => cp.core.doc.addonExecutionStack.Peek().inFrame;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool IsInline => cp.core.doc.addonModelStack.Peek().isInline;
+        public override bool IsInline => cp.core.doc.addonExecutionStack.Peek().isInline;
         //
         //====================================================================================================
         //
@@ -421,22 +421,22 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string Link => cp.core.doc.addonModelStack.Peek().link;
+        public override string Link => cp.core.doc.addonExecutionStack.Peek().link;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string MetaDescription => cp.core.doc.addonModelStack.Peek().metaDescription;
+        public override string MetaDescription => cp.core.doc.addonExecutionStack.Peek().metaDescription;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string MetaKeywordList => cp.core.doc.addonModelStack.Peek().metaKeywordList;
+        public override string MetaKeywordList => cp.core.doc.addonExecutionStack.Peek().metaKeywordList;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string Name => cp.core.doc.addonModelStack.Peek().name;
+        public override string Name => cp.core.doc.addonExecutionStack.Peek().name;
         //
         //====================================================================================================
         //
@@ -446,27 +446,27 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string ObjectProgramID => cp.core.doc.addonModelStack.Peek().objectProgramId;
+        public override string ObjectProgramID => cp.core.doc.addonExecutionStack.Peek().objectProgramId;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool OnBodyEnd => cp.core.doc.addonModelStack.Peek().onBodyEnd;
+        public override bool OnBodyEnd => cp.core.doc.addonExecutionStack.Peek().onBodyEnd;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool OnBodyStart => cp.core.doc.addonModelStack.Peek().onBodyStart;
+        public override bool OnBodyStart => cp.core.doc.addonExecutionStack.Peek().onBodyStart;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool OnContentEnd => cp.core.doc.addonModelStack.Peek().onPageEndEvent;
+        public override bool OnContentEnd => cp.core.doc.addonExecutionStack.Peek().onPageEndEvent;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool OnContentStart => cp.core.doc.addonModelStack.Peek().onPageStartEvent;
+        public override bool OnContentStart => cp.core.doc.addonExecutionStack.Peek().onPageStartEvent;
         //
         //====================================================================================================
         //
@@ -481,52 +481,52 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string OtherHeadTags => cp.core.doc.addonModelStack.Peek().otherHeadTags;
+        public override string OtherHeadTags => cp.core.doc.addonExecutionStack.Peek().otherHeadTags;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string PageTitle => cp.core.doc.addonModelStack.Peek().pageTitle;
+        public override string PageTitle => cp.core.doc.addonExecutionStack.Peek().pageTitle;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string ProcessInterval => cp.core.doc.addonModelStack.Peek().processInterval.ToString();
+        public override string ProcessInterval => cp.core.doc.addonExecutionStack.Peek().processInterval.ToString();
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override DateTime ProcessNextRun => GenericController.encodeDate(cp.core.doc.addonModelStack.Peek().processNextRun);
+        public override DateTime ProcessNextRun => GenericController.encodeDate(cp.core.doc.addonExecutionStack.Peek().processNextRun);
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool ProcessRunOnce => cp.core.doc.addonModelStack.Peek().processRunOnce;
+        public override bool ProcessRunOnce => cp.core.doc.addonExecutionStack.Peek().processRunOnce;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string RemoteAssetLink => cp.core.doc.addonModelStack.Peek().remoteAssetLink;
+        public override string RemoteAssetLink => cp.core.doc.addonExecutionStack.Peek().remoteAssetLink;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool RemoteMethod => cp.core.doc.addonModelStack.Peek().remoteMethod;
+        public override bool RemoteMethod => cp.core.doc.addonExecutionStack.Peek().remoteMethod;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string RobotsTxt => cp.core.doc.addonModelStack.Peek().robotsTxt;
+        public override string RobotsTxt => cp.core.doc.addonExecutionStack.Peek().robotsTxt;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string ScriptCode => cp.core.doc.addonModelStack.Peek().scriptingCode;
+        public override string ScriptCode => cp.core.doc.addonExecutionStack.Peek().scriptingCode;
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override string ScriptEntryPoint => cp.core.doc.addonModelStack.Peek().scriptingEntryPoint;
+        public override string ScriptEntryPoint => cp.core.doc.addonExecutionStack.Peek().scriptingEntryPoint;
         //
         //====================================================================================================
         //
@@ -541,6 +541,6 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated", false)]
-        public override bool Template => cp.core.doc.addonModelStack.Peek().template;
+        public override bool Template => cp.core.doc.addonExecutionStack.Peek().template;
     }
 }

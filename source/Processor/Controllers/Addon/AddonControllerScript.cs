@@ -97,7 +97,7 @@ namespace Contensive.Processor.Controllers {
                         if (returnText == "{}") { return ""; }
                         return returnText;
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
-                        string errorMessage = getScriptEngineExceptionMessage(ex, "executing script, ex-2, hint[" + hint + "]");
+                        string errorMessage = getScriptEngineExceptionMessage(ex, "executing script, hint[" + hint + "]");
                         LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {

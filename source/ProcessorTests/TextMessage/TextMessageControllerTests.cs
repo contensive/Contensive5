@@ -67,15 +67,17 @@ namespace Tests {
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 //
                 // act - assert
+                string userError = "";
                 bool response = SmsController.sendMessage(cp.core, new TextMessageSendRequest {
                     attempts = 1,
                     textBody = testMessage,
                     textMessageId = 0,
                     toMemberId = 0,
                     toPhone = testPhone
-                });
+                }, ref userError);
                 //
                 // assert
+                Assert.AreEqual("", userError );
                 Assert.IsTrue(response);
                 Assert.IsTrue(cp.core.mockTextMessageList.Count == 1);
                 Assert.AreEqual(cp.core.mockTextMessageList.First().textMessageRequest.textBody, testMessage);

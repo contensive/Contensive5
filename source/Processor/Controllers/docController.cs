@@ -29,6 +29,25 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// if true, this doc should not be followed (typically http docs)
+        /// Defaults to domain.noFollow but can be overridden
+        /// </summary>
+        /// <returns></returns>
+        public bool noFollow {
+            get {
+                if (noFollow_local != null) { return (bool)noFollow_local; }
+                if (core?.domain == null) { return false; }
+                noFollow_local = core.domain.noFollow;
+                return (bool)noFollow_local;
+            }
+            set {
+                noFollow_local = value;
+            }
+        }
+        private bool? noFollow_local = null;
+        //
+        //====================================================================================================
+        /// <summary>
         /// parent object
         /// </summary>
         private readonly CoreController core;
@@ -306,7 +325,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Dictionary of addons running to track recursion, addonId and count of recursive entries. When executing an addon, check if it is in the list, if so, check if the recursion count is under the limit (addonRecursionDepthLimit). If not add it or increment the count. On exit, decrement the count and remove if 0.
         /// </summary>
-        internal Dictionary<int, int> addonRecursionDepth { get; set; } = new Dictionary<int, int>();
+        internal Dictionary<int, int> addonDeveloperRecursionCount { get; set; } = new Dictionary<int, int>();
         //
         //====================================================================================================
         /// <summary>
@@ -317,9 +336,9 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// 
+        /// The stack of addons as they are currently running. The bottom is the first addon ran (the root). the top is the current addon.
         /// </summary>
-        public Stack<AddonModel> addonModelStack { get; set; } = new Stack<AddonModel>();
+        public Stack<AddonModel> addonExecutionStack { get; set; } = new Stack<AddonModel>();
         //
         //====================================================================================================
         /// <summary>

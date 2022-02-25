@@ -732,7 +732,8 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static T createByUniqueName<T>(CPBaseClass cp, string recordName) where T : DbBaseModel {
             var cacheNameList = new List<string>();
-            return createByUniqueName<T>(cp, recordName, ref cacheNameList);
+            T result = createByUniqueName<T>(cp, recordName, ref cacheNameList);
+            return result;
         }
         //
         //====================================================================================================
@@ -744,12 +745,12 @@ namespace Contensive.Models.Db {
         /// <param name="callersCacheNameList">method will add the cache name to this list.</param>
         public static T createByUniqueName<T>(CPBaseClass cp, string recordName, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
-                if (string.IsNullOrEmpty(recordName)) { return default; }
+                if (string.IsNullOrEmpty(recordName)) { return null; }
                 T result = (allowRecordCaching(typeof(T)) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
                 if (result != null) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(name=" + cp.Db.EncodeSQLText(recordName) + ")", "id"));
-                if (dt?.Rows == null) { return default; }
-                if (dt.Rows.Count == 0) { return default; }
+                if (dt?.Rows == null) { return null; }
+                if (dt.Rows.Count == 0) { return null; }
                 return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "create by name");
@@ -766,7 +767,7 @@ namespace Contensive.Models.Db {
         /// <param name="callersCacheKeyList"></param>
         private static T loadRecord<T>(CPBaseClass cp, DataRow row, ref List<string> callersCacheKeyList) where T : DbBaseModel {
             try {
-                if (row == null) { return default; }
+                if (row == null) { return null; }
                 Type instanceType = typeof(T);
                 T instance = (T)Activator.CreateInstance(instanceType);
                 foreach (PropertyInfo instanceProperty in instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {

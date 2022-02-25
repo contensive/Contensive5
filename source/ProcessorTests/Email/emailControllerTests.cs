@@ -5,12 +5,60 @@ using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static Tests.TestConstants;
 
 namespace Tests {
     [TestClass]
     public class EmailControllerTests {
+        //
+        [TestMethod]
+        public void controllers_Email_createListFromGroupList() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
+                // arrange
+                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                //
+                // -- group
+                GroupModel group = DbBaseModel.addDefault<GroupModel>(cp);
+                group.name = test1.ToString();
+                group.caption = test1.ToString();
+                group.ccguid = "{1234-1243-1234-1234}";
+                group.save(cp);
+                //
+                // -- person
+                PersonModel person = DbBaseModel.addDefault<PersonModel>(cp);
+                person.name = test2.ToString();
+                person.email = test2.ToString() + "@test.com";
+                person.save(cp);
+                //
+                // -- join 1/1/2020 at 12:00 am, expire from group in 10 days later, 1/10/2020 at 12:00 am
+                cp.Group.AddUser(group.id, person.id, ((DateTime)cp.core.dateTimeNowMockable).AddDays(10));
+                // act/assert
+                Assert.AreEqual(1, PersonModel.createListFromGroupIdList(cp, new List<int> { group.id }, false).Count);
+                Assert.AreEqual(1, PersonModel.createListFromGroupIdList(cp, new List<int> { group.id, group.id }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupIdList(cp, new List<int> { }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupIdList(cp, new List<int> { 0 }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupIdList(cp, new List<int> { 0,0 }, false).Count);
+                Assert.AreEqual(1, PersonModel.createListFromGroupIdList(cp, new List<int> { 0, group.id, 0 }, false).Count);
+                //
+                Assert.AreEqual(1, PersonModel.createListFromGroupNameList(cp, new List<string> { group.name }, false).Count);
+                Assert.AreEqual(1, PersonModel.createListFromGroupNameList(cp, new List<string> { group.name, group.name }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupNameList(cp, new List<string> { }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupNameList(cp, new List<string> { "" }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupNameList(cp, new List<string> { "","" }, false).Count);
+                Assert.AreEqual(1, PersonModel.createListFromGroupNameList(cp, new List<string> { "", group.name, "" }, false).Count);
+            }
+        }
+
         //
         [TestMethod]
         public void processConditional_DaysBeforeExpire_Test() {

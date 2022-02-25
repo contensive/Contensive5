@@ -3088,7 +3088,7 @@ namespace Contensive.Processor.Controllers {
                 headList.Add(Environment.NewLine + "<meta name=\"generator\" content=\"Contensive\">");
                 //
                 // -- no-follow
-                if (core.webServer.responseNoFollow) {
+                if (core.doc.noFollow) {
                     headList.Add(Environment.NewLine + "<meta name=\"robots\" content=\"nofollow\" >");
                     headList.Add(Environment.NewLine + "<meta name=\"mssmarttagspreventparsing\" content=\"true\" >");
                 }

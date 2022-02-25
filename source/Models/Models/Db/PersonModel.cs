@@ -132,12 +132,13 @@ namespace Contensive.Models.Db {
                 string sqlGroups = "";
                 foreach (string group in groupNameList) {
                     if (!string.IsNullOrWhiteSpace(group)) {
-                        if (!group.Equals(groupNameList.First<string>())) {
-                            sqlGroups += "or";
-                        }
-                        sqlGroups += "(ccgroups.Name=" + cp.Db.EncodeSQLText(group) + ")";
+                        sqlGroups += (string.IsNullOrEmpty(sqlGroups) ? "" : "or") + "(ccgroups.Name=" + cp.Db.EncodeSQLText(group) + ")";
                     }
                 }
+                //
+                // -- if no non-empty groups in grouplist, exit with empty list
+                if (string.IsNullOrEmpty(sqlGroups)) { return new List<PersonModel>(); }
+                //
                 return createListFromGroupSql(cp, sqlGroups, requireBulkEmail);
             } catch (Exception) {
                 throw;
@@ -151,10 +152,7 @@ namespace Contensive.Models.Db {
                 string sqlGroups = "";
                 foreach (int groupId in groupIdList) {
                     if (groupId > 0) {
-                        if (!groupId.Equals(groupIdList.First<int>())) {
-                            sqlGroups += "or";
-                        }
-                        sqlGroups += "(ccgroups.id=" + groupId + ")";
+                        sqlGroups += (string.IsNullOrEmpty(sqlGroups) ? "" : "or") + "(ccgroups.id=" + groupId + ")";
                     }
                 }
                 return createListFromGroupSql(cp, sqlGroups, requireBulkEmail);
@@ -164,9 +162,22 @@ namespace Contensive.Models.Db {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// return a list of people that match the group criteria. Called from createListFromIdList and createListFromNameList
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="sqlGroups">required. formatted as '(a=1)and(b=2)' </param>
+        /// <param name="requireBulkEmail">if true, only people with allow group email are included</param>
+        /// <returns></returns>
         internal static List<PersonModel> createListFromGroupSql(CPBaseClass cp, string sqlGroups, bool requireBulkEmail) {
             try {
+                //
+                // -- group criteria required, exit with empty list
+                if (string.IsNullOrEmpty(sqlGroups)) {
+                    cp.Log.Warn("createListFromGroupSql called with empty group criteria. Group List is required. Empty list returned.");
+                    return new List<PersonModel>();
+                }
+                //
                 string sqlCriteria = ""
                     + "SELECT DISTINCT ccMembers.ID"
                     + " FROM ((ccMembers"
@@ -175,12 +186,10 @@ namespace Contensive.Models.Db {
                     + " WHERE (ccMembers.Active>0)"
                     + " and(ccMemberRules.Active>0)"
                     + " and(ccgroups.Active>0)"
-                    + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + cp.Db.EncodeSQLDate(DateTime.Now) + "))";
+                    + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + cp.Db.EncodeSQLDate(DateTime.Now) + "))"
+                    + " and(" + sqlGroups + ")";
                 if (requireBulkEmail) {
                     sqlCriteria += "and(ccMembers.AllowBulkEmail>0)and(ccgroups.AllowBulkEmail>0)";
-                }
-                if (!string.IsNullOrEmpty(sqlGroups)) {
-                    sqlCriteria += "and(" + sqlGroups + ")";
                 }
                 return createList<PersonModel>(cp, "(id in (" + sqlCriteria + "))");
             } catch (Exception) {
