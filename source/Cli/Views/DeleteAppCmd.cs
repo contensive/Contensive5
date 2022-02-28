@@ -56,6 +56,13 @@ namespace Contensive.CLI {
                     System.IO.Directory.Delete(appPath, true);
                 }
                 //
+                // -- delete the iis site
+                cpServer.core.webServer.deleteWebsite(appName);
+                //
+                // -- remove the configuraion
+                cpServer.core.serverConfig.apps.Remove(appName);
+                cpServer.core.serverConfig.save(cpServer.core);
+                //
                 // -- drop the database on the server
                 try {
                     cpServer.core.dbServer.deleteCatalog(appName);
@@ -64,13 +71,6 @@ namespace Contensive.CLI {
                     // -- drop db failed
                     Console.WriteLine("Could not delete database [" + appName + "], open Sql Management Studio and delete the database.");
                 }
-                //
-                // -- delete the iis site
-                cpServer.core.webServer.deleteWebsite(appName);
-                //
-                // -- remove the configuraion
-                cpServer.core.serverConfig.apps.Remove( appName );
-                cpServer.core.serverConfig.save(cpServer.core);
             } catch (Exception ex) {
                 Console.WriteLine("Error: [" + ex + "]");
                 throw;
