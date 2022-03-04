@@ -15,10 +15,14 @@ namespace Contensive.Processor.Controllers {
         // 
         // ====================================================================================================
         /// <summary>
-        /// Return an image resized and cropped to best fit the hole. Test if in cache first, else load record and test for resized in alt list, else Resize the image and save back to the image's record
+        /// Return an image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-[width]x[height]".  
+        /// AltSizeList is a list of sizes in the format [width]x[height]. If the required size is in this list, the url is created and returned without manipulation.
+        /// if new image size is not in the altsizelist, a non-expiring cache is tested.
+        /// if not in cache, the physical file is tested. 
+        /// Else Resize the image and save back to the image's record
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="imagePathFilename">An image file in cdnFiles</param>
+        /// <param name="imageCdnPathFilename">An image file in cdnFiles</param>
         /// <param name="holeWidth">The width of the space to fit the image</param>
         /// <param name="holeHeight">The height of the space to fit the image</param>
         /// <param name="imageAltSizeList">
@@ -26,38 +30,44 @@ namespace Contensive.Processor.Controllers {
         /// When returned, the caller should check that the filename did not change, and that the list length did not change. If there is a change, the list should be saved for next call.
         /// </param>
         /// <returns></returns>
-        public static string getBestFit(CoreController core, string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
+        public static string getBestFit(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
             // 
             try {
                 // 
                 // -- argument testing, if image not set, return blank
-                if ((string.IsNullOrEmpty(imagePathFilename)))
+                if ((string.IsNullOrEmpty(imageCdnPathFilename)))
                     return "";
                 // 
                 // -- argument testing, width and height must be >=0
                 if ((holeHeight < 0) || ( holeWidth < 0)) {
                     LogController.logError(core, new ArgumentException("Image resize/crop size must be >0, width [" + holeWidth + "], height [" + holeHeight + "]"));
-                    return imagePathFilename.Replace(@"\", "/");
+                    return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 // 
                 // -- if no resize required, return full url
                 if (holeHeight.Equals(0) & holeWidth.Equals(0))
-                    return imagePathFilename.Replace(@"\", "/");
+                    return imageCdnPathFilename.Replace(@"\", "/");
                 // 
                 // -- get filename without extension, and extension, and altsizelist prefix (remove parsing characters)
-                string filenameExt = Path.GetExtension(imagePathFilename);
-                string filePath = FileController.getPath(imagePathFilename);
-                string filenameNoext = Path.GetFileNameWithoutExtension(imagePathFilename);
+                string filenameExt = Path.GetExtension(imageCdnPathFilename);
+                string filePath = FileController.getPath(imageCdnPathFilename);
+                string filenameNoext = Path.GetFileNameWithoutExtension(imageCdnPathFilename);
                 string altSizeFilename = (filenameNoext + filenameExt).Replace(",", "_").Replace("-", "_").Replace("x", "_");
                 string imageAltsize = holeWidth + "x" + holeHeight;
                 string newImageFilename = filePath + filenameNoext + "-" + imageAltsize + filenameExt;
+                //
+                if (!(new List<string> { ".png",".jpg",".jpeg",".jfif",".gif",".bm",".bmp",".dip",".tga",".vda",".icb",".vst" }).Contains(filenameExt.ToLowerInvariant())) {
+                    //
+                    // -- unsupported image type, return original
+                    return imageCdnPathFilename.Replace(@"\", "/");
+                }
                 // 
                 // -- verify this altsizelist matches this image, or reset it
-                if ((!imageAltSizeList.Contains(imagePathFilename))) {
+                if ((!imageAltSizeList.Contains(imageCdnPathFilename))) {
                     // 
                     // -- alt size list does not start with this filename, new image uploaded, reset list
                     imageAltSizeList.Clear();
-                    imageAltSizeList.Add(imagePathFilename);
+                    imageAltSizeList.Add(imageCdnPathFilename);
                 }
                 //
                 // -- check if the image is in the altSizeList, fast but default images may not exist
@@ -67,7 +77,7 @@ namespace Contensive.Processor.Controllers {
                     return newImageFilename.Replace(@"\", "/");
                 }
                 //
-                // -- first, use cache to determine if this image size exists (fasted)
+                // -- first, use cache to determine if this image size exists (fastest)
                 string imageExistsKey = "fileExists-" + newImageFilename;
                 if (core.cache.getBoolean(imageExistsKey)) {
                     //
@@ -86,18 +96,18 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- future actions will open this file. Verify it exists to prevent hard errors
-                if (!core.cdnFiles.fileExists(imagePathFilename)) {
-                    LogController.logError(core, new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imagePathFilename + "]"));
-                    return imagePathFilename.Replace(@"\", "/");
+                if (!core.cdnFiles.fileExists(imageCdnPathFilename)) {
+                    LogController.logError(core, new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imageCdnPathFilename + "]"));
+                    return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 // 
                 // -- first resize - determine the if the width or the height is the rezie fit
                 // -- then crop to the final size
-                using (Image image = Image.Load(core.cdnFiles.localAbsRootPath + imagePathFilename.Replace("/", @"\"))) {
+                using (Image image = Image.Load(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"))) {
                     // 
                     // -- if image load issue, return un-resized
                     if (image.Width.Equals(0) || image.Height.Equals(0)) {
-                        return imagePathFilename.Replace(@"\", "/");
+                        return imageCdnPathFilename.Replace(@"\", "/");
                     }
                     // 
                     // -- determine the scale ratio for each axis
@@ -193,8 +203,8 @@ namespace Contensive.Processor.Controllers {
             } catch( UnknownImageFormatException ex) {
                 //
                 // -- unknown image error, return original image
-                LogController.logWarn(core, ex, "Unknown image type [" + imagePathFilename + "]");
-                return imagePathFilename.Replace(@"\", "/");
+                LogController.logWarn(core, ex, "Unknown image type [" + imageCdnPathFilename + "]");
+                return imageCdnPathFilename.Replace(@"\", "/");
             } catch (Exception ex) {
                 //
                 // -- unknown exception

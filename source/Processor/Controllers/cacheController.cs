@@ -19,6 +19,13 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Interface to cache systems. Cache objects are saved to dotnet cache, remotecache, filecache. 
     /// 
+    ///  **** the best pattern is saving an object with tableKeys as dependencies, and anytime you change a record in a table, invalidate the tablekey
+    ///  **** record dependency keys depend on their tabledependency keys. So if you set a record-key, it will flush when the table flushes
+    ///  **** avoid using recordKeys as dependencies -- for example if you update all ccmenu records older that a date leaves, you cannot know which records to invalidate - so invalidate the table key
+    ///  **** avoid - create an object and think you can set record dependecy keys for the data in includes. Too hard. You have to use table-keys, but understand it may flush frequently.
+    ///  **** alternative - do not include dependency keys and set an invalidation date - let everyone know you are using eventual-consistency
+    ///  **** alternative - do not include dependency keys and set an invalidation date - let everyone know you are using eventual-consistency
+    /// 
     /// Cache Methods
     /// 
     ///   1) primary key -- cache key holding the object.
@@ -26,6 +33,12 @@ namespace Contensive.Processor.Controllers {
     ///         -- A key can be created in a standard format to represent a record in a database RecordKey()
     ///         -- A key can be created in a standard format to represent a dependency on Any record in a table - use
     ///         -- use createKey() to create a primary key
+    ///         -- example: To make a webpage naviation faster: 
+    ///             -- create the html from "ccMenu" and "ccMenuPageRules" data tables. Use a primary key like "menu-3-user-12". Set dependent keys for the two table, created with .createTableDependencyKey(tablename)
+    ///             -- at the beginning of your method where you create this content, read the primary key. If it is not null, this is your final html
+    ///             -- Every place you update any record in either the ccMenu table or the ccMenuPageRules table, call .invalidateTableDependencyKey(tablename)
+    ///             -- the admin site automatically calls invalidateTableDependencyKey(tablename) and invalidateRecordKey(...)
+    ///             -- do not make cache objects dependent on recordKeys (vs tableKeys) unless you understand everywhere a record key should be invalidated -- for example if you update all ccmenu records older that a date leaves, you cannot know which records to invalidate
     ///         
     ///   2) dependent key -- an optional argument passed to a store() that invalidates the key if it is invalidated
     ///         -- it may hold content that the primary cache depends on. 
@@ -40,6 +53,15 @@ namespace Contensive.Processor.Controllers {
     ///         -- pointer keys are read-only, as the content is saved in the primary key
     ///         -- set a pointer key with storePtr()
     ///         -- use storeRecord() to store the content to the key and all the ptrs
+    ///         
+    /// Record Keys and Table Dependency Keys
+    ///     -- a record key holds the model for the record, and is marked as dependent on the record's table
+    ///     -- a table dependency key does not hold data. It is empty, but represents the date/time when any record in the table was last updated. Invalidating it, will cause all recordkey requests to fail.
+    ///    1) when you save a cache and include a table-dependency, the cache will invalidae if any record in the table is updated.
+    ///    2) if you save a cache and include a record-key as a dependency, the cache will invalid if that key is update. It will also be updated if the table-dependency-key is invalidated.
+    ///    3) In the admin site, or within the CS record system, if a record is updated, the record-key is invalidated AND the table-dependency-key
+    ///    4) if you update or delete a record and you know the id of the record, update the cache pointed to by the record-key
+    ///    5) if you do an update and don't know the record IDs you updated, invalidate the table-dependency-key
     /// 
     /// Cache Data Types
     /// 
