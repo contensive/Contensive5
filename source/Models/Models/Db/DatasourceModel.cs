@@ -80,9 +80,9 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         //
         public static Dictionary<string, DataSourceModel> getNameDict(CPBaseClass cp) {
-            Dictionary<string, DataSourceModel> result = new Dictionary<string, DataSourceModel>();
+            Dictionary<string, DataSourceModel> result = new();
             try {
-                List<string> ignoreCacheNames = new List<string>();
+                List<string> ignoreCacheNames = new();
                 using ( DataTable dt = cp.Db.ExecuteQuery("select id from ccdatasources where active>0")) {
                     foreach ( DataRow row in dt.Rows) {
                         DataSourceModel instance = create<DataSourceModel>(cp, cp.Utils.EncodeInteger( row["id"] ));
