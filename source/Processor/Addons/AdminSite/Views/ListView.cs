@@ -873,7 +873,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // found it, add it in the sql
                             string sqlValue = adminData.wherePair[field.nameLc];
-                            sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + field.nameLc + "=");
                             if ((field.fieldTypeId != CPContentBaseClass.FieldTypeIdEnum.Currency) && (field.fieldTypeId != CPContentClass.FieldTypeIdEnum.Float) && (field.fieldTypeId != CPContentClass.FieldTypeIdEnum.Integer) && (field.fieldTypeId != CPContentClass.FieldTypeIdEnum.Lookup)) {
                                 sqlValue = DbController.encodeSQLText(sqlValue);
                             }
