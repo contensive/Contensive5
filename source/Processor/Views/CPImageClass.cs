@@ -25,5 +25,17 @@ namespace Contensive.Processor {
         public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
             return ImageController.getBestFit(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
         }
+
+        public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight) {
+            return ImageController.getBestFit(cp.core, imagePathFilename, holeWidth, holeHeight);
+        }
+
+        public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
+            return ImageController.getBestFitWebP(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        }
+
+        public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight) {
+            return ImageController.getBestFitWebP(cp.core, imagePathFilename, holeWidth, holeHeight);
+        }
     }
 }

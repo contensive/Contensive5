@@ -920,11 +920,12 @@ namespace Contensive.Processor.Controllers {
                                                                             Filename = DefaultFilename;
                                                                             core.siteProperties.setProperty(fieldName, DefaultFilename);
                                                                         }
-                                                                        core.wwwFiles.saveFile(Filename, fieldValue);
+                                                                        core.privateFiles.saveFile(Filename, fieldValue);
                                                                         break;
                                                                     }
                                                                 case "cssfile": {
                                                                         //
+                                                                        // ** deprecate ** install css and js files as resources, use with addons, not settings (and not in wwwroot)
                                                                         DefaultFilename = "Settings/" + fieldName + ".css";
                                                                         Filename = core.siteProperties.getText(fieldName, DefaultFilename);
                                                                         if (string.IsNullOrEmpty(Filename)) {
@@ -936,6 +937,7 @@ namespace Contensive.Processor.Controllers {
                                                                     }
                                                                 case "xmlfile": {
                                                                         //
+                                                                        // ** deprecate ** install xml files as resources, not settings (and not in wwwroot)
                                                                         DefaultFilename = "Settings/" + fieldName + ".xml";
                                                                         Filename = core.siteProperties.getText(fieldName, DefaultFilename);
                                                                         if (string.IsNullOrEmpty(Filename)) {

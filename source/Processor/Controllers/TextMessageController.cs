@@ -367,6 +367,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 foreach (TextMessageQueueModel textMessage in DbBaseModel.createList<TextMessageQueueModel>(core.cpParent, "sendSerialNumber=" + DbController.encodeSQLText(sendSerialNumber), "immediate,id")) {
                     TextMessageSendRequest request = DeserializeObject<TextMessageSendRequest>(textMessage.content);
+                    if(request == null ) {
+                        //
+                        // -- bugfix, if data does not deserialize, skip message
+                        LogController.logError(core, new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"));
+                        core.db.executeNonQuery("delete from ccTextMessageQueue where (id=" + textMessage.id + ")");
+                        appendTextMessageLog(core, request, false, "TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]");
+                        continue;
+                    }
                     string userError = "";
                     if (SmsController.sendMessage(core, request, ref userError)) {
                         //

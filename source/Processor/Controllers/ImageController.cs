@@ -1,4 +1,5 @@
 ﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,38 @@ namespace Contensive.Processor.Controllers {
     /// public property bool 'mock', set true to mock this service by loggin activity in a mockList()
     /// </summary>
     public sealed class ImageController {
+        // 
+        // ====================================================================================================
+        /// <summary>
+        /// Return an image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-[width]x[height]".  
+        /// AltSizeList is a list of sizes in the format [width]x[height].[ext]. If the required size is in this list, the url is created and returned without manipulation.
+        /// if new image size is not in the altsizelist, a non-expiring cache is tested.
+        /// if not in cache, the physical file is tested. 
+        /// Else Resize the image and save back to the image's record
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="imageCdnPathFilename">An image file in cdnFiles</param>
+        /// <param name="holeWidth">The width of the space to fit the image</param>
+        /// <param name="holeHeight">The height of the space to fit the image</param>
+        /// <param name="imageAltSizeList">
+        /// A List starting with the filename, followed by a list of alternate image sizes available in the same path as the image, in the format widthxheight, like '10x20' and '30x40'.
+        /// When returned, the caller should check that the filename did not change, and that the list length did not change. If there is a change, the list should be saved for next call.
+        /// </param>
+        /// <returns></returns>
+        public static string getBestFit(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
+            => resizeAndCrop(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, false);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return an image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-[width]x[height]". 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="imageCdnPathFilename"></param>
+        /// <param name="holeWidth"></param>
+        /// <param name="holeHeight"></param>
+        /// <returns></returns>
+        public static string getBestFit(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
+            => resizeAndCrop(core, imageCdnPathFilename, holeWidth, holeHeight, new List<string>(), false);
         // 
         // ====================================================================================================
         /// <summary>
@@ -30,7 +63,33 @@ namespace Contensive.Processor.Controllers {
         /// When returned, the caller should check that the filename did not change, and that the list length did not change. If there is a change, the list should be saved for next call.
         /// </param>
         /// <returns></returns>
-        public static string getBestFit(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
+        public static string getBestFitWebP(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
+            => resizeAndCrop(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, true);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return an image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-[width]x[height]". 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="imageCdnPathFilename"></param>
+        /// <param name="holeWidth"></param>
+        /// <param name="holeHeight"></param>
+        /// <returns></returns>
+        public static string getBestFitWebP(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
+            => resizeAndCrop(core, imageCdnPathFilename, holeWidth, holeHeight, new List<string>(), true);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// internal - resize and crop image. Use public methods
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="imageCdnPathFilename"></param>
+        /// <param name="holeWidth"></param>
+        /// <param name="holeHeight"></param>
+        /// <param name="imageAltSizeList"></param>
+        /// <param name="saveAsWebP"></param>
+        /// <returns></returns>
+        private static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList, bool saveAsWebP) {
             // 
             try {
                 // 
@@ -39,7 +98,7 @@ namespace Contensive.Processor.Controllers {
                     return "";
                 // 
                 // -- argument testing, width and height must be >=0
-                if ((holeHeight < 0) || ( holeWidth < 0)) {
+                if ((holeHeight < 0) || (holeWidth < 0)) {
                     LogController.logError(core, new ArgumentException("Image resize/crop size must be >0, width [" + holeWidth + "], height [" + holeHeight + "]"));
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
@@ -49,21 +108,21 @@ namespace Contensive.Processor.Controllers {
                     return imageCdnPathFilename.Replace(@"\", "/");
                 // 
                 // -- get filename without extension, and extension, and altsizelist prefix (remove parsing characters)
-                string filenameExt = Path.GetExtension(imageCdnPathFilename);
+                string filenameExt = saveAsWebP ? ".webp" : Path.GetExtension(imageCdnPathFilename);
                 string filePath = FileController.getPath(imageCdnPathFilename);
                 string filenameNoext = Path.GetFileNameWithoutExtension(imageCdnPathFilename);
                 string altSizeFilename = (filenameNoext + filenameExt).Replace(",", "_").Replace("-", "_").Replace("x", "_");
-                string imageAltsize = holeWidth + "x" + holeHeight;
+                string imageAltsize = holeWidth + "x" + holeHeight + filenameExt.ToLowerInvariant();
                 string newImageFilename = filePath + filenameNoext + "-" + imageAltsize + filenameExt;
                 //
-                if (!(new List<string> { ".png",".jpg",".jpeg",".jfif",".gif",".bm",".bmp",".dip",".tga",".vda",".icb",".vst" }).Contains(filenameExt.ToLowerInvariant())) {
+                if (!(new List<string> { ".png", ".jpg", ".jpeg", ".jfif", ".gif", ".bm", ".bmp", ".dip", ".tga", ".vda", ".icb", ".vst", ".webp", ".pbm" }).Contains(filenameExt.ToLowerInvariant())) {
                     //
                     // -- unsupported image type, return original
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 // 
                 // -- verify this altsizelist matches this image, or reset it
-                if ((!imageAltSizeList.Contains(imageCdnPathFilename))) {
+                if (!imageAltSizeList.Contains(imageCdnPathFilename)) {
                     // 
                     // -- alt size list does not start with this filename, new image uploaded, reset list
                     imageAltSizeList.Clear();
@@ -150,7 +209,7 @@ namespace Contensive.Processor.Controllers {
                         // -- determine the crop dimensions to crop to a smaller image matching the aspect ratio of the frame
                         int cropWidth;
                         int cropHeight;
-                        Rectangle cropRectangle = new Rectangle();
+                        Rectangle cropRectangle = new();
                         if (resizeToWidth) {
                             // 
                             // -- use image width, crop off overflow height
@@ -192,7 +251,11 @@ namespace Contensive.Processor.Controllers {
                     }
                     // 
                     // -- save the resized/cropped image to the new filename and upload
-                    image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")));
+                    if (saveAsWebP) {
+                        image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")),new WebpEncoder());
+                    } else {
+                        image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")));
+                    }
                     core.cdnFiles.copyFileLocalToRemote(newImageFilename);
                     // 
                     // -- save the new size back to the item and cache
@@ -200,7 +263,7 @@ namespace Contensive.Processor.Controllers {
                     core.cache.storeObject(imageExistsKey, true);
                     return newImageFilename.Replace(@"\", "/");
                 }
-            } catch( UnknownImageFormatException ex) {
+            } catch (UnknownImageFormatException ex) {
                 //
                 // -- unknown image error, return original image
                 LogController.logWarn(core, ex, "Unknown image type [" + imageCdnPathFilename + "]");

@@ -20,13 +20,13 @@ namespace Contensive.Processor.Addons.RobotsTxt {
                 if (string.IsNullOrEmpty(result)) {
                     // -- settings page needs a filename
                     string Filename = core.siteProperties.getText("RobotsTxtFilename", "config/RobotsTxtBase.txt");
-                    result = core.cdnFiles.readFileText(Filename);
+                    result = core.privateFiles.readFileText(Filename);
                     if (string.IsNullOrEmpty(result)) {
                         //
                         // save default robots.txt
                         //
                         result = "User-agent: *\r\nDisallow: /admin/\r\nDisallow: /images/";
-                        core.wwwFiles.saveFile(Filename, result);
+                        core.privateFiles.saveFile(Filename, result);
                     }
                     //
                     // -- 15 minute cache. Add this to settings page 
