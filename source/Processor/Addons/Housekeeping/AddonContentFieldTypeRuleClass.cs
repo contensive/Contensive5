@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, AddonContentFieldTypeRuleClass");
+                env.log("Housekeep, executeHourlyTasks, AddonContentFieldTypeRuleClass");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }
@@ -32,15 +32,15 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "HousekeepDaily, contentfieldtype rules");
+                env.log("HousekeepDaily, contentfieldtype rules");
                 //
-                core.db.executeNonQuery("delete from ccAddonContentFieldTypeRules where id in (select r.id from ccAddonContentFieldTypeRules r left join ccaggregatefunctions a on a.id=r.addonid where a.Id Is Null)");
+                env.core.db.executeNonQuery("delete from ccAddonContentFieldTypeRules where id in (select r.id from ccAddonContentFieldTypeRules r left join ccaggregatefunctions a on a.id=r.addonid where a.Id Is Null)");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }

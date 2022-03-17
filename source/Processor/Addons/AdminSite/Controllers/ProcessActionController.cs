@@ -114,23 +114,21 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
-                                            using (var csData = new CsModel(cp.core)) {
-                                                csData.openRecord("Group Email", adminData.editRecord.id);
-                                                if (!csData.ok()) {
-                                                } else if (string.IsNullOrWhiteSpace(csData.getText("FromAddress"))) {
-                                                    ErrorController.addUserError(cp.core, "A 'From Address' is required before sending an email.");
-                                                } else if (string.IsNullOrWhiteSpace(csData.getText("Subject"))) {
-                                                    ErrorController.addUserError(cp.core, "A 'Subject' is required before sending an email.");
-                                                } else {
-                                                    csData.set("submitted", true);
-                                                    csData.set("ConditionID", 0);
-                                                    if (csData.getDate("ScheduleDate") == DateTime.MinValue) {
-                                                        csData.set("ScheduleDate", cp.core.doc.profileStartTime);
-                                                    }
-                                                    //
-                                                    // -- force a sent task process
-                                                    cp.Addon.ExecuteAsProcess(addonGuidEmailSendTask);
+                                            using var csData = new CsModel(cp.core); csData.openRecord("Group Email", adminData.editRecord.id);
+                                            if (!csData.ok()) {
+                                            } else if (string.IsNullOrWhiteSpace(csData.getText("FromAddress"))) {
+                                                ErrorController.addUserError(cp.core, "A 'From Address' is required before sending an email.");
+                                            } else if (string.IsNullOrWhiteSpace(csData.getText("Subject"))) {
+                                                ErrorController.addUserError(cp.core, "A 'Subject' is required before sending an email.");
+                                            } else {
+                                                csData.set("submitted", true);
+                                                csData.set("ConditionID", 0);
+                                                if (csData.getDate("ScheduleDate") == DateTime.MinValue) {
+                                                    csData.set("ScheduleDate", cp.core.doc.profileStartTime);
                                                 }
+                                                //
+                                                // -- force a sent task process
+                                                cp.Addon.ExecuteAsProcess(addonGuidEmailSendTask);
                                             }
                                         }
                                     }
@@ -197,8 +195,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                     adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
                                                     db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
                                                     //
-                                                    // -- force a sent task process
-                                                    cp.Addon.ExecuteAsProcess(addonGuidTextMessageSendTask);
+                                                    // -- force a send task process (doc environment not necessary)
+                                                    AddonModel.setRunNow(cp, addonGuidTextMessageSendTask);
                                                 }
                                             }
                                         }
@@ -219,8 +217,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             GroupTextMessageModel.setSubmitted(cp, adminData.editRecord.id);
                                             //
-                                            // -- force a sent task process
-                                            cp.Addon.ExecuteAsProcess(addonGuidTextMessageSendTask);
+                                            // -- force a send task process (doc environment not necessary)
+                                            AddonModel.setRunNow(cp, addonGuidTextMessageSendTask);
                                         }
                                     }
                                     adminData.admin_Action = Constants.AdminActionNop;
@@ -524,7 +522,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         private static void SaveEditRecord(CPClass cp, AdminDataModel adminData) {
             try {
                 int SaveCCIDValue = 0;
-                int ActivityLogOrganizationId = -1;
                 if (!cp.core.doc.userErrorList.Count.Equals(0)) {
                     //
                     // -- If There is an error, block the save
@@ -572,7 +569,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // ----- Create the update sql
                             //
-                            bool fieldChanged = false;
                             foreach (var keyValuePair in adminData.adminContent.fields) {
                                 ContentFieldMetadataModel field = keyValuePair.Value;
                                 EditRecordFieldModel editRecordField = adminData.editRecord.fieldsLc[field.nameLc];
@@ -597,7 +593,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 //
                                                 // save the value in the request
                                                 if (csData.getText(fieldName) != FieldValueText) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, FieldValueText);
                                                 }
@@ -613,7 +608,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         }
                                     case "ACTIVE": {
                                             if (csData.getBoolean(fieldName) != encodeBoolean(fieldValueObject)) {
-                                                fieldChanged = true;
                                                 recordChanged = true;
                                                 csData.set(fieldName, encodeBoolean(fieldValueObject));
                                             }
@@ -675,14 +669,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 //
                                                 if (cp.core.docProperties.getBoolean(fieldName + ".DeleteFlag")) {
                                                     recordChanged = true;
-                                                    fieldChanged = true;
                                                     csData.set(fieldName, "");
                                                 }
                                                 //
                                                 // -- find the uploaded file in the request.files 
                                                 csData.setFormInput(cp.core, fieldName, fieldName);
                                                 recordChanged = true;
-                                                fieldChanged = true;
                                                 break;
                                             }
                                         case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
@@ -692,7 +684,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 bool saveValue = GenericController.encodeBoolean(fieldValueObject);
                                                 if (csData.getBoolean(fieldName) != saveValue) {
                                                     recordChanged = true;
-                                                    fieldChanged = true;
                                                     csData.set(fieldName, saveValue);
                                                 }
                                                 break;
@@ -702,11 +693,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 //
                                                 // Floating pointer numbers, allow nullable
                                                 if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
                                                 } else if (encodeNumber(fieldValueObject) != csData.getNumber(fieldName)) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, encodeNumber(fieldValueObject));
                                                 }
@@ -717,11 +706,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 // Date
                                                 //
                                                 if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
                                                 } else if (encodeDate(fieldValueObject) != csData.getDate(fieldName)) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, encodeDate(fieldValueObject));
                                                 }
@@ -732,11 +719,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 //
                                                 // Integers, allow nullable
                                                 if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
                                                 } else if (encodeInteger(fieldValueObject) != csData.getInteger(fieldName)) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, encodeInteger(fieldValueObject));
                                                 }
@@ -757,7 +742,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 //
                                                 string saveValue = GenericController.encodeText(fieldValueObject);
                                                 if (csData.getText(fieldName) != saveValue) {
-                                                    fieldChanged = true;
                                                     recordChanged = true;
                                                     csData.set(fieldName, saveValue);
                                                 }
@@ -773,7 +757,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 //
                                                 // Unknown other types
                                                 string saveValue = GenericController.encodeText(fieldValueObject);
-                                                fieldChanged = true;
                                                 recordChanged = true;
                                                 csData.set(UcaseFieldName, saveValue);
                                                 break;
@@ -783,34 +766,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // -- put any changes back in array for the next page to display
                                 editRecordField.value = fieldValueObject;
-                                //
-                                // -- Log Activity for changes to people and organizattions
-                                if (fieldChanged) {
-                                    if (!NewRecord) {
-                                        switch (GenericController.toLCase(adminData.adminContent.tableName)) {
-                                            case "ccmembers": {
-                                                    //
-                                                    if (ActivityLogOrganizationId < 0) {
-                                                        PersonModel person = DbBaseModel.create<PersonModel>(cp, adminData.editRecord.id);
-                                                        if (person != null) {
-                                                            ActivityLogOrganizationId = person.organizationId;
-                                                        }
-                                                    }
-                                                    LogController.addSiteActivity(cp.core, "modifying field " + fieldName, adminData.editRecord.id, ActivityLogOrganizationId);
-                                                    break;
-                                                }
-                                            case "organizations": {
-                                                    //
-                                                    LogController.addSiteActivity(cp.core, "modifying field " + fieldName, 0, adminData.editRecord.id);
-                                                    break;
-                                                }
-                                            default: {
-                                                    // do nothing
-                                                    break;
-                                                }
-                                        }
-                                    }
-                                }
                             }
                             if (recordChanged) {
                                 //

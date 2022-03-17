@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, AddonContentTriggerRuleClass");
+                env.log("Housekeep, executeHourlyTasks, AddonContentTriggerRuleClass");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }
@@ -32,18 +32,18 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "HousekeepDaily, addoncontenttrigger rules");
+                env.log("HousekeepDaily, addoncontenttrigger rules");
                 //
                 // -- addon trigger rules
-                core.db.executeNonQuery("delete from ccAddonContentTriggerRules where id in (select r.id from ccAddonContentTriggerRules r left join ccaggregatefunctions a on a.id = r.addonid where a.Id Is Null)");
-                core.db.executeNonQuery("delete from ccAddonContentTriggerRules where id in (select r.id from ccAddonContentTriggerRules r left join cccontent c on c.id = r.contentid where c.id is null)");
+                env.core.db.executeNonQuery("delete from ccAddonContentTriggerRules where id in (select r.id from ccAddonContentTriggerRules r left join ccaggregatefunctions a on a.id = r.addonid where a.Id Is Null)");
+                env.core.db.executeNonQuery("delete from ccAddonContentTriggerRules where id in (select r.id from ccAddonContentTriggerRules r left join cccontent c on c.id = r.contentid where c.id is null)");
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }

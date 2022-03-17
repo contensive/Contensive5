@@ -1,12 +1,12 @@
-﻿//
+﻿
 using Contensive.Processor.Controllers;
 using System;
-//
+
 namespace Contensive.Processor.Addons.Housekeeping {
     /// <summary>
-    /// Housekeep this content
+    /// Activity Log
     /// </summary>
-    public static class ContentWatchClass {
+    public static class TasksClass {
         //
         //====================================================================================================
         /// <summary>
@@ -16,7 +16,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
         public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                env.log("Housekeep, executeHourlyTasks, ContentWatch");
+                env.log("Housekeep, executeHourlyTasks, TasksClass");
                 //
             } catch (Exception ex) {
                 LogController.logError(env.core, ex);
@@ -35,16 +35,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                env.log("HousekeepDaily, contentwatch");
-                //
-                using var csData = new CsModel(env.core); 
-                string sql = "select cccontentwatch.id from cccontentwatch left join cccontent on cccontent.id=cccontentwatch.contentid  where (cccontent.id is null)or(cccontent.active=0)or(cccontent.active is null)";
-                csData.openSql(sql);
-                while (csData.ok()) {
-                    MetadataController.deleteContentRecord(env.core, "Content Watch", csData.getInteger("ID"));
-                    csData.goNext();
+                env.log("Housekeep, TasksClass");
+                {
+                    //
+                    //
+                    env.log("Housekeep, ccTasks, delete tasks started and not finished with 1 day.");
+                    //
+                    env.core.db.executeNonQuery("delete from cctasks where (cmdRunner is not null)or(DateAdded<DATEADD(day,-1,CAST(GETDATE() AS DATE)))");
                 }
-
             } catch (Exception ex) {
                 LogController.logError(env.core, ex);
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");

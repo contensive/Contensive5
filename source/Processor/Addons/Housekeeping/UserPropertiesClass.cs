@@ -14,14 +14,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, UserProperties");
+                env.log("Housekeep, executeHourlyTasks, UserProperties");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,25 +31,25 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// daily housekeep. delete orphan user properties
         /// </summary>
         /// <param name="core"></param>
-        public static void executeDailyTasks(CoreController core) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, userproperites");
+                env.log("Housekeep, userproperites");
                 //
                 string sql = "delete from ccProperties from ccProperties p left join ccmembers m on m.id=p.KeyID where (p.TypeID=" + (int)PropertyModelClass.PropertyTypeEnum.user + ") and (m.ID is null)";
-                core.db.sqlCommandTimeout = 180;
-                core.db.executeNonQuery(sql);
+                env.core.db.sqlCommandTimeout = 180;
+                env.core.db.executeNonQuery(sql);
                 //
                 // Member Properties with no member
                 //
-                LogController.logInfo(core, "Deleting member properties with no member record.");
+                env.log("Deleting member properties with no member record.");
                 sql = "delete ccproperties from ccproperties left join ccmembers on ccmembers.id=ccproperties.keyid where (ccproperties.typeid=0) and (ccmembers.id is null)";
-                core.db.sqlCommandTimeout = 180;
-                core.db.executeNonQuery(sql);
+                env.core.db.sqlCommandTimeout = 180;
+                env.core.db.executeNonQuery(sql);
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

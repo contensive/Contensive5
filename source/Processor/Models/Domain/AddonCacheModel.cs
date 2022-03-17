@@ -19,12 +19,12 @@ namespace Contensive.Processor.Models.Domain {
         //
         private Dictionary<int, List<int>> dependencyDictionary = new Dictionary<int, List<int>>();
         //
-        private List<int> onBodyEndIdList = new List<int>();
-        private List<int> onBodyStartIdList = new List<int>();
-        private List<int> onNewVisitIdList = new List<int>();
-        private List<int> OnPageEndIdList = new List<int>();
-        private List<int> OnPageStartIdList = new List<int>();
-        private List<int> remoteMethodIdList = new List<int>();
+        private List<int> onBodyEndIdList = new();
+        private List<int> onBodyStartIdList = new();
+        private List<int> onNewVisitIdList = new();
+        private List<int> OnPageEndIdList = new();
+        private List<int> OnPageStartIdList = new();
+        private List<int> remoteMethodIdList = new();
         /// <summary>
         /// Each addon includes text to be added to the robots.txt response.
         /// </summary>

@@ -160,7 +160,33 @@ namespace Contensive.BaseClasses {
         /// <param name="message"></param>
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
-        public abstract void LogActivity(string message, int userID, int organizationId);
+        [Obsolete("Use LogActivity(message, user)", false)] public abstract void LogActivity(string message, int userID, int organizationId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log anactivity for the current user
+        /// </summary>
+        /// <param name="actvityMessage"></param>
+        public abstract void LogActivity(string actvityMessage);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log an activity for the specified user
+        /// </summary>
+        /// <param name="actvityMessage"></param>
+        /// <param name="activityUserId"></param>
+        public abstract void LogActivity(string actvityMessage, int activityUserId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log an activity for the specified user for a scheduled event
+        /// </summary>
+        /// <param name="actvityMessage"></param>
+        /// <param name="activityUserId"></param>
+        /// <param name="dateScheduled"></param>
+        /// <param name="duration"></param>
+        /// <param name="scheduledStaffId"></param>
+        public abstract void LogActivity(string actvityMessage, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId);
         //
         //====================================================================================================
         /// <summary>

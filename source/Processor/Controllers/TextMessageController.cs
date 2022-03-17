@@ -18,7 +18,7 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class TextMessageController {
         //
-        private const string blockListFilename = "Config\\SMSBlockList.txt";
+        private const string blockListPrivateFilePathFilename = "Config\\TextMessageBlockList.txt";
         //
         //
         //====================================================================================================
@@ -30,6 +30,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 // -- get list of all group texts messages that need to be sent
+                bool needToSend = false;
                 foreach (var groupTextMessage in DbBaseModel.createList<GroupTextMessageModel>(core.cpParent, "((sent is null)or(sent=0))and(submitted<>0)")) {
                     //
                     // -- mark it sent
@@ -68,6 +69,7 @@ namespace Contensive.Processor.Controllers {
                                     };
                                     queueTextMessage(core, false, "Group Text Message", textMessageSendRequest);
                                     recipientList.Add("OK, " + recipientName + ", " + recipientPhone);
+                                    needToSend = true;
                                     continue;
                                 }
                                 recipientList.Add("Fail, invalid phone, " + recipientName + ", " + recipientPhone);
@@ -78,12 +80,13 @@ namespace Contensive.Processor.Controllers {
                         var confirmPerson = DbBaseModel.create<PersonModel>(core.cpParent, groupTextMessage.testMemberID);
                         if (confirmPerson != null) {
                             sendConfirmation(core, confirmPerson, groupTextMessage.body, recipientList, groupTextMessage.id);
+                            needToSend = true;
                         }
                     }
                 }
                 //
                 // -- set the text message task to run now
-                AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
+                if (needToSend) { AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask); }
                 return;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -98,14 +101,14 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <returns></returns>
         public static string getBlockList(CoreController core) {
-            if (!string.IsNullOrEmpty(core.doc.smsBlockListStore)) { return core.doc.smsBlockListStore; }
-            core.doc.smsBlockListStore = core.privateFiles.readFileText(blockListFilename);
-            if (string.IsNullOrEmpty(core.doc.smsBlockListStore)) {
+            if (!string.IsNullOrEmpty(core.doc.textMessageBlockListStore)) { return core.doc.textMessageBlockListStore; }
+            core.doc.textMessageBlockListStore = core.privateFiles.readFileText(blockListPrivateFilePathFilename);
+            if (string.IsNullOrEmpty(core.doc.textMessageBlockListStore)) {
                 // -- if blank, add a new-line so the empty list can be cached
-                core.doc.smsBlockListStore = windowsNewLine;
-                core.privateFiles.saveFile(blockListFilename, core.doc.smsBlockListStore);
+                core.doc.textMessageBlockListStore = windowsNewLine;
+                core.privateFiles.saveFile(blockListPrivateFilePathFilename, core.doc.textMessageBlockListStore);
             }
-            return core.doc.smsBlockListStore;
+            return core.doc.textMessageBlockListStore;
         }
         //
         //====================================================================================================
@@ -141,9 +144,9 @@ namespace Contensive.Processor.Controllers {
                 //
                 // add them to the list
                 //
-                core.doc.smsBlockListStore = blockList + Environment.NewLine + phoneNumber + "\t" + core.dateTimeNowMockable;
-                core.privateFiles.saveFile(blockListFilename, core.doc.smsBlockListStore);
-                core.doc.smsBlockListStore = "";
+                core.doc.textMessageBlockListStore = blockList + Environment.NewLine + phoneNumber + "\t" + core.dateTimeNowMockable;
+                core.privateFiles.saveFile(blockListPrivateFilePathFilename, core.doc.textMessageBlockListStore);
+                core.doc.textMessageBlockListStore = "";
             }
         }
         //
@@ -246,9 +249,15 @@ namespace Contensive.Processor.Controllers {
                 ConfirmBody += "--- end of list ---" + BR;
                 ConfirmBody += "</div>";
                 //
+                // -- queue email and text, run email and text send (no doc conext needed)
                 string emailStatus = "";
                 EmailController.queueAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus);
-                return queuePersonTextMessage(core, person, "System text complete from " + core.appConfig.domainList[0] + ". A confirmation email was sent to [" + person.email + "]", true, textMessageId, ref emailStatus, "System Text Confirmation");
+                AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
+                //
+                bool result = queuePersonTextMessage(core, person, "System text complete from " + core.appConfig.domainList[0] + ". A confirmation email was sent to [" + person.email + "]", true, textMessageId, ref emailStatus, "System Text Confirmation");
+                AddonModel.setRunNow(core.cpParent, addonGuidEmailSendTask);
+                //
+                return result;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -266,6 +275,7 @@ namespace Contensive.Processor.Controllers {
                 string textBody = textMessage.body + appendedCopy;
                 //
                 // --- Send message to the additional member
+                bool needToSend = false;
                 if (additionalMemberID != 0) {
                     confirmationMessage.Append(BR + "Primary Recipient:" + BR);
                     PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, additionalMemberID);
@@ -278,6 +288,7 @@ namespace Contensive.Processor.Controllers {
                             string individualErrorMessage = "";
                             queuePersonTextMessage(core, person, textBody, true, textMessage.id, ref individualErrorMessage, "System Text Message Addl User");
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.cellPhone + ", Status = " + individualErrorMessage + BR);
+                            needToSend = true;
                         }
                     }
                 }
@@ -299,6 +310,7 @@ namespace Contensive.Processor.Controllers {
                             string status = "";
                             queuePersonTextMessage(core, person, textBody, false, textMessage.id, ref status, "System Text Message");
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.cellPhone + ", Status = " + status + BR);
+                            needToSend = true;
                         }
                     }
                 }
@@ -309,10 +321,11 @@ namespace Contensive.Processor.Controllers {
                 if (confirmationMemberId != 0) {
                     PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, confirmationMemberId);
                     sendConfirmation(core, person, textMessage.body, recipientList, textMessage.id);
+                    needToSend = true;
                 }
                 //
                 // -- set the text message task to run now
-                AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
+                if (needToSend) { AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask); }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }

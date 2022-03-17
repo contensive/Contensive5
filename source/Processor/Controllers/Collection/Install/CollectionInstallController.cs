@@ -42,7 +42,7 @@ namespace Contensive.Processor.Controllers {
         //======================================================================================================
         /// <summary>
         /// Install the base collection to this applicaiton
-        /// copy the base collection from the program files folder to a private folder
+        /// create the base collection by zipping the program files folder, then install it
         /// calls installCollectionFromFile
         /// </summary>
         /// <param name="core"></param>
@@ -58,8 +58,8 @@ namespace Contensive.Processor.Controllers {
                 traceContextLog(core, contextLog);
                 //
                 // -- new build
-                const string baseCollectionFilename = "aoBase51.xml";
-                string baseCollectionXml = core.programFiles.readFileText(baseCollectionFilename);
+                const string baseCollectionXmlFilename = "aoBase51.xml";
+                string baseCollectionXml = core.programFiles.readFileText(baseCollectionXmlFilename);
                 if (string.IsNullOrEmpty(baseCollectionXml)) {
                     //
                     // -- base collection notfound
@@ -74,15 +74,45 @@ namespace Contensive.Processor.Controllers {
                 }
                 {
                     //
-                    // now treat as a regular collection and install - to pickup everything else 
+                    // now copy all program files to a temp folder and create a zip (xml plus any resources installed) and install
+                    const string baseCollectionZipFilename = "aoBase51.zip";
                     string installTempPath = "installBaseCollection" + GenericController.getRandomInteger(core) + "\\";
                     try {
                         core.tempFiles.createPath(installTempPath);
-                        core.programFiles.copyFile(baseCollectionFilename, installTempPath + baseCollectionFilename, core.tempFiles);
+                        core.programFiles.copyPath("\\", installTempPath, core.tempFiles);
+                        //
+                        // -- copy all files from subfolders to root to be compatible with installation system
+                        foreach ( FolderDetail subFolder in  core.tempFiles.getFolderList(installTempPath) ) {
+                            copyTempSubfoldersToRoot(core, installTempPath + subFolder.Name + "\\", installTempPath);
+                        }                        
+                        //
+                        // -- remove files not needed: dll, exe, config, pdb as they will all be found in the program files path for built in addons
+                        foreach ( FileDetail file in core.tempFiles.getFileList(installTempPath)) {
+                            string filename = file.Name.ToLowerInvariant();
+                            if ((filename.right(4)==".dll") || (filename.right(11) == ".dll.config") || (filename.right(4) == ".exe") || (filename.right(11) == ".exe.config") || (filename.right(4) == ".pdb")) {
+                                core.tempFiles.deleteFile(installTempPath + filename);
+                            }
+                        }
+                        core.tempFiles.deleteFile(installTempPath + "ContensiveDbModels.xml");
+                        core.tempFiles.deleteFile(installTempPath + "CPBase.xml");
+                        core.tempFiles.deleteFile(installTempPath + "Processor.xml");
+                        core.tempFiles.deleteFile(installTempPath + "nlog.config");
+                        core.tempFiles.deleteFile(installTempPath + "ClearScriptV8.ICU.dat");
+                        core.tempFiles.deleteFile(installTempPath + "DefaultAspxSite.zip");
+                        //
+                        core.tempFiles.zipPath(baseCollectionZipFilename, installTempPath);
+                        //
+                        core.tempFiles.deleteFolder(installTempPath);
+                        //
+                        string baseCollectionZipPathFilename = installTempPath + baseCollectionZipFilename;
+                        core.tempFiles.copyFile(baseCollectionZipFilename, baseCollectionZipPathFilename);
+                        core.tempFiles.deleteFile(baseCollectionZipFilename);
+                        //
+                        //core.programFiles.copyFile(baseCollectionFilename, installTempPath + baseCollectionFilename, core.tempFiles);
                         string installErrorMessage = "";
                         string installedCollectionGuid = "";
                         bool isDependency = false;
-                        if (!installCollectionFromTempFile(core, isDependency, contextLog, installTempPath + baseCollectionFilename, ref installErrorMessage, ref installedCollectionGuid, isNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList)) {
+                        if (!installCollectionFromTempFile(core, isDependency, contextLog, baseCollectionZipPathFilename, ref installErrorMessage, ref installedCollectionGuid, isNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList)) {
                             throw new GenericException("installBaseCollection, call to installCollectionFromPrivateFile failed, message returned [" + installErrorMessage + "]");
                         }
                     } catch (Exception ex) {
@@ -1311,6 +1341,20 @@ namespace Contensive.Processor.Controllers {
         /// <param name="contextLog"></param>
         private static void traceContextLog(CoreController core, Stack<string> contextLog) {
             logger.Log(LogLevel.Info, LogController.processLogMessage(core, string.Join(",", contextLog), false));
+        }
+        //
+        private static void copyTempSubfoldersToRoot( CoreController core, string srcPath, string rootPath) {
+            //
+            // -- copy files
+            foreach( var file in core.tempFiles.getFileList(srcPath)) {
+                core.tempFiles.copyFile(srcPath + file.Name, rootPath + file.Name);
+            }
+            //
+            // -- copy subfolders
+            foreach (FolderDetail subFolder in core.tempFiles.getFolderList(srcPath)) {
+                copyTempSubfoldersToRoot(core, srcPath + subFolder.Name + "\\", rootPath);
+            }
+
         }
     }
 }

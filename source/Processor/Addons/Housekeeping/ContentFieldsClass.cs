@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, ContentField");
+                env.log("Housekeep, executeHourlyTasks, ContentField");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }
@@ -32,18 +32,18 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "HousekeepDaily, content fields");
+                env.log("HousekeepDaily, content fields");
                 //
-                LogController.logInfo(core, "Deleting content fields with no content.");
+                env.log("Deleting content fields with no content.");
                 string sql = "delete from ccfields from ccfields left join cccontent on cccontent.id=ccfields.contentId where cccontent.id is null";
-                core.db.executeNonQuery(sql);
+                env.core.db.executeNonQuery(sql);
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }

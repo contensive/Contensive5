@@ -154,8 +154,9 @@ namespace Contensive.Processor {
         public static string addonGuidHousekeep => _addonGuidHousekeep;
         private const string _addonGuidHousekeep = "{7208D069-8FE3-4BD1-AB76-B25C40C89A45}";
         //
-        public const string addonGuidTextMessageSendTask = "{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}";
+        internal const string addonGuidTextMessageSendTask = "{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}";
         internal const string addonGuidEmailSendTask = "{E6C14E81-EFC9-4BC0-ADB2-BDFF043A0800}";
+        internal const string addonGuidEmailProcessTask = "{E6E82D55-003F-4ED0-B183-5F9D756582FE}";
         internal const string addonGuidBaseStlyles = "{0dd7df28-4924-4881-a1d8-421824f5c2d1}";
         internal const string addonGuidAdminSite = "{c2de2acf-ca39-4668-b417-aa491e7d8460}";
         internal const string addonGuidDashboard = "{4BA7B4A2-ED6C-46C5-9C7B-8CE251FC8FF5}";

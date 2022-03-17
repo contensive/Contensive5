@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, EmailBounceList");
+                env.log("Housekeep, executeHourlyTasks, EmailBounceList");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,14 +31,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
             //
-            core.cpParent.Db.ExecuteNonQuery("update ccmembers set allowbulkemail=1 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null");
+            env.core.cpParent.Db.ExecuteNonQuery("update ccmembers set allowbulkemail=1 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null");
             //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

@@ -5,11 +5,11 @@ using System;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Addons.Email {
-    public class EmailSendTask : AddonBaseClass {
+    public class EmailProcessTask : AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
-        /// send email in queue
+        /// process conditional, group emails and send
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
@@ -18,6 +18,12 @@ namespace Contensive.Processor.Addons.Email {
                 //
                 // -- ok to cast cpbase to cp because they build from the same solution
                 CoreController core = ((CPClass)cp).core;
+                //
+                // Send Submitted Group Email (submitted, not sent, no conditions)
+                EmailController.processGroupEmail(core);
+                //
+                // Send Conditional Email - Offset days after Joining
+                EmailController.processConditionalEmail(core);
                 //
                 // -- send queue
                 EmailController.sendEmailInQueue(core);

@@ -15,14 +15,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, ViewingSummary");
+                env.log("Housekeep, executeHourlyTasks, ViewingSummary");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -33,10 +33,10 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, viewingsummary");
+                env.log("Housekeep, viewingsummary");
                 //
                 //
                 // -- there is a bug and I need to move on.
@@ -46,19 +46,19 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 //{
                 //    DateTime datePtr = default;
-                //    using (var csData = new CsModel(core)) {
-                //        if (!csData.openSql(core.db.getSQLSelect("ccviewingsummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber Desc", "", 1))) {
+                //    using (var csData = new CsModel(env.core)) {
+                //        if (!csData.openSql(env.core.db.getSQLSelect("ccviewingsummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber Desc", "", 1))) {
                 //            datePtr = env.oldestVisitSummaryWeCareAbout;
                 //        } else {
                 //            datePtr = DateTime.MinValue.AddDays(csData.getInteger("DateNumber"));
                 //        }
                 //    }
                 //    if (datePtr < env.oldestVisitSummaryWeCareAbout) { datePtr = env.oldestVisitSummaryWeCareAbout; }
-                //    pageViewSummary(core, datePtr, env.yesterday, 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
+                //    pageViewSummary(core, datePtr, env.yesterday, 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                 //}
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -73,12 +73,12 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// <param name="BuildVersion"></param>
         /// <param name="OldestVisitSummaryWeCareAbout"></param>
         //
-        public static void pageViewSummary(CoreController core, DateTime StartTimeDate, DateTime EndTimeDate, int HourDuration, string BuildVersion, DateTime OldestVisitSummaryWeCareAbout) {
+        public static void pageViewSummary(HouseKeepEnvironmentModel env, DateTime StartTimeDate, DateTime EndTimeDate, int HourDuration, string BuildVersion, DateTime OldestVisitSummaryWeCareAbout) {
             int hint = 0;
             string hinttxt = "";
             try {
-                XmlDocument LibraryCollections = new XmlDocument();
-                XmlDocument LocalCollections = new XmlDocument();
+                XmlDocument LibraryCollections = new();
+                XmlDocument LocalCollections = new();
                 XmlDocument Doc = new XmlDocument();
                 {
                     hint = 1;
@@ -116,7 +116,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         // then use the title to distinguish a page. The problem with this is the current system puts the
                         // visit number and page number in the name. if we select on district name, they will all be.
                         //
-                        using (var csPages = new CsModel(core)) {
+                        using (var csPages = new CsModel(env.core)) {
                             string sql = "select distinct recordid,pagetitle from ccviewings h"
                                 + " where (h.recordid<>0)"
                                 + " and(h.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
@@ -172,7 +172,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     hint = 6;
                                     //
                                     // Total Page Views
-                                    using (var csPageViews = new CsModel(core)) {
+                                    using (var csPageViews = new CsModel(env.core)) {
                                         sql = "select count(h.id) as cnt"
                                             + " from ccviewings h left join ccvisits v on h.visitid=v.id"
                                             + " where " + baseCriteria + " and (v.CookieSupport<>0)"
@@ -185,7 +185,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     //
                                     // Authenticated Visits
                                     //
-                                    using (var csAuthPages = new CsModel(core)) {
+                                    using (var csAuthPages = new CsModel(env.core)) {
                                         sql = "select count(h.id) as cnt"
                                             + " from ccviewings h left join ccvisits v on h.visitid=v.id"
                                             + " where " + baseCriteria + " and(v.CookieSupport<>0)"
@@ -199,7 +199,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     //
                                     // No Cookie Page Views
                                     //
-                                    using (var csNoCookie = new CsModel(core)) {
+                                    using (var csNoCookie = new CsModel(env.core)) {
                                         sql = "select count(h.id) as NoCookiePageViews"
                                             + " from ccviewings h left join ccvisits v on h.visitid=v.id"
                                             + " where " + baseCriteria + " and((v.CookieSupport=0)or(v.CookieSupport is null))"
@@ -212,7 +212,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     //
                                     //
                                     // Mobile Visits
-                                    using (var csMobileVisits = new CsModel(core)) {
+                                    using (var csMobileVisits = new CsModel(env.core)) {
                                         sql = "select count(h.id) as cnt"
                                             + " from ccviewings h left join ccvisits v on h.visitid=v.id"
                                             + " where " + baseCriteria + " and(v.CookieSupport<>0)"
@@ -225,7 +225,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     }
                                     //
                                     // Bot Visits
-                                    using (var csBotVisits = new CsModel(core)) {
+                                    using (var csBotVisits = new CsModel(env.core)) {
                                         sql = "select count(h.id) as cnt"
                                             + " from ccviewings h left join ccvisits v on h.visitid=v.id"
                                             + " where " + baseCriteria + " and(v.CookieSupport<>0)"
@@ -239,7 +239,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     //
                                     // Add or update the Visit Summary Record
                                     //
-                                    using (var csPVS = new CsModel(core)) {
+                                    using (var csPVS = new CsModel(env.core)) {
                                         if (!csPVS.open("Page View Summary", "(timeduration=" + HourDuration + ")and(DateNumber=" + DateNumber + ")and(TimeNumber=" + TimeNumber + ")and(pageid=" + PageId + ")and(pagetitle=" + DbController.encodeSQLText(PageTitle) + ")")) {
                                             csPVS.insert("Page View Summary");
                                         }
@@ -248,7 +248,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                             hint = 11;
                                             string PageName = "";
                                             if (string.IsNullOrEmpty(PageTitle)) {
-                                                PageName = MetadataController.getRecordName(core, "page content", PageId);
+                                                PageName = MetadataController.getRecordName(env.core, "page content", PageId);
                                                 csPVS.set("name", HourDuration + " hr summary for " + DateTime.MinValue.AddDays(DateNumber) + " " + TimeNumber + ":00, " + PageName);
                                                 csPVS.set("PageTitle", PageName);
                                             } else {
@@ -279,7 +279,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex, "hint [" + hint + "]");
+                LogController.logError(env.core, ex, "hint [" + hint + "]");
             }
         }
         //

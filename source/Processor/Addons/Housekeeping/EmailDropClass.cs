@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, EmailDrop");
+                env.log("Housekeep, executeHourlyTasks, EmailDrop");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,21 +31,21 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "HousekeepDaily, emaildrops older then " + env.emailDropArchiveAgeDays + " days");
+                env.log("HousekeepDaily, emaildrops older then " + env.emailDropArchiveAgeDays + " days");
                 //
                 // email drops for only 365 days
-                core.db.executeNonQuery("delete from ccemaildrops where (dateadded < dateadd(day,-" + env.emailDropArchiveAgeDays + ",cast(getdate() as date)))");
+                env.core.db.executeNonQuery("delete from ccemaildrops where (dateadded < dateadd(day,-" + env.emailDropArchiveAgeDays + ",cast(getdate() as date)))");
                 //
                 // email drops with no email
-                core.db.executeNonQuery("delete from ccemaildrops from ccemaildrops d left join ccemail e on e.id=d.emailid where e.id is null");
+                env.core.db.executeNonQuery("delete from ccemaildrops from ccemaildrops d left join ccemail e on e.id=d.emailid where e.id is null");
                 //
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

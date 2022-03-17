@@ -13,13 +13,13 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, RemoteQuery");
+                env.log("Housekeep, executeHourlyTasks, RemoteQuery");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogController.logError(env.core, ex);
                 throw;
             }
         }
@@ -30,16 +30,16 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 string SQL = "";
                 //
                 // Remote Query Expiration
                 //
-                SQL = "delete from ccRemoteQueries where (DateExpires is not null)and(DateExpires<" + DbController.encodeSQLDate(core.dateTimeNowMockable) + ")";
-                core.db.executeNonQuery(SQL);
+                SQL = "delete from ccRemoteQueries where (DateExpires is not null)and(DateExpires<" + DbController.encodeSQLDate(env.core.dateTimeNowMockable) + ")";
+                env.core.db.executeNonQuery(SQL);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogController.logError(env.core, ex);
             }
         }
         //

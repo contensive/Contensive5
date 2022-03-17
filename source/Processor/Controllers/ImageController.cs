@@ -162,107 +162,107 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- first resize - determine the if the width or the height is the rezie fit
                 // -- then crop to the final size
-                using (Image image = Image.Load(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"))) {
+                using Image image = Image.Load(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"));
+                // 
+                // -- if image load issue, return un-resized
+                if (image.Width.Equals(0) || image.Height.Equals(0)) {
+                    return imageCdnPathFilename.Replace(@"\", "/");
+                }
+                // 
+                // -- determine the scale ratio for each axis
+                double widthRatio = holeWidth / (double)image.Width;
+                double heightRatio = holeHeight / (double)image.Height;
+                // 
+                // -- determine scale-up (grow) or scale-down (shrink), if either ratio > 1, scale up
+                bool scaleUp = (widthRatio > 1) || (heightRatio > 1);
+                // 
+                // -- determine scale ratio based on scapeup, width and height ratio
+                bool resizeToWidth;
+                if (scaleUp)
                     // 
-                    // -- if image load issue, return un-resized
-                    if (image.Width.Equals(0) || image.Height.Equals(0)) {
-                        return imageCdnPathFilename.Replace(@"\", "/");
+                    // -- scaleup, select larger of width and height ratio
+                    resizeToWidth = widthRatio > heightRatio;
+                else
+                    // 
+                    // -- scaledown, select smaller of width and height ratio
+                    resizeToWidth = widthRatio > heightRatio;
+                // 
+                // -- determine the final size of the resized image (to be cropped next)
+                Size finalResizedImageSize;
+                if (resizeToWidth) {
+                    // 
+                    // -- resize to width
+                    finalResizedImageSize = new Size {
+                        Width = holeWidth,
+                        Height = Convert.ToInt32(image.Height * widthRatio)
+                    };
+                } else {
+                    // 
+                    // -- resize to height
+                    finalResizedImageSize = new Size {
+                        Width = Convert.ToInt32(image.Width * heightRatio),
+                        Height = holeHeight
+                    };
+                }
+                if (finalResizedImageSize.Height >= image.Height) {
+                    // 
+                    // -- resize larger -- block resize. crop and add alt size and save original file
+                    // -- determine the crop dimensions to crop to a smaller image matching the aspect ratio of the frame
+                    int cropWidth;
+                    int cropHeight;
+                    Rectangle cropRectangle = new();
+                    if (resizeToWidth) {
+                        // 
+                        // -- use image width, crop off overflow height
+                        cropWidth = image.Width;
+                        cropHeight = Convert.ToInt32(image.Width * holeHeight / (double)holeWidth);
+                        cropRectangle.X = 0;
+                        cropRectangle.Y = System.Convert.ToInt32((image.Height - cropHeight) / (double)2);
+                        cropRectangle.Width = cropWidth;
+                        cropRectangle.Height = cropHeight;
+                    } else {
+                        // 
+                        // -- use image height, crop off overflow width
+                        cropHeight = image.Height;
+                        cropWidth = Convert.ToInt32(image.Height * holeWidth / (double)holeHeight);
+                        cropRectangle.X = System.Convert.ToInt32((image.Width - cropWidth) / (double)2);
+                        cropRectangle.Y = 0;
+                        cropRectangle.Width = cropWidth;
+                        cropRectangle.Height = cropHeight;
                     }
                     // 
-                    // -- determine the scale ratio for each axis
-                    double widthRatio = holeWidth / (double)image.Width;
-                    double heightRatio = holeHeight / (double)image.Height;
+                    // -- now crop if both axis provided
+                    if ((!cropWidth.Equals(0)) & (!cropHeight.Equals(0)))
+                        image.Mutate(x => x.Crop(cropRectangle));
+                } else {
                     // 
-                    // -- determine scale-up (grow) or scale-down (shrink), if either ratio > 1, scale up
-                    bool scaleUp = (widthRatio > 1) || (heightRatio > 1);
+                    // -- resize smaller
+                    image.Mutate(x => x.Resize(finalResizedImageSize));
                     // 
-                    // -- determine scale ratio based on scapeup, width and height ratio
-                    bool resizeToWidth;
-                    if (scaleUp)
-                        // 
-                        // -- scaleup, select larger of width and height ratio
-                        resizeToWidth = widthRatio > heightRatio;
-                    else
-                        // 
-                        // -- scaledown, select smaller of width and height ratio
-                        resizeToWidth = widthRatio > heightRatio;
-                    // 
-                    // -- determine the final size of the resized image (to be cropped next)
-                    Size finalResizedImageSize;
-                    if (resizeToWidth)
-                        // 
-                        // -- resize to width
-                        finalResizedImageSize = new SixLabors.ImageSharp.Size {
+                    // -- now crop if both axis provided
+                    if ((!holeWidth.Equals(0)) & (!holeHeight.Equals(0))) {
+                        Rectangle cropRectangle = new Rectangle {
+                            X = System.Convert.ToInt32((image.Width - holeWidth) / (double)2),
+                            Y = System.Convert.ToInt32((image.Height - holeHeight) / (double)2),
                             Width = holeWidth,
-                            Height = Convert.ToInt32(image.Height * widthRatio)
-                        };
-                    else
-                        // 
-                        // -- resize to height
-                        finalResizedImageSize = new SixLabors.ImageSharp.Size {
-                            Width = Convert.ToInt32(image.Width * heightRatio),
                             Height = holeHeight
                         };
-                    if ((finalResizedImageSize.Height >= image.Height)) {
-                        // 
-                        // -- resize larger -- block resize. crop and add alt size and save original file
-                        // -- determine the crop dimensions to crop to a smaller image matching the aspect ratio of the frame
-                        int cropWidth;
-                        int cropHeight;
-                        Rectangle cropRectangle = new();
-                        if (resizeToWidth) {
-                            // 
-                            // -- use image width, crop off overflow height
-                            cropWidth = image.Width;
-                            cropHeight = Convert.ToInt32(image.Width * holeHeight / (double)holeWidth);
-                            cropRectangle.X = 0;
-                            cropRectangle.Y = System.Convert.ToInt32((image.Height - cropHeight) / (double)2);
-                            cropRectangle.Width = cropWidth;
-                            cropRectangle.Height = cropHeight;
-                        } else {
-                            // 
-                            // -- use image height, crop off overflow width
-                            cropHeight = image.Height;
-                            cropWidth = Convert.ToInt32(image.Height * holeWidth / (double)holeHeight);
-                            cropRectangle.X = System.Convert.ToInt32((image.Width - cropWidth) / (double)2);
-                            cropRectangle.Y = 0;
-                            cropRectangle.Width = cropWidth;
-                            cropRectangle.Height = cropHeight;
-                        }
-                        // 
-                        // -- now crop if both axis provided
-                        if ((!cropWidth.Equals(0)) & (!cropHeight.Equals(0)))
-                            image.Mutate(x => x.Crop(cropRectangle));
-                    } else {
-                        // 
-                        // -- resize smaller
-                        image.Mutate(x => x.Resize(finalResizedImageSize));
-                        // 
-                        // -- now crop if both axis provided
-                        if ((!holeWidth.Equals(0)) & (!holeHeight.Equals(0))) {
-                            Rectangle cropRectangle = new Rectangle {
-                                X = System.Convert.ToInt32((image.Width - holeWidth) / (double)2),
-                                Y = System.Convert.ToInt32((image.Height - holeHeight) / (double)2),
-                                Width = holeWidth,
-                                Height = holeHeight
-                            };
-                            image.Mutate(x => x.Crop(cropRectangle));
-                        }
+                        image.Mutate(x => x.Crop(cropRectangle));
                     }
-                    // 
-                    // -- save the resized/cropped image to the new filename and upload
-                    if (saveAsWebP) {
-                        image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")),new WebpEncoder());
-                    } else {
-                        image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")));
-                    }
-                    core.cdnFiles.copyFileLocalToRemote(newImageFilename);
-                    // 
-                    // -- save the new size back to the item and cache
-                    imageAltSizeList.Add(imageAltsize);
-                    core.cache.storeObject(imageExistsKey, true);
-                    return newImageFilename.Replace(@"\", "/");
                 }
+                // 
+                // -- save the resized/cropped image to the new filename and upload
+                if (saveAsWebP) {
+                    image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")), new WebpEncoder());
+                } else {
+                    image.Save(core.cdnFiles.convertRelativeToLocalAbsPath(newImageFilename.Replace("/", @"\")));
+                }
+                core.cdnFiles.copyFileLocalToRemote(newImageFilename);
+                // 
+                // -- save the new size back to the item and cache
+                imageAltSizeList.Add(imageAltsize);
+                core.cache.storeObject(imageExistsKey, true);
+                return newImageFilename.Replace(@"\", "/");
             } catch (UnknownImageFormatException ex) {
                 //
                 // -- unknown image error, return original image

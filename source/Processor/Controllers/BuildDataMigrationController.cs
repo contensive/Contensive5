@@ -1,4 +1,5 @@
 ﻿
+using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Properties;
 using System;
@@ -307,13 +308,29 @@ namespace Contensive.Processor.Controllers {
                             cp.Site.SetProperty("webAddressProtocolDomain", cp.Site.GetText("EmailUrlRootRelativePrefix"));
                         }
                     }
-                    //
-                    // -- delete legacy corehelp collection. Created with fields that have only field name, legacy install layed collections over the application collection
-                    //    new install loads fields directly from collection, which coreHelp then marks all fields inactive.
-                    core.db.delete("ccaddoncollections", "{6e905db1-d3f0-40af-aac4-4bd78e680fae}");
-                    //
-                    // -- 21.12.29.0 - delete Edit Settigns (af=43)
-                    core.db.delete("ccmenuentries", "{5F714C38-A5EB-4BFC-86BB-9DAA2C5F113E}");
+                    if (GenericController.versionIsOlder(DataBuildVersion, "22.3.15.4")) {
+                        //
+                        // -- delete legacy corehelp collection. Created with fields that have only field name, legacy install layed collections over the application collection
+                        //    new install loads fields directly from collection, which coreHelp then marks all fields inactive.
+                        core.db.delete("ccaddoncollections", "{6e905db1-d3f0-40af-aac4-4bd78e680fae}");
+                        //
+                        // -- 21.12.29.0 - delete Edit Settigns (af=43)
+                        core.db.delete("ccmenuentries", "{5F714C38-A5EB-4BFC-86BB-9DAA2C5F113E}");
+                        //
+                        // -- 22.3.13.22 -- sort orders were installed incorrectly
+                        core.db.executeNonQuery("delete from ccSortMethods where name is null");
+                        core.db.executeNonQuery("update ccSortMethods set ccguid='{97128516-AEDF-4B6C-BC56-F6EAA4C3AA78}' where name='By Name'");
+                        core.db.executeNonQuery("update ccSortMethods set ccguid='{61ACDEA0-6E26-478F-9050-20D8C1F9D7B4}' where name='By Alpha Sort Order Field'");
+                        core.db.executeNonQuery("update ccSortMethods set ccguid='{25B0724D-CB5C-45C5-98C5-FCA2EC941132}' where name='By Date'");
+                        core.db.executeNonQuery("update ccSortMethods set ccguid='{FC3889B7-8624-437A-A6E5-A628D93D73CA}' where name='By Date Reverse'");
+                        core.db.executeNonQuery("update ccSortMethods set ccguid='{73B4559E-0995-4E6F-8981-B116FA0E0A5F}' where name='By Alpha Sort Order Then Oldest First'");
+                        //
+                        // -- 22.3.14.1 -- convert activity log message from text to longtext
+                        core.db.executeNonQuery("update ccfields set type=" + (int)CPContentBaseClass.FieldTypeIdEnum.LongText + " where name='Message' and contentid=" + cp.Content.GetID("activity log"));
+                        //
+                        // -- 22.3.15.4 -- addon category 'containers' has incorrect guid
+                        core.db.executeNonQuery("update ccAddonCategories set ccguid='{bc311ad8-fcae-4228-800d-e432733fdf3e}' where name='Containers'");
+                    }
                 }
                 // -- Reload
                 core.cache.invalidateAll();

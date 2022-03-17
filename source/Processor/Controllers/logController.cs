@@ -247,26 +247,27 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="Message"></param>
+        /// <param name="activityMessage"></param>
         /// <param name="ByMemberID"></param>
         /// <param name="SubjectMemberID"></param>
         /// <param name="SubjectOrganizationID"></param>
         /// <param name="Link"></param>
         /// <param name="VisitorId"></param>
         /// <param name="VisitId"></param>
-        public static void addSiteActivity(CoreController core, string Message, int ByMemberID, int SubjectMemberID, int SubjectOrganizationID, string Link = "", int VisitorId = 0, int VisitId = 0) {
+        public static void addSiteActivity(CoreController core, string activityMessage, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
             try {
                 //
-                if (Message.Length > 255) Message = Message.Substring(0, 255);
-                if (Link.Length > 255) Message = Link.Substring(0, 255);
+                if (activityMessage == null) { activityMessage = ""; }
+                if (activityMessage.Length > 255) activityMessage = activityMessage.Substring(0, 255);
                 using (var csData = new CsModel(core)) {
                     if (csData.insert("Activity Log")) {
-                        csData.set("MemberID", SubjectMemberID);
-                        csData.set("OrganizationID", SubjectOrganizationID);
-                        csData.set("Message", Message);
-                        csData.set("Link", Link);
-                        csData.set("VisitorID", VisitorId);
-                        csData.set("VisitID", VisitId);
+                        csData.set("MemberID", activityUserId);
+                        csData.set("Message", activityMessage);
+                        csData.set("VisitorID", core.session.visitor.id);
+                        csData.set("VisitID", core.session.visit.id);
+                        csData.set("dateScheduled", dateScheduled);
+                        csData.set("duration", duration);
+                        csData.set("scheduledStaffId", scheduledStaffId);
                     }
                 }
                 //
@@ -283,13 +284,23 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <param name="subjectMemberID"></param>
+        /// <param name="activityMessage"></param>
+        /// <param name="activityUserId"></param>
         /// <param name="subjectOrganizationID"></param>
-        public static void addSiteActivity(CoreController core, string message, int subjectMemberID, int subjectOrganizationID) {
-            if ((core.session != null) && (core.session.user != null) && (core.session.visitor != null) && (core.session.visit != null) && (core.webServer != null)) {
-                addSiteActivity(core, message, core.session.user.id, subjectMemberID, subjectOrganizationID, core.webServer.requestUrl, core.session.visitor.id, core.session.visit.id);
-            }
+        public static void addSiteActivity(CoreController core, string activityMessage, int activityUserId) {
+            addSiteActivity(core, activityMessage, activityUserId, DateTime.MinValue, 0, 0);
+        }
+        //
+        //=====================================================================================================
+        /// <summary>
+        /// add activity about a user to the site's activity log for content managers to review
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="activityMessage"></param>
+        /// <param name="activityUserId"></param>
+        /// <param name="subjectOrganizationID"></param>
+        public static void addSiteActivity(CoreController core, string activityMessage) {
+            addSiteActivity(core, activityMessage, (core?.session?.user == null) ? 0 : core.session.user.id, DateTime.MinValue, 0, 0);
         }
         //
         //================================================================================================

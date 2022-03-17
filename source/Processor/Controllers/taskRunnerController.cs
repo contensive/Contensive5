@@ -116,9 +116,8 @@ namespace Contensive.Processor.Controllers {
                     processTimerInProcess = false;
                 }
             } catch (Exception ex) {
-                using (CPClass cp = new CPClass()) {
-                    LogController.logError(cp.core, ex);
-                }
+                using CPClass cp = new(); 
+                LogController.logError(cp.core, ex);
             }
         }
         //
@@ -254,6 +253,10 @@ namespace Contensive.Processor.Controllers {
                     try {
                         foreach (var task in DbBaseModel.createList<TaskModel>(cp, "(cmdRunner=" + DbController.encodeSQLText(runnerGuid) + ")and(datestarted is null)", "id")) {
                             //
+                            // -- delete task before task runs - change 220312, if task does not complete (process kill, power off), it must be removed from task list
+                            // -- task.save() should be blocked
+                            DbBaseModel.delete<TaskModel>(cp, task.id);
+                            //
                             // -- trace log without core
                             LogController.log(cp.core, "taskRunner.runTask, runTask, task [" + task.name + "], cmdDetail [" + task.cmdDetail + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
                             //
@@ -293,8 +296,6 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                             }
-                            task.dateCompleted = cp.core.dateTimeNowMockable;
-                            DbBaseModel.delete<TaskModel>(cp, task.id);
                             //
                             // -- info log the task running - so info state will log for memory leaks
                             LogController.log(cp.core, "TaskRunner exit, task [" + task.name + "], cmdDetail [" + task.cmdDetail + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);

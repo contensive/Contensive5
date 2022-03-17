@@ -17,7 +17,6 @@ namespace Contensive.Processor.Addons.PageManager {
         /// <param name="cp"></param>
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
-            string returnHtml = "";
             try {
                 CoreController core = ((CPClass)cp).core;
                 string requestJson = cp.Request.Body;

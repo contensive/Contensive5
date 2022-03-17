@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, Viewings");
+                env.log("Housekeep, executeHourlyTasks, Viewings");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,46 +31,46 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, viewings");
+                env.log("Housekeep, viewings");
                 //
                 try {
                     //
                     // delete old viewings
-                    core.db.sqlCommandTimeout = 1800;
-                    core.db.executeNonQuery("delete from ccviewings where (dateadded < DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
+                    env.core.db.sqlCommandTimeout = 1800;
+                    env.core.db.executeNonQuery("delete from ccviewings where (dateadded < DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
                 } catch (Exception) {
-                    LogController.logWarn(core, "exception deleting old viewings");
+                    LogController.logWarn(env.core, "exception deleting old viewings");
                 }
                 //
                 if (env.archiveDeleteNoCookie) {
                     //
-                    LogController.logInfo(core, "Deleting viewings from visits with no cookie support older than Midnight, Two Days Ago");
+                    env.log("Deleting viewings from visits with no cookie support older than Midnight, Two Days Ago");
                     //
                     // if this fails, continue with the rest of the work
                     try {
                         string sql = "delete from ccviewings from ccviewings h,ccvisits v where h.visitid=v.id and(v.CookieSupport=0)and(v.LastVisitTime<DATEADD(day,-2,CAST(GETDATE() AS DATE)))";
-                        core.db.sqlCommandTimeout = 1800;
-                        core.db.executeNonQuery(sql);
+                        env.core.db.sqlCommandTimeout = 1800;
+                        env.core.db.executeNonQuery(sql);
                     } catch (Exception) {
-                        LogController.logWarn(core, "exception deleting viewings with no cookie");
+                        LogController.logWarn(env.core, "exception deleting viewings with no cookie");
                     }
                 }
                 //
-                LogController.logInfo(core, "Deleting viewings with null or invalid VisitID");
+                env.log("Deleting viewings with null or invalid VisitID");
                 //
                 try {
                     string sql = "delete from ccviewings  where (visitid=0 or visitid is null)";
-                    core.db.sqlCommandTimeout = 1800;
-                    core.db.executeNonQuery(sql);
+                    env.core.db.sqlCommandTimeout = 1800;
+                    env.core.db.executeNonQuery(sql);
                 } catch (Exception) {
-                    LogController.logWarn(core, "exception deleting viewings with invalid visits");
+                    LogController.logWarn(env.core, "exception deleting viewings with invalid visits");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

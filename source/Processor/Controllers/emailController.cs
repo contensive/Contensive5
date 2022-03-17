@@ -196,6 +196,7 @@ namespace Contensive.Processor.Controllers {
                         textBody = textBody,
                         toAddress = toAddress
                     });
+                    core.addon.executeAsProcess(addonGuidEmailSendTask);
                     LogController.logInfo(core, "queueAdHocEmail, added to queue, toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                 }
             } catch (Exception ex) {
@@ -265,6 +266,7 @@ namespace Contensive.Processor.Controllers {
                     };
                     if (tryVerifyEmail(core, email, ref userErrorMessage)) {
                         queueEmail(core, Immediate, emailContextMessage, email);
+                        core.addon.executeAsProcess(addonGuidEmailSendTask);
                         result = true;
                     }
                 }
@@ -854,7 +856,9 @@ namespace Contensive.Processor.Controllers {
                 // -- One at a time mark the first for this one sending process
                 // -- read back the marked record and if it is there, then no other process is likely looking at it so it can be sent
                 // -- this will help prevent duplicate sends, and if the process aborts, only one queued email per queue will be stuck
-                List<EmailQueueModel> queueSampleList = DbBaseModel.createList<EmailQueueModel>(core.cpParent, "", "immediate,id desc", 100, 1);
+                List<EmailQueueModel> queueSampleList = DbBaseModel.createList<EmailQueueModel>(core.cpParent, "", "immediate,id asc", 100, 1);
+                if(queueSampleList.Count==0) { return; }
+                //
                 bool sendWithSES = core.siteProperties.getBoolean(Constants.sitePropertyName_SendEmailWithAmazonSES);
                 //
                 LogController.logInfo(core, "sending queued email with " + (sendWithSES ? "AWS SES" : "SMTP") + ", based on site property [" + Constants.sitePropertyName_SendEmailWithAmazonSES + "]");

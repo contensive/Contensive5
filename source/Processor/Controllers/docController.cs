@@ -362,7 +362,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// sms block list (deprecate
         /// </summary>
-        public string smsBlockListStore { get; set; }
+        public string textMessageBlockListStore { get; set; }
         //
         //====================================================================================================
         /// <summary>

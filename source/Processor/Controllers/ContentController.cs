@@ -159,21 +159,18 @@ namespace Contensive.Processor.Controllers {
                 } else if (tableNameLower == PersonModel.tableMetadata.tableNameLower) {
                     //
                     // -- PersonModel
-                    var person = PersonModel.create<PersonModel>(core.cpParent, recordId);
-                    if(person != null ) {
-                        if (isDelete) {
-                            LogController.addSiteActivity(core, "deleting user #" + recordId + " (" + recordName + ")", recordId, person.organizationId);
-                        } else {
-                            LogController.addSiteActivity(core, "saving changes to user #" + recordId + " (" + recordName + ")", recordId, person.organizationId);
-                        }
+                    if (isDelete) {
+                        LogController.addSiteActivity(core, "deleting user #" + recordId + " (" + recordName + ")", recordId);
+                    } else {
+                        LogController.addSiteActivity(core, "saving changes to user #" + recordId + " (" + recordName + ")", recordId);
                     }
                 } else if (tableNameLower == OrganizationModel.tableMetadata.tableNameLower) {
                     //
                     // -- Log Activity for changes to people and organizattions
                     if (isDelete) {
-                        LogController.addSiteActivity(core, "deleting organization #" + recordId + " (" + recordName + ")", 0, recordId);
+                        LogController.addSiteActivity(core, "deleting organization #" + recordId + " (" + recordName + ")", recordId);
                     } else {
-                        LogController.addSiteActivity(core, "saving changes to organization #" + recordId + " (" + recordName + ")", 0, recordId);
+                        LogController.addSiteActivity(core, "saving changes to organization #" + recordId + " (" + recordName + ")", recordId);
                     }
                 } else if (tableNameLower == SitePropertyModel.tableMetadata.tableNameLower) {
                     //

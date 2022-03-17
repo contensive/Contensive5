@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, GroupRules");
+                env.log("Housekeep, executeHourlyTasks, GroupRules");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,39 +31,39 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, grouprules");
+                env.log("Housekeep, grouprules");
                 //
                 //
                 // GroupRules with bad ContentID
                 //   Handled record by record removed to prevent CDEF reload
                 //
-                LogController.logInfo(core, "Deleting Group Rules with bad ContentID.");
+                env.log("Deleting Group Rules with bad ContentID.");
                 string sql = "Select ccGroupRules.ID"
                     + " From ccGroupRules LEFT JOIN ccContent on ccContent.ID=ccGroupRules.ContentID"
                     + " WHERE (ccContent.ID is null)";
-                using (var csData = new CsModel(core)) {
+                using (var csData = new CsModel(env.core)) {
                     csData.openSql(sql);
                     while (csData.ok()) {
-                        MetadataController.deleteContentRecord(core, "Group Rules", csData.getInteger("ID"));
+                        MetadataController.deleteContentRecord(env.core, "Group Rules", csData.getInteger("ID"));
                         csData.goNext();
                     }
                 }
                 //
                 // GroupRules with bad GroupID
                 //
-                LogController.logInfo(core, "Deleting Group Rules with bad GroupID.");
+                env.log("Deleting Group Rules with bad GroupID.");
                 sql = "delete ccGroupRules"
                     + " From ccGroupRules"
                     + " LEFT JOIN ccgroups on ccgroups.ID=ccGroupRules.GroupID"
                     + " WHERE (ccgroups.ID is null)";
-                core.db.executeNonQuery(sql);
+                env.core.db.executeNonQuery(sql);
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

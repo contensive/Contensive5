@@ -161,11 +161,48 @@ namespace Contensive.Processor {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="message"></param>
+        /// <param name="activityMessage"></param>
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
-        public override void LogActivity(string message, int userID, int organizationId) {
-            LogController.addSiteActivity(cp.core, message, 0, userID, organizationId);
+        public override void LogActivity(string activityMessage) {
+            LogController.addSiteActivity(cp.core, activityMessage);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="activityMessage"></param>
+        /// <param name="activityUserID"></param>
+        /// <param name="organizationId"></param>
+        public override void LogActivity(string activityMessage, int activityUserID) {
+            LogController.addSiteActivity(cp.core, activityMessage, activityUserID);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="activityMessage"></param>
+        /// <param name="activityUserID"></param>
+        /// <param name="dateScheduled"></param>
+        /// <param name="duration"></param>
+        /// <param name="scheduledStaffId"></param>
+        public override void LogActivity(string activityMessage, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            LogController.addSiteActivity(cp.core, activityMessage, activityUserID, dateScheduled, duration, scheduledStaffId);
+        }
+
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="activityMessage"></param>
+        /// <param name="activityUserID"></param>
+        /// <param name="legacyOrganizationId"></param>
+        [Obsolete]
+        public override void LogActivity(string activityMessage, int activityUserID, int legacyOrganizationId) {
+            LogController.addSiteActivity(cp.core, activityMessage, activityUserID);
         }
         //
         //====================================================================================================

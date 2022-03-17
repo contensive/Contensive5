@@ -14,14 +14,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, VisitorProperties");
+                env.log("Housekeep, executeHourlyTasks, VisitorProperties");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,24 +31,24 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// delete orphan visitor properties
         /// </summary>
         /// <param name="core"></param>
-        public static void executeDailyTasks(CoreController core) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, visitorproperties");
+                env.log("Housekeep, visitorproperties");
                 //
                 string sql = "delete from ccProperties from ccProperties p left join ccvisitors m on m.id=p.KeyID where (p.TypeID=" + (int)PropertyModelClass.PropertyTypeEnum.visitor + ") and (m.ID is null)";
-                core.db.sqlCommandTimeout = 180;
-                core.db.executeNonQuery(sql);
+                env.core.db.sqlCommandTimeout = 180;
+                env.core.db.executeNonQuery(sql);
                 //
                 // Visitor Properties with no visitor
                 //
-                LogController.logInfo(core, "Deleting visitor properties with no visitor record.");
+                env.log("Deleting visitor properties with no visitor record.");
                 sql = "delete ccProperties from ccProperties LEFT JOIN ccvisitors on ccvisitors.ID=ccProperties.KeyID where ccproperties.typeid=2 and ccvisitors.id is null";
-                core.db.sqlCommandTimeout = 180;
-                core.db.executeNonQuery(sql);
+                env.core.db.sqlCommandTimeout = 180;
+                env.core.db.executeNonQuery(sql);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

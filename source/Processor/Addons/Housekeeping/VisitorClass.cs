@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, Visitor");
+                env.log("Housekeep, executeHourlyTasks, Visitor");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,10 +31,10 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, visitors");
+                env.log("Housekeep, visitors");
                 //
                 // delete nocookie visits
                 // This must happen after the housekeep summarizing, and no sooner then 48 hours ago so all hits have been summarized before deleting
@@ -43,21 +43,47 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     // delete visitors from the non-cookie visits
                     //
-                    LogController.logInfo(core, "Deleting visitors from visits with no cookie support older than Midnight, Two Days Ago");
+                    env.log("Deleting visitors from visits with no cookie support older than Midnight, Two Days Ago");
                     string sql = "delete from ccvisitors from ccvisitors r,ccvisits v where r.id=v.visitorid and(v.CookieSupport=0)and(v.LastVisitTime<DATEADD(day,-2,CAST(GETDATE() AS DATE)))";
-                    core.db.sqlCommandTimeout = 180;
-                    core.db.executeNonQuery(sql);
+                    env.core.db.sqlCommandTimeout = 180;
+                    env.core.db.executeNonQuery(sql);
                 }
                 {
+                    env.log("delete visitors with no people (people from bot visits were removed so this removes visitors from bot visits, role of visitor is to connect visits and auto-login. )");
                     //
-                    LogController.logInfo(core, "delete visitors with no people (people from bot visits were removed so this removes visitors from bot visits, role of visitor is to connect visits and auto-login. )");
+                    int recordsAffected = 0;
+                    int cnt = 0;
+                    do {
+                        env.core.db.sqlCommandTimeout = 180;
+                        env.core.db.executeNonQuery("delete top (1000) from ccvisitors from ccvisitors r left join ccmembers m on m.id=r.MemberID where m.id is null", ref recordsAffected);
+                        cnt++;
+                    } while ((recordsAffected != 0) && (cnt < 100));
+                }
+                {
+                    env.log("delete visitors from bots. )");
                     //
-                    core.db.sqlCommandTimeout = 180;
-                    core.db.executeNonQuery("delete from ccvisitors from ccvisitors r left join ccmembers m on m.id=r.MemberID where m.id is null");
+                    int recordsAffected = 0;
+                    int cnt = 0;
+                    do {
+                        env.core.db.sqlCommandTimeout = 180;
+                        env.core.db.executeNonQuery("delete top (1000) from ccvisitors where bot>0", ref recordsAffected);
+                        cnt++;
+                    } while ((recordsAffected != 0) && (cnt < 100));
+                }
+                {
+                    env.log("delete visitors from visit bots. )");
+                    //
+                    int recordsAffected = 0;
+                    int cnt = 0;
+                    do {
+                        env.core.db.sqlCommandTimeout = 180;
+                        env.core.db.executeNonQuery("delete top (1000) from ccvisitors from ccvisitors t left join ccvisits v on v.VisitorID=t.id where v.bot=1", ref recordsAffected);
+                        cnt++;
+                    } while ((recordsAffected != 0) && (cnt < 100));
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

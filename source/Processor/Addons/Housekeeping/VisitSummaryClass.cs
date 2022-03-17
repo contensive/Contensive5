@@ -14,14 +14,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, VisitSummary");
+                env.log("Housekeep, executeHourlyTasks, VisitSummary");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -32,24 +32,24 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, visitsummary");
+                env.log("Housekeep, visitsummary");
                 //
-                bool newHour = (core.dateTimeNowMockable.Hour != env.lastCheckDateTime.Hour);
+                bool newHour = (env.core.dateTimeNowMockable.Hour != env.lastCheckDateTime.Hour);
                 if (env.forceHousekeep || newHour) {
                     //
                     // Set NextSummaryStartDate based on the last time we ran hourly summarization
                     //
                     DateTime LastTimeSummaryWasRun = env.visitArchiveDate;
-                    core.db.sqlCommandTimeout = 180;
-                    using (var csData = new CsModel(core)) {
-                        if (csData.openSql(core.db.getSQLSelect("ccVisitSummary", "DateAdded", "(timeduration=1)and(Dateadded>" + DbController.encodeSQLDate(env.visitArchiveDate) + ")", "id Desc", "", 1))) {
+                    env.core.db.sqlCommandTimeout = 180;
+                    using (var csData = new CsModel(env.core)) {
+                        if (csData.openSql(env.core.db.getSQLSelect("ccVisitSummary", "DateAdded", "(timeduration=1)and(Dateadded>" + DbController.encodeSQLDate(env.visitArchiveDate) + ")", "id Desc", "", 1))) {
                             LastTimeSummaryWasRun = csData.getDate("DateAdded");
-                            LogController.logInfo(core, "Update hourly visit summary, last time summary was run was [" + LastTimeSummaryWasRun + "]");
+                            env.log("Update hourly visit summary, last time summary was run was [" + LastTimeSummaryWasRun + "]");
                         } else {
-                            LogController.logInfo(core, "Update hourly visit summary, no hourly summaries were found, set start to [" + LastTimeSummaryWasRun + "]");
+                            env.log("Update hourly visit summary, no hourly summaries were found, set start to [" + LastTimeSummaryWasRun + "]");
                         }
                     }
                     DateTime NextSummaryStartDate = LastTimeSummaryWasRun;
@@ -62,20 +62,20 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     DateTime StartOfHour = (new DateTime(LastTimeSummaryWasRun.Year, LastTimeSummaryWasRun.Month, LastTimeSummaryWasRun.Day, LastTimeSummaryWasRun.Hour, 1, 1)).AddHours(-1); // (Int(24 * LastTimeSummaryWasRun) / 24) - PeriodStep
                     DateTime OldestDateAdded = StartOfHour;
-                    core.db.sqlCommandTimeout = 180;
-                    using (var csData = new CsModel(core)) {
-                        if (csData.openSql(core.db.getSQLSelect("ccVisits", "DateAdded", "LastVisitTime>" + DbController.encodeSQLDate(StartOfHour), "dateadded", "", 1))) {
+                    env.core.db.sqlCommandTimeout = 180;
+                    using (var csData = new CsModel(env.core)) {
+                        if (csData.openSql(env.core.db.getSQLSelect("ccVisits", "DateAdded", "LastVisitTime>" + DbController.encodeSQLDate(StartOfHour), "dateadded", "", 1))) {
                             OldestDateAdded = csData.getDate("DateAdded");
                             if (OldestDateAdded < NextSummaryStartDate) {
                                 NextSummaryStartDate = OldestDateAdded;
-                                LogController.logInfo(core, "Update hourly visit summary, found a visit with the last viewing during the past hour. It started [" + OldestDateAdded + "], before the last summary was run.");
+                                env.log("Update hourly visit summary, found a visit with the last viewing during the past hour. It started [" + OldestDateAdded + "], before the last summary was run.");
                             }
                         }
                     }
-                    DateTime PeriodStartDate = core.dateTimeNowMockable.Date.AddDays(-90);
+                    DateTime PeriodStartDate = env.core.dateTimeNowMockable.Date.AddDays(-90);
                     double PeriodStep = 1;
                     int HoursPerDay = 0;
-                    core.db.sqlCommandTimeout = 180;
+                    env.core.db.sqlCommandTimeout = 180;
                     //
                     // -- search for day with missing visit summaries in the 90 days before yesterday
                     DateTime DateofMissingSummary = DateTime.MinValue;
@@ -83,7 +83,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         //
                         // Verify there are 24 hour records for every day back the past 90 days
                         //
-                        using (var csData = new CsModel(core)) {
+                        using (var csData = new CsModel(env.core)) {
                             if (csData.openSql("select count(id) as HoursPerDay from ccVisitSummary where TimeDuration=1 and DateNumber=" + encodeInteger(PeriodDatePtr) + " group by DateNumber")) {
                                 HoursPerDay = csData.getInteger("HoursPerDay");
                             }
@@ -94,23 +94,23 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         }
                     }
                     if ((DateofMissingSummary != DateTime.MinValue) && (DateofMissingSummary < NextSummaryStartDate)) {
-                        LogController.logInfo(core, "Found a missing hourly period in the visit summary table [" + DateofMissingSummary + "], it only has [" + HoursPerDay + "] hourly summaries.");
+                        env.log("Found a missing hourly period in the visit summary table [" + DateofMissingSummary + "], it only has [" + HoursPerDay + "] hourly summaries.");
                         NextSummaryStartDate = DateofMissingSummary;
                     }
                     {
                         //
                         // Now summarize all visits during all hourly periods between OldestDateAdded and the previous Hour
                         //
-                        LogController.logInfo(core, "Summaryize visits hourly, starting [" + NextSummaryStartDate + "]");
+                        env.log("Summaryize visits hourly, starting [" + NextSummaryStartDate + "]");
                         PeriodStep = (double)1 / (double)24;
-                        summarizePeriod(core, env, NextSummaryStartDate, core.dateTimeNowMockable, 1, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
+                        summarizePeriod(env, NextSummaryStartDate, env.core.dateTimeNowMockable, 1, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                     }
                     {
                         //
                         // Find missing daily summaries, summarize that date
                         //
-                        string SQL = core.db.getSQLSelect("ccVisitSummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber,TimeNumber");
-                        using var csData = new CsModel(core);
+                        string SQL = env.core.db.getSQLSelect("ccVisitSummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber,TimeNumber");
+                        using var csData = new CsModel(env.core);
                         csData.openSql(SQL);
                         DateTime datePtr = env.oldestVisitSummaryWeCareAbout;
                         while (datePtr <= env.yesterday) {
@@ -118,14 +118,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 //
                                 // Out of data, start with this DatePtr
                                 //
-                                VisitSummaryClass.summarizePeriod(core, env, datePtr, datePtr, 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
+                                VisitSummaryClass.summarizePeriod(env, datePtr, datePtr, 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                             } else {
                                 DateTime workingDate = DateTime.MinValue.AddDays(csData.getInteger("DateNumber"));
                                 if (datePtr < workingDate) {
                                     //
                                     // There are missing dates, update them
                                     //
-                                    VisitSummaryClass.summarizePeriod(core, env, datePtr, workingDate.AddDays(-1), 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
+                                    VisitSummaryClass.summarizePeriod(env, datePtr, workingDate.AddDays(-1), 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                                 }
                             }
                             if (csData.ok()) {
@@ -140,8 +140,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -181,7 +181,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
         //
         //=========================================================================================
         //
-        private static void summarizePeriod(CoreController core, HouseKeepEnvironmentModel env, DateTime StartTimeDate, DateTime EndTimeDate, int HourDuration, string BuildVersion, DateTime OldestVisitSummaryWeCareAbout) {
+        private static void summarizePeriod(HouseKeepEnvironmentModel env, DateTime StartTimeDate, DateTime EndTimeDate, int HourDuration, string BuildVersion, DateTime OldestVisitSummaryWeCareAbout) {
             try {
                 //
                 if (string.CompareOrdinal(BuildVersion, CoreController.codeVersion()) >= 0) {
@@ -213,8 +213,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                             + "";
                         int NoCookieVisits = 0;
-                        using (var csData = new CsModel(core)) {
-                            core.db.sqlCommandTimeout = 180;
+                        using (var csData = new CsModel(env.core)) {
+                            env.core.db.sqlCommandTimeout = 180;
                             csData.openSql(SQL);
                             if (csData.ok()) {
                                 NoCookieVisits = csData.getInteger("NoCookieVisits");
@@ -234,8 +234,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         //
                         int VisitCnt = 0;
                         int HitCnt = 0;
-                        using (var csData = new CsModel(core)) {
-                            core.db.sqlCommandTimeout = 180;
+                        using (var csData = new CsModel(env.core)) {
+                            env.core.db.sqlCommandTimeout = 180;
                             csData.openSql(SQL);
                             if (csData.ok()) {
                                 VisitCnt = csData.getInteger("VisitCnt");
@@ -263,8 +263,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(v.VisitorNew<>0)"
                                 + "";
-                            using (var csData = new CsModel(core)) {
-                                core.db.sqlCommandTimeout = 180;
+                            using (var csData = new CsModel(env.core)) {
+                                env.core.db.sqlCommandTimeout = 180;
                                 csData.openSql(SQL);
                                 if (csData.ok()) {
                                     NewVisitorVisits = csData.getInteger("NewVisitorVisits");
@@ -281,8 +281,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(v.PageVisits=1)"
                                 + "";
-                            using (var csData = new CsModel(core)) {
-                                core.db.sqlCommandTimeout = 180;
+                            using (var csData = new CsModel(env.core)) {
+                                env.core.db.sqlCommandTimeout = 180;
                                 csData.openSql(SQL);
                                 if (csData.ok()) {
                                     SinglePageVisits = csData.getInteger("SinglePageVisits");
@@ -302,8 +302,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             int MultiPageHitCnt = 0;
                             int MultiPageVisitCnt = 0;
                             double MultiPageTimetoLastHitSum = 0;
-                            using (var csData = new CsModel(core)) {
-                                core.db.sqlCommandTimeout = 180;
+                            using (var csData = new CsModel(env.core)) {
+                                env.core.db.sqlCommandTimeout = 180;
                                 csData.openSql(SQL);
                                 if (csData.ok()) {
                                     MultiPageVisitCnt = csData.getInteger("VisitCnt");
@@ -322,8 +322,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(VisitAuthenticated<>0)"
                                 + "";
-                            using (var csData = new CsModel(core)) {
-                                core.db.sqlCommandTimeout = 180;
+                            using (var csData = new CsModel(env.core)) {
+                                env.core.db.sqlCommandTimeout = 180;
                                 csData.openSql(SQL);
                                 if (csData.ok()) {
                                     AuthenticatedVisits = csData.getInteger("AuthenticatedVisits");
@@ -341,8 +341,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(Mobile<>0)"
                                 + "";
-                            using (var csData = new CsModel(core)) {
-                                core.db.sqlCommandTimeout = 180;
+                            using (var csData = new CsModel(env.core)) {
+                                env.core.db.sqlCommandTimeout = 180;
                                 csData.openSql(SQL);
                                 if (csData.ok()) {
                                     MobileVisits = csData.getInteger("cnt");
@@ -359,8 +359,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(Bot<>0)"
                                 + "";
-                            using (var csData = new CsModel(core)) {
-                                core.db.sqlCommandTimeout = 180;
+                            using (var csData = new CsModel(env.core)) {
+                                env.core.db.sqlCommandTimeout = 180;
                                 csData.openSql(SQL);
                                 if (csData.ok()) {
                                     BotVisits = csData.getInteger("cnt");
@@ -376,8 +376,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         //
                         // Add or update the Visit Summary Record
                         //
-                        using (var csData = new CsModel(core)) {
-                            core.db.sqlCommandTimeout = 180;
+                        using (var csData = new CsModel(env.core)) {
+                            env.core.db.sqlCommandTimeout = 180;
                             csData.open("Visit Summary", "(timeduration=" + HourDuration + ")and(DateNumber=" + DateNumber + ")and(TimeNumber=" + TimeNumber + ")");
                             if (!csData.ok()) {
                                 csData.close();
@@ -416,13 +416,13 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             + " and d.TimeDuration=24"
                             + " and f.id<d.id"
                             + ")";
-                        core.db.sqlCommandTimeout = 180;
-                        core.db.executeNonQuery(SQL);
+                        env.core.db.sqlCommandTimeout = 180;
+                        env.core.db.executeNonQuery(SQL);
                         ////
                         //// Find missing daily summaries, summarize that date
                         ////
-                        //SQL = core.db.getSQLSelect("ccVisitSummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber,TimeNumber");
-                        //using (var csData = new CsModel(core)) {
+                        //SQL = env.core.db.getSQLSelect("ccVisitSummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber,TimeNumber");
+                        //using (var csData = new CsModel(env.core)) {
                         //    csData.openSql(SQL);
                         //    DateTime datePtr = env.oldestVisitSummaryWeCareAbout;
                         //    while (datePtr <= env.yesterday) {
@@ -430,14 +430,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         //            //
                         //            // Out of data, start with this DatePtr
                         //            //
-                        //            VisitSummaryClass.summarizePeriod(core, env, datePtr, datePtr, 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
+                        //            VisitSummaryClass.summarizePeriod(env, datePtr, datePtr, 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                         //        } else {
                         //            DateTime workingDate = DateTime.MinValue.AddDays(csData.getInteger("DateNumber"));
                         //            if (datePtr < workingDate) {
                         //                //
                         //                // There are missing dates, update them
                         //                //
-                        //                VisitSummaryClass.summarizePeriod(core, env, datePtr, workingDate.AddDays(-1), 24, core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
+                        //                VisitSummaryClass.summarizePeriod(env, datePtr, workingDate.AddDays(-1), 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                         //            }
                         //        }
                         //        if (csData.ok()) {
@@ -455,7 +455,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogController.logError(env.core, ex);
             }
         }
 

@@ -14,21 +14,27 @@ namespace Contensive.Processor.Addons.Housekeeping {
         //
         //====================================================================================================
         /// <summary>
+        /// append the temp housekeep log
+        /// </summary>
+        /// <param name="message"></param>
+        public void log( string message ) {
+            //
+            // -- add to the info log
+            LogController.logInfo(core, message);
+            //
+            // -- append to the temp/housekeep log
+            DateTime rightNow = DateTime.Now;
+            string pathFilename = "housekeepLog\\" + (rightNow.Year - 2000).ToString() + rightNow.Month.ToString().PadLeft(2, '0') + rightNow.Day.ToString().PadLeft(2, '0') + ".log";
+            core.tempFiles.appendFile(pathFilename , rightNow.ToString() + "\t" + message + "\r\n");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// calls to housekeeping will force both the hourly and daily to run
         /// </summary>
         public bool forceHousekeep {
             get {
                 return core.docProperties.getBoolean("force");
-            }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// returns true if daily has not run today, and it is after the house-keep-hour
-        /// </summary>
-        public bool runDailyTasks {
-            get {
-                return ((core.dateTimeNowMockable.Date > lastCheckDateTime.Date) && (serverHousekeepHour < core.dateTimeNowMockable.Hour));
             }
         }
         //

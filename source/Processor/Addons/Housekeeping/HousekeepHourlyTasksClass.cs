@@ -13,58 +13,60 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// exeute housekeep tasks hourly
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "executeHourlyTasks");
+                env.log("executeHourlyTasks, start");
                 //
                 // -- summaries - must be first
-                VisitSummaryClass.executeHourlyTasks(core);
-                ViewingSummaryClass.executeHourlyTasks(core);
+                VisitSummaryClass.executeHourlyTasks(env);
+                ViewingSummaryClass.executeHourlyTasks(env);
                 //
                 // -- people (before visits because it uses v.bots)
-                PersonClass.executeHourlyTasks(core);
+                PersonClass.executeHourlyTasks(env);
                 //
                 // -- delete temp files
-                TempFilesClass.deleteFiles(core);
+                TempFilesClass.deleteFiles(env);
                 //
                 // -- Addon folder
-                AddonFolderClass.executeHourlyTasks(core);
+                AddonFolderClass.executeHourlyTasks(env);
                 //
                 // -- metadata
-                ContentFieldClass.executeHourlyTasks(core);
+                ContentFieldClass.executeHourlyTasks(env);
                 //
                 // -- content
-                MenuEntryClass.executeHourlyTasks(core);
-                RemoteQueryClass.executeHourlyTasks(core);
-                PageContentClass.executeHourlyTasks(core);
-                AddonContentFieldTypeRuleClass.executeHourlyTasks(core);
-                AddonContentTriggerRuleClass.executeHourlyTasks(core);
-                ContentWatchClass.executeHourlyTasks(core);
-                EmailDropClass.executeHourlyTasks(core);
-                EmailLogClass.executeHourlyTasks(core);
-                FieldHelpClass.executeHourlyTasks(core);
-                GroupRulesClass.executeHourlyTasks(core);
-                MemberRuleClass.executeHourlyTasks(core);
-                MetadataClass.executeHourlyTasks(core);
-                LinkAliasClass.executeHourlyTasks(core);
-                AddonEventCatchersClass.executeHourlyTasks(core);
+                MenuEntryClass.executeHourlyTasks(env);
+                RemoteQueryClass.executeHourlyTasks(env);
+                PageContentClass.executeHourlyTasks(env);
+                AddonContentFieldTypeRuleClass.executeHourlyTasks(env);
+                AddonContentTriggerRuleClass.executeHourlyTasks(env);
+                ContentWatchClass.executeHourlyTasks(env);
+                EmailDropClass.executeHourlyTasks(env);
+                EmailLogClass.executeHourlyTasks(env);
+                FieldHelpClass.executeHourlyTasks(env);
+                GroupRulesClass.executeHourlyTasks(env);
+                MemberRuleClass.executeHourlyTasks(env);
+                MetadataClass.executeHourlyTasks(env);
+                LinkAliasClass.executeHourlyTasks(env);
+                AddonEventCatchersClass.executeHourlyTasks(env);
                 //
                 // -- Properties
-                UserProperyClass.executeHourlyTasks(core);
-                VisitPropertyClass.executeHourlyTasks(core);
-                VisitorPropertyClass.executeHourlyTasks(core);
+                UserProperyClass.executeHourlyTasks(env);
+                VisitPropertyClass.executeHourlyTasks(env);
+                VisitorPropertyClass.executeHourlyTasks(env);
                 //
                 // -- visits, visitors, viewings
-                VisitClass.executeHourlyTasks(core);
-                VisitorClass.executeHourlyTasks(core);
-                ViewingsClass.executeHourlyTasks(core);
+                VisitClass.executeHourlyTasks(env);
+                VisitorClass.executeHourlyTasks(env);
+                ViewingsClass.executeHourlyTasks(env);
                 //
                 // -- logs
-                ActivityLogClass.executeHourlyTasks(core);
+                ActivityLogClass.executeHourlyTasks(env);
+                //
+                env.log("executeHourlyTasks, done");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

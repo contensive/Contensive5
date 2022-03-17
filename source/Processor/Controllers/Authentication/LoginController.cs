@@ -257,7 +257,7 @@ namespace Contensive.Processor.Controllers {
                         user.save(core.cpParent);
                     }
                 }
-                LogController.addSiteActivity(core, "successful username/password login", core.session.user.id, core.session.user.organizationId);
+                LogController.addSiteActivity(core, "successful username/password login", core.session.user.id);
                 return true;
             } catch (Exception ex) {
                 LogController.logError(core, ex);

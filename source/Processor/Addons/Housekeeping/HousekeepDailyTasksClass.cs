@@ -12,58 +12,60 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "executeDailyTasks");
+                env.log("executeDailyTasks, start");
                 //
                 // -- summary (must be first)
-                VisitSummaryClass.executeDailyTasks(core, env);
-                ViewingSummaryClass.executeDailyTasks(core, env);
+                VisitSummaryClass.executeDailyTasks(env);
+                ViewingSummaryClass.executeDailyTasks(env);
                 //
                 // -- people (must be before visits to delete users from bot visits
-                PersonClass.executeDailyTasks(core, env);
+                PersonClass.executeDailyTasks(env);
                 //
                 // -- Download Updates
-                SoftwareUpdatesClass.downloadAndInstall(core);
+                SoftwareUpdatesClass.downloadAndInstall(env);
                 //
                 // -- Addon folder
-                AddonFolderClass.executeDailyTasks(core);
+                AddonFolderClass.executeDailyTasks(env);
                 //
                 // -- metadata
-                ContentFieldClass.executeDailyTasks(core, env);
+                ContentFieldClass.executeDailyTasks(env);
                 //
                 // -- content
-                MenuEntryClass.executeDailyTasks(core, env);
-                RemoteQueryClass.executeDailyTasks(core, env);
-                PageContentClass.executeDailyTasks(core, env);
-                AddonContentFieldTypeRuleClass.executeDailyTasks(core, env);
-                AddonContentTriggerRuleClass.executeDailyTasks(core, env);
-                ContentWatchClass.executeDailyTasks(core, env);
-                EmailDropClass.executeDailyTasks(core, env);
-                EmailLogClass.executeDailyTasks(core, env);
-                FieldHelpClass.executeDailyTasks(core, env);
-                GroupRulesClass.executeDailyTasks(core, env);
-                MemberRuleClass.executeDailyTasks(core, env);
-                MetadataClass.executeDailyTasks(core, env);
-                LinkAliasClass.executeDailyTasks(core, env);
-                AddonEventCatchersClass.executeDailyTasks(core, env);
+                MenuEntryClass.executeDailyTasks(env);
+                RemoteQueryClass.executeDailyTasks(env);
+                PageContentClass.executeDailyTasks(env);
+                AddonContentFieldTypeRuleClass.executeDailyTasks(env);
+                AddonContentTriggerRuleClass.executeDailyTasks(env);
+                ContentWatchClass.executeDailyTasks(env);
+                EmailDropClass.executeDailyTasks(env);
+                EmailLogClass.executeDailyTasks(env);
+                FieldHelpClass.executeDailyTasks(env);
+                GroupRulesClass.executeDailyTasks(env);
+                MemberRuleClass.executeDailyTasks(env);
+                MetadataClass.executeDailyTasks(env);
+                LinkAliasClass.executeDailyTasks(env);
+                AddonEventCatchersClass.executeDailyTasks(env);
                 //
                 // -- Properties
-                UserProperyClass.executeDailyTasks(core);
-                VisitPropertyClass.executeDailyTasks(core);
-                VisitorPropertyClass.executeDailyTasks(core);
+                UserProperyClass.executeDailyTasks(env);
+                VisitPropertyClass.executeDailyTasks(env);
+                VisitorPropertyClass.executeDailyTasks(env);
                 //
                 // -- visits, visitors, viewings
-                VisitClass.executeDailyTasks(core, env);
-                VisitorClass.executeDailyTasks(core, env);
-                ViewingsClass.executeDailyTasks(core, env);
+                VisitClass.executeDailyTasks(env);
+                VisitorClass.executeDailyTasks(env);
+                ViewingsClass.executeDailyTasks(env);
                 //
                 // -- logs
-                ActivityLogClass.executeDailyTasks(core, env);
+                ActivityLogClass.executeDailyTasks(env);
+                //
+                env.log("executeDailyTasks, done");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

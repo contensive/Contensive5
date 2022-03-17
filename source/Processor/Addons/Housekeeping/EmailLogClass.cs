@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, EmailLog");
+                env.log("Housekeep, executeHourlyTasks, EmailLog");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,21 +31,21 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, email log");
+                env.log("Housekeep, email log");
                 //
                 // email log for only 365 days
-                core.db.executeNonQuery("delete from ccemaillog where (dateadded < DATEADD(day,-" + env.emailDropArchiveAgeDays + ",CAST(GETDATE() AS DATE)))");
+                env.core.db.executeNonQuery("delete from ccemaillog where (dateadded < DATEADD(day,-" + env.emailDropArchiveAgeDays + ",CAST(GETDATE() AS DATE)))");
                 //
                 // clear email body field for emails older than 7 days
-                LogController.logInfo(core, "Clear email body field for email logs older then " + env.emailLogBodyRetainDays + " days");
-                DateTime emailLogBodyRetainDate = core.dateTimeNowMockable.AddDays(-env.emailLogBodyRetainDays).Date;
-                core.db.executeNonQuery("update ccemaillog set body=null where dateadded<" + DbController.encodeSQLDate(emailLogBodyRetainDate));
+                env.log("Clear email body field for email logs older then " + env.emailLogBodyRetainDays + " days");
+                DateTime emailLogBodyRetainDate = env.core.dateTimeNowMockable.AddDays(-env.emailLogBodyRetainDays).Date;
+                env.core.db.executeNonQuery("update ccemaillog set body=null where dateadded<" + DbController.encodeSQLDate(emailLogBodyRetainDate));
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

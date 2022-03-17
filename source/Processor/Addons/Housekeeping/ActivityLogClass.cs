@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, ActivityLogClass");
+                env.log("Housekeep, executeHourlyTasks, ActivityLogClass");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }
@@ -32,28 +32,28 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, activitylog");
+                env.log("Housekeep, activitylog");
                 {
                     //
                     //
-                    LogController.logInfo(core, "Deleting activities older than archiveAgeDays (" + env.archiveAgeDays + ").");
+                    env.log("Deleting activities older than archiveAgeDays (" + env.archiveAgeDays + ").");
                     //
-                    core.db.executeNonQuery("delete from ccactivitylog where (DateAdded is null)or(DateAdded<DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
+                    env.core.db.executeNonQuery("delete from ccactivitylog where (DateAdded is null)or(DateAdded<DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
 
                 }
                 {
                     //
-                    LogController.logInfo(core, "Deleting activities with no member record.");
+                    env.log("Deleting activities with no member record.");
                     //
-                    core.db.executeNonQuery("delete ccactivitylog from ccactivitylog left join ccmembers on ccmembers.id=ccactivitylog.memberid where (ccmembers.id is null)");
+                    env.core.db.executeNonQuery("delete ccactivitylog from ccactivitylog left join ccmembers on ccmembers.id=ccactivitylog.memberid where (ccmembers.id is null)");
                 }
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }

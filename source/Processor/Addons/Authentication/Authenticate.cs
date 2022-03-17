@@ -111,7 +111,7 @@ namespace Contensive.Processor.Addons.Primitives {
                             data = new AuthenticateResponseData()
                         };
                     } else {
-                        LogController.addSiteActivity(core, errorPrefix + " successful", core.session.user.id, core.session.user.organizationId);
+                        LogController.addSiteActivity(core, errorPrefix + " successful", core.session.user.id );
                         return new AuthenticateResponse {
                             errors = new List<string>(),
                             data = new AuthenticateResponseData {

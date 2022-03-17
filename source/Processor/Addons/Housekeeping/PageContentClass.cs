@@ -13,14 +13,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// execute hourly tasks
         /// </summary>
         /// <param name="core"></param>
-        public static void executeHourlyTasks(CoreController core) {
+        public static void executeHourlyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, executeHourlyTasks, PageContent");
+                env.log("Housekeep, executeHourlyTasks, PageContent");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,27 +31,27 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(CoreController core, HouseKeepEnvironmentModel env) {
+        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "HousekeepDaily, page content");
+                env.log("HousekeepDaily, page content");
                 {
                     //
                     // Move Archived pages from their current parent to their archive parent
                     //
                     bool NeedToClearCache = false;
-                    string SQL = "select * from ccpagecontent where (( DateArchive is not null )and(DateArchive<" + core.sqlDateTimeMockable + "))and(active<>0)";
-                    using (var csData = new CsModel(core)) {
+                    string SQL = "select * from ccpagecontent where (( DateArchive is not null )and(DateArchive<" + env.core.sqlDateTimeMockable + "))and(active<>0)";
+                    using (var csData = new CsModel(env.core)) {
                         csData.openSql(SQL);
                         while (csData.ok()) {
                             int RecordId = csData.getInteger("ID");
                             int ArchiveParentId = csData.getInteger("ArchiveParentID");
                             if (ArchiveParentId == 0) {
                                 SQL = "update ccpagecontent set DateArchive=null where (id=" + RecordId + ")";
-                                core.db.executeNonQuery(SQL);
+                                env.core.db.executeNonQuery(SQL);
                             } else {
                                 SQL = "update ccpagecontent set ArchiveParentID=null,DateArchive=null,parentid=" + ArchiveParentId + " where (id=" + RecordId + ")";
-                                core.db.executeNonQuery(SQL);
+                                env.core.db.executeNonQuery(SQL);
                                 NeedToClearCache = true;
                             }
                             csData.goNext();
@@ -63,13 +63,13 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     if (NeedToClearCache) {
                         object emptyData = null;
-                        core.cache.invalidate("Page Content");
-                        core.cache.storeObject("PCC", emptyData);
+                        env.core.cache.invalidate("Page Content");
+                        env.core.cache.storeObject("PCC", emptyData);
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

@@ -14,16 +14,16 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// delete all files over 1 hour old
         /// </summary>
         /// <param name="core"></param>
-        public static void deleteFiles(CoreController core) {
+        public static void deleteFiles(HouseKeepEnvironmentModel env) {
             try {
                 //
-                LogController.logInfo(core, "Housekeep, delete temp files over 1 hour old");
+                env.log("Housekeep, delete temp files over 1 hour old");
                 //
-                deleteFiles(core, "\\");
+                deleteOldFilesReturnFilesRemaining(env, "\\");
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -31,23 +31,39 @@ namespace Contensive.Processor.Addons.Housekeeping {
         //====================================================================================================
         /// <summary>
         /// delete all files over 1 hour old from the current path, recursive
+        /// return true of all files deleted so the folder can be deleted
+        /// return false means there are files left
         /// </summary>
         /// <param name="core"></param>
         /// <param name="path"></param>
-        public static void deleteFiles(CoreController core, string path) {
+        public static bool deleteOldFilesReturnFilesRemaining(HouseKeepEnvironmentModel env, string path) {
             try {
-                foreach (var folder in core.tempFiles.getFolderList(path)) {
-                    deleteFiles(core, path + folder.Name + "\\");
-                }
-                foreach (var file in core.tempFiles.getFileList(path)) {
-                    if (encodeDate(file.DateCreated).AddHours(1) < core.dateTimeNowMockable) {
-                        core.tempFiles.deleteFile(path + file.Name);
+                //
+                // -- delete all the folders
+                bool filesRemaining = false;
+                foreach (var folder in env.core.tempFiles.getFolderList(path)) {
+                    if (deleteOldFilesReturnFilesRemaining(env, path + folder.Name + "\\")) {
+                        //
+                        // -- the folder has files remaining
+                        filesRemaining = true;
+                        continue;
                     }
+                    env.core.tempFiles.deleteFolder(path + folder.Name);
                 }
+                //
+                // -- delete all the files
+                foreach (var file in env.core.tempFiles.getFileList(path)) {
+                    if (encodeDate(file.DateLastModified).AddHours(1) > env.core.dateTimeNowMockable) {
+                        filesRemaining = true;
+                        continue;
+                    }
+                    env.core.tempFiles.deleteFile(path + file.Name);
+                }
+                return filesRemaining;
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

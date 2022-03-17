@@ -205,7 +205,7 @@ namespace Tests {
                 DbBaseModel.delete<PersonModel>(cp, addlRecipient.id);
                 //
                 // act
-                cp.Addon.Execute(Constants.addonGuidTextMessageSendTask);
+                cp.Addon.Execute(TestConstants.addonGuidTextMessageSendTask);
                 //
                 // assert
                 Assert.IsTrue(string.IsNullOrEmpty(userErrorMessage));
@@ -347,7 +347,7 @@ namespace Tests {
                 rule3.save(cp);
                 //
                 // act
-                cp.Addon.Execute(Constants.addonGuidTextMessageSendTask);
+                cp.Addon.Execute(TestConstants.addonGuidTextMessageSendTask);
                 //
                 // assert
                 Assert.IsTrue(cp.core.mockTextMessageList.Count == 2);

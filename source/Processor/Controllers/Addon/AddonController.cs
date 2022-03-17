@@ -983,26 +983,25 @@ namespace Contensive.Processor.Controllers {
                                                                 } else {
                                                                     fieldValue = core.docProperties.getText(fieldName);
                                                                 }
-                                                                using (var csData = new CsModel(core)) {
-                                                                    csData.open("Copy Content", "name=" + DbController.encodeSQLText(fieldName), "ID");
-                                                                    if (!csData.ok()) {
-                                                                        csData.close();
-                                                                        csData.insert("Copy Content");
-                                                                    }
-                                                                    if (csData.ok()) {
-                                                                        csData.set("name", fieldName);
-                                                                        //
-                                                                        // Set copy
-                                                                        //
-                                                                        csData.set("copy", fieldValue);
-                                                                        //
-                                                                        // delete duplicates
-                                                                        //
+                                                                using var csData = new CsModel(core); 
+                                                                csData.open("Copy Content", "name=" + DbController.encodeSQLText(fieldName), "ID");
+                                                                if (!csData.ok()) {
+                                                                    csData.close();
+                                                                    csData.insert("Copy Content");
+                                                                }
+                                                                if (csData.ok()) {
+                                                                    csData.set("name", fieldName);
+                                                                    //
+                                                                    // Set copy
+                                                                    //
+                                                                    csData.set("copy", fieldValue);
+                                                                    //
+                                                                    // delete duplicates
+                                                                    //
+                                                                    csData.goNext();
+                                                                    while (csData.ok()) {
+                                                                        csData.deleteRecord();
                                                                         csData.goNext();
-                                                                        while (csData.ok()) {
-                                                                            csData.deleteRecord();
-                                                                            csData.goNext();
-                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -1282,9 +1281,8 @@ namespace Contensive.Processor.Controllers {
                                                                 DataTable dt = null;
                                                                 if (!string.IsNullOrEmpty(FieldSQL)) {
                                                                     try {
-                                                                        using (var db = new DbController(core, FieldDataSource)) {
-                                                                            dt = core.db.executeQuery(FieldSQL, 0, SQLPageSize);
-                                                                        }
+                                                                        using var db = new DbController(core, FieldDataSource); 
+                                                                        dt = core.db.executeQuery(FieldSQL, 0, SQLPageSize);
                                                                     } catch (Exception ex) {
                                                                         LogController.logError(core, ex);
                                                                         ErrorNumber = 0;
@@ -1864,47 +1862,46 @@ namespace Contensive.Processor.Controllers {
             string result = Content;
             try {
                 string SelectFieldList = "name,copytext,javascriptonload,javascriptbodyend,stylesfilename,otherheadtags,JSFilename,targetString";
-                using (var csData = new CsModel(core)) {
-                    csData.openRecord("Wrappers", WrapperID, SelectFieldList);
-                    if (csData.ok()) {
-                        string Wrapper = csData.getText("copytext");
-                        string wrapperName = csData.getText("name");
-                        string TargetString = csData.getText("targetString");
-                        //
-                        string SourceComment = "wrapper " + wrapperName;
-                        if (!string.IsNullOrEmpty(WrapperSourceForComment)) {
-                            SourceComment = SourceComment + " for " + WrapperSourceForComment;
+                using var csData = new CsModel(core); 
+                csData.openRecord("Wrappers", WrapperID, SelectFieldList);
+                if (csData.ok()) {
+                    string Wrapper = csData.getText("copytext");
+                    string wrapperName = csData.getText("name");
+                    string TargetString = csData.getText("targetString");
+                    //
+                    string SourceComment = "wrapper " + wrapperName;
+                    if (!string.IsNullOrEmpty(WrapperSourceForComment)) {
+                        SourceComment = SourceComment + " for " + WrapperSourceForComment;
+                    }
+                    core.html.addScriptCode_onLoad(csData.getText("javascriptonload"), SourceComment);
+                    core.html.addScriptCode(csData.getText("javascriptbodyend"), SourceComment);
+                    core.html.addHeadTag(csData.getText("OtherHeadTags"), SourceComment);
+                    //
+                    string JSFilename = csData.getText("jsfilename");
+                    if (!string.IsNullOrEmpty(JSFilename)) {
+                        JSFilename = GenericController.getCdnFileLink(core, JSFilename);
+                        core.html.addScriptLinkSrc(JSFilename, SourceComment);
+                    }
+                    string Copy = csData.getText("stylesfilename");
+                    if (!string.IsNullOrEmpty(Copy)) {
+                        if (GenericController.strInstr(1, Copy, "://").Equals(0) && (!Copy.left(1).Equals("/"))) {
+                            Copy = GenericController.getCdnFileLink(core, Copy);
                         }
-                        core.html.addScriptCode_onLoad(csData.getText("javascriptonload"), SourceComment);
-                        core.html.addScriptCode(csData.getText("javascriptbodyend"), SourceComment);
-                        core.html.addHeadTag(csData.getText("OtherHeadTags"), SourceComment);
-                        //
-                        string JSFilename = csData.getText("jsfilename");
-                        if (!string.IsNullOrEmpty(JSFilename)) {
-                            JSFilename = GenericController.getCdnFileLink(core, JSFilename);
-                            core.html.addScriptLinkSrc(JSFilename, SourceComment);
-                        }
-                        string Copy = csData.getText("stylesfilename");
-                        if (!string.IsNullOrEmpty(Copy)) {
-                            if (GenericController.strInstr(1, Copy, "://").Equals(0) && (!Copy.left(1).Equals("/"))) {
-                                Copy = GenericController.getCdnFileLink(core, Copy);
-                            }
-                            core.html.addStyleLink(Copy, SourceComment);
-                        }
-                        //
-                        if (!string.IsNullOrEmpty(Wrapper)) {
-                            int Pos = GenericController.strInstr(1, Wrapper, TargetString, 1);
-                            if (Pos != 0) {
-                                result = GenericController.strReplace(Wrapper, TargetString, result, 1, 99, 1);
-                            } else {
-                                result = ""
-                                    + "<!-- the selected wrapper does not include the Target String marker to locate the position of the content. -->"
-                                    + Wrapper + result;
-                            }
+                        core.html.addStyleLink(Copy, SourceComment);
+                    }
+                    //
+                    if (!string.IsNullOrEmpty(Wrapper)) {
+                        int Pos = GenericController.strInstr(1, Wrapper, TargetString, 1);
+                        if (Pos != 0) {
+                            result = GenericController.strReplace(Wrapper, TargetString, result, 1, 99, 1);
+                        } else {
+                            result = ""
+                                + "<!-- the selected wrapper does not include the Target String marker to locate the position of the content. -->"
+                                + Wrapper + result;
                         }
                     }
-                    csData.close();
                 }
+                csData.close();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
@@ -2110,57 +2107,56 @@ namespace Contensive.Processor.Controllers {
         public string throwEvent(string eventNameIdOrGuid) {
             string returnString = "";
             try {
-                using (var cs = new CsModel(core)) {
-                    string sql = "select distinct c.addonId"
-                        + " from ((ccAddonEvents e"
-                        + " left join ccAddonEventCatchers c on c.eventId=e.id)"
-                        + " left join ccAggregateFunctions a on a.id=c.addonid)"
-                        + " where ";
-                    if (eventNameIdOrGuid.isNumeric()) {
-                        sql += "e.id=" + DbController.encodeSQLNumber(double.Parse(eventNameIdOrGuid));
-                    } else if (GenericController.isGuid(eventNameIdOrGuid)) {
-                        sql += "e.ccGuid=" + DbController.encodeSQLText(eventNameIdOrGuid);
-                    } else {
-                        sql += "e.name=" + DbController.encodeSQLText(eventNameIdOrGuid);
-                    }
-                    sql += " order by c.addonid desc";
-                    if (!cs.openSql(sql)) {
-                        //
-                        // event not found
-                        if (eventNameIdOrGuid.isNumeric()) {
-                            //
-                            // can not create an id
-                        } else if (GenericController.isGuid(eventNameIdOrGuid)) {
-                            //
-                            // create event with Guid and id for name
-                            using var cs2 = new CsModel(core);
-                            cs2.insert("add-on Events");
-                            cs2.set("ccguid", eventNameIdOrGuid);
-                            cs2.set("name", "Event " + cs2.getInteger("id").ToString());
-                        } else if (!string.IsNullOrEmpty(eventNameIdOrGuid)) {
-                            //
-                            // create event with name
-                            using var cs3 = new CsModel(core);
-                            cs3.insert("add-on Events");
-                            cs3.set("name", eventNameIdOrGuid);
-                        }
-                    } else {
-                        //
-                        // -- event found, check if there are addons to run
-                        while (cs.ok()) {
-                            int addonid = cs.getInteger("addonid");
-                            if (addonid != 0) {
-                                var addon = DbBaseModel.create<AddonModel>(core.cpParent, addonid);
-                                returnString += core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
-                                    addonType = CPUtilsBaseClass.addonContext.ContextSimple,
-                                    errorContextMessage = "calling handler addon id [" + addonid + "] for event [" + eventNameIdOrGuid + "]"
-                                });
-                            }
-                            cs.goNext();
-                        }
-                    }
-                    cs.close();
+                using var cs = new CsModel(core); 
+                string sql = "select distinct c.addonId"
+                    + " from ((ccAddonEvents e"
+                    + " left join ccAddonEventCatchers c on c.eventId=e.id)"
+                    + " left join ccAggregateFunctions a on a.id=c.addonid)"
+                    + " where ";
+                if (eventNameIdOrGuid.isNumeric()) {
+                    sql += "e.id=" + DbController.encodeSQLNumber(double.Parse(eventNameIdOrGuid));
+                } else if (GenericController.isGuid(eventNameIdOrGuid)) {
+                    sql += "e.ccGuid=" + DbController.encodeSQLText(eventNameIdOrGuid);
+                } else {
+                    sql += "e.name=" + DbController.encodeSQLText(eventNameIdOrGuid);
                 }
+                sql += " order by c.addonid desc";
+                if (!cs.openSql(sql)) {
+                    //
+                    // event not found
+                    if (eventNameIdOrGuid.isNumeric()) {
+                        //
+                        // can not create an id
+                    } else if (GenericController.isGuid(eventNameIdOrGuid)) {
+                        //
+                        // create event with Guid and id for name
+                        using var cs2 = new CsModel(core);
+                        cs2.insert("add-on Events");
+                        cs2.set("ccguid", eventNameIdOrGuid);
+                        cs2.set("name", "Event " + cs2.getInteger("id").ToString());
+                    } else if (!string.IsNullOrEmpty(eventNameIdOrGuid)) {
+                        //
+                        // create event with name
+                        using var cs3 = new CsModel(core);
+                        cs3.insert("add-on Events");
+                        cs3.set("name", eventNameIdOrGuid);
+                    }
+                } else {
+                    //
+                    // -- event found, check if there are addons to run
+                    while (cs.ok()) {
+                        int addonid = cs.getInteger("addonid");
+                        if (addonid != 0) {
+                            var addon = DbBaseModel.create<AddonModel>(core.cpParent, addonid);
+                            returnString += core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
+                                addonType = CPUtilsBaseClass.addonContext.ContextSimple,
+                                errorContextMessage = "calling handler addon id [" + addonid + "] for event [" + eventNameIdOrGuid + "]"
+                            });
+                        }
+                        cs.goNext();
+                    }
+                }
+                cs.close();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }

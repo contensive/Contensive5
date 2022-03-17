@@ -229,9 +229,9 @@ namespace Contensive.Processor.Controllers {
                             LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
                             if (authenticateById(core, linkToken.id, resultSessionContext)) {
                                 trackVisits = true;
-                                LogController.addSiteActivity(core, "Successful link login", resultSessionContext.user.id, resultSessionContext.user.organizationId);
+                                LogController.addSiteActivity(core, "Successful link login", resultSessionContext.user.id);
                             } else {
-                                LogController.addSiteActivity(core, "UnSuccessful link login", resultSessionContext.user.id, resultSessionContext.user.organizationId);
+                                LogController.addSiteActivity(core, "UnSuccessful link login", resultSessionContext.user.id);
                             }
                         } else if (core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
                             //
@@ -239,7 +239,7 @@ namespace Contensive.Processor.Controllers {
                             LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
                             if (recognizeById(core, linkToken.id, resultSessionContext)) {
                                 trackVisits = true;
-                                LogController.addSiteActivity(core, "Successful link recognize", resultSessionContext.user.id, resultSessionContext.user.organizationId);
+                                LogController.addSiteActivity(core, "Successful link recognize", resultSessionContext.user.id );
                             }
                         } else {
                             //
@@ -260,7 +260,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- login by the visitor.memberid
                         if (authenticateById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                            LogController.addSiteActivity(core, "auto-login", resultSessionContext.user.id, resultSessionContext.user.organizationId);
+                            LogController.addSiteActivity(core, "auto-login", resultSessionContext.user.id );
                             visitor_changes = true;
                             user_changes = true;
                         }
@@ -268,7 +268,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- recognize by the visitor.memberid
                         if (recognizeById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                            LogController.addSiteActivity(core, "auto-recognize", resultSessionContext.user.id, resultSessionContext.user.organizationId);
+                            LogController.addSiteActivity(core, "auto-recognize", resultSessionContext.user.id);
                             visitor_changes = true;
                             user_changes = true;
                         }
@@ -693,7 +693,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 Logger.Trace(LogController.processLogMessage(core, "SessionController.logout, enter", false));
                 //
-                LogController.addSiteActivity(core, "logout", user.id, user.organizationId);
+                LogController.addSiteActivity(core, "logout", user.id );
                 //
                 // -- if user has autoLogin, turn off
                 if (user.autoLogin) {
@@ -916,7 +916,7 @@ namespace Contensive.Processor.Controllers {
                 if (!userId.Equals(0) && authenticateById(userId, this)) {
                     //
                     // -- successful
-                    LogController.addSiteActivity(core, "successful login, credential [" + username + "]", user.id, user.organizationId);
+                    LogController.addSiteActivity(core, "successful login, credential [" + username + "]", user.id );
                     //
                     // -- ASYNC test
                     LogController.log(core, "authenticate, async test 2 of 3", CPLogBaseClass.LogLevel.Debug);
@@ -928,7 +928,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- failed to authenticate
                 ErrorController.addUserError(core, loginFailedError);
-                LogController.addSiteActivity(core, "unsuccessful login, credential [" + username + "]", user.id, user.organizationId);
+                LogController.addSiteActivity(core, "unsuccessful login, credential [" + username + "]", user.id );
                 return false;
             } catch (Exception ex) {
                 LogController.logError(core, ex);

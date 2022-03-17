@@ -7,6 +7,7 @@
         //  - you can optionally also make a website for the app to see the results, but not needed
         //
         public const string testAppName = "c5test";
+        internal const string addonGuidTextMessageSendTask = "{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}";
     }
 }
 
