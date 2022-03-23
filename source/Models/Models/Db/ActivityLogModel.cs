@@ -27,10 +27,6 @@ namespace Contensive.Models.Db {
         /// </summary>
         public string message { get; set; }
         /// <summary>
-        /// The organization effected by the event. Typically the organization of the user at the time the event occurs.
-        /// </summary>
-        public int organizationId { get; set; }
-        /// <summary>
         /// For Tracking only. The visit session in which the event occured
         /// </summary>
         public int visitId { get; set; }
@@ -45,7 +41,12 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// If this activity is a future scheduled event, this is the start of the event
         /// </summary>
-        public DateTime dateScheduled { get; set; }
+        public DateTime? dateScheduled { get; set; }
+        /// <summary>
+        /// If this activity is a scheduled event, this is when the activity was marked completed.
+        /// Not necessarily the exact start or end time of the event.
+        /// </summary>
+        public DateTime? dateCompleted { get; set; }
         /// <summary>
         /// If this activity is a future scheduled event, this is the duration of the event in minutes
         /// </summary>

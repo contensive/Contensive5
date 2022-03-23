@@ -111,7 +111,7 @@ namespace Contensive.BaseClasses {
         /// Delete the record specified by tablename and guid
         /// </summary>
         /// <param name="tableName"></param>
-        /// <param name="sqlCriteria"></param>
+        /// <param name="sqlCriteria">The sql delete statement where criteria. Cannot be blank.</param>
         public abstract void DeleteRows(string tableName, string sqlCriteria);
         //
         //====================================================================================================

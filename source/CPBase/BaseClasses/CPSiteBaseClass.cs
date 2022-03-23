@@ -155,38 +155,48 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log a user activity to the activity log.
+        /// Deprecated. Use LogActivity(subject, degtails, userId)
         /// </summary>
-        /// <param name="message"></param>
-        /// <param name="userID"></param>
-        /// <param name="organizationId"></param>
-        [Obsolete("Use LogActivity(message, user)", false)] public abstract void LogActivity(string message, int userID, int organizationId);
+        /// <param name="details"></param>
+        /// <param name="userId"></param>
+        /// <param name="ignoreId"></param>
+        [Obsolete("Use LogActivity(message, user)", false)] public abstract void LogActivity(string details, int userId, int ignoreId);
         //
         //====================================================================================================
         /// <summary>
-        /// Log anactivity for the current user
+        /// Log a simple activity for the current user
         /// </summary>
-        /// <param name="actvityMessage"></param>
-        public abstract void LogActivity(string actvityMessage);
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        public abstract int  AddActivity(string subject);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log an activity for the current user
+        /// </summary>
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        /// <param name="actvityDetails">The details of the activity.</param>
+        public abstract int  AddActivity(string subject, string actvityDetails);
         //
         //====================================================================================================
         /// <summary>
         /// Log an activity for the specified user
         /// </summary>
-        /// <param name="actvityMessage"></param>
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        /// <param name="actvityDetails">The details of the activity.</param>
         /// <param name="activityUserId"></param>
-        public abstract void LogActivity(string actvityMessage, int activityUserId);
+        public abstract int  AddActivity(string subject, string actvityDetails, int activityUserId);
         //
         //====================================================================================================
         /// <summary>
         /// Log an activity for the specified user for a scheduled event
         /// </summary>
-        /// <param name="actvityMessage"></param>
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        /// <param name="actvityDetails">The details of the activity.</param>
         /// <param name="activityUserId"></param>
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
-        public abstract void LogActivity(string actvityMessage, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId);
+        public abstract int addActivity(string subject, string actvityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId);
         //
         //====================================================================================================
         /// <summary>

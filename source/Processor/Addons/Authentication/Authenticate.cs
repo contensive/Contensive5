@@ -111,7 +111,7 @@ namespace Contensive.Processor.Addons.Primitives {
                             data = new AuthenticateResponseData()
                         };
                     } else {
-                        LogController.addSiteActivity(core, errorPrefix + " successful", core.session.user.id );
+                        LogController.addActivity(core, "Login", errorPrefix + " successful", core.session.user.id );
                         return new AuthenticateResponse {
                             errors = new List<string>(),
                             data = new AuthenticateResponseData {
@@ -133,11 +133,11 @@ namespace Contensive.Processor.Addons.Primitives {
             /// <summary>
             /// if no errors, this is basic user data
             /// </summary>
-            public AuthenticateResponseData data = new AuthenticateResponseData();
+            public AuthenticateResponseData data = new();
             /// <summary>
             /// non-zero length list indicates an error
             /// </summary>
-            public List<string> errors = new List<string>();
+            public List<string> errors = new();
 
         }
         /// <summary>

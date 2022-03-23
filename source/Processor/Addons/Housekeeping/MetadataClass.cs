@@ -67,7 +67,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 string sql = "update ccfields set type=" + (int)CPContentBaseClass.FieldTypeIdEnum.HTML + " where type=" + (int)CPContentBaseClass.FieldTypeIdEnum.LongText + " and ( htmlcontent<>0 )";
                 env.core.db.executeNonQuery(sql);
                 //
-                // Content TextFile types with no controlling record
+                // -- TextFile types with no controlling record
                 //
                 if (GenericController.encodeBoolean(env.core.siteProperties.getText("ArchiveAllowFileClean", "false"))) {
                     //

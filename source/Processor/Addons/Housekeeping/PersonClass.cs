@@ -51,9 +51,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     // name repair
                     //
-                    env.core.db.executeNonQuery("update ccmembers set name=firstname+' '+lastname  where ((name is null)or(name='guest'))and(firstname<>'Guest')and((firstname is not null)or(lastname is not null))");
-                    env.core.db.executeNonQuery("update ccmembers set name=email  where ((name is null)or(name='guest'))and(email is not null)");
-                    env.core.db.executeNonQuery("update ccmembers set name=username  where ((name is null)or(name='guest'))and(username is not null)");
+                    env.core.db.executeNonQuery("update ccmembers set name=SUBSTRING(firstname+' '+lastname, 1, 100)  where ((name is null)or(name='guest'))and(firstname<>'Guest')and((firstname is not null)or(lastname is not null))");
+                    env.core.db.executeNonQuery("update ccmembers set name=SUBSTRING(email, 1, 100)  where ((name is null)or(name='guest'))and(email is not null)");
+                    env.core.db.executeNonQuery("update ccmembers set name=SUBSTRING(username, 1, 100)  where ((name is null)or(name='guest'))and(username is not null)");
                 }
                 //
                 {
@@ -81,12 +81,15 @@ namespace Contensive.Processor.Addons.Housekeeping {
 
                 }
                 {
-                    //
-                    env.log("Housekeep, People-Daily, mark all people allowbulkemail if their email address is in the emailbouncelist");
-                    // 
-                    string sql = "update ccmembers set allowbulkemail=0 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null";
-                    env.core.db.sqlCommandTimeout = 1800;
-                    env.core.cpParent.Db.ExecuteNonQuery(sql);
+                    // -- very slow query
+                    // -- not necessary for block.
+                    // -- if you check the box, people may think that unchecking the box will solve sending problem, but no
+                    ////
+                    //env.log("Housekeep, People-Daily, mark all people allowbulkemail if their email address is in the emailbouncelist");
+                    //// 
+                    //string sql = "update ccmembers set allowbulkemail=0 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null";
+                    //env.core.db.sqlCommandTimeout = 1800;
+                    //env.core.cpParent.Db.ExecuteNonQuery(sql);
                 }
                 {
                     //

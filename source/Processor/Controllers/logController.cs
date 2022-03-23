@@ -247,32 +247,30 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="activityMessage"></param>
+        /// <param name="activityDetails"></param>
         /// <param name="ByMemberID"></param>
         /// <param name="SubjectMemberID"></param>
         /// <param name="SubjectOrganizationID"></param>
         /// <param name="Link"></param>
         /// <param name="VisitorId"></param>
         /// <param name="VisitId"></param>
-        public static void addSiteActivity(CoreController core, string activityMessage, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
             try {
                 //
-                if (activityMessage == null) { activityMessage = ""; }
-                if (activityMessage.Length > 255) activityMessage = activityMessage.Substring(0, 255);
-                using (var csData = new CsModel(core)) {
-                    if (csData.insert("Activity Log")) {
-                        csData.set("MemberID", activityUserId);
-                        csData.set("Message", activityMessage);
-                        csData.set("VisitorID", core.session.visitor.id);
-                        csData.set("VisitID", core.session.visit.id);
-                        csData.set("dateScheduled", dateScheduled);
-                        csData.set("duration", duration);
-                        csData.set("scheduledStaffId", scheduledStaffId);
-                    }
-                }
-                //
-                return;
-                //
+                if (subject == null) { subject = ""; }
+                if (activityDetails == null) { activityDetails = ""; }
+                if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
+                using CsModel csData = new(core); 
+                csData.insert("Activity Log");
+                csData.set("name", subject);
+                csData.set("MemberID", activityUserId);
+                csData.set("Message", activityDetails);
+                csData.set("VisitorID", core.session.visitor.id);
+                csData.set("VisitID", core.session.visit.id);
+                csData.set("dateScheduled", dateScheduled);
+                csData.set("duration", duration);
+                csData.set("scheduledStaffId", scheduledStaffId);
+                return csData.getInteger("id");
             } catch (Exception ex) {
                 log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                 throw;
@@ -284,11 +282,12 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="activityMessage"></param>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
         /// <param name="activityUserId"></param>
         /// <param name="subjectOrganizationID"></param>
-        public static void addSiteActivity(CoreController core, string activityMessage, int activityUserId) {
-            addSiteActivity(core, activityMessage, activityUserId, DateTime.MinValue, 0, 0);
+        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId) {
+            return addActivity(core, subject, activityDetails, activityUserId, DateTime.MinValue, 0, 0);
         }
         //
         //=====================================================================================================
@@ -296,11 +295,11 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="activityMessage"></param>
-        /// <param name="activityUserId"></param>
-        /// <param name="subjectOrganizationID"></param>
-        public static void addSiteActivity(CoreController core, string activityMessage) {
-            addSiteActivity(core, activityMessage, (core?.session?.user == null) ? 0 : core.session.user.id, DateTime.MinValue, 0, 0);
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
+        public static int addActivity(CoreController core, string subject, string activityDetails) {
+            core.session.verifyUser();
+            return addActivity(core, subject, activityDetails, (core?.session?.user == null) ? 0 : core.session.user.id, DateTime.MinValue, 0, 0);
         }
         //
         //================================================================================================

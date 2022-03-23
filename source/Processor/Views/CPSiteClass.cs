@@ -161,35 +161,50 @@ namespace Contensive.Processor {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="activityMessage"></param>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
-        public override void LogActivity(string activityMessage) {
-            LogController.addSiteActivity(cp.core, activityMessage);
+        public override int AddActivity(string subject) {
+            return LogController.addActivity(cp.core, subject, subject );
         }
         //
         //====================================================================================================
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="activityMessage"></param>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
+        /// <param name="userID"></param>
+        /// <param name="organizationId"></param>
+        public override int AddActivity(string subject, string activityDetails) {
+            return LogController.addActivity(cp.core, subject, activityDetails);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
         /// <param name="activityUserID"></param>
         /// <param name="organizationId"></param>
-        public override void LogActivity(string activityMessage, int activityUserID) {
-            LogController.addSiteActivity(cp.core, activityMessage, activityUserID);
+        public override int AddActivity(string subject, string activityDetails, int activityUserID) {
+            return LogController.addActivity(cp.core, subject, activityDetails, activityUserID);
         }
         //
         //====================================================================================================
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="activityMessage"></param>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
         /// <param name="activityUserID"></param>
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
-        public override void LogActivity(string activityMessage, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            LogController.addSiteActivity(cp.core, activityMessage, activityUserID, dateScheduled, duration, scheduledStaffId);
+        public override int addActivity(string subject, string activityDetails, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return LogController.addActivity(cp.core, subject, activityDetails, activityUserID, dateScheduled, duration, scheduledStaffId);
         }
 
         //
@@ -201,8 +216,8 @@ namespace Contensive.Processor {
         /// <param name="activityUserID"></param>
         /// <param name="legacyOrganizationId"></param>
         [Obsolete]
-        public override void LogActivity(string activityMessage, int activityUserID, int legacyOrganizationId) {
-            LogController.addSiteActivity(cp.core, activityMessage, activityUserID);
+        public override void LogActivity( string activityMessage, int activityUserID, int legacyOrganizationId) {
+            LogController.addActivity(cp.core, "" , activityMessage, activityUserID);
         }
         //
         //====================================================================================================

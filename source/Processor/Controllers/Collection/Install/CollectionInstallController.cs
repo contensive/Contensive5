@@ -193,7 +193,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // collect list of DLL files and add them to the exec files if they were missed
-                List<string> assembliesInZip = new List<string>();
+                List<string> assembliesInZip = new();
                 foreach (FileDetail file in srcFileInfoArray) {
                     if (file.Extension.ToLowerInvariant() == ".dll") {
                         if (!assembliesInZip.Contains(file.Name.ToLowerInvariant())) {
@@ -209,7 +209,7 @@ namespace Contensive.Processor.Controllers {
                     if (file.Extension == ".xml") {
                         //
                         // -- XML file -- open it to figure out if it is one we can use
-                        XmlDocument Doc = new XmlDocument();
+                        XmlDocument Doc = new();
                         string CollectionFilename = file.Name;
                         bool loadOK = true;
                         string collectionFileContent = core.privateFiles.readFileText(CollectionVersionFolder + file.Name);
@@ -551,7 +551,7 @@ namespace Contensive.Processor.Controllers {
                                             CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, metaDataMiniCollection, IsNewBuild, reinstallDependencies, isBaseCollection, logPrefix);
                                             //
                                             // -- Process nodes to save Collection data
-                                            XmlDocument NavDoc = new XmlDocument();
+                                            XmlDocument NavDoc = new();
                                             loadOK = true;
                                             try {
                                                 NavDoc.LoadXml(metaDataMiniCollection);

@@ -164,7 +164,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- Custom Login
                         AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, loginAddonId);
-                        CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
+                        CPUtilsBaseClass.addonExecuteContext executeContext = new() {
                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                             errorContextMessage = "calling login form addon [" + loginAddonId + "] from internal method"
                         };
@@ -257,7 +257,7 @@ namespace Contensive.Processor.Controllers {
                         user.save(core.cpParent);
                     }
                 }
-                LogController.addSiteActivity(core, "successful username/password login", core.session.user.id);
+                LogController.addActivity(core, "Login", "successful username/password login", core.session.user.id);
                 return true;
             } catch (Exception ex) {
                 LogController.logError(core, ex);

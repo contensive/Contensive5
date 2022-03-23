@@ -61,7 +61,7 @@ namespace Contensive.Processor.Controllers {
                             string FilenameExt = Filename.Substring(Pos);
                             string FilenameNoExt = Filename.left(Pos - 1);
                             if (GenericController.strInstr(1, "jpg,gif,png", FilenameExt, 1) != 0) {
-                                ImageEditController sf = new ImageEditController();
+                                ImageEditController sf = new();
                                 if (sf.load(FilePath + Filename, core.wwwFiles)) {
                                     //
                                     //
@@ -159,18 +159,14 @@ namespace Contensive.Processor.Controllers {
                 } else if (tableNameLower == PersonModel.tableMetadata.tableNameLower) {
                     //
                     // -- PersonModel
-                    if (isDelete) {
-                        LogController.addSiteActivity(core, "deleting user #" + recordId + " (" + recordName + ")", recordId);
-                    } else {
-                        LogController.addSiteActivity(core, "saving changes to user #" + recordId + " (" + recordName + ")", recordId);
+                    if (!isDelete) {
+                        LogController.addActivity(core, "Edit", "saving changes to user #" + recordId + " (" + recordName + ")", recordId);
                     }
                 } else if (tableNameLower == OrganizationModel.tableMetadata.tableNameLower) {
                     //
                     // -- Log Activity for changes to people and organizattions
-                    if (isDelete) {
-                        LogController.addSiteActivity(core, "deleting organization #" + recordId + " (" + recordName + ")", recordId);
-                    } else {
-                        LogController.addSiteActivity(core, "saving changes to organization #" + recordId + " (" + recordName + ")", recordId);
+                    if (!isDelete) {
+                        LogController.addActivity(core, "Edit", "saving changes to organization #" + recordId + " (" + recordName + ")", recordId);
                     }
                 } else if (tableNameLower == SitePropertyModel.tableMetadata.tableNameLower) {
                     //

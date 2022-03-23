@@ -2512,11 +2512,12 @@
     </Field>
   </CDef>
   <CDef name="Activity Log" activeonly="1" adminonly="0" aliasid="id" aliasname="name" allowadd="1"  allowcontenttracking="0" allowdelete="1" allowtopicrules="0" allowworkflowauthoring="0" authoringdatasourcename="default" authoringtablename="ccactivitylog" contentdatasourcename="default" contenttablename="ccactivitylog" defaultsortmethod="by name" developeronly="0" dropdownfieldlist="name" editorgroupname="" parent="" allowcontentchildtool="0" navicontype="report" iconlink="" iconwidth="" iconheight="" iconsprites="" guid="{8428626C-47B3-41A7-B40E-6EA243424423}">
+    <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectID="0" RedirectPath="" Required="False" TextBuffered="False" UniqueName="1" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+      <HelpDefault><![CDATA[A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.]]></HelpDefault>
+    </Field>
+
     <Field name="MemberID" active="1" adminonly="0" authorable="1" caption="Member" developeronly="0" editsortpriority="1000" fieldtype="lookup" htmlcontent="0" indexcolumn="0" indexsortdirection="0" indexsortorder="0" indexwidth="25" lookupcontent="people" noteditable="0" password="0" readonly="1" redirectcontent="" redirectid="" redirectpath="" required="0" textbuffered="0" uniquename="0" defaultvalue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" edittab="" scramble="0" lookuplist="" manytomanycontent="" manytomanyrulecontent="" manytomanyruleprimaryfield="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[The user who the event affects. In the CRM, this is the lead/customer whose page this activity apears. The user who received the email. ]]></HelpDefault>
-    </Field>
-    <Field name="OrganizationID" active="1" adminonly="0" authorable="1" caption="Organization" developeronly="0" editsortpriority="1020" fieldtype="lookup" htmlcontent="0" indexcolumn="1" indexsortdirection="0" indexsortorder="0" indexwidth="25" lookupcontent="organizations" noteditable="0" password="0" readonly="1" redirectcontent="" redirectid="" redirectpath="" required="0" textbuffered="0" uniquename="0" defaultvalue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" edittab="" scramble="0" lookuplist="" manytomanycontent="" manytomanyrulecontent="" manytomanyruleprimaryfield="" ManyToManyRuleSecondaryField="">
-      <HelpDefault><![CDATA[The organization effected by the event. Typically the organization of the user at the time the event occurs. ]]></HelpDefault>
     </Field>
     <Field name="Message" active="1" adminonly="0" authorable="1" caption="Details" developeronly="0" editsortpriority="1030" fieldtype="longtext" htmlcontent="0" indexcolumn="2" indexsortdirection="0" indexsortorder="0" indexwidth="50" lookupcontent="" noteditable="0" password="0" readonly="1" redirectcontent="" redirectid="" redirectpath="" required="0" textbuffered="0" uniquename="0" defaultvalue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" edittab="" scramble="0" lookuplist="" manytomanycontent="" manytomanyrulecontent="" manytomanyruleprimaryfield="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[A plain Text description of the activity.]]></HelpDefault>
@@ -2524,11 +2525,14 @@
     <!--
       schedule
     -->
-    <Field name="scheduledStaffId" active="1" adminonly="0" authorable="1" caption="Schedule Contact" developeronly="0" editsortpriority="2000" fieldtype="lookup" htmlcontent="0" indexcolumn="0" indexsortdirection="0" indexsortorder="0" indexwidth="25" lookupcontent="people" noteditable="0" password="0" readonly="1" redirectcontent="" redirectid="" redirectpath="" required="0" textbuffered="0" uniquename="0" defaultvalue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" edittab="" scramble="0" lookuplist="" manytomanycontent="" manytomanyrulecontent="" manytomanyruleprimaryfield="" ManyToManyRuleSecondaryField="">
+    <Field name="scheduledStaffId" active="1" adminonly="0" authorable="1" caption="Schedule Contact" developeronly="0" editsortpriority="2000" fieldtype="memberselect" htmlcontent="0" indexcolumn="0" indexsortdirection="0" indexsortorder="0" indexwidth="25" lookupcontent="" noteditable="0" password="0" readonly="1" redirectcontent="" redirectid="" redirectpath="" required="0" textbuffered="0" uniquename="0" defaultvalue="" RSSTitle="" RSSDescription="" MemberSelectGroup="staff" edittab="Schedule" scramble="0" lookuplist="" manytomanycontent="" manytomanyrulecontent="" manytomanyruleprimaryfield="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[The user who will meet with the contact. ]]></HelpDefault>
     </Field>
     <Field Name="dateScheduled" active="1" AdminOnly="0" Authorable="1" Caption="Date Scheduled" DeveloperOnly="0" EditSortPriority="2005" FieldType="Date" HTMLContent="0" IndexColumn="1" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="Schedule" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
-      <HelpDefault><![CDATA[If this activity is a future scheduled event, this is the start of the event.]]></HelpDefault>
+      <HelpDefault><![CDATA[If this activity is a scheduled event, this is the scheduled sart of the event.]]></HelpDefault>
+    </Field>
+    <Field Name="dateCompleted" active="1" AdminOnly="0" Authorable="1" Caption="Date Completed" DeveloperOnly="0" EditSortPriority="2007" FieldType="Date" HTMLContent="0" IndexColumn="1" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="Schedule" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[If this activity is a scheduled event, this is when the activity was completed. If empty the activity has not been completed.]]></HelpDefault>
     </Field>
     <Field name="duration" active="1" adminonly="0" authorable="1" caption="Duration" developeronly="0" editsortpriority="2010" fieldtype="Integer" htmlcontent="0" indexcolumn="99" indexsortdirection="0" indexsortorder="0" indexwidth="0" lookupcontent="" noteditable="0" password="0" readonly="0" redirectcontent="" redirectid="" redirectpath="" required="0" textbuffered="0" uniquename="0" defaultvalue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" edittab="Schedule" scramble="0" lookuplist="" manytomanycontent="" manytomanyrulecontent="" manytomanyruleprimaryfield="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
@@ -2544,6 +2548,12 @@
     </Field>
     <Field Name="VisitID" active="1" AdminOnly="0" Authorable="1" Caption="Visit ID" DeveloperOnly="0" EditSortPriority="6000" FieldType="Integer" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="Tracking" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[For Tracking only. The visit session in which the event occured ]]></HelpDefault>
+    </Field>
+    <!--
+      deprecated
+    -->
+    <Field name="OrganizationID" active="1" adminonly="0" authorable="0" caption="(deprecated) Organization" developeronly="0" editsortpriority="9999" fieldtype="lookup" htmlcontent="0" indexcolumn="1" indexsortdirection="0" indexsortorder="0" indexwidth="25" lookupcontent="organizations" noteditable="0" password="0" readonly="1" redirectcontent="" redirectid="" redirectpath="" required="0" textbuffered="0" uniquename="0" defaultvalue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" edittab="" scramble="0" lookuplist="" manytomanycontent="" manytomanyrulecontent="" manytomanyruleprimaryfield="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[The organization effected by the event. Typically the organization of the user at the time the event occurs. ]]></HelpDefault>
     </Field>
   </CDef>
   <CDef Name="Layouts" active="1" AdminOnly="0" AllowAdd="1" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="Default" AuthoringTableName="ccLayouts" ContentDataSourceName="Default" ContentTableName="ccLayouts" DefaultSortMethod="" DeveloperOnly="0" DropDownFieldList="Name" EditorGroupName="Site Managers" Parent="" guid="{94778074-EFC9-4F32-9159-A97ECDC7AF53}" >
@@ -2802,7 +2812,10 @@
       <HelpDefault><![CDATA[if this is a transient failure, this is the deadline to fix the problem. If it is not fixed, the next failure will change this entry to a permanent failure.]]></HelpDefault>
     </Field>
   </CDef>
-
+  <Addon name="Housekeep Control Tool" guid="{04c03ab5-720d-4b9f-b4d9-907cb1912d9e}" type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.HouseKeepingControlClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+  </Addon>
   <Addon name="Text Message Send Task" guid="{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}" type="Add-on">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.TextMessage.TextMessageSendTask]]></DotNetClass>
     <ProcessInterval></ProcessInterval>

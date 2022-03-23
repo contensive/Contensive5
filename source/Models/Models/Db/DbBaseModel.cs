@@ -1455,7 +1455,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
-        /// <param name="sqlCriteria"></param>
+        /// <param name="sqlCriteria">The sql delete statement where criteria. Cannot be blank.</param>
         public static void deleteRows<T>(CPBaseClass cp, string sqlCriteria) where T : DbBaseModel {
             try {
                 if (string.IsNullOrEmpty(sqlCriteria)) { 

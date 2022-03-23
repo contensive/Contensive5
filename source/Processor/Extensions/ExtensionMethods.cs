@@ -9,6 +9,10 @@ using System.Text.RegularExpressions;
 
 public static class ExtensionMethods {
     //
+    public static DateTime trimMilliseconds(this DateTime dt) {
+        return new DateTime(dt.Year, dt.Month, dt.Day, dt.Hour, dt.Minute, dt.Second, 0, dt.Kind);
+    }
+    //
     //====================================================================================================
     //
     public static bool isOneOf(this object item, params object[] options) {
@@ -133,7 +137,7 @@ public static class ExtensionMethods {
     public static string replace(this string s, string oldValue, string newValue, StringComparison comparisonType) {
         if (s == null) return null;
         if (String.IsNullOrEmpty(oldValue))  return s;
-        StringBuilder result = new StringBuilder(Math.Min(4096, s.Length));
+        StringBuilder result = new(Math.Min(4096, s.Length));
         int pos = 0;
         while (true) {
             int i = s.IndexOf(oldValue, pos, comparisonType);
@@ -171,7 +175,7 @@ public static class ExtensionMethods {
     /// <param name="dataTable"></param>
     /// <returns></returns>
     public static string toCsv(this DataTable dataTable) {
-        StringBuilder sbData = new StringBuilder();
+        StringBuilder sbData = new();
         //
         // -- Only return Null if there is no structure.
         if (dataTable.Columns.Count == 0) return null;

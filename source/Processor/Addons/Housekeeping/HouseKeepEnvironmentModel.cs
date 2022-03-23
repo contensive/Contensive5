@@ -40,15 +40,35 @@ namespace Contensive.Processor.Addons.Housekeeping {
         //
         //====================================================================================================
         /// <summary>
-        /// the last time housekeep was run
+        /// the last time hourly housekeep was run
         /// </summary>
-        public DateTime lastCheckDateTime { get { return core.siteProperties.getDate("housekeep, last check", default); } }
+        public DateTime baseHousekeepHourlyLastRunTime { 
+            get { 
+                return core.siteProperties.getDate("base housekeep, last hourly run", default); 
+            } 
+            set {
+                core.siteProperties.setProperty("base housekeep, last hourly run", value);
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// the last time daily housekeep was run
+        /// </summary>
+        public DateTime baseHousekeepDailyLastRunTime { 
+            get { 
+                return core.siteProperties.getDate("base housekeep, last daily run", default); 
+            } 
+            set {
+                core.siteProperties.setProperty("base housekeep, last daily run", value);
+            }
+        }
         //
         //====================================================================================================
         /// <summary>
         /// The hour of the day when daily housekeep should run
         /// </summary>
-        public int serverHousekeepHour { get { return core.siteProperties.getInteger("housekeep, run time hour", 2); } }
+        public int baseHousekeepRunHour { get { return core.siteProperties.getInteger("base housekeep, run time hour", 2); } }
         //
         //====================================================================================================
         /// <summary>

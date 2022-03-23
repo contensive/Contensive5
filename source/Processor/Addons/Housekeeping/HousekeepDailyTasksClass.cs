@@ -13,7 +13,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// <param name="core"></param>
         /// <param name="env"></param>
         public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
+            int TimeoutSave = env.core.db.sqlCommandTimeout;
             try {
+                env.core.db.sqlCommandTimeout = 1800;
                 //
                 env.log("executeDailyTasks, start");
                 //
@@ -67,6 +69,10 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 LogController.logError(env.core, ex);
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
+            } finally {
+                //
+                // -- restore default timeout
+                env.core.db.sqlCommandTimeout = TimeoutSave;
             }
         }
     }

@@ -196,7 +196,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recordsReturned"></param>
         /// <returns></returns>
         public DataTable executeQuery(string sql, int startRecord, int maxRecords, ref int recordsReturned) {
-            DataTable returnData = new DataTable();
+            DataTable returnData = new();
             try {
                 if (!dbEnabled) { return new DataTable(); }
                 if (core.serverConfig == null) { throw new GenericException("Cannot execute Sql in dbController, servercong is null"); }
@@ -232,7 +232,7 @@ namespace Contensive.Processor.Controllers {
                         cmdSQL.CommandText = sql;
                         cmdSQL.Connection = connSQL;
                         cmdSQL.CommandTimeout = sqlCommandTimeout;
-                        using (SqlDataAdapter adptSQL = new SqlDataAdapter(cmdSQL)) {
+                        using (SqlDataAdapter adptSQL = new(cmdSQL)) {
                             recordsReturned = adptSQL.Fill(startRecord, maxRecords, returnData);
                         }
                     }
@@ -271,9 +271,9 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (!dbEnabled) { return; }
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connSQL = new SqlConnection(getConnectionStringADONET(core.appConfig.name))) {
+                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
                     connSQL.Open();
-                    using (SqlCommand cmdSQL = new SqlCommand()) {
+                    using (SqlCommand cmdSQL = new()) {
                         cmdSQL.CommandType = CommandType.Text;
                         cmdSQL.CommandText = sql;
                         cmdSQL.Connection = connSQL;
@@ -304,9 +304,9 @@ namespace Contensive.Processor.Controllers {
                 int result = 0;
                 if (!dbEnabled) { return result; }
                 Stopwatch sw = Stopwatch.StartNew();
-                using (SqlConnection connSQL = new SqlConnection(getConnectionStringADONET(core.appConfig.name))) {
+                using (SqlConnection connSQL = new(getConnectionStringADONET(core.appConfig.name))) {
                     connSQL.Open();
-                    using (SqlCommand cmdSQL = new SqlCommand()) {
+                    using (SqlCommand cmdSQL = new()) {
                         cmdSQL.CommandType = CommandType.Text;
                         cmdSQL.CommandText = sql;
                         cmdSQL.Connection = connSQL;
@@ -1216,7 +1216,7 @@ namespace Contensive.Processor.Controllers {
         public DataTable getTableSchemaData(string tableName) {
             try {
                 string connString = getConnectionStringADONET(core.appConfig.name);
-                using SqlConnection connSQL = new SqlConnection(connString);
+                using SqlConnection connSQL = new(connString);
                 connSQL.Open();
                 return connSQL.GetSchema("Tables", new[] { core.appConfig.name, null, tableName, null });
             } catch (Exception ex) {

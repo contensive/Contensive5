@@ -104,7 +104,7 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         string EMailName = strMid(workingEmail, 1, atPtr - 1);
                         //
-                        LogController.addSiteActivity(core, "password request for email " + workingEmail, core.session.user.id );
+                        LogController.addActivity(core, "Password Request", "password request for email " + workingEmail, core.session.user.id );
                         //
                         bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false);
                         int recordCnt = 0;
