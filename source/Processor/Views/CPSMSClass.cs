@@ -39,7 +39,7 @@ namespace Contensive.Processor {
         public override bool Send(string smsPhoneNumber, string smsMessage) {
             try {
                 string userError = "";
-                return SmsController.sendMessage(cp.core, new TextMessageSendRequest {
+                return TextMessageController.sendImmediate(cp.core, new TextMessageSendRequest {
                     textBody = smsMessage,
                     toPhone = smsPhoneNumber,
                     attempts = 0,

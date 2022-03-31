@@ -1,7 +1,4 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.Models.Db;
-using Contensive.Processor.Exceptions;
+﻿using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
@@ -20,6 +17,28 @@ namespace Contensive.Processor.Controllers {
         //
         private const string blockListPrivateFilePathFilename = "Config\\TextMessageBlockList.txt";
         //
+        //====================================================================================================
+        /// <summary>
+        /// send text message. Returns false if there was an error, or the user is on the site's block list
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="request"></param>
+        /// <param name="userError"></param>
+        /// <returns></returns>
+        public static bool sendImmediate( CoreController core, TextMessageSendRequest request, ref string userError) {
+            try {
+                if (isOnBlockedList(core, request.toPhone)) {
+                    //
+                    userError = "The text message was not sent because the phone is blocked by this application. See the Blocked Phone Report.";
+                    return false;
+                }
+                return SmsController.sendMessage(core, request, ref userError);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+
+        }
         //
         //====================================================================================================
         /// <summary>
@@ -201,7 +220,7 @@ namespace Contensive.Processor.Controllers {
                     userErrorMessage = "The text message was not sent because the recipient has marked Block Text Messages, [" + recipient.name + "].";
                     return false;
                 }
-                if (0 != GenericController.strInstr(1, getBlockList(core), Environment.NewLine + recipient.cellPhone + Environment.NewLine, 1)) {
+                if (isOnBlockedList(core, recipient.cellPhone)) {
                     //
                     userErrorMessage = "The text message was not sent because the phone is blocked by this application. See the Blocked Phone Report.";
                     return false;

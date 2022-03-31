@@ -27,7 +27,6 @@ namespace Tests {
                 //
                 // act
                 TextMessageController.addToBlockList(cp.core, test1);
-                string blockList = TextMessageController.getBlockList(cp.core);
                 // assert
                 Assert.IsTrue(TextMessageController.isOnBlockedList(cp.core, test1));
                 Assert.IsFalse(TextMessageController.isOnBlockedList(cp.core, test2));

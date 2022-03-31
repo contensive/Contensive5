@@ -965,7 +965,11 @@ namespace Contensive.Processor.Controllers {
                     Prefix = remoteUnixPathFilename
                 };
                 var response = s3Client.ListObjectsAsync(request).waitSynchronously();
-                return response.S3Objects.Count.Equals(1);
+                if (response.S3Objects.Count==0) { return false;  }
+                foreach( var returnObject in response.S3Objects) {
+                    if (returnObject.Key==remoteUnixPathFilename) { return true; }
+                }
+                return false;
             } catch (AmazonS3Exception ex) {
                 //
                 // -- support this unwillingly

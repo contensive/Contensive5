@@ -112,7 +112,8 @@ namespace Contensive.Processor.Controllers {
                 string filePath = FileController.getPath(imageCdnPathFilename);
                 string filenameNoext = Path.GetFileNameWithoutExtension(imageCdnPathFilename);
                 string altSizeFilename = (filenameNoext + filenameExt).Replace(",", "_").Replace("-", "_").Replace("x", "_");
-                string imageAltsize = holeWidth + "x" + holeHeight + filenameExt.ToLowerInvariant();
+                string imageAltsize = holeWidth + "x" + holeHeight;
+                //string imageAltsize = holeWidth + "x" + holeHeight + filenameExt.ToLowerInvariant();
                 string newImageFilename = filePath + filenameNoext + "-" + imageAltsize + filenameExt;
                 //
                 if (!(new List<string> { ".png", ".jpg", ".jpeg", ".jfif", ".gif", ".bm", ".bmp", ".dip", ".tga", ".vda", ".icb", ".vst", ".webp", ".pbm" }).Contains(filenameExt.ToLowerInvariant())) {

@@ -238,7 +238,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 dbVerified = true;
-                string logMsg = "duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsReturned + "], sql [" + sql.Replace("\r", "").Replace("\n", "") + "]";
+                string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsReturned + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
                 if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
                     Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
                 } else {

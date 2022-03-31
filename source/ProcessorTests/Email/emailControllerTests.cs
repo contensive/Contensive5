@@ -327,29 +327,37 @@ namespace Tests {
                 //
                 // assert 2 emails, first the confirmation, then to-address
                 Assert.AreEqual(2, cp.core.mockEmailList.Count);
-                {
-                    //
-                    // -- the confirmationl
-                    MockEmailClass sentEmail = cp.core.mockEmailList[0];
-                    Assert.AreEqual(confirmPerson.email, getEmailPart(sentEmail.email.toAddress));
-                    Assert.AreEqual(systemEmail.fromAddress, getEmailPart(sentEmail.email.fromAddress));
-                    Assert.AreNotEqual(-1, sentEmail.email.htmlBody.IndexOf(htmlBody));
-                    Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
-                    Assert.AreEqual("", getEmailPart(sentEmail.email.bounceAddress));
-                    Assert.AreEqual("", getEmailPart(sentEmail.email.replyToAddress));
+                int foundCnt = 0;
+                foreach ( var sentEmail in cp.core.mockEmailList) {
+                    {
+                        //
+                        // -- the confirmationl
+                        if (confirmPerson.email== getEmailPart(sentEmail.email.toAddress)) {
+                            foundCnt++;
+                            Assert.AreEqual(confirmPerson.email, getEmailPart(sentEmail.email.toAddress));
+                            Assert.AreEqual(systemEmail.fromAddress, getEmailPart(sentEmail.email.fromAddress));
+                            Assert.AreNotEqual(-1, sentEmail.email.htmlBody.IndexOf(htmlBody));
+                            Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
+                            Assert.AreEqual("", getEmailPart(sentEmail.email.bounceAddress));
+                            Assert.AreEqual("", getEmailPart(sentEmail.email.replyToAddress));
+                        }
+                    }
+                    {
+                        //
+                        // -- the to-email
+                        if (toPerson.email == getEmailPart(sentEmail.email.toAddress)) {
+                            foundCnt++;
+                            Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
+                            Assert.AreEqual(toPerson.email, getEmailPart(sentEmail.email.toAddress));
+                            Assert.AreEqual(systemEmail.fromAddress, getEmailPart(sentEmail.email.fromAddress));
+                            Assert.AreEqual(systemEmail.subject, sentEmail.email.subject);
+                            Assert.AreNotEqual(-1, sentEmail.email.htmlBody.IndexOf(htmlBody));
+                            Assert.AreEqual("", getEmailPart(sentEmail.email.bounceAddress));
+                            Assert.AreEqual("", getEmailPart(sentEmail.email.replyToAddress));
+                        }
+                    }
                 }
-                {
-                    //
-                    // -- the to-email
-                    MockEmailClass sentEmail = cp.core.mockEmailList[1];
-                    Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
-                    Assert.AreEqual(toPerson.email, getEmailPart(sentEmail.email.toAddress));
-                    Assert.AreEqual(systemEmail.fromAddress, getEmailPart(sentEmail.email.fromAddress));
-                    Assert.AreEqual(systemEmail.subject, sentEmail.email.subject);
-                    Assert.AreNotEqual(-1, sentEmail.email.htmlBody.IndexOf(htmlBody));
-                    Assert.AreEqual("", getEmailPart(sentEmail.email.bounceAddress));
-                    Assert.AreEqual("", getEmailPart(sentEmail.email.replyToAddress));
-                }
+                Assert.AreEqual(2, foundCnt, "Both the email and the confirmation were not found.");
             }
         }
     }
