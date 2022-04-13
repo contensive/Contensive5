@@ -331,8 +331,8 @@ namespace Contensive.Processor.Controllers {
                         storeCacheDocument_MemoryCache(keyHash, result);
                     }
                 }
-                string returnContentSegment = SerializeObject(result);
-                returnContentSegment = (returnContentSegment.Length > 50) ? returnContentSegment.Substring(0, 50) : returnContentSegment;
+                //string returnContentSegment = SerializeObject(result);
+                //returnContentSegment = (returnContentSegment.Length > 50) ? returnContentSegment.Substring(0, 50) : returnContentSegment;
                 //
                 // -- log result
                 if (result == null) {
