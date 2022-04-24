@@ -184,7 +184,30 @@ namespace Contensive.BaseClasses {
         /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
         /// <param name="actvityDetails">The details of the activity.</param>
         /// <param name="activityUserId"></param>
-        public abstract int  AddActivity(string subject, string actvityDetails, int activityUserId);
+        public abstract int AddActivity(string subject, string actvityDetails, int activityUserId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log an activity for the specified user
+        /// </summary>
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        /// <param name="actvityDetails">The details of the activity.</param>
+        /// <param name="activityUserId"></param>
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person</param>
+        public abstract int AddActivity(string subject, string actvityDetails, int activityUserId, int typeId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log an activity for the specified user for a scheduled event
+        /// </summary>
+        /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
+        /// <param name="actvityDetails">The details of the activity.</param>
+        /// <param name="activityUserId"></param>
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person, </param>
+        /// <param name="dateScheduled"></param>
+        /// <param name="duration"></param>
+        /// <param name="scheduledStaffId"></param>
+        public abstract int addActivity(string subject, string actvityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId);
         //
         //====================================================================================================
         /// <summary>

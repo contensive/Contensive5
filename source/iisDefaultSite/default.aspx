@@ -61,6 +61,21 @@
                     HttpRuntime.UnloadAppDomain()
                 End If
             End Using
+            '
+            ' -- setup CORS if not present 
+            ' -- option 1 
+            '		- set CORS programmatically and allow this to handle option verb when code is not executed
+            '		- set app setting DefaultCORSAllowOrigin in customweb.config (see web.config for details)
+            ' -- option 2 
+            '		- add all CORS response to customweb.config.  (see web.config for details)
+            If Not HttpContext.Current.Response.Headers.AllKeys.Contains("Access-Control-Allow-Origin") Then
+                Dim allowOriginCORS As String = ConfigurationManager.AppSettings("DefaultCORSAllowOrigin")
+                allowOriginCORS = If(String.IsNullOrEmpty(allowOriginCORS), "*", allowOriginCORS)
+                HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Origin", allowOriginCORS)
+                HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Credentials", "true")
+                HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Methods", "POST,GET,OPTIONS")
+                HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Headers", "Content-Type,soapaction,X-Requested-With")
+            End If
         Catch ex As Exception
         Finally
         End Try

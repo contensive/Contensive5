@@ -906,7 +906,7 @@ namespace Contensive.Processor.Controllers {
                                                                         }
                                                                         if (!string.IsNullOrEmpty(fieldValue)) {
                                                                             Filename = fieldValue;
-                                                                            string VirtualFilePath = "Settings/" + fieldName + "/";
+                                                                            string VirtualFilePath = "settings/" + fieldName + "/";
                                                                             core.cdnFiles.upload(fieldName, VirtualFilePath, ref Filename);
                                                                             core.siteProperties.setProperty(fieldName, VirtualFilePath + Filename);
                                                                         }
@@ -914,7 +914,7 @@ namespace Contensive.Processor.Controllers {
                                                                     }
                                                                 case "textfile": {
                                                                         //
-                                                                        DefaultFilename = "Settings/" + fieldName + ".txt";
+                                                                        DefaultFilename = "settings/" + fieldName + ".txt";
                                                                         Filename = core.siteProperties.getText(fieldName, DefaultFilename);
                                                                         if (string.IsNullOrEmpty(Filename)) {
                                                                             Filename = DefaultFilename;
@@ -926,7 +926,7 @@ namespace Contensive.Processor.Controllers {
                                                                 case "cssfile": {
                                                                         //
                                                                         // ** deprecate ** install css and js files as resources, use with addons, not settings (and not in wwwroot)
-                                                                        DefaultFilename = "Settings/" + fieldName + ".css";
+                                                                        DefaultFilename = "settings/" + fieldName + ".css";
                                                                         Filename = core.siteProperties.getText(fieldName, DefaultFilename);
                                                                         if (string.IsNullOrEmpty(Filename)) {
                                                                             Filename = DefaultFilename;
@@ -938,7 +938,7 @@ namespace Contensive.Processor.Controllers {
                                                                 case "xmlfile": {
                                                                         //
                                                                         // ** deprecate ** install xml files as resources, not settings (and not in wwwroot)
-                                                                        DefaultFilename = "Settings/" + fieldName + ".xml";
+                                                                        DefaultFilename = "settings/" + fieldName + ".xml";
                                                                         Filename = core.siteProperties.getText(fieldName, DefaultFilename);
                                                                         if (string.IsNullOrEmpty(Filename)) {
                                                                             Filename = DefaultFilename;

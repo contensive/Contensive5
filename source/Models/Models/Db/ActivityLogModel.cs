@@ -23,6 +23,10 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int memberId { get; set; }
         /// <summary>
+        /// see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person
+        /// </summary>
+        public int typeId { get; set; }
+        /// <summary>
         /// plain text. a description of the event
         /// </summary>
         public string message { get; set; }
@@ -47,6 +51,10 @@ namespace Contensive.Models.Db {
         /// Not necessarily the exact start or end time of the event.
         /// </summary>
         public DateTime? dateCompleted { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public DateTime? dateCanceled { get; set; }
         /// <summary>
         /// If this activity is a future scheduled event, this is the duration of the event in minutes
         /// </summary>

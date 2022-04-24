@@ -67,7 +67,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- continue only if a previous build exists
-                if (!string.IsNullOrEmpty( DataBuildVersion)) {
+                if (!string.IsNullOrEmpty(DataBuildVersion)) {
                     //
                     // -- 4.1 to 5 conversions
                     if (GenericController.versionIsOlder(DataBuildVersion, "4.1")) {
@@ -331,6 +331,27 @@ namespace Contensive.Processor.Controllers {
                         // -- 22.3.15.4 -- addon category 'containers' has incorrect guid
                         core.db.executeNonQuery("update ccAddonCategories set ccguid='{bc311ad8-fcae-4228-800d-e432733fdf3e}' where name='Containers'");
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "22.4.14.1")) {
+                        //
+                        // -- early data migration created duplicate indexes with this format - ccEmailDrops$ccEmailDropsContentControlID
+                        foreach (TableModel table in DbBaseModel.createList<TableModel>(cp)) {
+                            string tableName = table.name;
+                            if (string.IsNullOrEmpty(tableName)) { continue; }
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ID] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "Name] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "Active] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ccGuid] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ContentControlID] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "CreateKey] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "SortOrder] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "DateAdded] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ModifiedDate] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "CreatedBy] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ModifiedBy] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "ContentCategoryID] ON [" + tableName + "]");
+                            cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "EditsourceID] ON [" + tableName + "]");
+                        }
+                    }
                 }
                 // -- Reload
                 core.cache.invalidateAll();
@@ -341,7 +362,7 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
-        public static void convertPageContentToAddonList( CoreController core, PageContentModel page) {
+        public static void convertPageContentToAddonList(CoreController core, PageContentModel page) {
             // 
             // -- save copyFilename copy to new Text Block record
             string textBlockInstanceGuid = GenericController.getGUID();
@@ -356,23 +377,23 @@ namespace Contensive.Processor.Controllers {
             core.cpParent.Db.ExecuteNonQuery("update ccpagecontent set addonList=" + core.cpParent.Db.EncodeSQLText(addonList) + " where (id=" + page.id + ")");
         }
 
-    //
-    //====================================================================================================
-    /// <summary>
-    /// nlog class instance
-    /// </summary>
-    private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-    //
-    //====================================================================================================
-    #region  IDisposable Support 
-    //
-    // this class must implement System.IDisposable
-    // never throw an exception in dispose
-    // Do not change or add Overridable to these methods.
-    // Put cleanup code in Dispose(ByVal disposing As Boolean).
-    //====================================================================================================
-    //
-    protected bool disposed;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
+        #region  IDisposable Support 
+        //
+        // this class must implement System.IDisposable
+        // never throw an exception in dispose
+        // Do not change or add Overridable to these methods.
+        // Put cleanup code in Dispose(ByVal disposing As Boolean).
+        //====================================================================================================
+        //
+        protected bool disposed;
         //
         public void Dispose() {
             // do not add code here. Use the Dispose(disposing) overload

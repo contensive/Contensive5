@@ -166,7 +166,7 @@ namespace Contensive.Processor {
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject) {
-            return LogController.addActivity(cp.core, subject, subject );
+            return LogController.addActivity(cp.core, subject, subject);
         }
         //
         //====================================================================================================
@@ -187,10 +187,24 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="subject"></param>
         /// <param name="activityDetails"></param>
-        /// <param name="activityUserID"></param>
+        /// <param name="activityUserId"></param>
         /// <param name="organizationId"></param>
-        public override int AddActivity(string subject, string activityDetails, int activityUserID) {
-            return LogController.addActivity(cp.core, subject, activityDetails, activityUserID);
+        public override int AddActivity(string subject, string activityDetails, int activityUserId) {
+            return LogController.addActivity(cp.core, subject, activityDetails, activityUserId);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
+        /// <param name="activityUserId"></param>
+        /// <param name="typeId"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override int AddActivity(string subject, string activityDetails, int activityUserId, int typeId) {
+            return LogController.addActivity(cp.core, subject, activityDetails, activityUserId, typeId);
         }
         //
         //====================================================================================================
@@ -206,6 +220,23 @@ namespace Contensive.Processor {
         public override int addActivity(string subject, string activityDetails, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
             return LogController.addActivity(cp.core, subject, activityDetails, activityUserID, dateScheduled, duration, scheduledStaffId);
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subject"></param>
+        /// <param name="actvityDetails"></param>
+        /// <param name="activityUserId"></param>
+        /// <param name="typeId"></param>
+        /// <param name="dateScheduled"></param>
+        /// <param name="duration"></param>
+        /// <param name="scheduledStaffId"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override int addActivity(string subject, string actvityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return LogController.addActivity(cp.core, subject, actvityDetails, activityUserId, typeId, dateScheduled, duration, scheduledStaffId);
+        }
 
         //
         //====================================================================================================
@@ -216,8 +247,8 @@ namespace Contensive.Processor {
         /// <param name="activityUserID"></param>
         /// <param name="legacyOrganizationId"></param>
         [Obsolete]
-        public override void LogActivity( string activityMessage, int activityUserID, int legacyOrganizationId) {
-            LogController.addActivity(cp.core, "" , activityMessage, activityUserID);
+        public override void LogActivity(string activityMessage, int activityUserID, int legacyOrganizationId) {
+            LogController.addActivity(cp.core, "", activityMessage, activityUserID);
         }
         //
         //====================================================================================================
@@ -247,7 +278,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="message"></param>
         public override void ErrorReport(string message) {
-            LogController.log(cp.core, message , BaseClasses.CPLogBaseClass.LogLevel.Error);
+            LogController.log(cp.core, message, BaseClasses.CPLogBaseClass.LogLevel.Error);
         }
         /// <summary>
         /// 
@@ -270,8 +301,8 @@ namespace Contensive.Processor {
         /// Debug log entry
         /// </summary>
         /// <param name="message"></param>
-        public override void TestPoint(string message) 
-            => Logger.Trace(LogController.processLogMessage(cp.core, "testpoint:" + message, false ));
+        public override void TestPoint(string message)
+            => Logger.Trace(LogController.processLogMessage(cp.core, "testpoint:" + message, false));
 
         //
         //====================================================================================================
@@ -280,7 +311,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="eventNameIdOrGuid"></param>
         /// <returns></returns>
-        public override string ThrowEvent(string eventNameIdOrGuid) 
+        public override string ThrowEvent(string eventNameIdOrGuid)
             => cp.core.addon.throwEvent(eventNameIdOrGuid);
         //
         //====================================================================================================
@@ -410,10 +441,10 @@ namespace Contensive.Processor {
         }
         //
         [Obsolete("Deprecated.", false)]
-        public override bool IsTesting()  { return false; }
+        public override bool IsTesting() { return false; }
         //
         [Obsolete("Use GetInteger(LandingPageID)", false)]
-        public override int LandingPageId()  {
+        public override int LandingPageId() {
             return GetInteger("LandingPageID", 0);
         }
         //
@@ -421,7 +452,7 @@ namespace Contensive.Processor {
         public override int LandingPageId(string domainName) {
             if (string.IsNullOrWhiteSpace(domainName)) return GetInteger("LandingPageID", 0);
             var domain = DbBaseModel.createByUniqueName<DomainModel>(cp, domainName);
-            if (domain == null)  return GetInteger("LandingPageID", 0);
+            if (domain == null) return GetInteger("LandingPageID", 0);
             return domain.rootPageId;
         }
         //
@@ -431,7 +462,7 @@ namespace Contensive.Processor {
         }
         //
         [Obsolete("Use CP.Addon.InstallCollectionFile()", false)]
-        public override bool installCollectionFile(string privatePathFilename, ref string returnUserError) 
+        public override bool installCollectionFile(string privatePathFilename, ref string returnUserError)
             => cp.Addon.InstallCollectionFile(privatePathFilename, ref returnUserError);
         //
         [Obsolete("Use CP.Utils.InstallCollectionFromLibrary()", false)]
@@ -439,7 +470,7 @@ namespace Contensive.Processor {
             => cp.Addon.InstallCollectionFromLibrary(collectionGuid, ref returnUserError);
         //
         [Obsolete("Use CP.Utils.EncodeAppRootPath()", false)]
-        public override string EncodeAppRootPath(string link) 
+        public override string EncodeAppRootPath(string link)
             => cp.Utils.EncodeAppRootPath(link);
         //
         //====================================================================================================
@@ -471,12 +502,12 @@ namespace Contensive.Processor {
         protected bool disposed_site;
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
-        public void Dispose()  {
+        public void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        ~CPSiteClass()  {
+        ~CPSiteClass() {
             Dispose(false);
         }
         #endregion

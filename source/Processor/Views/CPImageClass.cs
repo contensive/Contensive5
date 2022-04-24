@@ -22,6 +22,19 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
+        public override string GetAvatarCdnPathFilename(int holeWidth, int holeHeight) {
+            throw new NotImplementedException();
+        }
+        //
+        // ====================================================================================================
+        //
+
+        public override string GetAvatarCdnPathFilename(int holeWidth, int holeHeight, int userId) {
+            throw new NotImplementedException();
+        }
+        //
+        // ====================================================================================================
+        //
         public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
             return ImageController.getBestFit(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
         }

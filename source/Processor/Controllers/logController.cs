@@ -247,22 +247,23 @@ namespace Contensive.Processor.Controllers {
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
+        /// <param name="subject"></param>
         /// <param name="activityDetails"></param>
-        /// <param name="ByMemberID"></param>
-        /// <param name="SubjectMemberID"></param>
-        /// <param name="SubjectOrganizationID"></param>
-        /// <param name="Link"></param>
-        /// <param name="VisitorId"></param>
-        /// <param name="VisitId"></param>
-        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+        /// <param name="activityUserId"></param>
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=online visit, 2=online purchase, 3=email-to, 4=email-from, 5=call-to, 6=call-from, 7=text-to, 8=text-from, 9=meeting-video, 10=meeting-in-person, </param>
+        /// <param name="dateScheduled"></param>
+        /// <param name="duration"></param>
+        /// <param name="scheduledStaffId"></param>
+        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
             try {
                 //
                 if (subject == null) { subject = ""; }
                 if (activityDetails == null) { activityDetails = ""; }
                 if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
-                using CsModel csData = new(core); 
+                using CsModel csData = new(core);
                 csData.insert("Activity Log");
                 csData.set("name", subject);
+                csData.set("typeid", (typeId<1) ? 1 : typeId);
                 csData.set("MemberID", activityUserId);
                 csData.set("Message", activityDetails);
                 csData.set("VisitorID", core.session.visitor.id);
@@ -279,6 +280,21 @@ namespace Contensive.Processor.Controllers {
         //
         //=====================================================================================================
         /// <summary>
+        /// add and online visit activity
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
+        /// <param name="activityUserId"></param>
+        /// <param name="dateScheduled"></param>
+        /// <param name="duration"></param>
+        /// <param name="scheduledStaffId"></param>
+        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return addActivity(core, subject, activityDetails, activityUserId, 1, dateScheduled, duration, scheduledStaffId);
+        }
+        //
+        //=====================================================================================================
+        /// <summary>
         /// add activity about a user to the site's activity log for content managers to review
         /// </summary>
         /// <param name="core"></param>
@@ -287,7 +303,20 @@ namespace Contensive.Processor.Controllers {
         /// <param name="activityUserId"></param>
         /// <param name="subjectOrganizationID"></param>
         public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId) {
-            return addActivity(core, subject, activityDetails, activityUserId, DateTime.MinValue, 0, 0);
+            return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0, 0);
+        }
+        //
+        //=====================================================================================================
+        /// <summary>
+        /// add activity about a user to the site's activity log for content managers to review
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
+        /// <param name="activityUserId"></param>
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person</param>
+        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
+            return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0, 0);
         }
         //
         //=====================================================================================================
@@ -299,7 +328,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="activityDetails"></param>
         public static int addActivity(CoreController core, string subject, string activityDetails) {
             core.session.verifyUser();
-            return addActivity(core, subject, activityDetails, (core?.session?.user == null) ? 0 : core.session.user.id, DateTime.MinValue, 0, 0);
+            return addActivity(core, subject, activityDetails, (core?.session?.user == null) ? 0 : core.session.user.id, 1, DateTime.MinValue, 0, 0);
         }
         //
         //================================================================================================

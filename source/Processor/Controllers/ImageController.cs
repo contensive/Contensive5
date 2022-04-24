@@ -13,6 +13,42 @@ namespace Contensive.Processor.Controllers {
     /// public property bool 'mock', set true to mock this service by loggin activity in a mockList()
     /// </summary>
     public sealed class ImageController {
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Return the avatar CDN pathFilename for the current user, resized to the provided dimensions. 
+        /// To use the returned pathFilename as a link, prefix it with CP.Http.CdnFilePathPrefixAbsolute.
+        /// To access the file directly, use CP.CdnFiles.
+        /// </summary>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <returns></returns>
+        public static string getAvatarCdnPathFilename(CoreController core, int holeWidth, int holeHeight) {
+            return getAvatarCdnPathFilename(core, holeWidth, holeHeight, core.session.user.id);
+        }
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Return the avatar CDN pathFilename for the provided user, resized to the provided dimensions. 
+        /// To use the returned pathFilename as a link, prefix it with CP.Http.CdnFilePathPrefixAbsolute.
+        /// To access the file directly, use CP.CdnFiles.
+        /// </summary>
+        /// <param name="holeWidth">The width of the final image to be returned.</param>
+        /// <param name="holeHeight">The height of the final image to be returned.</param>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public static string getAvatarCdnPathFilename(CoreController core, int holeWidth, int holeHeight, int userId) {
+            string sql = "select thumbnailFilename,imageFilename from ccmembers where id=" + userId;
+            string avatarPathFilename = "";
+            using (var dt = core.db.executeQuery(sql)) {
+                if (dt?.Rows != null) {
+                    avatarPathFilename = GenericController.encodeText(dt.Rows[0][0]);
+                    avatarPathFilename = string.IsNullOrEmpty(avatarPathFilename) ? avatarPathFilename : GenericController.encodeText(dt.Rows[0][1]);
+                }
+            }
+            avatarPathFilename = string.IsNullOrEmpty(avatarPathFilename) ? avatarPathFilename : core.siteProperties.avatarDefaultPathFilename;
+            return getBestFit(core, avatarPathFilename, holeWidth, holeHeight);
+        }
         // 
         // ====================================================================================================
         /// <summary>

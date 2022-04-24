@@ -37,11 +37,16 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 env.log("Housekeep, activitylog");
                 {
+                    env.core.db.executeNonQuery("delete from ccactivitylog where message like 'modifying field%'");
+                    env.core.db.executeNonQuery("delete from ccactivitylog where message like 'saving changes to user%'");
+                    env.core.db.executeNonQuery("update ccActivityLog set name=LEFT(message,30) where name is null");
                     //
-                    //
-                    env.log("Deleting activities older than archiveAgeDays (" + env.archiveAgeDays + ").");
-                    //
-                    env.core.db.executeNonQuery("delete from ccactivitylog where (DateAdded is null)or(DateAdded<DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
+                    // -- hold off on this until we decide if activities will be used for CRM
+                    ////
+                    ////
+                    //env.log("Deleting activities older than archiveAgeDays (" + env.archiveAgeDays + ").");
+                    ////
+                    //env.core.db.executeNonQuery("delete from ccactivitylog where (DateAdded is null)or(DateAdded<DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
 
                 }
                 {

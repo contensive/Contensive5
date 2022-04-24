@@ -239,7 +239,7 @@ namespace Contensive.Processor.Controllers {
             }
             if (readOnly) {
                 //
-                // ----- Lookup ReadOnly
+                // -- lookup readonly
                 result += (HtmlController.inputHidden(fieldName, GenericController.encodeText(fieldValue)));
                 using (var csData = new CsModel(core)) {
                     csData.openRecord(lookupContentMetacontent.name, fieldValue, "Name,ContentControlID");
@@ -515,7 +515,7 @@ namespace Contensive.Processor.Controllers {
         public static string getSelectorStringEditor(CoreController core, string SitePropertyName, string SitePropertyValue, string selector) {
             var result = new StringBuilder();
             try {
-                Dictionary<string, string> instanceOptions = new Dictionary<string, string> {
+                Dictionary<string, string> instanceOptions = new() {
                     { SitePropertyName, SitePropertyValue }
                 };
                 //

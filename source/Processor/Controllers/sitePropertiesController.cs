@@ -56,6 +56,15 @@ namespace Contensive.Processor.Controllers {
         private string _emailBounceAddress = null;
         //
         //====================================================================================================
+        //
+        public string avatarDefaultPathFilename {
+            get {
+                return getPropertyBase("avatarDefaultPathFilename", "" + cdnPrefix + "baseAssets/avatarDefault.jpg", ref _avatarDefaultPathFilename);
+            }
+        }
+        private string _avatarDefaultPathFilename = null;
+        //
+        //====================================================================================================
         /// <summary>
         /// The site property for the default system email from-address
         /// </summary>
