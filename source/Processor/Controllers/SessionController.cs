@@ -912,11 +912,7 @@ namespace Contensive.Processor.Controllers {
                     // -- successful
                     LogController.addActivity(core, "Login", "successful login, credential [" + username + "]", user.id );
                     //
-                    // -- ASYNC test
-                    LogController.log(core, "authenticate, async test 2 of 3", CPLogBaseClass.LogLevel.Debug);
-                    //
-                    core.db.executeNonQueryAsync("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
-                    //core.db.executeNonQuery("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
+                    core.db.executeNonQuery("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
                     return true;
                 }
                 //

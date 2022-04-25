@@ -372,11 +372,7 @@ namespace Contensive.Processor.Controllers {
                         + " set count=count+1,"
                         + " dateLastReported=" + DbController.encodeSQLDate(core.dateTimeNowMockable) + " "
                         + " where id=" + warningId;
-                    //
-                    // -- ASYNC test
-                    LogController.log(core, "addSiteWarning, async test 1 of 3", CPLogBaseClass.LogLevel.Debug);
-                    //
-                    core.db.executeNonQueryAsync(SQL);
+                    core.db.executeNonQuery(SQL);
                     return;
                 }
             }

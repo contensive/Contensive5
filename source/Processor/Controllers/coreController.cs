@@ -823,114 +823,126 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
-            if (!this.disposed) {
-                this.disposed = true;
-                if (disposing) {
-                    //
-                    // -- Block all output from underlying routines
-                    doc.blockExceptionReporting = true;
-                    doc.continueProcessing = false;
-                    //
-                    // -- content server object is valid
-                    if ((serverConfig != null) && (appConfig != null) && (appConfig.appStatus == AppConfigBaseModel.AppStatusEnum.ok)) {
-                        if (deleteSessionOnExit) {
-                            if ((session != null)) {
-                                if ((session.visit != null) && (session.visit.id > 0)) {
-                                    //
-                                    // -- delete visit
-                                    visitProperty.deleteAll(session.user.id);
-                                    DbBaseModel.delete<VisitModel>(cpParent, session.visit.id);
-                                    //
-                                    // -- delete viewing
-                                    DbBaseModel.deleteRows<ViewingModel>(cpParent, "(visitId=" + session.visit.id + ")");
+            string hint = "10";
+            try {
+                if (!this.disposed) {
+                    hint = "20";
+                    this.disposed = true;
+                    if (disposing) {
+                        hint = "30";
+                        //
+                        // -- Block all output from underlying routines
+                        doc.blockExceptionReporting = true;
+                        doc.continueProcessing = false;
+                        //
+                        // -- content server object is valid
+                        if ((session?.visit != null) && (serverConfig != null) && (appConfig != null) && (appConfig.appStatus == AppConfigBaseModel.AppStatusEnum.ok)) {
+                            hint = "40";
+                            if (deleteSessionOnExit) {
+                                if (session != null) {
+                                    if ((session.visit != null) && (session.visit.id > 0)) {
+                                        //
+                                        // -- delete visit
+                                        visitProperty.deleteAll(session.user.id);
+                                        DbBaseModel.delete<VisitModel>(cpParent, session.visit.id);
+                                        //
+                                        // -- delete viewing
+                                        DbBaseModel.deleteRows<ViewingModel>(cpParent, "(visitId=" + session.visit.id + ")");
+                                    }
+                                    if ((session.visitor != null) && (session.visitor.id > 0)) {
+                                        //
+                                        // -- delete visitor
+                                        visitorProperty.deleteAll(session.user.id);
+                                        DbBaseModel.delete<VisitorModel>(cpParent, session.visit.id);
+                                    }
                                 }
-                                if ((session.visitor != null) && (session.visitor.id > 0)) {
-                                    //
-                                    // -- delete visitor
-                                    visitorProperty.deleteAll(session.user.id);
-                                    DbBaseModel.delete<VisitorModel>(cpParent, session.visit.id);
+                            }
+                            hint = "50";
+                            if (session?.visit !=null && !deleteSessionOnExit && siteProperties.allowVisitTracking) {
+                                hint = "51";
+                                //
+                                // If visit tracking, save the viewing record
+                                //
+                                string ViewingName = ((string)(session.visit.id + "." + session.visit.pageVisits)).left(10);
+                                int PageId = 0;
+                                if (_doc != null) {
+                                    if (doc?.pageController?.page != null) {
+                                        PageId = doc.pageController.page.id;
+                                    }
                                 }
+                                hint = "52";
+                                //
+                                // -- convert requestForm to a name=value string for Db storage
+                                string requestFormSerialized = GenericController.convertNameValueDictToREquestString(webServer.requestForm);
+                                string pagetitle = "";
+                                if (!doc.htmlMetaContent_TitleList.Count.Equals(0)) {
+                                    pagetitle = doc.htmlMetaContent_TitleList[0].content;
+                                }
+                                hint = "53";
+                                string sql = "insert into ccviewings ("
+                                    + "Name,VisitId,MemberID,Host,Path,Page,QueryString,Form,Referer,DateAdded,StateOK,pagetime,Active,RecordID,ExcludeFromAnalytics,pagetitle,ccguid"
+                                    + ")values("
+                                    + " " + DbController.encodeSQLText(ViewingName)
+                                    + "," + session.visit.id.ToString()
+                                    + "," + session.user.id.ToString()
+                                    + "," + DbController.encodeSQLText(webServer.requestDomain)
+                                    + "," + DbController.encodeSQLText(webServer.requestPath)
+                                    + "," + DbController.encodeSQLText(webServer.requestPage)
+                                    + "," + DbController.encodeSQLText(webServer.requestQueryString.left(255))
+                                    + "," + DbController.encodeSQLText(requestFormSerialized.left(255))
+                                    + "," + DbController.encodeSQLText(webServer.requestReferrer.left(255))
+                                    + "," + DbController.encodeSQLDate(doc.profileStartTime)
+                                    + "," + DbController.encodeSQLBoolean(session.visitStateOk)
+                                    + "," + doc.appStopWatch.ElapsedMilliseconds.ToString()
+                                    + ",1"
+                                    + "," + PageId.ToString()
+                                    + "," + DbController.encodeSQLBoolean(webServer.pageExcludeFromAnalytics)
+                                    + "," + DbController.encodeSQLText(pagetitle)
+                                    + "," + DbController.encodeSQLText(doc.docGuid);
+                                sql += ");";
+                                hint = "54";
+                                db.executeNonQuery(sql);
                             }
                         }
-                        if (!deleteSessionOnExit && siteProperties.allowVisitTracking) {
-                            //
-                            // If visit tracking, save the viewing record
-                            //
-                            string ViewingName = ((string)(session.visit.id + "." + session.visit.pageVisits)).left(10);
-                            int PageId = 0;
-                            if (_doc != null) {
-                                if (doc.pageController.page != null) {
-                                    PageId = doc.pageController.page.id;
-                                }
-                            }
-                            //
-                            // -- convert requestForm to a name=value string for Db storage
-                            string requestFormSerialized = GenericController.convertNameValueDictToREquestString(webServer.requestForm);
-                            string pagetitle = "";
-                            if (!doc.htmlMetaContent_TitleList.Count.Equals(0)) {
-                                pagetitle = doc.htmlMetaContent_TitleList[0].content;
-                            }
-                            string sql = "insert into ccviewings ("
-                                + "Name,VisitId,MemberID,Host,Path,Page,QueryString,Form,Referer,DateAdded,StateOK,pagetime,Active,RecordID,ExcludeFromAnalytics,pagetitle,ccguid"
-                                + ")values("
-                                + " " + DbController.encodeSQLText(ViewingName)
-                                + "," + session.visit.id.ToString()
-                                + "," + session.user.id.ToString()
-                                + "," + DbController.encodeSQLText(webServer.requestDomain)
-                                + "," + DbController.encodeSQLText(webServer.requestPath)
-                                + "," + DbController.encodeSQLText(webServer.requestPage)
-                                + "," + DbController.encodeSQLText(webServer.requestQueryString.left(255))
-                                + "," + DbController.encodeSQLText(requestFormSerialized.left(255))
-                                + "," + DbController.encodeSQLText(webServer.requestReferrer.left(255))
-                                + "," + DbController.encodeSQLDate(doc.profileStartTime)
-                                + "," + DbController.encodeSQLBoolean(session.visitStateOk)
-                                + "," + doc.appStopWatch.ElapsedMilliseconds.ToString()
-                                + ",1"
-                                + "," + PageId.ToString()
-                                + "," + DbController.encodeSQLBoolean(webServer.pageExcludeFromAnalytics)
-                                + "," + DbController.encodeSQLText(pagetitle)
-                                + "," + DbController.encodeSQLText(doc.docGuid);
-                            sql += ");";
-                            //
-                            // -- ASYNC test
-                            LogController.log(this, "authenticate, async test 3 of 3", CPLogBaseClass.LogLevel.Debug);
-                            db.executeNonQueryAsync(sql);
+                        hint = "60";
+                        //
+                        // ----- dispose objects created here
+                        //
+                        if (_addon != null) {
+                            _addon.Dispose();
+                            _addon = null;
                         }
+                        //
+                        if (_db != null) {
+                            _db.Dispose();
+                            _db = null;
+                        }
+                        //
+                        if (_cache != null) {
+                            _cache.Dispose();
+                            _cache = null;
+                        }
+                        //
+                        if (_db != null) {
+                            _db.Dispose();
+                            _db = null;
+                        }
+                        //
+                        _siteProperties = null;
+                        _domains = null;
+                        _docProperties = null;
+                        _webServer = null;
+                        _visitProperty = null;
+                        _visitorProperty = null;
+                        _userProperty = null;
                     }
                     //
-                    // ----- dispose objects created here
+                    // cleanup non-managed objects
                     //
-                    if (_addon != null) {
-                        _addon.Dispose();
-                        _addon = null;
-                    }
-                    //
-                    if (_db != null) {
-                        _db.Dispose();
-                        _db = null;
-                    }
-                    //
-                    if (_cache != null) {
-                        _cache.Dispose();
-                        _cache = null;
-                    }
-                    //
-                    if (_db != null) {
-                        _db.Dispose();
-                        _db = null;
-                    }
-                    //
-                    _siteProperties = null;
-                    _domains = null;
-                    _docProperties = null;
-                    _webServer = null;
-                    _visitProperty = null;
-                    _visitorProperty = null;
-                    _userProperty = null;
                 }
-                //
-                // cleanup non-managed objects
-                //
+            } catch (Exception ex) {
+                logger.Error(ex, "CoreController.Dispose. hint [" + hint + "]");
+                throw;
             }
         }
         //

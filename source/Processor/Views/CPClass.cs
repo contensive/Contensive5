@@ -86,7 +86,8 @@ namespace Contensive.Processor {
         public bool appOk {
             get {
                 if ((core?.serverConfig == null) || (core?.appConfig == null)) { return false; }
-                return (core.appConfig.appStatus == AppConfigBaseModel.AppStatusEnum.ok);
+                if (core.appConfig.appStatus == AppConfigBaseModel.AppStatusEnum.ok && core.appConfig.enabled) { return true; }
+                return false;
             }
         }
         //
@@ -98,7 +99,14 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeRoute(string route) {
             try {
-                if ((core?.appConfig == null) || (!core.appConfig.enabled)) { return string.Empty; }
+                if (core?.appConfig == null) {
+                    if (core == null) { throw new ApplicationException("cp.executeRoute(route) failed because coreController null"); }
+                    throw new ApplicationException("cp.executeRoute(route) failed because core.appConfig null");
+                }
+                if (!core.appConfig.enabled) {
+                    LogController.logDebug(core, "cp.executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
+                    return string.Empty;
+                }
                 return RouteController.executeRoute(core, route);
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
@@ -113,7 +121,14 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeRoute() {
             try {
-                if ((core?.appConfig == null) || (!core.appConfig.enabled)) { return string.Empty; }
+                if (core?.appConfig == null) {
+                    if (core == null) { throw new ApplicationException("cp.executeRoute() failed because coreController null"); }
+                    throw new ApplicationException("cp.executeRoute() failed because core.appConfig null");
+                }
+                if (!core.appConfig.enabled) {
+                    LogController.logDebug(core, "cp.executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
+                    return string.Empty;
+                }
                 return RouteController.executeRoute(core);
             } catch (Exception ex) {
                 Site.ErrorReport(ex);

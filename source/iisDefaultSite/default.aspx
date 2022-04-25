@@ -13,6 +13,12 @@
             Dim appName As String = ConfigurationClass.getAppName()
             Dim context = ConfigurationClass.buildContext(appName, HttpContext.Current)
             Using cp As New Contensive.Processor.CPClass(appName, context)
+				'
+				' -- if disabled, exit
+				if not cp.appOk then
+					response.write("The application [" & appName & "] is currently disabled.")
+					Exit Sub
+				end if
                 '
                 ' -- execute route
                 Dim content As String = cp.executeRoute()
