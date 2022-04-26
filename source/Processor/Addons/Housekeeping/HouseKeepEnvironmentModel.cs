@@ -88,11 +88,11 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         public DateTime oldestVisitSummaryWeCareAbout {
             get {
-                DateTime oldestVisitSummaryWeCareAbout = core.dateTimeNowMockable.Date.AddDays(-30);
-                if (oldestVisitSummaryWeCareAbout < visitArchiveDate) {
-                    oldestVisitSummaryWeCareAbout = visitArchiveDate;
+                DateTime result = core.dateTimeNowMockable.Date.AddDays(-30);
+                if (result < visitArchiveDate) {
+                    result = visitArchiveDate;
                 }
-                return oldestVisitSummaryWeCareAbout;
+                return result;
             }
         }
         //
@@ -106,12 +106,12 @@ namespace Contensive.Processor.Addons.Housekeeping {
             get {
                 //
                 // -- Get ArchiveAgeDays - use this as the oldest data they care about
-                int visitArchiveAgeDays = core.siteProperties.getInteger("ArchiveRecordAgeDays", 2);
-                if (visitArchiveAgeDays < 2) {
-                    visitArchiveAgeDays = 2;
+                int result = core.siteProperties.getInteger("ArchiveRecordAgeDays", 2);
+                if (result < 2) {
+                    result = 2;
                     core.siteProperties.setProperty("ArchiveRecordAgeDays", 2);
                 }
-                return visitArchiveAgeDays;
+                return result;
             }
         }
         //
@@ -133,12 +133,12 @@ namespace Contensive.Processor.Addons.Housekeeping {
             get {
                 //
                 // -- Get GuestArchiveAgeDays
-                int guestArchiveAgeDays = core.siteProperties.getInteger("ArchivePeopleAgeDays", 2);
-                if (guestArchiveAgeDays < 2) {
-                    guestArchiveAgeDays = 2;
-                    core.siteProperties.setProperty("ArchivePeopleAgeDays", guestArchiveAgeDays);
+                int result = core.siteProperties.getInteger("ArchivePeopleAgeDays", 2);
+                if (result < 2) {
+                    result = 2;
+                    core.siteProperties.setProperty("ArchivePeopleAgeDays", result);
                 }
-                return guestArchiveAgeDays;
+                return result;
             }
         }
         //
@@ -150,16 +150,16 @@ namespace Contensive.Processor.Addons.Housekeeping {
             get {
                 //
                 // -- Get EmailDropArchiveAgeDays
-                int emailDropArchiveAgeDays = core.siteProperties.getInteger("ArchiveEmailDropAgeDays", 90);
-                if (emailDropArchiveAgeDays < 2) {
-                    emailDropArchiveAgeDays = 2;
-                    core.siteProperties.setProperty("ArchiveEmailDropAgeDays", emailDropArchiveAgeDays);
+                int result = core.siteProperties.getInteger("ArchiveEmailDropAgeDays", 90);
+                if (result < 2) {
+                    result = 2;
+                    core.siteProperties.setProperty("ArchiveEmailDropAgeDays", result);
                 }
-                if (emailDropArchiveAgeDays > 365) {
-                    emailDropArchiveAgeDays = 365;
-                    core.siteProperties.setProperty("ArchiveEmailDropAgeDays", emailDropArchiveAgeDays);
+                if (result > 365) {
+                    result = 365;
+                    core.siteProperties.setProperty("ArchiveEmailDropAgeDays", result);
                 }
-                return emailDropArchiveAgeDays;
+                return result;
             }
         }
         //
