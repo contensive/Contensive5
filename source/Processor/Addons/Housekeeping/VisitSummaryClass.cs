@@ -32,7 +32,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="env"></param>
-        public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
+        public static void updateVisitSummary(HouseKeepEnvironmentModel env) {
             try {
                 //
                 env.log("Housekeep, visitsummary");

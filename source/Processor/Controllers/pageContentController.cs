@@ -932,14 +932,18 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- edit wrapper
-                bool isRootPage = (core.doc.pageController.pageToRootList.Count == 1);
-                if (core.session.isAdvancedEditing()) {
-                    result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, (!isRootPage), core.doc.pageController.page.name) + result;
-                    result = AdminUIController.getEditWrapper(core, result);
-                } else if (core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
-                    result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, (!isRootPage), core.doc.pageController.page.name) + result;
+                bool allowCut = core.doc.pageController.pageToRootList.Count != 1;
+                if (core.session.isEditing()) {
+                    result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, allowCut, core.doc.pageController.page.name, "Edit Page Settings") + result;
                     result = AdminUIController.getEditWrapper(core, result);
                 }
+                //if (core.session.isAdvancedEditing()) {
+                //    result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, (!isRootPage), core.doc.pageController.page.name, "Edit Page Settings") + result;
+                //    result = AdminUIController.getEditWrapper(core, result);
+                //} else if (core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
+                //    result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, (!isRootPage), core.doc.pageController.page.name, "Edit Page Settings") + result;
+                //    result = AdminUIController.getEditWrapper(core, result);
+                //}
                 //
                 // -- title
                 core.html.addTitle(core.doc.pageController.page.name);
@@ -1100,7 +1104,7 @@ namespace Contensive.Processor.Controllers {
                         string pageLink = getPageLink(core, page.id, "", true, false);
                         string pageName = (!string.IsNullOrWhiteSpace(page.name)) ? page.name : "Page " + page.id;
                         string pageMenuHeadline = (!string.IsNullOrWhiteSpace(page.menuHeadline)) ? page.menuHeadline : pageName;
-                        string editAnchorTag = AdminUIController.getRecordEditAndCutAnchorTag(core, contentMetadata, page.id, true, pageName);
+                        string editAnchorTag = AdminUIController.getRecordEditAndCutAnchorTag(core, contentMetadata, page.id, true, pageName, "");
                         string pageAnchorTag = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(pageLink) + "\">", pageMenuHeadline);
                         editItemList.Append("\r<li name=\"page" + page.id + "\"  id=\"page" + page.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
                         if (!string.IsNullOrEmpty(editAnchorTag)) {

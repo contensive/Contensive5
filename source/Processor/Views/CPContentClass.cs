@@ -152,10 +152,18 @@ namespace Contensive.Processor {
             return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName);
         }
         //
+        public override string GetEditLink(string contentName, string recordID, bool allowCut, string recordName, bool isEditing, string customCaption) {
+            return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName, customCaption);
+        }
+        //
         //====================================================================================================
         //
         public override string GetEditLink(string contentName, int recordId) {
             return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, recordId, false, "");
+        }
+        //
+        public override string GetEditLink(string contentName, int recordId, string customCaption) {
+            return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, recordId, false, "",  customCaption);
         }
         //
         //====================================================================================================
@@ -166,6 +174,12 @@ namespace Contensive.Processor {
             return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
         }
         //
+        public override string GetEditLink(string contentName, string recordGuid, string customCaption) {
+            var contentMetadata = ContentMetadataModel.createByUniqueName(cp.core, contentName);
+            if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
+            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
+        }
+        //
         //====================================================================================================
         //
         public override string GetEditLink(int contentId, int recordId) {
@@ -174,12 +188,24 @@ namespace Contensive.Processor {
             return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordId);
         }
         //
+        public override string GetEditLink(int contentId, int recordId, string customCaption) {
+            var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
+            if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
+            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordId,  customCaption);
+        }
+        //
         //====================================================================================================
         //
         public override string GetEditLink(int contentId, string recordGuid) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
             if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
             return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
+        }
+        //
+        public override string GetEditLink(int contentId, string recordGuid, string customCaption) {
+            var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
+            if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
+            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
         }
         //
         //====================================================================================================
@@ -202,8 +228,20 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override string GetEditWrapper(string innerHtml, string contentName, int recordId, string customCaption) {
+            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentName, recordId,  customCaption);
+        }
+        //
+        //====================================================================================================
+        //
         public override string GetEditWrapper(string innerHtml, string contentName, string recordGuid) {
             return AdminUIController.getEditWrapper(cp.core, innerHtml, contentName, recordGuid);
+        }
+        //
+        //====================================================================================================
+        //
+        public override string GetEditWrapper(string innerHtml, string contentName, string recordGuid, string customCaption) {
+            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentName, recordGuid,  customCaption);
         }
         //
         //====================================================================================================
@@ -214,8 +252,20 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override string GetEditWrapper(string innerHtml, int contentId, int recordId, string customCaption) {
+            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentId, recordId,  customCaption);
+        }
+        //
+        //====================================================================================================
+        //
         public override string GetEditWrapper(string innerHtml, int contentId, string recordGuid) {
             return AdminUIController.getEditWrapper(cp.core, innerHtml, contentId, recordGuid);
+        }
+        //
+        //====================================================================================================
+        //
+        public override string GetEditWrapper(string innerHtml, int contentId, string recordGuid, string customCaption) {
+            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentId, recordGuid, customCaption);
         }
         //
         //====================================================================================================

@@ -20,8 +20,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("executeDailyTasks, start");
                 //
                 // -- summary (must be first)
-                VisitSummaryClass.executeDailyTasks(env);
-                ViewingSummaryClass.executeDailyTasks(env);
+                VisitSummaryClass.updateVisitSummary(env);
+                ViewingSummaryClass.updateViewingSummary(env);
                 //
                 // -- people (must be before visits to delete users from bot visits
                 PersonClass.executeDailyTasks(env);

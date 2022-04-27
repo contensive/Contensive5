@@ -259,8 +259,27 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="contentName"></param>
         /// <param name="recordId"></param>
+        /// <param name="allowCut"></param>
+        /// <param name="recordLabel"></param>
+        /// <param name="IsEditing"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditLink(string contentName, string recordId, bool allowCut, string recordLabel, bool IsEditing, string customCaption);
+        /// <summary>
+        /// Get the system edit link
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordId"></param>
         /// <returns></returns>
         public abstract string GetEditLink(string contentName, int recordId);
+        /// <summary>
+        /// Get the system edit link
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordId"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditLink(string contentName, int recordId, string customCaption);
         /// <summary>
         /// Get the system edit link
         /// </summary>
@@ -268,6 +287,14 @@ namespace Contensive.BaseClasses {
         /// <param name="recordGuid"></param>
         /// <returns></returns>
         public abstract string GetEditLink(string contentName, string recordGuid);
+        /// <summary>
+        /// Get the system edit link
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordGuid"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditLink(string contentName, string recordGuid, string customCaption);
         /// <summary>
         /// Get the system edit link
         /// </summary>
@@ -279,9 +306,25 @@ namespace Contensive.BaseClasses {
         /// Get the system edit link
         /// </summary>
         /// <param name="contentId"></param>
+        /// <param name="recordId"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditLink(int contentId, int recordId, string customCaption);
+        /// <summary>
+        /// Get the system edit link
+        /// </summary>
+        /// <param name="contentId"></param>
         /// <param name="recordGuid"></param>
         /// <returns></returns>
         public abstract string GetEditLink(int contentId, string recordGuid);
+        /// <summary>
+        /// Get the system edit link
+        /// </summary>
+        /// <param name="contentId"></param>
+        /// <param name="recordGuid"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditLink(int contentId, string recordGuid, string customCaption);
         //
         //====================================================================================================
         /// <summary>
@@ -303,9 +346,27 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentName"></param>
+        /// <param name="recordId"></param>
+        /// <param name="editCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditWrapper(string innerHtml, string contentName, int recordId, string editCaption);
+        /// <summary>
+        /// wrap content in system editing region style with an edit link.
+        /// </summary>
+        /// <param name="innerHtml"></param>
+        /// <param name="contentName"></param>
         /// <param name="recordGuid"></param>
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, string contentName, string recordGuid);
+        /// <summary>
+        /// wrap content in system editing region style with an edit link.
+        /// </summary>
+        /// <param name="innerHtml"></param>
+        /// <param name="contentName"></param>
+        /// <param name="recordGuid"></param>
+        /// <param name="editCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditWrapper(string innerHtml, string contentName, string recordGuid, string editCaption);
         /// <summary>
         /// wrap content in system editing region style with an edit link.
         /// </summary>
@@ -319,9 +380,27 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentId"></param>
+        /// <param name="recordId"></param>
+        /// <param name="editCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditWrapper(string innerHtml, int contentId, int recordId, string editCaption);
+        /// <summary>
+        /// wrap content in system editing region style with an edit link.
+        /// </summary>
+        /// <param name="innerHtml"></param>
+        /// <param name="contentId"></param>
         /// <param name="recordGuid"></param>
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, int contentId, string recordGuid);
+        /// <summary>
+        /// wrap content in system editing region style with an edit link.
+        /// </summary>
+        /// <param name="innerHtml"></param>
+        /// <param name="contentId"></param>
+        /// <param name="recordGuid"></param>
+        /// <param name="editCaption"></param>
+        /// <returns></returns>
+        public abstract string GetEditWrapper(string innerHtml, int contentId, string recordGuid, string editCaption);
         //
         //====================================================================================================
         /// <summary>

@@ -144,7 +144,7 @@ namespace Contensive.Processor.Controllers {
                     return imageCdnPathFilename.Replace(@"\", "/");
                 // 
                 // -- get filename without extension, and extension, and altsizelist prefix (remove parsing characters)
-                string filenameExt = saveAsWebP ? ".webp" : Path.GetExtension(imageCdnPathFilename);
+                string filenameExt = saveAsWebP ? ".webp" : Path.GetExtension(imageCdnPathFilename).ToLowerInvariant();
                 string filePath = FileController.getPath(imageCdnPathFilename);
                 string filenameNoext = Path.GetFileNameWithoutExtension(imageCdnPathFilename);
                 string altSizeFilename = (filenameNoext + filenameExt).Replace(",", "_").Replace("-", "_").Replace("x", "_");
@@ -167,7 +167,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- check if the image is in the altSizeList, fast but default images may not exist
-                if (imageAltSizeList.Contains(imageAltsize)) {
+                if (imageAltSizeList.Contains(imageAltsize + filenameExt)) {
                     //
                     // -- if altSizeList shows the image exists, return it
                     return newImageFilename.Replace(@"\", "/");
@@ -178,7 +178,7 @@ namespace Contensive.Processor.Controllers {
                 if (core.cache.getBoolean(imageExistsKey)) {
                     //
                     // -- if altSizeList shows the image exists, return it
-                    imageAltSizeList.Add(imageAltsize);
+                    imageAltSizeList.Add(imageAltsize + filenameExt);
                     return newImageFilename.Replace(@"\", "/");
                 }
                 //
@@ -186,7 +186,7 @@ namespace Contensive.Processor.Controllers {
                 if (core.cdnFiles.fileExists(newImageFilename)) {
                     //
                     // -- image exists, return it
-                    imageAltSizeList.Add(imageAltsize);
+                    imageAltSizeList.Add(imageAltsize + filenameExt);
                     core.cache.storeObject(imageExistsKey, true);
                     return newImageFilename.Replace(@"\", "/");
                 }
@@ -297,7 +297,7 @@ namespace Contensive.Processor.Controllers {
                 core.cdnFiles.copyFileLocalToRemote(newImageFilename);
                 // 
                 // -- save the new size back to the item and cache
-                imageAltSizeList.Add(imageAltsize);
+                imageAltSizeList.Add(imageAltsize + filenameExt);
                 core.cache.storeObject(imageExistsKey, true);
                 return newImageFilename.Replace(@"\", "/");
             } catch (UnknownImageFormatException ex) {

@@ -128,7 +128,8 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Create a key for a database table. Use this key to invalidate all keys based on thsi table using dependent keys.
+        /// Create a dependency cacheKey for a database table. Use a dependency cacheKey as an argument in setCache(). 
+        /// If any record is updated in this table, any cache that includes this dependency will be invalidated
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
@@ -136,7 +137,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Updates the cache dependency key for this table that a record in this table has been modified
+        /// Invalidate all cache objects created with CreateRecordKey() and including this tableName
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
@@ -144,7 +145,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Create a cache key for a database model object
+        /// Create a cacheKey for a database model object. A cacheKey argument is required for many cache methods.
         /// </summary>
         /// <param name="recordId"></param>
         /// <param name="tableName"></param>
@@ -154,7 +155,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Create a key for a database record in the default datasource
+        /// Create a cacheKey for a database record in the default datasource.  A cacheKey argument is required for many cache methods.
         /// </summary>
         /// <param name="recordId"></param>
         /// <param name="tableName"></param>
@@ -163,24 +164,24 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Create a cache key for a domain model. ObjectName can be generic domain model name. The unique Identifier must be unique, for example the id of a core record in the model.
+        /// deprecated. Use CreateKey( uniqueName )
         /// </summary>
-        /// <param name="objectName"></param>
+        /// <param name="uniqueName"></param>
         /// <param name="objectUniqueIdentifier"></param>
         /// <returns></returns>
-        public abstract string CreateKey(string objectName, string objectUniqueIdentifier);
+        public abstract string CreateKey(string uniqueName, string objectUniqueIdentifier);
         //
         //====================================================================================================
         /// <summary>
-        /// Create a cache key for a domain model.
+        /// Createconvert a unique name to a cache key
         /// </summary>
-        /// <param name="objectName"></param>
+        /// <param name="uniqueName"></param>
         /// <returns></returns>
-        public abstract string CreateKey(string objectName);
+        public abstract string CreateKey(string uniqueName);
         //
         //====================================================================================================
         /// <summary>
-        /// Create a key pointer for a db model object.
+        /// Create a pointer cacheKey for a db model object.
         /// A Ptr key doesnt contain the object, but points to a key for an object.
         /// When you get a cache object from a Ptr Key, the object it points to is returned.
         /// For example, data may be stored in a cache named for the id of a record, then a pointer created for the guid of the record.
@@ -193,7 +194,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Create a key pointer for a db model object.
+        /// Create a cachKeyPointer for a db model object. 
         /// </summary>
         /// <param name="guid"></param>
         /// <param name="tableName"></param>

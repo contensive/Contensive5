@@ -722,7 +722,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="editorHelpRow"></param>
         /// <returns></returns>
         public static string getEditRow(CoreController core, string EditorString, string Caption, string editorHelpRow, bool fieldRequired = false, bool ignore = false, string fieldHtmlId = "", string editorWrapperStyle = "", bool blockBottomRule = false) {
-            return HtmlController.div(HtmlController.label(Caption, fieldHtmlId) + HtmlController.div(EditorString, "ml-5","", editorWrapperStyle) + HtmlController.div(HtmlController.small(editorHelpRow, "form-text text-muted"), "ml-5"), "p-2" + ((blockBottomRule) ? "" : " border-bottom"));
+            return HtmlController.div(HtmlController.label(Caption, fieldHtmlId) + HtmlController.div(EditorString, "ml-5", "", editorWrapperStyle) + HtmlController.div(HtmlController.small(editorHelpRow, "form-text text-muted"), "ml-5"), "p-2" + ((blockBottomRule) ? "" : " border-bottom"));
         }
         //
         // ====================================================================================================
@@ -802,6 +802,9 @@ namespace Contensive.Processor.Controllers {
         public static string getEditWrapper(CoreController core, string innerHtml, string contentName, int recordId)
             => getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, contentName, recordId, false) + innerHtml);
         //
+        public static string getEditWrapper(CoreController core, string innerHtml, string contentName, int recordId, string customCaption)
+            => getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, contentName, recordId, false, "", customCaption) + innerHtml);
+        //
         //===================================================================================================
         /// <summary>
         /// Wrap an edit region in a dotted border
@@ -813,7 +816,11 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getEditWrapper(CoreController core, string innerHtml, int contentId, int recordId) {
             var metadata = ContentMetadataModel.create(core, contentId);
-            return getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, metadata, recordId, false, "") + innerHtml);
+            return getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, metadata, recordId, false, "", "") + innerHtml);
+        }
+        public static string getEditWrapper(CoreController core, string innerHtml, int contentId, int recordId, string customCaption) {
+            var metadata = ContentMetadataModel.create(core, contentId);
+            return getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, metadata, recordId, false, "", customCaption) + innerHtml);
         }
         //
         //===================================================================================================
@@ -823,11 +830,21 @@ namespace Contensive.Processor.Controllers {
             return getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, metadata, recordGuid) + innerHtml);
         }
         //
+        public static string getEditWrapper(CoreController core, string innerHtml, string contentName, string recordGuid, string customCaption) {
+            var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
+            return getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, metadata, recordGuid, customCaption) + innerHtml);
+        }
+        //
         //===================================================================================================
         //
         public static string getEditWrapper(CoreController core, string innerHtml, int contentId, string recordGuid) {
             var metadata = ContentMetadataModel.create(core, contentId);
             return getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, metadata, recordGuid) + innerHtml);
+        }
+        //
+        public static string getEditWrapper(CoreController core, string innerHtml, int contentId, string recordGuid, string customCaption) {
+            var metadata = ContentMetadataModel.create(core, contentId);
+            return getEditWrapper(core, "", getRecordEditAndCutAnchorTag(core, metadata, recordGuid, customCaption) + innerHtml);
         }
         //
         // ====================================================================================================
@@ -843,6 +860,53 @@ namespace Contensive.Processor.Controllers {
         public static string getExpandLink(string link) { return HtmlController.a(iconExpand, link); }
         public static string getContractLink(string link) { return HtmlController.a(iconContract, link); }
         public static string getRefreshLink(string link) { return HtmlController.a(iconRefresh, link); }
+        //
+        //====================================================================================================
+        //
+        public static string getRecordEditAndCutAnchorTag(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption) {
+            try {
+                if (!core.session.isEditing()) { return string.Empty; }
+                if (contentMetadata == null) { throw new GenericException("contentMetadata null."); }
+                var editSegmentList = new List<string> {
+                    getRecordEditSegment(core, contentMetadata, recordId, recordName, customCaption)
+                };
+                if (allowCut) {
+                    string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, rnPageCut, GenericController.encodeText(contentMetadata.id) + "." + GenericController.encodeText(recordId), true);
+                    editSegmentList.Add("<a class=\"ccRecordCutLink\" TabIndex=\"-1\" href=\"" + HtmlController.encodeHtml(WorkingLink) + "\">&nbsp;" + iconContentCut.Replace("content cut", getEditSegmentRecordCaption(core, "Cut", contentMetadata.name, customCaption)) + "</a>");
+                }
+                return getRecordEditAnchorTag(core, editSegmentList);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                return string.Empty;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Create edit and cut anchor tag
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="contentName"></param>
+        /// <param name="recordId"></param>
+        /// <param name="allowCut"></param>
+        /// <param name="recordName"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public static string getRecordEditAndCutAnchorTag(CoreController core, string contentName, int recordId, bool allowCut, string recordName, string customCaption) {
+            try {
+                if (!core.session.isEditing()) { return string.Empty; }
+                if (string.IsNullOrWhiteSpace(contentName)) { throw (new GenericException("ContentName [" + contentName + "] is invalid")); }
+                var contentMetadata = ContentMetadataModel.createByUniqueName(core, contentName);
+                if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
+                return getRecordEditAndCutAnchorTag(core, contentMetadata, recordId, allowCut, recordName, customCaption);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                return string.Empty;
+            }
+        }
+        //
+        public static string getRecordEditAndCutAnchorTag(CoreController core, string contentName, int recordId, bool allowCut, string recordName)
+            => getRecordEditAndCutAnchorTag(core, contentName, recordId, allowCut, recordName, "");
         //
         //====================================================================================================
         /// <summary>
@@ -866,32 +930,13 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public static string getRecordEditAndCutAnchorTag(CoreController core, string contentName, int recordId, bool allowCut, string recordName) {
-            try {
-                if (!core.session.isEditing()) { return string.Empty; }
-                if (string.IsNullOrWhiteSpace(contentName)) { throw (new GenericException("ContentName [" + contentName + "] is invalid")); }
-                var contentMetadata = ContentMetadataModel.createByUniqueName(core, contentName);
-                if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
-                return getRecordEditAndCutAnchorTag(core, contentMetadata, recordId, allowCut, recordName);
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                return string.Empty;
-            }
-        }
-        //
-        //====================================================================================================
-        //
-        public static string getRecordEditAndCutAnchorTag(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName) {
+        public static string getRecordEditAndCutAnchorTag(CoreController core, ContentMetadataModel contentMetadata, string recordGuid) {
             try {
                 if (!core.session.isEditing()) { return string.Empty; }
                 if (contentMetadata == null) { throw new GenericException("contentMetadata null."); }
                 var editSegmentList = new List<string> {
-                    getRecordEditSegment(core, contentMetadata, recordId, recordName)
+                    getRecordEditSegment(core, contentMetadata, recordGuid)
                 };
-                if (allowCut) {
-                    string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, rnPageCut, GenericController.encodeText(contentMetadata.id) + "." + GenericController.encodeText(recordId), true);
-                    editSegmentList.Add("<a class=\"ccRecordCutLink\" TabIndex=\"-1\" href=\"" + HtmlController.encodeHtml(WorkingLink) + "\">&nbsp;" + iconContentCut.Replace("content cut", getEditSegmentRecordCaption(core, "Cut", contentMetadata.name, recordId, "")) + "</a>");
-                }
                 return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -899,9 +944,7 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
-        //====================================================================================================
-        //
-        public static string getRecordEditAndCutAnchorTag(CoreController core, ContentMetadataModel contentMetadata, string recordGuid) {
+        public static string getRecordEditAndCutAnchorTag(CoreController core, ContentMetadataModel contentMetadata, string recordGuid, string customCaption) {
             try {
                 if (!core.session.isEditing()) { return string.Empty; }
                 if (contentMetadata == null) { throw new GenericException("contentMetadata null."); }
@@ -923,8 +966,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="contentName"></param>
         /// <param name="recordId"></param>
         /// <param name="recordName"></param>
+        /// <param name="customCaption">if blank, create a new caption.</param>
         /// <returns></returns>
-        public static string getEditSegmentRecordCaption(CoreController core, string verb, string contentName, int recordId, string recordName) {
+        public static string getEditSegmentRecordCaption(CoreController core, string verb, string contentName, string customCaption) {
+            if (!string.IsNullOrEmpty(customCaption)) { return customCaption; }
             string result = verb + "&nbsp;";
             switch (contentName.ToLower(CultureInfo.InvariantCulture)) {
                 case "page content": {
@@ -936,7 +981,7 @@ namespace Contensive.Processor.Controllers {
                         break;
                     }
                 default: {
-                        result += core.pluralizationService.Singularize( contentName );
+                        result += core.pluralizationService.Singularize(contentName);
                         break;
                     }
             }
@@ -987,13 +1032,13 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recordId"></param>
         /// <param name="recordName"></param>
         /// <returns></returns>
-        public static string getRecordEditSegment(CoreController core, string contentName, int recordId, string recordName) {
+        public static string getRecordEditSegment(CoreController core, string contentName, int recordId, string recordName, string customCaption) {
             try {
                 if (!core.session.isEditing()) { return string.Empty; }
                 if (string.IsNullOrWhiteSpace(contentName)) { throw (new GenericException("ContentName [" + contentName + "] is invalid")); }
                 var contentMetadata = ContentMetadataModel.createByUniqueName(core, contentName);
                 if (contentMetadata == null) { throw new GenericException("getRecordEditLink called with contentName [" + contentName + "], but no content metadata found with this name."); }
-                return getRecordEditSegment(core, contentMetadata, recordId, recordName);
+                return getRecordEditSegment(core, contentMetadata, recordId, recordName, customCaption);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 return string.Empty;
@@ -1004,18 +1049,18 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// returns a record edit link to be included getEditLink wrapper
         /// </summary>
-        public static string getRecordEditSegment(CoreController core, ContentMetadataModel contentMetadata, int recordId, string recordName) 
-            => getRecordEditAnchorTag(core, contentMetadata, recordId, getEditSegmentRecordCaption(core, "Edit", contentMetadata.name, recordId, recordName));
+        public static string getRecordEditSegment(CoreController core, ContentMetadataModel contentMetadata, int recordId, string recordName, string customCaption)
+            => getRecordEditAnchorTag(core, contentMetadata, recordId, getEditSegmentRecordCaption(core, "Edit", contentMetadata.name, customCaption));
         //
         //====================================================================================================
         /// <summary>
         /// returns a record edit link to be included getEditLink wrapper
         /// </summary>
-        public static string getRecordEditSegment(CoreController core, ContentMetadataModel contentMetadata, string recordGuid) 
+        public static string getRecordEditSegment(CoreController core, ContentMetadataModel contentMetadata, string recordGuid)
             => getRecordEditAnchorTag(core, contentMetadata, recordGuid);
         //
         public static string getRecordEditSegment(CoreController core, string contentName, int recordID)
-            => getRecordEditSegment(core, contentName, recordID, "");
+            => getRecordEditSegment(core, contentName, recordID, "", "");
         //
         //====================================================================================================
         /// <summary>
@@ -1214,7 +1259,7 @@ namespace Contensive.Processor.Controllers {
                         result.Add(HtmlController.div(HtmlController.a(iconAdd_Green + "&nbsp;Add " + shortName, Link, "ccRecordAddLink", "", "-1") + HtmlController.div("&nbsp;", "ccEditLinkEndCap"), "ccRecordLinkCon"));
                         //
                         // -- exit now if no child content
-                        if (!includeChildContent) { return result;  }
+                        if (!includeChildContent) { return result; }
                         //
                         // Create child submenu if Child Entries found
                         var childList = DbBaseModel.createList<ContentModel>(core.cpParent, "ParentID=" + content.id);
@@ -1238,7 +1283,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="cdef"></param>
         /// <returns></returns>
-        public static string getRecordEditAnchorTag(CoreController core, ContentMetadataModel cdef) 
+        public static string getRecordEditAnchorTag(CoreController core, ContentMetadataModel cdef)
             => getRecordEditAnchorTag(core, cdef, 0, "");
         //
         //====================================================================================================
@@ -1283,10 +1328,10 @@ namespace Contensive.Processor.Controllers {
         public static string getRecordEditAnchorTag(string url, string caption, string htmlClass)
             => HtmlController.a(iconEdit_Green + ((string.IsNullOrWhiteSpace(caption)) ? "" : "&nbsp;" + caption), url, htmlClass);
         //
-        public static string getRecordEditAnchorTag(string url, string caption) 
+        public static string getRecordEditAnchorTag(string url, string caption)
             => getRecordEditAnchorTag(url, caption, "");
         //
-        public static string getRecordEditAnchorTag(string url) 
+        public static string getRecordEditAnchorTag(string url)
             => getRecordEditAnchorTag(url, "", "");
         //
         //====================================================================================================
