@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using System.Threading;
 using UAParser;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
@@ -918,6 +919,10 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- failed to authenticate
                 ErrorController.addUserError(core, loginFailedError);
+                //
+                // -- pause to make brute force attempt for expensive
+                Thread.Sleep(3000);
+                //
                 return false;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -939,7 +944,13 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.logTrace(core, "SessionController.authenticateById, enter");
                 //
-                if (!recognizeById(core, userId, authContext, requestUserAutoLogin)) return false;
+                if (!recognizeById(core, userId, authContext, requestUserAutoLogin)) {
+                    //
+                    // -- pause to make brute force attempt for expensive
+                    Thread.Sleep(3000);
+                    //
+                    return false;
+                }                    
                 //
                 // -- recognize success, log them in to that user
                 authContext.visit.visitAuthenticated = true;

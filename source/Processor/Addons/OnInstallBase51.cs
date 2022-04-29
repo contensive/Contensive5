@@ -21,6 +21,9 @@ namespace Contensive.Processor.Addons.Base {
                     addon.name = addon.name + "-blocked";
                     addon.save(core.cpParent);
                 }
+                //
+                // -- delete layouts updated in this install
+                cp.Db.Delete(Contensive.Models.Db.LayoutModel.tableMetadata.tableNameLower, Contensive.Processor.Addons.AdminSite.Constants.guidLayoutAdminSite);
                 return "ok";
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
