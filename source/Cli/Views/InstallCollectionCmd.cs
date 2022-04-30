@@ -30,10 +30,6 @@ namespace Contensive.CLI {
                     Console.WriteLine("Server Configuration not loaded correctly. Please run --configure");
                     return;
                 }
-                if (!cpServer.core.serverConfig.apps.ContainsKey(appName)) {
-                    Console.WriteLine("The application [" + appName + "] was not found in this server group.");
-                    return;
-                }
                 //
                 // -- determine guid of collection
                 var collectionLibraryList = CollectionLibraryModel.getCollectionLibraryList(cpServer.core);
@@ -57,7 +53,7 @@ namespace Contensive.CLI {
                 var nonCritialErrorList = new List<string>();
                 if (string.IsNullOrEmpty(appName)) {
                     foreach (var kvp in cpServer.core.serverConfig.apps) {
-                        using (CPClass cpApp = new CPClass(kvp.Key)) {
+                        using (CPClass cpApp = new(kvp.Key)) {
                             var context = new Stack<string>();
                             context.Push("command line interface install command [" + collectionName + ", " + collectionGuid + "]");
                             string returnErrorMessage = "";
@@ -69,7 +65,7 @@ namespace Contensive.CLI {
                         }
                     }
                 } else {
-                    using (CPClass cpApp = new CPClass(appName)) {
+                    using (CPClass cpApp = new(appName)) {
                         var context = new Stack<string>();
                         context.Push("command line interface install command [" + collectionName + ", " + collectionGuid + "]");
                         string returnErrorMessage = "";
