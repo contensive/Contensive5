@@ -11,6 +11,15 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// The html platform version for this site.
+        /// replaces the site property html platform version
+        /// htmlPlatform 0-4 is Bootstrap 4.
+        /// htmlPlaform 5 is Bootstrap 5.
+        /// </summary>
+        public abstract int htmlPlatformVersion { get; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// The application name
         /// </summary>
         public abstract string Name { get; }

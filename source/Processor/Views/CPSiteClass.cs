@@ -33,6 +33,15 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
+        public override int htmlPlatformVersion {
+            get {
+                int htmlPlatformVersion = GetInteger("html Platform Version", 4);
+                if (htmlPlatformVersion >= 4) { return htmlPlatformVersion; }
+                return 4;
+        }
+        //
+        //====================================================================================================
+        //
         public override string Name {
             get {
                 return cp.core.appConfig.name;
