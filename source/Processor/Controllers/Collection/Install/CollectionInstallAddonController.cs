@@ -99,7 +99,7 @@ namespace Contensive.Processor.Controllers {
                             var StyleSheet = new StringBuilder();
                             if (AddonNode.ChildNodes.Count > 0) {
                                 foreach (XmlNode Addonfield in AddonNode.ChildNodes) {
-                                    if (!(Addonfield is XmlComment)) {
+                                    if (Addonfield is not XmlComment) {
                                         XmlNode PageInterface = Addonfield;
                                         string fieldName = null;
                                         string FieldValue = "";

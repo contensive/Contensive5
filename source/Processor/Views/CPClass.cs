@@ -188,7 +188,7 @@ namespace Contensive.Processor {
         /// <param name="addonId"></param>
         /// <param name="addonContext"></param>
         /// <returns></returns>
-        public string executeAddon(int addonId, Contensive.BaseClasses.CPUtilsBaseClass.addonContext addonContext = Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple) {
+        public string executeAddon(int addonId, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextSimple) {
             try {
                 if (!core.appConfig.enabled) {
                     //

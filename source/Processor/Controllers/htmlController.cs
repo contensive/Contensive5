@@ -3188,13 +3188,13 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Add a javascript link to the document
         /// </summary>
-        /// <param name="scriptLinkSrc">Link to the document. Should start with either 'http', or '/'</param>
+        /// <param name="scriptUrl">Link to the document. Should start with either 'http', or '/'</param>
         /// <param name="addedByMessage">message displayed in debug mode</param>
         /// <param name="forceHead">if true, this document tag goes in the head, else at the end of body</param>
         /// <param name="sourceAddonId">optional, the addon that supplied this javascript</param>
-        public void addScriptLinkSrc(string scriptLinkSrc, string addedByMessage, bool forceHead, int sourceAddonId) {
+        public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead, int sourceAddonId) {
             try {
-                string link = scriptLinkSrc.Trim().replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
+                string link = scriptUrl.Trim().replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
                 if (string.IsNullOrEmpty(link)) { return; }
                 if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
                     //
@@ -3203,7 +3203,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 CPDocBaseClass.HtmlAssetClass asset = null;
                 if (sourceAddonId != 0) {
-                    asset = core.doc.htmlAssetList.Find(t => ((t.content == scriptLinkSrc) && (t.isLink)));
+                    asset = core.doc.htmlAssetList.Find(t => ((t.content == scriptUrl) && (t.isLink)));
                 }
                 if (asset != null) {
                     //
@@ -3218,7 +3218,7 @@ namespace Contensive.Processor.Controllers {
                     addedByMessage = addedByMessage,
                     isLink = true,
                     inHead = forceHead,
-                    content = scriptLinkSrc,
+                    content = scriptUrl,
                     sourceAddonId = sourceAddonId
                 });
             } catch (Exception ex) {
@@ -3230,18 +3230,18 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Add a javascript link to the document
         /// </summary>
-        /// <param name="scriptLinkSrc">Link to the document. Should start with either 'http', or '/'</param>
+        /// <param name="scriptUrl">Link to the document. Should start with either 'http', or '/'</param>
         /// <param name="addedByMessage">message displayed in debug mode</param>
-        public void addScriptLinkSrc(string scriptLinkSrc, string addedByMessage) => addScriptLinkSrc(scriptLinkSrc, addedByMessage, false, 0);
+        public void addScriptLinkSrc(string scriptUrl, string addedByMessage) => addScriptLinkSrc(scriptUrl, addedByMessage, false, 0);
         //
         //=========================================================================================================
         /// <summary>
         /// Add a javascript link to the document
         /// </summary>
-        /// <param name="scriptLinkSrc">Link to the document. Should start with either 'http', or '/'</param>
+        /// <param name="scriptUrl">Link to the document. Should start with either 'http', or '/'</param>
         /// <param name="addedByMessage">message displayed in debug mode</param>
         /// <param name="forceHead">if true, this document tag goes in the head, else at the end of body</param>
-        public void addScriptLinkSrc(string scriptLinkSrc, string addedByMessage, bool forceHead) => addScriptLinkSrc(scriptLinkSrc, addedByMessage, forceHead, 0);
+        public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead) => addScriptLinkSrc(scriptUrl, addedByMessage, forceHead, 0);
         //
         //=========================================================================================================
         //
@@ -3281,11 +3281,11 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// add a link to the head tag for a remote stylesheet
         /// </summary>
-        /// <param name="styleSheetLink">link, must start with either "/" or "http" or a "/" is added. This is because designers often create layouts without using a server by opening the files in the filesystem, and it is path relative.</param>
+        /// <param name="styleSheetUrl">link, must start with either "/" or "http" or a "/" is added. This is because designers often create layouts without using a server by opening the files in the filesystem, and it is path relative.</param>
         /// <param name="addedByMessage">Displayed in debug mode</param>
-        public void addStyleLink(string styleSheetLink, string addedByMessage) {
+        public void addStyleLink(string styleSheetUrl, string addedByMessage) {
             try {
-                string link = styleSheetLink.Trim().replace(@"\","/", StringComparison.InvariantCultureIgnoreCase);
+                string link = styleSheetUrl.Trim().replace(@"\","/", StringComparison.InvariantCultureIgnoreCase);
                 if (string.IsNullOrEmpty(link)) { return; }
                 if (!link.StartsWith("/") && !link.StartsWith("http",StringComparison.InvariantCultureIgnoreCase)) { 
                     //

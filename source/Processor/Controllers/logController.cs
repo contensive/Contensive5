@@ -73,20 +73,14 @@ namespace Contensive.Processor.Controllers {
         public static NLog.LogLevel getNLogLogLevel(BaseClasses.CPLogBaseClass.LogLevel level) {
             //
             // -- decouple NLog types from internal enum
-            switch (level) {
-                case BaseClasses.CPLogBaseClass.LogLevel.Trace:
-                    return NLog.LogLevel.Trace;
-                case BaseClasses.CPLogBaseClass.LogLevel.Debug:
-                    return NLog.LogLevel.Debug;
-                case BaseClasses.CPLogBaseClass.LogLevel.Warn:
-                    return NLog.LogLevel.Warn;
-                case BaseClasses.CPLogBaseClass.LogLevel.Error:
-                    return NLog.LogLevel.Error;
-                case BaseClasses.CPLogBaseClass.LogLevel.Fatal:
-                    return NLog.LogLevel.Fatal;
-                default:
-                    return NLog.LogLevel.Info;
-            }
+            return level switch {
+                CPLogBaseClass.LogLevel.Trace => LogLevel.Trace,
+                CPLogBaseClass.LogLevel.Debug => LogLevel.Debug,
+                CPLogBaseClass.LogLevel.Warn => LogLevel.Warn,
+                CPLogBaseClass.LogLevel.Error => LogLevel.Error,
+                CPLogBaseClass.LogLevel.Fatal => LogLevel.Fatal,
+                _ => LogLevel.Info,
+            };
         }
         //
         //=============================================================================
@@ -258,23 +252,28 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 if (subject == null) { subject = ""; }
-                if (activityDetails == null) { activityDetails = ""; }
-                if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
+                if (string.IsNullOrEmpty(activityDetails)) { 
+                    activityDetails = ""; 
+                } else {
+                    if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
+                }
                 using CsModel csData = new(core);
                 csData.insert("Activity Log");
                 csData.set("name", subject);
                 csData.set("typeid", (typeId<1) ? 1 : typeId);
                 csData.set("MemberID", activityUserId);
                 csData.set("Message", activityDetails);
-                csData.set("VisitorID", core.session.visitor.id);
-                csData.set("VisitID", core.session.visit.id);
+                csData.set("VisitorID", (core?.session?.visitor == null ) ? 0 : core.session.visitor.id);
+                csData.set("VisitID", (core?.session?.visit == null) ? 0 : core.session.visit.id);
                 csData.set("dateScheduled", dateScheduled);
                 csData.set("duration", duration);
                 csData.set("scheduledStaffId", scheduledStaffId);
                 return csData.getInteger("id");
             } catch (Exception ex) {
                 log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
-                throw;
+                // do not abort page over logging issues
+                // throw;
+                return 0;
             }
         }
         //

@@ -43,6 +43,29 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// for now this is just internal - a way for the /admin site to force htmlPlaformVersion to 4 no matter how the public site is set
+        /// </summary>
+        public int htmlPlatformOverride {
+            set {
+                _htmlPlatformVersion = value;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// A system flag used to coordinate resources into platforms. Specifically to let addons use both bootstrap 4 or 5.
+        /// </summary>
+        public int htmlPlatformVersion {
+            get {
+                if (_htmlPlatformVersion != null) { return (int)_htmlPlatformVersion; }
+                _htmlPlatformVersion = getInteger("html platform version", 4);
+                return (int)_htmlPlatformVersion;
+            }
+        }
+        private int? _htmlPlatformVersion = null;
+        //
+        //====================================================================================================
+        /// <summary>
         /// The site property for the system bounce address
         /// </summary>
         public string emailBounceAddress {

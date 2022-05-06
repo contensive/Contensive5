@@ -35,9 +35,8 @@ namespace Contensive.Processor {
         //
         public override int htmlPlatformVersion {
             get {
-                int htmlPlatformVersion = GetInteger("html Platform Version", 4);
-                if (htmlPlatformVersion >= 4) { return htmlPlatformVersion; }
-                return 4;
+                return cp.core.siteProperties.htmlPlatformVersion;
+            }
         }
         //
         //====================================================================================================

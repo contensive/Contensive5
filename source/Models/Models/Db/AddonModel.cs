@@ -46,9 +46,22 @@ namespace Contensive.Models.Db {
         public string help { get; set; }
         public string helpLink { get; set; }
         public bool inFrame { get; set; }
+        /// <summary>
+        /// The addon is and html display-inline.
+        /// </summary>
         public bool isInline { get; set; }
+        /// <summary>
+        /// if true, jsHeadScriptSrc and JSHeadScriptPlatform5Src will be added to the head instead of end-of-body
+        /// </summary>
         public bool javascriptForceHead { get; set; }
+        /// <summary>
+        /// The src used for html platform 4 (or unset)
+        /// </summary>
         public string jsHeadScriptSrc { get; set; }
+        /// <summary>
+        /// The src used for html platform 5
+        /// </summary>
+        public string JSHeadScriptPlatform5Src { get; set; }
         public FieldTypeJavascriptFile jsFilename { get; set; }
         public string link { get; set; }
         public string metaDescription { get; set; }
@@ -75,7 +88,14 @@ namespace Contensive.Models.Db {
         public int scriptingLanguageId { get; set; }
         public string scriptingTimeout { get; set; }
         public FieldTypeCSSFile stylesFilename { get; set; }
+        /// <summary>
+        /// The link to a stylesheet, used for html platform 4 or when the platform is unset
+        /// </summary>
         public string stylesLinkHref { get; set; }
+        /// <summary>
+        /// The link to a stylesheet, used for html platform 5
+        /// </summary>
+        public string StylesLinkPlatform5Href { get; set; }
         public bool template { get; set; }
         /// <summary>
         /// The time in seconds for this addon if run the background

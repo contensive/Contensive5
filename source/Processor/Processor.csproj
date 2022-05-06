@@ -150,7 +150,7 @@
     <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.99" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.2.70" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.1.42" />
-    <PackageReference Include="Contensive.HtmlImport" Version="21.11.22.2" />
+    <PackageReference Include="Contensive.HtmlImport" Version="22.5.4.1" />
     <PackageReference Include="Handlebars.Net" Version="2.0.9" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.38" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.1.7" />

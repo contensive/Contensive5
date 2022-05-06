@@ -76,10 +76,19 @@ namespace Contensive.Processor.Controllers {
                         // -- is inline/block
                         result += ExportController.getNode("IsInline", CS.GetBoolean("IsInline"));
                         // 
-                        // -- javascript (xmlnode may not match Db filename)
+                        // -- javascript (xml nodes may not match Db filename)
+                        //
+                        // -- jsfilename = text box to add small javascript
                         result += ExportController.getNode("JavascriptInHead", CS.GetText("JSFilename"));
+                        //
+                        // -- javascriptForceHead = checkbox to force all javascript to head
                         result += ExportController.getNode("javascriptForceHead", CS.GetBoolean("javascriptForceHead"));
+                        //
+                        // -- jsHeadScriptSrc = url to default (platform based on bootstrap 4.x)
                         result += ExportController.getNode("JSHeadScriptSrc", CS.GetText("JSHeadScriptSrc"));
+                        //
+                        // -- JSHeadScriptPlatform5Src = url to platform5 (platform based on bootstrap 5.x)
+                        result += ExportController.getNode("JSHeadScriptPlatform5Src", CS.GetText("JSHeadScriptPlatform5Src"));
                         // 
                         // -- javascript deprecated
                         result += ExportController.getNode("JSBodyScriptSrc", CS.GetText("JSBodyScriptSrc"), true);
@@ -123,8 +132,14 @@ namespace Contensive.Processor.Controllers {
                             else
                                 Styles = StylesTest;
                         }
+                        // -- styles node for stylesFilename field
                         result += ExportController.getNode("Styles", Styles);
+                        //
+                        // -- styleslinkhref is default styles url (platform 4 based on bootstrap 4.x)
                         result += ExportController.getNode("styleslinkhref", CS.GetText("styleslinkhref"));
+                        //
+                        // -- StylesLinkPlatform5Href is platform 5 styles (based on bootstrap 5.x)
+                        result += ExportController.getNode("StylesLinkPlatform5Href", CS.GetText("StylesLinkPlatform5Href"));
                         // 
                         // 
                         // Scripting

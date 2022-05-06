@@ -35,27 +35,30 @@ namespace Contensive.Processor.Controllers {
         /// <param name="defaultLayoutName"></param>
         /// <param name="defaultLayoutCdnPathFilename"></param>
         /// <returns></returns>
-        public static string getLayout(CPBaseClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
+        public static string getLayout(CPBaseClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
             try {
                 // 
                 // -- load the layout from the catalog settings selection
                 LayoutModel layout = DbBaseModel.create<LayoutModel>(cp, layoutGuid);
                 if ((layout != null) && (!string.IsNullOrEmpty(layout.layout.content)))
-                    return layout.layout.content;
-                if ((layout != null))
-                    return updateLayoutFromCdn(cp, layout, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename);
+                    return ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content; ;
+                if (layout != null)
+                    return updateLayoutFromCdn(cp, layout, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
                 // 
                 // -- layout record not found. Delete old record in case it was marked inactive
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutGuid);
                 // 
                 // -- layout not there, create new
                 layout = DbBaseModel.addDefault<LayoutModel>(cp);
-                return updateLayoutFromCdn(cp, layout, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename);
+                return updateLayoutFromCdn(cp, layout, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
         }
+        //
+        public static string getLayout(CPBaseClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename)
+            => getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
         // 
         // ====================================================================================================
         /// <summary>
@@ -67,20 +70,25 @@ namespace Contensive.Processor.Controllers {
         /// <param name="layoutName"></param>
         /// <param name="layoutCdnPathFilename"></param>
         /// <returns></returns>
-        public static string updateLayoutFromCdn(CPBaseClass cp, LayoutModel layout, string layoutGuid, string layoutName, string layoutCdnPathFilename) {
+        public static string updateLayoutFromCdn(CPBaseClass cp, LayoutModel layout, string layoutGuid, string layoutName, string layoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
             try {
                 var ignoreErrors = new List<string>();
-                string content = HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(layoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
-                if (string.IsNullOrEmpty(content)) {
+                string contentDefault = HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(layoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+                if (string.IsNullOrEmpty(contentDefault)) {
                     //
                     // -- content not found -- exception
                     throw new GenericException("Layout [" + layoutName + "] was not found by its guid [" + layoutGuid + "] and the backup file blank or not found [" + layoutCdnPathFilename + "]");
                 }
+                string contentPlatform5 = "";
+                if (!string.IsNullOrEmpty(platform5LayoutCdnPathFilename)) {
+                    contentPlatform5 = HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+                }
                 layout.name = layoutName;
                 layout.ccguid = layoutGuid;
-                layout.layout.content = content;
+                layout.layout.content = contentDefault;
+                layout.layoutPlatform5.content = contentPlatform5;
                 layout.save(cp);
-                return content;
+                return ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(contentPlatform5)) ? contentPlatform5 : contentDefault;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
@@ -90,14 +98,15 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// Get layout field of layout record. Return empty string if not found.
+        /// Return platform5 layout if flag set to 5, and the layout5 is not empty
         /// </summary>
         /// <param name="layoutId"></param>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public static string getLayout(CPClass cp,  int layoutId) {
+        public static string getLayout(CPClass cp, int layoutId) {
             try {
                 var layout = DbBaseModel.create<LayoutModel>(cp, layoutId);
-                if ( layout!=null ) { return layout.layout.content;  }
+                if (layout != null) { return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content; }
                 return "";
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -115,7 +124,7 @@ namespace Contensive.Processor.Controllers {
         public static string getLayout(CPClass cp, string layoutGuid) {
             try {
                 var layout = DbBaseModel.create<LayoutModel>(cp, layoutGuid);
-                if (layout != null) { return layout.layout.content; }
+                if (layout != null) { return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content; }
                 return "";
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -134,13 +143,17 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return string.Empty; }
                 using var cs = new CsModel(cp.core);
-                cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout");
-                if (cs.ok()) { return cs.getText("layout"); }
+                if (!cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout")) {
+                    //
+                    // -- layout not found, no recovery
+                    return "";
+                }
+                string layout5 = cs.getText("LayoutPlatform5");
+                return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout5)) ? layout5 : cs.getText("layout");
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
                 throw;
             }
-            return string.Empty;
         }
         //
         //====================================================================================================
@@ -156,7 +169,10 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return string.Empty; }
                 using (var cs = new CsModel(cp.core)) {
                     cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout");
-                    if (cs.ok()) { return cs.getText("layout"); }
+                    if (cs.ok()) {
+                        string layout5 = cs.getText("LayoutPlatform5");
+                        return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout5)) ? layout5 : cs.getText("layout"); 
+                    }
                 }
                 //
                 // -- create default layout record

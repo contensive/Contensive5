@@ -315,7 +315,9 @@ namespace Contensive.Processor.Controllers {
                         switch (route.routeType) {
                             case RouteMapModel.RouteTypeEnum.admin: {
                                     //
-                                    // -- admin site
+                                    // -- admin site, force platform to 4 until layouts upgraded
+                                    core.siteProperties.htmlPlatformOverride = 4;
+                                    //
                                     AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidAdminSite);
                                     if (addon == null) {
                                         LogController.logError(core, new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."));

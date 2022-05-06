@@ -446,15 +446,18 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- js head links
                     hint = 10;
-                    if (!string.IsNullOrEmpty(addon.jsHeadScriptSrc)) {
-                        core.html.addScriptLinkSrc(addon.jsHeadScriptSrc, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                    {
+                        string scriptUrl = (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
+                        if (!string.IsNullOrEmpty(scriptUrl)) {
+                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        }
                     }
                     //
                     // -- js head code
                     hint = 11;
                     if (!string.IsNullOrEmpty(addon.jsFilename.filename)) {
-                        string scriptFilename = GenericController.getCdnFileLink(core, addon.jsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptFilename, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        string scriptUrl = getCdnFileLink(core, addon.jsFilename.filename);
+                        core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
                     }
                     if (!isDependencyThatAlreadyRan) {
                         //
@@ -595,8 +598,9 @@ namespace Contensive.Processor.Controllers {
                             }
                             //
                             // -- link to stylesheet
-                            if (!string.IsNullOrEmpty(addon.stylesLinkHref)) {
-                                core.html.addStyleLink(addon.stylesLinkHref, addon.name + " Stylesheet Link");
+                            string styleSheetUrl = (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
+                            if (!string.IsNullOrEmpty(styleSheetUrl)) {
+                                core.html.addStyleLink(styleSheetUrl, addon.name + " Stylesheet Link");
                             }
                         }
                         //
@@ -1882,12 +1886,12 @@ namespace Contensive.Processor.Controllers {
                         JSFilename = GenericController.getCdnFileLink(core, JSFilename);
                         core.html.addScriptLinkSrc(JSFilename, SourceComment);
                     }
-                    string Copy = csData.getText("stylesfilename");
-                    if (!string.IsNullOrEmpty(Copy)) {
-                        if (GenericController.strInstr(1, Copy, "://").Equals(0) && (!Copy.left(1).Equals("/"))) {
-                            Copy = GenericController.getCdnFileLink(core, Copy);
+                    string styleSheetUrl = csData.getText("stylesfilename");
+                    if (!string.IsNullOrEmpty(styleSheetUrl)) {
+                        if (GenericController.strInstr(1, styleSheetUrl, "://").Equals(0) && (!styleSheetUrl.left(1).Equals("/"))) {
+                            styleSheetUrl = GenericController.getCdnFileLink(core, styleSheetUrl);
                         }
-                        core.html.addStyleLink(Copy, SourceComment);
+                        core.html.addStyleLink(styleSheetUrl, SourceComment);
                     }
                     //
                     if (!string.IsNullOrEmpty(Wrapper)) {

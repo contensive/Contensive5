@@ -57,6 +57,20 @@ namespace Contensive.BaseClasses {
         /// <param name="defaultLayoutCdnPathFilename"></param>
         /// <returns></returns>
         public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// returns a layout by Guid. 
+        /// If missing, the layout record is created with the default name and layouts
+        /// The default layout is used when platform5 is not appropriate (platform not set, set to 4, platform5 layout is blank)
+        /// The platform5 layout is used for platform5 (sites set to bootstrap 5 platform)
+        /// </summary>
+        /// <param name="layoutGuid"></param>
+        /// <param name="defaultLayoutName"></param>
+        /// <param name="defaultLayoutCdnPathFilename"></param>
+        /// <param name="platform5LayoutCdnPathFilename"></param>
+        /// <returns></returns>
+        public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
         /// <summary>
         /// Transform the input html using the data attribute based html transformations. These transformations 
         /// are typically used to convert a static html design

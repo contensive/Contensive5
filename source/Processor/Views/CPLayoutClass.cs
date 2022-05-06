@@ -44,11 +44,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// Get a layout from the layout record, create the record from layoutCdnPathFilename if invalid. 
-        /// If the layout file is imported, it will follow the Contensive HtmlImport pattern (see the HtmlImport tool for more details)
-        /// 1) if a body tag is present, only import the body's content.
-        /// 2) The presence of a data-delete attribute will delete the node
-        /// 3) data-addon="name" will replace the node with an addon. if the addon does not exist it will be created with the content of the node.
+        /// Get a layout from the layout record. If invalid, create the record from layoutCdnPathFilename.
         /// </summary>
         /// <param name="layoutGuid"></param>
         /// <param name="defaultLayoutName"></param>
@@ -56,6 +52,20 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
             return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Get a layout from the layout record. If invalid, create the record from layoutCdnPathFilename.
+        /// </summary>
+        /// <param name="layoutGuid"></param>
+        /// <param name="defaultLayoutName"></param>
+        /// <param name="defaultLayoutCdnPathFilename"></param>
+        /// <param name="platform5LayoutCdnPathFilename"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
+            return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
         }
         //
         //====================================================================================================

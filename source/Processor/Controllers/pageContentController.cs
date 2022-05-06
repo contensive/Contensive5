@@ -1018,6 +1018,8 @@ namespace Contensive.Processor.Controllers {
                 if (!string.IsNullOrWhiteSpace(core.doc.pageController.page.headline)) {
                     resultInnerContent.Append("\r<h1>").Append(HtmlController.encodeHtml(core.doc.pageController.page.headline)).Append("</h1>");
                 }
+                //
+                // -- legacy page copy mode - needed for old sites during upgrade
                 bool useLegacyPageCopy = core.siteProperties.getBoolean("PageController Render Legacy Copy", false);
                 if (useLegacyPageCopy) {
                     //
