@@ -51,7 +51,7 @@ namespace Contensive.Processor {
         /// <param name="defaultLayoutCdnPathFilename"></param>
         /// <returns></returns>
         public override string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
-            return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename);
+            return LayoutController.getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
         }
         //
         //====================================================================================================

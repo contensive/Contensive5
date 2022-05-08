@@ -29,6 +29,9 @@ namespace Contensive.Processor.Controllers {
         /// The layout record is cached so this read is sub-millisecond. 
         /// A designer can add new layouts and/or update the addon's default design by replacing the content of the layout record.This update is never overwritten by the collection.
         /// To restore a layout to its default, delete the layout record.
+        /// 
+        /// if platform4, return the default content
+        /// if platform5, return the platform5 if it is not empty, else return the platform4
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="layoutGuid"></param>
@@ -40,55 +43,25 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- load the layout from the catalog settings selection
                 LayoutModel layout = DbBaseModel.create<LayoutModel>(cp, layoutGuid);
-                if ((layout != null) && (!string.IsNullOrEmpty(layout.layout.content)))
-                    return ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content; ;
-                if (layout != null)
-                    return updateLayoutFromCdn(cp, layout, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+                if (layout != null) {
+                    //
+                    // --most common cases
+                    if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) { return layout.layoutPlatform5.content; }
+                    return layout.layout.content;
+                }
                 // 
                 // -- layout record not found. Delete old record in case it was marked inactive
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutGuid);
-                // 
-                // -- layout not there, create new
+                //
+                // -- create a layout
+                List<string> ignoreErrors = new();
                 layout = DbBaseModel.addDefault<LayoutModel>(cp);
-                return updateLayoutFromCdn(cp, layout, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
-            } catch (Exception ex) {
-                cp.Site.ErrorReport(ex);
-                throw;
-            }
-        }
-        //
-        public static string getLayout(CPBaseClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename)
-            => getLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
-        // 
-        // ====================================================================================================
-        /// <summary>
-        /// Create new layout
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="layout"></param>
-        /// <param name="layoutGuid"></param>
-        /// <param name="layoutName"></param>
-        /// <param name="layoutCdnPathFilename"></param>
-        /// <returns></returns>
-        public static string updateLayoutFromCdn(CPBaseClass cp, LayoutModel layout, string layoutGuid, string layoutName, string layoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
-            try {
-                var ignoreErrors = new List<string>();
-                string contentDefault = HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(layoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
-                if (string.IsNullOrEmpty(contentDefault)) {
-                    //
-                    // -- content not found -- exception
-                    throw new GenericException("Layout [" + layoutName + "] was not found by its guid [" + layoutGuid + "] and the backup file blank or not found [" + layoutCdnPathFilename + "]");
-                }
-                string contentPlatform5 = "";
-                if (!string.IsNullOrEmpty(platform5LayoutCdnPathFilename)) {
-                    contentPlatform5 = HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
-                }
-                layout.name = layoutName;
+                layout.name = defaultLayoutName;
                 layout.ccguid = layoutGuid;
-                layout.layout.content = contentDefault;
-                layout.layoutPlatform5.content = contentPlatform5;
+                layout.layout.content = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+                layout.layoutPlatform5.content = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
                 layout.save(cp);
-                return ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(contentPlatform5)) ? contentPlatform5 : contentDefault;
+                return ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
@@ -171,7 +144,7 @@ namespace Contensive.Processor.Controllers {
                     cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout");
                     if (cs.ok()) {
                         string layout5 = cs.getText("LayoutPlatform5");
-                        return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout5)) ? layout5 : cs.getText("layout"); 
+                        return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout5)) ? layout5 : cs.getText("layout");
                     }
                 }
                 //
