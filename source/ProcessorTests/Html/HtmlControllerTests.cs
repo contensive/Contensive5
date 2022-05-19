@@ -51,6 +51,77 @@ namespace Tests {
                 // assert
             }
         }
+        //
+        //====================================================================================================
+        //
+        [TestMethod]
+        public void convertHtmlToText_variations() {
+            using (CPClass cp = new(testAppName)) {
+                {
+                    // arrange
+                    string src = "This is plain text";
+                    string expect = src;
+                    // act
+                    string result = HtmlController.convertHtmlToText(cp.core, src);
+                    // assert
+                    Assert.AreEqual(expect, result, "plain text");
+                }
+                {
+                    // arrange
+                    string src = "";
+                    string expect = src;
+                    // act
+                    string result = HtmlController.convertHtmlToText(cp.core, src);
+                    // assert
+                    Assert.AreEqual(expect, result, "Empty text");
+                }
+                {
+                    // arrange
+                    string src = null;
+                    string expect = "";
+                    // act
+                    string result = HtmlController.convertHtmlToText(cp.core, src);
+                    // assert
+                    Assert.AreEqual(expect, result, "Null text");
+                }
+                {
+                    // arrange
+                    string src = "line1<br>line2";
+                    string expect = "line1\nline2";
+                    // act
+                    string result = HtmlController.convertHtmlToText(cp.core, src);
+                    // assert
+                    Assert.AreEqual(expect, result, "br to crlf");
+                }
+                {
+                    // arrange
+                    string src = "<p>line1</p><p>line2</p>";
+                    string expect = "line1\nline2";
+                    // act
+                    string result = HtmlController.convertHtmlToText(cp.core, src);
+                    // assert
+                    Assert.AreEqual(expect, result, "<p> to crlf");
+                }
+                {
+                    // arrange
+                    string src = "<div>line1</div><div>line2</div>";
+                    string expect = "line1\nline2";
+                    // act
+                    string result = HtmlController.convertHtmlToText(cp.core, src);
+                    // assert
+                    Assert.AreEqual(expect, result, "<div> to crlf");
+                }
+                {
+                    // arrange
+                    string src = "<h1>line1</h1><p>line2</p>";
+                    string expect = "line1\nline2";
+                    // act
+                    string result = HtmlController.convertHtmlToText(cp.core, src);
+                    // assert
+                    Assert.AreEqual(expect, result, "h1+p to crlf");
+                }
+            }
+        }
 
     }
 }

@@ -230,7 +230,7 @@ namespace Contensive.Processor.Controllers {
                             LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
                             if (authenticateById(core, linkToken.id, resultSessionContext)) {
                                 trackVisits = true;
-                                LogController.addActivity(core, "Login", "Successful link login", resultSessionContext.user.id);
+                                LogController.addActivityCompleted(core, "Login", "Successful link login", resultSessionContext.user.id);
                             }
                         } else if (core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
                             //
@@ -238,7 +238,7 @@ namespace Contensive.Processor.Controllers {
                             LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
                             if (recognizeById(core, linkToken.id, resultSessionContext)) {
                                 trackVisits = true;
-                                LogController.addActivity(core, "Login", "Successful link recognize", resultSessionContext.user.id );
+                                LogController.addActivityCompleted(core, "Login", "Successful link recognize", resultSessionContext.user.id );
                             }
                         } else {
                             //
@@ -259,7 +259,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- login by the visitor.memberid
                         if (authenticateById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                            LogController.addActivity(core, "Login", "auto-login", resultSessionContext.user.id );
+                            LogController.addActivityCompleted(core, "Login", "auto-login", resultSessionContext.user.id );
                             visitor_changes = true;
                             user_changes = true;
                         }
@@ -267,7 +267,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- recognize by the visitor.memberid
                         if (recognizeById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                            LogController.addActivity(core, "Recognize", "auto-recognize", resultSessionContext.user.id);
+                            LogController.addActivityCompleted(core, "Recognize", "auto-recognize", resultSessionContext.user.id);
                             visitor_changes = true;
                             user_changes = true;
                         }
@@ -911,7 +911,7 @@ namespace Contensive.Processor.Controllers {
                 if (!userId.Equals(0) && authenticateById(userId, this)) {
                     //
                     // -- successful
-                    LogController.addActivity(core, "Login", "successful login, credential [" + username + "]", user.id );
+                    LogController.addActivityCompleted(core, "Login", "successful login, credential [" + username + "]", user.id );
                     //
                     core.db.executeNonQuery("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
                     return true;

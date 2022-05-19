@@ -130,7 +130,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceHtml"></param>
         /// <returns></returns>
         public static string convertHtmlToText(CoreController core, string sourceHtml) {
-            return NUglify.Uglify.HtmlToText(sourceHtml, NUglify.Html.HtmlToTextOptions.KeepStructure).Code.Trim();
+            //return NUglify.Uglify.HtmlToText(sourceHtml, NUglify.Html.HtmlToTextOptions.KeepStructure).Code.Trim();
+            if (string.IsNullOrEmpty(sourceHtml)) { return ""; }
+            if (!sourceHtml.Contains("<")) { return sourceHtml; }
+            return NUglify.Uglify.HtmlToText("<div>" + sourceHtml + "</div>", NUglify.Html.HtmlToTextOptions.KeepStructure).Code.Trim();
         }
         //
         //====================================================================================================

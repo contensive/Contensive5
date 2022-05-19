@@ -486,6 +486,8 @@ namespace Contensive.Processor.Controllers {
                             string queryStringForLinkAppend = "";
                             tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email");
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
+                            //
+                            LogController.addActivityComplete(core, "System email send", "System email sent [" + email.name + "]", person.id, 2);
                         }
                     }
                 }
@@ -506,6 +508,8 @@ namespace Contensive.Processor.Controllers {
                             string queryStringForLinkAppend = "";
                             tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email");
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
+                            //
+                            LogController.addActivityComplete(core, "System email send", "System email sent [" + email.name + "]", person.id, 2);
                         }
                     }
                 }
@@ -1173,6 +1177,7 @@ namespace Contensive.Processor.Controllers {
                                         EmailStatusList = EmailStatusList + "Not Sent to " + sendToPersonName + ", duplicate email address (" + sendToPersonEmail + ")" + BR;
                                     } else {
                                         EmailStatusList = EmailStatusList + queueEmailRecord(core, "Group Email", sendToPersonId, emailId, DateTime.MinValue, EmailDropId, BounceAddress, EmailFrom, EmailTemplate, EmailFrom, EmailSubject, EmailCopy, CSEmail.getBoolean("AllowSpamFooter"), CSEmail.getBoolean("AddLinkEID"), "") + BR;
+                                        LogController.addActivityComplete(core, "Group email send", "Group email sent [" + CSEmail.getText("name") + "]", sendToPersonId, 2);
                                     }
                                     LastEmail = sendToPersonEmail;
                                     csPerson.goNext();
@@ -1235,6 +1240,7 @@ namespace Contensive.Processor.Controllers {
                             string EmailStatus = queueEmailRecord(core, "Conditional Email", EmailMemberId, emailId, EmailDateExpires, 0, bounceAddress, FromAddress, EmailTemplate, FromAddress, EmailSubject, EmailCopy, csEmail.getBoolean("AllowSpamFooter"), EmailAddLinkEid, "");
                             queueConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", FromAddress, EmailStatus + "<BR>", "Conditional Email");
                             emailsEffected++;
+                            LogController.addActivityComplete(core, "Conditional email send", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, 2);
                         }
                         csEmail.close();
                     }
@@ -1285,6 +1291,8 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- send confirmation for this send
                             queueConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", fromAddress, EmailStatus + "<BR>", "Conditional Email");
+                            //
+                            LogController.addActivityComplete(core, "Conditional email send", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, 2);
                         }
                         csEmail.close();
                     }

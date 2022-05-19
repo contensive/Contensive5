@@ -464,7 +464,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string ModifyLinkQueryString(string url, string key, bool value);
         /// <summary>
-        /// Update or add a key=value pair within a url like "/path/page?key=value&amp;key=value"
+        /// Update or add a key=value pair within a url, like "/path/page?key=value&amp;key=value"
         /// </summary>
         /// <param name="url"></param>
         /// <param name="key"></param>
@@ -473,7 +473,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string ModifyLinkQueryString(string url, string key, bool value, bool addIfMissing);
         /// <summary>
-        /// Update or add a key=value pair within a url like "/path/page?key=value&amp;key=value"
+        /// Update or add a key=value pair within a url, like "/path/page?key=value&amp;key=value"
         /// </summary>
         /// <param name="url"></param>
         /// <param name="key"></param>
@@ -481,7 +481,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string ModifyLinkQueryString(string url, string key, DateTime value);
         /// <summary>
-        /// Update or add a key=value pair within a url like "/path/page?key=value&amp;key=value"
+        /// Update or add a key=value pair within a url, like "/path/page?key=value&amp;key=value"
         /// </summary>
         /// <param name="url"></param>
         /// <param name="key"></param>
@@ -494,111 +494,111 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
-        /// <param name="AddIfMissing"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="addIfMissing"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, string QueryValue, bool AddIfMissing);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, string value, bool addIfMissing);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, string QueryValue);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, string value);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, int QueryValue);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, int value);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
-        /// <param name="AddIfMissing"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="addIfMissing"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, int QueryValue, bool AddIfMissing);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, int value, bool addIfMissing);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, double QueryValue);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, double value);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
-        /// <param name="AddIfMissing"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="aAddIfMissing"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, double QueryValue, bool AddIfMissing);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, double value, bool aAddIfMissing);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, bool QueryValue);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, bool value);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
-        /// <param name="AddIfMissing"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="addIfMissing"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, bool QueryValue, bool AddIfMissing);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, bool value, bool addIfMissing);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, DateTime QueryValue);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, DateTime value);
         /// <summary>
         /// Update or add a key=value pair within key value pair string like "key=value&amp;key=value"
         /// </summary>
-        /// <param name="WorkingQuery"></param>
-        /// <param name="QueryName"></param>
-        /// <param name="QueryValue"></param>
-        /// <param name="AddIfMissing"></param>
+        /// <param name="sourceQueryString"></param>
+        /// <param name="key"></param>
+        /// <param name="value"></param>
+        /// <param name="addIfMissing"></param>
         /// <returns></returns>
-        public abstract string ModifyQueryString(string WorkingQuery, string QueryName, DateTime QueryValue, bool AddIfMissing);
+        public abstract string ModifyQueryString(string sourceQueryString, string key, DateTime value, bool addIfMissing);
         //
         //====================================================================================================
         /// <summary>
         /// return the components of a url
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="sourceUrl"></param>
         /// <param name="return_protocol"></param>
         /// <param name="return_domain"></param>
         /// <param name="return_path"></param>
         /// <param name="return_page"></param>
         /// <param name="return_queryString"></param>
-        public abstract void SeparateURL(string url, ref string return_protocol, ref string return_domain, ref string return_path, ref string return_page, ref string return_queryString);
+        public abstract void SeparateURL(string sourceUrl, ref string return_protocol, ref string return_domain, ref string return_path, ref string return_page, ref string return_queryString);
         /// <summary>
         /// return the components of a url
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="sourceUrl"></param>
         /// <param name="return_protocol"></param>
         /// <param name="return_domain"></param>
         /// <param name="return_port"></param>
         /// <param name="return_path"></param>
         /// <param name="return_page"></param>
         /// <param name="return_queryString"></param>
-        public abstract void SeparateURL(string url, ref string return_protocol, ref string return_domain, ref string return_port, ref string return_path, ref string return_page, ref string return_queryString);
+        public abstract void SeparateURL(string sourceUrl, ref string return_protocol, ref string return_domain, ref string return_port, ref string return_path, ref string return_page, ref string return_queryString);
         //
         //====================================================================================================
         /// <summary>

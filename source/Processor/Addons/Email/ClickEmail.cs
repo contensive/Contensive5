@@ -30,6 +30,8 @@ namespace Contensive.Processor.Addons.Primitives {
                         log.logType = EmailLogTypeClick;
                         log.visitId = cp.Visit.Id;
                         log.save(cp);
+                        //
+                        LogController.addActivityComplete(core, "Email clicked", log.name, recipient.id, 1);
                     }
                 }
             } catch (Exception ex) {

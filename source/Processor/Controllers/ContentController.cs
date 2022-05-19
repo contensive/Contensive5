@@ -160,13 +160,13 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- PersonModel
                     if (!isDelete) {
-                        LogController.addActivity(core, "Edit", "saving changes to user #" + recordId + " (" + recordName + ")", recordId);
+                        LogController.addActivityCompleted(core, "Edit", "saving changes to user #" + recordId + " (" + recordName + ")", recordId);
                     }
                 } else if (tableNameLower == OrganizationModel.tableMetadata.tableNameLower) {
                     //
                     // -- Log Activity for changes to people and organizattions
                     if (!isDelete) {
-                        LogController.addActivity(core, "Edit", "saving changes to organization #" + recordId + " (" + recordName + ")", recordId);
+                        LogController.addActivityCompleted(core, "Edit", "saving changes to organization #" + recordId + " (" + recordName + ")", recordId);
                     }
                 } else if (tableNameLower == SitePropertyModel.tableMetadata.tableNameLower) {
                     //

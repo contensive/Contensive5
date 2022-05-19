@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using NLog.AWS.Logger;
 using System.Globalization;
 using Contensive.BaseClasses;
+using Contensive.Models.Db;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -248,27 +249,42 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
-        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+        public static int addActivityScheduled(CoreController core, string subject, string activityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
             try {
-                //
-                if (subject == null) { subject = ""; }
-                if (string.IsNullOrEmpty(activityDetails)) { 
-                    activityDetails = ""; 
-                } else {
-                    if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
-                }
-                using CsModel csData = new(core);
-                csData.insert("Activity Log");
-                csData.set("name", subject);
-                csData.set("typeid", (typeId<1) ? 1 : typeId);
-                csData.set("MemberID", activityUserId);
-                csData.set("Message", activityDetails);
-                csData.set("VisitorID", (core?.session?.visitor == null ) ? 0 : core.session.visitor.id);
-                csData.set("VisitID", (core?.session?.visit == null) ? 0 : core.session.visit.id);
-                csData.set("dateScheduled", dateScheduled);
-                csData.set("duration", duration);
-                csData.set("scheduledStaffId", scheduledStaffId);
-                return csData.getInteger("id");
+                ActivityLogModel log = DbBaseModel.addDefault<ActivityLogModel>(core.cpParent);
+                log.name = (subject == null) ? "" : subject;
+                log.dateCanceled = null;
+                log.dateCompleted = null;
+                log.dateScheduled = dateScheduled;
+                log.duration = duration;
+                log.link = "";
+                log.memberId = activityUserId;
+                log.message = string.IsNullOrEmpty(activityDetails) ? "" : activityDetails;
+                log.typeId = (typeId < 1) ? 1 : typeId;
+                log.scheduledStaffId = scheduledStaffId;
+                log.visitId = (core?.session?.visit == null) ? 0 : core.session.visit.id;
+                log.visitorId = (core?.session?.visitor == null) ? 0 : core.session.visitor.id;
+                log.save(core.cpParent);
+                return log.id;
+                ////
+                //if (subject == null) { subject = ""; }
+                //if (string.IsNullOrEmpty(activityDetails)) { 
+                //    activityDetails = ""; 
+                //} else {
+                //    if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
+                //}
+                //using CsModel csData = new(core);
+                //csData.insert("Activity Log");
+                //csData.set("name", subject);
+                //csData.set("typeid", (typeId<1) ? 1 : typeId);
+                //csData.set("MemberID", activityUserId);
+                //csData.set("Message", activityDetails);
+                //csData.set("VisitorID", (core?.session?.visitor == null ) ? 0 : core.session.visitor.id);
+                //csData.set("VisitID", (core?.session?.visit == null) ? 0 : core.session.visit.id);
+                //csData.set("dateScheduled", dateScheduled);
+                //csData.set("duration", duration);
+                //csData.set("scheduledStaffId", scheduledStaffId);
+                //return csData.getInteger("id");
             } catch (Exception ex) {
                 log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                 // do not abort page over logging issues
@@ -279,7 +295,8 @@ namespace Contensive.Processor.Controllers {
         //
         //=====================================================================================================
         /// <summary>
-        /// add and online visit activity
+        /// add activity about a user to the site's activity log for content managers to review.
+        /// This overload is for an activity scheduled for the future
         /// </summary>
         /// <param name="core"></param>
         /// <param name="subject"></param>
@@ -288,34 +305,79 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
-        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return addActivity(core, subject, activityDetails, activityUserId, 1, dateScheduled, duration, scheduledStaffId);
+        public static int addActivityScheduled(CoreController core, string subject, string activityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return addActivityScheduled(core, subject, activityDetails, activityUserId, 1, dateScheduled, duration, scheduledStaffId);
         }
         //
         //=====================================================================================================
         /// <summary>
-        /// add activity about a user to the site's activity log for content managers to review
+        /// add activity about a user to the site's activity log for content managers to review.
+        /// This overload is for an activity that occured (not one scheduled for the future)
         /// </summary>
         /// <param name="core"></param>
         /// <param name="subject"></param>
         /// <param name="activityDetails"></param>
         /// <param name="activityUserId"></param>
         /// <param name="subjectOrganizationID"></param>
-        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId) {
-            return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0, 0);
+        public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId) {
+            return addActivityComplete(core, subject, activityDetails, activityUserId, 1);
         }
         //
         //=====================================================================================================
         /// <summary>
-        /// add activity about a user to the site's activity log for content managers to review
+        /// add activity about a user to the site's activity log. 
+        /// This overload is for an activity that occured (not one scheduled for the future)
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
-        /// <param name="activityUserId"></param>
+        /// <param name="subject">Brief text to expand on the activity type, like "filled out online form". This will be the name field.</param>
+        /// <param name="activityDetails">Any details that need to be saved, like if this was an online form filled out, this is what the user submitted.</param>
+        /// <param name="activityUserId">The user that this activity was about. Like the user who filled out the online form</param>
         /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person</param>
-        public static int addActivity(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
-            return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0, 0);
+        public static int addActivityComplete(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
+            // return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0,0);
+            try {
+                //
+                ActivityLogModel log = DbBaseModel.addDefault<ActivityLogModel>(core.cpParent);
+                log.name = (subject == null) ? "" : subject;
+                log.dateCanceled = null;
+                log.dateCompleted = DateTime.Now;
+                log.dateScheduled = DateTime.Now;
+                log.duration = 0;
+                log.link = "";
+                log.memberId = activityUserId;
+                log.message = string.IsNullOrEmpty(activityDetails) ? "" : activityDetails;
+                log.typeId = (typeId < 1) ? 1 : typeId;
+                log.scheduledStaffId = 0;
+                log.visitId = (core?.session?.visit == null) ? 0 : core.session.visit.id;
+                log.visitorId = (core?.session?.visitor == null) ? 0 : core.session.visitor.id;
+                log.save(core.cpParent);
+                return log.id;
+                //if (subject == null) { subject = ""; }
+                //if (string.IsNullOrEmpty(activityDetails)) {
+                //    activityDetails = "";
+                //} else {
+                //    if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
+                //}
+                //using CsModel csData = new(core);
+                //csData.insert("Activity Log");
+                //csData.set("name", subject);
+                //csData.set("typeid", (typeId < 1) ? 1 : typeId);
+                //csData.set("MemberID", activityUserId);
+                //csData.set("Message", activityDetails);
+                //csData.set("VisitorID", (core?.session?.visitor == null) ? 0 : core.session.visitor.id);
+                //csData.set("VisitID", (core?.session?.visit == null) ? 0 : core.session.visit.id);
+                //csData.set("dateScheduled", DateTime.Now);
+                //csData.set("dateCompleted", DateTime.Now);
+                //csData.set("duration", 0);
+                //csData.set("scheduledStaffId", 0);
+                //return csData.getInteger("id");
+            } catch (Exception ex) {
+                log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+                // do not abort page over logging issues
+                // throw;
+                return 0;
+            }
+
         }
         //
         //=====================================================================================================
@@ -325,9 +387,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="subject"></param>
         /// <param name="activityDetails"></param>
-        public static int addActivity(CoreController core, string subject, string activityDetails) {
+        public static int addActivityCompleted(CoreController core, string subject, string activityDetails) {
             core.session.verifyUser();
-            return addActivity(core, subject, activityDetails, (core?.session?.user == null) ? 0 : core.session.user.id, 1, DateTime.MinValue, 0, 0);
+            return addActivityCompleted(core, subject, activityDetails, core.session.user.id);
         }
         //
         //================================================================================================

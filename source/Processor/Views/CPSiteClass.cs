@@ -174,7 +174,7 @@ namespace Contensive.Processor {
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject) {
-            return LogController.addActivity(cp.core, subject, subject);
+            return LogController.addActivityCompleted(cp.core, subject, subject);
         }
         //
         //====================================================================================================
@@ -182,11 +182,11 @@ namespace Contensive.Processor {
         /// 
         /// </summary>
         /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
+        /// <param name="detailsText"></param>
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
-        public override int AddActivity(string subject, string activityDetails) {
-            return LogController.addActivity(cp.core, subject, activityDetails);
+        public override int AddActivity(string subject, string detailsText) {
+            return LogController.addActivityCompleted(cp.core, subject, detailsText);
         }
         //
         //====================================================================================================
@@ -194,11 +194,11 @@ namespace Contensive.Processor {
         /// 
         /// </summary>
         /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
+        /// <param name="detailsText"></param>
         /// <param name="activityUserId"></param>
         /// <param name="organizationId"></param>
-        public override int AddActivity(string subject, string activityDetails, int activityUserId) {
-            return LogController.addActivity(cp.core, subject, activityDetails, activityUserId);
+        public override int AddActivity(string subject, string detailsText, int activityUserId) {
+            return LogController.addActivityCompleted(cp.core, subject, detailsText, activityUserId);
         }
         //
         //====================================================================================================
@@ -206,13 +206,13 @@ namespace Contensive.Processor {
         /// 
         /// </summary>
         /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
+        /// <param name="detailsText"></param>
         /// <param name="activityUserId"></param>
         /// <param name="typeId"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override int AddActivity(string subject, string activityDetails, int activityUserId, int typeId) {
-            return LogController.addActivity(cp.core, subject, activityDetails, activityUserId, typeId);
+        public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId) {
+            return LogController.addActivityComplete(cp.core, subject, detailsText, activityUserId, typeId);
         }
         //
         //====================================================================================================
@@ -220,13 +220,13 @@ namespace Contensive.Processor {
         /// 
         /// </summary>
         /// <param name="subject"></param>
-        /// <param name="activityDetails"></param>
+        /// <param name="detailsText"></param>
         /// <param name="activityUserID"></param>
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
-        public override int addActivity(string subject, string activityDetails, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return LogController.addActivity(cp.core, subject, activityDetails, activityUserID, dateScheduled, duration, scheduledStaffId);
+        public override int AddActivity(string subject, string detailsText, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserID, dateScheduled, duration, scheduledStaffId);
         }
         //
         //====================================================================================================
@@ -234,7 +234,7 @@ namespace Contensive.Processor {
         /// 
         /// </summary>
         /// <param name="subject"></param>
-        /// <param name="actvityDetails"></param>
+        /// <param name="detailsText"></param>
         /// <param name="activityUserId"></param>
         /// <param name="typeId"></param>
         /// <param name="dateScheduled"></param>
@@ -242,8 +242,8 @@ namespace Contensive.Processor {
         /// <param name="scheduledStaffId"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override int addActivity(string subject, string actvityDetails, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return LogController.addActivity(cp.core, subject, actvityDetails, activityUserId, typeId, dateScheduled, duration, scheduledStaffId);
+        public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
+            return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserId, typeId, dateScheduled, duration, scheduledStaffId);
         }
 
         //
@@ -256,7 +256,7 @@ namespace Contensive.Processor {
         /// <param name="legacyOrganizationId"></param>
         [Obsolete]
         public override void LogActivity(string activityMessage, int activityUserID, int legacyOrganizationId) {
-            LogController.addActivity(cp.core, "", activityMessage, activityUserID);
+            LogController.addActivityCompleted(cp.core, "", activityMessage, activityUserID);
         }
         //
         //====================================================================================================

@@ -199,6 +199,7 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- first resize - determine the if the width or the height is the rezie fit
                 // -- then crop to the final size
+                core.cdnFiles.copyFileRemoteToLocal(imageCdnPathFilename);
                 using Image image = Image.Load(core.cdnFiles.localAbsRootPath + imageCdnPathFilename.Replace("/", @"\"));
                 // 
                 // -- if image load issue, return un-resized
@@ -309,7 +310,10 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- unknown exception
                 LogController.logError(core, ex);
-                throw;
+                //
+                // -- hard decision -- if an image (like missing image) causes an issue, do we crush that page?
+                //throw;
+                return imageCdnPathFilename;
             }
         }
         //

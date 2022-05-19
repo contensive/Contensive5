@@ -1351,6 +1351,7 @@ a.ccAddonEditLink, a.ccAddonCutLink, a.ccAddonAddLink, a.ccAddonPasteLink {
     border-radius: 6px; 
     box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.15);
     margin: auto;
+    /*padding:15px;*/
 }
 .iconAddonDefault i {
     font-size: 30px;
@@ -1360,7 +1361,7 @@ a.ccAddonEditLink, a.ccAddonCutLink, a.ccAddonAddLink, a.ccAddonPasteLink {
     display: block;
     margin: auto;
     text-align: center;
-    vertical-align: middle;
+    /*vertical-align: middle;*/
     border-radius: 5px;
 }
 
