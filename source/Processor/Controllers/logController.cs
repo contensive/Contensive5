@@ -311,7 +311,7 @@ namespace Contensive.Processor.Controllers {
         //
         //=====================================================================================================
         /// <summary>
-        /// add activity about a user to the site's activity log for content managers to review.
+        /// add activity about a completed user record edit to the site.
         /// This overload is for an activity that occured (not one scheduled for the future)
         /// </summary>
         /// <param name="core"></param>
@@ -319,8 +319,22 @@ namespace Contensive.Processor.Controllers {
         /// <param name="activityDetails"></param>
         /// <param name="activityUserId"></param>
         /// <param name="subjectOrganizationID"></param>
-        public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId) {
-            return addActivityComplete(core, subject, activityDetails, activityUserId, 1);
+        public static int addActivityCompletedEdit(CoreController core, string subject, string activityDetails, int activityUserId) {
+            return addActivityCompleted(core, subject, activityDetails, activityUserId, 10);
+        }
+        //
+        //=====================================================================================================
+        /// <summary>
+        /// add activity about a completed user visit to the site.
+        /// This overload is for an activity that occured (not one scheduled for the future)
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="subject"></param>
+        /// <param name="activityDetails"></param>
+        /// <param name="activityUserId"></param>
+        /// <param name="subjectOrganizationID"></param>
+        public static int addActivityCompletedVisit(CoreController core, string subject, string activityDetails, int activityUserId) {
+            return addActivityCompleted(core, subject, activityDetails, activityUserId, 1);
         }
         //
         //=====================================================================================================
@@ -332,8 +346,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="subject">Brief text to expand on the activity type, like "filled out online form". This will be the name field.</param>
         /// <param name="activityDetails">Any details that need to be saved, like if this was an online form filled out, this is what the user submitted.</param>
         /// <param name="activityUserId">The user that this activity was about. Like the user who filled out the online form</param>
-        /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person</param>
-        public static int addActivityComplete(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person, 10=edit</param>
+        public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
             // return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0,0);
             try {
                 //
@@ -387,9 +401,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="subject"></param>
         /// <param name="activityDetails"></param>
-        public static int addActivityCompleted(CoreController core, string subject, string activityDetails) {
+        public static int addActivityCompletedVisit(CoreController core, string subject, string activityDetails) {
             core.session.verifyUser();
-            return addActivityCompleted(core, subject, activityDetails, core.session.user.id);
+            return addActivityCompletedVisit(core, subject, activityDetails, core.session.user.id);
         }
         //
         //================================================================================================

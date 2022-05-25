@@ -7,6 +7,7 @@ using Contensive.Processor.Exceptions;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
@@ -27,6 +28,45 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="cp"></param>
         public AdminSiteViewModel(CPClass cp) {
             this.cp = cp;
+        }
+        //
+        //====================================================================================================
+        public List<RecentItem> recentList {
+            get {
+                if (localRecentList != null) { return localRecentList; }
+                if (cp.User.Id == 0) return new List<RecentItem>();
+                //
+                // -- read from cache, invidate if an admin click isnt found in recent table
+                string cacheKey = cp.Cache.CreateKey("admin-recent-List-" + cp.User.Id);
+                localRecentList = cp.Cache.GetObject<List<RecentItem>>(cacheKey);
+                if (localRecentList != null) return localRecentList;
+                localRecentList = new List<RecentItem>();
+                //
+                //
+                using (DataTable dt = cp.Db.ExecuteQuery("select top 20 name,href from ccAdminRecents where userId=" + cp.User.Id + " order by modifiedDate desc")) {
+                    if (dt?.Rows != null) {
+                        foreach (DataRow dr in dt.Rows) {
+                            localRecentList.Add(new RecentItem {
+                             recentHref = cp.Utils.EncodeText(dr["href"]),
+                             recentName = cp.Utils.EncodeText( dr["name"])
+                            });
+                        }
+                    }
+                }
+                localRecentList.Sort((a, b) => a.recentName.CompareTo(b.recentName));
+                //
+                string depKey = cp.Cache.CreateTableDependencyKey(AdminRecentModel.tableMetadata.tableNameLower);
+                cp.Cache.Store(cacheKey, localRecentList, depKey);
+                return localRecentList;
+            }
+        }
+        private List<RecentItem> localRecentList = null;
+        //
+        //====================================================================================================
+        public bool hasRecentList {
+            get {
+                return recentList.Count > 0;
+            }
         }
         //
         //====================================================================================================
@@ -91,7 +131,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public string userFullName {
             get {
                 string fullName = user.firstName + ' ' + user.lastName;
-                if (!string.IsNullOrEmpty( fullName.Trim())) { return fullName;  }
+                if (!string.IsNullOrEmpty(fullName.Trim())) { return fullName; }
                 return user.name;
             }
         }
@@ -164,4 +204,10 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
         }
     }
+    //
+    public class RecentItem {
+        public string recentHref { get; set; }
+        public string recentName { get; set; }
+    }
 }
+

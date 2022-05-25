@@ -230,7 +230,7 @@ namespace Contensive.Processor.Controllers {
                             LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
                             if (authenticateById(core, linkToken.id, resultSessionContext)) {
                                 trackVisits = true;
-                                LogController.addActivityCompleted(core, "Login", "Successful link login", resultSessionContext.user.id);
+                                LogController.addActivityCompletedVisit(core, "Login", "Successful link login", resultSessionContext.user.id);
                             }
                         } else if (core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
                             //
@@ -238,7 +238,7 @@ namespace Contensive.Processor.Controllers {
                             LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
                             if (recognizeById(core, linkToken.id, resultSessionContext)) {
                                 trackVisits = true;
-                                LogController.addActivityCompleted(core, "Login", "Successful link recognize", resultSessionContext.user.id );
+                                LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", resultSessionContext.user.id);
                             }
                         } else {
                             //
@@ -259,7 +259,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- login by the visitor.memberid
                         if (authenticateById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                            LogController.addActivityCompleted(core, "Login", "auto-login", resultSessionContext.user.id );
+                            LogController.addActivityCompletedVisit(core, "Login", "auto-login", resultSessionContext.user.id);
                             visitor_changes = true;
                             user_changes = true;
                         }
@@ -267,7 +267,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- recognize by the visitor.memberid
                         if (recognizeById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                            LogController.addActivityCompleted(core, "Recognize", "auto-recognize", resultSessionContext.user.id);
+                            LogController.addActivityCompletedVisit(core, "Recognize", "auto-recognize", resultSessionContext.user.id);
                             visitor_changes = true;
                             user_changes = true;
                         }
@@ -375,6 +375,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- visit object is valid, update details
                     resultSessionContext.visit.timeToLastHit = encodeInteger((core.doc.profileStartTime - encodeDate(resultSessionContext.visit.startTime)).TotalSeconds);
+                    if (resultSessionContext.visit.timeToLastHit < 0) { resultSessionContext.visit.timeToLastHit = 0; }
                     resultSessionContext.visit.excludeFromAnalytics |= resultSessionContext.visit.bot || resultSessionContext.user.excludeFromAnalytics || resultSessionContext.user.admin || resultSessionContext.user.developer;
                     resultSessionContext.visit.pageVisits += 1;
                     resultSessionContext.visit.cookieSupport |= !string.IsNullOrEmpty(visitCookie) || !string.IsNullOrEmpty(visitorCookie);
@@ -911,7 +912,7 @@ namespace Contensive.Processor.Controllers {
                 if (!userId.Equals(0) && authenticateById(userId, this)) {
                     //
                     // -- successful
-                    LogController.addActivityCompleted(core, "Login", "successful login, credential [" + username + "]", user.id );
+                    LogController.addActivityCompletedVisit(core, "Login", "successful login, credential [" + username + "]", user.id);
                     //
                     core.db.executeNonQuery("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
                     return true;
@@ -950,7 +951,7 @@ namespace Contensive.Processor.Controllers {
                     Thread.Sleep(3000);
                     //
                     return false;
-                }                    
+                }
                 //
                 // -- recognize success, log them in to that user
                 authContext.visit.visitAuthenticated = true;

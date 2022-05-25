@@ -81,7 +81,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- get static data
                 // todo -- move this to the dataViewModel to create content during render
-                AdminSiteViewModel viewModel = new AdminSiteViewModel(cp);
+                AdminSiteViewModel viewModel = new(cp);
                 return cp.Mustache.Render(layout, viewModel);
             } catch (Exception) {
                 throw;

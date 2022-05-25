@@ -38,7 +38,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, activitylog");
                 {
                     env.core.db.executeNonQuery("delete from ccactivitylog where message like 'modifying field%'");
-                    env.core.db.executeNonQuery("delete from ccactivitylog where message like 'saving changes to user%'");
+                    // -- no keep these.
+                    //env.core.db.executeNonQuery("delete from ccactivitylog where message like 'saving changes to user%'");
                     env.core.db.executeNonQuery("update ccActivityLog set name=LEFT(message,30) where name is null");
                     //
                     // -- hold off on this until we decide if activities will be used for CRM

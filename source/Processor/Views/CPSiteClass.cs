@@ -174,7 +174,7 @@ namespace Contensive.Processor {
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject) {
-            return LogController.addActivityCompleted(cp.core, subject, subject);
+            return LogController.addActivityCompletedVisit(cp.core, subject, subject);
         }
         //
         //====================================================================================================
@@ -186,7 +186,7 @@ namespace Contensive.Processor {
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject, string detailsText) {
-            return LogController.addActivityCompleted(cp.core, subject, detailsText);
+            return LogController.addActivityCompletedVisit(cp.core, subject, detailsText);
         }
         //
         //====================================================================================================
@@ -198,7 +198,7 @@ namespace Contensive.Processor {
         /// <param name="activityUserId"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject, string detailsText, int activityUserId) {
-            return LogController.addActivityCompleted(cp.core, subject, detailsText, activityUserId);
+            return LogController.addActivityCompletedVisit(cp.core, subject, detailsText, activityUserId);
         }
         //
         //====================================================================================================
@@ -212,7 +212,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId) {
-            return LogController.addActivityComplete(cp.core, subject, detailsText, activityUserId, typeId);
+            return LogController.addActivityCompleted(cp.core, subject, detailsText, activityUserId, typeId);
         }
         //
         //====================================================================================================
@@ -256,7 +256,7 @@ namespace Contensive.Processor {
         /// <param name="legacyOrganizationId"></param>
         [Obsolete]
         public override void LogActivity(string activityMessage, int activityUserID, int legacyOrganizationId) {
-            LogController.addActivityCompleted(cp.core, "", activityMessage, activityUserID);
+            LogController.addActivityCompletedVisit(cp.core, "", activityMessage, activityUserID);
         }
         //
         //====================================================================================================

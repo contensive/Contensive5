@@ -34,9 +34,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- /admin/ = [0] blank, [1] admin, [2] blank
                 // -- /admin/backoffice = [0] blank, [1] admin, [2] backoffice
                 string[] pathSegments = cp.Request.PathPage.Split('/');
-                if(pathSegments.Length>2 && !string.IsNullOrEmpty( pathSegments[2])) {
-                    string subroute = cp.Request.Path.Substring(pathSegments[0].Length + 1 + pathSegments[1].Length);
-                    return cp.executeRoute(subroute);
+                if (pathSegments.Length > 2 && !string.IsNullOrEmpty(pathSegments[2])) {
+                    if (pathSegments[1].ToLower().Equals(cp.GetAppConfig().adminRoute.ToLower())) {
+                        string subroute = cp.Request.Path.Substring(pathSegments[0].Length + 1 + pathSegments[1].Length);
+                        return cp.executeRoute(subroute);
+                    }
                 }
                 //
                 // turn off chrome protection against submitting html content
@@ -400,6 +402,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                             AddonName = addon.name;
                             cp.core.doc.addRefreshQueryString(RequestNameRunAddon, addonId.ToString());
                         }
+                        //
+                        // -- add to admin recents
+                        AdminRecentModel.insertAdminRecentAddon(cp, cp.User.Id, addon.name, "/" + cp.GetAppConfig().adminRoute + "?addonid=" + addon.id);
+                        //
+                        // -- execute
                         string InstanceOptionString = cp.core.userProperty.getText("Addon [" + AddonName + "] Options", "");
                         int DefaultWrapperId = -1;
                         content = cp.core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
@@ -464,7 +471,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 AddonLastUpdated = AddonDateAdded;
                             }
                             string IconFilename = csData.getText("Iconfilename");
-                            int IconWidth =  csData.getInteger("IconWidth");
+                            int IconWidth = csData.getInteger("IconWidth");
                             int IconHeight = csData.getInteger("IconHeight");
                             int IconSprites = csData.getInteger("IconSprites");
                             bool IconIsInline = csData.getBoolean("IsInline");

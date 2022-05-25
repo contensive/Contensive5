@@ -35,8 +35,8 @@ namespace Tests {
                 Assert.AreEqual(subject, logList.First().name);
                 Assert.AreEqual(subject, logList.First().message);
                 //
-                Assert.IsNull(logList.First().dateScheduled);
-                Assert.IsNull(logList.First().dateCompleted);
+                Assert.IsNotNull(logList.First().dateScheduled);
+                Assert.IsNotNull(logList.First().dateCompleted);
                 Assert.AreEqual(0, logList.First().scheduledStaffId);
                 //
                 Assert.AreEqual(cp.Visit.Id, logList.First().visitId);
@@ -64,8 +64,8 @@ namespace Tests {
                 Assert.AreEqual(subject, logList.First().name);
                 Assert.AreEqual(details, logList.First().message);
                 //
-                Assert.IsNull(logList.First().dateScheduled);
-                Assert.IsNull(logList.First().dateCompleted);
+                Assert.IsNotNull(logList.First().dateScheduled);
+                Assert.IsNotNull(logList.First().dateCompleted);
                 Assert.AreEqual(0, logList.First().scheduledStaffId);
                 //
                 Assert.AreEqual(cp.Visit.Id, logList.First().visitId);
@@ -94,8 +94,8 @@ namespace Tests {
                 Assert.AreEqual(subject, logList.First().name);
                 Assert.AreEqual(details, logList.First().message);
                 //
-                Assert.IsNull(logList.First().dateScheduled);
-                Assert.IsNull(logList.First().dateCompleted);
+                Assert.IsNotNull(logList.First().dateScheduled);
+                Assert.IsNotNull(logList.First().dateCompleted);
                 Assert.AreEqual(0,logList.First().scheduledStaffId);
                 //
                 Assert.AreEqual(cp.Visit.Id, logList.First().visitId);

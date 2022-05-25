@@ -2826,6 +2826,14 @@
       <HelpDefault><![CDATA[if this is a transient failure, this is the deadline to fix the problem. If it is not fixed, the next failure will change this entry to a permanent failure.]]></HelpDefault>
     </Field>
   </CDef>
+  <CDef Name="Admin Recents" Active="1" AdminOnly="0" AllowAdd="1" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowMetaContent="0" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="Default" AuthoringTableName="ccAdminRecents" ContentDataSourceName="Default" ContentTableName="ccAdminRecents" DefaultSortMethod="" DeveloperOnly="0" DropDownFieldList="Name" EditorGroupName="" Parent="" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" isbasecontent="" guid="{8E97BCFA-D1B6-4675-AFF1-A8219937F251}" >
+    <Field Name="userid" active="1" AdminOnly="0" Authorable="1" Caption="user id" DeveloperOnly="0" EditSortPriority="1000" FieldType="Integer" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[User who click this recently]]></HelpDefault>
+    </Field>
+    <Field Name="href" active="1" AdminOnly="0" Authorable="1" Caption="Href" DeveloperOnly="0" EditSortPriority="2000" FieldType="Link" HTMLContent="0" IndexColumn="0" IndexSortDirection="" IndexSortOrder="1" IndexWidth="0" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+      <HelpDefault><![CDATA[Recent admin hits for addons and data]]></HelpDefault>
+    </Field>
+  </CDef>
   <Addon name="Housekeep Control Tool" guid="{04c03ab5-720d-4b9f-b4d9-907cb1912d9e}" type="Tool">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.HouseKeepingControlClass]]></DotNetClass>
     <Admin>Yes</Admin>

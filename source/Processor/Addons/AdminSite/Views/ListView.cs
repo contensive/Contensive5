@@ -109,6 +109,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                             ErrorController.addUserError(core, "Your account does not have access to any records in '" + adminData.adminContent.name + "'.");
                         } else {
                             //
+                            // -- testupdate adminRecents
+                            AdminRecentModel.insertAdminRecentContent(cp, cp.User.Id, adminData.adminContent.name, "?cid=" + adminData.adminContent.id);
+                            //
                             // Get the total record count
                             string sql = "select count(" + adminData.adminContent.tableName + ".ID) as cnt from " + sqlFrom;
                             if (!string.IsNullOrEmpty(sqlWhere)) {

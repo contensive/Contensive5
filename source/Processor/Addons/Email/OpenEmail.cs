@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.Primitives {
                             log.visitId = cp.Visit.Id;
                             log.save(cp);
                             //
-                            LogController.addActivityComplete(core, "Email opened", log.name, recipient.id, 1);
+                            LogController.addActivityCompleted(core, "Email opened", log.name, recipient.id, 1);
                         }
                     }
                 }
