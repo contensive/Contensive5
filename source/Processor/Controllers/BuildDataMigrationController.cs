@@ -111,14 +111,15 @@ namespace Contensive.Processor.Controllers {
                         var context = new Stack<string>();
                         var nonCritialErrorList = new List<string>();
                         var collectionsInstalledList = new List<string>();
-                        CollectionLibraryController.installCollectionFromLibrary(core, false, context, Constants.fontAwesomeCollectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList);
+                        bool skipCdefInstall = false;
+                        CollectionLibraryController.installCollectionFromLibrary(core, false, context, Constants.fontAwesomeCollectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
                         //
                         // -- reinstall newest redactor collection
                         returnErrorMessage = "";
                         context = new Stack<string>();
                         nonCritialErrorList = new List<string>();
                         collectionsInstalledList = new List<string>();
-                        CollectionLibraryController.installCollectionFromLibrary(core, false, context, Constants.redactorCollectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList);
+                        CollectionLibraryController.installCollectionFromLibrary(core, false, context, Constants.redactorCollectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
                         //
                         // -- addons with active-x -- remove programid and add script code that logs error
                         string newCode = ""

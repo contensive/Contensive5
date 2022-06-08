@@ -67,7 +67,8 @@ namespace Contensive.Processor.Controllers {
                     context.Push("NewAppController.upgrade call installbasecollection, repair [" + repair + "]");
                     var collectionsInstalledList = new List<string>();
                     List<string> nonCriticalErrorList = new List<string>();
-                    CollectionInstallController.installBaseCollection(core, context, isNewBuild, repair, ref nonCriticalErrorList, logPrefix, collectionsInstalledList);
+                    bool skipCdefInstall = false;
+                    CollectionInstallController.installBaseCollection(core, context, isNewBuild, repair, ref nonCriticalErrorList, logPrefix, collectionsInstalledList, skipCdefInstall);
                     foreach (string nonCriticalError in nonCriticalErrorList) {
                         //
                         // -- error messages, already reported?
@@ -224,7 +225,7 @@ namespace Contensive.Processor.Controllers {
                                 // -- install all of them, ignore install errors
                                 string installErrorMessage = "";
                                 nonCriticalErrorList = new List<string>();
-                                CollectionLibraryController.installCollectionFromLibrary(core, false, new Stack<string>(), collection.ccguid, ref installErrorMessage, isNewBuild, repair, ref nonCriticalErrorList, "", ref collectionsInstalledList);
+                                CollectionLibraryController.installCollectionFromLibrary(core, false, new Stack<string>(), collection.ccguid, ref installErrorMessage, isNewBuild, repair, ref nonCriticalErrorList, "", ref collectionsInstalledList, skipCdefInstall);
                                 if (!string.IsNullOrWhiteSpace(installErrorMessage)) {
                                     //
                                     // -- error messages, already reported?

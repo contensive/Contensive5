@@ -168,6 +168,7 @@ namespace Contensive.Processor {
         public override bool InstallCollectionFile(string tempPathFilename, ref string returnUserError) {
             bool returnOk = false;
             try {
+                bool skipCdefInstall = false;
                 bool deleteTempFileWhenDone = false;
                 if (!cp.TempFiles.FileExists(tempPathFilename) && cp.PrivateFiles.FileExists(tempPathFilename)) {
                     //
@@ -181,7 +182,7 @@ namespace Contensive.Processor {
                 var installedCollections = new List<string>();
                 var context = new Stack<string>();
                 context.Push("Api call cp.addon.InstallCollectionFile [" + tempPathFilename + "]");
-                returnOk = Controllers.CollectionInstallController.installCollectionFromTempFile(cp.core, false, context, tempPathFilename, ref returnUserError, ref ignoreReturnedCollectionGuid, false, true, ref tmpList, logPrefix, ref installedCollections);
+                returnOk = Controllers.CollectionInstallController.installCollectionFromTempFile(cp.core, false, context, tempPathFilename, ref returnUserError, ref ignoreReturnedCollectionGuid, false, true, ref tmpList, logPrefix, ref installedCollections, skipCdefInstall);
                 if (deleteTempFileWhenDone) { cp.TempFiles.DeleteFolder(tempPathFilename); }
             } catch (Exception ex) {
                 Controllers.LogController.logError(cp.core, ex);
@@ -204,6 +205,7 @@ namespace Contensive.Processor {
         /// <param name="deleteFolderWhenDone"></param>
         /// <returns></returns>
         public override bool InstallCollectionsFromFolder(string tempPath, bool deleteFolderWhenDone, ref string returnUserError) {
+            bool skipCdefInstall = false;
             bool deleteTempFolderWhenDone = false;
             if (!cp.TempFiles.FolderExists(tempPath) && cp.PrivateFiles.FolderExists(tempPath)) {
                 //
@@ -220,7 +222,7 @@ namespace Contensive.Processor {
             var context = new Stack<string>();
             context.Push("Api call cp.addon.InstallCollectionFromFolder [" + tempPath + "]");
             bool isDependency = false;
-            bool result = CollectionInstallController.installCollectionsFromTempFolder(cp.core, isDependency, context, tempPath, ref ignoreUserMessage, ref collectionsInstalledList, false, false, ref ignoreList2, logPrefix, true, ref collectionsDownloaded);
+            bool result = CollectionInstallController.installCollectionsFromTempFolder(cp.core, isDependency, context, tempPath, ref ignoreUserMessage, ref collectionsInstalledList, false, false, ref ignoreList2, logPrefix, true, ref collectionsDownloaded, skipCdefInstall);
             if (deleteTempFolderWhenDone) { 
                 //
                 // -- caller used private folder. delete the temp path created, but do not delete anything from private folder. They need to do it right.
@@ -247,8 +249,9 @@ namespace Contensive.Processor {
             string logPrefix = "installCollectionFromLibrary";
             var nonCriticalErrorList = new List<string>();
             var context = new Stack<string>();
+            bool skipCdefInstall = false;
             context.Push("Api call cp.addon.InstallCollectionFromLibrary [" + collectionGuid + "]");
-            return CollectionLibraryController.installCollectionFromLibrary(cp.core, false, context, collectionGuid, ref ignoreUserMessage, false, false, ref nonCriticalErrorList, logPrefix, ref installedCollections);
+            return CollectionLibraryController.installCollectionFromLibrary(cp.core, false, context, collectionGuid, ref ignoreUserMessage, false, false, ref nonCriticalErrorList, logPrefix, ref installedCollections, skipCdefInstall);
         }
         //
         public override int InstallCollectionFromLibraryAsync(string collectionGuid) {

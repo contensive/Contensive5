@@ -37,9 +37,11 @@ namespace Contensive.Processor.Models.Domain {
             if (string.IsNullOrWhiteSpace(awsAccessKeyId) && string.IsNullOrWhiteSpace(awsSecretAccessKey)) {
                 //
                 // -- if both are blank, use the server account
-                LogController.logInfo(core, "app overrides server AWS credentials with site properties name [" + spAwsAccessKeyId + "], secret [" + spAwsSecretAccessKey + "]");
+                LogController.logInfo(core, "app uses server AWS credentials");
                 awsAccessKeyId = core.serverConfig.awsAccessKey;
                 awsSecretAccessKey = core.serverConfig.awsSecretAccessKey;
+            } else {
+                LogController.logInfo(core, "app overrides server AWS credentials with site properties, accessKey [" + spAwsAccessKeyId + "], secretKey [" + spAwsSecretAccessKey + "]");
             }
         }
     }

@@ -52,7 +52,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="nonCriticalErrorList"></param>
         /// <param name="logPrefix"></param>
         /// <param name="collectionsInstalledList">A list of collection guids that are already installed this pass. All collections that install will be added to it. </param>
-        public static void installBaseCollection(CoreController core, Stack<string> contextLog, bool isNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, List<string> collectionsInstalledList) {
+        public static void installBaseCollection(CoreController core, Stack<string> contextLog, bool isNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, List<string> collectionsInstalledList, bool skipCdefInstall) {
             try {
                 contextLog.Push("installBaseCollection");
                 traceContextLog(core, contextLog);
@@ -82,14 +82,14 @@ namespace Contensive.Processor.Controllers {
                         core.programFiles.copyPath("\\", installTempPath, core.tempFiles);
                         //
                         // -- copy all files from subfolders to root to be compatible with installation system
-                        foreach ( FolderDetail subFolder in  core.tempFiles.getFolderList(installTempPath) ) {
+                        foreach (FolderDetail subFolder in core.tempFiles.getFolderList(installTempPath)) {
                             copyTempSubfoldersToRoot(core, installTempPath + subFolder.Name + "\\", installTempPath);
-                        }                        
+                        }
                         //
                         // -- remove files not needed: dll, exe, config, pdb as they will all be found in the program files path for built in addons
-                        foreach ( FileDetail file in core.tempFiles.getFileList(installTempPath)) {
+                        foreach (FileDetail file in core.tempFiles.getFileList(installTempPath)) {
                             string filename = file.Name.ToLowerInvariant();
-                            if ((filename.right(4)==".dll") || (filename.right(11) == ".dll.config") || (filename.right(4) == ".exe") || (filename.right(11) == ".exe.config") || (filename.right(4) == ".pdb")) {
+                            if ((filename.right(4) == ".dll") || (filename.right(11) == ".dll.config") || (filename.right(4) == ".exe") || (filename.right(11) == ".exe.config") || (filename.right(4) == ".pdb")) {
                                 core.tempFiles.deleteFile(installTempPath + filename);
                             }
                         }
@@ -112,7 +112,7 @@ namespace Contensive.Processor.Controllers {
                         string installErrorMessage = "";
                         string installedCollectionGuid = "";
                         bool isDependency = false;
-                        if (!installCollectionFromTempFile(core, isDependency, contextLog, baseCollectionZipPathFilename, ref installErrorMessage, ref installedCollectionGuid, isNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList)) {
+                        if (!installCollectionFromTempFile(core, isDependency, contextLog, baseCollectionZipPathFilename, ref installErrorMessage, ref installedCollectionGuid, isNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall)) {
                             throw new GenericException("installBaseCollection, call to installCollectionFromPrivateFile failed, message returned [" + installErrorMessage + "]");
                         }
                     } catch (Exception ex) {
@@ -153,7 +153,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsDownloaded">Collections downloaded but not installed yet. Do not need to download them again.</param>
         /// <param name="isDependency"></param>
         /// <returns></returns>
-        public static bool installCollectionFromCollectionFolder(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref string return_ErrorMessage, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded) {
+        public static bool installCollectionFromCollectionFolder(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref string return_ErrorMessage, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall) {
             bool result = false;
             try {
                 //
@@ -407,7 +407,7 @@ namespace Contensive.Processor.Controllers {
                                                 } else {
                                                     //
                                                     // -- all included collections should already be installed, because buildfolder is called before call
-                                                    installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded);
+                                                    installCollectionFromCollectionFolder(core, true, contextLog, ChildCollectionGUId, ref return_ErrorMessage, IsNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, false, ref collectionsDownloaded, skipCdefInstall);
                                                 }
                                                 break;
                                             }
@@ -510,7 +510,9 @@ namespace Contensive.Processor.Controllers {
                                     //-------------------------------------------------------------------------------
                                     //
                                     bool isBaseCollection = (baseCollectionGuid.ToLowerInvariant() == collectionGuid.ToLowerInvariant());
-                                    if (!isBaseCollection || includeBaseMetaDataInstall) {
+                                    if (!skipCdefInstall && (!isBaseCollection || includeBaseMetaDataInstall)) {
+                                        //
+                                        // -- install cdef nodes (and sql, menu, etc)
                                         string metaDataMiniCollection = "";
                                         foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
                                             switch (metaDataSection.Name.ToLowerInvariant()) {
@@ -599,84 +601,86 @@ namespace Contensive.Processor.Controllers {
                                     //-------------------------------------------------------------------------------
                                     //
                                     {
-                                        foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
-                                            switch (GenericController.toLCase(metaDataSection.Name)) {
-                                                case "data": {
-                                                        //
-                                                        // import content
-                                                        //   This can only be done with matching guid
-                                                        //
-                                                        foreach (XmlNode ContentNode in metaDataSection.ChildNodes) {
-                                                            if (GenericController.toLCase(ContentNode.Name) == "record") {
-                                                                //
-                                                                // Data.Record node
-                                                                //
-                                                                string ContentName = XmlController.getXMLAttribute(core, ContentNode, "content", "");
-                                                                if (string.IsNullOrEmpty(ContentName)) {
-                                                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data.record node with a blank content attribute.");
-                                                                    result = false;
-                                                                    return_ErrorMessage += " Collection file [" + CollectionName + "] contains a data.record node with a blank content attribute.";
-                                                                    return false;
-                                                                } else {
-                                                                    string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
-                                                                    string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
-                                                                    if ((string.IsNullOrEmpty(ContentRecordGuid)) && (string.IsNullOrEmpty(ContentRecordName))) {
-                                                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
+                                        if (!skipCdefInstall) {
+                                            foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
+                                                switch (GenericController.toLCase(metaDataSection.Name)) {
+                                                    case "data": {
+                                                            //
+                                                            // import content
+                                                            //   This can only be done with matching guid
+                                                            //
+                                                            foreach (XmlNode ContentNode in metaDataSection.ChildNodes) {
+                                                                if (GenericController.toLCase(ContentNode.Name) == "record") {
+                                                                    //
+                                                                    // Data.Record node
+                                                                    //
+                                                                    string ContentName = XmlController.getXMLAttribute(core, ContentNode, "content", "");
+                                                                    if (string.IsNullOrEmpty(ContentName)) {
+                                                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data.record node with a blank content attribute.");
                                                                         result = false;
-                                                                        return_ErrorMessage += " The collection [" + CollectionName + "] was not installed because the Collection file contains a data record node with neither name nor guid. This is not allowed. The content is [" + ContentName + "].";
+                                                                        return_ErrorMessage += " Collection file [" + CollectionName + "] contains a data.record node with a blank content attribute.";
                                                                         return false;
                                                                     } else {
-                                                                        //
-                                                                        // create or update the record
-                                                                        //
-                                                                        ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
-                                                                        using (var csData = new CsModel(core)) {
-                                                                            if (!string.IsNullOrEmpty(ContentRecordGuid)) {
-                                                                                csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid));
-                                                                            } else {
-                                                                                csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName));
-                                                                            }
-                                                                            bool recordfound = true;
-                                                                            if (!csData.ok()) {
-                                                                                //
-                                                                                // Insert the new record
-                                                                                //
-                                                                                recordfound = false;
-                                                                                csData.close();
-                                                                                csData.insert(ContentName);
-                                                                            }
-                                                                            if (csData.ok()) {
-                                                                                //
-                                                                                // Update the record
-                                                                                //
-                                                                                if (recordfound && (!string.IsNullOrEmpty(ContentRecordGuid))) {
-                                                                                    //
-                                                                                    // found by guid, use guid in list and save name
-                                                                                    //
-                                                                                    csData.set("name", ContentRecordName);
-                                                                                } else if (recordfound) {
-                                                                                    //
-                                                                                    // record found by name, use name is list but do not add guid
-                                                                                    //
+                                                                        string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
+                                                                        string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
+                                                                        if ((string.IsNullOrEmpty(ContentRecordGuid)) && (string.IsNullOrEmpty(ContentRecordName))) {
+                                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
+                                                                            result = false;
+                                                                            return_ErrorMessage += " The collection [" + CollectionName + "] was not installed because the Collection file contains a data record node with neither name nor guid. This is not allowed. The content is [" + ContentName + "].";
+                                                                            return false;
+                                                                        } else {
+                                                                            //
+                                                                            // create or update the record
+                                                                            //
+                                                                            ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
+                                                                            using (var csData = new CsModel(core)) {
+                                                                                if (!string.IsNullOrEmpty(ContentRecordGuid)) {
+                                                                                    csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid));
                                                                                 } else {
+                                                                                    csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName));
+                                                                                }
+                                                                                bool recordfound = true;
+                                                                                if (!csData.ok()) {
                                                                                     //
-                                                                                    // record was created
+                                                                                    // Insert the new record
                                                                                     //
-                                                                                    csData.set("ccguid", ContentRecordGuid);
-                                                                                    csData.set("name", ContentRecordName);
+                                                                                    recordfound = false;
+                                                                                    csData.close();
+                                                                                    csData.insert(ContentName);
+                                                                                }
+                                                                                if (csData.ok()) {
+                                                                                    //
+                                                                                    // Update the record
+                                                                                    //
+                                                                                    if (recordfound && (!string.IsNullOrEmpty(ContentRecordGuid))) {
+                                                                                        //
+                                                                                        // found by guid, use guid in list and save name
+                                                                                        //
+                                                                                        csData.set("name", ContentRecordName);
+                                                                                    } else if (recordfound) {
+                                                                                        //
+                                                                                        // record found by name, use name is list but do not add guid
+                                                                                        //
+                                                                                    } else {
+                                                                                        //
+                                                                                        // record was created
+                                                                                        //
+                                                                                        csData.set("ccguid", ContentRecordGuid);
+                                                                                        csData.set("name", ContentRecordName);
+                                                                                    }
                                                                                 }
                                                                             }
                                                                         }
                                                                     }
                                                                 }
                                                             }
+                                                            break;
                                                         }
-                                                        break;
-                                                    }
-                                                default: {
-                                                        // do nothing
-                                                        break;
-                                                    }
+                                                    default: {
+                                                            // do nothing
+                                                            break;
+                                                        }
+                                                }
                                             }
                                         }
                                     }
@@ -811,9 +815,11 @@ namespace Contensive.Processor.Controllers {
                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-8, process data nodes, set record fields");
                                     //-------------------------------------------------------------------------------
                                     //
-                                    foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
-                                        if (metaDataSection.Name.ToLower().Equals("data")) {
-                                            installDataNode(core, metaDataSection, ref return_ErrorMessage);
+                                    if (!skipCdefInstall) {
+                                        foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
+                                            if (metaDataSection.Name.ToLower().Equals("data")) {
+                                                installDataNode(core, metaDataSection, ref return_ErrorMessage);
+                                            }
                                         }
                                     }
                                     //
@@ -821,9 +827,11 @@ namespace Contensive.Processor.Controllers {
                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", verify all navigator menu entries for updated addons");
                                     //----------------------------------------------------------------------------------------------------------------------
                                     //
-                                    MetadataMiniCollectionModel Collection = CollectionInstallMetadataController.loadXML(core, collectionFileContent, isBaseCollection, false, IsNewBuild, "");
-                                    foreach (var kvp in Collection.menus) {
-                                        BuildController.verifyNavigatorEntry(core, kvp.Value, 0);
+                                    if (!skipCdefInstall) {
+                                        MetadataMiniCollectionModel Collection = CollectionInstallMetadataController.loadXML(core, collectionFileContent, isBaseCollection, false, IsNewBuild, "");
+                                        foreach (var kvp in Collection.menus) {
+                                            BuildController.verifyNavigatorEntry(core, kvp.Value, 0);
+                                        }
                                     }
                                     //
                                     // --- end of pass
@@ -1046,7 +1054,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="includeBaseMetaDataInstall"></param>
         /// <param name="collectionsDownloaded">List of collections that have been downloaded during this istall pass but have not been installed yet. Do no need to download them again.</param>
         /// <returns></returns>
-        public static bool installCollectionsFromTempFolder(CoreController core, bool isDependency, Stack<string> contextLog, string installTempPath, ref string return_ErrorMessage, ref List<string> collectionsInstalledList, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded) {
+        public static bool installCollectionsFromTempFolder(CoreController core, bool isDependency, Stack<string> contextLog, string installTempPath, ref string return_ErrorMessage, ref List<string> collectionsInstalledList, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall) {
             bool returnSuccess = false;
             try {
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + installTempPath + "]");
@@ -1064,7 +1072,7 @@ namespace Contensive.Processor.Controllers {
                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder returned false with Error Message [" + return_ErrorMessage + "], exiting without calling UpgradeAllAppsFromLocalCollection");
                 } else {
                     foreach (string collectionGuid in collectionsToInstall) {
-                        if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collectionGuid, ref return_ErrorMessage, IsNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, includeBaseMetaDataInstall, ref collectionsDownloaded)) {
+                        if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collectionGuid, ref return_ErrorMessage, IsNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, includeBaseMetaDataInstall, ref collectionsDownloaded, skipCdefInstall)) {
                             LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
                             break;
                         }
@@ -1091,7 +1099,8 @@ namespace Contensive.Processor.Controllers {
         /// Builds the Collection Folder. 
         /// Calls installCollectionFromCollectionFolder.
         /// </summary>
-        public static bool installCollectionFromTempFile(CoreController core, bool isDependency, Stack<string> contextLog, string tempPathFilename, ref string return_ErrorMessage, ref string return_CollectionGUID, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList) {
+        /// <param name="skipCdefInstall">if true, skip all cdef during install. </param>
+        public static bool installCollectionFromTempFile(CoreController core, bool isDependency, Stack<string> contextLog, string tempPathFilename, ref string return_ErrorMessage, ref string return_CollectionGUID, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool skipCdefInstall) {
             bool returnSuccess = true;
             try {
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + tempPathFilename + "]");
@@ -1111,7 +1120,7 @@ namespace Contensive.Processor.Controllers {
                 } else if (collectionsDownloaded.Count > 0) {
                     return_CollectionGUID = collectionsDownloaded.First();
                     foreach (var collection in collectionsDownloaded) {
-                        if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collection, ref return_ErrorMessage, IsNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, true, ref collectionsDownloaded)) {
+                        if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collection, ref return_ErrorMessage, IsNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, true, ref collectionsDownloaded, skipCdefInstall)) {
                             //
                             // Upgrade all apps failed
                             //
@@ -1167,7 +1176,7 @@ namespace Contensive.Processor.Controllers {
                             if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                 //
                                 // Could not find add-on, this is an error, but do not abort
-                                LogController.logError(core, new ApplicationException( MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
+                                LogController.logError(core, new ApplicationException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
                                 return;
                             }
                         }
@@ -1343,10 +1352,10 @@ namespace Contensive.Processor.Controllers {
             logger.Log(LogLevel.Info, LogController.processLogMessage(core, string.Join(",", contextLog), false));
         }
         //
-        private static void copyTempSubfoldersToRoot( CoreController core, string srcPath, string rootPath) {
+        private static void copyTempSubfoldersToRoot(CoreController core, string srcPath, string rootPath) {
             //
             // -- copy files
-            foreach( var file in core.tempFiles.getFileList(srcPath)) {
+            foreach (var file in core.tempFiles.getFileList(srcPath)) {
                 core.tempFiles.copyFile(srcPath + file.Name, rootPath + file.Name);
             }
             //

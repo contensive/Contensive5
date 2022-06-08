@@ -346,7 +346,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="subject">Brief text to expand on the activity type, like "filled out online form". This will be the name field.</param>
         /// <param name="activityDetails">Any details that need to be saved, like if this was an online form filled out, this is what the user submitted.</param>
         /// <param name="activityUserId">The user that this activity was about. Like the user who filled out the online form</param>
-        /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person, 10=edit</param>
+        /// <param name="typeId">see ActivityLogTypeEnum, 1=visit online, 2=email-to, 3=email-from, 4=call-to, 5=call-from, 6=text-to, 7=text-from, 8=meeting-video, 9=meeting-in-person, 10=edit, 11=online-purchase</param>
         public static int addActivityCompleted(CoreController core, string subject, string activityDetails, int activityUserId, int typeId) {
             // return addActivity(core, subject, activityDetails, activityUserId, 1, DateTime.MinValue, 0,0);
             try {

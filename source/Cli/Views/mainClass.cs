@@ -103,27 +103,55 @@ namespace Contensive.CLI {
                             case "--install":
                                 //
                                 // -- install collection to one or all applications
-                                InstallCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
+                                InstallCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr), false);
                                 break;
-                            case "--installfile":
+                            case "-iq":
+                            case "--installquick":
                                 //
                                 // -- install collection to one or all applications
-                                string argumentFilename = getNextCmdArg(args, ref argPtr);
-                                if (string.IsNullOrWhiteSpace(argumentFilename)) {
-                                    Console.WriteLine("The installfile requires a filename argument.");
-                                    return;
-                                }
-                                string testFilename = argumentFilename;
-                                if (!System.IO.File.Exists(testFilename)) {
-                                    testFilename = System.IO.Directory.GetCurrentDirectory() + ((argumentFilename.Substring(0, 1) == "\\") ? "" : "\\") + argumentFilename;
-                                    if (!System.IO.File.Exists(argumentFilename)) {
-                                        Console.WriteLine("The filename argument could not be found [" + argumentFilename + "].");
+                                InstallCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr), true);
+                                break;
+                            case "--installfile": {
+                                    //
+                                    // -- install collection to one or all applications
+                                    string argumentFilename = getNextCmdArg(args, ref argPtr);
+                                    if (string.IsNullOrWhiteSpace(argumentFilename)) {
+                                        Console.WriteLine("The installfile requires a filename argument.");
                                         return;
                                     }
-                                    argumentFilename = testFilename;
+                                    string testFilename = argumentFilename;
+                                    if (!System.IO.File.Exists(testFilename)) {
+                                        testFilename = System.IO.Directory.GetCurrentDirectory() + ((argumentFilename.Substring(0, 1) == "\\") ? "" : "\\") + argumentFilename;
+                                        if (!System.IO.File.Exists(argumentFilename)) {
+                                            Console.WriteLine("The filename argument could not be found [" + argumentFilename + "].");
+                                            return;
+                                        }
+                                        argumentFilename = testFilename;
+                                    }
+                                    InstallFileCmd.execute(cpServer, appName, argumentFilename, false);
+                                    break;
                                 }
-                                InstallFileCmd.execute(cpServer, appName, argumentFilename);
-                                break;
+                            case "--installfilequick": {
+
+                                    //
+                                    // -- install collection to one or all applications
+                                    string argumentFilename = getNextCmdArg(args, ref argPtr);
+                                    if (string.IsNullOrWhiteSpace(argumentFilename)) {
+                                        Console.WriteLine("The installfile requires a filename argument.");
+                                        return;
+                                    }
+                                    string testFilename = argumentFilename;
+                                    if (!System.IO.File.Exists(testFilename)) {
+                                        testFilename = System.IO.Directory.GetCurrentDirectory() + ((argumentFilename.Substring(0, 1) == "\\") ? "" : "\\") + argumentFilename;
+                                        if (!System.IO.File.Exists(argumentFilename)) {
+                                            Console.WriteLine("The filename argument could not be found [" + argumentFilename + "].");
+                                            return;
+                                        }
+                                        argumentFilename = testFilename;
+                                    }
+                                    InstallFileCmd.execute(cpServer, appName, argumentFilename, true);
+                                    break;
+                                }
                             case "-h":
                             case "--housekeep":
                                 HousekeepCmd.execute(cpServer, appName);

@@ -13,8 +13,11 @@ namespace Contensive.CLI {
         /// </summary>
         internal static string helpText = ""
             + Environment.NewLine
-            + Environment.NewLine + "--installFile CollectionFileName.zip"
+            + Environment.NewLine + "--installFile (-i) CollectionFileName.zip"
             + Environment.NewLine + "    installs the addon collection file"
+            + Environment.NewLine
+            + Environment.NewLine + "--installFileQuick (-iq) CollectionFileName.zip"
+            + Environment.NewLine + "    installs the addon collection file, skipping database metadata (cdef,data,menu"
             + "";
         //
         // ====================================================================================================
@@ -22,7 +25,7 @@ namespace Contensive.CLI {
         /// create a new app. If appname is provided, create the app with defaults. if not appname, prompt for defaults
         /// </summary>
         /// <param name="appName"></param>
-        public static void execute(CPClass cpServer, string appName, string collectionPhysicalPathFilename) {
+        public static void execute(CPClass cpServer, string appName, string collectionPhysicalPathFilename, bool skipCdefInstall) {
             try {
                 //
                 if (!cpServer.serverOk) {
@@ -37,10 +40,10 @@ namespace Contensive.CLI {
                 var nonCritialErrorList = new List<string>();
                 if (string.IsNullOrEmpty(appName)) {
                     foreach (var kvp in cpServer.core.serverConfig.apps) {
-                        installCollectionFile(kvp.Key, collectionPhysicalPathFilename);
+                        installCollectionFile(kvp.Key, collectionPhysicalPathFilename, skipCdefInstall);
                     }
                 } else {
-                    installCollectionFile(appName, collectionPhysicalPathFilename);
+                    installCollectionFile(appName, collectionPhysicalPathFilename, skipCdefInstall);
                 }
             } catch (Exception ex) {
                 Console.WriteLine("Error: [" + ex + "]");
@@ -53,7 +56,7 @@ namespace Contensive.CLI {
         /// </summary>
         /// <param name="cpApp"></param>
         /// <param name="collectionPhysicalPathFilename"></param>
-        private static void installCollectionFile( string appName, string collectionPhysicalPathFilename) {
+        private static void installCollectionFile( string appName, string collectionPhysicalPathFilename, bool skipCdefInstall) {
             string logPrefix = "CLI";
             using (CPClass cpApp = new CPClass(appName)) {
                 var contextLog = new Stack<string>();
@@ -79,7 +82,7 @@ namespace Contensive.CLI {
                 var nonCriticalErrorList = new List<string>();
                 var collectionsInstalled = new List<string>();
                 string collectionGuidsInstalled = "";
-                if (!CollectionInstallController.installCollectionFromTempFile(cpApp.core, false, contextLog, tempPathFilename, ref errorMessage, ref collectionGuidsInstalled, false, false, ref nonCriticalErrorList, logPrefix, ref collectionsInstalled)) {
+                if (!CollectionInstallController.installCollectionFromTempFile(cpApp.core, false, contextLog, tempPathFilename, ref errorMessage, ref collectionGuidsInstalled, false, false, ref nonCriticalErrorList, logPrefix, ref collectionsInstalled, skipCdefInstall)) {
                     if (!string.IsNullOrEmpty(errorMessage)) {
                         Console.WriteLine("***** Error installing the collection: " + errorMessage);
                     } else {
