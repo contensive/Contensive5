@@ -706,7 +706,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         editRecord.fieldsLc.Add(field.nameLc, editRecordField);
                     }
                     defaultValue = field.defaultValue;
-                    if (field.active && !GenericController.isNull(defaultValue)) {
+                    if (field.active && !string.IsNullOrEmpty(defaultValue)) {
                         switch (field.fieldTypeId) {
                             case CPContentBaseClass.FieldTypeIdEnum.Integer:
                             case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
@@ -1224,7 +1224,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 return;
                             }
                         }
-                        if (ResponseFieldValueText != editRecord.fieldsLc[field.nameLc].value.ToString()) {
+                        if (ResponseFieldValueText != encodeText(editRecord.fieldsLc[field.nameLc].value)) {
                             //
                             // new value
                             editRecord.fieldsLc[field.nameLc].value = ResponseFieldValueText;

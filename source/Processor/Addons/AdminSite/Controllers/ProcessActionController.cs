@@ -695,7 +695,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
-                                                } else if (encodeNumber(fieldValueObject) != csData.getNumber(fieldName)) {
+                                                } else if (encodeText(fieldValueObject) != csData.getText(fieldName)) {
                                                     recordChanged = true;
                                                     csData.set(fieldName, encodeNumber(fieldValueObject));
                                                 }
