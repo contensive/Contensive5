@@ -14,6 +14,8 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public sealed class ImageController {
         //
+        public static List<string> supportedFileTypes = new() { ".png", ".jpg", ".jpeg", ".jfif", ".gif", ".bm", ".bmp", ".dip", ".tga", ".vda", ".icb", ".vst", ".webp", ".pbm" }
+        //
         //==========================================================================================
         /// <summary>
         /// Return the avatar CDN pathFilename for the current user, resized to the provided dimensions. 
@@ -125,12 +127,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="imageAltSizeList"></param>
         /// <param name="saveAsWebP"></param>
         /// <returns></returns>
-        private static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList, bool saveAsWebP) {
+    private static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList, bool saveAsWebP) {
             // 
             try {
                 // 
                 // -- argument testing, if image not set, return blank
-                if ((string.IsNullOrEmpty(imageCdnPathFilename)))
+                if (string.IsNullOrEmpty(imageCdnPathFilename))
                     return "";
                 // 
                 // -- argument testing, width and height must be >=0
@@ -152,7 +154,7 @@ namespace Contensive.Processor.Controllers {
                 //string imageAltsize = holeWidth + "x" + holeHeight + filenameExt.ToLowerInvariant();
                 string newImageFilename = filePath + filenameNoext + "-" + imageAltsize + filenameExt;
                 //
-                if (!(new List<string> { ".png", ".jpg", ".jpeg", ".jfif", ".gif", ".bm", ".bmp", ".dip", ".tga", ".vda", ".icb", ".vst", ".webp", ".pbm" }).Contains(filenameExt.ToLowerInvariant())) {
+                if (!supportedFileTypes.Contains(filenameExt.ToLowerInvariant())) {
                     //
                     // -- unsupported image type, return original
                     return imageCdnPathFilename.Replace(@"\", "/");
