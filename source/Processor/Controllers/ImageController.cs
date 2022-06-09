@@ -14,7 +14,7 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public sealed class ImageController {
         //
-        public static List<string> supportedFileTypes = new() { ".png", ".jpg", ".jpeg", ".jfif", ".gif", ".bm", ".bmp", ".dip", ".tga", ".vda", ".icb", ".vst", ".webp", ".pbm" }
+        public static List<string> supportedFileTypes = new() { ".png", ".jpg", ".jpeg", ".jfif", ".gif", ".bm", ".bmp", ".dip", ".tga", ".vda", ".icb", ".vst", ".webp", ".pbm" };
         //
         //==========================================================================================
         /// <summary>
