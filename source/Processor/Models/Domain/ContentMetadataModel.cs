@@ -1358,7 +1358,9 @@ namespace Contensive.Processor.Models.Domain {
                             contentMetadata.id = verifyContent_returnId(core, new ContentMetadataModel {
                                 tableName = tableName,
                                 name = ContentName,
-                                active = true
+                                active = true,
+                                allowAdd = true,
+                                allowDelete = true
                             }, logMsgContext);
                             // todo - verifyContent needs to return the model
                             contentMetadata = create(core, contentMetadata.id);

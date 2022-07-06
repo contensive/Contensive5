@@ -13,6 +13,7 @@ using System.Net;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using static Contensive.BaseClasses.CPContentBaseClass;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -1294,7 +1295,7 @@ namespace Contensive.Processor.Controllers {
                         FieldHTMLContent = field.htmlContent;
                         FieldLookupContentId = field.lookupContentId;
                         FieldLookupList = field.lookupList;
-                        FieldMemberSelectGroupId = field.memberSelectGroupId_get(core, contentName, fieldName );
+                        FieldMemberSelectGroupId = field.memberSelectGroupId_get(core, contentName, fieldName);
                         fieldFound = true;
                         break;
                     }
@@ -2449,9 +2450,35 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        public string getCheckList(string htmlNamePrefix, string PrimaryContentName, int PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
+            return getCheckList(htmlNamePrefix, PrimaryContentName, PrimaryRecordID, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName, "", "", false, false, "");
+        }
         //
-        public string getCheckList2(string TagName, string PrimaryContentName, int PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName, string SecondaryContentSelectCriteria = "", string CaptionFieldName = "", bool readOnlyfield = false) {
-            return getCheckList(TagName, PrimaryContentName, PrimaryRecordID, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName, SecondaryContentSelectCriteria, GenericController.encodeText(CaptionFieldName), readOnlyfield, false, "");
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        public string getCheckList(string htmlNamePrefix, string PrimaryContentName, int PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName, string SecondaryContentSelectCriteria) {
+            return getCheckList(htmlNamePrefix, PrimaryContentName, PrimaryRecordID, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName, SecondaryContentSelectCriteria, "", false, false, "");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        public string getCheckList(string htmlNamePrefix, string PrimaryContentName, int PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName, string SecondaryContentSelectCriteria, string CaptionFieldName) {
+            return getCheckList(htmlNamePrefix, PrimaryContentName, PrimaryRecordID, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName, SecondaryContentSelectCriteria, CaptionFieldName, false, false, "");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        public string getCheckList(string htmlNamePrefix, string PrimaryContentName, int PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName, string SecondaryContentSelectCriteria, string CaptionFieldName, bool readOnlyfield) {
+            return getCheckList(htmlNamePrefix, PrimaryContentName, PrimaryRecordID, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName, SecondaryContentSelectCriteria, CaptionFieldName, readOnlyfield, false, "");
         }
         //
         //====================================================================================================
@@ -2469,203 +2496,233 @@ namespace Contensive.Processor.Controllers {
         ///       RulesSecondaryFieldName = "GroupID"
         /// </summary>
         /// <param name="htmlNamePrefix"></param>
-        /// <param name="PrimaryContentName"></param>
-        /// <param name="PrimaryRecordID"></param>
-        /// <param name="SecondaryContentName"></param>
-        /// <param name="RulesContentName"></param>
-        /// <param name="RulesPrimaryFieldname"></param>
-        /// <param name="RulesSecondaryFieldName"></param>
-        /// <param name="SecondaryContentSelectCriteria"></param>
-        /// <param name="CaptionFieldName"></param>
+        /// <param name="primaryContentName"></param>
+        /// <param name="primaryRecordID"></param>
+        /// <param name="secondaryContentName"></param>
+        /// <param name="rulesContentName"></param>
+        /// <param name="rulesPrimaryFieldname"></param>
+        /// <param name="rulesSecondaryFieldName"></param>
+        /// <param name="secondaryContentSelectCriteria"></param>
+        /// <param name="captionFieldName"></param>
         /// <param name="readOnlyfield"></param>
         /// <param name="IncludeContentFolderDivs"></param>
-        /// <param name="DefaultSecondaryIDList"></param>
+        /// <param name="defaultSecondaryIDList"></param>
         /// <returns></returns>
-        public string getCheckList(string htmlNamePrefix, string PrimaryContentName, int PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName, string SecondaryContentSelectCriteria = "", string CaptionFieldName = "", bool readOnlyfield = false, bool IncludeContentFolderDivs = false, string DefaultSecondaryIDList = "") {
-            string returnHtml = "";
+        public string getCheckList(string htmlNamePrefix, string primaryContentName, int primaryRecordID, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName, string secondaryContentSelectCriteria, string captionFieldName, bool readOnlyfield, bool IncludeContentFolderDivs, string defaultSecondaryIDList) {
             try {
-                if (string.IsNullOrEmpty(CaptionFieldName)) {
-                    CaptionFieldName = "name";
+                StringBuilder result = new("");
+                //
+                // ----- argument validate
+                captionFieldName = encodeEmpty(captionFieldName, "name");
+                if (string.IsNullOrEmpty(primaryContentName) || string.IsNullOrEmpty(secondaryContentName) || string.IsNullOrEmpty(rulesContentName) || string.IsNullOrEmpty(rulesPrimaryFieldname) || string.IsNullOrEmpty(rulesSecondaryFieldName)) {
+                    LogController.logError(core, new Exception("Creating checklist, all required fields were not supplied, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    return "[Checklist not configured]";
                 }
-                CaptionFieldName = GenericController.encodeEmpty(CaptionFieldName, "name");
-                if (string.IsNullOrEmpty(PrimaryContentName) || string.IsNullOrEmpty(SecondaryContentName) || string.IsNullOrEmpty(RulesContentName) || string.IsNullOrEmpty(RulesPrimaryFieldname) || string.IsNullOrEmpty(RulesSecondaryFieldName)) {
-                    returnHtml = "[Checklist not configured]";
-                    LogController.logError(core, new Exception("Creating checklist, all required fields were not supplied, Caption=[" + CaptionFieldName + "], PrimaryContentName=[" + PrimaryContentName + "], SecondaryContentName=[" + SecondaryContentName + "], RulesContentName=[" + RulesContentName + "], RulesPrimaryFieldName=[" + RulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + RulesSecondaryFieldName + "]"));
-                } else {
-                    //
-                    // ----- Gather all the SecondaryContent that associates to the PrimaryContent
-                    //
-                    int PrimaryContentId = ContentMetadataModel.getContentId(core, PrimaryContentName);
-                    ContentMetadataModel SecondaryMetaData = ContentMetadataModel.createByUniqueName(core, SecondaryContentName);
-                    List<int> ContentControlIdList = new List<int>();
-                    if (SecondaryMetaData.parentId <= 0) {
-                        //
-                        // -- if content has no parent, include all contentcontrolid==0
-                        ContentControlIdList.Add(0);
+                var primaryMeta = ContentMetadataModel.createByUniqueName(core, primaryContentName);
+                if (primaryMeta == null) {
+                    LogController.logError(core, new Exception("Creating checklist, primary content name was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    return "[Checklist not configured]";
+                }
+                var secondaryMeta = ContentMetadataModel.createByUniqueName(core, secondaryContentName);
+                if (secondaryMeta == null) {
+                    LogController.logError(core, new Exception("Creating checklist, secondary content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    return "[Checklist not configured]";
+                }
+                var rulesMeta = ContentMetadataModel.createByUniqueName(core, rulesContentName);
+                if (rulesMeta == null) {
+                    LogController.logError(core, new Exception("Creating checklist, rule content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    return "[Checklist not configured]";
+                }
+                //
+                // -- build rule fields
+                var allowedFieldTypes = new List<FieldTypeIdEnum> { FieldTypeIdEnum.Boolean, FieldTypeIdEnum.Currency, FieldTypeIdEnum.Date, FieldTypeIdEnum.Float, FieldTypeIdEnum.Integer, FieldTypeIdEnum.Text, FieldTypeIdEnum.Link };
+                var blockFieldNames = new List<string> { "id", "name", "sortorder", "active", "dateadded", "createdby", "modifieddate", "modifiedby", "contentcontrolid", "ccguid", "createkey" };
+                List<ContentFieldMetadataModel> ruleFields = new();
+                foreach (var field in rulesMeta.fields) {
+                    if (allowedFieldTypes.Contains(field.Value.fieldTypeId) && !blockFieldNames.Contains(field.Value.nameLc) && field.Value.active && field.Value.authorable && field.Value.nameLc != rulesPrimaryFieldname && field.Value.nameLc != rulesSecondaryFieldName) {
+                        ruleFields.Add(field.Value);
                     }
-                    ContentControlIdList.Add(SecondaryMetaData.id);
-                    ContentControlIdList.AddRange(SecondaryMetaData.childIdList(core));
+                }
+                //
+                // -- columns, up to 4 supported, if rules=0, class=col-12, if rules=1, class=col-6, rules=2, class=col-4
+                int colCnt = (ruleFields.Count > 3 ? 4 : ruleFields.Count + 1);
+                string colClass = "col-" + Convert.ToInt32(12/colCnt).ToString();
+                //
+                // -- get contentcontrolid list
+                var contentControlIdList = new List<int>();
+                if (secondaryMeta.parentId <= 0) {
                     //
-                    //
-                    //
-                    string rulesTablename = MetadataController.getContentTablename(core, RulesContentName);
-                    string SingularPrefixHtmlEncoded = HtmlController.encodeHtml(GenericController.getSingular_Sortof(SecondaryContentName)) + "&nbsp;";
-                    //
-                    int main_MemberShipCount = 0;
-                    int main_MemberShipSize = 0;
-                    returnHtml = "";
-                    if ((!string.IsNullOrEmpty(SecondaryMetaData.tableName)) && (!string.IsNullOrEmpty(rulesTablename))) {
-                        string OldFolderVar = "OldFolder" + core.doc.checkListCnt;
-                        string javaScriptRequired = "";
-                        javaScriptRequired += "var " + OldFolderVar + ";";
-                        string SQL = null;
-                        int[] main_MemberShip = { };
-                        string[] main_MemberShipRuleCopy = { };
-                        if (PrimaryRecordID == 0) {
-                            //
-                            // New record, use the DefaultSecondaryIDList
-                            //
-                            if (!string.IsNullOrEmpty(DefaultSecondaryIDList)) {
-
-                                string[] main_MemberShipText = DefaultSecondaryIDList.Split(',');
-                                int Ptr = 0;
-                                for (Ptr = 0; Ptr <= main_MemberShipText.GetUpperBound(0); Ptr++) {
-                                    int main_MemberShipId = GenericController.encodeInteger(main_MemberShipText[Ptr]);
-                                    if (main_MemberShipId != 0) {
-                                        Array.Resize(ref main_MemberShip, Ptr + 1);
-                                        main_MemberShip[Ptr] = main_MemberShipId;
-                                        main_MemberShipCount = Ptr + 1;
-                                    }
-                                }
-                                if (main_MemberShipCount > 0) {
-                                    main_MemberShipRuleCopy = new string[main_MemberShipCount];
-                                }
-                                main_MemberShipSize = main_MemberShipCount;
-                            }
-                        } else {
-                            //
-                            // ----- Determine main_MemberShip (which secondary records are associated by a rule)
-                            // ----- (exclude new record issue ID=0)
-                            //
-                            using (var csData = new CsModel(core)) {
-                                SQL = "SELECT " + SecondaryMetaData.tableName + ".ID AS ID,'' as RuleCopy";
-                                SQL += ""
-                                    + " FROM " + SecondaryMetaData.tableName + " LEFT JOIN"
-                                    + " " + rulesTablename + " ON " + SecondaryMetaData.tableName + ".Id = " + rulesTablename + "." + RulesSecondaryFieldName + " WHERE "
-                                    + " (" + rulesTablename + "." + RulesPrimaryFieldname + "=" + PrimaryRecordID + ")"
-                                    + " AND (" + rulesTablename + ".Active<>0)"
-                                    + " AND (" + SecondaryMetaData.tableName + ".Active<>0)"
-                                    + " And (" + SecondaryMetaData.tableName + ".ContentControlID IN (" + string.Join(",", ContentControlIdList) + "))";
-                                if (!string.IsNullOrEmpty(SecondaryContentSelectCriteria)) {
-                                    SQL += "AND(" + SecondaryContentSelectCriteria + ")";
-                                }
-                                csData.openSql(SQL);
-                                if (csData.ok()) {
-                                    {
-                                        main_MemberShipSize = 10;
-                                        main_MemberShip = new int[main_MemberShipSize + 1];
-                                        main_MemberShipRuleCopy = new string[main_MemberShipSize + 1];
-                                        while (csData.ok()) {
-                                            if (main_MemberShipCount >= main_MemberShipSize) {
-                                                main_MemberShipSize = main_MemberShipSize + 10;
-                                                Array.Resize(ref main_MemberShip, main_MemberShipSize + 1);
-                                                Array.Resize(ref main_MemberShipRuleCopy, main_MemberShipSize + 1);
-                                            }
-                                            main_MemberShip[main_MemberShipCount] = csData.getInteger("ID");
-                                            main_MemberShipRuleCopy[main_MemberShipCount] = csData.getText("RuleCopy");
-                                            main_MemberShipCount = main_MemberShipCount + 1;
-                                            csData.goNext();
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    // -- if content has no parent, include all contentcontrolid==0
+                    contentControlIdList.Add(0);
+                }
+                contentControlIdList.Add(secondaryMeta.id);
+                contentControlIdList.AddRange(secondaryMeta.childIdList(core));
+                string singularPrefixHtmlEncoded = HtmlController.encodeHtml(GenericController.getSingular_Sortof(secondaryContentName)) + "&nbsp;";
+                //
+                if ((!string.IsNullOrEmpty(secondaryMeta.tableName)) && (!string.IsNullOrEmpty(rulesMeta.tableName))) {
+                    string jsLegacy = "var OldFolder" + core.doc.checkListCnt + ";";
+                    //int[] listOfCheckedId = { };
+                    List<int> listOfCheckedId = new();
+                    //string[] main_MemberShipRuleCopy = { };
+                    if (primaryRecordID == 0) {
                         //
-                        // ----- Gather all the Secondary Records, sorted by ContentName
-                        //
-                        SQL = "SELECT " + SecondaryMetaData.tableName + ".ID AS ID, " + SecondaryMetaData.tableName + "." + CaptionFieldName + " AS OptionCaption, " + SecondaryMetaData.tableName + ".name AS OptionName, " + SecondaryMetaData.tableName + ".SortOrder";
-                        SQL += ",0 as AllowRuleCopy,'' as RuleCopyCaption";
-                        SQL += " from " + SecondaryMetaData.tableName + " where (1=1)";
-                        if (!string.IsNullOrEmpty(SecondaryContentSelectCriteria)) {
-                            SQL += "AND(" + SecondaryContentSelectCriteria + ")";
+                        // -- New record, prepopulate with defaults from DefaultSecondaryIDList
+                        foreach (var idtext in defaultSecondaryIDList.Split(',')) {
+                            int id = encodeInteger(idtext);
+                            if (id == 0) { continue; }
+                            if (listOfCheckedId.Contains(id)) { continue; }
+                            listOfCheckedId.Add(id);
                         }
-                        SQL += " GROUP BY " + SecondaryMetaData.tableName + ".ID, " + SecondaryMetaData.tableName + "." + CaptionFieldName + ", " + SecondaryMetaData.tableName + ".name, " + SecondaryMetaData.tableName + ".SortOrder";
-                        SQL += " ORDER BY ";
-                        SQL += SecondaryMetaData.tableName + "." + CaptionFieldName;
+                    } else {
+                        //
+                        // ----- Determine main_MemberShip (which secondary records are associated by a rule)
+                        // ----- (exclude new record issue ID=0)
                         using (var csData = new CsModel(core)) {
-                            if (!csData.openSql(SQL)) {
-                                returnHtml = "(No choices are available.)";
-                            } else {
-                                {
-                                    string EndDiv = "";
-                                    int CheckBoxCnt = 0;
-                                    int DivCheckBoxCnt = 0;
-                                    bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
-                                    string DivName = htmlNamePrefix + ".All";
-                                    bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
-                                    string editLinkTemplate = !isAdmin ? "" : AdminUIController.getRecordEditAnchorTag(core, SecondaryMetaData, -1, "", "");
-                                    while (csData.ok()) {
-                                        string OptionName = csData.getText("OptionName");
-                                        if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {
-                                            //
-                                            // Current checkbox is visible
-                                            //
-                                            int RecordID = csData.getInteger("ID");
-                                            bool AllowRuleCopy = csData.getBoolean("AllowRuleCopy");
-                                            string RuleCopyCaption = csData.getText("RuleCopyCaption");
-                                            string OptionCaption = csData.getText("OptionCaption");
-                                            if (string.IsNullOrEmpty(OptionCaption)) {
-                                                OptionCaption = OptionName;
-                                            }
-                                            string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", RecordID.ToString()));
-                                            if (string.IsNullOrEmpty(OptionCaption)) {
-                                                optionCaptionHtmlEncoded += "&nbsp;" + SingularPrefixHtmlEncoded + RecordID;
-                                            } else {
-                                                optionCaptionHtmlEncoded += "&nbsp;" + encodeHtml(OptionCaption);
-                                            }
-                                            string RuleCopy = "";
-                                            bool Found = false;
-                                            if (main_MemberShipCount != 0) {
-                                                int main_MemberShipPointer = 0;
-                                                for (main_MemberShipPointer = 0; main_MemberShipPointer < main_MemberShipCount; main_MemberShipPointer++) {
-                                                    if (main_MemberShip[main_MemberShipPointer] == (RecordID)) {
-                                                        RuleCopy = main_MemberShipRuleCopy[main_MemberShipPointer];
-                                                        Found = true;
-                                                        break;
-                                                    }
-                                                }
-                                            }
-                                            // must leave the first hidden with the value in this form - it is searched in the admin pge
-                                            returnHtml += "<input type=hidden name=\"" + htmlNamePrefix + "." + CheckBoxCnt + ".id\" value=" + RecordID + ">";
-                                            if (readOnlyfield && !Found) {
-                                                returnHtml += "<div class=\"checkbox\"><label><input type=checkbox disabled>" + optionCaptionHtmlEncoded + "</label></div>";
-                                            } else if (readOnlyfield) {
-                                                returnHtml += "<div class=\"checkbox\"><label><input type=checkbox disabled checked>" + optionCaptionHtmlEncoded + "</label></div>";
-                                                returnHtml += "<input type=\"hidden\" name=\"" + htmlNamePrefix + "." + CheckBoxCnt + ".ID\" value=" + RecordID + ">";
-                                            } else if (Found) {
-                                                returnHtml += "<div class=\"checkbox\"><label><input type=checkbox name=\"" + htmlNamePrefix + "." + CheckBoxCnt + "\" value=\"1\" checked>" + optionCaptionHtmlEncoded + "</label></div>";
-                                            } else {
-                                                returnHtml += "<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"" + htmlNamePrefix + "." + CheckBoxCnt + "\" value=\"1\">" + optionCaptionHtmlEncoded + "</label></div>";
-                                            }
-                                            CheckBoxCnt = CheckBoxCnt + 1;
-                                            DivCheckBoxCnt = DivCheckBoxCnt + 1;
-                                        }
-                                        csData.goNext();
-                                    }
-                                    returnHtml += EndDiv;
-                                    returnHtml += inputHidden(htmlNamePrefix + ".RowCount", CheckBoxCnt);
+                            string sql = ""
+                                + "SELECT "
+                                    + secondaryMeta.tableName + ".ID AS ID,'' as RuleCopy"
+                                + " FROM "
+                                    + secondaryMeta.tableName + " LEFT JOIN"
+                                    + " " + rulesMeta.tableName + " ON " + secondaryMeta.tableName + ".Id = " + rulesMeta.tableName + "." + rulesSecondaryFieldName
+                                + " WHERE "
+                                    + " (" + rulesMeta.tableName + "." + rulesPrimaryFieldname + "=" + primaryRecordID + ")"
+                                    + " AND (" + rulesMeta.tableName + ".Active<>0)"
+                                    + " AND (" + secondaryMeta.tableName + ".Active<>0)"
+                                    + " And (" + secondaryMeta.tableName + ".ContentControlID IN (" + string.Join(",", contentControlIdList) + "))"
+                                    + (!string.IsNullOrEmpty(secondaryContentSelectCriteria) ? "AND(" + secondaryContentSelectCriteria + ")" : "");
+                            csData.openSql(sql);
+                            if (csData.ok()) {
+                                while (csData.ok()) {
+                                    if (listOfCheckedId.Contains(csData.getInteger("ID"))) { continue; }
+                                    listOfCheckedId.Add(csData.getInteger("ID"));
+                                    csData.goNext();
                                 }
                             }
                         }
-                        addScriptCode(javaScriptRequired, "CheckList Categories");
                     }
-                    core.doc.checkListCnt = core.doc.checkListCnt + 1;
+                    //
+                    // -- add column headers if there ruleFields
+                    if(ruleFields.Count>0) {
+                        //
+                        // -- build a bootstrap row
+                        result.Append("<div class=\"row pb-1\">");
+                        //
+                        // -- first column has no label
+                        result.Append("<div class=\"" + colClass + "\">&nbsp;</div>");
+                        //
+                        // -- columns from rule
+                        foreach (var ruleField in ruleFields) {
+                            result.Append("<div class=\"" + colClass + "\">" + ruleField.nameLc + "</div>");
+                        }
+                        //
+                        // -- end of row
+                        result.Append("</div>");
+                    }
+                    //
+                    // -- Gather all the Secondary Records, sorted by ContentName
+                    string sqlSecondaryRecords = ""
+                        + "select "
+                            + secondaryMeta.tableName + ".id, "
+                            + secondaryMeta.tableName + "." + captionFieldName + " as OptionCaption, "
+                            + secondaryMeta.tableName + ".name AS OptionName, "
+                            + secondaryMeta.tableName + ".SortOrder"
+                            + ",0 as AllowRuleCopy,'' as RuleCopyCaption"
+                        + " from "
+                            + secondaryMeta.tableName + " where (1=1)" + ((!string.IsNullOrEmpty(secondaryContentSelectCriteria)) ? "AND(" + secondaryContentSelectCriteria + ")" : "")
+                        + " group by "
+                            + secondaryMeta.tableName + ".id, "
+                            + secondaryMeta.tableName + "." + captionFieldName + ", "
+                            + secondaryMeta.tableName + ".name, "
+                            + secondaryMeta.tableName + ".SortOrder"
+                        + " order by "
+                            + secondaryMeta.tableName + "." + captionFieldName;
+                    using (var csData = new CsModel(core)) {
+                        if (!csData.openSql(sqlSecondaryRecords)) {
+                            result.Append("(No choices are available.)");
+                        } else {
+                            int checkBoxCnt = 0;
+                            bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
+                            string DivName = htmlNamePrefix + ".All";
+                            bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
+                            string editLinkTemplate = !isAdmin ? "" : AdminUIController.getRecordEditAnchorTag(core, secondaryMeta, -1, "", "");
+                            while (csData.ok()) {
+                                string OptionName = csData.getText("OptionName");
+                                if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {
+                                    //
+                                    // Current checkbox is visible
+                                    //
+                                    int recordID = csData.getInteger("ID");
+                                    bool AllowRuleCopy = csData.getBoolean("AllowRuleCopy");
+                                    string RuleCopyCaption = csData.getText("RuleCopyCaption");
+                                    string OptionCaption = csData.getText("OptionCaption");
+                                    if (string.IsNullOrEmpty(OptionCaption)) {
+                                        OptionCaption = OptionName;
+                                    }
+                                    string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", recordID.ToString()));
+                                    if (string.IsNullOrEmpty(OptionCaption)) {
+                                        optionCaptionHtmlEncoded += "&nbsp;" + singularPrefixHtmlEncoded + recordID;
+                                    } else {
+                                        optionCaptionHtmlEncoded += "&nbsp;" + encodeHtml(OptionCaption);
+                                    }
+                                    bool found = listOfCheckedId.Contains(recordID);
+                                    //
+                                    // -- build a bootstrap row
+                                    result.Append("<div class=\"row pb-1\">");
+                                    //
+                                    // -- first column is checkbox and label
+                                    result.Append("<div class=\"" + colClass + "\">");
+                                    result.Append("<input type=hidden name=\"" + htmlNamePrefix + "." + checkBoxCnt + ".id\" value=" + recordID + ">");
+                                    if (readOnlyfield && !found) {
+                                        //
+                                        // -- unchecked, disabled
+                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled>" + optionCaptionHtmlEncoded + "</label></div>");
+                                    } else if (readOnlyfield) {
+                                        //
+                                        // -- checked, disabled
+                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled checked>" + optionCaptionHtmlEncoded + "</label></div>");
+                                        result.Append("<input type=\"hidden\" name=\"" + htmlNamePrefix + "." + checkBoxCnt + ".ID\" value=" + recordID + ">");
+                                    } else if (found) {
+                                        //
+                                        // -- checked
+                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox name=\"" + htmlNamePrefix + "." + checkBoxCnt + "\" value=\"1\" checked>" + optionCaptionHtmlEncoded + "</label></div>");
+                                    } else {
+                                        //
+                                        // -- unchecked
+                                        result.Append("<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"" + htmlNamePrefix + "." + checkBoxCnt + "\" value=\"1\">" + optionCaptionHtmlEncoded + "</label></div>");
+                                    }
+                                    result.Append("</div>");
+                                    //
+                                    // -- include additional columns from rules
+                                    foreach ( var ruleField in ruleFields) {
+                                        result.Append("<div class=\"" + colClass + "\">");
+                                        //
+                                        switch( ruleField.fieldTypeId) {
+                                            case FieldTypeIdEnum.Integer: {
+                                                    result.Append(HtmlController.inputInteger(core, ruleField.nameLc, null));
+                                                    break;
+                                                }
+                                        }
+                                        //
+                                        result.Append("</div>");
+                                    }
+                                    //
+                                    // -- end of row
+                                    result.Append("</div>");
+                                    checkBoxCnt++;
+                                }
+                                csData.goNext();
+                            }
+                            result.Append(inputHidden(htmlNamePrefix + ".RowCount", checkBoxCnt));
+                        }
+                    }
+                    addScriptCode(jsLegacy, "CheckList Categories");
                 }
+                core.doc.checkListCnt = core.doc.checkListCnt + 1;
+                return result.ToString();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnHtml;
         }
         //
         //====================================================================================================
@@ -3288,12 +3345,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="addedByMessage">Displayed in debug mode</param>
         public void addStyleLink(string styleSheetUrl, string addedByMessage) {
             try {
-                string link = styleSheetUrl.Trim().replace(@"\","/", StringComparison.InvariantCultureIgnoreCase);
+                string link = styleSheetUrl.Trim().replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
                 if (string.IsNullOrEmpty(link)) { return; }
-                if (!link.StartsWith("/") && !link.StartsWith("http",StringComparison.InvariantCultureIgnoreCase)) { 
+                if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
                     //
                     // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
-                    link = "/" + link; 
+                    link = "/" + link;
                 }
                 core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
                     addedByMessage = addedByMessage,

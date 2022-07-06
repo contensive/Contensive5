@@ -70,7 +70,8 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="key"></param>
         public void clearProperty( string key ) {
-            if (string.IsNullOrWhiteSpace(key)) return;
+            if (string.IsNullOrWhiteSpace(key)) { return; }
+            if (propertyKeyId <= 0) { return; }
             //
             // -- clear local cache
             setProperty(key, string.Empty);
@@ -138,6 +139,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="keyId">keyId is like vistiId, vistorId, userId</param>
         public void setProperty(string propertyName, string propertyValue, int keyId) {
             try {
+                if (propertyKeyId <= 0) { return; }
                 if (!propertyCacheLoaded) {
                     loadFromDb(keyId);
                 }
@@ -302,8 +304,10 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="keyId"></param>
         /// <returns></returns>
         public string getText(string propertyName, string defaultValue, int keyId) {
-            string returnString = "";
             try {
+                string returnString = "";
+                //
+                if (propertyKeyId <= 0) { return ""; }
                 //
                 if (!propertyCacheLoaded) { loadFromDb(keyId); }
                 //
@@ -321,11 +325,11 @@ namespace Contensive.Processor.Models.Domain {
                     returnString = defaultValue;
                     setProperty(propertyName, defaultValue, keyId);
                 }
+                return returnString;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnString;
         }
         //
         //====================================================================================================
@@ -334,6 +338,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="keyId"></param>
         public void deleteAll(int keyId) {
+            if (keyId <= 0) { return; }
             core.db.executeNonQuery("Delete from ccProperties where (TypeID=" + (int)propertyType + ")and(KeyID=" + keyId + ")");
         }
         //
@@ -344,6 +349,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="keyId"></param>
         private void loadFromDb(int keyId) {
             try {
+                if (keyId <= 0) { return; }
                 //
                 propertyCache_nameIndex = new KeyPtrController();
                 propertyCacheCnt = 0;

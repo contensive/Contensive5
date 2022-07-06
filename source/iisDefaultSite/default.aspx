@@ -80,7 +80,9 @@
                 Dim allowOrigin As String = ConfigurationManager.AppSettings("DefaultCORSAllowOrigin")
                 HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Origin", If(String.IsNullOrEmpty(allowOrigin), "*", allowOrigin))
                 '
-                HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Credentials", "true")
+				if allowOrigin<>"*" then
+					HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Credentials", "true")
+				end if
                 '
                 Dim allowMethods As String = ConfigurationManager.AppSettings("DefaultCORSAllowMethods")
                 HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Methods", If(String.IsNullOrEmpty(allowMethods), "GET,PUT,POST,DELETE,PATCH,OPTIONS", allowMethods))
