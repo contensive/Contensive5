@@ -2518,11 +2518,6 @@ namespace Contensive.Processor.Controllers {
                     LogController.logError(core, new Exception("Creating checklist, all required fields were not supplied, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
                     return "[Checklist not configured]";
                 }
-                var primaryMeta = ContentMetadataModel.createByUniqueName(core, primaryContentName);
-                if (primaryMeta == null) {
-                    LogController.logError(core, new Exception("Creating checklist, primary content name was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
-                    return "[Checklist not configured]";
-                }
                 var secondaryMeta = ContentMetadataModel.createByUniqueName(core, secondaryContentName);
                 if (secondaryMeta == null) {
                     LogController.logError(core, new Exception("Creating checklist, secondary content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
@@ -2535,18 +2530,11 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- build rule fields
-                var allowedFieldTypes = new List<FieldTypeIdEnum> { FieldTypeIdEnum.Boolean, FieldTypeIdEnum.Currency, FieldTypeIdEnum.Date, FieldTypeIdEnum.Float, FieldTypeIdEnum.Integer, FieldTypeIdEnum.Text, FieldTypeIdEnum.Link };
-                var blockFieldNames = new List<string> { "id", "name", "sortorder", "active", "dateadded", "createdby", "modifieddate", "modifiedby", "contentcontrolid", "ccguid", "createkey" };
-                List<ContentFieldMetadataModel> ruleFields = new();
-                foreach (var field in rulesMeta.fields) {
-                    if (allowedFieldTypes.Contains(field.Value.fieldTypeId) && !blockFieldNames.Contains(field.Value.nameLc) && field.Value.active && field.Value.authorable && field.Value.nameLc != rulesPrimaryFieldname && field.Value.nameLc != rulesSecondaryFieldName) {
-                        ruleFields.Add(field.Value);
-                    }
-                }
+                List<ContentFieldMetadataModel> ruleEditFields = getRuleEditFields(rulesMeta, rulesPrimaryFieldname, rulesSecondaryFieldName);
                 //
                 // -- columns, up to 4 supported, if rules=0, class=col-12, if rules=1, class=col-6, rules=2, class=col-4
-                int colCnt = (ruleFields.Count > 3 ? 4 : ruleFields.Count + 1);
-                string colClass = "col-" + Convert.ToInt32(12/colCnt).ToString();
+                int colCnt = (ruleEditFields.Count > 3 ? 4 : ruleEditFields.Count + 1);
+                string colClass = "col-" + Convert.ToInt32(12 / colCnt).ToString();
                 //
                 // -- get contentcontrolid list
                 var contentControlIdList = new List<int>();
@@ -2561,26 +2549,24 @@ namespace Contensive.Processor.Controllers {
                 //
                 if ((!string.IsNullOrEmpty(secondaryMeta.tableName)) && (!string.IsNullOrEmpty(rulesMeta.tableName))) {
                     string jsLegacy = "var OldFolder" + core.doc.checkListCnt + ";";
-                    //int[] listOfCheckedId = { };
-                    List<int> listOfCheckedId = new();
-                    //string[] main_MemberShipRuleCopy = { };
+                    Dictionary<int, RuleIdSecondaryIdModel> secondaryIdDict = new();
                     if (primaryRecordID == 0) {
                         //
                         // -- New record, prepopulate with defaults from DefaultSecondaryIDList
                         foreach (var idtext in defaultSecondaryIDList.Split(',')) {
                             int id = encodeInteger(idtext);
                             if (id == 0) { continue; }
-                            if (listOfCheckedId.Contains(id)) { continue; }
-                            listOfCheckedId.Add(id);
+                            if (secondaryIdDict.ContainsKey(id)) { continue; }
+                            secondaryIdDict.Add(id, new RuleIdSecondaryIdModel() { ruleId = id, secondaryId = 0 });
                         }
                     } else {
                         //
-                        // ----- Determine main_MemberShip (which secondary records are associated by a rule)
+                        // ----- Determine which secondary records are associated by a rule
                         // ----- (exclude new record issue ID=0)
                         using (var csData = new CsModel(core)) {
                             string sql = ""
                                 + "SELECT "
-                                    + secondaryMeta.tableName + ".ID AS ID,'' as RuleCopy"
+                                    + secondaryMeta.tableName + ".id AS secondaryId," + rulesMeta.tableName + ".id as ruleId"
                                 + " FROM "
                                     + secondaryMeta.tableName + " LEFT JOIN"
                                     + " " + rulesMeta.tableName + " ON " + secondaryMeta.tableName + ".Id = " + rulesMeta.tableName + "." + rulesSecondaryFieldName
@@ -2593,8 +2579,9 @@ namespace Contensive.Processor.Controllers {
                             csData.openSql(sql);
                             if (csData.ok()) {
                                 while (csData.ok()) {
-                                    if (listOfCheckedId.Contains(csData.getInteger("ID"))) { continue; }
-                                    listOfCheckedId.Add(csData.getInteger("ID"));
+                                    int secondaryId = csData.getInteger("secondaryId");
+                                    if (secondaryIdDict.ContainsKey(secondaryId)) { continue; }
+                                    secondaryIdDict.Add(secondaryId, new RuleIdSecondaryIdModel() { secondaryId = secondaryId, ruleId = csData.getInteger("ruleId") });
                                     csData.goNext();
                                 }
                             }
@@ -2602,7 +2589,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- add column headers if there ruleFields
-                    if(ruleFields.Count>0) {
+                    if (ruleEditFields.Count > 0) {
                         //
                         // -- build a bootstrap row
                         result.Append("<div class=\"row pb-1\">");
@@ -2611,8 +2598,8 @@ namespace Contensive.Processor.Controllers {
                         result.Append("<div class=\"" + colClass + "\">&nbsp;</div>");
                         //
                         // -- columns from rule
-                        foreach (var ruleField in ruleFields) {
-                            result.Append("<div class=\"" + colClass + "\">" + ruleField.nameLc + "</div>");
+                        foreach (var ruleField in ruleEditFields) {
+                            result.Append("<div class=\"" + colClass + "\">" + ruleField.caption + "</div>");
                         }
                         //
                         // -- end of row
@@ -2626,7 +2613,6 @@ namespace Contensive.Processor.Controllers {
                             + secondaryMeta.tableName + "." + captionFieldName + " as OptionCaption, "
                             + secondaryMeta.tableName + ".name AS OptionName, "
                             + secondaryMeta.tableName + ".SortOrder"
-                            + ",0 as AllowRuleCopy,'' as RuleCopyCaption"
                         + " from "
                             + secondaryMeta.tableName + " where (1=1)" + ((!string.IsNullOrEmpty(secondaryContentSelectCriteria)) ? "AND(" + secondaryContentSelectCriteria + ")" : "")
                         + " group by "
@@ -2640,7 +2626,7 @@ namespace Contensive.Processor.Controllers {
                         if (!csData.openSql(sqlSecondaryRecords)) {
                             result.Append("(No choices are available.)");
                         } else {
-                            int checkBoxCnt = 0;
+                            int checkBoxPtr = 0;
                             bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
                             string DivName = htmlNamePrefix + ".All";
                             bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
@@ -2650,29 +2636,26 @@ namespace Contensive.Processor.Controllers {
                                 if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {
                                     //
                                     // Current checkbox is visible
-                                    //
-                                    int recordID = csData.getInteger("ID");
-                                    bool AllowRuleCopy = csData.getBoolean("AllowRuleCopy");
-                                    string RuleCopyCaption = csData.getText("RuleCopyCaption");
+                                    int secondaryId = csData.getInteger("ID");
                                     string OptionCaption = csData.getText("OptionCaption");
                                     if (string.IsNullOrEmpty(OptionCaption)) {
                                         OptionCaption = OptionName;
                                     }
-                                    string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", recordID.ToString()));
+                                    string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", secondaryId.ToString()));
                                     if (string.IsNullOrEmpty(OptionCaption)) {
-                                        optionCaptionHtmlEncoded += "&nbsp;" + singularPrefixHtmlEncoded + recordID;
+                                        optionCaptionHtmlEncoded += "&nbsp;" + singularPrefixHtmlEncoded + secondaryId;
                                     } else {
                                         optionCaptionHtmlEncoded += "&nbsp;" + encodeHtml(OptionCaption);
                                     }
-                                    bool found = listOfCheckedId.Contains(recordID);
+                                    bool ruleFound = secondaryIdDict.ContainsKey(secondaryId);
                                     //
                                     // -- build a bootstrap row
                                     result.Append("<div class=\"row pb-1\">");
                                     //
                                     // -- first column is checkbox and label
                                     result.Append("<div class=\"" + colClass + "\">");
-                                    result.Append("<input type=hidden name=\"" + htmlNamePrefix + "." + checkBoxCnt + ".id\" value=" + recordID + ">");
-                                    if (readOnlyfield && !found) {
+                                    result.Append("<input type=hidden name=\"" + htmlNamePrefix + "." + checkBoxPtr + ".id\" value=" + secondaryId + ">");
+                                    if (readOnlyfield && !ruleFound) {
                                         //
                                         // -- unchecked, disabled
                                         result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled>" + optionCaptionHtmlEncoded + "</label></div>");
@@ -2680,39 +2663,67 @@ namespace Contensive.Processor.Controllers {
                                         //
                                         // -- checked, disabled
                                         result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled checked>" + optionCaptionHtmlEncoded + "</label></div>");
-                                        result.Append("<input type=\"hidden\" name=\"" + htmlNamePrefix + "." + checkBoxCnt + ".ID\" value=" + recordID + ">");
-                                    } else if (found) {
+                                        result.Append("<input type=\"hidden\" name=\"" + htmlNamePrefix + "." + checkBoxPtr + ".id\" value=" + secondaryId + ">");
+                                    } else if (ruleFound) {
                                         //
                                         // -- checked
-                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox name=\"" + htmlNamePrefix + "." + checkBoxCnt + "\" value=\"1\" checked>" + optionCaptionHtmlEncoded + "</label></div>");
+                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox name=\"" + htmlNamePrefix + "." + checkBoxPtr + "\" value=\"1\" checked>" + optionCaptionHtmlEncoded + "</label></div>");
                                     } else {
                                         //
                                         // -- unchecked
-                                        result.Append("<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"" + htmlNamePrefix + "." + checkBoxCnt + "\" value=\"1\">" + optionCaptionHtmlEncoded + "</label></div>");
+                                        result.Append("<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"" + htmlNamePrefix + "." + checkBoxPtr + "\" value=\"1\">" + optionCaptionHtmlEncoded + "</label></div>");
                                     }
                                     result.Append("</div>");
                                     //
                                     // -- include additional columns from rules
-                                    foreach ( var ruleField in ruleFields) {
-                                        result.Append("<div class=\"" + colClass + "\">");
-                                        //
-                                        switch( ruleField.fieldTypeId) {
-                                            case FieldTypeIdEnum.Integer: {
-                                                    result.Append(HtmlController.inputInteger(core, ruleField.nameLc, null));
-                                                    break;
-                                                }
+                                    using (CPCSBaseClass ruleCs = core.cpParent.CSNew()) {
+                                        if (ruleFound) {
+                                            ruleCs.OpenRecord(rulesMeta.name, secondaryIdDict[secondaryId].ruleId);
                                         }
-                                        //
-                                        result.Append("</div>");
+                                        foreach (var ruleField in ruleEditFields) {
+                                            result.Append("<div class=\"" + colClass + "\">");
+                                            //
+                                            string htmlNameRuleField = htmlNamePrefix + "." + checkBoxPtr + "." + ruleField.nameLc;
+                                            switch (ruleField.fieldTypeId) {
+                                                case FieldTypeIdEnum.Text: {
+                                                        string htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? "" : ruleCs.GetText(ruleField.nameLc));
+                                                        result.Append(inputText(core, htmlNameRuleField, htmlValue));
+                                                        break;
+                                                    }
+                                                case FieldTypeIdEnum.Date: {
+                                                        DateTime? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetDate(ruleField.nameLc));
+                                                        result.Append(inputDate(core, htmlNameRuleField, htmlValue));
+                                                        break;
+                                                    }
+                                                case FieldTypeIdEnum.Currency:
+                                                case FieldTypeIdEnum.Float: {
+                                                        double? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetNumber(ruleField.nameLc));
+                                                        result.Append(inputNumber(core, htmlNameRuleField, htmlValue));
+                                                        break;
+                                                    }
+                                                case FieldTypeIdEnum.Integer: {
+                                                        int? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetInteger(ruleField.nameLc));
+                                                        result.Append(inputInteger(core, htmlNameRuleField, htmlValue));
+                                                        break;
+                                                    }
+                                                case FieldTypeIdEnum.Boolean: {
+                                                        bool htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? false : ruleCs.GetBoolean(ruleField.nameLc));
+                                                        result.Append(checkbox(htmlNameRuleField, ruleCs.OK() ? (ruleCs.GetBoolean(ruleField.nameLc) ? "1" : "0") : null));
+                                                        break;
+                                                    }
+                                            }
+                                            //
+                                            result.Append("</div>");
+                                        }
                                     }
                                     //
                                     // -- end of row
                                     result.Append("</div>");
-                                    checkBoxCnt++;
+                                    checkBoxPtr++;
                                 }
                                 csData.goNext();
                             }
-                            result.Append(inputHidden(htmlNamePrefix + ".RowCount", checkBoxCnt));
+                            result.Append(inputHidden(htmlNamePrefix + ".RowCount", checkBoxPtr));
                         }
                     }
                     addScriptCode(jsLegacy, "CheckList Categories");
@@ -3487,27 +3498,22 @@ namespace Contensive.Processor.Controllers {
         /// <param name="rulesPrimaryFieldname"></param>
         /// <param name="rulesSecondaryFieldName"></param>
         public void processCheckList(string tagName, string primaryContentName, string primaryRecordID, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName) {
-            int GroupCnt = core.docProperties.getInteger(tagName + ".RowCount");
+            int rowCnt = core.docProperties.getInteger(tagName + ".RowCount");
             bool RuleContentChanged = false;
-            if (GroupCnt > 0) {
+            if (rowCnt > 0) {
                 //
-                // Test if RuleCopy is supported
-                var ruleContentMetadata = ContentMetadataModel.createByUniqueName(core, rulesContentName);
-                if (ruleContentMetadata == null) {
+                // -- get additional rule fields 
+                var ruleMetadata = ContentMetadataModel.createByUniqueName(core, rulesContentName);
+                if (ruleMetadata == null) {
                     LogController.logWarn(core, "processCheckList called and ruleContentName not found [" + rulesContentName + "]");
                     return;
                 }
-                var secondaryContentMetadata = ContentMetadataModel.createByUniqueName(core, secondaryContentName);
-                if (secondaryContentMetadata == null) {
+                var ruleEditFields = getRuleEditFields(ruleMetadata, rulesPrimaryFieldname, rulesSecondaryFieldName);
+                //
+                var secondaryMetadata = ContentMetadataModel.createByUniqueName(core, secondaryContentName);
+                if (secondaryMetadata == null) {
                     LogController.logWarn(core, "processCheckList called and secondaryContentName not found [" + secondaryContentName + "]");
                     return;
-                }
-                bool SupportRuleCopy = ruleContentMetadata.containsField(core, "RuleCopy");
-                if (SupportRuleCopy) {
-                    SupportRuleCopy &= secondaryContentMetadata.containsField(core, "AllowRuleCopy");
-                    if (SupportRuleCopy) {
-                        SupportRuleCopy &= secondaryContentMetadata.containsField(core, "RuleCopyCaption");
-                    }
                 }
                 //
                 // Go through each checkbox and check for a rule
@@ -3516,62 +3522,95 @@ namespace Contensive.Processor.Controllers {
                 string SQL = "select " + rulesSecondaryFieldName + ",id from " + rulesTablename + " where (" + rulesPrimaryFieldname + "=" + primaryRecordID + ")and(active<>0) order by " + rulesSecondaryFieldName;
                 DataTable currentRules = core.db.executeQuery(SQL);
                 int currentRulesCnt = currentRules.Rows.Count;
-                for (int GroupPtr = 0; GroupPtr < GroupCnt; GroupPtr++) {
+                for (int rowPtr = 0; rowPtr < rowCnt; rowPtr++) {
                     //
                     // ----- Read Response
-                    int SecondaryRecordId = core.docProperties.getInteger(tagName + "." + GroupPtr + ".ID");
-                    string RuleCopy = core.docProperties.getText(tagName + "." + GroupPtr + ".RuleCopy");
-                    bool RuleNeeded = core.docProperties.getBoolean(tagName + "." + GroupPtr);
+                    int secondaryRecordId = core.docProperties.getInteger(tagName + "." + rowPtr + ".ID");
+                    bool ruleNeeded = core.docProperties.getBoolean(tagName + "." + rowPtr);
                     //
-                    // ----- Update Record
-                    bool RuleFound = false;
-                    int RuleId = 0;
-                    int TestRecordIDLast = 0;
-                    for (int Ptr = 0; Ptr < currentRulesCnt; Ptr++) {
-                        int TestRecordId = GenericController.encodeInteger(currentRules.Rows[Ptr][0]);
-                        if (TestRecordId == 0) {
+                    // ----- find existing rule in datatable
+                    bool ruleFound = false;
+                    int ruleId = 0;
+                    int testRecordIDLast = 0;
+                    for (int ptr = 0; ptr < currentRulesCnt; ptr++) {
+                        int testRecordId = encodeInteger(currentRules.Rows[ptr][0]);
+                        if (testRecordId == 0) {
                             //
                             // skip
-                        } else if (TestRecordId == SecondaryRecordId) {
+                        } else if (testRecordId == secondaryRecordId) {
                             //
                             // hit
-                            RuleFound = true;
-                            RuleId = GenericController.encodeInteger(currentRules.Rows[Ptr][1]);
+                            ruleFound = true;
+                            ruleId = encodeInteger(currentRules.Rows[ptr][1]);
                             break;
-                        } else if (TestRecordId == TestRecordIDLast) {
+                        } else if (testRecordId == testRecordIDLast) {
                             //
                             // dup
-                            dupRuleIdList = dupRuleIdList + "," + GenericController.encodeInteger(currentRules.Rows[Ptr][1]);
-                            currentRules.Rows[Ptr][0] = 0;
+                            dupRuleIdList = dupRuleIdList + "," + encodeInteger(currentRules.Rows[ptr][1]);
+                            currentRules.Rows[ptr][0] = 0;
                         }
-                        TestRecordIDLast = TestRecordId;
+                        testRecordIDLast = testRecordId;
                     }
-                    if (SupportRuleCopy && RuleNeeded && (RuleFound)) {
-                        //
-                        // Record exists and is needed, update the rule copy
-                        SQL = "update " + rulesTablename + " set rulecopy=" + DbController.encodeSQLText(RuleCopy) + " where id=" + RuleId;
-                        core.db.executeNonQuery(SQL);
-                    } else if (RuleNeeded && (!RuleFound)) {
-                        //
-                        // No record exists, and one is needed                        
-                        using (var csData = new CsModel(core)) {
-                            csData.insert(rulesContentName);
-                            if (csData.ok()) {
-                                csData.set("Active", RuleNeeded);
-                                csData.set(rulesPrimaryFieldname, primaryRecordID);
-                                csData.set(rulesSecondaryFieldName, SecondaryRecordId);
-                                if (SupportRuleCopy) {
-                                    csData.set("RuleCopy", RuleCopy);
+                    if (ruleNeeded && !ruleFound) {
+                        if (!ruleFound) {
+                            //
+                            // No record exists, and one is needed                        
+                            using (var csData = new CsModel(core)) {
+                                if (csData.insert(rulesContentName)) {
+                                    csData.set("Active", ruleNeeded);
+                                    csData.set(rulesPrimaryFieldname, primaryRecordID);
+                                    csData.set(rulesSecondaryFieldName, secondaryRecordId);
+                                    ruleId = csData.getInteger("id");
                                 }
                             }
                         }
                         RuleContentChanged = true;
-                    } else if ((!RuleNeeded) && RuleFound) {
+                    } else if (!ruleNeeded && ruleFound) {
                         //
                         // Record exists and it is not needed
-                        SQL = "delete from " + rulesTablename + " where id=" + RuleId;
+                        SQL = "delete from " + rulesTablename + " where id=" + ruleId;
                         core.db.executeNonQuery(SQL);
                         RuleContentChanged = true;
+                    }
+                    if (ruleNeeded && ruleId > 0 & ruleEditFields.Count > 0) {
+                        string delimiter = "";
+                        string updateSql = "update " + ruleMetadata.tableName + " set ";
+                        foreach (var ruleField in ruleEditFields) {
+                            updateSql += delimiter + ruleField.nameLc + "=";
+                            string requestName = tagName + "." + rowPtr + "." + ruleField.nameLc;
+                            if (string.IsNullOrEmpty(core.docProperties.getText(requestName))) {
+                                //
+                                // -- blank saves null in all cases
+                                updateSql += "null";
+                            } else {
+                                switch (ruleField.fieldTypeId) {
+                                    case FieldTypeIdEnum.Text: {
+                                            updateSql += DbController.encodeSQLText(core.docProperties.getText(requestName));
+                                            break;
+                                        }
+                                    case FieldTypeIdEnum.Date: {
+                                            updateSql += DbController.encodeSQLDate(core.docProperties.getDate(requestName));
+                                            break;
+                                        }
+                                    case FieldTypeIdEnum.Currency:
+                                    case FieldTypeIdEnum.Float: {
+                                            updateSql += DbController.encodeSQLNumber(core.docProperties.getNumber(requestName));
+                                            break;
+                                        }
+                                    case FieldTypeIdEnum.Integer: {
+                                            updateSql += DbController.encodeSQLNumber(core.docProperties.getInteger(requestName));
+                                            break;
+                                        }
+                                    case FieldTypeIdEnum.Boolean: {
+                                            updateSql += DbController.encodeSQLBoolean(core.docProperties.getBoolean(requestName));
+                                            break;
+                                        }
+                                }
+                            }
+                            delimiter = ",";
+                        }
+                        updateSql += " where id=" + ruleId;
+                        core.db.executeNonQuery(updateSql);
                     }
                 }
                 //
@@ -4133,6 +4172,21 @@ namespace Contensive.Processor.Controllers {
             result = result.Replace(" src=/", " src=" + urlProtocolDomainSlash);
             return result;
         }
+        //
+        //====================================================================================================
+        //
+        private static List<ContentFieldMetadataModel> getRuleEditFields(ContentMetadataModel rulesMeta, string rulesPrimaryFieldname, string rulesSecondaryFieldName) {
+            var allowedFieldTypes = new List<FieldTypeIdEnum> { FieldTypeIdEnum.Boolean, FieldTypeIdEnum.Currency, FieldTypeIdEnum.Date, FieldTypeIdEnum.Float, FieldTypeIdEnum.Integer, FieldTypeIdEnum.Text, FieldTypeIdEnum.Link };
+            var blockFieldNames = new List<string> { "id", "name", "sortorder", "active", "dateadded", "createdby", "modifieddate", "modifiedby", "contentcontrolid", "ccguid", "createkey" };
+            List<ContentFieldMetadataModel> ruleFields = new();
+            foreach (var field in rulesMeta.fields) {
+                if (allowedFieldTypes.Contains(field.Value.fieldTypeId) && !blockFieldNames.Contains(field.Value.nameLc) && field.Value.active && field.Value.authorable && field.Value.nameLc != rulesPrimaryFieldname && field.Value.nameLc != rulesSecondaryFieldName) {
+                    ruleFields.Add(field.Value);
+                }
+            }
+            return ruleFields;
+        }
+
         //
         //====================================================================================================
         /// <summary>
