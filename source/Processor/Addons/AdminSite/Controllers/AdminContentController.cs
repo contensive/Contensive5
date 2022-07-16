@@ -431,7 +431,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- add user errors
                 if (!cp.core.doc.userErrorList.Count.Equals(0)) {
-                    content = HtmlController.div(ErrorController.getUserError(cp.core), "ccAdminMsg") + content;
+                    content = ErrorController.getUserError(cp.core) + content;
                 }
                 //
                 // -- add button count to js

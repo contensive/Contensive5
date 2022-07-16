@@ -13,21 +13,6 @@ Container for the default login form
     margin: 0 auto;
 }
 /*
-Exception list
-*/
-ul.ccExceptionList {
-    padding: 10px 20px;
-    margin: 0;
-    background-color: red;
-    list-style-type: none;
-}
-
-li.ccExceptionListRow {
-    padding: 0;
-    margin: 10px auto;
-	color: white;
-}
-/*
 * Record edit link
 */
 a.ccRecordEditLink, a.ccRecordCutLink,

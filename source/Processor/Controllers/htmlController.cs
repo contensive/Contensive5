@@ -3085,6 +3085,13 @@ namespace Contensive.Processor.Controllers {
             try {
                 string htmlHead = getHtmlHead();
                 string htmlBeforeEndOfBody = getHtmlBodyEnd(allowLogin, allowTools);
+                //
+                // -- add user errors that were not handled during page process
+                if (!core.doc.userErrorList.Count.Equals(0)) {
+                    htmlBody = HtmlController.div(ErrorController.getUserError(core), "ccAdminMsg") + htmlBody;
+                }
+                //
+                // -- assemble html document
                 result = ""
                     + core.siteProperties.docTypeDeclaration
                     + Environment.NewLine + "<html lang=\"en-US\">"
