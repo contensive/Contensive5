@@ -9,7 +9,7 @@ cd \Git\Contensive5\scripts
 
 rem @echo off
 rem Setup deployment folder
-set msbuildLocation=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\
+set msbuildLocation=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\
 set deploymentFolderRoot=C:\Deployments\Contensive5\Dev\
 set NuGetLocalPackagesFolder=C:\NuGetLocalPackages\
 set year=%date:~12,4%
@@ -99,6 +99,8 @@ rd /s /q  "..\source\taskservice\obj"
 
 del /q "..\WebDeploymentPackage\*.*"
 
+pause
+
 rem ==============================================================
 rem
 rem build and pack Contensive common solution (CPBase +Models + Processor)
@@ -134,6 +136,8 @@ if errorlevel 1 (
 
 cd ..\scripts
 
+pause
+
 rem ==============================================================
 rem
 rem move packages to deplyment, and to local package folder
@@ -153,6 +157,8 @@ rem copy this package to the local package source so the next project builds all
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
 cd ..\scripts
+
+pause
 
 rem ==============================================================
 rem
@@ -207,6 +213,8 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
+pause
+
 
 rem ==============================================================
 rem
@@ -241,6 +249,8 @@ nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %Nu
 nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
+pause
+
 rem ==============================================================
 rem
 rem build aspx and publish 
@@ -257,6 +267,8 @@ if errorlevel 1 (
 xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
 
 cd ..\scripts
+
+pause
 
 rem ==============================================================
 rem
@@ -277,7 +289,11 @@ nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %Nu
 nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
+pause
+
 rem ==============================================================
 rem
 rem done
 rem
+
+pause

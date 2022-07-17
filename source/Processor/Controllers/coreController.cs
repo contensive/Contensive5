@@ -549,7 +549,7 @@ namespace Contensive.Processor.Controllers {
             get {
                 if (_addonCacheNonPersistent == null) {
                     _addonCacheNonPersistent = cache.getObject<AddonCacheModel>(cacheName_addonCachePersistent);
-                    if (_addonCacheNonPersistent == null) {
+                    if (_addonCacheNonPersistent == null  || _addonCacheNonPersistent.isEmpty) {
                         _addonCacheNonPersistent = new AddonCacheModel(this);
                         cache.storeObject(cacheName_addonCachePersistent, _addonCacheNonPersistent);
                     }

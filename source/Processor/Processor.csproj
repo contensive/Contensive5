@@ -166,6 +166,7 @@
     <PackageReference Include="System.IO.Pipelines" Version="6.0.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
+    <PackageReference Include="Twilio" Version="5.77.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 

@@ -13,22 +13,27 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     //
     public class AddonCacheModel {
-        private Dictionary<int, AddonModel> dictIdAddon = new Dictionary<int, AddonModel>();
-        private Dictionary<string, int> dictGuidId = new Dictionary<string, int>();
-        private Dictionary<string, int> dictNameId = new Dictionary<string, int>();
+        public bool isEmpty { 
+            get {
+                return dictIdAddon.Count == 0;
+            }
+        }   
+        private Dictionary<int, AddonModel> dictIdAddon { get; set; } = new Dictionary<int, AddonModel>();
+        private Dictionary<string, int> dictGuidId { get; set; } = new Dictionary<string, int>();
+        private Dictionary<string, int> dictNameId { get; set; } = new Dictionary<string, int>();
         //
-        private Dictionary<int, List<int>> dependencyDictionary = new Dictionary<int, List<int>>();
+        private Dictionary<int, List<int>> dependencyDictionary { get; set; } = new Dictionary<int, List<int>>();
         //
-        private List<int> onBodyEndIdList = new();
-        private List<int> onBodyStartIdList = new();
-        private List<int> onNewVisitIdList = new();
-        private List<int> OnPageEndIdList = new();
-        private List<int> OnPageStartIdList = new();
-        private List<int> remoteMethodIdList = new();
+        private List<int> onBodyEndIdList { get; set; } = new();
+        private List<int> onBodyStartIdList { get; set; } = new();
+        private List<int> onNewVisitIdList { get; set; } = new();
+        private List<int> OnPageEndIdList { get; set; } = new();
+        private List<int> OnPageStartIdList { get; set; } = new();
+        private List<int> remoteMethodIdList { get; set; } = new();
         /// <summary>
         /// Each addon includes text to be added to the robots.txt response.
         /// </summary>
-        public string robotsTxt = "";
+        public string robotsTxt { get; set; } = "";
         //
         //====================================================================================================
         /// <summary>
