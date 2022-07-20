@@ -193,9 +193,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sql"></param>
         /// <param name="startRecord">0 based start record</param>
         /// <param name="maxRecords">required. max number of records the client will support.</param>
-        /// <param name="recordsReturned"></param>
+        /// <param name="recordsAffected"></param>
         /// <returns></returns>
-        public DataTable executeQuery(string sql, int startRecord, int maxRecords, ref int recordsReturned) {
+        public DataTable executeQuery(string sql, int startRecord, int maxRecords, ref int recordsAffected) {
             DataTable returnData = new();
             try {
                 if (!dbEnabled) { return new DataTable(); }
@@ -217,8 +217,12 @@ namespace Contensive.Processor.Controllers {
                         } catch (SqlException exSql) {
                             //
                             // network related error, retry once
-                            string errMsg = "executeQuery SqlException, retries left [" + retryCnt.ToString() + "], ex [" + exSql.ToString() + "]";
-                            Logger.Error(exSql, LogController.processLogMessage(core, errMsg, true));
+                            try {
+                                string errMsg = "executeQuery SqlException, retries left [" + retryCnt.ToString() + "], ex [" + exSql.ToString() + "]";
+                                Logger.Error(exSql, LogController.processLogMessage(core, errMsg, true));
+                            } catch (Exception) {
+                                // -- swallow logging internal errors
+                            }
                             //
                             if (retryCnt <= 0) { throw; }
                             retryCnt--;
@@ -233,19 +237,23 @@ namespace Contensive.Processor.Controllers {
                         cmdSQL.Connection = connSQL;
                         cmdSQL.CommandTimeout = sqlCommandTimeout;
                         using (SqlDataAdapter adptSQL = new(cmdSQL)) {
-                            recordsReturned = adptSQL.Fill(startRecord, maxRecords, returnData);
+                            recordsAffected = adptSQL.Fill(startRecord, maxRecords, returnData);
                         }
                     }
                 }
                 dbVerified = true;
-                string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsReturned + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
-                if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
-                    Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
-                } else {
-                    Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                try {
+                    string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
+                        Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
+                    } else {
+                        Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                    }
+                } catch (Exception) {
+                    // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], startRecord [" + startRecord + "], maxRecords [" + maxRecords + "], recordsReturned [" + recordsReturned + "]", ex));
+                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], startRecord [" + startRecord + "], maxRecords [" + maxRecords + "], recordsReturned [" + recordsAffected + "]", ex));
                 throw;
             }
             return returnData;
@@ -282,11 +290,15 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 dbVerified = true;
-                string logMsg = "duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", "").Replace("\n", "") + "]";
-                if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
-                    LogController.logWarn(core, "Slow Query " + logMsg);
-                } else {
-                    Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                try {
+                    string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
+                        Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
+                    } else {
+                        Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                    }
+                } catch (Exception) {
+                    // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
                 LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], recordsAffected [" + recordsAffected + "]", ex));
@@ -315,11 +327,15 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 dbVerified = true;
-                string logMsg = "async duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [n/a], sql [" + sql.Replace("\r", "").Replace("\n", "") + "]";
-                if (sw.ElapsedMilliseconds > sqlAsyncSlowThreshholdMsec) {
-                    LogController.logWarn(core, "Slow Query " + logMsg);
-                } else {
-                    Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                try {
+                    string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [n/a], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
+                        Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
+                    } else {
+                        Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                    }
+                } catch (Exception) {
+                    // -- swallow logging internal errors
                 }
                 return result;
             } catch (Exception ex) {

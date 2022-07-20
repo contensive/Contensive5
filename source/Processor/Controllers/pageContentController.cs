@@ -660,6 +660,7 @@ namespace Contensive.Processor.Controllers {
                                 // ----- Custom Message
                                 //
                                 result = string.IsNullOrWhiteSpace(CustomBlockMessageFilename) ? "" : core.cdnFiles.readFileText(CustomBlockMessageFilename);
+                                result = ActiveContentController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
                                 break;
                             }
                         case ContentBlockWithLogin: {
@@ -800,8 +801,8 @@ namespace Contensive.Processor.Controllers {
                         }
                         if (!core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
                             //
-                            // -- tracking
-                            core.db.executeNonQuery("update ccpagecontent set viewings=" + (core.doc.pageController.page.viewings + 1) + " where id=" + core.doc.pageController.page.id);
+                            // -- tracking (viewings deprecated, page is cached, track externally)
+                            //core.db.executeNonQuery("update ccpagecontent set viewings=" + (core.doc.pageController.page.viewings + 1) + " where id=" + core.doc.pageController.page.id);
                             //
                             // -- Page Hit Notification
                             if ((!core.session.visit.excludeFromAnalytics) && (core.doc.pageController.page.contactMemberId != 0) && (core.webServer.requestBrowser.IndexOf("kmahttp", System.StringComparison.OrdinalIgnoreCase) == -1)) {
@@ -1210,7 +1211,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 var copyRecord = DbBaseModel.createByUniqueName<CopyContentModel>(core.cpParent, ContentBlockCopyName);
                 if (copyRecord != null) {
-                    return copyRecord.copy;
+                    return ActiveContentController.renderHtmlForWeb(core, copyRecord.copy, PageContentModel.tableMetadata.contentName, 0, 0, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
                 }
                 //
                 // ----- Do not allow blank message - if still nothing, create default

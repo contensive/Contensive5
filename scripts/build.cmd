@@ -99,7 +99,7 @@ rd /s /q  "..\source\taskservice\obj"
 
 del /q "..\WebDeploymentPackage\*.*"
 
-pause
+rem pause
 
 rem ==============================================================
 rem
@@ -136,7 +136,7 @@ if errorlevel 1 (
 
 cd ..\scripts
 
-pause
+rem pause
 
 rem ==============================================================
 rem
@@ -158,7 +158,7 @@ xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber
 
 cd ..\scripts
 
-pause
+rem pause
 
 rem ==============================================================
 rem
@@ -213,7 +213,7 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
-pause
+rem pause
 
 
 rem ==============================================================
@@ -249,7 +249,7 @@ nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %Nu
 nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
-pause
+rem pause
 
 rem ==============================================================
 rem
@@ -268,7 +268,7 @@ xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
 
 cd ..\scripts
 
-pause
+rem pause
 
 rem ==============================================================
 rem
@@ -289,11 +289,11 @@ nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %Nu
 nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
-pause
+rem pause
 
 rem ==============================================================
 rem
 rem done
 rem
 
-pause
+rem pause

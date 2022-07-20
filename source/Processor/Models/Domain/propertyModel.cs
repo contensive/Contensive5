@@ -41,10 +41,10 @@ namespace Contensive.Processor.Models.Domain {
         //
         //
         // todo change array to dictionary
-        private string[,] propertyCache;
+        private string[,] localCache;
         private KeyPtrController propertyCache_nameIndex;
-        private bool propertyCacheLoaded = false;
-        private int propertyCacheCnt;
+        private bool localCacheLoaded = false;
+        private int localCacheCnt;
         //
         //==============================================================================================
         /// <summary>
@@ -69,7 +69,7 @@ namespace Contensive.Processor.Models.Domain {
         /// clear a value from the database
         /// </summary>
         /// <param name="key"></param>
-        public void clearProperty( string key ) {
+        public void clearProperty(string key) {
             if (string.IsNullOrWhiteSpace(key)) { return; }
             if (propertyKeyId <= 0) { return; }
             //
@@ -140,48 +140,52 @@ namespace Contensive.Processor.Models.Domain {
         public void setProperty(string propertyName, string propertyValue, int keyId) {
             try {
                 if (propertyKeyId <= 0) { return; }
-                if (!propertyCacheLoaded) {
-                    loadFromDb(keyId);
-                }
+                if (!localCacheLoaded) { loadLocalCache(keyId); }
                 int Ptr = -1;
-                if (propertyCacheCnt > 0) { Ptr = propertyCache_nameIndex.getPtr(propertyName); }
+                if (localCacheCnt > 0) { Ptr = propertyCache_nameIndex.getPtr(propertyName); }
                 if (Ptr < 0) {
-                    Ptr = propertyCacheCnt;
-                    propertyCacheCnt += 1;
+                    //
+                    // -- cache miss, create new property
+                    Ptr = localCacheCnt;
+                    localCacheCnt += 1;
                     string[,] tempVar = new string[3, Ptr + 1];
-                    if (propertyCache != null) {
-                        for (int Dimension0 = 0; Dimension0 < propertyCache.GetLength(0); Dimension0++) {
-                            int CopyLength = Math.Min(propertyCache.GetLength(1), tempVar.GetLength(1));
+                    if (localCache != null) {
+                        for (int Dimension0 = 0; Dimension0 < localCache.GetLength(0); Dimension0++) {
+                            int CopyLength = Math.Min(localCache.GetLength(1), tempVar.GetLength(1));
                             for (int Dimension1 = 0; Dimension1 < CopyLength; Dimension1++) {
-                                tempVar[Dimension0, Dimension1] = propertyCache[Dimension0, Dimension1];
+                                tempVar[Dimension0, Dimension1] = localCache[Dimension0, Dimension1];
                             }
                         }
                     }
-                    propertyCache = tempVar;
-                    propertyCache[0, Ptr] = propertyName;
-                    propertyCache[1, Ptr] = propertyValue;
+                    localCache = tempVar;
+                    localCache[0, Ptr] = propertyName;
+                    localCache[1, Ptr] = propertyValue;
                     propertyCache_nameIndex.setPtr(propertyName, Ptr);
                     //
                     // insert a new property record, get the ID back and save it in cache
                     //
                     using (var csData = new CsModel(core)) {
                         if (csData.insert("Properties")) {
-                            propertyCache[2, Ptr] = csData.getText("ID");
+                            localCache[2, Ptr] = csData.getText("ID");
                             csData.set("name", propertyName);
                             csData.set("FieldValue", propertyValue);
                             csData.set("TypeID", (int)propertyType);
                             csData.set("KeyID", keyId.ToString());
                         }
                     }
-                } else if (propertyCache[1, Ptr] != propertyValue) {
-                    propertyCache[1, Ptr] = propertyValue;
-                    int RecordId = GenericController.encodeInteger(propertyCache[2, Ptr]);
-                    string SQLNow = DbController.encodeSQLDate(core.dateTimeNowMockable);
-                    //
-                    // save the value in the property that was found
-                    //
-                    core.db.executeNonQuery("update ccProperties set FieldValue=" + DbController.encodeSQLText(propertyValue) + ",ModifiedDate=" + SQLNow + " where id=" + RecordId);
+                    return;
                 }
+                //
+                // -- cache hit, return if no change
+                if (localCache[1, Ptr] == propertyValue) { return; }
+                //
+                // -- cache hit, property changed
+                localCache[1, Ptr] = propertyValue;
+                //
+                // -- save to db
+                int RecordId = GenericController.encodeInteger(localCache[2, Ptr]);
+                string SQLNow = DbController.encodeSQLDate(core.dateTimeNowMockable);
+                core.db.executeNonQuery("update ccProperties set FieldValue=" + DbController.encodeSQLText(propertyValue) + ",ModifiedDate=" + SQLNow + " where id=" + RecordId);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -309,14 +313,14 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 if (propertyKeyId <= 0) { return ""; }
                 //
-                if (!propertyCacheLoaded) { loadFromDb(keyId); }
+                if (!localCacheLoaded) { loadLocalCache(keyId); }
                 //
                 int Ptr = -1;
                 bool Found = false;
-                if (propertyCacheCnt > 0) {
+                if (localCacheCnt > 0) {
                     Ptr = propertyCache_nameIndex.getPtr(propertyName);
                     if (Ptr >= 0) {
-                        returnString = encodeText(propertyCache[1, Ptr]);
+                        returnString = encodeText(localCache[1, Ptr]);
                         Found = true;
                     }
                 }
@@ -347,28 +351,28 @@ namespace Contensive.Processor.Models.Domain {
         /// 
         /// </summary>
         /// <param name="keyId"></param>
-        private void loadFromDb(int keyId) {
+        private void loadLocalCache(int keyId) {
             try {
                 if (keyId <= 0) { return; }
                 //
                 propertyCache_nameIndex = new KeyPtrController();
-                propertyCacheCnt = 0;
+                localCacheCnt = 0;
                 //
                 using (DataTable dt = core.db.executeQuery("select Name,FieldValue,ID from ccProperties where (active<>0)and(TypeID=" + (int)propertyType + ")and(KeyID=" + keyId + ")")) {
                     if (dt.Rows.Count > 0) {
-                        propertyCache = new string[3, dt.Rows.Count];
+                        localCache = new string[3, dt.Rows.Count];
                         foreach (DataRow dr in dt.Rows) {
                             string Name = GenericController.encodeText(dr[0]);
-                            propertyCache[0, propertyCacheCnt] = Name;
-                            propertyCache[1, propertyCacheCnt] = GenericController.encodeText(dr[1]);
-                            propertyCache[2, propertyCacheCnt] = GenericController.encodeInteger(dr[2]).ToString();
-                            propertyCache_nameIndex.setPtr(Name.ToLowerInvariant(), propertyCacheCnt);
-                            propertyCacheCnt += 1;
+                            localCache[0, localCacheCnt] = Name;
+                            localCache[1, localCacheCnt] = GenericController.encodeText(dr[1]);
+                            localCache[2, localCacheCnt] = GenericController.encodeInteger(dr[2]).ToString();
+                            propertyCache_nameIndex.setPtr(Name.ToLowerInvariant(), localCacheCnt);
+                            localCacheCnt += 1;
                         }
-                        propertyCacheCnt = dt.Rows.Count;
+                        localCacheCnt = dt.Rows.Count;
                     }
                 }
-                propertyCacheLoaded = true;
+                localCacheLoaded = true;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

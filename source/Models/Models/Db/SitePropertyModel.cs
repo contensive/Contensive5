@@ -28,34 +28,31 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         /// <remarks></remarks>
         public static string getValue(CPBaseClass cp, string PropertyName, ref bool return_propertyFound) {
-            string returnString = "";
             try {
                 using (DataTable dt = cp.Db.ExecuteQuery("select FieldValue from ccSetup where (active>0)and(name=" + cp.Db.EncodeSQLText(PropertyName) + ") order by id")) {
                     if (dt.Rows.Count > 0) {
-                        returnString = cp.Utils.EncodeText(dt.Rows[0]["FieldValue"]);
                         return_propertyFound = true;
-                    } else {
-                        returnString = "";
-                        return_propertyFound = false;
+                        return cp.Utils.EncodeText(dt.Rows[0]["FieldValue"]);
                     }
+                    return_propertyFound = false;
+                    return "";
                 }
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
-            return returnString;
         }
         //
         //====================================================================================================
         //
         public static Dictionary<string, string> getNameValueDict(CPBaseClass cp) {
             var result = new Dictionary<string, string>();
-            using( DataTable dt = cp.Db.ExecuteQuery("select name,FieldValue from ccsetup where (active>0) order by id")) {
-                foreach( DataRow row in dt.Rows ) {
+            using (DataTable dt = cp.Db.ExecuteQuery("select name,FieldValue from ccsetup where (active>0) order by name")) {
+                foreach (DataRow row in dt.Rows) {
                     string name = row["name"].ToString().Trim().ToLowerInvariant();
                     if (!string.IsNullOrEmpty(name)) {
                         if (!result.ContainsKey(name)) {
-                            result.Add(name, row["FieldValue"].ToString() );
+                            result.Add(name, row["FieldValue"].ToString());
                         }
                     }
                 }

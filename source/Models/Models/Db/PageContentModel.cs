@@ -75,7 +75,7 @@ namespace Contensive.Models.Db {
         public int triggerConditionId { get; set; }
         public int triggerRemoveGroupId { get; set; }
         public int triggerSendSystemEmailId { get; set; }
-        public int viewings { get; set; }
+        [Obsolete("deprecated, cached, track externally",false)] public int viewings { get; set; }
         public string link { get; set; }
         //
         //====================================================================================================

@@ -106,8 +106,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="message"></param>
         /// <param name="level"></param>
         public static void log(CoreController core, string message, BaseClasses.CPLogBaseClass.LogLevel level) {
-            string messageLine = processLogMessage(core, message, level >= BaseClasses.CPLogBaseClass.LogLevel.Warn);
-            logger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
+            try {
+                string messageLine = processLogMessage(core, message, level >= BaseClasses.CPLogBaseClass.LogLevel.Warn);
+                logger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
+            } catch (Exception) {
+                // -- throw away errors in error-handling
+            }
         }
         //
         //=============================================================================

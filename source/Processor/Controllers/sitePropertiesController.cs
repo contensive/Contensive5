@@ -664,13 +664,9 @@ namespace Contensive.Processor.Controllers {
         //
         internal Dictionary<string, string> nameValueDict {
             get {
-                if (dbNotReady) {
-                    throw new GenericException("Cannot access site property collection if database is not ready.");
-                } else {
-                    if (_nameValueDict == null) {
-                        _nameValueDict = SitePropertyModel.getNameValueDict(core.cpParent);
-                    }
-                }
+                if (dbNotReady) { throw new GenericException("Cannot access site property collection if database is not ready.");}
+                if (_nameValueDict != null) { return _nameValueDict; }
+                _nameValueDict = SitePropertyModel.getNameValueDict(core.cpParent);
                 return _nameValueDict;
             }
         }
