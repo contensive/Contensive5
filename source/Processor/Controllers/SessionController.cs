@@ -943,8 +943,9 @@ namespace Contensive.Processor.Controllers {
         public static bool authenticateById(CoreController core, int userId, SessionController authContext, bool requestUserAutoLogin) {
             try {
                 //
-                LogController.logTrace(core, "SessionController.authenticateById, enter");
+                LogController.logTrace(core, "SessionController.authenticateById, enter, userid [" + userId + "]");
                 //
+                if (userId == 0) { return false; }
                 if (!recognizeById(core, userId, authContext, requestUserAutoLogin)) {
                     //
                     // -- pause to make brute force attempt for expensive

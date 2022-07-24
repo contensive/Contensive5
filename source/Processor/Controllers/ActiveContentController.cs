@@ -1281,25 +1281,27 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// render active content for an email
+        /// render active content for an email. if user is invalid, original source is returned
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="Source"></param>
+        /// <param name="source"></param>
         /// <param name="sendToPersonId"></param>
         /// <param name="queryStringForLinkAppend"></param>
         /// <returns></returns>
-        public static string renderHtmlForEmail(CoreController core, string Source, int sendToPersonId, string queryStringForLinkAppend, bool addLinkAuthToAllLinks) {
-            string result = Source;
+        public static string renderHtmlForEmail(CoreController core, string source, int sendToPersonId, string queryStringForLinkAppend, bool addLinkAuthToAllLinks) {
             //
             // -- create new session context for this user and queue the email.
-            //using (CPClass cp = new CPClass(core.appConfig.name, core.serverConfig)) {
-            using (CPClass cp = new CPClass(core.appConfig.name)) {
-                if (cp.User.LoginByID(sendToPersonId)) {
-                    result = ContentCmdController.executeContentCommands(cp.core, result, CPUtilsClass.addonContext.ContextEmail);
-                    result = encode(cp.core, result, sendToPersonId, "", 0, 0, false, addLinkAuthToAllLinks, true, true, false, true, queryStringForLinkAppend, "", true, CPUtilsBaseClass.addonContext.ContextEmail, true, false);
+            using (CPClass cp = new(core.appConfig.name)) {
+                //
+                // -- if user is valid, attempt to authenticate, else leave as guest
+                if (sendToPersonId > 0) {
+                    core.session.authenticateById(sendToPersonId, core.session);
                 }
+                //
+                string result = ContentCmdController.executeContentCommands(cp.core, source, CPUtilsBaseClass.addonContext.ContextEmail);
+                result = encode(cp.core, result, sendToPersonId, "", 0, 0, false, addLinkAuthToAllLinks, true, true, false, true, queryStringForLinkAppend, "", true, CPUtilsBaseClass.addonContext.ContextEmail, true, false);
+                return result;
             };
-            return result;
         }
         //
         //====================================================================================================
