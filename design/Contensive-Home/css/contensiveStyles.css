@@ -6,7 +6,12 @@ body p {
   font-size: 14px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: #223192;
   font-family: "Poppins", sans-serif;
   font-weight: bold;
@@ -266,59 +271,70 @@ hr {
 }
 
 @media (min-width: 576px) {
-  .process, .recent {
-    margin-left: 0px !important;
+  .process,
+.recent {
+    margin-left: 0 !important;
     position: relative;
     left: 3em;
   }
 }
 @media (min-width: 700px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 6em;
   }
 }
 @media (min-width: 820px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 7em;
   }
 }
 @media (min-width: 1024px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 8em;
   }
 }
 @media (min-width: 1200px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 9em;
   }
 }
 @media (min-width: 1368px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 10em;
   }
 }
 @media (min-width: 1400px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 17em;
   }
 }
 @media (min-width: 1500px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 18em;
   }
 }
 @media (min-width: 1620px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 19em;
   }
 }
 @media (min-width: 1720px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 20em;
   }
 }
 @media (min-width: 1920px) {
-  .process, .recent {
+  .process,
+.recent {
     left: 22em;
   }
 }
@@ -335,6 +351,18 @@ hr {
 }
 #owl-carousel .owl-stage {
   display: flex;
+}
+#owl-carousel .owl-nav button {
+  padding: 0 15px;
+  border-radius: 60px !important;
+  margin: 2px;
+}
+#owl-carousel .owl-nav button span {
+  font-size: 25px;
+  font-family: "Font Awesome 6 Brands";
+  font-weight: 600;
+  position: relative;
+  bottom: 2px;
 }
 
 .processSlider {
@@ -462,9 +490,6 @@ hr {
   display: flex;
   align-items: center;
 }
-#owlApp .owl-dots, #owlApp .owl-nav {
-  display: none !important;
-}
 
 @media (min-width: 1024px) {
   .section-bg #circle3 {
@@ -511,9 +536,7 @@ hr {
   border-radius: 16px;
   height: 150px;
   font-size: 14px;
-  padding: 10px;
-  padding-right: calc(var(--bs-gutter-x) * 0.5);
-  padding-left: calc(var(--bs-gutter-x) * 0.5);
+  padding: 10px calc(var(--bs-gutter-x) * 0.5);
 }
 .exp-bg.exp-bg2 {
   background-color: #CCE6FF !important;
@@ -522,7 +545,7 @@ hr {
 .displayNumber {
   font-size: 36px;
   color: #223192;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 #circle4 {
@@ -622,8 +645,7 @@ hr {
   }
 }
 footer {
-  position: relative;
-  bottom: 40px;
+  margin-top: 40px;
 }
 footer .container {
   margin-bottom: -200px;
@@ -634,7 +656,7 @@ footer .card {
   position: relative;
   z-index: 99;
 }
-footer .card input.form-control {
+footer .card input.form-control, footer .card textarea {
   background-color: #F6F7FC !important;
   font-family: "Poppins", sans-serif;
   border-radius: 8px;
@@ -657,7 +679,8 @@ footer #footer-bg {
   top: 5em;
   margin-bottom: -32px;
 }
-footer #footer-bg h6, footer #footer-bg p {
+footer #footer-bg h6,
+footer #footer-bg p {
   color: white;
 }
 footer #footer-bg .footer-info {
@@ -669,7 +692,7 @@ footer .copyright {
   color: white;
   position: relative;
   top: 6em;
-  padding: 14px 0px;
+  padding: 14px 0;
 }
 footer .socialIcons {
   color: #CCE6FF;
@@ -717,14 +740,9 @@ footer #owl-client .item img.w-change {
     margin-bottom: -275px;
   }
 }
-@media (min-width: 500px) {
-  footer .container {
-    margin-top: -325px;
-  }
-}
 @media (min-width: 572px) {
   footer .container {
-    margin-top: 0px;
+    margin-top: 0;
   }
 }
 
