@@ -1295,7 +1295,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- if user is valid, attempt to authenticate, else leave as guest
                 if (sendToPersonId > 0) {
-                    core.session.authenticateById(sendToPersonId, core.session);
+                    cp.core.session.authenticateById(sendToPersonId, cp.core.session);
                 }
                 //
                 string result = ContentCmdController.executeContentCommands(cp.core, source, CPUtilsBaseClass.addonContext.ContextEmail);
