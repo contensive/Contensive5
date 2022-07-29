@@ -1108,19 +1108,23 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isEditing() {
             try {
-                //
-                LogController.logTrace(core, "SessionController.isEditing");
+                if (isEditingLocal != null) { return (bool)isEditingLocal;  }
                 //
                 // -- return true if admin and editing is turned on
-                if (!isAuthenticated) { return false; }
+                if (!isAuthenticated) {
+                    isEditingLocal = false;
+                    return false; 
+                }
                 bool editingSiteProperty = core.visitProperty.getBoolean("AllowEditing") || core.visitProperty.getBoolean("AllowAdvancedEditor");
-                if (!editingSiteProperty) { return false; }
-                return editingSiteProperty && (core.session.user.admin || core.session.user.developer);
+                //if (!editingSiteProperty) { return false; }
+                isEditingLocal = editingSiteProperty && (core.session.user.admin || core.session.user.developer);
+                return (bool)isEditingLocal;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
         }
+        private bool? isEditingLocal = null;
         //
         //========================================================================
         /// <summary>

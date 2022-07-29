@@ -402,10 +402,19 @@ div.ccDialogPageNotFound {
 .ccEditWrapper .ccChildList li {
     border: 1px dashed #262;
 }
-/*1468*/
+/*
+for hints created with getAdminHintWrapper
+*/
+.ccHintWrapper {
+    border: 1px dashed #808080;
+    margin-bottom: 10px
+}
 
-
-/*1551*/
+.ccHintWrapperContent {
+    padding: 10px;
+    background-color: #80E080;
+    color: black;
+}
 /*
 * pagemanager quick edit mode
 */
