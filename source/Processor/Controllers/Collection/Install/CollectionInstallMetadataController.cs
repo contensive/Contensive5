@@ -238,6 +238,7 @@ namespace Contensive.Processor.Controllers {
                                             metaDataField.set_manyToManyRuleContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyRuleContent", DefaultMetaDataField.get_manyToManyRuleContentName(core)));
                                             metaDataField.isModifiedSinceInstalled = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "IsModified", DefaultMetaDataField.isModifiedSinceInstalled);
                                             metaDataField.installedByCollectionGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "installedByCollectionId", DefaultMetaDataField.installedByCollectionGuid);
+                                            metaDataField.editorAddonGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "editorAddonId", DefaultMetaDataField.editorAddonGuid);
                                             metaDataField.id = DbController.getContentFieldId(core, targetMetaData.id, metaDataField.nameLc);
                                             metaDataField.dataChanged = setAllDataChanged;
                                             //

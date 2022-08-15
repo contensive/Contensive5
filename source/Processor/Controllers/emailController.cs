@@ -1,9 +1,11 @@
 ﻿
+using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Exceptions;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -19,21 +21,95 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class EmailController {
         //
-        private const string emailBlockListFilename = "Config\\SMTPBlockList.txt";
+        //====================================================================================================
+        //
+        public static void unblockEmailAddress(CoreController core, string recipientRawEmail) {
+            if (string.IsNullOrEmpty(recipientRawEmail)) { return; }
+            string recipientSimpleEmail = EmailController.getSimpleEmailFromFriendlyEmail(core.cpParent, recipientRawEmail);
+            List<PersonModel> recipientList = DbBaseModel.createList<PersonModel>(core.cpParent, "(email=" + DbController.encodeSQLText(recipientSimpleEmail) + ")");
+            foreach (var recipient in recipientList) {
+                //
+                // -- mark the person blocked
+                recipient.allowBulkEmail = true;
+                recipient.save(core.cpParent, 0);
+                //
+                // -- add to block list
+                removeFromBlockList(core, recipientSimpleEmail);
+                {
+                    //
+                    // -- email log and activity log for ad-hack email
+                    EmailLogModel log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
+                    log.name = "User " + recipient.name + ", email " + recipientSimpleEmail + " unblocked at " + core.doc.profileStartTime.ToString();
+                    log.emailDropId = 0;
+                    log.emailId = 0;
+                    log.memberId = recipient.id;
+                    log.logType = EmailLogTypeBlockRequest;
+                    log.visitId = core.cpParent.Visit.Id;
+                    log.save(core.cpParent);
+                    //
+                    LogController.addActivityCompleted(core, "Email unblocked", log.name, recipient.id, 1);
+                }
+            }
+        }
         //
         //====================================================================================================
+        //
         /// <summary>
-        /// return list of emails that should be blocked. format: email - tab - dateBlocked - newLine
+        /// Block an email address - adding to block list and block all matching users
         /// </summary>
         /// <param name="core"></param>
-        /// <returns></returns>
-        public static string getBlockList(CoreController core) {
-            if (!core.doc.emailBlockListStoreLoaded) {
-                core.doc.emailBlockListStore = core.privateFiles.readFileText(emailBlockListFilename);
-                core.doc.emailBlockListStoreLoaded = true;
+        /// <param name="emailAddress"></param>
+        public static void blockEmailAddress(CoreController core, string recipientRawEmail, int emailDropId) {
+            if (string.IsNullOrEmpty(recipientRawEmail)) { return; }
+            string recipientSimpleEmail = EmailController.getSimpleEmailFromFriendlyEmail(core.cpParent, recipientRawEmail);
+            List<PersonModel> recipientList = DbBaseModel.createList<PersonModel>(core.cpParent, "(email=" + DbController.encodeSQLText(recipientSimpleEmail) + ")");
+            foreach (var recipient in recipientList) {
+                //
+                // -- mark the person blocked
+                recipient.allowBulkEmail = false;
+                recipient.save(core.cpParent, 0);
+                //
+                // -- add to block list
+                addToBlockList(core, recipientSimpleEmail);
+                //
+                // -- log entry
+                if (emailDropId != 0) {
+                    //
+                    // -- email log and activity log for email-drop
+                    EmailDropModel emailDrop = DbBaseModel.create<EmailDropModel>(core.cpParent, emailDropId);
+                    if (emailDrop != null) {
+                        EmailLogModel log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
+                        log.name = "User " + recipient.name + ", email " + recipientSimpleEmail + " clicked linked spam block from email drop " + emailDrop.name + " at " + core.doc.profileStartTime.ToString();
+                        log.emailDropId = emailDrop.id;
+                        log.emailId = emailDrop.emailId;
+                        log.memberId = recipient.id;
+                        log.logType = EmailLogTypeBlockRequest;
+                        log.visitId = core.cpParent.Visit.Id;
+                        log.save(core.cpParent);
+                        //
+                        LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, 1);
+                        return;
+                    }
+                }
+                {
+                    //
+                    // -- email log and activity log for ad-hack email
+                    EmailLogModel log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
+                    log.name = "User " + recipient.name + ", email " + recipientSimpleEmail + " clicked linked spam block from ad-hoc email at " + core.doc.profileStartTime.ToString();
+                    log.emailDropId = 0;
+                    log.emailId = 0;
+                    log.memberId = recipient.id;
+                    log.logType = EmailLogTypeBlockRequest;
+                    log.visitId = core.cpParent.Visit.Id;
+                    log.save(core.cpParent);
+                    //
+                    LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, 1);
+                }
             }
-            return core.doc.emailBlockListStore;
-            //
+        }
+        //
+        public static void blockEmailAddress(CoreController core, string recipientRawEmail) {
+            blockEmailAddress(core, recipientRawEmail, 0);
         }
         //
         //====================================================================================================
@@ -41,10 +117,13 @@ namespace Contensive.Processor.Controllers {
         /// true if the email is on the blocked list
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="emailAddress"></param>
+        /// <param name="friendlyEmailAddress"></param>
         /// <returns></returns>
-        public static bool isOnBlockedList(CoreController core, string emailAddress) {
-            return (getBlockList(core).IndexOf(Environment.NewLine + emailAddress + "\t", StringComparison.CurrentCultureIgnoreCase) >= 0);
+        public static bool isOnBlockedList(CoreController core, string friendlyEmailAddress) {
+            string simpleEmailAddress = getSimpleEmailFromFriendlyEmail(core.cpParent, friendlyEmailAddress);
+            using DataTable dt = core.db.executeQuery("select top 1 id from emailbouncelist where email=" + DbController.encodeSQLText(simpleEmailAddress));
+            if ((dt?.Rows == null) || (dt.Rows.Count == 0)) { return false; }
+            return true;
         }
         //
         //====================================================================================================
@@ -52,25 +131,35 @@ namespace Contensive.Processor.Controllers {
         /// Add to block list
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="EmailAddress"></param>
-        public static void addToBlockList(CoreController core, string EmailAddress) {
-            var blockList = getBlockList(core);
-            if (!verifyEmailAddress(core, EmailAddress)) {
-                //
-                // bad email address
-                //
-            } else if (isOnBlockedList(core, EmailAddress)) {
-                //
-                // They are already in the list
-                //
-            } else {
-                //
-                // add them to the list
-                //
-                core.doc.emailBlockListStore = blockList + Environment.NewLine + EmailAddress + "\t" + core.dateTimeNowMockable;
-                core.privateFiles.saveFile(emailBlockListFilename, core.doc.emailBlockListStore);
-                core.doc.emailBlockListStoreLoaded = false;
-            }
+        /// <param name="friendlyEmailAddress"></param>
+        public static void removeFromBlockList(CoreController core, string friendlyEmailAddress) {
+            string simpleEmailAddress = getSimpleEmailFromFriendlyEmail(core.cpParent, friendlyEmailAddress);
+            if (string.IsNullOrEmpty(simpleEmailAddress)) { return; }
+            if (!verifyEmailAddress(core, simpleEmailAddress)) { return; }
+            if (!isOnBlockedList(core, simpleEmailAddress)) { return; }
+            //
+            // -- remove them to the list
+            core.db.executeNonQuery("delete from emailbouncelist where email=" + DbController.encodeSQLText(simpleEmailAddress));
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Add to block list
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="friendlyEmailAddress"></param>
+        public static void addToBlockList(CoreController core, string friendlyEmailAddress) {
+            string simpleEmailAddress = getSimpleEmailFromFriendlyEmail(core.cpParent, friendlyEmailAddress);
+            if (string.IsNullOrEmpty(simpleEmailAddress)) { return; }
+            if (!verifyEmailAddress(core, simpleEmailAddress)) { return; }
+            if (isOnBlockedList(core, simpleEmailAddress)) { return; }
+            //
+            // -- add them to the list
+            EmailBounceListModel block = DbBaseModel.addDefault<EmailBounceListModel>(core.cpParent);
+            block.details = DateTime.Now.ToString() + " user requested email block, type: Permanent";
+            block.name = friendlyEmailAddress;
+            block.email = simpleEmailAddress;
+            block.save(core.cpParent);
         }
         //
         //====================================================================================================
@@ -153,7 +242,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     returnSendStatus = "Email not sent because the from-address is not valid.";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                } else if (0 != GenericController.strInstr(1, getBlockList(core), Environment.NewLine + toAddress + Environment.NewLine, 1)) {
+                } else if (isOnBlockedList(core, toAddress)) {
                     //
                     returnSendStatus = "Email not sent because the to-address is blocked by this application. See the Blocked Email Report.";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
@@ -237,7 +326,7 @@ namespace Contensive.Processor.Controllers {
                 } else if (!verifyEmailAddress(core, fromAddress)) {
                     //
                     userErrorMessage = "Email not sent because the from-address is not valid.";
-                } else if (0 != GenericController.strInstr(1, getBlockList(core), Environment.NewLine + recipient.email + Environment.NewLine, 1)) {
+                } else if (isOnBlockedList(core, recipient.email)) {
                     //
                     userErrorMessage = "Email not sent because the to-address is blocked by this application. See the Blocked Email Report.";
                 } else {
@@ -861,7 +950,7 @@ namespace Contensive.Processor.Controllers {
                 // -- read back the marked record and if it is there, then no other process is likely looking at it so it can be sent
                 // -- this will help prevent duplicate sends, and if the process aborts, only one queued email per queue will be stuck
                 List<EmailQueueModel> queueSampleList = DbBaseModel.createList<EmailQueueModel>(core.cpParent, "", "immediate,id asc", 100, 1);
-                if(queueSampleList.Count==0) { return; }
+                if (queueSampleList.Count == 0) { return; }
                 //
                 bool sendWithSES = core.siteProperties.getBoolean(Constants.sitePropertyName_SendEmailWithAmazonSES);
                 //
@@ -1435,6 +1524,23 @@ namespace Contensive.Processor.Controllers {
                 LogController.logError(core, ex);
                 throw;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// convert "jay" <jay@contensive.com> to jay@contensive.com
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string getSimpleEmailFromFriendlyEmail(CPBaseClass cp, string source) {
+            string result = source;
+            int posStart = result.IndexOf('<');
+            if (posStart < 0) { return result; }
+            result = result.Substring(posStart + 1);
+            int posEnd = result.IndexOf('>');
+            if (posEnd < 0) { return ""; }
+            return result.Substring(0, posEnd);
         }
         //
         //====================================================================================================

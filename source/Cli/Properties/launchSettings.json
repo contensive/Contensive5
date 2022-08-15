@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-n test220428"
+      "commandLineArgs": "-a menucrm0210 -u"
     }
   }
 }

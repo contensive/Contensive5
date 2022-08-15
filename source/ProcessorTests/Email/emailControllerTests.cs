@@ -14,6 +14,125 @@ namespace Tests {
     public class EmailControllerTests {
         //
         [TestMethod]
+        public void controllers_Email_BlockList_Add() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<EmailBounceListModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
+                // arrange
+                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                // act
+                EmailController.addToBlockList(cp.core, test1);
+                // assert
+                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, test1));
+                Assert.IsFalse(EmailController.isOnBlockedList(cp.core, test2));
+            }
+        }
+        //
+        [TestMethod]
+        public void controllers_Email_BlockList_Remove_test1() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<EmailBounceListModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
+                // arrange
+                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                // act
+                EmailController.addToBlockList(cp.core, test1);
+                EmailController.addToBlockList(cp.core, test2);
+                // assert
+                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, test1));
+                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, test2));
+                //
+                EmailController.removeFromBlockList(cp.core, test1);
+                // assert
+                Assert.IsFalse(EmailController.isOnBlockedList(cp.core, test1));
+                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, test2));
+            }
+        }
+        //
+        [TestMethod]
+        public void controllers_Email_BlockEmail() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<EmailBounceListModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
+                //
+                // arrange
+                string email1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
+                person1.email = email1;
+                person1.allowBulkEmail = true;
+                person1.save(cp);
+                Assert.IsFalse(EmailController.isOnBlockedList(cp.core, email1));
+                //
+                // act
+                EmailController.blockEmailAddress(cp.core, email1);
+                //
+                person1 = DbBaseModel.create<PersonModel>(cp, person1.id);
+                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, email1));
+                Assert.IsFalse(person1.allowBulkEmail);
+            }
+        }
+        //
+        [TestMethod]
+        public void controllers_Email_UnblockEmail() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<EmailBounceListModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
+                //
+                // arrange
+                string email1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
+                person1.email = email1;
+                person1.save(cp);
+                EmailController.blockEmailAddress(cp.core, email1);
+                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, email1));
+                //
+                // act
+                EmailController.unblockEmailAddress(cp.core, email1);
+                //
+                person1 = DbBaseModel.create<PersonModel>(cp, person1.id);
+                Assert.IsFalse(EmailController.isOnBlockedList(cp.core, email1));
+                Assert.IsTrue(person1.allowBulkEmail);
+            }
+        }
+        //
+        [TestMethod]
+        public void controllers_Email_BlockList() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                DbBaseModel.deleteRows<EmailBounceListModel>(cp, "(1=1)");
+                DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+                Assert.AreEqual(0, cp.core.mockEmailList.Count);
+                // arrange
+                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                // act
+                EmailController.addToBlockList(cp.core, test1);
+                // assert
+                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, test1));
+                Assert.IsFalse(EmailController.isOnBlockedList(cp.core, test2));
+            }
+        }
+        //
+        [TestMethod]
+        public void controllers_Email_FriendlyToSimple() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                Assert.AreEqual("friendlyName@contensive.com", EmailController.getSimpleEmailFromFriendlyEmail(cp, "\"friendly name\" <friendlyName@contensive.com>"));
+                Assert.AreEqual("jay@contensive.com", EmailController.getSimpleEmailFromFriendlyEmail(cp, "jay@contensive.com"));
+            }
+        }
+        //
+        [TestMethod]
         public void controllers_Email_createListFromGroupList() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
@@ -47,14 +166,14 @@ namespace Tests {
                 Assert.AreEqual(1, PersonModel.createListFromGroupIdList(cp, new List<int> { group.id, group.id }, false).Count);
                 Assert.AreEqual(0, PersonModel.createListFromGroupIdList(cp, new List<int> { }, false).Count);
                 Assert.AreEqual(0, PersonModel.createListFromGroupIdList(cp, new List<int> { 0 }, false).Count);
-                Assert.AreEqual(0, PersonModel.createListFromGroupIdList(cp, new List<int> { 0,0 }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupIdList(cp, new List<int> { 0, 0 }, false).Count);
                 Assert.AreEqual(1, PersonModel.createListFromGroupIdList(cp, new List<int> { 0, group.id, 0 }, false).Count);
                 //
                 Assert.AreEqual(1, PersonModel.createListFromGroupNameList(cp, new List<string> { group.name }, false).Count);
                 Assert.AreEqual(1, PersonModel.createListFromGroupNameList(cp, new List<string> { group.name, group.name }, false).Count);
                 Assert.AreEqual(0, PersonModel.createListFromGroupNameList(cp, new List<string> { }, false).Count);
                 Assert.AreEqual(0, PersonModel.createListFromGroupNameList(cp, new List<string> { "" }, false).Count);
-                Assert.AreEqual(0, PersonModel.createListFromGroupNameList(cp, new List<string> { "","" }, false).Count);
+                Assert.AreEqual(0, PersonModel.createListFromGroupNameList(cp, new List<string> { "", "" }, false).Count);
                 Assert.AreEqual(1, PersonModel.createListFromGroupNameList(cp, new List<string> { "", group.name, "" }, false).Count);
             }
         }
@@ -105,7 +224,7 @@ namespace Tests {
                 // -- setup email-group, associating this email to the 
                 EmailGroupModel rule = DbBaseModel.addDefault<EmailGroupModel>(cp);
                 rule.emailId = email.id;
-                rule.groupId = group.id;                    
+                rule.groupId = group.id;
                 rule.save(cp);
                 //
                 // act/asset
@@ -146,28 +265,6 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
-            }
-        }
-        //
-        [TestMethod]
-        public void controllers_Email_GetBlockedList_test1() {
-            using (CPClass cp = new(testAppName)) {
-                cp.core.mockEmail = true;
-                DbBaseModel.deleteRows<SystemEmailModel>(cp, "(1=1)");
-                DbBaseModel.deleteRows<ConditionalEmailModel>(cp, "(1=1)");
-                DbBaseModel.deleteRows<GroupEmailModel>(cp, "(1=1)");
-                DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
-                DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
-                Assert.AreEqual(0, cp.core.mockEmailList.Count);
-                // arrange
-                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                // act
-                EmailController.addToBlockList(cp.core, test1);
-                string blockList = Contensive.Processor.Controllers.EmailController.getBlockList(cp.core);
-                // assert
-                Assert.IsTrue(EmailController.isOnBlockedList(cp.core, test1));
-                Assert.IsFalse(EmailController.isOnBlockedList(cp.core, test2));
             }
         }
         //
@@ -265,7 +362,7 @@ namespace Tests {
             int posStart = FriendlyEmailAddress.IndexOf('<');
             int posEnd = FriendlyEmailAddress.IndexOf('>');
             if (posStart > posEnd) return FriendlyEmailAddress;
-            return FriendlyEmailAddress.Substring(posStart + 1, posEnd - posStart-1);
+            return FriendlyEmailAddress.Substring(posStart + 1, posEnd - posStart - 1);
 
         }
         //
@@ -328,11 +425,11 @@ namespace Tests {
                 // assert 2 emails, first the confirmation, then to-address
                 Assert.AreEqual(2, cp.core.mockEmailList.Count);
                 int foundCnt = 0;
-                foreach ( var sentEmail in cp.core.mockEmailList) {
+                foreach (var sentEmail in cp.core.mockEmailList) {
                     {
                         //
                         // -- the confirmationl
-                        if (confirmPerson.email== getEmailPart(sentEmail.email.toAddress)) {
+                        if (confirmPerson.email == getEmailPart(sentEmail.email.toAddress)) {
                             foundCnt++;
                             Assert.AreEqual(confirmPerson.email, getEmailPart(sentEmail.email.toAddress));
                             Assert.AreEqual(systemEmail.fromAddress, getEmailPart(sentEmail.email.fromAddress));

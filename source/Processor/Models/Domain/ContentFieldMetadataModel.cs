@@ -41,6 +41,7 @@ namespace Contensive.Processor.Models.Domain {
                 indexSortOrder = 0,
                 indexWidth = "",
                 installedByCollectionGuid = "",
+                editorAddonGuid = "",
                 isBaseField = false,
                 lookupContentId = 0,
                 lookupList = "",
@@ -65,6 +66,8 @@ namespace Contensive.Processor.Models.Domain {
             fieldMeta.set_manyToManyRuleContentName(core, "");
             return fieldMeta;
         }
+        //
+        public string editorAddonGuid { get; set; }
         //
         //====================================================================================================
         /// <summary>

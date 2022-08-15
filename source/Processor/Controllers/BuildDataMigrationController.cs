@@ -353,6 +353,22 @@ namespace Contensive.Processor.Controllers {
                             cp.Db.ExecuteNonQuery("DROP INDEX IF EXISTS [" + tableName + "$" + tableName + "EditsourceID] ON [" + tableName + "]");
                         }
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "22.8.12.1")) {
+                        //
+                        // -- import old smtp bounce list and update emailBounceList table
+                        string blockList = core.privateFiles.readFileText("Config\\SMTPBlockList.txt");
+                        blockList += core.cdnFiles.readFileText("Config\\SMTPBlockList_" + core.appConfig.name + ".txt");
+                        foreach (var row in  blockList.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)) {
+                            string[] rowParts = row.Split('\t');
+                            var record = DbBaseModel.addDefault<EmailBounceListModel>(cp);
+                            record.name = rowParts[0];
+                            record.email = EmailController.getSimpleEmailFromFriendlyEmail(cp,record.name);
+                            record.details = rowParts[1] + ", user requested to be unsubscribed."; 
+                            record.save(cp);
+                        }
+                        core.privateFiles.renameFile("Config\\SMTPBlockList.txt", "Config\\Legacy_SMTPBlockList.txt");
+                        core.cdnFiles.renameFile("Config\\SMTPBlockList_" + core.appConfig.name + ".txt", "Config\\Legacy_SMTPBlockList_" + core.appConfig.name + ".txt");
+                    }
                 }
                 // -- Reload
                 core.cache.invalidateAll();

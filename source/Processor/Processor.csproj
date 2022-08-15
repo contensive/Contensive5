@@ -20,7 +20,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>signingKey.snk</AssemblyOriginatorKeyFile>
     <PackageId>Contensive.Processor</PackageId>
-    <Version>20.1.1.1</Version>
+    <Version>22.8.14.1</Version>
     <Authors>Contensive</Authors>
     <Product>Contensive Processor</Product>
     <Description>This package installs the library files required to create an instance of cp within an application.</Description>

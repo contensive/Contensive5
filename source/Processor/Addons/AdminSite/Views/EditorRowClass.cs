@@ -107,16 +107,26 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
                 hint = 300;
-                string EditorString = "";
-                bool editorReadOnly = (editorEnv.record_readOnly || field.readOnly || (editRecord.id != 0 && field.notEditable) || (fieldForceReadOnly));
+                //
+                // -- determine custom editor addon
                 AddonModel editorAddon = null;
-                int fieldTypeDefaultEditorAddonId = 0;
+                if (!string.IsNullOrEmpty(field.editorAddonGuid)) {
+                    //
+                    // -- set editor from field
+                    editorAddon = DbBaseModel.create<AddonModel>(core.cpParent, field.editorAddonGuid);
+                }
                 var fieldEditor = adminData.fieldTypeEditors.Find(x => (x.fieldTypeId == (int)field.fieldTypeId));
                 if (fieldEditor != null) {
-                    fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
+                    //
+                    // -- set editor from field type
+                    int fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
                     editorAddon = DbBaseModel.create<AddonModel>(core.cpParent, fieldTypeDefaultEditorAddonId);
                 }
+                //
+                // -- create editor: custom, read-only, editable
                 bool useEditorAddon = false;
+                string EditorString = "";
+                bool editorReadOnly = (editorEnv.record_readOnly || field.readOnly || (editRecord.id != 0 && field.notEditable) || (fieldForceReadOnly));
                 if (editorAddon != null) {
                     hint = 400;
                     //
@@ -124,6 +134,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // ----- Custom Editor
                     //--------------------------------------------------------------------------------------------
                     //
+                    core.docProperties.setProperty("editorRecordId", editRecord.id);
                     core.docProperties.setProperty("editorName", field.nameLc);
                     core.docProperties.setProperty("editorValue", fieldValue_text);
                     core.docProperties.setProperty("editorFieldId", field.id);

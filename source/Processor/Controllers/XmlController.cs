@@ -149,7 +149,7 @@ namespace Contensive.Processor.Controllers {
                     + ",f.EditTab,f.Scramble,f.LookupList,f.NotEditable,f.Password,f.readonly,f.ManyToManyRulePrimaryField"
                     + ",f.ManyToManyRuleSecondaryField,'' as HelpMessageDeprecated,f.ModifiedBy,f.IsBaseField,f.LookupContentID"
                     + ",f.RedirectContentID,f.ManyToManyContentID,f.ManyToManyRuleContentID"
-                    + ",h.helpdefault,h.helpcustom,f.IndexWidth";
+                    + ",h.helpdefault,h.helpcustom,f.IndexWidth,f.editorAddonId,a.ccguid as editorAddonGuid";
 
                 // 
                 bool IsBaseContent;
@@ -182,12 +182,12 @@ namespace Contensive.Processor.Controllers {
                 CPCSBaseClass cs = cp.CSNew();
                 // 
                 iContentName = ContentName;
-                if ( !string.IsNullOrEmpty( iContentName )) {
+                if (!string.IsNullOrEmpty(iContentName)) {
                     sql = "select id from cccontent where name=" + cp.Db.EncodeSQLText(iContentName);
                     if (cs.OpenSQL(sql)) { ContentID = cs.GetInteger("id"); }
                     cs.Close();
                 }
-                if (!string.IsNullOrEmpty(iContentName ) && (ContentID == 0)) {
+                if (!string.IsNullOrEmpty(iContentName) && (ContentID == 0)) {
                     return string.Empty;
                 }
                 {
@@ -343,16 +343,8 @@ namespace Contensive.Processor.Controllers {
                             // 
                             // create output
                             // 
-                            if (ContentID != 0)
-                                sql = "select " + FieldSelectList + ""
-                                    + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id"
-                                    + " where (f.Type<>0)and(f.contentid=" + ContentID + ")"
-                                    + "";
-                            else
-                                sql = "select " + FieldSelectList + ""
-                                + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id"
-                                + " where (f.Type<>0)"
-                                + "";
+                            sql = "select " + FieldSelectList + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id left join ccaggregatefunctions a on a.id=f.editorAddonId where (f.Type<>0)";
+                            if (ContentID != 0) { sql += "and(f.contentid=" + ContentID + ")"; }
                             if (!IncludeBaseFields) { sql += " and ((f.IsBaseField is null)or(f.IsBaseField=0))"; }
                             sql += " order by f.contentid,f.editTab,f.editSortPriority,f.id";
                             using (CPCSBaseClass fieldsCs = cp.CSNew()) {
@@ -402,8 +394,8 @@ namespace Contensive.Processor.Controllers {
                                                 sb.Append(" IndexWidth=\"" + fieldsCs.GetText("IndexWidth") + "\"");
                                                 sb.Append(" RedirectID=\"" + fieldsCs.GetText("RedirectID") + "\"");
                                                 sb.Append(" RedirectPath=\"" + fieldsCs.GetText("RedirectPath") + "\"");
-                                                if (true)
-                                                    sb.Append(" IsBaseField=\"" + fieldsCs.GetBoolean("IsBaseField") + "\"");
+                                                sb.Append(" IsBaseField=\"" + fieldsCs.GetBoolean("IsBaseField") + "\"");
+                                                sb.Append(" EditorAddonId=\"" + fieldsCs.GetText("editorAddonGuid") + "\"");
                                                 // 
                                                 RecordName = "";
                                                 RecordID = fieldsCs.GetInteger("LookupContentID");

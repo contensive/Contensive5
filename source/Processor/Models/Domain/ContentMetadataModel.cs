@@ -428,10 +428,13 @@ namespace Contensive.Processor.Models.Domain {
                                 + ",f.InstalledByCollectionID"
                                 + ",h.helpDefault"
                                 + ",h.helpCustom"
+                                + ",a.id as editorAddonId"
+                                + ",a.ccguid as editorAddonGuid"
                                 + ""
-                                + " from ((ccFields f"
+                                + " from (((ccFields f"
                                 + " left join ccContent c ON f.ContentId = c.ID)"
                                 + " left join ccfieldHelp h on h.fieldid=f.id)"
+                                + " left join ccAggregateFunctions a on a.id=f.editorAddonId)"
                                 + ""
                                 + " where"
                                 + " (c.ID Is not Null)"
@@ -511,7 +514,6 @@ namespace Contensive.Processor.Models.Domain {
                                             field.blockAccess = GenericController.encodeBoolean(fieldRow[38]);
                                             field.caption = GenericController.encodeText(fieldRow[16]);
                                             field.dataChanged = false;
-                                            //.Changed
                                             field.contentId = content.id;
                                             field.defaultValue = GenericController.encodeText(fieldRow[22]);
                                             field.developerOnly = GenericController.encodeBoolean(fieldRow[0]);
@@ -525,11 +527,11 @@ namespace Contensive.Processor.Models.Domain {
                                             field.indexSortOrder = GenericController.encodeInteger(fieldRow[6]);
                                             field.indexWidth = GenericController.encodeText(GenericController.encodeInteger(GenericController.encodeText(fieldRow[5]).Replace("%", "")));
                                             field.inherited = false;
-                                            field.installedByCollectionGuid = GenericController.encodeText(fieldRow[39]);
+                                            field.installedByCollectionGuid = encodeText(fieldRow[39]);
+                                            field.editorAddonGuid = GenericController.encodeText(fieldRow[43]);
                                             field.isBaseField = GenericController.encodeBoolean(fieldRow[38]);
                                             field.isModifiedSinceInstalled = false;
                                             field.lookupContentId = GenericController.encodeInteger(fieldRow[18]);
-                                            //.lookupContentName = ""
                                             field.lookupList = GenericController.encodeText(fieldRow[37]);
                                             field.manyToManyContentId = GenericController.encodeInteger(fieldRow[28]);
                                             field.manyToManyRuleContentId = GenericController.encodeInteger(fieldRow[29]);
@@ -541,7 +543,6 @@ namespace Contensive.Processor.Models.Domain {
                                             field.password = GenericController.encodeBoolean(fieldRow[3]);
                                             field.readOnly = GenericController.encodeBoolean(fieldRow[17]);
                                             field.redirectContentId = GenericController.encodeInteger(fieldRow[19]);
-                                            //.RedirectContentName(core) = ""
                                             field.redirectId = GenericController.encodeText(fieldRow[21]);
                                             field.redirectPath = GenericController.encodeText(fieldRow[20]);
                                             field.required = GenericController.encodeBoolean(fieldRow[14]);
@@ -550,7 +551,6 @@ namespace Contensive.Processor.Models.Domain {
                                             field.scramble = GenericController.encodeBoolean(fieldRow[35]);
                                             field.textBuffered = GenericController.encodeBoolean(fieldRow[2]);
                                             field.uniqueName = GenericController.encodeBoolean(fieldRow[1]);
-                                            //.ValueVariant
                                             //
                                             field.helpCustom = GenericController.encodeText(fieldRow[41]);
                                             field.helpDefault = GenericController.encodeText(fieldRow[40]);
@@ -881,10 +881,16 @@ namespace Contensive.Processor.Models.Domain {
                 // -- Get the installedByCollectionId
                 int InstalledByCollectionId = 0;
                 if (!string.IsNullOrEmpty(fieldMetadata.installedByCollectionGuid)) {
-                    var addonCollection = AddonCollectionModel.create<AddonCollectionModel>(core.cpParent, fieldMetadata.installedByCollectionGuid);
+                    var addonCollection = DbBaseModel.create<AddonCollectionModel>(core.cpParent, fieldMetadata.installedByCollectionGuid);
                     if (addonCollection != null) {
                         InstalledByCollectionId = addonCollection.id;
                     }
+                }
+                //
+                // -- Get the installedByCollectionId
+                int editorAddonId = 0;
+                if (!string.IsNullOrEmpty(fieldMetadata.editorAddonGuid)) {
+                    editorAddonId = DbBaseModel.getRecordId<AddonModel>(core.cpParent, fieldMetadata.editorAddonGuid);
                 }
                 //
                 // Create or update the Table Field
@@ -929,6 +935,7 @@ namespace Contensive.Processor.Models.Domain {
                             { "RSSDESCRIPTIONFIELD", DbController.encodeSQLBoolean(fieldMetadata.rssDescriptionField) },
                             { "MEMBERSELECTGROUPID", DbController.encodeSQLNumber(fieldMetadata.memberSelectGroupId_get(core, name, fieldMetadata.nameLc)) },
                             { "installedByCollectionId", DbController.encodeSQLNumber(InstalledByCollectionId) },
+                            { "editorAddonId", DbController.encodeSQLNumber(editorAddonId) },
                             { "EDITTAB", DbController.encodeSQLText(fieldMetadata.editTabName) },
                             { "SCRAMBLE", DbController.encodeSQLBoolean(false) },
                             { "ISBASEFIELD", DbController.encodeSQLBoolean(fieldMetadata.isBaseField) },
