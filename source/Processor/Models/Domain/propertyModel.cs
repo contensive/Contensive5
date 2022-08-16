@@ -353,7 +353,6 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="keyId"></param>
         private void loadLocalCache(int keyId) {
             try {
-                //if (keyId <= 0) { return; }
                 //
                 propertyCache_nameIndex = new KeyPtrController();
                 localCacheCnt = 0;

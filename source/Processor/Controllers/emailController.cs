@@ -365,7 +365,6 @@ namespace Contensive.Processor.Controllers {
                     };
                     if (tryVerifyEmail(core, email, ref userErrorMessage)) {
                         queueEmail(core, Immediate, emailContextMessage, email);
-                        //core.addon.executeAsProcess(addonGuidEmailSendTask);
                         result = true;
                     }
                 }
@@ -691,7 +690,7 @@ namespace Contensive.Processor.Controllers {
                     int TotalCnt = 0;
                     int BlankCnt = 0;
                     int DupCnt = 0;
-                    string DupList = "";
+                    var DupList = new StringBuilder();
                     int BadCnt = 0;
                     var BadList = new StringBuilder();
                     string TotalList = "";
@@ -719,7 +718,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // -- dup
                                     DupCnt += 1;
-                                    DupList = DupList + "<div class=i>" + person.email + "</div>" + BR;
+                                    DupList.Append("<div class=i>" + person.email + "</div>" + BR);
                                 } else {
                                     //
                                     // -- not dup
@@ -728,7 +727,6 @@ namespace Contensive.Processor.Controllers {
                             }
                             int EmailLen = simpleEmail.Length;
                             int Posat = GenericController.strInstr(1, simpleEmail, "@");
-                            int PosDot = simpleEmail.LastIndexOf(".") + 1;
                             if (EmailLen < 6) {
                                 BadCnt += 1;
                                 BadList.Append(EmailLine + BR);
@@ -744,10 +742,10 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (DupCnt == 1) {
                         ErrorController.addUserError(core, "There is 1 duplicate email address. See the test email for details.");
-                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">WARNING: There is 1 duplicate email address. Only one email will be sent to each address. If the email includes personalization, or if you are using link authentication to automatically log in the user, you may want to correct duplicates to be sure the email is created correctly.<div style=\"margin:20px;\">" + DupList + "</div></div>";
+                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">WARNING: There is 1 duplicate email address. Only one email will be sent to each address. If the email includes personalization, or if you are using link authentication to automatically log in the user, you may want to correct duplicates to be sure the email is created correctly.<div style=\"margin:20px;\">" + DupList.ToString() + "</div></div>";
                     } else if (DupCnt > 1) {
                         ErrorController.addUserError(core, "There are " + DupCnt + " duplicate email addresses. See the test email for details");
-                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">WARNING: There are " + DupCnt + " duplicate email addresses. Only one email will be sent to each address. If the email includes personalization, or if you are using link authentication to automatically log in the user, you may want to correct duplicates to be sure the email is created correctly.<div style=\"margin:20px;\">" + DupList + "</div></div>";
+                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">WARNING: There are " + DupCnt + " duplicate email addresses. Only one email will be sent to each address. If the email includes personalization, or if you are using link authentication to automatically log in the user, you may want to correct duplicates to be sure the email is created correctly.<div style=\"margin:20px;\">" + DupList.ToString() + "</div></div>";
                     }
                     //
                     if (BadCnt == 1) {

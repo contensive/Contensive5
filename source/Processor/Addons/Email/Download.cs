@@ -28,9 +28,10 @@ namespace Contensive.Processor.Addons.Primitives {
                         if (file.filename != "") {
                             //
                             // -- create log entry
-                            LibraryFileLogModel log = LibraryFileLogModel.addEmpty<LibraryFileLogModel>(core.cpParent);
+                            LibraryFileLogModel log = DbBaseModel.addEmpty<LibraryFileLogModel>(core.cpParent);
+                            string logName = core.dateTimeNowMockable + " user [#" + core.session.user.name + ", " + core.session.user.name + "]";
                             if (log != null) {
-                                log.name = core.dateTimeNowMockable + " user [#" + core.session.user.name + ", " + core.session.user.name + "]";
+                                log.name = logName;
                                 log.fileId = file.id;
                                 log.visitId = core.session.visit.id;
                                 log.memberId = core.session.user.id;
@@ -38,7 +39,7 @@ namespace Contensive.Processor.Addons.Primitives {
                                 log.save(core.cpParent);
                             }
                             //
-                            LogController.addActivityCompleted(core, "File download", log.name + "downloaded file [" + file.name + "]", core.session.user.id, (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit);
+                            LogController.addActivityCompleted(core, "File download", logName + ", downloaded file [" + file.name + "]", core.session.user.id, (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit);
                             //
                             // -- and go
                             string link = GenericController.getCdnFileLink(core, file.filename);

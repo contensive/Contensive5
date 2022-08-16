@@ -7,6 +7,7 @@ using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
 using Contensive.Processor.Models.Domain;
 using Contensive.BaseClasses;
+using System.Text;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public class ListViewSetColumns {
@@ -126,18 +127,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     // Add a field to the index form
                                     //
                                     if (FieldIDToAdd != 0) {
-                                        IndexConfigColumnClass column = null;
+                                        //
+                                        // -- add new column to be 20% of width (reduce all by 20%)
                                         foreach (var columnx in IndexConfig.columns) {
-                                            columnx.Width = encodeInteger((columnx.Width * 80) / (double)ColumnWidthTotal);
+                                            columnx.Width = encodeInteger(columnx.Width * 80.0 / 100.0);
                                         }
-                                        {
-                                            column = new IndexConfigColumnClass();
-                                            using (var csData = new CsModel(core)) {
-                                                if (csData.openRecord("Content Fields", FieldIDToAdd)) {
-                                                    column.Name = csData.getText("name");
-                                                    column.Width = 20;
-                                                }
-                                            }
+                                        IndexConfigColumnClass column = new() {
+                                            Name = cp.Content.GetRecordName("Content Fields", FieldIDToAdd),
+                                            Width = encodeInteger(ColumnWidthTotal * 0.20)
+                                        };
+                                        if (IndexConfig.columns.Find((x) => x.Name.ToLower() == column.Name.ToLower()) == null) {
+                                            //
+                                            // -- is the column already added (double click or refresh could add it again)
                                             IndexConfig.columns.Add(column);
                                             normalizeSaveLoad = true;
                                         }
@@ -161,7 +162,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 }
                             case ToolsActionMoveFieldLeft: {
-                                    if(IndexConfig.columns.First().Name != TargetFieldName.ToLowerInvariant()) {
+                                    if (IndexConfig.columns.First().Name != TargetFieldName.ToLowerInvariant()) {
                                         int listIndex = 0;
                                         foreach (var column in IndexConfig.columns) {
                                             if (column.Name == TargetFieldName.ToLowerInvariant()) {
@@ -320,9 +321,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     InheritedFieldCount = InheritedFieldCount + 1;
                                 }
                                 int ColumnPtr = 0;
-                                string link = "?" + core.doc.refreshQueryString + "&FieldName=" + HtmlController.encodeHtml(field.nameLc) + "&fi=" + fieldId + "&dtcn=" + ColumnPtr + "&" + RequestNameAdminSubForm + "=" + AdminFormIndex_SubFormSetColumns; 
+                                string link = "?" + core.doc.refreshQueryString + "&FieldName=" + HtmlController.encodeHtml(field.nameLc) + "&fi=" + fieldId + "&dtcn=" + ColumnPtr + "&" + RequestNameAdminSubForm + "=" + AdminFormIndex_SubFormSetColumns;
                                 Stream.add("<td width=\"" + ColumnWidth + "%\" valign=\"top\" align=\"left\">");
-                                Stream.add(HtmlController.div(AdminUIController.getDeleteLink(link + "&dta=" + ToolsActionRemoveField),"text-center"));
+                                Stream.add(HtmlController.div(AdminUIController.getDeleteLink(link + "&dta=" + ToolsActionRemoveField), "text-center"));
                                 Stream.add(HtmlController.div(AdminUIController.getArrowRightLink(link + "&dta=" + ToolsActionMoveFieldRight), "text-center"));
                                 Stream.add(HtmlController.div(AdminUIController.getArrowLeftLink(link + "&dta=" + ToolsActionMoveFieldLeft), "text-center"));
                                 Stream.add(HtmlController.div(AdminUIController.getExpandLink(link + "&dta=" + ToolsActionExpand), "text-center"));
@@ -343,68 +344,101 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // ----- now output a list of fields to add
                     //
                     if (CDef.fields.Count == 0) {
+                        //
+                        // -- no fields to list
                         Stream.add(SpanClassAdminNormal + "This Content Definition has no fields</span><br>");
                     } else {
+                        //
+                        // -- create list to sort
+                        var sortList = new List<ContentFieldMetadataModel>();
                         foreach (KeyValuePair<string, ContentFieldMetadataModel> keyValuePair in adminContent.fields) {
-                            ContentFieldMetadataModel field = keyValuePair.Value;
+                            sortList.Add(keyValuePair.Value);
+                        }
+                        sortList.Sort((a, b) => a.caption.Trim().CompareTo(b.caption.Trim()));
+                        StringBuilder validFields = new();
+                        StringBuilder inactiveFields = new();
+                        StringBuilder notCompatible = new();
+                        StringBuilder notAuthorable = new();
+                        var fieldsThatAllowNotAuthorable = new List<string> { "id", "dateadded", "createdby", "modifieddate", "modifiedby", "ccguid", "contentcontrolid", "sortorder", "active" };
+                        foreach (ContentFieldMetadataModel field in sortList) {
                             //
                             // display the column if it is not in use
-                            if ((IndexConfig.columns.Find(x => x.Name == field.nameLc) == null)) {
+                            if (IndexConfig.columns.Find(x => x.Name == field.nameLc) == null) {
                                 if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.File) {
                                     //
                                     // file can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileText) {
                                     //
                                     // filename can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (text file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (text file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileHTML) {
                                     //
                                     // filename can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode) {
                                     //
                                     // filename can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html code file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html code file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileCSS) {
                                     //
                                     // css filename can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (css file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (css file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileXML) {
                                     //
                                     // xml filename can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (xml file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (xml file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileJavascript) {
                                     //
                                     // javascript filename can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (javascript file field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (javascript file field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.LongText) {
                                     //
                                     // can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (long text field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (long text field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.HTML) {
                                     //
                                     // can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (html field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileImage) {
                                     //
                                     // can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (image field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (image field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
                                     //
                                     // can not be search
-                                    Stream.add(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (redirect field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (redirect field)"));
                                 } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany) {
                                     //
                                     // many to many can not be search
-                                    Stream.add(HtmlController.div( iconNotAvailable + "&nbsp;" + field.caption + " (many-to-many field)"));
+                                    notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (many-to-many field)"));
+                                } else if (!field.authorable && !fieldsThatAllowNotAuthorable.Contains(field.nameLc, StringComparer.OrdinalIgnoreCase)) {
+                                    //
+                                    // many to many can not be search
+                                    notAuthorable.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption));
                                 } else {
                                     //
                                     // can be used as column header
                                     string link = "?" + core.doc.refreshQueryString + "&fi=" + field.id + "&dta=" + ToolsActionAddField + "&" + RequestNameAddFieldId + "=" + field.id + "&" + RequestNameAdminSubForm + "=" + AdminFormIndex_SubFormSetColumns;
-                                    Stream.add(HtmlController.div(AdminUIController.getPlusLink(link, "&nbsp;" + field.caption)));
+                                    validFields.Append(HtmlController.div(AdminUIController.getPlusLink(link, "&nbsp;" + field.caption)));
                                 }
                             }
+                        }
+                        //
+                        // valid
+                        if (notAuthorable.Length > 0) {
+                            Stream.add("<h4>Fields to Add</h4>");
+                            Stream.add(validFields.ToString());
+                        }
+                        //
+                        // add other lists
+                        if (notAuthorable.Length > 0) {
+                            Stream.add("<h4>Fields Marked to Exclude (not authorable)</h4>");
+                            Stream.add(notAuthorable.ToString());
+                        }
+                        if (notCompatible.Length > 0) {
+                            Stream.add("<h4>Fields Not Compatible</h4>");
+                            Stream.add(notCompatible.ToString());
                         }
                     }
                 }

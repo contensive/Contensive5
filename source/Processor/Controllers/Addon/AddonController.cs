@@ -69,10 +69,6 @@ namespace Contensive.Processor.Controllers {
             //
             // -- all objects serialize to JSON
             string result = SerializeObject(AddonObjResult);
-            //
-            // -- special case handling. legacy addons returned without specifying result, which returns an empty object. convert to empty string
-            // -- consider later, it would be better to fix the addons.
-            //if (result == "{}") { return ""; }
             return result;
         }
         //

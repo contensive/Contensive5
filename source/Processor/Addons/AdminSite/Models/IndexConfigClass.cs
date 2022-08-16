@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 //
@@ -78,6 +79,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     ConfigList += Environment.NewLine;
                     string[] ConfigListLines = GenericController.splitNewLine(ConfigList);
                     int Ptr = 0;
+                    var fieldsThatAllowNotAuthorable = new List<string> { "id", "dateadded", "createdby", "modifieddate", "modifiedby", "ccguid", "contentcontrolid", "sortorder", "active" };
                     while (Ptr < ConfigListLines.GetUpperBound(0)) {
                         //
                         // check next line
@@ -93,7 +95,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         string fieldName = LineSplit[0].Trim().ToLowerInvariant();
                                         if (!string.IsNullOrWhiteSpace(fieldName)) {
                                             if (adminData.adminContent.fields.ContainsKey(fieldName)) {
-                                                if (adminData.adminContent.fields[fieldName].authorable) {
+                                                if (adminData.adminContent.fields[fieldName].authorable || fieldsThatAllowNotAuthorable.Contains(fieldName, StringComparer.OrdinalIgnoreCase)) {
                                                     returnIndexConfig.columns.Add(new IndexConfigColumnClass {
                                                         Name = fieldName,
                                                         Width = encodeInteger(LineSplit[1]),
