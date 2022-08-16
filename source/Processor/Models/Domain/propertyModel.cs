@@ -86,7 +86,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="propertyName"></param>
         /// <param name="PropertyValue"></param>
-        public void setProperty(string propertyName, double PropertyValue) => setProperty(propertyName, PropertyValue.ToString(CultureInfo.InvariantCulture), propertyKeyId);
+        public void setProperty(string propertyName, double PropertyValue) => setProperty(propertyName, PropertyValue.ToString("R"), propertyKeyId);
         //
         //====================================================================================================
         /// <summary>
@@ -139,7 +139,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="keyId">keyId is like vistiId, vistorId, userId</param>
         public void setProperty(string propertyName, string propertyValue, int keyId) {
             try {
-                if (propertyKeyId <= 0) { return; }
+                if (propertyKeyId < 0) { return; }
                 if (!localCacheLoaded) { loadLocalCache(keyId); }
                 int Ptr = -1;
                 if (localCacheCnt > 0) { Ptr = propertyCache_nameIndex.getPtr(propertyName); }
@@ -311,7 +311,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 string returnString = "";
                 //
-                if (propertyKeyId <= 0) { return ""; }
+                if (propertyKeyId < 0) { return ""; }
                 //
                 if (!localCacheLoaded) { loadLocalCache(keyId); }
                 //
@@ -353,7 +353,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="keyId"></param>
         private void loadLocalCache(int keyId) {
             try {
-                if (keyId <= 0) { return; }
+                //if (keyId <= 0) { return; }
                 //
                 propertyCache_nameIndex = new KeyPtrController();
                 localCacheCnt = 0;

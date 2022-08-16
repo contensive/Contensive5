@@ -29,11 +29,22 @@ namespace Contensive.Processor {
         //
         //=========================================================================================================
         /// <summary>
-        /// constructor for non-Internet app use. Configuration read from programdata json
+        /// constructor for non-Internet app use. Sessions are disabled. Use CPClass(appName,allowSessions) to enable sessions
         /// </summary>
         /// <remarks></remarks>
         public CPClass(string appName) {
             core = new CoreController(this, appName);
+        }
+        //
+        //=========================================================================================================
+        /// <summary>
+        /// constructor for non-Internet app use.
+        /// If allowSession true, sessions are valid.
+        /// If allowSession false, session objects cp.user, cp.visit and cp.visitor are empty. Use to increase performance when sessions are not needed. Properties are shared with all calls. To create a session.user, call session.verifyUser()
+        /// </summary>
+        /// <remarks></remarks>
+        public CPClass(string appName, bool allowSession) {
+            core = new CoreController(this, appName, allowSession);
         }
         //
         //=========================================================================================================

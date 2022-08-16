@@ -648,14 +648,26 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// coreClass constructor for app, non-Internet use. coreClass is the primary object internally, created by cp.
-        /// In this mode, user, visit and visitor or empty objects.
-        /// To create a session.user, call session.verifyUser()
+        /// Sessions are disabled, so user, visit and visitor are empty objects. To create a session.user, call session.verifyUser()
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="appName"></param>
         /// <remarks></remarks>
         public CoreController(CPClass cp, string appName) {
             coreController_Initialize(cp, appName, null, false);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// coreClass constructor for app, non-Internet use. coreClass is the primary object internally, created by cp.
+        /// If allowSession true, sessions are valid.
+        /// If allowSession false, session objects cp.user, cp.visit and cp.visitor are empty. Use to increase performance when sessions are not needed. Properties are shared with all calls. To create a session.user, call session.verifyUser()
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="appName"></param>
+        /// <remarks></remarks>
+        public CoreController(CPClass cp, string appName, bool allowSession) {
+            coreController_Initialize(cp, appName, null, allowSession);
         }
         //
         //====================================================================================================

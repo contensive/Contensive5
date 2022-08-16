@@ -4,7 +4,10 @@ using Microsoft.Web.Administration;
 
 namespace Tests {
     [TestClass]
-    public class IisControllerUnitTests {
+    //
+    // ------- requires elevated permissions
+    //
+    public class IISControllerUnitTests {
         [TestMethod]
         public void verifyAppPool_test1() {
             // arrange
