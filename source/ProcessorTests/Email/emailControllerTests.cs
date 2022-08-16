@@ -13,6 +13,200 @@ namespace Tests {
     [TestClass]
     public class EmailControllerTests {
         //
+        private void sendTwoGroupEmails(CPClass cp, string emailAddress1, string emailAddress2) {
+            DbBaseModel.deleteRows<EmailBounceListModel>(cp, "(1=1)");
+            DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+            DbBaseModel.deleteRows<GroupModel>(cp, "(1=1)");
+            DbBaseModel.deleteRows<PersonModel>(cp, "(username is null)or(username<>'root')");
+            DbBaseModel.deleteRows<GroupEmailModel>(cp, "1=1");
+            DbBaseModel.deleteRows<EmailGroupModel>(cp, "1=1");
+            DbBaseModel.deleteRows<MemberRuleModel>(cp, "1=1");
+            Assert.AreEqual(0, cp.core.mockEmailList.Count);
+            // arrange
+            //string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+            PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
+            person1.name = "person1";
+            person1.email = emailAddress1;
+            person1.allowBulkEmail = true;
+            person1.save(cp);
+            Assert.IsFalse(EmailController.isOnBlockedList(cp.core, emailAddress1));
+            //
+            //string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+            PersonModel person2 = DbBaseModel.addDefault<PersonModel>(cp);
+            person2.name = "person2";
+            person2.email = emailAddress2;
+            person2.allowBulkEmail = true;
+            person2.save(cp);
+            Assert.IsFalse(EmailController.isOnBlockedList(cp.core, emailAddress2));
+            //
+            GroupEmailModel email1 = DbBaseModel.addDefault<GroupEmailModel>(cp);
+            email1.fromAddress = "from-address@kma.net";
+            email1.subject = "subject";
+            email1.copyFilename.content = "body";
+            email1.save(cp);
+            //
+            GroupModel group1 = DbBaseModel.addDefault<GroupModel>(cp);
+            group1.name = "group1";
+            group1.caption = "group1";
+            group1.save(cp);
+            //
+            EmailGroupModel emailRule = DbBaseModel.addDefault<EmailGroupModel>(cp);
+            emailRule.groupId = group1.id;
+            emailRule.emailId = email1.id;
+            emailRule.save(cp);
+            //
+            MemberRuleModel memberRule1 = DbBaseModel.addDefault<MemberRuleModel>(cp);
+            memberRule1.groupId = group1.id;
+            memberRule1.memberId = person1.id;
+            memberRule1.save(cp);
+            //
+            MemberRuleModel memberRule2 = DbBaseModel.addDefault<MemberRuleModel>(cp);
+            memberRule2.groupId = group1.id;
+            memberRule2.memberId = person2.id;
+            memberRule2.save(cp);
+            //
+            // -- act (send group email)
+            email1.submitted = true;
+            email1.save(cp);
+            EmailController.processGroupEmail(cp.core);
+            EmailController.sendEmailInQueue(cp.core);
+        }
+        //
+
+        //
+        private void sendTwoSystemEmails(CPClass cp, string emailAddress1, string emailAddress2) {
+            DbBaseModel.deleteRows<EmailBounceListModel>(cp, "(1=1)");
+            DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
+            DbBaseModel.deleteRows<GroupModel>(cp, "(1=1)");
+            DbBaseModel.deleteRows<PersonModel>(cp, "(username is null)or(username<>'root')");
+            DbBaseModel.deleteRows<SystemEmailModel>(cp, "1=1");
+            DbBaseModel.deleteRows<EmailGroupModel>(cp, "1=1");
+            DbBaseModel.deleteRows<MemberRuleModel>(cp, "1=1");
+            Assert.AreEqual(0, cp.core.mockEmailList.Count);
+            // arrange
+            //string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+            PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
+            person1.name = "person1";
+            person1.email = emailAddress1;
+            person1.allowBulkEmail = true;
+            person1.save(cp);
+            Assert.IsFalse(EmailController.isOnBlockedList(cp.core, emailAddress1));
+            //
+            //string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+            PersonModel person2 = DbBaseModel.addDefault<PersonModel>(cp);
+            person2.name = "person2";
+            person2.email = emailAddress2;
+            person2.allowBulkEmail = true;
+            person2.save(cp);
+            Assert.IsFalse(EmailController.isOnBlockedList(cp.core, emailAddress2));
+            //
+            SystemEmailModel email1 = DbBaseModel.addDefault<SystemEmailModel>(cp);
+            email1.fromAddress = "from-address@kma.net";
+            email1.subject = "subject";
+            email1.copyFilename.content = "body";
+            email1.save(cp);
+            //
+            GroupModel group1 = DbBaseModel.addDefault<GroupModel>(cp);
+            group1.name = "group1";
+            group1.caption = "group1";
+            group1.save(cp);
+            //
+            EmailGroupModel emailRule = DbBaseModel.addDefault<EmailGroupModel>(cp);
+            emailRule.groupId = group1.id;
+            emailRule.emailId = email1.id;
+            emailRule.save(cp);
+            //
+            MemberRuleModel memberRule1 = DbBaseModel.addDefault<MemberRuleModel>(cp);
+            memberRule1.groupId = group1.id;
+            memberRule1.memberId = person1.id;
+            memberRule1.save(cp);
+            //
+            MemberRuleModel memberRule2 = DbBaseModel.addDefault<MemberRuleModel>(cp);
+            memberRule2.groupId = group1.id;
+            memberRule2.memberId = person2.id;
+            memberRule2.save(cp);
+            //
+            // -- act (send group email)
+            email1.submitted = true;
+            email1.save(cp);
+            EmailController.tryQueueSystemEmail(cp.core,email1.id);
+            EmailController.sendEmailInQueue(cp.core);
+        }
+        //
+        [TestMethod]
+        public void GroupEmail_Send2() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                sendTwoGroupEmails(cp, emailAddress1, emailAddress2);
+                // assert
+                Assert.AreEqual(2, cp.core.mockEmailList.Count);
+            }
+        }
+        //
+        [TestMethod]
+        public void GroupEmail_Duplicates() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress2 = emailAddress1;
+                sendTwoGroupEmails(cp, emailAddress1, emailAddress2);
+                // assert
+                Assert.AreEqual(1, cp.core.mockEmailList.Count);
+            }
+        }
+        //
+        [TestMethod]
+        public void GroupEmail_Duplicate_Friendly() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress2 = "\"test\" <" + emailAddress1 + ">";
+                sendTwoGroupEmails(cp, emailAddress1, emailAddress2);
+                // assert
+                Assert.AreEqual(1, cp.core.mockEmailList.Count);
+            }
+        }
+        //
+
+        //
+        [TestMethod]
+        public void SystemEmail_Send2() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                sendTwoSystemEmails(cp, emailAddress1, emailAddress2);
+                // assert
+                Assert.AreEqual(2, cp.core.mockEmailList.Count);
+            }
+        }
+        //
+        [TestMethod]
+        public void SystemEmail_Duplicates() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress2 = emailAddress1;
+                sendTwoSystemEmails(cp, emailAddress1, emailAddress2);
+                // assert
+                Assert.AreEqual(1, cp.core.mockEmailList.Count);
+            }
+        }
+        //
+        [TestMethod]
+        public void SystemEmail_Duplicate_Friendly() {
+            using (CPClass cp = new(testAppName)) {
+                cp.core.mockEmail = true;
+                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress2 = "\"test\" <" + emailAddress1 + ">";
+                sendTwoSystemEmails(cp, emailAddress1, emailAddress2);
+                // assert
+                Assert.AreEqual(1, cp.core.mockEmailList.Count);
+            }
+        }
+        //
         [TestMethod]
         public void controllers_Email_BlockList_Add() {
             using (CPClass cp = new(testAppName)) {
@@ -128,6 +322,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
                 Assert.AreEqual("friendlyName@contensive.com", EmailController.getSimpleEmailFromFriendlyEmail(cp, "\"friendly name\" <friendlyName@contensive.com>"));
+                Assert.AreEqual("friendlyName@contensive.com", EmailController.getSimpleEmailFromFriendlyEmail(cp, "\"<frie>ndly <nam>e\" <friendlyName@contensive.com>"));
                 Assert.AreEqual("jay@contensive.com", EmailController.getSimpleEmailFromFriendlyEmail(cp, "jay@contensive.com"));
             }
         }
@@ -311,10 +506,10 @@ namespace Tests {
                 Assert.AreEqual(1, cp.core.mockEmailList.Count);
                 MockEmailClass sentEmail = cp.core.mockEmailList.First();
                 Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
-                Assert.AreEqual("to@kma.net", getEmailPart(sentEmail.email.toAddress));
-                Assert.AreEqual("from@kma.net", getEmailPart(sentEmail.email.fromAddress));
-                Assert.AreEqual("bounce@kma.net", getEmailPart(sentEmail.email.bounceAddress));
-                Assert.AreEqual("replyTo@kma.net", getEmailPart(sentEmail.email.replyToAddress));
+                Assert.AreEqual("to@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.toAddress));
+                Assert.AreEqual("from@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.fromAddress));
+                Assert.AreEqual("bounce@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.bounceAddress));
+                Assert.AreEqual("replyTo@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.replyToAddress));
                 Assert.AreEqual("subject", sentEmail.email.subject);
                 Assert.AreEqual(body, sentEmail.email.textBody);
             }
@@ -347,23 +542,13 @@ namespace Tests {
                 Assert.AreEqual(1, cp.core.mockEmailList.Count);
                 MockEmailClass sentEmail = cp.core.mockEmailList.First();
                 Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
-                Assert.AreEqual(toPerson.email, getEmailPart(sentEmail.email.toAddress));
-                Assert.AreEqual("from@kma.net", getEmailPart(sentEmail.email.fromAddress));
-                Assert.AreEqual("bounce@kma.net", getEmailPart(sentEmail.email.bounceAddress));
-                Assert.AreEqual("replyTo@kma.net", getEmailPart(sentEmail.email.replyToAddress));
+                Assert.AreEqual(toPerson.email, EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.toAddress));
+                Assert.AreEqual("from@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.fromAddress));
+                Assert.AreEqual("bounce@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.bounceAddress));
+                Assert.AreEqual("replyTo@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.replyToAddress));
                 Assert.AreEqual("subject", sentEmail.email.subject);
                 Assert.AreEqual(body, sentEmail.email.textBody);
             }
-        }
-        //
-        private string getEmailPart(string FriendlyEmailAddress) {
-            if (string.IsNullOrEmpty(FriendlyEmailAddress)) return FriendlyEmailAddress;
-            if (!FriendlyEmailAddress.Contains('<') || !FriendlyEmailAddress.Contains('>')) return FriendlyEmailAddress;
-            int posStart = FriendlyEmailAddress.IndexOf('<');
-            int posEnd = FriendlyEmailAddress.IndexOf('>');
-            if (posStart > posEnd) return FriendlyEmailAddress;
-            return FriendlyEmailAddress.Substring(posStart + 1, posEnd - posStart - 1);
-
         }
         //
         [TestMethod]
@@ -429,28 +614,28 @@ namespace Tests {
                     {
                         //
                         // -- the confirmationl
-                        if (confirmPerson.email == getEmailPart(sentEmail.email.toAddress)) {
+                        if (confirmPerson.email == EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.toAddress)) {
                             foundCnt++;
-                            Assert.AreEqual(confirmPerson.email, getEmailPart(sentEmail.email.toAddress));
-                            Assert.AreEqual(systemEmail.fromAddress, getEmailPart(sentEmail.email.fromAddress));
+                            Assert.AreEqual(confirmPerson.email, EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.toAddress));
+                            Assert.AreEqual(systemEmail.fromAddress, EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.fromAddress));
                             Assert.AreNotEqual(-1, sentEmail.email.htmlBody.IndexOf(htmlBody));
                             Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
-                            Assert.AreEqual("", getEmailPart(sentEmail.email.bounceAddress));
-                            Assert.AreEqual("", getEmailPart(sentEmail.email.replyToAddress));
+                            Assert.AreEqual("", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.bounceAddress));
+                            Assert.AreEqual("", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.replyToAddress));
                         }
                     }
                     {
                         //
                         // -- the to-email
-                        if (toPerson.email == getEmailPart(sentEmail.email.toAddress)) {
+                        if (toPerson.email == EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.toAddress)) {
                             foundCnt++;
                             Assert.IsTrue(string.IsNullOrEmpty(sentEmail.AttachmentFilename));
-                            Assert.AreEqual(toPerson.email, getEmailPart(sentEmail.email.toAddress));
-                            Assert.AreEqual(systemEmail.fromAddress, getEmailPart(sentEmail.email.fromAddress));
+                            Assert.AreEqual(toPerson.email, EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.toAddress));
+                            Assert.AreEqual(systemEmail.fromAddress, EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.fromAddress));
                             Assert.AreEqual(systemEmail.subject, sentEmail.email.subject);
                             Assert.AreNotEqual(-1, sentEmail.email.htmlBody.IndexOf(htmlBody));
-                            Assert.AreEqual("", getEmailPart(sentEmail.email.bounceAddress));
-                            Assert.AreEqual("", getEmailPart(sentEmail.email.replyToAddress));
+                            Assert.AreEqual("", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.bounceAddress));
+                            Assert.AreEqual("", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.replyToAddress));
                         }
                     }
                 }

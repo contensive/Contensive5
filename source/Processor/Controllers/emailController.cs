@@ -47,7 +47,7 @@ namespace Contensive.Processor.Controllers {
                     log.visitId = core.cpParent.Visit.Id;
                     log.save(core.cpParent);
                     //
-                    LogController.addActivityCompleted(core, "Email unblocked", log.name, recipient.id, 1);
+                    LogController.addActivityCompleted(core, "Email unblocked", log.name, recipient.id, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
                 }
             }
         }
@@ -87,7 +87,7 @@ namespace Contensive.Processor.Controllers {
                         log.visitId = core.cpParent.Visit.Id;
                         log.save(core.cpParent);
                         //
-                        LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, 1);
+                        LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
                         return;
                     }
                 }
@@ -103,7 +103,7 @@ namespace Contensive.Processor.Controllers {
                     log.visitId = core.cpParent.Visit.Id;
                     log.save(core.cpParent);
                     //
-                    LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, 1);
+                    LogController.addActivityCompleted(core, "Email blocked", log.name, recipient.id, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
                 }
             }
         }
@@ -341,6 +341,16 @@ namespace Contensive.Processor.Controllers {
                             + ((!string.IsNullOrWhiteSpace(recipient.lastName) && !recipient.lastName.ToLower().Equals("guest")) ? recipient.lastName : string.Empty);
                     }
                     recipientName = recipientName.Trim();
+                    string toAddress = "";
+                    if (recipient.email.Contains("<")) {
+                        //
+                        // -- person record include friendly email format
+                        toAddress = recipient.email;
+                    } else {
+                        //
+                        // -- people record includes simple email format
+                        toAddress = (string.IsNullOrWhiteSpace(recipientName)) ? recipient.email : "\"" + recipientName.Replace("\"", "") + "\" <" + recipient.email.Trim() + ">";
+                    }
                     var email = new EmailSendRequest {
                         attempts = 0,
                         bounceAddress = bounceAddress,
@@ -350,12 +360,12 @@ namespace Contensive.Processor.Controllers {
                         replyToAddress = replyToAddress,
                         subject = subjectRendered,
                         textBody = textBody,
-                        toAddress = (string.IsNullOrWhiteSpace(recipientName)) ? recipient.email : "\"" + recipientName.Replace("\"", "") + "\" <" + recipient.email.Trim() + ">",
+                        toAddress = toAddress,
                         toMemberId = recipient.id
                     };
                     if (tryVerifyEmail(core, email, ref userErrorMessage)) {
                         queueEmail(core, Immediate, emailContextMessage, email);
-                        core.addon.executeAsProcess(addonGuidEmailSendTask);
+                        //core.addon.executeAsProcess(addonGuidEmailSendTask);
                         result = true;
                     }
                 }
@@ -576,7 +586,7 @@ namespace Contensive.Processor.Controllers {
                             tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email");
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                             //
-                            LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, 2);
+                            LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
                         }
                     }
                 }
@@ -585,22 +595,28 @@ namespace Contensive.Processor.Controllers {
                 //
                 confirmationMessage.Append(BR + "Recipients in selected System Email groups:" + BR);
                 List<int> peopleIdList = PersonModel.createidListForEmail(core.cpParent, emailRecordId);
+                List<string> usedEmail = new();
                 foreach (var personId in peopleIdList) {
                     var person = DbBaseModel.create<PersonModel>(core.cpParent, personId);
                     if (person == null) {
                         confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + additionalMemberID + "] because the user record could not be found." + BR);
-                    } else {
-                        if (string.IsNullOrWhiteSpace(person.email)) {
-                            confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + additionalMemberID + "] because their email address was blank." + BR);
-                        } else {
-                            string EmailStatus = "";
-                            string queryStringForLinkAppend = "";
-                            tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email");
-                            confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
-                            //
-                            LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, 2);
-                        }
+                        continue;
                     }
+                    string simpleEmail =  EmailController.getSimpleEmailFromFriendlyEmail(core.cpParent, person.email);
+                    if (string.IsNullOrWhiteSpace(simpleEmail)) {
+                        confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + additionalMemberID + "] because their email address was blank." + BR);
+                        continue;
+                    }
+                    if (usedEmail.Contains(simpleEmail)) {
+                        continue;
+                    }
+                    usedEmail.Add(simpleEmail);
+                    string EmailStatus = "";
+                    string queryStringForLinkAppend = "";
+                    tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email");
+                    confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
+                    //
+                    LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
                 }
                 int emailConfirmationMemberId = email.testMemberId;
                 //
@@ -685,31 +701,34 @@ namespace Contensive.Processor.Controllers {
                     if (isGroupEmail && personIdList.Count.Equals(0)) {
                         ErrorController.addUserError(core, "There are no valid recipients of this email other than the confirmation address. Either no groups or topics were selected, or those selections contain no people with both a valid email addresses and 'Allow Group Email' enabled.");
                     } else {
-                        string LastDupEmail = "";
+                        List<string> usedEmails = new();
                         foreach (var personId in personIdList) {
                             var person = DbBaseModel.create<PersonModel>(core.cpParent, personId);
-                            string Emailtext = person.email;
-                            string EMailName = person.name;
-                            int emailMemberId = person.id;
-                            if (string.IsNullOrEmpty(EMailName)) {
-                                EMailName = "no name (member id " + emailMemberId + ")";
+                            string simpleEmail = getSimpleEmailFromFriendlyEmail(core.cpParent, person.email);
+                            string emailPersonName = person.name;
+                            if (string.IsNullOrEmpty(emailPersonName)) {
+                                emailPersonName = "no name (member id " + person.id + ")";
                             }
-                            string EmailLine = Emailtext + " for " + EMailName;
-                            string LastEmail = null;
-                            if (string.IsNullOrEmpty(Emailtext)) {
+                            string EmailLine = person.email + " for " + emailPersonName;
+                            if (string.IsNullOrEmpty(simpleEmail)) {
+                                //
+                                // -- blank email
                                 BlankCnt += 1;
                             } else {
-                                if (Emailtext == LastEmail) {
+                                if(usedEmails.Contains(simpleEmail)) {
+                                    //
+                                    // -- dup
                                     DupCnt += 1;
-                                    if (Emailtext != LastDupEmail) {
-                                        DupList = DupList + "<div class=i>" + Emailtext + "</div>" + BR;
-                                        LastDupEmail = Emailtext;
-                                    }
+                                    DupList = DupList + "<div class=i>" + person.email + "</div>" + BR;
+                                } else {
+                                    //
+                                    // -- not dup
+                                    usedEmails.Add(simpleEmail);
                                 }
                             }
-                            int EmailLen = Emailtext.Length;
-                            int Posat = GenericController.strInstr(1, Emailtext, "@");
-                            int PosDot = Emailtext.LastIndexOf(".") + 1;
+                            int EmailLen = simpleEmail.Length;
+                            int Posat = GenericController.strInstr(1, simpleEmail, "@");
+                            int PosDot = simpleEmail.LastIndexOf(".") + 1;
                             if (EmailLen < 6) {
                                 BadCnt += 1;
                                 BadList.Append(EmailLine + BR);
@@ -718,7 +737,6 @@ namespace Contensive.Processor.Controllers {
                                 BadList.Append(EmailLine + BR);
                             }
                             TotalList = TotalList + EmailLine + BR;
-                            LastEmail = Emailtext;
                             TotalCnt += 1;
                         }
                     }
@@ -1255,20 +1273,22 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // Send the email to all selected people
                                 //
-                                string LastEmail = null;
-                                LastEmail = "empty";
+                                List<string> usedEmails = new();
                                 while (csPerson.ok()) {
-                                    int sendToPersonId = csPerson.getInteger("id");
                                     string sendToPersonEmail = csPerson.getText("Email");
                                     string sendToPersonName = csPerson.getText("name");
-                                    if (sendToPersonEmail == LastEmail) {
-                                        if (string.IsNullOrEmpty(sendToPersonName)) { sendToPersonName = "user #" + sendToPersonId; }
-                                        EmailStatusList = EmailStatusList + "Not Sent to " + sendToPersonName + ", duplicate email address (" + sendToPersonEmail + ")" + BR;
-                                    } else {
-                                        EmailStatusList = EmailStatusList + queueEmailRecord(core, "Group Email", sendToPersonId, emailId, DateTime.MinValue, EmailDropId, BounceAddress, EmailFrom, EmailTemplate, EmailFrom, EmailSubject, EmailCopy, CSEmail.getBoolean("AllowSpamFooter"), CSEmail.getBoolean("AddLinkEID"), "") + BR;
-                                        LogController.addActivityCompleted(core, "Group email sent", "Group email sent [" + CSEmail.getText("name") + "]", sendToPersonId, 2);
+                                    int sendToPersonId = csPerson.getInteger("id");
+                                    string simpleEmail = getSimpleEmailFromFriendlyEmail(core.cpParent, sendToPersonEmail);
+                                    if (!string.IsNullOrEmpty(simpleEmail)) {
+                                        if (usedEmails.Contains(simpleEmail)) {
+                                            if (string.IsNullOrEmpty(sendToPersonName)) { sendToPersonName = "user #" + sendToPersonId; }
+                                            EmailStatusList = EmailStatusList + "Not Sent to " + sendToPersonName + ", duplicate email address (" + sendToPersonEmail + ")" + BR;
+                                        } else {
+                                            usedEmails.Add(simpleEmail);
+                                            EmailStatusList = EmailStatusList + queueEmailRecord(core, "Group Email", sendToPersonId, emailId, DateTime.MinValue, EmailDropId, BounceAddress, EmailFrom, EmailTemplate, EmailFrom, EmailSubject, EmailCopy, CSEmail.getBoolean("AllowSpamFooter"), CSEmail.getBoolean("AddLinkEID"), "") + BR;
+                                            LogController.addActivityCompleted(core, "Group email sent", "Group email sent [" + CSEmail.getText("name") + "]", sendToPersonId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
+                                        }
                                     }
-                                    LastEmail = sendToPersonEmail;
                                     csPerson.goNext();
                                 }
                                 csPerson.close();
@@ -1329,7 +1349,7 @@ namespace Contensive.Processor.Controllers {
                             string EmailStatus = queueEmailRecord(core, "Conditional Email", EmailMemberId, emailId, EmailDateExpires, 0, bounceAddress, FromAddress, EmailTemplate, FromAddress, EmailSubject, EmailCopy, csEmail.getBoolean("AllowSpamFooter"), EmailAddLinkEid, "");
                             queueConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", FromAddress, EmailStatus + "<BR>", "Conditional Email");
                             emailsEffected++;
-                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, 2);
+                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
                         }
                         csEmail.close();
                     }
@@ -1381,7 +1401,7 @@ namespace Contensive.Processor.Controllers {
                             // -- send confirmation for this send
                             queueConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", fromAddress, EmailStatus + "<BR>", "Conditional Email");
                             //
-                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, 2);
+                            LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
                         }
                         csEmail.close();
                     }
@@ -1535,7 +1555,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getSimpleEmailFromFriendlyEmail(CPBaseClass cp, string source) {
             string result = source;
-            int posStart = result.IndexOf('<');
+            int posStart = result.LastIndexOf('<');
             if (posStart < 0) { return result; }
             result = result.Substring(posStart + 1);
             int posEnd = result.IndexOf('>');

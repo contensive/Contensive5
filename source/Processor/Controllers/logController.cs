@@ -264,7 +264,7 @@ namespace Contensive.Processor.Controllers {
                 log.link = "";
                 log.memberId = activityUserId;
                 log.message = string.IsNullOrEmpty(activityDetails) ? "" : activityDetails;
-                log.typeId = (typeId < 1) ? 1 : typeId;
+                log.typeId = (typeId < 1) ? (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit : typeId;
                 log.scheduledStaffId = scheduledStaffId;
                 log.visitId = (core?.session?.visit == null) ? 0 : core.session.visit.id;
                 log.visitorId = (core?.session?.visitor == null) ? 0 : core.session.visitor.id;
@@ -324,7 +324,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="activityUserId"></param>
         /// <param name="subjectOrganizationID"></param>
         public static int addActivityCompletedEdit(CoreController core, string subject, string activityDetails, int activityUserId) {
-            return addActivityCompleted(core, subject, activityDetails, activityUserId, 10);
+            return addActivityCompleted(core, subject, activityDetails, activityUserId, (int)ActivityLogModel.ActivityLogTypeEnum.ContactUpdate);
         }
         //
         //=====================================================================================================
@@ -338,7 +338,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="activityUserId"></param>
         /// <param name="subjectOrganizationID"></param>
         public static int addActivityCompletedVisit(CoreController core, string subject, string activityDetails, int activityUserId) {
-            return addActivityCompleted(core, subject, activityDetails, activityUserId, 1);
+            return addActivityCompleted(core, subject, activityDetails, activityUserId, (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit);
         }
         //
         //=====================================================================================================
@@ -370,29 +370,8 @@ namespace Contensive.Processor.Controllers {
                 log.visitorId = (core?.session?.visitor == null) ? 0 : core.session.visitor.id;
                 log.save(core.cpParent);
                 return log.id;
-                //if (subject == null) { subject = ""; }
-                //if (string.IsNullOrEmpty(activityDetails)) {
-                //    activityDetails = "";
-                //} else {
-                //    if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
-                //}
-                //using CsModel csData = new(core);
-                //csData.insert("Activity Log");
-                //csData.set("name", subject);
-                //csData.set("typeid", (typeId < 1) ? 1 : typeId);
-                //csData.set("MemberID", activityUserId);
-                //csData.set("Message", activityDetails);
-                //csData.set("VisitorID", (core?.session?.visitor == null) ? 0 : core.session.visitor.id);
-                //csData.set("VisitID", (core?.session?.visit == null) ? 0 : core.session.visit.id);
-                //csData.set("dateScheduled", DateTime.Now);
-                //csData.set("dateCompleted", DateTime.Now);
-                //csData.set("duration", 0);
-                //csData.set("scheduledStaffId", 0);
-                //return csData.getInteger("id");
             } catch (Exception ex) {
                 log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
-                // do not abort page over logging issues
-                // throw;
                 return 0;
             }
 

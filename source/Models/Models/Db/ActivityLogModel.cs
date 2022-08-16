@@ -59,5 +59,21 @@ namespace Contensive.Models.Db {
         /// If this activity is a future scheduled event, this is the duration of the event in minutes
         /// </summary>
         public int duration { get; set; }
+        //
+        public enum ActivityLogTypeEnum {
+            OnlineVisit=1,
+            OnlinePurchase=2,
+            EmailTo = 3,
+            EmailFrom = 4,
+            CallTo = 5,
+            CallFrom = 6,
+            TextTo = 7,
+            TextFrom = 8,
+            MeetingOnline=9,
+            MeetingInPerson = 10,
+            ContactUpdate = 11
+        }
+
+
     }
 }
