@@ -225,6 +225,7 @@ namespace Contensive.Processor {
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
+        [Obsolete("Use overload with activity-type", false)]
         public override int AddActivity(string subject, string detailsText, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
             return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserID, dateScheduled, duration, scheduledStaffId);
         }

@@ -173,14 +173,14 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log a simple activity for the current user
+        /// Add completed activity for online visit by current user, subject saved as message
         /// </summary>
         /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
         public abstract int  AddActivity(string subject);
         //
         //====================================================================================================
         /// <summary>
-        /// Log an activity for the current user
+        /// Add completed activity for online visit by current user
         /// </summary>
         /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
         /// <param name="detailsText">The details of the activity, non-html plain text.</param>
@@ -188,7 +188,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log an activity for the specified user
+        /// Add completed activity for online visit by the selected user
         /// </summary>
         /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
         /// <param name="detailsText">The details of the activity, non-html plain text.</param>
@@ -197,7 +197,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log an activity for the specified user
+        /// Add completed activity for specific activity type, by the selected user
         /// </summary>
         /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
         /// <param name="detailsText">The details of the activity, non-html plain text.</param>
@@ -207,7 +207,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log an activity for the specified user for a scheduled event
+        /// Add a schedule, non-completed activity for specific activity type, by the selected user
         /// </summary>
         /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
         /// <param name="detailsText">The details of the activity, non-html plain text.</param>
@@ -220,7 +220,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log an activity for the specified user for a scheduled event
+        /// Add a schedule, non-completed activity online-visit activity, by the selected user
         /// </summary>
         /// <param name="subject">A brief name for the activity to be shown in a list of other activities. Typically 'Call', 'Message', 'Meeting', 'Online Form', etc.</param>
         /// <param name="detailsText">The details of the activity, non-html plain text.</param>
@@ -228,6 +228,7 @@ namespace Contensive.BaseClasses {
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
+        [Obsolete("Use overload with activity-type", false)] 
         public abstract int AddActivity(string subject, string detailsText, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId);
         //
         //====================================================================================================

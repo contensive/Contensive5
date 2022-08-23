@@ -299,7 +299,7 @@ namespace Contensive.Processor.Controllers {
         //
         //=====================================================================================================
         /// <summary>
-        /// add activity about a user to the site's activity log for content managers to review.
+        /// add online-visit activity about a user to the site's activity log for content managers to review.
         /// This overload is for an activity scheduled for the future
         /// </summary>
         /// <param name="core"></param>
@@ -309,8 +309,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dateScheduled"></param>
         /// <param name="duration"></param>
         /// <param name="scheduledStaffId"></param>
+        [Obsolete("Use overload with activity-type",false)]
         public static int addActivityScheduled(CoreController core, string subject, string activityDetails, int activityUserId, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return addActivityScheduled(core, subject, activityDetails, activityUserId, 1, dateScheduled, duration, scheduledStaffId);
+            return addActivityScheduled(core, subject, activityDetails, activityUserId,(int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit, dateScheduled, duration, scheduledStaffId);
         }
         //
         //=====================================================================================================

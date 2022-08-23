@@ -12,7 +12,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             try {
                 //
                 if (!string.IsNullOrEmpty(DeveloperError)) {
-                    throw (new Exception("error [" + DeveloperError + "], user error [" + UserError + "]"));
+                    LogController.log(core, DeveloperError, BaseClasses.CPLogBaseClass.LogLevel.Error);
                 }
                 if (!string.IsNullOrEmpty(UserError)) {
                     Processor.Controllers.ErrorController.addUserError(core, UserError);
