@@ -99,7 +99,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public override double GetNumber(string key) => cp.core.visitorProperty.getInteger(key);
+        public override double GetNumber(string key) => cp.core.visitorProperty.getNumber(key);
         //
         //=======================================================================================================
         /// <summary>

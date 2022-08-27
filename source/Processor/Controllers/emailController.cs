@@ -236,15 +236,15 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (!verifyEmailAddress(core, toAddress)) {
                     //
-                    returnSendStatus = "Email not sent because the to-address is not valid.";
+                    returnSendStatus = "Email not sent because the to-address is not valid [" + toAddress + "].";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                 } else if (!verifyEmailAddress(core, fromAddress)) {
                     //
-                    returnSendStatus = "Email not sent because the from-address is not valid.";
+                    returnSendStatus = "Email not sent because the from-address is not valid [" + fromAddress + "].";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                 } else if (isOnBlockedList(core, toAddress)) {
                     //
-                    returnSendStatus = "Email not sent because the to-address is blocked by this application. See the Blocked Email Report.";
+                    returnSendStatus = "Email not sent because the address [" + toAddress + "] is blocked by this application.";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                 } else {
                     //
@@ -256,7 +256,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             //
                             fromAddress = toAddress;
-                            returnSendStatus = "The from-address matches the to-address. This email was sent, but may be blocked by spam filtering.";
+                            returnSendStatus = "The from-address is blank. This email was sent, but may be blocked by spam filtering.";
                             LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                         } else if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
                             //
@@ -601,7 +601,7 @@ namespace Contensive.Processor.Controllers {
                         confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + additionalMemberID + "] because the user record could not be found." + BR);
                         continue;
                     }
-                    string simpleEmail =  EmailController.getSimpleEmailFromFriendlyEmail(core.cpParent, person.email);
+                    string simpleEmail = EmailController.getSimpleEmailFromFriendlyEmail(core.cpParent, person.email);
                     if (string.IsNullOrWhiteSpace(simpleEmail)) {
                         confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + additionalMemberID + "] because their email address was blank." + BR);
                         continue;
@@ -714,7 +714,7 @@ namespace Contensive.Processor.Controllers {
                                 // -- blank email
                                 BlankCnt += 1;
                             } else {
-                                if(usedEmails.Contains(simpleEmail)) {
+                                if (usedEmails.Contains(simpleEmail)) {
                                     //
                                     // -- dup
                                     DupCnt += 1;
@@ -1183,7 +1183,7 @@ namespace Contensive.Processor.Controllers {
             if (AllowSpamFooter) {
                 //
                 // non-authorable, default true - leave it as an option in case there is an important exception
-                body += "<div style=\"padding:10px 0;\">" + GenericController.getLinkedText("<a href=\"" + webAddressProtocolDomain + "?" + rnEmailBlockRecipientEmail + "=" + recipientEmail + "\">", core.siteProperties.getText("EmailSpamFooter", DefaultSpamFooter)) + "</div>";
+                body += "<div style=\"padding:10px 0;\">" + GenericController.getLinkedText("<a href=\"" + webAddressProtocolDomain + "?" + rnEmailBlockRecipientEmail + "=" + GenericController.encodeRequestVariable(recipientEmail) + "\">", core.siteProperties.getText("EmailSpamFooter", DefaultSpamFooter)) + "</div>";
             }
 
             if (body.ToLower(CultureInfo.InvariantCulture).IndexOf("<html") >= 0) {
@@ -1469,16 +1469,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- open detect
             if (emailDropID != 0) {
-                string webAddressProtocolDomain = HttpController.getWebAddressProtocolDomain(core);
-                string defaultPage = core.siteProperties.serverPageDefault;
-                switch (core.siteProperties.getInteger("GroupEmailOpenTriggerMethod", 0)) {
-                    case 1:
-                        EmailBody += "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + webAddressProtocolDomain + "?" + rnEmailOpenCssFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">";
-                        break;
-                    default:
-                        EmailBody += "<img src=\"" + webAddressProtocolDomain + "?" + rnEmailOpenFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">";
-                        break;
-                }
+                EmailBody += getEmailClickLink(core, emailDropID, sendToPersonId);
             }
             //
             // -- click detect
@@ -1488,6 +1479,25 @@ namespace Contensive.Processor.Controllers {
                 returnStatus = "Added to queue, email for " + recipient.name + " at " + recipient.email;
             }
             return returnStatus;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// return the 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="emailDropID"></param>
+        /// <param name="sendToPersonId"></param>
+        /// <returns></returns>
+        public static string getEmailClickLink(CoreController core, int emailDropID, int sendToPersonId) {
+            string webAddressProtocolDomain = HttpController.getWebAddressProtocolDomain(core);
+            string defaultPage = core.siteProperties.serverPageDefault;
+            switch (core.siteProperties.getInteger("GroupEmailOpenTriggerMethod", 0)) {
+                case 1:
+                    return "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + webAddressProtocolDomain + "?" + rnEmailOpenCssFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">";
+                default:
+                    return "<img src=\"" + webAddressProtocolDomain + "?" + rnEmailOpenFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">";
+            }
         }
         //
         //====================================================================================================
