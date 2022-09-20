@@ -19,7 +19,7 @@ namespace Contensive.Processor.Properties {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
@@ -64,7 +64,7 @@ namespace Contensive.Processor.Properties {
         ///   Looks up a localized string similar to &lt;nav class=&quot;navbar navbar-expand-md navbar-dark bg-dark&quot;&gt;
         ///&lt;a class=&quot;navbar-brand&quot; href=&quot;/&quot;&gt;{navBrand}&lt;/a&gt;
         ///&lt;div class=&quot;navbar-text mr-auto&quot;&gt;{leftSideMessage}&lt;/div&gt;
-        ///&lt;div class=&quot;navbar-text ml-auto&quot;&gt;{rightSideMessage}&lt;/div&gt;
+        ///&lt;div class=&quot;navbar-text ml-auto&quot;&gt;{linkToUserRecord}&lt;/div&gt;
         ///{rightSideNavHtml}
         ///&lt;/nav&gt;.
         /// </summary>
@@ -78,14 +78,11 @@ namespace Contensive.Processor.Properties {
         ///   Looks up a localized string similar to &lt;div class=&quot;container-fluid ccBodyAdmin ccCon&quot;&gt;
         ///    {{{adminExceptions}}}
         ///    &lt;nav class=&quot;navbar navbar-expand-md navbar-dark bg-dark&quot;&gt;
-        ///        &lt;a class=&quot;navbar-brand&quot; href=&quot;/&quot;&gt;{{{navBrand}}}&lt;/a&gt;
-        ///        &lt;div class=&quot;navbar-text mr-auto&quot;&gt;{{{leftSideMessage}}}&lt;/div&gt;
-        ///        &lt;div class=&quot;navbar-text ml-auto&quot;&gt;{{{rightSideMessage}}}&lt;/div&gt;
-        ///        {{{rightSideNavHtml}}}
-        ///    &lt;/nav&gt;
-        ///    &lt;table border=0 cellpadding=0 cellspacing=0&gt;
-        ///        &lt;tr&gt;
-        ///            &lt;td class=&quot;ccToolsCon&quot; valign=top&gt;{{{adminNav}}}&lt;/t [rest of string was truncated]&quot;;.
+        ///        &lt;a class=&quot;navbar-brand&quot; href=&quot;/&quot;&gt;{{{leftSideMessage}}}&lt;/a&gt;
+        ///        &lt;!--&lt;div class=&quot;navbar-text&quot; style=&quot;padding-right:1rem;&quot;&gt;{{{leftSideMessage}}}&lt;/div&gt;--&gt;
+        ///        &lt;div class=&quot;navbar-text&quot; style=&quot;padding-right:1rem;&quot;&gt;
+        ///            &lt;form class=&quot;form-inline my-2 my-lg-0&quot;&gt;
+        ///                &lt;input id=&quot;cmdSearch&quot; class=&quot;form-control&quot; type=&quot;search&quot; placeholder=&quot;Search [rest of string was truncated]&quot;;.
         /// </summary>
         public static string AdminSiteLayoutBackup {
             get {
@@ -206,6 +203,15 @@ namespace Contensive.Processor.Properties {
         public static string GroupRuleEditorRow2 {
             get {
                 return ResourceManager.GetString("GroupRuleEditorRow2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .
+        /// </summary>
+        public static string Layout_Impersonate {
+            get {
+                return ResourceManager.GetString("Layout_Impersonate", resourceCulture);
             }
         }
         

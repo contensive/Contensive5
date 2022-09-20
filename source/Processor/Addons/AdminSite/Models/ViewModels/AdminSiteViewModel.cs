@@ -29,38 +29,68 @@ namespace Contensive.Processor.Addons.AdminSite {
         public AdminSiteViewModel(CPClass cp) {
             this.cp = cp;
         }
+        /// <summary>
+        /// header text on the right side to the left, typically user name 
+        /// </summary>
+        public string linkToUserRecord {
+            get {
+                return cp.Html5.A(cp.User.Name, new CPBase.BaseModels.HtmlAttributesA {
+                    href = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
+                });
+            }
+        }
+        //
+        public List<NavItem> navProfileList {
+            get {
+                var navList = new List<NavItem> {
+                    new NavItem() {
+                        navItemName = cp.User.Name,
+                        navItemHref = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
+                    },
+                    new NavItem() {
+                        navItemName = "Logout",
+                        navItemHref = "?method=logout"
+                    },
+                    new NavItem() {
+                        navItemName = "Impersonate",
+                        navItemHref = "/impersonate"
+                    }
+                };
+                return navList;
+            }
+        }
         //
         //====================================================================================================
-        public List<RecentItem> recentList {
+        public List<NavItem> recentList {
             get {
                 if (localRecentList != null) { return localRecentList; }
-                if (cp.User.Id == 0) return new List<RecentItem>();
+                if (cp.User.Id == 0) return new List<NavItem>();
                 //
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-recent-List-" + cp.User.Id);
-                localRecentList = cp.Cache.GetObject<List<RecentItem>>(cacheKey);
+                localRecentList = cp.Cache.GetObject<List<NavItem>>(cacheKey);
                 if (localRecentList != null) return localRecentList;
-                localRecentList = new List<RecentItem>();
+                localRecentList = new List<NavItem>();
                 //
                 //
                 using (DataTable dt = cp.Db.ExecuteQuery("select top 20 name,href from ccAdminRecents where userId=" + cp.User.Id + " order by modifiedDate desc")) {
                     if (dt?.Rows != null) {
                         foreach (DataRow dr in dt.Rows) {
-                            localRecentList.Add(new RecentItem {
-                             recentHref = cp.Utils.EncodeText(dr["href"]),
-                             recentName = cp.Utils.EncodeText( dr["name"])
+                            localRecentList.Add(new NavItem {
+                                navItemHref = cp.Utils.EncodeText(dr["href"]),
+                                navItemName = cp.Utils.EncodeText(dr["name"])
                             });
                         }
                     }
                 }
-                localRecentList.Sort((a, b) => a.recentName.CompareTo(b.recentName));
+                localRecentList.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AdminRecentModel.tableMetadata.tableNameLower);
                 cp.Cache.Store(cacheKey, localRecentList, depKey);
                 return localRecentList;
             }
         }
-        private List<RecentItem> localRecentList = null;
+        private List<NavItem> localRecentList = null;
         //
         //====================================================================================================
         public bool hasRecentList {
@@ -183,16 +213,6 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
         }
         /// <summary>
-        /// header text on the right side to the left, typically user name 
-        /// </summary>
-        public string rightSideMessage {
-            get {
-                return cp.Html5.A(cp.User.Name, new CPBase.BaseModels.HtmlAttributesA {
-                    href = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
-                });
-            }
-        }
-        /// <summary>
         /// header nav, typcially login/logout buttons
         /// </summary>
         public string rightSideNavHtml {
@@ -205,9 +225,9 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
     }
     //
-    public class RecentItem {
-        public string recentHref { get; set; }
-        public string recentName { get; set; }
+    public class NavItem {
+        public string navItemHref { get; set; }
+        public string navItemName { get; set; }
     }
 }
 

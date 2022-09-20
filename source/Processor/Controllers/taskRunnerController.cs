@@ -243,9 +243,8 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// run as single task from the cctasks table of an app, makred with a runnerGuid
-        /// called from runTasks or from the cli in a different process
-        /// when the task starts, 
-        /// saves the addons output to the task.filename
+        /// called from runTasks or from the cli in a different process.
+        /// If task has a resultDownloadId set (id to row in ccDownload table), then the result of the addon is saved in that file.
         /// </summary>
         public static void executeRunnerTasks(string appName, string runnerGuid) {
             try {

@@ -146,8 +146,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 string Caption = "Download Manager";
                 string Description = ""
-    + "<p>The Download Manager holds all downloads requested from anywhere on the website. It also provides tools to request downloads from any Content.</p>"
-    + "<p>To add a new download of any content in Contensive, click Export on the filter tab of the content listing page. To add a new download from a SQL statement, use Custom Reports under Reports on the Navigator.</p>";
+                + "<p>The Download Manager lists downloads requested from anywhere on the website. To add a new download of any content in Contensive, click Export on the filter tab of the content listing page. To add a new download from a SQL statement, use Custom Reports under Reports on the Navigator.</p>";
                 int ContentPadding = 0;
                 string ContentSummary = "";
                 tempGetForm_Downloads = AdminUIController.getToolBody(core, Caption, ButtonListLeft, ButtonListRight, true, true, Description, ContentSummary, ContentPadding, Content);
