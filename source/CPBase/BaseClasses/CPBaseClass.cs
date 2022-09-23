@@ -215,6 +215,12 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// publish to an mqtt broker
+        /// </summary>
+        public abstract CPMQTTBaseClass MQTT { get; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Manage mustache compatible template language operations
         /// </summary>
         public abstract CPMustacheBaseClass Mustache { get; }

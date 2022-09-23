@@ -912,6 +912,19 @@ namespace Contensive.Processor.Controllers {
                                                                         }
                                                                         break;
                                                                     }
+                                                                case "privatefile":  {
+                                                                        //
+                                                                        if (core.docProperties.getBoolean(fieldName + ".DeleteFlag")) {
+                                                                            core.siteProperties.setProperty(fieldName, "");
+                                                                        }
+                                                                        if (!string.IsNullOrEmpty(fieldValue)) {
+                                                                            Filename = fieldValue;
+                                                                            string VirtualFilePath = "settings/" + fieldName + "/";
+                                                                            core.privateFiles.upload(fieldName, VirtualFilePath, ref Filename);
+                                                                            core.siteProperties.setProperty(fieldName, VirtualFilePath + Filename);
+                                                                        }
+                                                                        break;
+                                                                    }
                                                                 case "textfile": {
                                                                         //
                                                                         DefaultFilename = "settings/" + fieldName + ".txt";
@@ -1141,6 +1154,10 @@ namespace Contensive.Processor.Controllers {
                                                                                 }
                                                                             case "file": {
                                                                                     Copy = AdminUIEditorController.getFileEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
+                                                                                    break;
+                                                                                }
+                                                                            case "privatefile": {
+                                                                                    Copy = AdminUIEditorController.getPrivateFileEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
                                                                                     break;
                                                                                 }
                                                                             case "imagefile": {

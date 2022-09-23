@@ -59,27 +59,33 @@
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AWS.Logger.Core, Version=3.0.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
-      <HintPath>..\packages\AWS.Logger.Core.3.0.0\lib\net45\AWS.Logger.Core.dll</HintPath>
+    <Reference Include="AWS.Logger.Core, Version=3.1.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWS.Logger.Core.3.1.0\lib\net45\AWS.Logger.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="AWSSDK.CloudWatchLogs, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.CloudWatchLogs.3.7.1.77\lib\net45\AWSSDK.CloudWatchLogs.dll</HintPath>
+    <Reference Include="AWSSDK.CloudWatchLogs, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWSSDK.CloudWatchLogs.3.7.2.104\lib\net45\AWSSDK.CloudWatchLogs.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.Core.3.7.5\lib\net45\AWSSDK.Core.dll</HintPath>
+    <Reference Include="AWSSDK.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWSSDK.Core.3.7.13.7\lib\net45\AWSSDK.Core.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.S3.3.7.4.9\lib\net45\AWSSDK.S3.dll</HintPath>
+    <Reference Include="AWSSDK.S3, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWSSDK.S3.3.7.9.56\lib\net45\AWSSDK.S3.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="AWSSDK.SimpleEmail, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.SimpleEmail.3.7.0.102\lib\net45\AWSSDK.SimpleEmail.dll</HintPath>
+    <Reference Include="AWSSDK.SimpleEmail, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWSSDK.SimpleEmail.3.7.0.209\lib\net45\AWSSDK.SimpleEmail.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="AWSSDK.SimpleNotificationService, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.SimpleNotificationService.3.7.3.2\lib\net45\AWSSDK.SimpleNotificationService.dll</HintPath>
+    <Reference Include="AWSSDK.SimpleNotificationService, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWSSDK.SimpleNotificationService.3.7.4.9\lib\net45\AWSSDK.SimpleNotificationService.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="AWSSDK.SQS, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604, processorArchitecture=MSIL">
-      <HintPath>..\packages\AWSSDK.SQS.3.7.1.45\lib\net45\AWSSDK.SQS.dll</HintPath>
+    <Reference Include="AWSSDK.SQS, Version=3.3.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWSSDK.SQS.3.7.2.106\lib\net45\AWSSDK.SQS.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="ClearScript.Core, Version=7.1.7.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
       <HintPath>..\packages\Microsoft.ClearScript.Core.7.1.7\lib\net471\ClearScript.Core.dll</HintPath>
@@ -103,11 +109,11 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="ContensiveDbModels, Version=4.1.2.0, Culture=neutral, PublicKeyToken=c014b235a9c6bb22">
-      <HintPath>..\packages\Contensive.DbModels.22.9.16.8\lib\net472\ContensiveDbModels.dll</HintPath>
+      <HintPath>..\packages\Contensive.DbModels.22.9.22.19\lib\net472\ContensiveDbModels.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CPBase, Version=4.1.2.0, Culture=neutral, PublicKeyToken=10b3c53389b845fb">
-      <HintPath>..\packages\Contensive.CPBaseClass.22.9.16.8\lib\net472\CPBase.dll</HintPath>
+      <HintPath>..\packages\Contensive.CPBaseClass.22.9.22.19\lib\net472\CPBase.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Handlebars, Version=2.0.9.0, Culture=neutral, PublicKeyToken=22225d0bf33cd661">
@@ -118,12 +124,16 @@
       <HintPath>..\packages\HtmlAgilityPack.1.11.38\lib\Net45\HtmlAgilityPack.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="HtmlImport, Version=22.5.4.1, Culture=neutral, PublicKeyToken=4e5aa4a00011f631">
-      <HintPath>..\packages\Contensive.HtmlImport.22.5.4.1\lib\net472\HtmlImport.dll</HintPath>
+    <Reference Include="HtmlImport, Version=22.9.4.3, Culture=neutral, PublicKeyToken=4e5aa4a00011f631">
+      <HintPath>..\packages\Contensive.HtmlImport.22.9.4.3\lib\net472\HtmlImport.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
       <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="M2Mqtt.Net, Version=4.3.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\packages\M2Mqtt.4.3.0.0\lib\net45\M2Mqtt.Net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=6.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -162,8 +172,8 @@
       <HintPath>..\packages\NLog.4.7.12\lib\net45\NLog.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NLog.AWS.Logger, Version=3.0.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
-      <HintPath>..\packages\AWS.Logger.NLog.3.0.0\lib\net45\NLog.AWS.Logger.dll</HintPath>
+    <Reference Include="NLog.AWS.Logger, Version=3.1.0.0, Culture=neutral, PublicKeyToken=885c28607f98e604">
+      <HintPath>..\packages\AWS.Logger.NLog.3.1.0\lib\net45\NLog.AWS.Logger.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NUglify, Version=1.20.0.0, Culture=neutral, PublicKeyToken=15bc7810aec21b5e">
@@ -177,8 +187,8 @@
       <HintPath>..\packages\Pipelines.Sockets.Unofficial.2.2.0\lib\net472\Pipelines.Sockets.Unofficial.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Processor, Version=22.8.14.1, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
-      <HintPath>..\packages\Contensive.Processor.22.9.16.8\lib\net472\Processor.dll</HintPath>
+    <Reference Include="Processor, Version=22.9.22.19, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
+      <HintPath>..\packages\Contensive.Processor.22.9.22.19\lib\net472\Processor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SixLabors.ImageSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13">

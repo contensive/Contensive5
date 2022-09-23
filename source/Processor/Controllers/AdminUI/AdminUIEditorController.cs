@@ -104,7 +104,7 @@ namespace Contensive.Processor.Controllers {
             string encodedLink = HtmlController.encodeHtml(nonEncodedLink);
             string fieldValuefilename = "";
             string fieldValuePath = "";
-            core.privateFiles.splitDosPathFilename(currentPathFilename, ref fieldValuePath, ref fieldValuefilename);
+            core.cdnFiles.splitDosPathFilename(currentPathFilename, ref fieldValuePath, ref fieldValuefilename);
             if (readOnly) {
                 return HtmlController.a("[" + fieldValuefilename + "]", encodedLink, "", "", "", "_blank");
             }
@@ -116,6 +116,43 @@ namespace Contensive.Processor.Controllers {
                 "form-check");
             return ""
                 + HtmlController.a("[" + fieldValuefilename + "]", encodedLink, "", "", "", "_blank")
+                + deleteCheckbox
+                + HtmlController.inputFile(fieldName, htmlId, "form-control-file");
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// return form input element for this field type
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="fieldName"></param>
+        /// <param name="currentPathFilename"></param>
+        /// <param name="readOnly"></param>
+        /// <param name="htmlId"></param>
+        /// <param name="required"></param>
+        /// <param name="whyReadOnlyMsg"></param>
+        /// <returns></returns>
+        public static string getPrivateFileEditor(CoreController core, string fieldName, string currentPathFilename, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
+            if (readOnly && string.IsNullOrEmpty(currentPathFilename)) {
+                return HtmlController.div("[no file]") + HtmlController.inputHidden(fieldName, currentPathFilename);
+            }
+            if (string.IsNullOrEmpty(currentPathFilename)) {
+                return HtmlController.inputFile(fieldName, htmlId, "form-control-file");
+            }
+            string fieldValuefilename = "";
+            string fieldValuePath = "";
+            core.privateFiles.splitDosPathFilename(currentPathFilename, ref fieldValuePath, ref fieldValuefilename);
+            if (readOnly) {
+                return HtmlController.div("[" + fieldValuefilename + "]");
+            }
+            string deleteCheckboxId = "deleteCheckbox" + getRandomInteger(core).ToString();
+            string deleteCheckbox = ""
+                + HtmlController.div(
+                    HtmlController.checkbox(fieldName + ".DeleteFlag", false, deleteCheckboxId, false, "form-check-input")
+                    + HtmlController.label("Delete", deleteCheckboxId, "form-check-label"),
+                "form-check");
+            return ""
+                + HtmlController.div("[" + fieldValuefilename + "]")
                 + deleteCheckbox
                 + HtmlController.inputFile(fieldName, htmlId, "form-control-file");
         }

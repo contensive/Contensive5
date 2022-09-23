@@ -526,6 +526,20 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// MQTT interface
+        /// </summary>
+        public override CPMQTTBaseClass MQTT {
+            get {
+                if (MQTT_local == null) {
+                    MQTT_local = new CPMQTTClass(this);
+                }
+                return MQTT_local;
+            }
+        }
+        private CPMQTTBaseClass MQTT_local;
+        //
+        //====================================================================================================
+        /// <summary>
         /// Return a persistent object for this functionality
         /// </summary>
         public override CPMustacheBaseClass Mustache {
