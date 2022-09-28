@@ -43,15 +43,15 @@ namespace Contensive.Processor.Addons.AdminSite {
         public List<NavItem> navProfileList {
             get {
                 var navList = new List<NavItem> {
-                    new NavItem() {
+                    new NavItem {
                         navItemName = cp.User.Name,
                         navItemHref = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
                     },
-                    new NavItem() {
+                    new NavItem {
                         navItemName = "Logout",
                         navItemHref = "?method=logout"
                     },
-                    new NavItem() {
+                    new NavItem {
                         navItemName = "Impersonate",
                         navItemHref = "/impersonate"
                     }
@@ -64,7 +64,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public List<NavItem> recentList {
             get {
                 if (localRecentList != null) { return localRecentList; }
-                if (cp.User.Id == 0) return new List<NavItem>();
+                if (cp.User.Id == 0) { return new List<NavItem>(); }
                 //
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-recent-List-" + cp.User.Id);
@@ -90,7 +90,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 return localRecentList;
             }
         }
-        private List<NavItem> localRecentList = null;
+        private List<NavItem> localRecentList;
         //
         //====================================================================================================
         public bool hasRecentList {
@@ -110,7 +110,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 return user_local;
             }
         }
-        private PersonModel user_local = null;
+        private PersonModel user_local;
         //
         //====================================================================================================
         /// <summary>
@@ -123,7 +123,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 return userOrganization_local;
             }
         }
-        private OrganizationModel userOrganization_local = null;
+        private OrganizationModel userOrganization_local;
         //
         //====================================================================================================
         /// <summary>
@@ -196,22 +196,36 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// footer
         /// </summary>
         public string adminFooter { get; set; }
+        //
         /// <summary>
-        /// header left side (typically "administration site")
+        /// header caption (typically "administration site")
         /// </summary>
-        public string leftSideMessage {
+        public string adminHeaderCaption {
             get {
                 return cp.Site.GetText("AdminHeaderHTML", "Administration Site");
             }
         }
         /// <summary>
-        /// header brand (typicall the site name)
+        /// header nav, typcially login/logout buttons
         /// </summary>
-        public string navBrand {
+        public string adminRoute {
             get {
-                return cp.Site.Name;
+                return cp.GetAppConfig().adminRoute;
             }
         }
+        //
+        // -- deprecated --
+        //
+        //
+        /// <summary>
+        /// header left side (typically "administration site")
+        /// </summary>
+        public string leftSideMessage {
+            get {
+                return adminHeaderCaption;
+            }
+        }
+        //
         /// <summary>
         /// header nav, typcially login/logout buttons
         /// </summary>
@@ -221,6 +235,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + "<form class=\"form-inline\" method=post action=\"?method=logout\">"
                     + "<button class=\"btn btn-warning btn-sm ml-2\" type=\"submit\">Logout</button>"
                     + "</form>";
+            }
+        }
+        /// <summary>
+        /// header brand (typicall the site name)
+        /// </summary>
+        public string navBrand {
+            get {
+                return cp.Site.Name;
             }
         }
     }

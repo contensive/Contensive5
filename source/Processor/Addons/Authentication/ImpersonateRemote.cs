@@ -40,9 +40,6 @@ namespace Contensive.Processor.Addons {
                     string userError = "";
                     if (ImpersonationController.tryImpersonate(core, cp.Doc.GetText("username"), ref userError)) {
                         string dstUrl = "/";
-                        //if(!string.IsNullOrEmpty(cp.Doc.GetText("source"))) {
-                        //    dstUrl = cp.Doc.GetText("source");
-                        //}
                         cp.Response.Redirect(dstUrl);
                     } else {
                         //
@@ -131,11 +128,11 @@ namespace Contensive.Processor.Addons {
             /// <summary>
             /// if no errors, this is basic user data
             /// </summary>
-            public AuthenticateResponseData data = new();
+            public AuthenticateResponseData data { get; set; } = new();
             /// <summary>
             /// non-zero length list indicates an error
             /// </summary>
-            public List<string> errors = new();
+            public List<string> errors { get; set; } = new();
 
         }
         /// <summary>

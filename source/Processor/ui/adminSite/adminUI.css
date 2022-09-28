@@ -94,6 +94,10 @@ html,body{
     text-align: right;
     padding: 10px
 }
+.ccCon .ccAdminHeaderNav .dropdown-toggle::after {
+	/* hide drop-down ptr */
+	display:none;
+}
 /*
     edit page
 */
