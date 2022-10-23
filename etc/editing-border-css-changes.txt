@@ -1,0 +1,17 @@
+C5 Admin UI updates to tone down editing ----
+
+
+.ccEditWrapp  + 
+    display: inline;
+   
+   
+.ccEditWrapperContent +
+    display: inline;
+	
+	
+.ccRecordLinkCon +
+    display: inline;
+    position: absolute;
+	
+a.ccRecordLinkCon
+	- background: gradient ...

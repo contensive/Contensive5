@@ -66,6 +66,13 @@ namespace Contensive.Models.Db {
         public string link { get; set; }
         public string metaDescription { get; set; }
         public string metaKeywordList { get; set; }
+        /// <summary>
+        /// The catgegory of addon
+        /// 1 = Add-on
+        /// 2 = Report
+        /// 3 = Setting
+        /// 4 = Tool
+        /// </summary>
         public int navTypeId { get; set; }
         public string objectProgramId { get; set; }
         public bool onBodyEnd { get; set; }
@@ -134,6 +141,13 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int? instanceSettingPrimaryContentId { get; set; }
         //
+        /// <summary>
+        /// sett ContentSourceEnum
+        /// The content returned by the addon. If null, return All
+        /// lookup: All,Content Text,Content Wysiwyg,Remote Asset,Form Execution,Scripting Code Execution,DotNet Code Execution
+        /// </summary>
+        public int? contentSourceId { get; set; }
+        //
         // -- deprecated, but for leave for now and log error
         public string javaScriptBodyEnd { get; set; }
         public string jsBodyScriptSrc { get; set; }
@@ -192,5 +206,19 @@ namespace Contensive.Models.Db {
         public static void setRunNow(CPBaseClass cp, string addonGuid) {
             cp.Db.ExecuteNonQuery("update ccaggregatefunctions set processRunOnce=1 where ccguid=" + cp.Db.EncodeSQLText(addonGuid));
         }
+    }
+    //
+    /// <summary>
+    /// addon field contentSourceId
+    /// The content that will be delivered from teh addon
+    /// </summary>
+    public enum AddonContentSourceEnum {
+        All=1,
+        ContentText=2,
+        ContentWysiwyg=3,
+        RemoteAsset=4,
+        FormExecution=5,
+        ScriptingCodeExecution=6, 
+        DotNetCodeExecution=7
     }
 }

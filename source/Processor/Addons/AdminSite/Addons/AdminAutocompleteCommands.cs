@@ -1,21 +1,14 @@
 ﻿
 using Contensive.BaseClasses;
-using Contensive.Models.Db;
-using Contensive.Processor.Addons.Tools;
 using Contensive.Processor.Controllers;
-using Contensive.Processor.Exceptions;
-using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using static Contensive.Processor.Constants;
-using static Contensive.Processor.Controllers.GenericController;
 
 namespace Contensive.Processor.Addons.AdminSite {
     //
     //====================================================================================================
     /// <summary>
-    /// Admin site addon
+    /// search for addons or content
     /// </summary>
     public class AdminAutocompleteCommands : AddonBaseClass {
         //

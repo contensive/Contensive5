@@ -457,6 +457,10 @@ namespace Contensive.Processor.Controllers {
                     }
                     if (!isDependencyThatAlreadyRan) {
                         //
+                        // -- generate return content
+                        AddonContentSourceEnum contentSourceId = AddonContentSourceEnum.All;
+                        if (addon.contentSourceId != null) { contentSourceId = (AddonContentSourceEnum)addon.contentSourceId; }
+                        //
                         // -- content delivered.
                         hint = 12;
                         string addon_copy = addon.copy;
@@ -482,11 +486,13 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                         }
+                        hint = 13;
                         //
                         // -- text components
-                        hint = 13;
-                        string contentParts = addon_copyText + addon_copy;
-                        if (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextEditor) {
+                        string contentParts = "";
+                        contentParts += (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ContentText) ? addon_copyText : "";
+                        contentParts += (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ContentWysiwyg) ? addon_copy : "";
+                        if (!string.IsNullOrEmpty(contentParts) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextEditor)) {
                             //
                             // not editor, encode the content parts of the addon
                             //
@@ -519,12 +525,12 @@ namespace Contensive.Processor.Controllers {
                                     contentParts = ActiveContentController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
                                     break;
                             }
+                            result.Append(contentParts);
                         }
-                        result.Append(contentParts);
                         //
                         // -- RemoteAssetLink
                         hint = 16;
-                        if (!string.IsNullOrEmpty(addon.remoteAssetLink)) {
+                        if (!string.IsNullOrEmpty(addon.remoteAssetLink) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.RemoteAsset)) {
                             string RemoteAssetLink = addon.remoteAssetLink;
                             if (RemoteAssetLink.IndexOf("://", StringComparison.InvariantCulture) < 0) {
                                 //
@@ -556,7 +562,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // --  FormXML
                         hint = 17;
-                        if (!string.IsNullOrEmpty(addon_formXML)) {
+                        if (!string.IsNullOrEmpty(addon_formXML) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.FormExecution)) {
                             bool ExitAddonWithBlankResponse = false;
                             result.Append(execute_formContent(addon_formXML, ref ExitAddonWithBlankResponse, "addon [" + addon.name + "]"));
                             if (ExitAddonWithBlankResponse) {
@@ -603,9 +609,9 @@ namespace Contensive.Processor.Controllers {
                         // -- add scripting and dotnet code last, so if the execution adds javascript to the head, the code in the fields is first.
                         // -- Scripting code
                         hint = 14;
-                        if (addon == null) { LogController.logError(core, new GenericException("AddonController.execute, addon became null at hint-14"), ""); }
-                        if (addon.scriptingCode == null) { LogController.logError(core, new GenericException("AddonController.execute, addon.scriptCode is null at hint-14"), ""); }
-                        if (!string.IsNullOrEmpty(addon.scriptingCode)) {
+                        //if (addon == null) { LogController.logError(core, new GenericException("AddonController.execute, addon became null at hint-14"), ""); }
+                        //if (addon.scriptingCode == null) { LogController.logError(core, new GenericException("AddonController.execute, addon.scriptCode is null at hint-14"), ""); }
+                        if (!string.IsNullOrEmpty(addon.scriptingCode) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ScriptingCodeExecution)) {
                             try {
                                 if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
                                     result.Append(AddonControllerScript.execute_Script_JScript(core, ref addon));
@@ -621,7 +627,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- DotNet
                         hint = 15;
-                        if (!string.IsNullOrEmpty(addon.dotNetClass)) {
+                        if (!string.IsNullOrEmpty(addon.dotNetClass) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.DotNetCodeExecution)) {
                             try {
                                 //
                                 // -- executing outside code, swallow exceptions
@@ -912,7 +918,7 @@ namespace Contensive.Processor.Controllers {
                                                                         }
                                                                         break;
                                                                     }
-                                                                case "privatefile":  {
+                                                                case "privatefile": {
                                                                         //
                                                                         if (core.docProperties.getBoolean(fieldName + ".DeleteFlag")) {
                                                                             core.siteProperties.setProperty(fieldName, "");
@@ -996,7 +1002,7 @@ namespace Contensive.Processor.Controllers {
                                                                 } else {
                                                                     fieldValue = core.docProperties.getText(fieldName);
                                                                 }
-                                                                using var csData = new CsModel(core); 
+                                                                using var csData = new CsModel(core);
                                                                 csData.open("Copy Content", "name=" + DbController.encodeSQLText(fieldName), "ID");
                                                                 if (!csData.ok()) {
                                                                     csData.close();
@@ -1298,7 +1304,7 @@ namespace Contensive.Processor.Controllers {
                                                                 DataTable dt = null;
                                                                 if (!string.IsNullOrEmpty(FieldSQL)) {
                                                                     try {
-                                                                        using var db = new DbController(core, FieldDataSource); 
+                                                                        using var db = new DbController(core, FieldDataSource);
                                                                         dt = core.db.executeQuery(FieldSQL, 0, SQLPageSize);
                                                                     } catch (Exception ex) {
                                                                         LogController.logError(core, ex);
@@ -1879,7 +1885,7 @@ namespace Contensive.Processor.Controllers {
             string result = Content;
             try {
                 string SelectFieldList = "name,copytext,javascriptonload,javascriptbodyend,stylesfilename,otherheadtags,JSFilename,targetString";
-                using var csData = new CsModel(core); 
+                using var csData = new CsModel(core);
                 csData.openRecord("Wrappers", WrapperID, SelectFieldList);
                 if (csData.ok()) {
                     string Wrapper = csData.getText("copytext");
@@ -2124,7 +2130,7 @@ namespace Contensive.Processor.Controllers {
         public string throwEvent(string eventNameIdOrGuid) {
             string returnString = "";
             try {
-                using var cs = new CsModel(core); 
+                using var cs = new CsModel(core);
                 string sql = "select distinct c.addonId"
                     + " from ((ccAddonEvents e"
                     + " left join ccAddonEventCatchers c on c.eventId=e.id)"

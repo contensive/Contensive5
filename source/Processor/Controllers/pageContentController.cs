@@ -462,6 +462,16 @@ namespace Contensive.Processor.Controllers {
                 if (core.session.user.developer) {
                     result = ErrorController.getDocExceptionHtmlList(core) + result;
                 }
+                //
+                // -- add meta data last, the first entry should be the most-specific (inner-most), the last should be the least specific (outer most)
+                if (core?.doc?.pageController?.page!=null) {
+                    PageContentModel page = core.doc.pageController.page;
+                    core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
+                    core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content");
+                    core.html.addHeadTag(page.otherHeadTags, "page content");
+                    core.html.addMetaKeywordList(page.metaKeywordList, "page content");
+                }
+                //
                 return result;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1434,15 +1444,16 @@ namespace Contensive.Processor.Controllers {
                     core.html.addScriptLinkSrc(GenericController.getCdnFileLink(core, core.doc.pageController.page.jSFilename), "page content");
                 }
                 core.html.addScriptCode(core.doc.pageController.page.jSEndBody, "page content");
-                //
-                //---------------------------------------------------------------------------------
-                // Set the Meta Content flag
-                //---------------------------------------------------------------------------------
-                //
-                core.html.addTitle(HtmlController.encodeHtml(core.doc.pageController.page.pageTitle), "page content");
-                core.html.addMetaDescription(HtmlController.encodeHtml(core.doc.pageController.page.metaDescription), "page content");
-                core.html.addHeadTag(core.doc.pageController.page.otherHeadTags, "page content");
-                core.html.addMetaKeywordList(core.doc.pageController.page.metaKeywordList, "page content");
+                // moved to last element of pagecontentcontroller so first page title is the inner most
+                ////
+                ////---------------------------------------------------------------------------------
+                //// Set the Meta Content flag
+                ////---------------------------------------------------------------------------------
+                ////
+                //core.html.addTitle(HtmlController.encodeHtml(core.doc.pageController.page.pageTitle), "page content");
+                //core.html.addMetaDescription(HtmlController.encodeHtml(core.doc.pageController.page.metaDescription), "page content");
+                //core.html.addHeadTag(core.doc.pageController.page.otherHeadTags, "page content");
+                //core.html.addMetaKeywordList(core.doc.pageController.page.metaKeywordList, "page content");
                 //
                 //---------------------------------------------------------------------------------
                 // add open graph properties

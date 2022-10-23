@@ -219,7 +219,7 @@ namespace Contensive.Processor.Controllers {
                                                 // -- allow typo where "memberselectgroupid" is set to the name
                                                 memberSelectGroup = XmlController.getXMLAttribute(core, MetaDataChildNode, "MemberSelectGroupId", "");
                                                 if (!string.IsNullOrEmpty(memberSelectGroup) && (memberSelectGroup!="0") && encodeInteger(memberSelectGroup)==0) {
-                                                    LogController.logError(core, new GenericException("CollectionInstallMetadataController.loadXML, node MemberSelectGroupId should be MemberSelectGroup"));
+                                                    LogController.logWarn(core, new GenericException("CollectionInstallMetadataController.loadXML, error in collection file [" + collectionName + "], the content field [" + targetMetaData.name + "." + DefaultMetaDataField.nameLc + "], attribute name 'MemberSelectGroupId' should be 'MemberSelectGroup'"));
                                                     metaDataField.memberSelectGroupName_set(core, memberSelectGroup);
                                                 }
                                             }

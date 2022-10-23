@@ -367,7 +367,7 @@ namespace Contensive.Processor.Controllers {
                             record.save(cp);
                         }
                         core.privateFiles.renameFile("Config\\SMTPBlockList.txt", "Legacy_SMTPBlockList.txt");
-                        core.cdnFiles.renameFile("Config\\SMTPBlockList_" + core.appConfig.name + ".txt", "Config\\Legacy_SMTPBlockList_" + core.appConfig.name + ".txt");
+                        core.cdnFiles.renameFile("Config\\SMTPBlockList_" + core.appConfig.name + ".txt", "Legacy_SMTPBlockList_" + core.appConfig.name + ".txt");
                     }
                 }
                 // -- Reload

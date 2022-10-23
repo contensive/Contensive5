@@ -42,6 +42,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         public List<NavItem> navProfileList {
             get {
+                string orgName = DbBaseModel.getRecordName<OrganizationModel>(cp, cp.User.OrganizationID);
                 var navList = new List<NavItem> {
                     new NavItem {
                         navItemName = cp.User.Name,
@@ -56,9 +57,91 @@ namespace Contensive.Processor.Addons.AdminSite {
                         navItemHref = "/impersonate"
                     }
                 };
+                if (!string.IsNullOrEmpty(orgName)) {
+                    navList.Add(new NavItem {
+                        navItemName = orgName,
+                        navItemHref = "?af=4&cid=" + cp.Content.GetID("organizations") + "&id=" + cp.User.OrganizationID
+                    });
+                }
+                navList.Add(new NavItem {
+                    navItemName = "People",
+                    navItemHref = "?cid=" + cp.Content.GetID("people")
+                });
+                navList.Add(new NavItem {
+                    navItemName = "Organizations",
+                    navItemHref = "?cid=" + cp.Content.GetID("organizations")
+                });
+                navList.Add(new NavItem {
+                    navItemName = "Groups",
+                    navItemHref = "?cid=" + cp.Content.GetID("groups")
+                });
+
                 return navList;
             }
         }
+        //
+        public List<NavItem> navSettingsList {
+            get {
+                if (navSettingsList_local != null) { return navSettingsList_local; }
+                if (cp.User.Id == 0) { return new List<NavItem>(); }
+                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
+                //
+                // -- read from cache, invidate if an admin click isnt found in recent table
+                string cacheKey = cp.Cache.CreateKey("admin-nav-settings-list");
+                navSettingsList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
+                if (navSettingsList_local != null) return navSettingsList_local;
+                navSettingsList_local = new List<NavItem>();
+                //
+                //
+                using (DataTable dt = cp.Db.ExecuteQuery("select name,ccguid from ccaggregatefunctions where (navTypeId=3)and(admin>0)and(name is not null)and(ccguid is not null) order by name")) {
+                    if (dt?.Rows != null) {
+                        foreach (DataRow dr in dt.Rows) {
+                            navSettingsList_local.Add(new NavItem {
+                                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])),
+                                navItemName = cp.Utils.EncodeText(dr["name"])
+                            });
+                        }
+                    }
+                }
+                navSettingsList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
+                //
+                string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
+                cp.Cache.Store(cacheKey, navSettingsList_local, depKey);
+                return navSettingsList_local;
+            }
+        }
+        private List<NavItem> navSettingsList_local;
+        public List<NavItem> navToolsList {
+            get {
+                if (navToolsList_local != null) { return navToolsList_local; }
+                if (cp.User.Id == 0) { return new List<NavItem>(); }
+                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
+                //
+                // -- read from cache, invidate if an admin click isnt found in recent table
+                string cacheKey = cp.Cache.CreateKey("admin-nav-Tools-list");
+                navToolsList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
+                if (navToolsList_local != null) return navToolsList_local;
+                navToolsList_local = new List<NavItem>();
+                //
+                //
+                using (DataTable dt = cp.Db.ExecuteQuery("select name,ccguid from ccaggregatefunctions where (navTypeId=4)and(admin>0)and(name is not null)and(ccguid is not null) order by name")) {
+                    if (dt?.Rows != null) {
+                        foreach (DataRow dr in dt.Rows) {
+                            navToolsList_local.Add(new NavItem {
+                                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])),
+                                navItemName = cp.Utils.EncodeText(dr["name"])
+                            });
+                        }
+                    }
+                }
+                navToolsList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
+                //
+                string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
+                cp.Cache.Store(cacheKey, navToolsList_local, depKey);
+                return navToolsList_local;
+            }
+        }
+        private List<NavItem> navToolsList_local;
         //
         //====================================================================================================
         public List<NavItem> recentList {

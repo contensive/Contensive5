@@ -1,4 +1,11 @@
 /*
+* ContentBox
+*/
+.contentBox {
+    /* space footer for min content box  */
+    min-height: 50vh
+}
+/*
 Container for the login panel when the section is blocked
 */
 .ccLoginPageCon {

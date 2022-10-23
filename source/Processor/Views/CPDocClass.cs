@@ -176,7 +176,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// 
+        /// Add description content to be added to the html meta description tag in the document head. Multiples are added last to first
         /// </summary>
         /// <param name="metaDescription"></param>
         public override void AddMetaDescription(string metaDescription) {
@@ -203,7 +203,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// 
+        /// Add an html title to the document. Multiple titles are separated with a | and ordered last to first.
         /// </summary>
         /// <param name="pageTitle"></param>
         public override void AddTitle(string pageTitle) {

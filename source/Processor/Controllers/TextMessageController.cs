@@ -417,7 +417,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- setup retry
-                    appendTextMessageLog(core, request, false, userError);
+                    appendTextMessageLog(core, request, false, "sendMessage() returned false, userError [" + userError + "]");
                     core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null  where ccguid=" + DbController.encodeSQLText(textMessage.ccguid) + "");
                 }
             } catch (Exception ex) {
@@ -434,7 +434,7 @@ namespace Contensive.Processor.Controllers {
         public static void appendTextMessageLog(CoreController core, TextMessageSendRequest request, bool success, string userError) {
             try {
                 string textMessageLogFilename = "textMessageLog\\" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString().PadLeft(2, '0') + DateTime.Now.Day.ToString().PadLeft(2, '0') + ".log";
-                core.privateFiles.appendFile(textMessageLogFilename, DateTime.Now.ToString("yyyyMMddHHmmss") + "\t" + (success ? "ok" : "fail") + "\t" + userError + "\t" + request.toPhone + "\t" + request.textBody.Replace("\r", "").Replace("\n", " ") + "\r\n");
+                core.privateFiles.appendFile(textMessageLogFilename, DateTime.Now.ToString("yyyyMMddHHmmss") + "\t" + (success ? "ok" : "fail") + "\t" + (string.IsNullOrEmpty(userError) ? "" : "") + "\t" + request.toPhone + "\t" + request.textBody.Replace("\r", "").Replace("\n", " ") + "\r\n");
             } catch (Exception) {
                 // swallow
             }
