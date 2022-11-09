@@ -207,7 +207,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="pageTitle"></param>
         public override void AddTitle(string pageTitle) {
-            cp.core.html.addTitle(pageTitle);
+            cp.core.html.addTitle(pageTitle,"api CP.Doc.AddTitle");
         }
         //
         //====================================================================================================

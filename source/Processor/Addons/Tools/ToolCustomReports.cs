@@ -222,7 +222,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                 }
                 //
-                core.html.addTitle("Custom Reports");
+                core.html.addTitle("Custom Reports", "Custom Reports");
                 //
                 return AdminUIController.getToolBody(core, title, ButtonCommaListLeft, ButtonCommaListRight, true, true, Description, ContentSummary, ContentPadding, Content);
             } catch (Exception ex) {

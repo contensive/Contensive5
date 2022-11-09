@@ -151,7 +151,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string ContentSummary = "";
                 tempGetForm_Downloads = AdminUIController.getToolBody(core, Caption, ButtonListLeft, ButtonListRight, true, true, Description, ContentSummary, ContentPadding, Content);
                 //
-                core.html.addTitle(Caption);
+                core.html.addTitle(Caption,"Download Manager");
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }

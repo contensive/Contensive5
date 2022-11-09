@@ -1031,7 +1031,8 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// return a sql compatible string. 
+        /// filter an sqlcompatible string. 
+        /// Empty strings are converted to null (string fields must be nullable)
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
@@ -1046,10 +1047,14 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// encode a string for a like operation
         /// </summary>
-        /// <param name="source"></param>
+        /// <param name="expression"></param>
         /// <returns></returns>
-        public static string encodeSqlTextLike(string source) {
-            return encodeSQLText("%" + source + "%");
+        public static string encodeSqlTextLike(string expression) {
+            if (expression == null) { return ""; }
+            string working = expression.replace("[", "[[]",StringComparison.InvariantCultureIgnoreCase);
+             working = working.replace("%", "[%]", StringComparison.InvariantCultureIgnoreCase);
+             working = working.replace("_", "[_]", StringComparison.InvariantCultureIgnoreCase);
+            return encodeSQLText("%" + working + "%");
         }
         //
         // ====================================================================================================

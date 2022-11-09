@@ -109,12 +109,24 @@ namespace Contensive.Models.Db {
         public string title { get; set; }
         /// <summary>
         /// Optional, like Mr, or Ms
-        /// </summary>
+   `     /// </summary>
         public string prefix { get; set; }
         /// <summary>
         /// optional, like Jr, or Sr
         /// </summary>
         public string suffix { get; set; }
+        /// <summary>
+        /// timezone for this person
+        /// </summary>
+        public int timeZoneId { get; set; }
+        /// <summary>
+        /// location of address
+        /// </summary>
+        public double latitude { get; set; }
+        /// <summary>
+        /// location of address
+        /// </summary>
+        public double longitude { get; set; }
         //
         // -- to be deprecated
         public string resumeFilename { get; set; }

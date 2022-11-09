@@ -26,7 +26,7 @@ namespace Contensive.Processor.Addons.Primitives {
                     // Open a page compatible with a dialog
                     //
                     core.doc.addRefreshQueryString("LinkObjectName", LinkObjectName);
-                    core.html.addTitle("Site Explorer");
+                    core.html.addTitle("Site Explorer", "Site Explorer");
                     string copy = core.addon.execute( AddonModel.createByUniqueName(core.cpParent, "Site Explorer"), new CPUtilsBaseClass.addonExecuteContext {
                         addonType = CPUtilsBaseClass.addonContext.ContextPage,
                         errorContextMessage = "processing site explorer response"

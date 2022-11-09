@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // Does not have permission
                         ButtonList = ButtonCancel;
                         Content.add(AdminUIController.getFormBodyAdminOnly());
-                        core.html.addTitle("Style Editor");
+                        core.html.addTitle("Style Editor", "Style Editor");
                         result = AdminUIController.getToolBody(core, "Site Styles", ButtonList, "", true, true, Description, "", 0, Content.text);
                     } else {
                         string AdminList = "";
@@ -138,7 +138,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             Content.add(Copy);
                             ButtonList = ButtonCancel + "," + ButtonRefresh + "," + ButtonSave + "," + ButtonOK;
                             Content.add(HtmlController.inputHidden(rnAdminSourceForm, AdminFormEditorConfig));
-                            core.html.addTitle("Editor Settings");
+                            core.html.addTitle("Editor Settings", "Editor Settings");
                             result = AdminUIController.getToolBody(core, "Editor Configuration", ButtonList, "", true, true, Description, "", 0, Content.text);
                         }
                     }

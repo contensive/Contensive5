@@ -457,7 +457,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- assemble form
                 result = AdminUIController.getToolForm(core, Content, ButtonOK + "," + ButtonReset);
-                core.html.addTitle(Title);
+                core.html.addTitle(Title, "admin list view set columns");
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }

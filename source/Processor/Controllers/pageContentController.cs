@@ -463,11 +463,22 @@ namespace Contensive.Processor.Controllers {
                     result = ErrorController.getDocExceptionHtmlList(core) + result;
                 }
                 //
-                // -- add meta data last, the first entry should be the most-specific (inner-most), the last should be the least specific (outer most)
+                // -- add meta data only if no title added so far.
+                // -- last, the first entry should be the most-specific (inner-most), the last should be the least specific (outer most)
                 if (core?.doc?.pageController?.page!=null) {
                     PageContentModel page = core.doc.pageController.page;
-                    core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
-                    core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content");
+                    //
+                    // -- title tag. If metaTitle is empty, only add page.name if the title is empty
+                    if(core.doc.htmlMetaContent_TitleList.Count == 0) {
+                        if (string.IsNullOrEmpty(page.pageTitle)) {
+                            core.html.addTitle(HtmlController.encodeHtml(page.name), "page content");
+                        } else {
+                            core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
+                        }
+                    }
+                    if (core.doc.htmlMetaContent_Description.Count == 0) {
+                        core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content"); 
+                    }
                     core.html.addHeadTag(page.otherHeadTags, "page content");
                     core.html.addMetaKeywordList(page.metaKeywordList, "page content");
                 }
@@ -948,16 +959,6 @@ namespace Contensive.Processor.Controllers {
                     result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, allowCut, core.doc.pageController.page.name, "Edit Page Settings") + result;
                     result = AdminUIController.getEditWrapper(core, result);
                 }
-                //if (core.session.isAdvancedEditing()) {
-                //    result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, (!isRootPage), core.doc.pageController.page.name, "Edit Page Settings") + result;
-                //    result = AdminUIController.getEditWrapper(core, result);
-                //} else if (core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
-                //    result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, (!isRootPage), core.doc.pageController.page.name, "Edit Page Settings") + result;
-                //    result = AdminUIController.getEditWrapper(core, result);
-                //}
-                //
-                // -- title
-                core.html.addTitle(core.doc.pageController.page.name);
                 //
                 // -- add contentid and sectionid
                 core.html.addHeadTag("<meta name=\"contentId\" content=\"" + core.doc.pageController.page.id + "\" >", "page content");

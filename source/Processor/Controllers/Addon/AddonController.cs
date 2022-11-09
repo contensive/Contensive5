@@ -587,12 +587,10 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- non-js html assets (styles,head tags), set flag to block duplicates 
                         hint = 21;
+                        bool addMetaData = false;
                         if (!core.doc.addonIdList_AddedMetedata.Contains(addon.id)) {
                             core.doc.addonIdList_AddedMetedata.Add(addon.id);
-                            core.html.addTitle(addon_pageTitle, AddedByName);
-                            core.html.addMetaDescription(addon_metaDescription, AddedByName);
-                            core.html.addMetaKeywordList(addon_metaKeywordList, AddedByName);
-                            core.html.addHeadTag(addon_otherHeadTags, AddedByName);
+                            addMetaData = true;
                             //
                             // -- styles
                             if (!string.IsNullOrEmpty(addon.stylesFilename.filename)) {
@@ -637,6 +635,14 @@ namespace Contensive.Processor.Controllers {
                                 // -- exeption in outside code
                                 LogController.logError(core, ex, "Exception in dotnet component of addon [" + getAddonDescription(core, addon) + "]");
                             }
+                        }
+                        //
+                        // -- add meta data elements after all code execution so metadata added by code appears first (more specific data before less specific data)
+                        if (addMetaData) {
+                            core.html.addTitle(addon_pageTitle, AddedByName);
+                            core.html.addMetaDescription(addon_metaDescription, AddedByName);
+                            core.html.addMetaKeywordList(addon_metaKeywordList, AddedByName);
+                            core.html.addHeadTag(addon_otherHeadTags, AddedByName);
                         }
                     }
                 }

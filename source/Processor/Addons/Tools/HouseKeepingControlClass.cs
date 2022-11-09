@@ -153,7 +153,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Description = "This tool is used to control the database record housekeeping process. This process deletes visit history records, so care should be taken before making any changes.";
                 tempGetForm_HouseKeepingControl = AdminUIController.getToolBody(cp.core, Caption, ButtonList, "", false, false, Description, "", 0, Content.text);
                 //
-                cp.core.html.addTitle(Caption);
+                cp.core.html.addTitle(Caption,Caption);
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
             }

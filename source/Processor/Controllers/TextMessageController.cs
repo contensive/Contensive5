@@ -250,7 +250,16 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// send the confirmation for this text message.
+        /// 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="person"></param>
+        /// <param name="originalTextMessageBody"></param>
+        /// <param name="recipientList"></param>
+        /// <param name="textMessageId"></param>
+        /// <returns></returns>
         public static bool sendConfirmation(CoreController core, PersonModel person, string originalTextMessageBody, List<string> recipientList, int textMessageId) {
             try {
                 if (person == null) { return false; }
@@ -273,7 +282,7 @@ namespace Contensive.Processor.Controllers {
                 EmailController.queueAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus);
                 AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
                 //
-                bool result = queuePersonTextMessage(core, person, "System text complete from " + core.appConfig.domainList[0] + ". A confirmation email was sent to [" + person.email + "]", true, textMessageId, ref emailStatus, "System Text Confirmation");
+                bool result = queuePersonTextMessage(core, person, "System text complete from " + core.appConfig.domainList[0] + ". A detailed confirmation email was sent to [" + person.email + "]", true, textMessageId, ref emailStatus, "System Text Confirmation");
                 AddonModel.setRunNow(core.cpParent, addonGuidEmailSendTask);
                 //
                 return result;

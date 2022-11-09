@@ -245,7 +245,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             Stream.add(HtmlController.inputHidden("cid", adminData.adminContent.id));
                             Stream.add(HtmlController.inputHidden("indexGoToPage", ""));
                             Stream.add(HtmlController.inputHidden("Columncnt", indexConfig.columns.Count));
-                            core.html.addTitle(adminData.adminContent.name);
+                            core.html.addTitle(adminData.adminContent.name, "admin list view");
                         }
                     }
                 }

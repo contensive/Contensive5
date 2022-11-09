@@ -593,7 +593,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         Description = Description + "<div style=\"Margin-left:50px\">" + status + "</div>";
                     }
                     addonManager = AdminUIController.getToolBody(core, Caption, ButtonList, "", false, false, Description, "", 0, Content.text);
-                    core.html.addTitle("Add-on Manager");
+                    core.html.addTitle("Add-on Manager", "Add-on Manager");
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);

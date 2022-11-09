@@ -3336,8 +3336,6 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
-        public void addTitle(string pageTitle) => addTitle(pageTitle, "");
-        //
         //=========================================================================================================
         //
         public void addMetaDescription(string MetaDescription, string addedByMessage) {

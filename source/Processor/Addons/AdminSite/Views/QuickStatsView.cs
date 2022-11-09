@@ -134,7 +134,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 Stream.add("</td></tr></table>");
                 //
                 tempGetForm_QuickStats = HtmlController.form(core, Stream.text);
-                core.html.addTitle("Quick Stats");
+                core.html.addTitle("Quick Stats", "Quick Stats");
                 return tempGetForm_QuickStats;
                 //
                 // ----- Error Trap

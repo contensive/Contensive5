@@ -237,7 +237,7 @@ cls
 @echo +++++++++++++++++++++++++++++
 pause
 
-
+echo on
 
 rem ==============================================================
 rem
@@ -249,7 +249,7 @@ nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %Nu
 nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
-rem pause
+pause
 
 rem ==============================================================
 rem

@@ -249,11 +249,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- update page title
                 if (adminData.editRecord.id == 0) {
-                    core.html.addTitle("Add " + adminData.adminContent.name);
+                    core.html.addTitle("Add " + adminData.adminContent.name, "admin edit view");
                 } else if (string.IsNullOrEmpty(adminData.editRecord.nameLc)) {
-                    core.html.addTitle("Edit #" + adminData.editRecord.id + " in " + adminData.editRecord.contentControlId_Name);
+                    core.html.addTitle("Edit #" + adminData.editRecord.id + " in " + adminData.editRecord.contentControlId_Name, "admin edit view");
                 } else {
-                    core.html.addTitle("Edit " + adminData.editRecord.nameLc + " in " + adminData.editRecord.contentControlId_Name);
+                    core.html.addTitle("Edit " + adminData.editRecord.nameLc + " in " + adminData.editRecord.contentControlId_Name, "admin edit view");
                 }
                 return wrapForm(core, Stream.text, adminData, AdminFormEdit);
             } catch (Exception ex) {

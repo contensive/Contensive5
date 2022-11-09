@@ -23,7 +23,7 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override string EncryptOneWay(string unencryptedString) {
-            return SecurityController.decryptTwoWay(core, unencryptedString);
+            return SecurityController.encryptOneWay(core, unencryptedString);
         }
         //
         // ====================================================================================================
