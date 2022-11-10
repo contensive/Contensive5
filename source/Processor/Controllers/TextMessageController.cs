@@ -348,7 +348,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 if (confirmationMemberId != 0) {
                     PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, confirmationMemberId);
-                    sendConfirmation(core, person, textMessage.body, recipientList, textMessage.id);
+                    sendConfirmation(core, person, textBody, recipientList, textMessage.id);
                     needToSend = true;
                 }
                 //

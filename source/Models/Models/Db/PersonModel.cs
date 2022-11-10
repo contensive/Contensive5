@@ -109,7 +109,7 @@ namespace Contensive.Models.Db {
         public string title { get; set; }
         /// <summary>
         /// Optional, like Mr, or Ms
-   `     /// </summary>
+        /// </summary>
         public string prefix { get; set; }
         /// <summary>
         /// optional, like Jr, or Sr

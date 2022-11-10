@@ -1323,7 +1323,7 @@ namespace Contensive.Processor.Controllers {
                 // -- if page has a link override, exit with redirect now.
                 if (!string.IsNullOrWhiteSpace(requestedPage.link)) {
                     core.doc.redirectLink = requestedPage.link;
-                    core.doc.redirectReason = "Redirecting because page includes a link override.";
+                    core.doc.redirectReason = "Redirecting because this page includes a link override.";
                     core.doc.redirectBecausePageNotFound = false;
                     return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                 }
