@@ -238,7 +238,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- set off alarm
             DateTime now = DateTime.Now;
-            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000", CultureInfo.InvariantCulture) + now.Month.ToString("00", CultureInfo.InvariantCulture) + now.Day.ToString("00", CultureInfo.InvariantCulture) + "-alarms.log", @"\r\n" + processLogMessage(core, now.ToString(CultureInfo.InvariantCulture) + ", [" + cause + "]", true));
+            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000", CultureInfo.InvariantCulture) + now.Month.ToString("00", CultureInfo.InvariantCulture) + now.Day.ToString("00", CultureInfo.InvariantCulture) + "-alarms.log", "\r\n" + processLogMessage(core, now.ToString(CultureInfo.InvariantCulture) + ", [" + cause + "]", true));
         }
         //
         //=====================================================================================================
