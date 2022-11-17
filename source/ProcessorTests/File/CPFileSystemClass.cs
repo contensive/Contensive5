@@ -97,5 +97,32 @@ namespace Tests {
                 Assert.AreEqual("", cp.CdnFiles.Read(srcFilename));
             }
         }
+        //
+        //====================================================================================================
+        //
+        [TestMethod]
+        public void saveHttpGet_test() {
+            using (CPClass cp = new(testAppName)) {
+                // arrange
+                string dstFilename = "dst" + GenericController.getRandomInteger(cp.core).ToString() + ".txt";
+                // act
+                cp.CdnFiles.SaveHttpGet("https://www.contensive.com", dstFilename);
+                Assert.IsTrue(cp.CdnFiles.FileExists(dstFilename));
+                //
+                cp.TempFiles.SaveHttpGet("https://www.contensive.com", dstFilename);
+                Assert.IsTrue(cp.TempFiles.FileExists(dstFilename));
+                //
+                cp.PrivateFiles.SaveHttpGet("https://www.contensive.com", dstFilename);
+                Assert.IsTrue(cp.PrivateFiles.FileExists(dstFilename));
+                //
+                cp.WwwFiles.SaveHttpGet("https://www.contensive.com", dstFilename);
+                Assert.IsTrue(cp.WwwFiles.FileExists(dstFilename));
+                //
+                cp.CdnFiles.DeleteFile(dstFilename);
+                cp.TempFiles.DeleteFile(dstFilename);
+                cp.PrivateFiles.DeleteFile(dstFilename);
+                cp.WwwFiles.DeleteFile(dstFilename);
+            }
+        }
     }
 }

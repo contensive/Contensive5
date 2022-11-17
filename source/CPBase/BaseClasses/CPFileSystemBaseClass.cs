@@ -292,7 +292,7 @@ namespace Contensive.BaseClasses {
         /// <param name="pathFilename"></param>
         /// <param name="url"></param>
         /// <returns></returns>
-        public abstract void SaveHttpGet(string pathFilename, string url);
+        public abstract void SaveHttpGet(string url, string pathFilename );
         //
         // ====================================================================================================
         /// <summary>
@@ -302,7 +302,7 @@ namespace Contensive.BaseClasses {
         /// <param name="url"></param>
         /// <param name="requestArguments"></param>
         /// <returns></returns>
-        public abstract void SaveHttpPost(string pathFilename, string url, List<KeyValuePair<string, string>> requestArguments);
+        public abstract void SaveHttpPost(string url, string pathFilename, List<KeyValuePair<string, string>> requestArguments);
         //
         // ====================================================================================================
         /// <summary>
@@ -312,7 +312,7 @@ namespace Contensive.BaseClasses {
         /// <param name="url"></param>
         /// <param name="entity"></param>
         /// <returns></returns>
-        public abstract void SaveHttpPost(string pathFilename, string url, string entity);
+        public abstract void SaveHttpPost(string url, string pathFilename, string entity);
         //
         //==========================================================================================
         // deprecated

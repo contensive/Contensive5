@@ -146,8 +146,8 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="pathFilename"></param>
         /// <param name="url"></param>
-        public override void SaveHttpGet(string pathFilename, string url) {
-            fileSystemController.saveHttpRequestToFile(pathFilename, url);
+        public override void SaveHttpGet(string url, string pathFilename) {
+            fileSystemController.saveHttpRequestToFile(url, pathFilename);
         }
         //
         //==========================================================================================
@@ -157,7 +157,7 @@ namespace Contensive.Processor {
         /// <param name="pathFilename"></param>
         /// <param name="url"></param>
         /// <param name="requestArguments"></param>
-        public override void SaveHttpPost(string pathFilename, string url, List<KeyValuePair<string, string>> requestArguments) {
+        public override void SaveHttpPost(string url, string pathFilename, List<KeyValuePair<string, string>> requestArguments) {
             throw new NotImplementedException();
         }
         //
@@ -168,7 +168,7 @@ namespace Contensive.Processor {
         /// <param name="pathFilename"></param>
         /// <param name="url"></param>
         /// <param name="entity"></param>
-        public override void SaveHttpPost(string pathFilename, string url, string entity) {
+        public override void SaveHttpPost(string url,string pathFilename,  string entity) {
             throw new NotImplementedException();
         }
         //

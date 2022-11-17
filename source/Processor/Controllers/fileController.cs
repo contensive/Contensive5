@@ -1284,7 +1284,7 @@ namespace Contensive.Processor.Controllers {
                 pathFilename = normalizeDosPathFilename(pathFilename);
                 if ((!string.IsNullOrEmpty(pathFilename)) && (!string.IsNullOrEmpty(Link))) {
                     string URLLink = GenericController.strReplace(Link, " ", "%20");
-                    HttpController HTTP = new HttpController {
+                    HttpController HTTP = new() {
                         timeout = 600
                     };
                     HTTP.getUrlToFile(encodeText(URLLink), convertRelativeToLocalAbsPath(pathFilename));
