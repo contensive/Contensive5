@@ -60,66 +60,15 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     //
-                    // -- legacy ajaxfn methods
-                    string AjaxFunction = core.docProperties.getText(RequestNameAjaxFunction);
-                    if (!string.IsNullOrEmpty(AjaxFunction)) {
-                        //
-                        // -- Need to be converted to Url parameter addons
-                        switch ((AjaxFunction)) {
-                            case ajaxGetFieldEditorPreferenceForm: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.GetFieldEditorPreference()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxGetDefaultAddonOptionString: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.GetAjaxDefaultAddonOptionStringClass()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxSetVisitProperty: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.SetAjaxVisitPropertyClass()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxGetVisitProperty: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.GetAjaxVisitPropertyClass()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxData: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.ProcessAjaxDataClass()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxPing: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.GetOKClass()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxOpenIndexFilter: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterClass()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxOpenIndexFilterGetContent: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterGetContentClass()).Execute(core.cpParent).ToString();
-                                }
-                            case AjaxCloseIndexFilter: {
-                                    //
-                                    // moved to Addons.AdminSite
-                                    return (new Contensive.Processor.Addons.AdminSite.CloseAjaxIndexFilterClass()).Execute(core.cpParent).ToString();
-                                }
-                            default: {
-                                    //
-                                    // -- unknown method, log warning
-                                    return string.Empty;
-                                }
-                        }
+                    // -- legacy form process methods 
+                    // todo -- move legacy form process methods to process within their own code
+                    string ajaxfnRouteResult = "";
+                    if (tryExecuteAjaxfnRoute(core, normalizedRoute, ref ajaxfnRouteResult)) {
+                        return ajaxfnRouteResult;
                     }
                     //
                     // -- legacy email intercept methods
+                    // todo -- convert email intercept methods to remote methods
                     if (core.docProperties.getInteger(rnEmailOpenFlag) > 0) {
                         //
                         // -- Process Email Open
@@ -137,268 +86,30 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- legacy form process methods 
-                    string formType = core.docProperties.getText(core.docProperties.getText("ccformsn") + "type");
-                    if (!string.IsNullOrEmpty(formType)) {
-                        //
-                        // set the meta content flag to show it is not needed for the head tag
-                        switch (formType) {
-                            case FormTypeAddonStyleEditor: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.ProcessAddonStyleEditorClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypeAddonSettingsEditor: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.ProcessAddonSettingsEditorClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypePasswordRecovery: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.processPasswordRecoveryFormClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypeLogin:
-                            case "l09H58a195": {
-                                    //
-                                    string requestUsername = core.cpParent.Doc.GetText("username");
-                                    string requestPassword = core.cpParent.Doc.GetText("password");
-                                    bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
-                                    LoginController.processLoginFormDefault(core, requestUsername, requestPassword, requestIncludesPassword);
-                                    result = "";
-                                    break;
-                                }
-                            case FormTypeToolsPanel: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.processFormToolsPanelClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypePageAuthoring: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.processFormQuickEditingClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypeActiveEditor: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.ProcessActiveEditorClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypeSiteStyleEditor: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.ProcessSiteStyleEditorClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypeHelpBubbleEditor: {
-                                    //
-                                    result = (new Contensive.Processor.Addons.Primitives.processHelpBubbleEditorClass()).Execute(core.cpParent).ToString();
-                                    break;
-                                }
-                            case FormTypeRegister: {
-                                    //
-                                    RegisterController.processRegisterForm(core);
-                                    break;
-                                }
-                            default: {
-                                    break;
-                                }
-                        }
-                    }
+                    processBuiltInForms(core);
                     //
-                    // -- legacy methods=
-                    string HardCodedPage = core.docProperties.getText(RequestNameHardCodedPage);
-                    if (!string.IsNullOrEmpty(HardCodedPage)) {
-                        switch (GenericController.toLCase(HardCodedPage)) {
-                            case HardCodedPageLogout: {
-                                    //
-                                    // -- logout intercept
-                                    (new Contensive.Processor.Addons.Primitives.ProcessLogoutMethodClass()).Execute(core.cpParent);
-                                    //
-                                    // -- redirect to the route without the method
-                                    string routeWithoutQuery = modifyLinkQuery(core.webServer.requestUrlSource, "method", "", false);
-                                    core.webServer.redirect(routeWithoutQuery, "Redirect to route without 'method' because login was successful.");
-                                    return string.Empty;
-                                }
-                            case HardCodedPageSendPassword: {
-                                    //
-                                    return (new Contensive.Processor.Addons.Primitives.ProcessSendPasswordMethodClass()).Execute(core.cpParent).ToString();
-                                }
-                            case HardCodedPageResourceLibrary: {
-                                    //
-                                    return (new Contensive.Processor.Addons.Primitives.ProcessResourceLibraryMethodClass()).Execute(core.cpParent).ToString();
-                                }
-                            case HardCodedPageLoginDefault: {
-                                    //
-                                    if (core.session.isAuthenticated) {
-                                        //
-                                        // -- if authenticated, redirect to the route without the method
-                                        string routeWithoutQuery = modifyLinkQuery(core.webServer.requestUrlSource, "method", "", false);
-                                        core.webServer.redirect(routeWithoutQuery, "Redirect to route without 'method' because login was successful.");
-                                        return string.Empty;
-                                    }
-                                    //
-                                    // -- default login page
-                                    return core.addon.execute(addonGuidLoginPage, new CPUtilsBaseClass.addonExecuteContext {
-                                        addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                                        argumentKeyValuePairs = new Dictionary<string, string> {
-                                            { "Force Default Login", "true" }
-                                        },
-                                        forceHtmlDocument = true,
-                                        errorContextMessage = "executing method=loginDefault"
-                                    });
-                                }
-                            case HardCodedPageLogin: {
-                                    //
-                                    if (core.session.isAuthenticated) {
-                                        //
-                                        // -- if authenticated, redirect to the route without the method
-                                        string routeWithoutQuery = modifyLinkQuery(core.webServer.requestUrlSource, "method", "", false);
-                                        core.webServer.redirect(routeWithoutQuery, "Redirect to route without 'method' because login was successful.");
-                                        return string.Empty;
-                                    }
-                                    //
-                                    // -- process the login method, or return the login form
-                                    core.doc.continueProcessing = false;
-                                    return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
-                                        addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                                        argumentKeyValuePairs = new Dictionary<string, string> {
-                                            { "Force Default Login", "false" }
-                                        },
-                                        forceHtmlDocument = true,
-                                        errorContextMessage = "executing method=login"
-                                    });
-                                }
-                            case HardCodedPageLogoutLogin: {
-                                    //
-                                    return (new Contensive.Processor.Addons.Primitives.ProcessLogoutLoginMethodClass()).Execute(core.cpParent).ToString();
-                                }
-                            case HardCodedPageSiteExplorer: {
-                                    //
-                                    return (new Contensive.Processor.Addons.Primitives.ProcessSiteExplorerMethodClass()).Execute(core.cpParent).ToString();
-                                }
-                            case HardCodedPageStatus: {
-                                    //
-                                    return (new Contensive.Processor.Addons.Diagnostics.StatusClass()).Execute(core.cpParent).ToString();
-                                }
-                            case HardCodedPageRedirect: {
-                                    //
-                                    return (new Contensive.Processor.Addons.Primitives.ProcessRedirectMethodClass()).Execute(core.cpParent).ToString();
-                                }
-                            case HardCodedPageExportAscii: {
-                                    //
-                                    return (new Contensive.Processor.Addons.Primitives.ProcessExportAsciiMethodClass()).Execute(core.cpParent).ToString();
-                                }
-                            default: {
-                                    break;
-                                }
-                        }
+                    // -- try legacy methods (?method=login)
+                    string methodRouteResult = "";
+                    if (tryExecuteMethodRoute(core, normalizedRoute, ref methodRouteResult)) {
+                        return methodRouteResult;
                     }
                     //
                     // -- try route Dictionary (addons, admin, link forwards, link alias), from full route to first segment one at a time
-                    // -- so route /this/and/that would first test /this/and/that, then test /this/and, then test /this
-                    string routeTest = normalizedRoute;
-                    bool routeFound = false;
-                    int routeCnt = 100;
-                    do {
-                        routeFound = core.routeMap.routeDictionary.ContainsKey(routeTest);
-                        if (routeFound) {
-                            break;
-                        }
-                        if (routeTest.IndexOf("/") < 0) {
-                            break;
-                        }
-                        routeTest = routeTest.left(routeTest.LastIndexOf("/"));
-                        routeCnt -= 1;
-                    } while ((routeCnt > 0) && (!routeFound));
-                    //
-                    // -- execute route
-                    if (routeFound) {
-                        RouteMapModel.RouteClass route = core.routeMap.routeDictionary[routeTest];
-                        switch (route.routeType) {
-                            case RouteMapModel.RouteTypeEnum.admin: {
-                                    //
-                                    // -- admin site, force platform to 4 until layouts upgraded
-                                    core.siteProperties.htmlPlatformOverride = 4;
-                                    //
-                                    AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidAdminSite);
-                                    if (addon == null) {
-                                        LogController.logError(core, new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."));
-                                        return "The default admin site addon could not be found. Please run an upgrade on this application to restore default services (command line> cc -a appName -r )";
-                                    } else {
-                                        return core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
-                                            addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
-                                            errorContextMessage = "calling admin route [" + addonGuidAdminSite + "] during execute route method"
-                                        });
-                                    }
-                                }
-                            case RouteMapModel.RouteTypeEnum.remoteMethod: {
-                                    //
-                                    // -- remote method
-                                    AddonModel addon = core.addonCache.getAddonById(route.remoteMethodAddonId);
-                                    if (addon == null) {
-                                        LogController.logError(core, new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
-                                        return "";
-                                    } else {
-                                        CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
-                                            addonType = CPUtilsBaseClass.addonContext.ContextRemoteMethodJson,
-                                            cssContainerClass = "",
-                                            cssContainerId = "",
-                                            hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
-                                                contentName = core.docProperties.getText("hostcontentname"),
-                                                fieldName = "",
-                                                recordId = core.docProperties.getInteger("HostRecordID")
-                                            },
-                                            errorContextMessage = "calling remote method addon [" + route.remoteMethodAddonId + "] during execute route method"
-                                        };
-                                        return core.addon.execute(addon, executeContext);
-                                    }
-                                }
-                            case RouteMapModel.RouteTypeEnum.linkAlias: {
-                                    //
-                                    // - link alias
-                                    // -- all the query string values have already been added to doc properties, so do not over write them.
-                                    // -- consensus is that since the link alias (permalink, long-tail url, etc) comes first on the left, that the querystring should override
-                                    // -- so http://www.mySite.com/My-Blog-Post?bid=9 means use the bid not the bid from the link-alias
-                                    LinkAliasModel linkAlias = DbBaseModel.create<LinkAliasModel>(core.cpParent, route.linkAliasId);
-                                    if (linkAlias != null) {
-                                        // -- set the link alias page number, unless it has been overridden
-                                        if (!core.docProperties.containsKey("bid")) { core.docProperties.setProperty("bid", linkAlias.pageId); }
-                                        if (!string.IsNullOrWhiteSpace(linkAlias.queryStringSuffix)) {
-                                            string[] keyValuePairs = linkAlias.queryStringSuffix.Split('&');
-                                            // -- iterate through all the key=value pairs
-                                            foreach (var keyEqualsValue in keyValuePairs) {
-                                                string[] keyValue = keyEqualsValue.Split('=');
-                                                if (!string.IsNullOrEmpty(keyValue[0])) {
-                                                    if (!core.docProperties.containsKey(keyValue[0])) {
-                                                        if (keyValue.Length > 1) {
-                                                            core.docProperties.setProperty(keyValue[0], keyValue[1]);
-                                                        } else {
-                                                            core.docProperties.setProperty(keyValue[0], string.Empty);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                    }
-                                    break;
-                                }
-                            case RouteMapModel.RouteTypeEnum.linkForward: {
-                                    //
-                                    // -- link forward
-                                    LinkForwardModel linkForward = DbBaseModel.create<LinkForwardModel>(core.cpParent, route.linkForwardId);
-                                    return core.webServer.redirect(linkForward.destinationLink, "Link Forward #" + linkForward.id + ", " + linkForward.name);
-                                }
-                            default: {
-                                    break;
-                                }
-                        }
+                    string routeDictionaryResult = "";
+                    if (tryExecuteRouteDictionary(core, normalizedRoute, ref routeDictionaryResult)) {
+                        return routeDictionaryResult;
                     }
                     //
                     // -- default route 
                     int defaultAddonId = 0;
                     if (core.doc.domain != null) {
+                        //
+                        // -- try domain default route
                         defaultAddonId = core.doc.domain.defaultRouteId;
                     }
                     if (defaultAddonId == 0) {
+                        //
+                        // -- try site default route
                         defaultAddonId = core.siteProperties.defaultRouteId;
                     }
                     if (defaultAddonId > 0) {
@@ -418,9 +129,9 @@ namespace Contensive.Processor.Controllers {
                         return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, defaultAddonId), executeContext);
                     }
                     //
-                    // -- no route
+                    // -- unrecognized route and no default route
                     LogController.logWarn(core, "executeRoute called with an unknown route [" + normalizedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
-                    result = "<p>This site is not configured for website traffic. Please set the default route.</p>";
+                    result = "Unknown command";
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -428,6 +139,407 @@ namespace Contensive.Processor.Controllers {
                 LogController.log(core, "CoreController executeRoute, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
             }
             return result;
+        }
+        //
+        /// <summary>
+        /// Execute a route from the dictionary. return true if route was found, false if not
+        /// route Dictionary (addons, admin, link forwards, link alias), from full route to first segment one at a time
+        /// route /this/and/that would first test /this/and/that, then test /this/and, then test /this
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="normalizedRoute"></param>
+        /// <param name="returnResult"></param>
+        /// <returns></returns>
+        public static bool tryExecuteRouteDictionary(CoreController core, string normalizedRoute, ref string returnResult) {
+            try {
+                string routeTest = normalizedRoute;
+                bool routeFound = false;
+                int routeCnt = 100;
+                do {
+                    routeFound = core.routeMap.routeDictionary.ContainsKey(routeTest);
+                    if (routeFound) {
+                        break;
+                    }
+                    if (routeTest.IndexOf("/") < 0) {
+                        break;
+                    }
+                    routeTest = routeTest.left(routeTest.LastIndexOf("/"));
+                    routeCnt -= 1;
+                } while ((routeCnt > 0) && (!routeFound));
+                if (!routeFound) { return false; }
+                //
+                // -- execute route
+                RouteMapModel.RouteClass route = core.routeMap.routeDictionary[routeTest];
+                switch (route.routeType) {
+                    case RouteMapModel.RouteTypeEnum.admin: {
+                            //
+                            // -- admin site, force platform to 4 until layouts upgraded
+                            core.siteProperties.htmlPlatformOverride = 4;
+                            //
+                            AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidAdminSite);
+                            if (addon == null) {
+                                LogController.logError(core, new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."));
+                                returnResult = "The default admin site addon could not be found. Please run an upgrade on this application to restore default services (command line> cc -a appName -r )";
+                                return true;
+                            } else {
+                                returnResult = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
+                                    addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
+                                    errorContextMessage = "calling admin route [" + addonGuidAdminSite + "] during execute route method"
+                                });
+                                return true;
+                            }
+                        }
+                    case RouteMapModel.RouteTypeEnum.remoteMethod: {
+                            //
+                            // -- remote method
+                            AddonModel addon = core.addonCache.getAddonById(route.remoteMethodAddonId);
+                            if (addon == null) {
+                                LogController.logError(core, new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
+                                return true;
+                            }
+                            CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
+                                addonType = CPUtilsBaseClass.addonContext.ContextRemoteMethodJson,
+                                cssContainerClass = "",
+                                cssContainerId = "",
+                                hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
+                                    contentName = core.docProperties.getText("hostcontentname"),
+                                    fieldName = "",
+                                    recordId = core.docProperties.getInteger("HostRecordID")
+                                },
+                                errorContextMessage = "calling remote method addon [" + route.remoteMethodAddonId + "] during execute route method"
+                            };
+                            returnResult = core.addon.execute(addon, executeContext);
+                            return true;
+                        }
+                    case RouteMapModel.RouteTypeEnum.linkAlias: {
+                            //
+                            // - link alias
+                            // -- either redirect to the most current route for an entry, or setup doc properties for the default route
+                            // -- all the query string values have already been added to doc properties, so do not over write them.
+                            // -- consensus is that since the link alias (permalink, long-tail url, etc) comes first on the left, that the querystring should override
+                            // -- so http://www.mySite.com/My-Blog-Post?bid=9 means use the bid not the bid from the link-alias
+                            if (!string.IsNullOrEmpty(route.linkAliasRedirect)) {
+                                core.webServer.redirect(route.linkAliasRedirect, "Link Alias, older link forward to primary link.");
+                                return true;
+                            }
+                            core.docProperties.setProperty("bid", route.linkAliasPageId);
+                            foreach (NameValueModel nameValue in route.linkAliasQSList) {
+                                core.docProperties.setProperty(nameValue.name, nameValue.value);
+                            }
+                            return false;
+                            //LinkAliasModel linkAlias = DbBaseModel.create<LinkAliasModel>(core.cpParent, route.linkAliasId);
+                            //if (linkAlias != null) {
+                            //    // -- set the link alias page number, unless it has been overridden
+                            //    if (!core.docProperties.containsKey("bid")) { core.docProperties.setProperty("bid", linkAlias.pageId); }
+                            //    if (!string.IsNullOrWhiteSpace(linkAlias.queryStringSuffix)) {
+                            //        string[] keyValuePairs = linkAlias.queryStringSuffix.Split('&');
+                            //        // -- iterate through all the key=value pairs
+                            //        foreach (var keyEqualsValue in keyValuePairs) {
+                            //            string[] keyValue = keyEqualsValue.Split('=');
+                            //            if (!string.IsNullOrEmpty(keyValue[0])) {
+                            //                if (!core.docProperties.containsKey(keyValue[0])) {
+                            //                    if (keyValue.Length > 1) {
+                            //                        core.docProperties.setProperty(keyValue[0], keyValue[1]);
+                            //                    } else {
+                            //                        core.docProperties.setProperty(keyValue[0], string.Empty);
+                            //                    }
+                            //                }
+                            //            }
+                            //        }
+                            //    }
+                            //}
+                            //return true;
+                        }
+                    case RouteMapModel.RouteTypeEnum.linkForward: {
+                            //
+                            // -- link forward
+                            LinkForwardModel linkForward = DbBaseModel.create<LinkForwardModel>(core.cpParent, route.linkForwardId);
+                            returnResult = core.webServer.redirect(linkForward.destinationLink, "Link Forward #" + linkForward.id + ", " + linkForward.name);
+                            return true;
+                        }
+                    default: {
+                            return false;
+                        }
+                }
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
+        /// <summary>
+        /// legacy method=login
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="route"></param>
+        /// <param name="returnResult"></param>
+        /// <returns></returns>
+        public static bool tryExecuteMethodRoute(CoreController core, string route, ref string returnResult) {
+            try {
+                //
+                // -- legacy methods=
+                string HardCodedPage = core.docProperties.getText(RequestNameHardCodedPage);
+                if (string.IsNullOrEmpty(HardCodedPage)) { return false; }
+                switch (GenericController.toLCase(HardCodedPage)) {
+                    case HardCodedPageLogout: {
+                            //
+                            // -- logout intercept
+                            (new Contensive.Processor.Addons.Primitives.ProcessLogoutMethodClass()).Execute(core.cpParent);
+                            //
+                            // -- redirect to the route without the method
+                            string routeWithoutQuery = modifyLinkQuery(core.webServer.requestUrlSource, "method", "", false);
+                            core.webServer.redirect(routeWithoutQuery, "Redirect to route without 'method' because login was successful.");
+                            returnResult = string.Empty;
+                            return true;
+                        }
+                    case HardCodedPageSendPassword: {
+                            //
+                            returnResult = (new Contensive.Processor.Addons.Primitives.ProcessSendPasswordMethodClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case HardCodedPageResourceLibrary: {
+                            //
+                            returnResult = (new Contensive.Processor.Addons.Primitives.ProcessResourceLibraryMethodClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case HardCodedPageLoginDefault: {
+                            //
+                            if (core.session.isAuthenticated) {
+                                //
+                                // -- if authenticated, redirect to the route without the method
+                                string routeWithoutQuery = modifyLinkQuery(core.webServer.requestUrlSource, "method", "", false);
+                                core.webServer.redirect(routeWithoutQuery, "Redirect to route without 'method' because login was successful.");
+                                returnResult = string.Empty;
+                            }
+                            //
+                            // -- default login page
+                            returnResult = core.addon.execute(addonGuidLoginPage, new CPUtilsBaseClass.addonExecuteContext {
+                                addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                                argumentKeyValuePairs = new Dictionary<string, string> {
+                                            { "Force Default Login", "true" }
+                                        },
+                                forceHtmlDocument = true,
+                                errorContextMessage = "executing method=loginDefault"
+                            });
+                            return true;
+                        }
+                    case HardCodedPageLogin: {
+                            //
+                            if (core.session.isAuthenticated) {
+                                //
+                                // -- if authenticated, redirect to the route without the method
+                                string routeWithoutQuery = modifyLinkQuery(core.webServer.requestUrlSource, "method", "", false);
+                                core.webServer.redirect(routeWithoutQuery, "Redirect to route without 'method' because login was successful.");
+                                returnResult = string.Empty;
+                            }
+                            //
+                            // -- process the login method, or return the login form
+                            core.doc.continueProcessing = false;
+                            returnResult = core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
+                                addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                                argumentKeyValuePairs = new Dictionary<string, string> {
+                                            { "Force Default Login", "false" }
+                                        },
+                                forceHtmlDocument = true,
+                                errorContextMessage = "executing method=login"
+                            });
+                            return true;
+                        }
+                    case HardCodedPageLogoutLogin: {
+                            //
+                            returnResult = (new Contensive.Processor.Addons.Primitives.ProcessLogoutLoginMethodClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case HardCodedPageSiteExplorer: {
+                            //
+                            returnResult = (new Contensive.Processor.Addons.Primitives.ProcessSiteExplorerMethodClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case HardCodedPageStatus: {
+                            //
+                            returnResult = (new Contensive.Processor.Addons.Diagnostics.StatusClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case HardCodedPageRedirect: {
+                            //
+                            returnResult = (new Contensive.Processor.Addons.Primitives.ProcessRedirectMethodClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case HardCodedPageExportAscii: {
+                            //
+                            returnResult = (new Contensive.Processor.Addons.Primitives.ProcessExportAsciiMethodClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    default: {
+                            return false;
+                        }
+                }
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
+        /// <summary>
+        /// try built in form process. 
+        /// Here, the output will be added to the result for true or false return
+        /// true return means page is complete 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="normalizedRoute"></param>
+        /// <param name="returnResult"></param>
+        /// <returns></returns>
+        public static void processBuiltInForms(CoreController core) {
+            try {
+                if(!core.docProperties.containsKey("ccformsn")) { return; }
+                string formType = core.docProperties.getText(core.docProperties.getText("ccformsn") + "type");
+                if (string.IsNullOrEmpty(formType)) { return;  }
+                //
+                // set the meta content flag to show it is not needed for the head tag
+                switch (formType) {
+                    case FormTypeAddonStyleEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.ProcessAddonStyleEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeAddonSettingsEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.ProcessAddonSettingsEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypePasswordRecovery: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processPasswordRecoveryFormClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeLogin:
+                    case "l09H58a195": {
+                            //
+                            string requestUsername = core.cpParent.Doc.GetText("username");
+                            string requestPassword = core.cpParent.Doc.GetText("password");
+                            bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
+                            LoginController.processLoginFormDefault(core, requestUsername, requestPassword, requestIncludesPassword);
+                            return;
+                        }
+                    case FormTypeToolsPanel: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processFormToolsPanelClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypePageAuthoring: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processFormQuickEditingClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeActiveEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.ProcessActiveEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeSiteStyleEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.ProcessSiteStyleEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeHelpBubbleEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processHelpBubbleEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeRegister: {
+                            //
+                            RegisterController.processRegisterForm(core);
+                            return;
+                        }
+                    default: {
+                            return;
+                        }
+                }
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
+        /// <summary>
+        /// legacy built in ajax functions.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="normalizedRoute"></param>
+        /// <param name="returnResult"></param>
+        /// <returns></returns>
+        public static bool tryExecuteAjaxfnRoute(CoreController core, string normalizedRoute, ref string returnResult) {
+            try {
+                string AjaxFunction = core.docProperties.getText(RequestNameAjaxFunction);
+                if (string.IsNullOrEmpty(AjaxFunction)) { return false; }
+                //
+                // -- Need to be converted to Url parameter addons
+                switch ((AjaxFunction)) {
+                    case ajaxGetFieldEditorPreferenceForm: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.GetFieldEditorPreference()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxGetDefaultAddonOptionString: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.GetAjaxDefaultAddonOptionStringClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxSetVisitProperty: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.SetAjaxVisitPropertyClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxGetVisitProperty: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.GetAjaxVisitPropertyClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxData: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.ProcessAjaxDataClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxPing: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.GetOKClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxOpenIndexFilter: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxOpenIndexFilterGetContent: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.OpenAjaxIndexFilterGetContentClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    case AjaxCloseIndexFilter: {
+                            //
+                            // moved to Addons.AdminSite
+                            returnResult = (new Contensive.Processor.Addons.AdminSite.CloseAjaxIndexFilterClass()).Execute(core.cpParent).ToString();
+                            return true;
+                        }
+                    default: {
+                            //
+                            // -- unknown method, log warning
+                            returnResult = string.Empty;
+                            return true;
+                        }
+                }
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
         }
         //
         //====================================================================================================

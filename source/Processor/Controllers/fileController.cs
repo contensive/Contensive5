@@ -370,24 +370,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="absPath">Absolute Dos Path and filename in the form "d:\myfiles\myfolder\subfolder\MyFile.txt"</param>
         private void createPathAbs_local(string absPath) {
             try {
-                string PartialPath = null;
-                int Position = 0;
-                string WorkingPath = null;
-                //
                 if (string.IsNullOrEmpty(absPath)) {
                     throw new ArgumentException("CreateLocalFileFolder called with blank path.");
-                } else {
-                    WorkingPath = normalizeDosPath(absPath);
-                    if (!Directory.Exists(WorkingPath)) {
-                        Position = GenericController.strInstr(1, WorkingPath, "\\");
-                        while (Position != 0) {
-                            PartialPath = WorkingPath.left(Position - 1);
-                            if (!Directory.Exists(PartialPath)) {
-                                Directory.CreateDirectory(PartialPath);
-                            }
-                            Position = GenericController.strInstr(Position + 1, WorkingPath, "\\");
-                        }
+                }
+                string WorkingPath = normalizeDosPath(absPath);
+                if (Directory.Exists(WorkingPath)) { return; }
+                //
+                int Position = GenericController.strInstr(1, WorkingPath, "\\");
+                while (Position != 0) {
+                    string PartialPath = WorkingPath.left(Position - 1);
+                    if (!Directory.Exists(PartialPath)) {
+                        Directory.CreateDirectory(PartialPath);
                     }
+                    Position = GenericController.strInstr(Position + 1, WorkingPath, "\\");
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -594,7 +589,7 @@ namespace Contensive.Processor.Controllers {
                     throw new ArgumentException("Invalid source file.");
                 } else if (string.IsNullOrEmpty(dstPathFilename)) {
                     throw new ArgumentException("Invalid destination file.");
-                } else if ((dstFileSystem==this)&&(srcPathFilename.ToLowerInvariant().Equals(dstPathFilename.ToLowerInvariant()))) {
+                } else if ((dstFileSystem == this) && (srcPathFilename.ToLowerInvariant().Equals(dstPathFilename.ToLowerInvariant()))) {
                     //
                     // copy file to itself, deletes the file
                     //
@@ -965,9 +960,9 @@ namespace Contensive.Processor.Controllers {
                     Prefix = remoteUnixPathFilename
                 };
                 var response = s3Client.ListObjectsAsync(request).waitSynchronously();
-                if (response.S3Objects.Count==0) { return false;  }
-                foreach( var returnObject in response.S3Objects) {
-                    if (returnObject.Key==remoteUnixPathFilename) { return true; }
+                if (response.S3Objects.Count == 0) { return false; }
+                foreach (var returnObject in response.S3Objects) {
+                    if (returnObject.Key == remoteUnixPathFilename) { return true; }
                 }
                 return false;
             } catch (AmazonS3Exception ex) {
