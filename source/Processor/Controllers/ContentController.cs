@@ -147,15 +147,15 @@ namespace Contensive.Processor.Controllers {
                 } else if (tableNameLower == LinkForwardModel.tableMetadata.tableNameLower) {
                     //
                     // -- link forward
-                    core.routeMapCacheClear();
+                    core.routeMapRebuild();
                 } else if (tableNameLower == LinkAliasModel.tableMetadata.tableNameLower) {
                     //
                     // -- link alias
-                    core.routeMapCacheClear();
+                    core.routeMapRebuild();
                 } else if (tableNameLower == AddonModel.tableMetadata.tableNameLower) {
                     //
                     // -- addon
-                    core.routeMapCacheClear();
+                    core.routeMapRebuild();
                 } else if (tableNameLower == PersonModel.tableMetadata.tableNameLower) {
                     //
                     // -- PersonModel
@@ -177,6 +177,10 @@ namespace Contensive.Processor.Controllers {
                             break;
                     }
                 } else if (tableNameLower == PageContentModel.tableMetadata.tableNameLower) {
+                    //
+                    // -- no, the saveLinkAlias feature does a rebuild if there was a change. pages do not require rebuild
+                    // -- clear routeMap, is rebuilt on exit
+                    //core.routeMapRebuild();
                     //
                     // -- set ChildPagesFound true for parent page
                     if (recordParentID > 0) {

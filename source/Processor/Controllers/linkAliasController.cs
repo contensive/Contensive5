@@ -232,8 +232,8 @@ namespace Contensive.Processor.Controllers {
                                 core.cache.invalidateRecordKey(linkAliasId, LinkAliasModel.tableMetadata.tableNameLower);
                                 //
                                 // -- invalidate routemap
-                                Models.Domain.RouteMapModel.invalidateCache(core);
-                                core.routeMapCacheClear();
+                                //Models.Domain.RouteMapModel.invalidateCache(core);
+                                core.routeMapRebuild();
                             }
                         }
                     }

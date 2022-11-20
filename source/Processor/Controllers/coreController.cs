@@ -561,12 +561,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// method to clear the core instance of routeMap. Explained in routeMap.
         /// </summary>
-        public void addonCacheClearNonPersistent() {
-            _addonCacheNonPersistent = null;
-        }
-        /// <summary>
-        /// method to clear the core instance of routeMap. Explained in routeMap.
-        /// </summary>
         public void addonCacheClear() {
             cache.invalidate(cacheName_addonCachePersistent);
             _addonCacheNonPersistent = null;
@@ -767,11 +761,17 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// clear the addon cache, the persistent routeMap, and the non-persistent RouteMap
         /// </summary>
-        public void routeMapCacheClear() {
+        public void routeMapRebuild() {
             // 
-            addonCacheClear();
-            Models.Domain.RouteMapModel.invalidateCache(this);
+            // -- clear cache and local routeMap
+            cache.invalidate(RouteMapModel.cacheNameRouteMap);
             _routeMap = null;
+            //
+            // -- no idea why we added the addon clear
+            addonCacheClear();
+            //
+            // -- rebuild the map
+            var ignore = routeMap;
         }
         //
         //====================================================================================================

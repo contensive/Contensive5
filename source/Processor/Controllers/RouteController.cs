@@ -391,7 +391,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static void processBuiltInForms(CoreController core) {
             try {
-                if(!core.docProperties.containsKey("ccformsn")) { return; }
+                //if(!core.docProperties.containsKey("ccformsn")) { return; }
                 string formType = core.docProperties.getText(core.docProperties.getText("ccformsn") + "type");
                 if (string.IsNullOrEmpty(formType)) { return;  }
                 //

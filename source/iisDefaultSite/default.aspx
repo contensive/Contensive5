@@ -32,12 +32,6 @@
                         DefaultSite.WindowsTempFileController.deleteTmpFile(file.windowsTempfilename)
                     Next
                     '
-                    ' -- transfer response to webserver
-                    If (Not String.IsNullOrEmpty(context.Response.redirectUrl)) Then
-                        Response.Redirect(context.Response.redirectUrl, False)
-                        Exit Sub
-                    End If
-                    '
                     For Each header As Contensive.Processor.Models.Domain.HttpContextResponseHeader In context.Response.headers
                         Response.Headers.Add(header.name, header.value)
                     Next
@@ -60,8 +54,16 @@
                     Response.Expires = context.Response.expires
                     Response.Buffer = context.Response.buffer
                     '
-                    ' -- write content body to webserver
-                    Response.Write(content)
+                    ' -- transfer response to webserver
+                    If (Not String.IsNullOrEmpty(context.Response.redirectUrl)) Then
+                        '
+                        ' -- perform redirect. Do not exit because reload required if route change
+                        Response.Redirect(context.Response.redirectUrl, False)
+                    Else
+                        '
+                        ' -- write content body to webserver
+                        Response.Write(content)
+                    End If
                     '
                     ' -- if routeMap changed, unload app domain
                     If (ConfigurationClass.routeMapDateInvalid() OrElse (cp.routeMap.dateCreated <> CDate(HttpContext.Current.Application("RouteMapDateCreated")))) Then
@@ -80,9 +82,9 @@
                 Dim allowOrigin As String = ConfigurationManager.AppSettings("DefaultCORSAllowOrigin")
                 HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Origin", If(String.IsNullOrEmpty(allowOrigin), "*", allowOrigin))
                 '
-				if allowOrigin<>"*" then
-					HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Credentials", "true")
-				end if
+                if allowOrigin<>"*" then
+                    HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Credentials", "true")
+                end if
                 '
                 Dim allowMethods As String = ConfigurationManager.AppSettings("DefaultCORSAllowMethods")
                 HttpContext.Current.Response.Headers.Set("Access-Control-Allow-Methods", If(String.IsNullOrEmpty(allowMethods), "GET,PUT,POST,DELETE,PATCH,OPTIONS", allowMethods))

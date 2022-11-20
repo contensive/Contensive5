@@ -1043,6 +1043,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // Update the Link Aliases
                             //
                             LinkAliasController.addLinkAlias(cp.core, linkAlias, editRecord.id, "", OverRideDuplicate, DupCausesWarning);
+                            //
+                            // -- no, routemap is cleared in addLinkAlias
+                            // -- clear the routemap, rebuilt on exit
+                            //cp.core.routeMapCacheClear();
                         }
                     }
                 }
