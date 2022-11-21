@@ -178,8 +178,8 @@ namespace Contensive.Processor.Controllers {
                     }
                 } else if (tableNameLower == PageContentModel.tableMetadata.tableNameLower) {
                     //
-                    // -- no, the saveLinkAlias feature does a rebuild if there was a change. pages do not require rebuild
                     // -- clear routeMap, is rebuilt on exit
+                    // -- no, normal save calls addlinkalias, which calls routemaprebuild
                     //core.routeMapRebuild();
                     //
                     // -- set ChildPagesFound true for parent page
