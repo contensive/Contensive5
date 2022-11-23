@@ -719,6 +719,15 @@ namespace Contensive.Processor.Controllers {
         }
         private bool? _beta200327_BlockCCmdForJSONRemoteMethods = null;
         //
+        public bool allowMinify {
+            get {
+                if (allowMinify_Local !=null) { return (bool)allowMinify_Local;  }
+                allowMinify_Local = getBoolean("Allow Addon JS and CSS Minify", true);
+                return (bool)allowMinify_Local;
+            }
+        }
+        private bool? allowMinify_Local = null;
+        //
         //====================================================================================================
         /// <summary>
         /// nlog class instance

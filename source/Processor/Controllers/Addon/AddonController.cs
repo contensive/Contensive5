@@ -440,7 +440,7 @@ namespace Contensive.Processor.Controllers {
                         result.Append("TBD - remotemethod ajax");
                     }
                     //
-                    // -- js head links
+                    // -- js links. Add outside of addon-dependency check because a dependent js may require force-head. addScript methods block duplicates
                     hint = 10;
                     {
                         string scriptUrl = (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
@@ -449,9 +449,12 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     //
-                    // -- js head code
+                    // -- js code
                     hint = 11;
-                    if (!string.IsNullOrEmpty(addon.jsFilename.filename)) {
+                    if (core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyJsFilename.filename)) {
+                        string scriptUrl = getCdnFileLink(core, addon.minifyJsFilename.filename);
+                        core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                    } else if (!string.IsNullOrEmpty(addon.jsFilename.filename)) {
                         string scriptUrl = getCdnFileLink(core, addon.jsFilename.filename);
                         core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
                     }
@@ -592,8 +595,10 @@ namespace Contensive.Processor.Controllers {
                             core.doc.addonIdList_AddedMetedata.Add(addon.id);
                             addMetaData = true;
                             //
-                            // -- styles
-                            if (!string.IsNullOrEmpty(addon.stylesFilename.filename)) {
+                            // -- styles (use minify version)
+                            if (core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyStylesFilename.filename)) {
+                                core.html.addStyleLink(getCdnFileLink(core, addon.minifyStylesFilename.filename), addon.name + " Minified Stylesheet");
+                            } else if (!string.IsNullOrEmpty(addon.stylesFilename.filename)) {
                                 core.html.addStyleLink(getCdnFileLink(core, addon.stylesFilename.filename), addon.name + " Stylesheet");
                             }
                             //

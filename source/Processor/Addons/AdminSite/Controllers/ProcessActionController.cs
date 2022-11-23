@@ -180,13 +180,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             //
                                             PersonModel recipient = DbBaseModel.create<PersonModel>(cp, GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value));
-                                            if ( recipient == null ) {
+                                            if (recipient == null) {
                                                 ErrorController.addUserError(cp.core, "The test text message could not be sent because the 'Send Confirmation To' selection is not valid.");
                                             } else {
                                                 string textBody = encodeText(adminData.editRecord.fieldsLc["body"].value);
-                                                int  textMessageId = adminData.editRecord.id;
+                                                int textMessageId = adminData.editRecord.id;
                                                 string userErrorMessage = "";
-                                                TextMessageController.queuePersonTextMessage(cp.core, recipient, textBody, true, adminData.editRecord.id, ref userErrorMessage , "Admin Send Test" );
+                                                TextMessageController.queuePersonTextMessage(cp.core, recipient, textBody, true, adminData.editRecord.id, ref userErrorMessage, "Admin Send Test");
                                                 if (!string.IsNullOrEmpty(userErrorMessage)) {
                                                     ErrorController.addUserError(cp.core, "There was an error sending the test text message [" + userErrorMessage + "]");
                                                 } else {
@@ -478,7 +478,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     TurnOnLinkAlias(cp, UseContentWatchLink);
                                 }
                             }
-                        } else if (GenericController.toUCase(adminData.adminContent.tableName) == GenericController.toUCase("ccGroups")) {
+                        } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCGROUPS") {
                             //
                             //
                             SaveEditRecord(cp, adminData);
@@ -495,6 +495,73 @@ namespace Contensive.Processor.Addons.AdminSite {
                             SaveContentTracking(cp, adminData);
                             string EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", adminData.editRecord.id.ToString(), 1, 99, 1);
                             cp.core.privateFiles.deleteFile(EditorStyleRulesFilename);
+                        } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCAGGREGATEFUNCTIONS") {
+                            //
+                            // -- Addons. save and auto minify
+                            SaveEditRecord(cp, adminData);
+                            adminData.loadContentTrackingDataBase(cp.core);
+                            adminData.loadContentTrackingResponse(cp.core);
+                            SaveContentTracking(cp, adminData);
+                            // -- minify css
+                            {
+                                EditRecordFieldModel field = adminData.editRecord.fieldsLc["stylesfilename"];
+                                EditRecordFieldModel minField = adminData.editRecord.fieldsLc["minifystylesfilename"];
+                                if (string.IsNullOrEmpty(field.value.ToString())) {
+                                    // -- field is blank, clear both
+                                    minField.value = "";
+                                    cp.Db.ExecuteNonQuery("update ccaggregatefunctions set stylesFilename=null,MinifyStylesFilename=null where id=" + adminData.editRecord.id);
+                                } else {
+                                    // -- field not blank
+                                    var minData = NUglify.Uglify.Css(field.value.ToString());
+                                    if (string.IsNullOrEmpty(minData.Code) && !string.IsNullOrEmpty(minField.value.ToString())) {
+                                        // -- field not blank, min-current is blank, min-new not blank
+                                        minField.value = "";
+                                        cp.Db.ExecuteNonQuery("update ccaggregatefunctions set MinifyStylesFilename=null where id=" + adminData.editRecord.id);
+                                    } else {
+                                        // -- field not blank, min-current not blank
+                                        var minFilename = cp.Db.CreateFieldPathFilename("CCAGGREGATEFUNCTIONS", "minifyStylesFilename", adminData.editRecord.id, CPContentBaseClass.FieldTypeIdEnum.FileCSS);
+                                        cp.Db.ExecuteNonQuery("update ccaggregatefunctions set MinifyStylesFilename=" + DbController.encodeSQLText(minFilename) + " where id=" + adminData.editRecord.id);
+                                        cp.CdnFiles.Save(minFilename, minData.Code);
+                                        minField.value = minData.Code;
+                                    }
+                                }
+                            }
+                            // -- minify javascript
+                            {
+                                EditRecordFieldModel field = adminData.editRecord.fieldsLc["jsfilename"];
+                                EditRecordFieldModel minField = adminData.editRecord.fieldsLc["minifyjsfilename"];
+                                if (string.IsNullOrEmpty(field.value.ToString())) {
+                                    // -- field is blank, clear both
+                                    minField.value = "";
+                                    cp.Db.ExecuteNonQuery("update ccaggregatefunctions set jsfilename=null,Minifyjsfilename=null where id=" + adminData.editRecord.id);
+                                } else {
+                                    // -- field not blank
+                                    var minData = NUglify.Uglify.Js(field.value.ToString());
+                                    if (string.IsNullOrEmpty(minData.Code) && !string.IsNullOrEmpty(minField.value.ToString())) {
+                                        // -- field not blank, min-current is blank, min-new not blank
+                                        minField.value = "";
+                                        cp.Db.ExecuteNonQuery("update ccaggregatefunctions set Minifyjsfilename=null where id=" + adminData.editRecord.id);
+                                    } else {
+                                        // -- field not blank, min-current not blank
+                                        var minFilename = cp.Db.CreateFieldPathFilename("CCAGGREGATEFUNCTIONS", "minifyjsfilename", adminData.editRecord.id, CPContentBaseClass.FieldTypeIdEnum.FileCSS);
+                                        cp.Db.ExecuteNonQuery("update ccaggregatefunctions set Minifyjsfilename=" + DbController.encodeSQLText(minFilename) + " where id=" + adminData.editRecord.id);
+                                        cp.CdnFiles.Save(minFilename, minData.Code);
+                                        minField.value = minData.Code;
+                                    }
+                                }
+                            }
+
+
+
+                            EditRecordFieldModel jsFilenameField = adminData.editRecord.fieldsLc["jsfilename"];
+                            if (!string.IsNullOrEmpty(jsFilenameField.value.ToString())) {
+                                var minjs = NUglify.Uglify.Js(jsFilenameField.value.ToString());
+                                var minJsfilename = cp.Db.CreateFieldPathFilename("CCAGGREGATEFUNCTIONS", "minifyJsFilename", adminData.editRecord.id, CPContentBaseClass.FieldTypeIdEnum.FileJavascript);
+                                cp.Db.ExecuteNonQuery("update ccaggregatefunctions set MinifyJsFilename=" + DbController.encodeSQLText(minJsfilename) + " where id=" + adminData.editRecord.id);
+                                cp.CdnFiles.Save(minJsfilename, minjs.Code);
+                                EditRecordFieldModel minifyJsFilenameField = adminData.editRecord.fieldsLc["minifyjsfilename"];
+                                minifyJsFilenameField.value = minjs.Code;
+                            }
                         } else {
                             //
                             //

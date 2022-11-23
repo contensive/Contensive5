@@ -55,14 +55,21 @@ namespace Contensive.Models.Db {
         /// </summary>
         public bool javascriptForceHead { get; set; }
         /// <summary>
-        /// The src used for html platform 4 (or unset)
+        /// The src used by default (if no JSHeadScriptPlatform5Src is present, or if platform is not set to 5)
         /// </summary>
         public string jsHeadScriptSrc { get; set; }
         /// <summary>
         /// The src used for html platform 5
         /// </summary>
         public string JSHeadScriptPlatform5Src { get; set; }
+        /// <summary>
+        /// The javascript added to end-of-body or head for any platform. 
+        /// </summary>
         public FieldTypeJavascriptFile jsFilename { get; set; }
+        /// <summary>
+        /// created from jsFilename by minify
+        /// </summary>
+        public FieldTypeJavascriptFile minifyJsFilename { get; set; }
         public string link { get; set; }
         public string metaDescription { get; set; }
         public string metaKeywordList { get; set; }
@@ -95,6 +102,10 @@ namespace Contensive.Models.Db {
         public int scriptingLanguageId { get; set; }
         public string scriptingTimeout { get; set; }
         public FieldTypeCSSFile stylesFilename { get; set; }
+        /// <summary>
+        /// created from stylesfilename by minify
+        /// </summary>
+        public FieldTypeCSSFile minifyStylesFilename { get; set; }
         /// <summary>
         /// The link to a stylesheet, used for html platform 4 or when the platform is unset
         /// </summary>
