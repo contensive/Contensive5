@@ -498,7 +498,7 @@ namespace Contensive.Models.Db {
             T instance;
             try {
                 instance = addEmpty<T>(cp, userId);
-                if (instance == null ) { return instance; }
+                if (instance == null) { return instance; }
                 foreach (PropertyInfo instanceProperty in instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                     string propertyName = instanceProperty.Name;
                     string propertyValue = "";
@@ -1054,7 +1054,7 @@ namespace Contensive.Models.Db {
                                         if (fileFieldContentUpdated) {
                                             PropertyInfo fileFieldFilenameProperty = instanceProperty.PropertyType.GetProperty("filename");
                                             string fileFieldFilename = (string)fileFieldFilenameProperty.GetValue(textFileProperty);
-                                            if ((String.IsNullOrEmpty(fileFieldFilename)) && (id != 0)) {
+                                            if (string.IsNullOrEmpty(fileFieldFilename) && (id != 0)) {
                                                 // 
                                                 // -- if record exists and file property's filename is not set, get the filename from the Db
                                                 using DataTable dt = cp.Db.ExecuteQuery("select " + instanceProperty.Name + " from " + tableName + " where (id=" + id + ")");
@@ -1064,12 +1064,15 @@ namespace Contensive.Models.Db {
                                             }
                                             PropertyInfo fileFieldContentProperty = instanceProperty.PropertyType.GetProperty("content");
                                             string fileFieldContent = (string)fileFieldContentProperty.GetValue(textFileProperty);
-                                            if ((string.IsNullOrEmpty(fileFieldContent)) && (!string.IsNullOrEmpty(fileFieldFilename))) {
+                                            if (string.IsNullOrEmpty(fileFieldContent) ) {
                                                 //
-                                                // -- empty content and valid filename, delete the file and clear the filename
-                                                sqlPairs.Add(instanceProperty.Name, cp.Db.EncodeSQLText(string.Empty));
-                                                cp.CdnFiles.DeleteFile(fileFieldFilename);
-                                                fileFieldFilenameProperty.SetValue(textFileProperty, string.Empty);
+                                                //-- empty content
+                                                if (!string.IsNullOrEmpty(fileFieldFilename)) {
+                                                    // -- empty content and valid filename, delete the file and clear the filename
+                                                    sqlPairs.Add(instanceProperty.Name, cp.Db.EncodeSQLText(string.Empty));
+                                                    cp.CdnFiles.DeleteFile(fileFieldFilename);
+                                                    fileFieldFilenameProperty.SetValue(textFileProperty, string.Empty);
+                                                }
                                             } else {
                                                 //
                                                 // -- save content
@@ -1458,8 +1461,8 @@ namespace Contensive.Models.Db {
         /// <param name="sqlCriteria">The sql delete statement where criteria. Cannot be blank.</param>
         public static void deleteRows<T>(CPBaseClass cp, string sqlCriteria) where T : DbBaseModel {
             try {
-                if (string.IsNullOrEmpty(sqlCriteria)) { 
-                    throw new ArgumentException("deleteRows cannot be called with a blank sqlCriteria."); 
+                if (string.IsNullOrEmpty(sqlCriteria)) {
+                    throw new ArgumentException("deleteRows cannot be called with a blank sqlCriteria.");
                 }
                 cp.Db.DeleteRows(derivedTableName(typeof(T)), sqlCriteria);
                 invalidateCacheOfTable<T>(cp);
