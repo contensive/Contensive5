@@ -1938,7 +1938,7 @@
       <HelpDefault><![CDATA[Enter javascript directly to be used for this addon. The Javascript-Src field and the Javascript field can be used together.]]></HelpDefault>
     </Field>
     <Field Name="MinifyJSFilename" active="1" AdminOnly="0" Authorable="1" Caption="Minified Javacript" DeveloperOnly="0" EditSortPriority="2040" FieldType="JavascriptFile" HTMLContent="0" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Javascript" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
-      <HelpDefault><![CDATA[This field is automatically created from Javascript on save. If present, this is delivered by the site instead of the Javascript field.]]></HelpDefault>
+      <HelpDefault><![CDATA[This field is automatically created from Javascript on save. If present, this is delivered by the site instead of the Javascript field. To enable or disable automatic style and js minification, set the site property 'Allow Addon JS and CSS Minify' to true or false.]]></HelpDefault>
     </Field>
 
     <!-- Meta Content -->
@@ -2059,7 +2059,7 @@
       <HelpDefault><![CDATA[Enter individual styles and a stylesheet will be created for the html document and a link to it will be added to the html document's head tag.]]></HelpDefault>
     </Field>
     <Field Name="MinifyStylesFilename" active="1" AdminOnly="0" Authorable="1" Caption="Minified Styles" DeveloperOnly="0" EditSortPriority="4030" FieldType="CSSFile" HTMLContent="0" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Styles" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
-      <HelpDefault><![CDATA[This field is automatically created from Styles on save.]]></HelpDefault>
+      <HelpDefault><![CDATA[This field is automatically created from Styles on save. To enable or disable automatic style and js minification, set the site property 'Allow Addon JS and CSS Minify' to true or false.]]></HelpDefault>
     </Field>
 
     <!-- deprecated -->

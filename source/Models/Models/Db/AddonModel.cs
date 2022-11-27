@@ -200,7 +200,7 @@ namespace Contensive.Models.Db {
                 AddonModel addon = DbBaseModel.createByUniqueName<AddonModel>(cp, recordName);
                 if (addon != null) { return addon; }
                 List<AddonModel> addonList = createList<AddonModel>(cp, "(','+aliasList+',' like " + cp.Db.EncodeSQLTextLike("," + recordName + ",") + ")");
-                if(addonList.Count>0) { return addonList.First(); }
+                if (addonList.Count > 0) { return addonList.First(); }
                 return null;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -217,6 +217,32 @@ namespace Contensive.Models.Db {
         public static void setRunNow(CPBaseClass cp, string addonGuid) {
             cp.Db.ExecuteNonQuery("update ccaggregatefunctions set processRunOnce=1 where ccguid=" + cp.Db.EncodeSQLText(addonGuid));
         }
+        //
+        /// <summary>
+        /// return true if the cssUrl is local so it can be read from either www or cdn. not local if length<6 or does not start with <, //, http:, https:
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="addon"></param>
+        /// <returns></returns>
+        public static bool isAssetUrlLocal(CPBaseClass cp, string assetUrl) {
+            if (string.IsNullOrEmpty(assetUrl)) { return false; }
+            string assetUrlLower = assetUrl.ToLower();
+            if (assetUrlLower.Length<6) { return false; }
+            return assetUrlLower.Substring(0, 1) != "<" && assetUrlLower.Substring(0, 5) != "http:" && assetUrlLower.Substring(0, 6) != "https:" && assetUrlLower.Substring(0, 2) != "//";
+            //return (!string.IsNullOrEmpty(assetUrl) && assetUrl.Length > 1 && assetUrl.Substring(0, 1) == "/" && assetUrl.Substring(0, 2) != "//");
+        }
+        //
+        /// <summary>
+        /// return either framework5 or framework4 cssUrl.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="addon"></param>
+        /// <returns></returns>
+        public static string  getPlatformAsset(CPBaseClass cp,  string platform5Asset, string defaultAsset) {
+            string cssUrl = (cp.Site.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(platform5Asset)) ? platform5Asset : defaultAsset;
+            //string cssUrl = (cp.Site.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
+            return cssUrl.Trim();
+        }
     }
     //
     /// <summary>
@@ -224,12 +250,12 @@ namespace Contensive.Models.Db {
     /// The content that will be delivered from teh addon
     /// </summary>
     public enum AddonContentSourceEnum {
-        All=1,
-        ContentText=2,
-        ContentWysiwyg=3,
-        RemoteAsset=4,
-        FormExecution=5,
-        ScriptingCodeExecution=6, 
-        DotNetCodeExecution=7
+        All = 1,
+        ContentText = 2,
+        ContentWysiwyg = 3,
+        RemoteAsset = 4,
+        FormExecution = 5,
+        ScriptingCodeExecution = 6,
+        DotNetCodeExecution = 7
     }
 }

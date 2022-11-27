@@ -439,24 +439,27 @@ namespace Contensive.Processor.Controllers {
                         //
                         result.Append("TBD - remotemethod ajax");
                     }
-                    //
-                    // -- js links. Add outside of addon-dependency check because a dependent js may require force-head. addScript methods block duplicates
                     hint = 10;
-                    {
-                        string scriptUrl = (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
-                        if (!string.IsNullOrEmpty(scriptUrl)) {
-                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
-                        }
-                    }
                     //
                     // -- js code
                     hint = 11;
-                    if (core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyJsFilename.filename)) {
-                        string scriptUrl = getCdnFileLink(core, addon.minifyJsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                    bool validMinJs = core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyJsFilename.filename);
+                    if (validMinJs) {
+                        string scriptCodeUrl = getCdnFileLink(core, addon.minifyJsFilename.filename);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
                     } else if (!string.IsNullOrEmpty(addon.jsFilename.filename)) {
-                        string scriptUrl = getCdnFileLink(core, addon.jsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        string scriptCodeUrl = getCdnFileLink(core, addon.jsFilename.filename);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                    }
+                    //
+                    // -- js Url
+                    string scriptUrl = AddonModel.getPlatformAsset(core.cpParent, addon.JSHeadScriptPlatform5Src, addon.jsHeadScriptSrc); //(core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
+                    if (!string.IsNullOrEmpty(scriptUrl)) {
+                        if (validMinJs && AddonModel.isAssetUrlLocal(core.cpParent, scriptUrl)) {
+                            // -- local js, was included in minified
+                        } else {
+                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        }
                     }
                     if (!isDependencyThatAlreadyRan) {
                         //
@@ -596,16 +599,24 @@ namespace Contensive.Processor.Controllers {
                             addMetaData = true;
                             //
                             // -- styles (use minify version)
-                            if (core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyStylesFilename.filename)) {
+                            bool validMinCss = core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyStylesFilename.filename);
+                            if (validMinCss) {
+                                // -- minified if allow and minified styles exists
                                 core.html.addStyleLink(getCdnFileLink(core, addon.minifyStylesFilename.filename), addon.name + " Minified Stylesheet");
                             } else if (!string.IsNullOrEmpty(addon.stylesFilename.filename)) {
+                                // -- non-minified if not allow, no minified styles, and rawStyles exist
                                 core.html.addStyleLink(getCdnFileLink(core, addon.stylesFilename.filename), addon.name + " Stylesheet");
                             }
                             //
-                            // -- link to stylesheet
-                            string styleSheetUrl = (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
-                            if (!string.IsNullOrEmpty(styleSheetUrl)) {
-                                core.html.addStyleLink(styleSheetUrl, addon.name + " Stylesheet Link");
+                            // -- link to stylesheet if not in minified styles. if allowmin and url starts with '/', it was in the min. 
+                            string cssUrl = AddonModel.getPlatformAsset(core.cpParent, addon.StylesLinkPlatform5Href, addon.stylesLinkHref); // (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
+                            if (!string.IsNullOrEmpty(cssUrl)) {
+                                if (validMinCss && AddonModel.isAssetUrlLocal(core.cpParent, cssUrl)) {  // (styleSheetUrl.Substring(0, 1) == "/" && styleSheetUrl.Substring(0, 2) != "//")) {
+                                    // -- url is wrapped up in minified styles
+                                } else {
+                                    // -- style link is not allow-minified, or it does not begin with "/"
+                                    core.html.addStyleLink(cssUrl, addon.name + " Stylesheet Link");
+                                }
                             }
                         }
                         //

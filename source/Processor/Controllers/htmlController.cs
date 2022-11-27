@@ -155,7 +155,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="AllowTools"></param>
         /// <returns></returns>
         public string getHtmlBodyEnd(bool AllowLogin, bool AllowTools) {
-            List<string> result = new List<string>();
+            List<string> result = new();
             try {
                 //
                 // -- content extras like tool panel
@@ -180,9 +180,9 @@ namespace Contensive.Processor.Controllers {
                         scriptOnLoad.Add(asset.content + ";");
                     }
                     if (!asset.isLink) {
-                        result.Add("<script Language=\"JavaScript\" type=\"text/javascript\">" + asset.content + "</script>");
+                        result.Add(Environment.NewLine + "<script Language=\"JavaScript\" type=\"text/javascript\">" + asset.content + "</script>");
                     } else {
-                        result.Add("<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                        result.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
                     }
                 }
                 if (scriptOnLoad.Count > 0) {

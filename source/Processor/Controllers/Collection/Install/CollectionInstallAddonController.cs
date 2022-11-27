@@ -52,6 +52,7 @@ namespace Contensive.Processor.Controllers {
                     if (navTypeId == 0) {
                         navTypeId = NavTypeIDAddon;
                     }
+                    int addonId = 0;
                     using (var cs = new CsModel(core)) {
                         string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(addonGuid) + ")";
                         cs.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
@@ -87,7 +88,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                         } else {
-                            int addonId = cs.getInteger("ID");
+                            addonId = cs.getInteger("ID");
                             MetadataController.deleteContentRecords(core, "Add-on Include Rules", "addonid=" + addonId);
                             MetadataController.deleteContentRecords(core, "Add-on Content Trigger Rules", "addonid=" + addonId);
                             //
@@ -446,6 +447,14 @@ namespace Contensive.Processor.Controllers {
                             cs.set("StylesFilename", StyleSheet.ToString());
                         }
                         cs.close();
+                        //
+                        // -- style and js minification
+                        if (addonId > 0) {
+                            var addon = DbBaseModel.create<AddonModel>(core.cpParent, addonId);
+                            if (addon != null) {
+                                MinifyController.minifyAddon(core, addon);
+                            }
+                        }
                     }
                 }
             } catch (Exception ex) {

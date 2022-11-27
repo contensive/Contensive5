@@ -504,7 +504,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             SaveContentTracking(cp, adminData);
                             {
                                 var addon = DbBaseModel.create<AddonModel>(cp, adminData.editRecord.id);
-                                MinifyController.minifyAddonStyles(cp.core, addon);
+                                MinifyController.minifyAddon(cp.core, addon);
                             }
                             //// -- minify css
                             //{

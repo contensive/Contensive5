@@ -10,21 +10,73 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public class MinifyController : IDisposable {
         //
-        public static void minifyAddonStyles(CoreController core, AddonModel addon) {
+        //====================================================================================================
+        //
+        public static void minifyAddon(CoreController core, AddonModel addon) {
             try {
-                // -- minify css
-                if (string.IsNullOrEmpty(addon.stylesFilename.content)) {
-                    addon.minifyStylesFilename.content = "";
-                } else {
-                    addon.minifyStylesFilename.content = NUglify.Uglify.Css(addon.stylesFilename.content).Code;
+                {
+                    string cssRaw = "";
+                    //
+                    // -- css text box
+                    if (!string.IsNullOrEmpty(addon.stylesFilename.content)) {
+                        cssRaw += Environment.NewLine + addon.stylesFilename.content;
+                    }
+                    //
+                    // -- css url
+                    string cssUrl = AddonModel.getPlatformAsset(core.cpParent, addon.StylesLinkPlatform5Href, addon.stylesLinkHref);
+                    if (AddonModel.isAssetUrlLocal(core.cpParent, cssUrl)) {
+                        // -- detect if in www files, or cdn files by checking if it starts with the serverConfig cdn prefix
+                        if (cssUrl.IndexOf(core.appConfig.cdnFileUrl) == 0) {
+                            // -- url is in cdn files
+                            cssRaw += Environment.NewLine + core.cdnFiles.readFileText(cssUrl.Substring(core.appConfig.cdnFileUrl.Length));
+                        } else {
+                            // -- url is in www files
+                            cssRaw += Environment.NewLine + core.wwwFiles.readFileText(cssUrl);
+                        }
+                    }
+                    //string cssUrl = (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
+                    //cssUrl = cssUrl.Trim();
+                    //if (!string.IsNullOrEmpty(cssUrl)) {
+                    //    if (cssUrl.Length > 1 && cssUrl.Substring(0, 1) == "/" && cssUrl.Substring(0, 2) != "//") {
+                    //        // -- detect if in www files, or cdn files by checking if it starts with the serverConfig cdn prefix
+                    //        if (cssUrl.IndexOf(core.appConfig.cdnFileUrl) == 0) {
+                    //            // -- url is in cdn files
+                    //            cssRaw += Environment.NewLine + core.cdnFiles.readFileText(cssUrl.Substring(core.appConfig.cdnFileUrl.Length));
+                    //        } else {
+                    //            // -- url is in www files
+                    //            cssRaw += Environment.NewLine + core.wwwFiles.readFileText(cssUrl);
+                    //        }
+                    //    }
+                    //}
+                    addon.minifyStylesFilename.content = NUglify.Uglify.Css(cssRaw).Code;
                 }
-                // -- minify javascript
-                if (string.IsNullOrEmpty(addon.jsFilename.content)) {
-                    addon.minifyJsFilename.content = "";
-                } else {
-                    addon.minifyJsFilename.content = NUglify.Uglify.Css(addon.jsFilename.content).Code;
+                {
+                    //
+                    // -- minify javascript
+                    string jsRaw = "";
+                    //
+                    // -- js textbox
+                    if (!string.IsNullOrEmpty(addon.jsFilename.content)) {
+                        jsRaw += Environment.NewLine + addon.jsFilename.content;
+                    }
+                    //
+                    // -- js Url
+                    string jsUrl = AddonModel.getPlatformAsset(core.cpParent, addon.JSHeadScriptPlatform5Src, addon.jsHeadScriptSrc); // (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
+                    jsUrl = jsUrl.Trim();
+                    if (AddonModel.isAssetUrlLocal(core.cpParent, jsUrl)) {
+                        if (jsUrl.IndexOf(core.appConfig.cdnFileUrl) == 0) {
+                            // -- url is in cdn files
+                            jsRaw += Environment.NewLine + core.cdnFiles.readFileText(jsUrl.Substring(core.appConfig.cdnFileUrl.Length));
+                        } else {
+                            // -- url is in www files
+                            jsRaw += Environment.NewLine + core.wwwFiles.readFileText(jsUrl);
+                        }
+                    }
+                    addon.minifyJsFilename.content = NUglify.Uglify.Js(jsRaw).Code;
                 }
+                //
                 addon.save(core.cpParent);
+
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
