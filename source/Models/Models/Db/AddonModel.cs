@@ -219,7 +219,10 @@ namespace Contensive.Models.Db {
         }
         //
         /// <summary>
-        /// return true if the cssUrl is local so it can be read from either www or cdn. not local if length<6 or does not start with <, //, http:, https:
+        /// return true if the cssUrl is local so it can be read from either www or cdn. 
+        /// not local if length<6
+        /// includes double-dot
+        /// starts with <, //, http:, https:
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="addon"></param>
@@ -227,9 +230,10 @@ namespace Contensive.Models.Db {
         public static bool isAssetUrlLocal(CPBaseClass cp, string assetUrl) {
             if (string.IsNullOrEmpty(assetUrl)) { return false; }
             string assetUrlLower = assetUrl.ToLower();
-            if (assetUrlLower.Length<6) { return false; }
-            return assetUrlLower.Substring(0, 1) != "<" && assetUrlLower.Substring(0, 5) != "http:" && assetUrlLower.Substring(0, 6) != "https:" && assetUrlLower.Substring(0, 2) != "//";
-            //return (!string.IsNullOrEmpty(assetUrl) && assetUrl.Length > 1 && assetUrl.Substring(0, 1) == "/" && assetUrl.Substring(0, 2) != "//");
+            // -- see summary for detail list
+            if (assetUrlLower.IndexOf("..") != -1) { return false; }
+            if (assetUrlLower.Length<6) { return true; }
+            return assetUrlLower.Substring(0, 1) != "<"  && assetUrlLower.Substring(0, 5) != "http:" && assetUrlLower.Substring(0, 6) != "https:" && assetUrlLower.Substring(0, 2) != "//";
         }
         //
         /// <summary>

@@ -369,13 +369,23 @@ namespace Contensive.Processor.Controllers {
                         core.privateFiles.renameFile("Config\\SMTPBlockList.txt", "Legacy_SMTPBlockList.txt");
                         core.cdnFiles.renameFile("Config\\SMTPBlockList_" + core.appConfig.name + ".txt", "Legacy_SMTPBlockList_" + core.appConfig.name + ".txt");
                     }
-                }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "22.11.27.5")) { 
+                        //
+                        // -- minify addon styles and javascript
+                        foreach ( var addon in DbBaseModel.createList<AddonModel>(cp)) {
+                            try {
+                                MinifyController.minifyAddon(core, addon);
+                            } catch (Exception ex) {
+                                LogController.logWarn(core, ex, "Warning during upgrade, data migration, build addon css and js minification, addon [" + addon.id + ", " + addon.name + "]");
+                            }
+                        }
+                    }
+                    }
                 // -- Reload
                 core.cache.invalidateAll();
                 core.clearMetaData();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
+                LogController.logError(core, ex, "Warning during upgrade, data migration");
             }
         }
         //

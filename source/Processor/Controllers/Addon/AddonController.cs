@@ -162,7 +162,28 @@ namespace Contensive.Processor.Controllers {
         /// <param name="executeContext"></param>
         /// <returns></returns>
         public string execute(string addonGuid, CPUtilsBaseClass.addonExecuteContext executeContext) {
-            return execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuid), executeContext);
+            AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuid);
+            if (addon == null) {
+                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "]");
+                return "";
+            }
+            return execute(addon, executeContext);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// execute an addon by its id
+        /// </summary>
+        /// <param name="addonId"></param>
+        /// <param name="executeContext"></param>
+        /// <returns></returns>
+        public string execute(int addonId, CPUtilsBaseClass.addonExecuteContext executeContext) {
+            AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonId);
+            if (addon == null) {
+                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonId [" + addonId + "]");
+                return "";
+            }
+            return execute(addon, executeContext);
         }
         //
         //====================================================================================================

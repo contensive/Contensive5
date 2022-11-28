@@ -173,8 +173,9 @@ namespace Contensive.Processor.Controllers {
                 bool allowDebugging = core.visitProperty.getBoolean("AllowDebugging");
                 var scriptOnLoad = new List<string>();
                 foreach (var asset in core.doc.htmlAssetList.FindAll((a) => ((a.assetType == CPDocBaseClass.HtmlAssetTypeEnum.script) || (a.assetType == CPDocBaseClass.HtmlAssetTypeEnum.scriptOnLoad)) && (!a.inHead) && (!string.IsNullOrEmpty(a.content)))) {
-                    if ((asset.addedByMessage != "") && allowDebugging) {
-                        result.Add(Environment.NewLine + "<!-- from " + asset.addedByMessage + " -->\r\n");
+                    if (string.IsNullOrEmpty(asset.content)) { continue; }
+                    if (!string.IsNullOrEmpty(asset.addedByMessage) && allowDebugging) {
+                        result.Add(Environment.NewLine + "<!-- from " + asset.addedByMessage + " -->");
                     }
                     if (asset.assetType == CPDocBaseClass.HtmlAssetTypeEnum.scriptOnLoad) {
                         scriptOnLoad.Add(asset.content + ";");
@@ -182,7 +183,11 @@ namespace Contensive.Processor.Controllers {
                     if (!asset.isLink) {
                         result.Add(Environment.NewLine + "<script Language=\"JavaScript\" type=\"text/javascript\">" + asset.content + "</script>");
                     } else {
-                        result.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                        if (asset.content.Trim().Substring(0, 1) == "<") {
+                            result.Add(Environment.NewLine + asset.content);
+                        } else {
+                            result.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                        }
                     }
                 }
                 if (scriptOnLoad.Count > 0) {
@@ -3177,21 +3182,30 @@ namespace Contensive.Processor.Controllers {
                     List<string> headScriptList = new List<string>();
                     List<string> styleList = new List<string>();
                     foreach (var asset in core.doc.htmlAssetList.FindAll((CPDocBaseClass.HtmlAssetClass item) => (item.inHead))) {
+                        if (string.IsNullOrEmpty(asset.content)) { continue; }
                         string debugComment = "";
-                        if ((core.doc.visitPropertyAllowDebugging) && (!string.IsNullOrEmpty(asset.addedByMessage))) {
+                        if (core.doc.visitPropertyAllowDebugging && !string.IsNullOrEmpty(asset.addedByMessage)) {
                             debugComment = Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->";
                         }
                         if (asset.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.style)) {
                             styleList.Add(debugComment);
                             if (asset.isLink) {
-                                styleList.Add(Environment.NewLine + "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + asset.content + "\" >");
+                                if (asset.content.Trim().Substring(0, 1) == "<") {
+                                    styleList.Add(Environment.NewLine + asset.content);
+                                } else {
+                                    styleList.Add(Environment.NewLine + "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + asset.content + "\" >");
+                                }
                             } else {
                                 styleList.Add(Environment.NewLine + "<style>" + asset.content + "</style>");
                             }
                         } else if (asset.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.script)) {
                             headScriptList.Add(debugComment);
                             if (asset.isLink) {
-                                headScriptList.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                                if (asset.content.Trim().Substring(0, 1) == "<") {
+                                    headScriptList.Add(Environment.NewLine + asset.content);
+                                } else {
+                                    headScriptList.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                                }
                             } else {
                                 headScriptList.Add(Environment.NewLine + "<script type=\"text/javascript\">" + asset.content + "</script>");
                             }
@@ -3272,16 +3286,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceAddonId">optional, the addon that supplied this javascript</param>
         public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead, int sourceAddonId) {
             try {
-                string link = scriptUrl.Trim().replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
-                if (string.IsNullOrEmpty(link)) { return; }
-                if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
-                    //
-                    // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
-                    link = "/" + link;
+                if (string.IsNullOrEmpty(scriptUrl)) { return; }
+                string link = scriptUrl.Trim();
+                if(link.Substring(0,1)!="<") {
+                    link = link.replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
+                    if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
+                        //
+                        // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
+                        link = "/" + link;
+                    }
                 }
                 CPDocBaseClass.HtmlAssetClass asset = null;
                 if (sourceAddonId != 0) {
-                    asset = core.doc.htmlAssetList.Find(t => ((t.content == scriptUrl) && (t.isLink)));
+                    asset = core.doc.htmlAssetList.Find(t => ((t.content == link) && (t.isLink)));
                 }
                 if (asset != null) {
                     //
@@ -3296,7 +3313,7 @@ namespace Contensive.Processor.Controllers {
                     addedByMessage = addedByMessage,
                     isLink = true,
                     inHead = forceHead,
-                    content = scriptUrl,
+                    content = link,
                     sourceAddonId = sourceAddonId
                 });
             } catch (Exception ex) {
@@ -3361,12 +3378,15 @@ namespace Contensive.Processor.Controllers {
         /// <param name="addedByMessage">Displayed in debug mode</param>
         public void addStyleLink(string styleSheetUrl, string addedByMessage) {
             try {
-                string link = styleSheetUrl.Trim().replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
-                if (string.IsNullOrEmpty(link)) { return; }
-                if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
-                    //
-                    // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
-                    link = "/" + link;
+                if (string.IsNullOrEmpty(styleSheetUrl)) { return; }
+                string link = styleSheetUrl.Trim();
+                if (link.Substring(0, 1) != "<") {
+                    link = link.replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
+                    if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
+                        //
+                        // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
+                        link = "/" + link;
+                    }
                 }
                 core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
                     addedByMessage = addedByMessage,

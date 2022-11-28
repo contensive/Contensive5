@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a menucrm0210 --install \"jquery\""
+      "commandLineArgs": "-a menucrm0210 -u"
     }
   }
 }
