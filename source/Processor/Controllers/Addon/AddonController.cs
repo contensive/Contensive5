@@ -115,17 +115,22 @@ namespace Contensive.Processor.Controllers {
         /// Execute an addon because it is a dependency of another addon/page/template. A dependancy is only run once in a page.
         /// </summary>
         /// <param name="addon"></param>
-        /// <param name="context"></param>
+        /// <param name="executeContext"></param>
         /// <returns></returns>
         /// 
-        public string executeDependency(AddonModel addon, CPUtilsBaseClass.addonExecuteContext context) {
+        public string executeDependency(AddonModel addon, CPUtilsBaseClass.addonExecuteContext executeContext) {
             //
             if (addon == null) {
-                //
-                LogController.logDebug(core, "AddonController.executeDependency [null]");
+                if (executeContext == null) {
+                    LogController.logWarn(core, "executeDependency argument error, addon null, executeContext is null");
+                    return "";
+                }
+                LogController.logWarn(core, "executeDependency argument error, addon null, executeContext [" + executeContext.errorContextMessage + "]");
                 return "";
             }
-            LogController.logDebug(core, "AddonController.executeDependency [" + addon.name + "]");
+            if (executeContext == null) { executeContext = new CPUtilsBaseClass.addonExecuteContext(); };
+            //
+            LogController.logDebug(core, "AddonController.executeDependency [" + addon.name + "], executeContext [" + executeContext.errorContextMessage + "]");
             //
             // -- no, cannot exit because for ex, if JQ has been added, then it is added again but the js needs to be in the head,
             // -- then it needs to run so it's js is moved to head.
@@ -134,23 +139,23 @@ namespace Contensive.Processor.Controllers {
             //
             // -- save current context
             var contextParent = new CPUtilsBaseClass.addonExecuteContext {
-                forceHtmlDocument = context.forceHtmlDocument,
-                isDependency = context.isDependency,
-                wrapperID = context.wrapperID
+                forceHtmlDocument = executeContext.forceHtmlDocument,
+                isDependency = executeContext.isDependency,
+                wrapperID = executeContext.wrapperID
             };
             //
             // -- set dependency context
-            context.isDependency = true;
-            context.forceHtmlDocument = false;
-            context.wrapperID = 0;
+            executeContext.isDependency = true;
+            executeContext.forceHtmlDocument = false;
+            executeContext.wrapperID = 0;
             //
             // -- execute addon
-            string result = execute(addon, context);
+            string result = execute(addon, executeContext);
             //
             // -- restore previous conext
-            context.wrapperID = contextParent.wrapperID;
-            context.forceHtmlDocument = contextParent.forceHtmlDocument;
-            context.isDependency = contextParent.isDependency;
+            executeContext.wrapperID = contextParent.wrapperID;
+            executeContext.forceHtmlDocument = contextParent.forceHtmlDocument;
+            executeContext.isDependency = contextParent.isDependency;
             return result;
         }
         //
@@ -164,7 +169,11 @@ namespace Contensive.Processor.Controllers {
         public string execute(string addonGuid, CPUtilsBaseClass.addonExecuteContext executeContext) {
             AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuid);
             if (addon == null) {
-                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "]");
+                if (executeContext == null) {
+                    LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext is null");
+                    return "";
+                }
+                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext [" + executeContext.errorContextMessage + "]");
                 return "";
             }
             return execute(addon, executeContext);
@@ -180,7 +189,11 @@ namespace Contensive.Processor.Controllers {
         public string execute(int addonId, CPUtilsBaseClass.addonExecuteContext executeContext) {
             AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonId);
             if (addon == null) {
-                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonId [" + addonId + "]");
+                if (executeContext == null) {
+                    LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonId [" + addonId + "], executeContext is null");
+                    return "";
+                }
+                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonId [" + addonId + "], executeContext [" + executeContext.errorContextMessage + "]");
                 return "";
             }
             return execute(addon, executeContext);

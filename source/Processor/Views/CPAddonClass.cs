@@ -40,13 +40,13 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string Execute(string addonGuid) {
-            return cp.core.addon.execute(addonGuid, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
+            return cp.core.addon.execute(addonGuid, new CPUtilsBaseClass.addonExecuteContext());
         }
         //
         //====================================================================================================
         //
         public override string Execute(string addonGuid, Dictionary<string, string> argumentKeyValuePairs) {
-            return cp.core.addon.execute(addonGuid, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+            return cp.core.addon.execute(addonGuid, new CPUtilsBaseClass.addonExecuteContext {
                 argumentKeyValuePairs = argumentKeyValuePairs
             });
         }
@@ -60,13 +60,13 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string Execute(int addonId) {
-            return cp.core.addon.execute(addonId, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
+            return cp.core.addon.execute(addonId, new CPUtilsBaseClass.addonExecuteContext());
         }
         //
         //====================================================================================================
         //
         public override string Execute(int addonId, Dictionary<string, string> argumentKeyValuePairs) {
-            return cp.core.addon.execute(addonId, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+            return cp.core.addon.execute(addonId, new CPUtilsBaseClass.addonExecuteContext {
                 argumentKeyValuePairs = argumentKeyValuePairs
             });
         }
@@ -82,10 +82,10 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName) {
             AddonModel addon = AddonModel.createByUniqueName(cp, addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]");
+                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
             }
-            return cp.core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext());
+            return cp.core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext());
         }
         //
         //====================================================================================================
@@ -93,10 +93,10 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName, Dictionary<string, string> argumentKeyValuePairs) {
             AddonModel addon = AddonModel.createByUniqueName(cp, addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]");
+                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
             }
-            return cp.core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+            return cp.core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
                 argumentKeyValuePairs = argumentKeyValuePairs
             });
         }
@@ -106,7 +106,7 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName, CPUtilsBaseClass.addonExecuteContext executeContext) {
             AddonModel addon = AddonModel.createByUniqueName(cp, addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]");
+                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "], executeContext [" + executeContext.errorContextMessage + "].");
                 return "";
             }
             return cp.core.addon.execute(addon, executeContext);

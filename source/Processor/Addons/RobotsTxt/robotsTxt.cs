@@ -19,13 +19,16 @@ namespace Contensive.Processor.Addons.RobotsTxt {
                 result = cp.Cache.GetText(cacheKey);
                 if (string.IsNullOrEmpty(result)) {
                     // -- settings page needs a filename
-                    string Filename = core.siteProperties.getText("RobotsTxtFilename", "config/RobotsTxtBase.txt");
+                    string Filename = core.siteProperties.getText("RobotsTxtFilename", "settings/RobotsTxtFilename.txt");
                     result = core.privateFiles.readFileText(Filename);
+                    // -- legacy migrationsw
+                    if (result == "settings/RobotsTxtFilename.txt") { result = ""; }
+                    if (result == "config/RobotsTxtBase.txt") { result = ""; }
                     if (string.IsNullOrEmpty(result)) {
                         //
                         // save default robots.txt
                         //
-                        result = "User-agent: *\r\nDisallow: /admin/\r\nDisallow: /images/";
+                        result = "User-agent: *\r\nDisallow: /admin/";
                         core.privateFiles.saveFile(Filename, result);
                     }
                     //
