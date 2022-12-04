@@ -1232,22 +1232,29 @@ namespace Contensive.Processor.Controllers {
                                                                                     break;
                                                                                 }
                                                                             case "textfile": {
+                                                                                    string fileValue = core.privateFiles.readFileText(fieldValue);
                                                                                     if (fieldReadOnly) {
-                                                                                        Copy = fieldValue + HtmlController.inputHidden(fieldName, fieldValue);
+                                                                                        Copy = fileValue + HtmlController.inputHidden(fieldName, fileValue);
                                                                                     } else {
-                                                                                        Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
+                                                                                        Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fileValue, fieldReadOnly, "", false, "");
                                                                                     }
                                                                                     break;
                                                                                 }
                                                                             case "cssfile": {
-                                                                                    Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
+                                                                                    string fileValue = core.privateFiles.readFileText(fieldValue);
+                                                                                    if (fieldReadOnly) {
+                                                                                        Copy = fieldValue + HtmlController.inputHidden(fieldName, fileValue);
+                                                                                    } else {
+                                                                                        Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fileValue, fieldReadOnly, "", false, "");
+                                                                                    }
                                                                                     break;
                                                                                 }
                                                                             case "xmlfile": {
+                                                                                    string fileValue = core.privateFiles.readFileText(fieldValue);
                                                                                     if (fieldReadOnly) {
-                                                                                        Copy = fieldValue + HtmlController.inputHidden(fieldName, fieldValue);
+                                                                                        Copy = fieldValue + HtmlController.inputHidden(fieldName, fileValue);
                                                                                     } else {
-                                                                                        Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
+                                                                                        Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fileValue, fieldReadOnly, "", false, "");
                                                                                     }
                                                                                     break;
                                                                                 }

@@ -664,7 +664,7 @@ namespace Contensive.Processor.Controllers {
         //
         internal Dictionary<string, string> nameValueDict {
             get {
-                if (dbNotReady) { throw new GenericException("Cannot access site property collection if database is not ready.");}
+                if (dbNotReady) { throw new GenericException("Cannot access site property collection if database is not ready."); }
                 if (_nameValueDict != null) { return _nameValueDict; }
                 _nameValueDict = SitePropertyModel.getNameValueDict(core.cpParent);
                 return _nameValueDict;
@@ -721,12 +721,53 @@ namespace Contensive.Processor.Controllers {
         //
         public bool allowMinify {
             get {
-                if (allowMinify_Local !=null) { return (bool)allowMinify_Local;  }
+                if (allowMinify_Local != null) { return (bool)allowMinify_Local; }
                 allowMinify_Local = getBoolean("Allow Addon JS and CSS Minify", true);
                 return (bool)allowMinify_Local;
             }
         }
         private bool? allowMinify_Local = null;
+        //
+        /// <summary>
+        /// file returned from site property 'RobotsTxtFilename'
+        /// </summary>
+        public string robotsTxt {
+            get {
+                const string defaultFilename = "settings/RobotsTxtFilename.txt";
+                //string cacheKey = core.cache.createKey("RobotsTxt Base Text");
+                //string result = core.cache.getText(cacheKey);
+                //if (!string.IsNullOrEmpty(result)) { return result;  }
+                //
+                string result = core.privateFiles.readFileText(robotsTxtFilename);
+                // -- legacy migrations
+                if (result == "settings/RobotsTxtFilename.txt") { result = ""; }
+                if (result == "Settings/RobotsTxtFilename.txt") { result = ""; }
+                if (result == "config/RobotsTxtBase.txt") { result = ""; }
+                if (string.IsNullOrEmpty(result)) {
+                    //
+                    // reset the filename and save default robots.txt
+                    robotsTxtFilename = defaultFilename;
+                    result = "User-agent: *\r\nDisallow: /admin/";
+                    core.privateFiles.saveFile(robotsTxtFilename, result);
+                }
+                //
+                // -- cache because hit every page. Short 
+                //core.cache.storeObject(cacheKey, result, DateTime.Now.AddMinutes(15));
+                return result;
+            }
+        }
+        //
+        public string robotsTxtFilename {
+            get {
+                if (robotsTxtFilename_Local != null) { return robotsTxtFilename_Local; }
+                robotsTxtFilename_Local = getText("RobotsTxtFilename", "settings/RobotsTxtFilename.txt");
+                return (string)robotsTxtFilename_Local;
+            }
+            set {
+                setProperty("RobotsTxtFilename", value);
+            }
+        }
+        private string robotsTxtFilename_Local = null;
         //
         //====================================================================================================
         /// <summary>

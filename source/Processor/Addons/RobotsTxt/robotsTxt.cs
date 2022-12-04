@@ -15,26 +15,7 @@ namespace Contensive.Processor.Addons.RobotsTxt {
             string result = "";
             try {
                 CoreController core = ((CPClass)cp).core;
-                string cacheKey = cp.Cache.CreateKey( "RobotsTxt Base Text");
-                result = cp.Cache.GetText(cacheKey);
-                if (string.IsNullOrEmpty(result)) {
-                    // -- settings page needs a filename
-                    string Filename = core.siteProperties.getText("RobotsTxtFilename", "settings/RobotsTxtFilename.txt");
-                    result = core.privateFiles.readFileText(Filename);
-                    // -- legacy migrationsw
-                    if (result == "settings/RobotsTxtFilename.txt") { result = ""; }
-                    if (result == "config/RobotsTxtBase.txt") { result = ""; }
-                    if (string.IsNullOrEmpty(result)) {
-                        //
-                        // save default robots.txt
-                        //
-                        result = "User-agent: *\r\nDisallow: /admin/";
-                        core.privateFiles.saveFile(Filename, result);
-                    }
-                    //
-                    // -- 15 minute cache. Add this to settings page 
-                    cp.Cache.Store(cacheKey, result, DateTime.Now.AddMinutes(15));
-                }
+                result = core.siteProperties.robotsTxt;
                 result += core.addonCache.robotsTxt;
                 core.webServer.responseContentType = "text/plain";
                 core.doc.continueProcessing = false;
