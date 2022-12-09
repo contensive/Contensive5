@@ -3122,58 +3122,58 @@ namespace Contensive.Processor.Controllers {
                 if (core.doc.htmlMetaContent_TitleList.Count > 0) {
                     string content = "";
                     foreach (var asset in core.doc.htmlMetaContent_TitleList) {
-                        if ((core.doc.visitPropertyAllowDebugging) && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                            headList.Add(Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
+                        if (core.doc.visitPropertyAllowDebugging && (!string.IsNullOrEmpty(asset.addedByMessage))) {
+                            headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
                         }
-                        content += " | " + asset.content;
+                        content += ", " + asset.content;
                     }
-                    headList.Add(Environment.NewLine + "<title>" + HtmlController.encodeHtml(content.Substring(3)) + "</title>");
+                    headList.Add("<title>" + HtmlController.encodeHtml(content.Substring(2)) + "</title>");
                 }
                 if (core.doc.htmlMetaContent_KeyWordList.Count > 0) {
                     string content = "";
                     foreach (var asset in core.doc.htmlMetaContent_KeyWordList.FindAll((a) => (!string.IsNullOrEmpty(a.content)))) {
-                        if ((core.doc.visitPropertyAllowDebugging) && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                            headList.Add(Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
+                        if (core.doc.visitPropertyAllowDebugging && (!string.IsNullOrEmpty(asset.addedByMessage))) {
+                            headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
                         }
                         content += "," + asset.content;
                     }
                     if (!string.IsNullOrEmpty(content)) {
-                        headList.Add(Environment.NewLine + "<meta name=\"keywords\" content=\"" + HtmlController.encodeHtml(content.Substring(1)) + "\" >");
+                        headList.Add("<meta name=\"keywords\" content=\"" + HtmlController.encodeHtml(content.Substring(1)) + "\" >");
                     }
                 }
                 if (core.doc.htmlMetaContent_Description.Count > 0) {
                     string content = "";
                     foreach (var asset in core.doc.htmlMetaContent_Description) {
                         if ((core.doc.visitPropertyAllowDebugging) && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                            headList.Add(Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
+                            headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
                         }
                         content += "," + asset.content;
                     }
-                    headList.Add(Environment.NewLine + "<meta name=\"description\" content=\"" + HtmlController.encodeHtml(content.Substring(1)) + "\" >");
+                    headList.Add("<meta name=\"description\" content=\"" + HtmlController.encodeHtml(content.Substring(1)) + "\" >");
                 }
                 //
                 // -- favicon
                 string VirtualFilename = core.siteProperties.getText("faviconfilename");
                 switch (Path.GetExtension(VirtualFilename).ToLowerInvariant()) {
                     case ".ico":
-                        headList.Add(Environment.NewLine + "<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
+                        headList.Add("<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".png":
-                        headList.Add(Environment.NewLine + "<link rel=\"icon\" type=\"image/png\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
+                        headList.Add("<link rel=\"icon\" type=\"image/png\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".gif":
-                        headList.Add(Environment.NewLine + "<link rel=\"icon\" type=\"image/gif\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
+                        headList.Add("<link rel=\"icon\" type=\"image/gif\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".jpg":
-                        headList.Add(Environment.NewLine + "<link rel=\"icon\" type=\"image/jpg\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
+                        headList.Add("<link rel=\"icon\" type=\"image/jpg\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                 }
-                headList.Add(Environment.NewLine + "<meta name=\"generator\" content=\"Contensive\">");
+                headList.Add("<meta name=\"generator\" content=\"Contensive\">");
                 //
                 // -- no-follow
                 if (core.doc.noFollow) {
-                    headList.Add(Environment.NewLine + "<meta name=\"robots\" content=\"nofollow\" >");
-                    headList.Add(Environment.NewLine + "<meta name=\"mssmarttagspreventparsing\" content=\"true\" >");
+                    headList.Add("<meta name=\"robots\" content=\"nofollow\" >");
+                    headList.Add("<meta name=\"mssmarttagspreventparsing\" content=\"true\" >");
                 }
                 //
                 // -- css and js
@@ -3191,23 +3191,23 @@ namespace Contensive.Processor.Controllers {
                             styleList.Add(debugComment);
                             if (asset.isLink) {
                                 if (asset.content.Trim().Substring(0, 1) == "<") {
-                                    styleList.Add(Environment.NewLine + asset.content);
+                                    styleList.Add(asset.content);
                                 } else {
-                                    styleList.Add(Environment.NewLine + "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + asset.content + "\" >");
+                                    styleList.Add("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + asset.content + "\" >");
                                 }
                             } else {
-                                styleList.Add(Environment.NewLine + "<style>" + asset.content + "</style>");
+                                styleList.Add("<style>" + asset.content + "</style>");
                             }
                         } else if (asset.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.script)) {
                             headScriptList.Add(debugComment);
                             if (asset.isLink) {
                                 if (asset.content.Trim().Substring(0, 1) == "<") {
-                                    headScriptList.Add(Environment.NewLine + asset.content);
+                                    headScriptList.Add(asset.content);
                                 } else {
-                                    headScriptList.Add(Environment.NewLine + "<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
+                                    headScriptList.Add("<script type=\"text/javascript\" src=\"" + asset.content + "\"></script>");
                                 }
                             } else {
-                                headScriptList.Add(Environment.NewLine + "<script type=\"text/javascript\">" + asset.content + "</script>");
+                                headScriptList.Add("<script type=\"text/javascript\">" + asset.content + "</script>");
                             }
                         }
                     }
@@ -3218,14 +3218,14 @@ namespace Contensive.Processor.Controllers {
                 // -- other head tags - always last
                 foreach (var asset in core.doc.htmlMetaContent_OtherTags.FindAll((a) => (!string.IsNullOrEmpty(a.content)))) {
                     if ((core.doc.visitPropertyAllowDebugging) && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                        headList.Add(Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
+                        headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
                     }
-                    headList.Add(Environment.NewLine + asset.content);
+                    headList.Add(asset.content);
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
-            return string.Join("\r", headList);
+            return string.Join(Environment.NewLine, headList);
         }
         //
         //====================================================================================================

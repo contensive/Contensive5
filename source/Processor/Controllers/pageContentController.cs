@@ -469,13 +469,13 @@ namespace Contensive.Processor.Controllers {
                     PageContentModel page = core.doc.pageController.page;
                     //
                     // -- title tag. If metaTitle is empty, only add page.name if the title is empty
-                    if(core.doc.htmlMetaContent_TitleList.Count == 0) {
-                        if (string.IsNullOrEmpty(page.pageTitle)) {
-                            core.html.addTitle(HtmlController.encodeHtml(page.name), "page content");
-                        } else {
-                            core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
-                        }
+                    //if(core.doc.htmlMetaContent_TitleList.Count == 0) {
+                    if (string.IsNullOrEmpty(page.pageTitle)) {
+                        core.html.addTitle(HtmlController.encodeHtml(page.name), "page content");
+                    } else {
+                        core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
                     }
+                    //}
                     if (core.doc.htmlMetaContent_Description.Count == 0) {
                         core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content"); 
                     }
