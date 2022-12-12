@@ -90,11 +90,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="ContensiveDbModels, Version=4.1.2.0, Culture=neutral, PublicKeyToken=c014b235a9c6bb22">
-      <HintPath>..\packages\Contensive.DbModels.22.12.8.1\lib\net472\ContensiveDbModels.dll</HintPath>
+      <HintPath>..\packages\Contensive.DbModels.22.12.12.5\lib\net472\ContensiveDbModels.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CPBase, Version=4.1.2.0, Culture=neutral, PublicKeyToken=10b3c53389b845fb">
-      <HintPath>..\packages\Contensive.CPBaseClass.22.12.8.1\lib\net472\CPBase.dll</HintPath>
+      <HintPath>..\packages\Contensive.CPBaseClass.22.12.12.5\lib\net472\CPBase.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Enyim.Caching, Version=2.16.0.0, Culture=neutral, PublicKeyToken=cec98615db04012e, processorArchitecture=MSIL">
@@ -119,8 +119,8 @@
       <HintPath>..\packages\Humanizer.Core.2.8.26\lib\netstandard2.0\Humanizer.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="ICSharpCode.SharpZipLib, Version=1.3.3.11, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
-      <HintPath>..\packages\SharpZipLib.1.3.3\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=1.4.1.12, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
+      <HintPath>..\packages\SharpZipLib.1.4.1\lib\netstandard2.0\ICSharpCode.SharpZipLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="M2Mqtt.Net, Version=4.3.0.0, Culture=neutral, PublicKeyToken=null">
@@ -167,7 +167,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
-      <HintPath>..\packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.13.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
@@ -189,8 +189,8 @@
       <HintPath>..\packages\Pipelines.Sockets.Unofficial.2.2.0\lib\net472\Pipelines.Sockets.Unofficial.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Processor, Version=22.12.8.1, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
-      <HintPath>..\packages\Contensive.Processor.22.12.8.1\lib\net472\Processor.dll</HintPath>
+    <Reference Include="Processor, Version=22.12.12.5, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
+      <HintPath>..\packages\Contensive.Processor.22.12.12.5\lib\net472\Processor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SixLabors.ImageSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13">

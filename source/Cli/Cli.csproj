@@ -15,6 +15,7 @@
 
   <PropertyGroup>
     <NoWarn>1701;1702;1591</NoWarn>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup Label="Nuget">

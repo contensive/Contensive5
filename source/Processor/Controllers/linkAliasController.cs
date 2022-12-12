@@ -20,16 +20,18 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Returns the Alias link (SourceLink) from the actual link (DestinationLink)
+        /// Returns the Alias link (SourceLink) from the actual link (DestinationLink).
+        /// if not found, it creates the link alias from the default
         /// </summary>
-        public static string getLinkAlias(CoreController core, int PageID, string QueryStringSuffix, string DefaultLink) {
-            string linkAlias = DefaultLink;
+        public static string getLinkAlias(CoreController core, int PageID, string QueryStringSuffix, string DefaultPageName) {
+            string linkAlias = DefaultPageName;
             List<LinkAliasModel> linkAliasList = LinkAliasModel.createPageList(core.cpParent, PageID, QueryStringSuffix);
-            if (linkAliasList.Count > 0) {
-                linkAlias = linkAliasList.First().name;
-                if (linkAlias.left(1) != "/") {
-                    linkAlias = "/" + linkAlias;
-                }
+            if (linkAliasList.Count == 0) {
+                return addLinkAlias(core, DefaultPageName, PageID, QueryStringSuffix);
+            }
+            linkAlias = linkAliasList.First().name;
+            if (linkAlias.left(1) != "/") {
+                linkAlias = "/" + linkAlias;
             }
             return linkAlias;
         }
@@ -44,23 +46,23 @@ namespace Contensive.Processor.Controllers {
         /// <param name="QueryStringSuffix"></param>
         /// <param name="OverRideDuplicate">Should alway be true except in admin edit page where the user may not realize</param>
         /// <param name="DupCausesWarning">Always false except in admin edit where the user needs a warning</param>
-        public static void addLinkAlias(CoreController core, string linkAlias, int PageID, string QueryStringSuffix, bool OverRideDuplicate, bool DupCausesWarning) {
+        public static string  addLinkAlias(CoreController core, string linkAlias, int PageID, string QueryStringSuffix, bool OverRideDuplicate, bool DupCausesWarning) {
             string tempVar = "";
-            addLinkAlias(core, linkAlias, PageID, QueryStringSuffix, OverRideDuplicate, DupCausesWarning, ref tempVar);
+            return addLinkAlias(core, linkAlias, PageID, QueryStringSuffix, OverRideDuplicate, DupCausesWarning, ref tempVar);
         }
         //
         //====================================================================================================
         //
-        public static void addLinkAlias(CoreController core, string linkAlias, int PageID, string QueryStringSuffix) {
+        public static string  addLinkAlias(CoreController core, string linkAlias, int PageID, string QueryStringSuffix) {
             string tempVar = "";
-            addLinkAlias(core, linkAlias, PageID, QueryStringSuffix, true, false, ref tempVar);
+            return addLinkAlias(core, linkAlias, PageID, QueryStringSuffix, true, false, ref tempVar);
         }
         //
         //====================================================================================================
         /// <summary>
         /// add a link alias to a page as the primary
         /// </summary>
-        public static void addLinkAlias(CoreController core, string linkAlias, int pageId, string queryStringSuffix, bool overRideDuplicate, bool dupCausesWarning, ref string return_WarningMessage) {
+        public static string addLinkAlias(CoreController core, string linkAlias, int pageId, string queryStringSuffix, bool overRideDuplicate, bool dupCausesWarning, ref string return_WarningMessage) {
             string hint = "";
             try {
                 //
@@ -241,6 +243,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.logTrace(core, "addLinkAlias, exit");
                 //
+                return normalizedLinkAlias;
             } catch (Exception ex) {
                 LogController.logError(core, ex, "addLinkAlias exception, hint [" + hint + "]");
                 throw;

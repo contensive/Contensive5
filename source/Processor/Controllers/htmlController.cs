@@ -3119,33 +3119,40 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 // -- meta content
+                bool allowDebug = core.doc.visitPropertyAllowDebugging;
                 if (core.doc.htmlMetaContent_TitleList.Count > 0) {
                     string content = "";
-                    foreach (var asset in core.doc.htmlMetaContent_TitleList) {
-                        if (core.doc.visitPropertyAllowDebugging && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                            headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
-                        }
+                    string addedByMessage = "";
+                    foreach (var asset in core.doc.htmlMetaContent_TitleList.FindAll((a) => !string.IsNullOrWhiteSpace(a.content))) {
                         content += ", " + asset.content;
+                        if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage) && !addedByMessage.Contains(asset.addedByMessage)) {
+                            addedByMessage += asset.addedByMessage + " ";
+                        }
                     }
-                    headList.Add("<title>" + HtmlController.encodeHtml(content.Substring(2)) + "</title>");
+                    if (!string.IsNullOrWhiteSpace(content)) {
+                        if (!string.IsNullOrWhiteSpace(addedByMessage)) { headList.Add(getAddedByComment(addedByMessage)); }
+                        headList.Add("<title>" + HtmlController.encodeHtml(content.Substring(2)) + "</title>");
+                    }
                 }
                 if (core.doc.htmlMetaContent_KeyWordList.Count > 0) {
                     string content = "";
-                    foreach (var asset in core.doc.htmlMetaContent_KeyWordList.FindAll((a) => (!string.IsNullOrEmpty(a.content)))) {
-                        if (core.doc.visitPropertyAllowDebugging && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                            headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
-                        }
+                    string addedByMessage = "";
+                    foreach (var asset in core.doc.htmlMetaContent_KeyWordList.FindAll((a) => !string.IsNullOrWhiteSpace(a.content))) {
                         content += "," + asset.content;
+                        if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage) && !addedByMessage.Contains(asset.addedByMessage)) {
+                            addedByMessage += asset.addedByMessage + " ";
+                        }
                     }
-                    if (!string.IsNullOrEmpty(content)) {
+                    if (!string.IsNullOrWhiteSpace(content)) {
+                        if (!string.IsNullOrWhiteSpace(addedByMessage)) { headList.Add(getAddedByComment(addedByMessage)); }
                         headList.Add("<meta name=\"keywords\" content=\"" + HtmlController.encodeHtml(content.Substring(1)) + "\" >");
                     }
                 }
                 if (core.doc.htmlMetaContent_Description.Count > 0) {
                     string content = "";
-                    foreach (var asset in core.doc.htmlMetaContent_Description) {
-                        if ((core.doc.visitPropertyAllowDebugging) && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                            headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
+                    foreach (var asset in core.doc.htmlMetaContent_Description.FindAll((a) => !string.IsNullOrWhiteSpace(a.content))) {
+                        if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
+                            headList.Add(getAddedByComment(asset.addedByMessage));
                         }
                         content += "," + asset.content;
                     }
@@ -3156,15 +3163,19 @@ namespace Contensive.Processor.Controllers {
                 string VirtualFilename = core.siteProperties.getText("faviconfilename");
                 switch (Path.GetExtension(VirtualFilename).ToLowerInvariant()) {
                     case ".ico":
+                        headList.Add(getAddedByComment("site setting favicon upload"));
                         headList.Add("<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".png":
+                        headList.Add(getAddedByComment("site setting favicon upload"));
                         headList.Add("<link rel=\"icon\" type=\"image/png\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".gif":
+                        headList.Add(getAddedByComment("site setting favicon upload"));
                         headList.Add("<link rel=\"icon\" type=\"image/gif\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".jpg":
+                        headList.Add(getAddedByComment("site setting favicon upload"));
                         headList.Add("<link rel=\"icon\" type=\"image/jpg\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                 }
@@ -3183,12 +3194,10 @@ namespace Contensive.Processor.Controllers {
                     List<string> styleList = new List<string>();
                     foreach (var asset in core.doc.htmlAssetList.FindAll((CPDocBaseClass.HtmlAssetClass item) => (item.inHead))) {
                         if (string.IsNullOrEmpty(asset.content)) { continue; }
-                        string debugComment = "";
-                        if (core.doc.visitPropertyAllowDebugging && !string.IsNullOrEmpty(asset.addedByMessage)) {
-                            debugComment = Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->";
-                        }
                         if (asset.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.style)) {
-                            styleList.Add(debugComment);
+                            if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
+                                styleList.Add(getAddedByComment(asset.addedByMessage));
+                            }
                             if (asset.isLink) {
                                 if (asset.content.Trim().Substring(0, 1) == "<") {
                                     styleList.Add(asset.content);
@@ -3199,7 +3208,9 @@ namespace Contensive.Processor.Controllers {
                                 styleList.Add("<style>" + asset.content + "</style>");
                             }
                         } else if (asset.assetType.Equals(CPDocBaseClass.HtmlAssetTypeEnum.script)) {
-                            headScriptList.Add(debugComment);
+                            if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
+                                headScriptList.Add(getAddedByComment(asset.addedByMessage));
+                            }
                             if (asset.isLink) {
                                 if (asset.content.Trim().Substring(0, 1) == "<") {
                                     headScriptList.Add(asset.content);
@@ -3217,8 +3228,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- other head tags - always last
                 foreach (var asset in core.doc.htmlMetaContent_OtherTags.FindAll((a) => (!string.IsNullOrEmpty(a.content)))) {
-                    if ((core.doc.visitPropertyAllowDebugging) && (!string.IsNullOrEmpty(asset.addedByMessage))) {
-                        headList.Add("<!-- added by " + HtmlController.encodeHtml(asset.addedByMessage) + " -->");
+                    if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage)) {
+                        headList.Add(getAddedByComment(asset.addedByMessage, "Other Head Tags"));
                     }
                     headList.Add(asset.content);
                 }
@@ -3288,7 +3299,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (string.IsNullOrEmpty(scriptUrl)) { return; }
                 string link = scriptUrl.Trim();
-                if(link.Substring(0,1)!="<") {
+                if (link.Substring(0, 1) != "<") {
                     link = link.replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
                     if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
                         //
@@ -4210,6 +4221,18 @@ namespace Contensive.Processor.Controllers {
                 }
             }
             return ruleFields;
+        }
+        //
+        //====================================================================================================
+        //
+        private static string getAddedByComment(string addedByMessage, string addedBySuffix) {
+            return Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(addedByMessage) + ", " + addedBySuffix + " -->";
+        }
+        //
+        //====================================================================================================
+        //
+        private static string getAddedByComment(string addedByMessage) {
+            return Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(addedByMessage) + " -->";
         }
 
         //
