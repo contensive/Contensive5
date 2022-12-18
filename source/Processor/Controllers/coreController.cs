@@ -1,6 +1,4 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.BaseModels;
+﻿using Contensive.BaseModels;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
@@ -10,6 +8,8 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using static Contensive.Processor.Constants;
+//
+#nullable enable
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -62,7 +62,7 @@ namespace Contensive.Processor.Controllers {
                 return _awsCredentials;
             }
         }
-        private AwsCredentialsModel _awsCredentials = null;
+        private AwsCredentialsModel? _awsCredentials = null;
         //
         //===================================================================================================
         /// <summary>
@@ -395,45 +395,48 @@ namespace Contensive.Processor.Controllers {
         //
         //===================================================================================================
         //
+        /// <summary>
+        /// www file system.
+        /// testing pattern to block null ref return
+        /// </summary>
         public FileController wwwFiles {
             get {
-                if (_appRootFiles == null) {
-                    if (appConfig != null) {
-                        if (appConfig.enabled) {
-                            _appRootFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localWwwPath, appConfig.remoteWwwPath);
-                        }
-                    }
+                if (_wwwFiles != null) { return _wwwFiles; }
+                if (appConfig == null || !appConfig.enabled) {
+                    if (appConfig == null) { throw new Exceptions.GenericException("Access to www filesystem is disabled because appConfig is not valid."); }
+                    throw new Exceptions.GenericException("Access to www filesystem is disabled because this app is disabled.");
                 }
-                return _appRootFiles;
+                _wwwFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localWwwPath, appConfig.remoteWwwPath);
+                return _wwwFiles;
             }
         }
-        private FileController _appRootFiles;
+        private FileController _wwwFiles;
         //
         //===================================================================================================
         //
         public FileController tempFiles {
             get {
-                if (_tmpFiles == null) {
-                    //
-                    // local server -- everything is ephemeral
-                    _tmpFiles = new FileController(this, appConfig.localTempPath);
+                if (_tempFiles != null) { return _tempFiles; }
+                if (appConfig == null || !appConfig.enabled) {
+                    if (appConfig == null) { throw new Exceptions.GenericException("Access to temp filesystem is disabled because appConfig is not valid."); }
+                    throw new Exceptions.GenericException("Access to temp filesystem is disabled because this app is disabled.");
                 }
-                return _tmpFiles;
+                _tempFiles = new FileController(this, appConfig.localTempPath);
+                return _tempFiles;
             }
         }
-        private FileController _tmpFiles;
+        private FileController _tempFiles;
         //
         //===================================================================================================
         //
         public FileController privateFiles {
             get {
-                if (_privateFiles == null) {
-                    if (appConfig != null) {
-                        if (appConfig.enabled) {
-                            _privateFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localPrivatePath, appConfig.remotePrivatePath);
-                        }
-                    }
+                if (_privateFiles != null) { return _privateFiles; }
+                if (appConfig == null || !appConfig.enabled) {
+                    if (appConfig == null) { throw new Exceptions.GenericException("Access to private filesystem is disabled because appConfig is not valid."); }
+                    throw new Exceptions.GenericException("Access to private filesystem is disabled because this app is disabled.");
                 }
+                _privateFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localPrivatePath, appConfig.remotePrivatePath);
                 return _privateFiles;
             }
         }
@@ -528,13 +531,12 @@ namespace Contensive.Processor.Controllers {
         //
         public FileController cdnFiles {
             get {
-                if (_cdnFiles == null) {
-                    if (appConfig != null) {
-                        if (appConfig.enabled) {
-                            _cdnFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localFilesPath, appConfig.remoteFilePath);
-                        }
-                    }
+                if (_cdnFiles != null) { return _cdnFiles; }
+                if (appConfig == null || !appConfig.enabled) {
+                    if (appConfig == null) { throw new Exceptions.GenericException("Access to cdn filesystem is disabled because appConfig is not valid."); }
+                    throw new Exceptions.GenericException("Access to cdn filesystem is disabled because this app is disabled.");
                 }
+                _cdnFiles = new FileController(this, serverConfig.isLocalFileSystem, appConfig.localFilesPath, appConfig.remoteFilePath);
                 return _cdnFiles;
             }
         }
@@ -549,7 +551,7 @@ namespace Contensive.Processor.Controllers {
             get {
                 if (_addonCacheNonPersistent == null) {
                     _addonCacheNonPersistent = cache.getObject<AddonCacheModel>(cacheName_addonCachePersistent);
-                    if (_addonCacheNonPersistent == null  || _addonCacheNonPersistent.isEmpty) {
+                    if (_addonCacheNonPersistent == null || _addonCacheNonPersistent.isEmpty) {
                         _addonCacheNonPersistent = new AddonCacheModel(this);
                         cache.storeObject(cacheName_addonCachePersistent, _addonCacheNonPersistent);
                     }
@@ -557,7 +559,7 @@ namespace Contensive.Processor.Controllers {
                 return _addonCacheNonPersistent;
             }
         }
-        private AddonCacheModel _addonCacheNonPersistent;
+        private AddonCacheModel? _addonCacheNonPersistent;
         /// <summary>
         /// method to clear the core instance of routeMap. Explained in routeMap.
         /// </summary>
@@ -686,7 +688,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="httpContext"></param>
         /// <param name="cp"></param>
         /// <remarks></remarks>
-        private void coreController_Initialize(CPClass cp, string appName, HttpContextModel httpContext, bool allowVisit) {
+        private void coreController_Initialize(CPClass cp, string? appName, HttpContextModel? httpContext, bool allowVisit) {
             try {
 
                 this.cpParent = cp;
@@ -870,7 +872,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                             hint = "50";
-                            if (session?.visit !=null && !deleteSessionOnExit && siteProperties.allowVisitTracking) {
+                            if (session?.visit != null && !deleteSessionOnExit && siteProperties.allowVisitTracking) {
                                 hint = "51";
                                 //
                                 // If visit tracking, save the viewing record
@@ -962,7 +964,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// nlog class instance
         /// </summary>
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger logger { get; } = NLog.LogManager.GetCurrentClassLogger();
         /// <summary>
         /// dispose pattern
         /// </summary>

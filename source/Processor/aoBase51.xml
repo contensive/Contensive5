@@ -660,12 +660,12 @@
     <Field Name="timeZoneId" active="1" AdminOnly="0" Authorable="1" Caption="Time Zone" DeveloperOnly="0" EditSortPriority="2110" FieldType="Lookup" HTMLContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Contact" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="Time Zones" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault><![CDATA[The primary contact for the person. ]]></HelpDefault>
     </Field>
-		<Field Name="longitude" active="True" AdminOnly="False" Authorable="True" Caption="Longitude " DeveloperOnly="False" EditSortPriority="2120" FieldType="Float" HTMLContent="False" IndexColumn="0" IndexSortDirection="3" IndexSortOrder="" IndexWidth="" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Gift Card" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="True" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="">
+		<Field Name="longitude" active="True" AdminOnly="False" Authorable="True" Caption="Longitude " DeveloperOnly="False" EditSortPriority="2120" FieldType="Float" HTMLContent="False" IndexColumn="0" IndexSortDirection="3" IndexSortOrder="" IndexWidth="" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Contact" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="True" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="">
 			<HelpDefault>
 				<![CDATA[Location of the address.]]>
 			</HelpDefault>
 		</Field>
-		<Field Name="latitude" active="True" AdminOnly="False" Authorable="True" Caption="Latitude " DeveloperOnly="False" EditSortPriority="2130" FieldType="Float" HTMLContent="False" IndexColumn="0" IndexSortDirection="3" IndexSortOrder="" IndexWidth="" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Gift Card" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="True" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="">
+		<Field Name="latitude" active="True" AdminOnly="False" Authorable="True" Caption="Latitude " DeveloperOnly="False" EditSortPriority="2130" FieldType="Float" HTMLContent="False" IndexColumn="0" IndexSortDirection="3" IndexSortOrder="" IndexWidth="" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Contact" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="True" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="">
 			<HelpDefault>
 				<![CDATA[Location of the address.]]>
 			</HelpDefault>
@@ -1245,6 +1245,32 @@
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
   </CDef> 
+
+  <CDef Name="Text Message Log" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccTextMessageLog" ContentDataSourceName="DEFAULT" ContentTableName="ccTextMessageLog" DefaultSortMethod="By Date" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{7F4286D6-77CB-499E-AC34-11CD20B1C27C}">
+    <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="100" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="100" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="1" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[ ]]></HelpDefault>
+    </Field>
+    <Field Name="SendStatus" active="1" AdminOnly="0" Authorable="1" Caption="Send Status" DeveloperOnly="0" EditSortPriority="1005" FieldType="Text" HTMLContent="0" IndexColumn="4" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="10" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[OK if successful, else the reason for the failure.]]></HelpDefault>
+    </Field>
+    <Field Name="ToPhone" active="1" AdminOnly="0" Authorable="1" Caption="To Phone" DeveloperOnly="0" EditSortPriority="1010" FieldType="Text" HTMLContent="0" IndexColumn="1" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[ ]]></HelpDefault>
+    </Field>
+    <Field Name="body" active="1" AdminOnly="0" Authorable="1" Caption="Body" DeveloperOnly="0" EditSortPriority="1030" FieldType="html" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[ ]]></HelpDefault>
+    </Field>
+    <Field Name="SystemTextMessageID" active="1" AdminOnly="0" Authorable="1" Caption="System Text Message" DeveloperOnly="0" EditSortPriority="2000" FieldType="Lookup" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="System Text Messages" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[If set, this log entry if from a system text. ]]></HelpDefault>
+    </Field>
+    <Field Name="GroupTextMessageID" active="1" AdminOnly="0" Authorable="1" Caption="Group Text Message" DeveloperOnly="0" EditSortPriority="2010" FieldType="Lookup" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="Group Text Messages" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[If set, this log entry if from a group text.]]></HelpDefault>
+    </Field>
+    <Field Name="MemberID" active="1" AdminOnly="0" Authorable="1" Caption="Identity" DeveloperOnly="0" EditSortPriority="2020" FieldType="Lookup" HTMLContent="0" IndexColumn="2" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="People" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[ ]]></HelpDefault>
+    </Field>
+  </CDef>
+
+
   <CDef Name="Email" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccEmail" ContentDataSourceName="DEFAULT" ContentTableName="ccEmail" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{76EE0F33-ACEB-4DF6-818D-663C20736CA7}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[The name for this email. The name is not visible to the public.]]></HelpDefault>
@@ -1415,7 +1441,7 @@
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
   </CDef>
-  <CDef Name="Email Log" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="0" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccEmailLog" ContentDataSourceName="DEFAULT" ContentTableName="ccEmailLog" DefaultSortMethod="By Date" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{81CFB57E-F25A-48AF-94D3-4A0DC0F87635}">
+  <CDef Name="Email Log" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccEmailLog" ContentDataSourceName="DEFAULT" ContentTableName="ccEmailLog" DefaultSortMethod="By Date" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{81CFB57E-F25A-48AF-94D3-4A0DC0F87635}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="100" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="100" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="1" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -2284,7 +2310,7 @@
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
   </CDef>
-  <CDef Name="Link Aliases" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="0" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccLinkAliases" ContentDataSourceName="DEFAULT" ContentTableName="ccLinkAliases" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{F2236BCF-B87F-4BAD-97D3-3C49F59F5125}">
+  <CDef Name="Link Aliases" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccLinkAliases" ContentDataSourceName="DEFAULT" ContentTableName="ccLinkAliases" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{F2236BCF-B87F-4BAD-97D3-3C49F59F5125}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="1000" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="30" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="true" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -2916,6 +2942,10 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.HouseKeepingControlClass]]></DotNetClass>
     <Admin>Yes</Admin>
   </Addon>
+  <Addon name="Text Message Process Task" guid="{62F33A3B-A958-4EB6-942E-ACBA5FC2C914}" type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.TextMessage.TextMessageProcessTask]]></DotNetClass>
+    <ProcessInterval>1</ProcessInterval>
+  </Addon>
   <Addon name="Text Message Send Task" guid="{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}" type="Add-on">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.TextMessage.TextMessageSendTask]]></DotNetClass>
     <ProcessInterval></ProcessInterval>
@@ -3426,6 +3456,7 @@ $(function () {
   <NavigatorEntry Name="Manage Text Messages" NameSpace="" NavIconTitle="" NavIconType="Email" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" active="1" AddonGuid="" guid="{4C87965D-CAA4-46A7-AD90-222CF9A869BF}" />
   <NavigatorEntry Name="Group Text Messages" NameSpace="Manage Text Messages" NavIconTitle="" NavIconType="Email" LinkPage="" ContentName="Group Text Messages" AdminOnly="0" DeveloperOnly="0" NewWindow="0" active="1" AddonGuid="" guid="{45359549-DA2F-4A66-8065-F81B73186FB5}" />
   <NavigatorEntry Name="System Text Messages" NameSpace="Manage Text Messages" NavIconTitle="" NavIconType="Email" LinkPage="" ContentName="System Text Messages" AdminOnly="0" DeveloperOnly="0" NewWindow="0" active="1" AddonGuid="" guid="{7E8566BB-7FAC-44B3-8DF5-A76D5D4C723E}" />
+  <NavigatorEntry Name="Text Message Log" NameSpace="Manage Text Messages" NavIconTitle="" NavIconType="Email" LinkPage="" ContentName="Text Message Log" AdminOnly="0" DeveloperOnly="0" NewWindow="0" active="1" AddonGuid="" guid="{96235BBF-6089-4592-8EC5-AE2C9C671534}" />
 
   <!-- Manage Email -->
   <NavigatorEntry Name="Manage Email" NameSpace="" NavIconTitle="" NavIconType="Email" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" active="1" AddonGuid="" guid="{A3585B7D-A14E-4850-B0A7-51C6D96A6579}" />

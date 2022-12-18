@@ -3124,7 +3124,11 @@ namespace Contensive.Processor.Controllers {
                     string content = "";
                     string addedByMessage = "";
                     foreach (var asset in core.doc.htmlMetaContent_TitleList.FindAll((a) => !string.IsNullOrWhiteSpace(a.content))) {
-                        content += ", " + asset.content;
+                        string testContent = content + ", " + asset.content;
+                        if (!string.IsNullOrWhiteSpace(content) && testContent.Length > 60) { break; }
+                        //
+                        // -- allow if resulting title length <= 60
+                        content = testContent;
                         if (allowDebug && !string.IsNullOrWhiteSpace(asset.addedByMessage) && !addedByMessage.Contains(asset.addedByMessage)) {
                             addedByMessage += asset.addedByMessage + " ";
                         }
@@ -4240,6 +4244,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// nlog class instance
         /// </summary>
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger logger { get; } = NLog.LogManager.GetCurrentClassLogger();
     }
 }

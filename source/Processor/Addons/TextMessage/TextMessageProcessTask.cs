@@ -5,12 +5,12 @@ using System;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Addons.TextMessage {
-    public class TextMessageSendTask : AddonBaseClass {
+    public class TextMessageProcessTask : AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
-        /// Send texts in teh queue.
-        /// Use TextMessageProcessTask to periodically process group texts
+        /// periodic process of group texts and queue send (for retries). 
+        /// Use TextMessageSendTask to send texts added to the queue
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
@@ -19,6 +19,9 @@ namespace Contensive.Processor.Addons.TextMessage {
                 //
                 // -- ok to cast cpbase to cp because they build from the same solution
                 CoreController core = ((CPClass)cp).core;
+                //
+                // Send Submitted Group Email (submitted, not sent, no conditions)
+                TextMessageController.processGroupTextMessage(core);
                 //
                 // -- send queue
                 TextMessageController.sendTextMessageQueue(core);

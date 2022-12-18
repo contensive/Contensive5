@@ -43,9 +43,10 @@ namespace Contensive.Processor {
                     textBody = smsMessage,
                     toPhone = smsPhoneNumber,
                     attempts = 0,
-                    textMessageId = 0,
+                    systemTextMessageId = 0,
+                    groupTextMessageId = 0,
                     toMemberId = 0
-                }, ref userError);
+                }, ref userError, "Send to " + smsPhoneNumber);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

@@ -11,6 +11,7 @@ namespace Contensive.Processor.Models.Domain {
         public string toPhone { get; set; }
         public string textBody { get; set; }
         public int attempts { get; set; }
-        public int textMessageId { get; set; }
+        public int systemTextMessageId { get; set; }
+        public int groupTextMessageId { get; set; }
     }
 }

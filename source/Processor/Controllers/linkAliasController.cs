@@ -27,6 +27,8 @@ namespace Contensive.Processor.Controllers {
             string linkAlias = DefaultPageName;
             List<LinkAliasModel> linkAliasList = LinkAliasModel.createPageList(core.cpParent, PageID, QueryStringSuffix);
             if (linkAliasList.Count == 0) {
+                //
+                // -- this page/qs does not have a link alias, add the default page name
                 return addLinkAlias(core, DefaultPageName, PageID, QueryStringSuffix);
             }
             linkAlias = linkAliasList.First().name;

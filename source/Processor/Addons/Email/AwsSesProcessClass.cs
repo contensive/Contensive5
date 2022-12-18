@@ -188,9 +188,11 @@ namespace Contensive.Processor.Addons {
             // add to server's block list, "(programfiles)\config\SMTPBlockList_(appName).txt", vbcrlf + emailAddress + vbTab + dateTime
             //
             EmailController.blockEmailAddress(cp.core, emailAddress);
-            string filename = "\\config\\SMTPBlockList_" + cp.Site.Name + ".txt";
-            string blockList = cp.CdnFiles.Read(filename);
-            cp.CdnFiles.Save(filename, blockList + "\n\r" + emailAddress + "\t" + DateTime.Now.ToString());
+            //
+            // -- server text file block list is deprecated. Converted to track in Email Bounce List 8/22
+            //string filename = "\\config\\SMTPBlockList_" + cp.Site.Name + ".txt";
+            //string blockList = cp.CdnFiles.Read(filename);
+            //cp.CdnFiles.Save(filename, blockList + "\n\r" + emailAddress + "\t" + DateTime.Now.ToString());
         }
         //==========================================================================================
         /// <summary>

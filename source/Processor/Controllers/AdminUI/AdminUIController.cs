@@ -701,9 +701,9 @@ namespace Contensive.Processor.Controllers {
             if (editRecord.id == 0) {
                 result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name) + ":&nbsp;New record", "col-sm-12");
             } else {
-                result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name + ":&nbsp;#") + headerInfo.recordId + ", " + editRecord.nameLc, "col-sm-4");
-                result += HtmlController.div(HtmlController.strong("Created:&nbsp;") + getEditForm_TitleBarDetails_EditorString(editRecord.dateAdded, editRecord.createdBy, "unknown"), "col-sm-4");
-                result += HtmlController.div(HtmlController.strong("Modified:&nbsp;") + getEditForm_TitleBarDetails_EditorString(editRecord.modifiedDate, editRecord.modifiedBy, "not modified"), "col-sm-4");
+                result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name + ":&nbsp;#") + headerInfo.recordId + ", " + HtmlController.encodeHtml(editRecord.nameLc), "col-sm-4");
+                result += HtmlController.div(HtmlController.strong("Created:&nbsp;") + HtmlController.encodeHtml( getEditForm_TitleBarDetails_EditorString(editRecord.dateAdded, editRecord.createdBy, "unknown")), "col-sm-4");
+                result += HtmlController.div(HtmlController.strong("Modified:&nbsp;") + HtmlController.encodeHtml(getEditForm_TitleBarDetails_EditorString(editRecord.modifiedDate, editRecord.modifiedBy, "not modified")), "col-sm-4");
             }
             return HtmlController.div(result, "row");
         }
@@ -1350,6 +1350,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// nlog class instance
         /// </summary>
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger logger { get; } = NLog.LogManager.GetCurrentClassLogger();
     }
 }

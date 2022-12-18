@@ -2,6 +2,7 @@
 using Amazon.SimpleNotificationService.Model;
 using Contensive.BaseClasses;
 using System;
+using System.Net;
 
 namespace Contensive.Processor.Controllers {
     public class AwsSmsController {
@@ -60,14 +61,15 @@ namespace Contensive.Processor.Controllers {
                     PhoneNumber = normalizedPhoneNumber
                 };
                 request.MessageAttributes["AWS.SNS.SMS.SMSType"] = new MessageAttributeValue { StringValue = "Transactional", DataType = "String" };
-#if NET472
+//#if NET472
                 PublishResponse awsResponse = snsClient.Publish(request);
-                userError = "";
-                return true;
-#else
-                userError = "Core AWS Text Message not implemented";
+                if(awsResponse.HttpStatusCode == HttpStatusCode.OK) { return true;  }
+                userError = "Error sending";
                 return false;
-#endif
+//#else
+                //userError = "Core AWS Text Message not implemented";
+                //return false;
+//#endif
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

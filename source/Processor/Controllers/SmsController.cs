@@ -8,7 +8,7 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class SmsController {
         /// <summary>
-        /// send SMS text messages
+        /// send SMS text messages. Returns true on success else returns userError
         /// </summary>
         /// <returns></returns>
         public static bool sendMessage(CoreController core, TextMessageSendRequest textMessageRequest, ref string userError) {
@@ -23,12 +23,25 @@ namespace Contensive.Processor.Controllers {
                 }
 
                 int providerId = core.cpParent.Site.GetInteger("SMS Provider Id", 0);
-                if (providerId.Equals(1)) {
-                    return TwillioSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody, ref userError);
+                switch (core.cpParent.Site.GetInteger("SMS Provider Id", 0)) {
+                    case 1: {
+                            //
+                            // -- twillio
+                            return TwillioSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody, ref userError);
+                        }
+                    case 2: {
+                            //
+                            // -- aws
+                            return AwsSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody, ref userError);
+                        }
+                    default: {
+                            //
+                            // -- disabled
+                            logger.Warn("Attempt to send a text message but not SMS provider is configured in site settings.");
+                            userError = "Text messaging is disabled because no text message provider is configured.";
+                            return false;
+                        }
                 }
-                //
-                // -- default to AWS (provider id 2)
-                return AwsSmsController.sendMessage(core.cpParent, textMessageRequest.toPhone, textMessageRequest.textBody, ref userError);
             } catch (System.Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -39,6 +52,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// nlog class instance
         /// </summary>
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger logger { get; } = NLog.LogManager.GetCurrentClassLogger();
     }
 }

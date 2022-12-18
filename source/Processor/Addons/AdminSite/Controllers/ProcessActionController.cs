@@ -186,7 +186,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 string textBody = encodeText(adminData.editRecord.fieldsLc["body"].value);
                                                 int textMessageId = adminData.editRecord.id;
                                                 string userErrorMessage = "";
-                                                TextMessageController.queuePersonTextMessage(cp.core, recipient, textBody, true, adminData.editRecord.id, ref userErrorMessage, "Admin Send Test");
+                                                TextMessageSendRequest request = new() {
+                                                    attempts = 0,
+                                                    textBody = textBody,
+                                                    systemTextMessageId = (adminData.adminContent.name.ToLower() == "system text message") ? textMessageId :0,
+                                                    groupTextMessageId = (adminData.adminContent.name.ToLower() == "group text message") ? textMessageId : 0,
+                                                    toMemberId = recipient.id,
+                                                    toPhone = recipient.cellPhone
+                                                };
+                                                //
+                                                // -- send the test immediate. This is a content test, not a test of the process
+                                                TextMessageController.sendImmediate(cp.core, request, ref userErrorMessage, "Sent Test to " + recipient.name);
+                                                //TextMessageController.queuePersonTextMessage(cp.core, recipient, textBody, true, adminData.editRecord.id, ref userErrorMessage, "Admin Send Test");
                                                 if (!string.IsNullOrEmpty(userErrorMessage)) {
                                                     ErrorController.addUserError(cp.core, "There was an error sending the test text message [" + userErrorMessage + "]");
                                                 } else {

@@ -25,14 +25,17 @@ namespace Contensive.Processor.Controllers {
         /// <param name="request"></param>
         /// <param name="userError"></param>
         /// <returns></returns>
-        public static bool sendImmediate( CoreController core, TextMessageSendRequest request, ref string userError) {
+        public static bool sendImmediate(CoreController core, TextMessageSendRequest request, ref string userError, string logName) {
             try {
                 if (isOnBlockedList(core, request.toPhone)) {
                     //
                     userError = "The text message was not sent because the phone is blocked by this application. See the Blocked Phone Report.";
+                    logTextMessage(core, request, false, userError, "blocked: " + logName);
                     return false;
                 }
-                return SmsController.sendMessage(core, request, ref userError);
+                bool result = SmsController.sendMessage(core, request, ref userError);
+                logTextMessage(core, request, result, userError, logName);
+                return result;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -81,7 +84,8 @@ namespace Contensive.Processor.Controllers {
                                     // -- queue the text message
                                     var textMessageSendRequest = new TextMessageSendRequest {
                                         attempts = 0,
-                                        textMessageId = groupTextMessage.id,
+                                        systemTextMessageId = 0,
+                                        groupTextMessageId = groupTextMessage.id,
                                         textBody = groupTextMessage.body,
                                         toPhone = recipientPhone,
                                         toMemberId = recipientId
@@ -98,7 +102,7 @@ namespace Contensive.Processor.Controllers {
                     if (groupTextMessage.testMemberID > 0) {
                         var confirmPerson = DbBaseModel.create<PersonModel>(core.cpParent, groupTextMessage.testMemberID);
                         if (confirmPerson != null) {
-                            sendConfirmation(core, confirmPerson, groupTextMessage.body, recipientList, groupTextMessage.id);
+                            sendConfirmation(core, confirmPerson, groupTextMessage.body, recipientList, 0, groupTextMessage.id);
                             needToSend = true;
                         }
                     }
@@ -139,7 +143,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool isOnBlockedList(CoreController core, string phoneNumber) {
             phoneNumber = normalizePhoneNumber(phoneNumber);
-            return (getBlockList(core).IndexOf(Environment.NewLine + phoneNumber + "\t", StringComparison.CurrentCultureIgnoreCase) >= 0);
+            return getBlockList(core).IndexOf(Environment.NewLine + phoneNumber + "\t", StringComparison.CurrentCultureIgnoreCase) >= 0;
         }
         //
         //====================================================================================================
@@ -204,7 +208,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public static bool queuePersonTextMessage(CoreController core, PersonModel recipient, string textBody, bool Immediate, int textMessageId, ref string userErrorMessage, string contextMessage) {
+        public static bool queuePersonTextMessage(CoreController core, PersonModel recipient, string textBody, bool Immediate, int systemTextMessageId, int groupTextMessageId, ref string userErrorMessage, string contextMessage) {
             try {
                 if (recipient == null) {
                     userErrorMessage = "The text message was not sent because the recipient could not be found by thier id [" + recipient.id + "]";
@@ -236,7 +240,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 var textMessageSendRequest = new TextMessageSendRequest {
                     attempts = 0,
-                    textMessageId = textMessageId,
+                    systemTextMessageId = systemTextMessageId,
+                    groupTextMessageId = groupTextMessageId,
                     textBody = textBody,
                     toPhone = recipient.cellPhone,
                     toMemberId = recipient.id
@@ -258,9 +263,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="person"></param>
         /// <param name="originalTextMessageBody"></param>
         /// <param name="recipientList"></param>
-        /// <param name="textMessageId"></param>
+        /// <param name="systemTextMessageId"></param>
         /// <returns></returns>
-        public static bool sendConfirmation(CoreController core, PersonModel person, string originalTextMessageBody, List<string> recipientList, int textMessageId) {
+        public static bool sendConfirmation(CoreController core, PersonModel person, string originalTextMessageBody, List<string> recipientList, int systemTextMessageId, int groupTextMessageId) {
             try {
                 if (person == null) { return false; }
                 //
@@ -282,7 +287,7 @@ namespace Contensive.Processor.Controllers {
                 EmailController.queueAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus);
                 AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
                 //
-                bool result = queuePersonTextMessage(core, person, "System text complete from " + core.appConfig.domainList[0] + ". A detailed confirmation email was sent to [" + person.email + "]", true, textMessageId, ref emailStatus, "System Text Confirmation");
+                bool result = queuePersonTextMessage(core, person, "Text message complete, sent from " + core.appConfig.name + ". A detailed confirmation email was sent to [" + person.id + ", " + person.name + "]", true, systemTextMessageId, groupTextMessageId, ref emailStatus, "System Text Confirmation");
                 AddonModel.setRunNow(core.cpParent, addonGuidEmailSendTask);
                 //
                 return result;
@@ -314,7 +319,7 @@ namespace Contensive.Processor.Controllers {
                             confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because their phone number was blank." + BR);
                         } else {
                             string individualErrorMessage = "";
-                            queuePersonTextMessage(core, person, textBody, true, textMessage.id, ref individualErrorMessage, "System Text Message Addl User");
+                            queuePersonTextMessage(core, person, textBody, true, textMessage.id, 0, ref individualErrorMessage, "System Text Message Addl User");
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.cellPhone + ", Status = " + individualErrorMessage + BR);
                             needToSend = true;
                         }
@@ -336,7 +341,7 @@ namespace Contensive.Processor.Controllers {
                         } else {
                             recipientList.Add(person.name + ", " + person.cellPhone);
                             string status = "";
-                            queuePersonTextMessage(core, person, textBody, false, textMessage.id, ref status, "System Text Message");
+                            queuePersonTextMessage(core, person, textBody, false, textMessage.id, 0, ref status, "System Text Message");
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.cellPhone + ", Status = " + status + BR);
                             needToSend = true;
                         }
@@ -348,7 +353,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 if (confirmationMemberId != 0) {
                     PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, confirmationMemberId);
-                    sendConfirmation(core, person, textBody, recipientList, textMessage.id);
+                    sendConfirmation(core, person, textBody, recipientList, textMessage.id, 0);
                     needToSend = true;
                 }
                 //
@@ -399,8 +404,13 @@ namespace Contensive.Processor.Controllers {
         public static void sendTextMessageQueue(CoreController core) {
             try {
                 //
+                // -- return if no messages
+                using (DataTable dt = core.db.executeQuery("select count(id) from ccTextMessageQueue")) {
+                    if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
+                }
+                //
                 // -- delete messages that have been retried 3 times
-                core.db.executeNonQuery("delete from ccTextMessageQueue where (attempts>3)");
+                core.db.executeNonQuery("delete from ccTextMessageQueue where (attempts>=3)");
                 //
                 // -- mark the next 100 texts with this processes serial number. Then select them back to verify no other process tries to send them
                 string sendSerialNumber = GenericController.getGUID();
@@ -408,12 +418,12 @@ namespace Contensive.Processor.Controllers {
                 //
                 foreach (TextMessageQueueModel textMessage in DbBaseModel.createList<TextMessageQueueModel>(core.cpParent, "sendSerialNumber=" + DbController.encodeSQLText(sendSerialNumber), "immediate,id")) {
                     TextMessageSendRequest request = DeserializeObject<TextMessageSendRequest>(textMessage.content);
-                    if(request == null ) {
+                    if (request == null) {
                         //
                         // -- bugfix, if data does not deserialize, skip message
                         LogController.logError(core, new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"));
                         core.db.executeNonQuery("delete from ccTextMessageQueue where (id=" + textMessage.id + ")");
-                        appendTextMessageLog(core, request, false, "TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]");
+                        logTextMessage(core, request, false, "TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]", "Failed, message error");
                         continue;
                     }
                     string userError = "";
@@ -421,12 +431,12 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- successful send
                         core.db.executeNonQuery("delete from ccTextMessageQueue where ccguid=" + DbController.encodeSQLText(textMessage.ccguid) + "");
-                        appendTextMessageLog(core, request, true, "");
+                        logTextMessage(core, request, true, userError, "Sent to " + core.cpParent.Content.GetRecordName("people",request.toMemberId) + " " + request.toPhone);
                         continue;
                     }
                     //
                     // -- setup retry
-                    appendTextMessageLog(core, request, false, "sendMessage() returned false, userError [" + userError + "]");
+                    logTextMessage(core, request, false, userError, "Failed " + core.cpParent.Content.GetRecordName("people", request.toMemberId) + " " + request.toPhone);
                     core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null  where ccguid=" + DbController.encodeSQLText(textMessage.ccguid) + "");
                 }
             } catch (Exception ex) {
@@ -440,11 +450,19 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="request"></param>
-        public static void appendTextMessageLog(CoreController core, TextMessageSendRequest request, bool success, string userError) {
+        public static void logTextMessage(CoreController core, TextMessageSendRequest request, bool success, string userError, string logName) {
             try {
-                string textMessageLogFilename = "textMessageLog\\" + DateTime.Now.Year.ToString() + DateTime.Now.Month.ToString().PadLeft(2, '0') + DateTime.Now.Day.ToString().PadLeft(2, '0') + ".log";
-                core.privateFiles.appendFile(textMessageLogFilename, DateTime.Now.ToString("yyyyMMddHHmmss") + "\t" + (success ? "ok" : "fail") + "\t" + (string.IsNullOrEmpty(userError) ? "" : "") + "\t" + request.toPhone + "\t" + request.textBody.Replace("\r", "").Replace("\n", " ") + "\r\n");
-            } catch (Exception) {
+                TextMessageLogModel log = DbBaseModel.addDefault<TextMessageLogModel>(core.cpParent);
+                log.sendStatus = success ? "OK" : "attempt " + request.attempts + ", " + userError;
+                log.body = request.textBody;
+                log.memberId = request.toMemberId;
+                log.name = logName;
+                log.systemTextMessageId = request.systemTextMessageId;
+                log.groupTextMessageId = request.groupTextMessageId;
+                log.toPhone = request.toPhone;
+                log.save(core.cpParent);
+            } catch (Exception ex) {
+                logger.Error(ex, "appendTextMessageLog");
                 // swallow
             }
         }
@@ -453,6 +471,6 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// nlog class instance
         /// </summary>
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private static NLog.Logger logger { get; } = NLog.LogManager.GetCurrentClassLogger();
     }
 }

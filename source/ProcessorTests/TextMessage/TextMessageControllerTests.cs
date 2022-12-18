@@ -70,7 +70,8 @@ namespace Tests {
                 bool response = SmsController.sendMessage(cp.core, new TextMessageSendRequest {
                     attempts = 1,
                     textBody = testMessage,
-                    textMessageId = 0,
+                    systemTextMessageId = 0,
+                    groupTextMessageId = 0,
                     toMemberId = 0,
                     toPhone = testPhone
                 }, ref userError);
@@ -103,7 +104,7 @@ namespace Tests {
                 recipient.blockTextMessage = false;
                 recipient.save(cp);
                 string userErrorMessage = "";
-                bool response = TextMessageController.queuePersonTextMessage(cp.core, recipient, testMessage, false, 0, ref userErrorMessage, "unit test send");
+                bool response = TextMessageController.queuePersonTextMessage(cp.core, recipient, testMessage, false, 0, 0, ref userErrorMessage, "unit test send");
                 DbBaseModel.delete<PersonModel>(cp, recipient.id);
                 //
                 // assert
@@ -134,7 +135,7 @@ namespace Tests {
                 recipient.blockTextMessage = false;
                 recipient.save(cp);
                 string userErrorMessage = "";
-                bool response = TextMessageController.queuePersonTextMessage(cp.core, recipient, testMessage, true, 0, ref userErrorMessage, "unit test send");
+                bool response = TextMessageController.queuePersonTextMessage(cp.core, recipient, testMessage, true, 0, 0, ref userErrorMessage, "unit test send");
                 DbBaseModel.delete<PersonModel>(cp, recipient.id);
                 //
                 // assert
@@ -165,7 +166,7 @@ namespace Tests {
                 recipient.blockTextMessage = true;
                 recipient.save(cp);
                 string userErrorMessage = "";
-                bool response = TextMessageController.queuePersonTextMessage(cp.core, recipient, testMessage, false, 0, ref userErrorMessage, "unit test send");
+                bool response = TextMessageController.queuePersonTextMessage(cp.core, recipient, testMessage, false, 0, 0, ref userErrorMessage, "unit test send");
                 DbBaseModel.delete<PersonModel>(cp, recipient.id);
                 //
                 // assert
