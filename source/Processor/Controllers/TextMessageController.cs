@@ -287,7 +287,7 @@ namespace Contensive.Processor.Controllers {
                 EmailController.queueAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus);
                 AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
                 //
-                bool result = queuePersonTextMessage(core, person, "Text message complete, sent from " + core.appConfig.name + ". A detailed confirmation email was sent to [" + person.id + ", " + person.name + "]", true, systemTextMessageId, groupTextMessageId, ref emailStatus, "System Text Confirmation");
+                bool result = queuePersonTextMessage(core, person, "Text message complete from " + core.appConfig.name + ". A detailed confirmation email was sent to [" + person.id + ", " + person.name + "]", true, systemTextMessageId, groupTextMessageId, ref emailStatus, "System Text Confirmation");
                 AddonModel.setRunNow(core.cpParent, addonGuidEmailSendTask);
                 //
                 return result;
