@@ -3188,6 +3188,7 @@ namespace Contensive.Processor.Controllers {
                 // -- no-follow
                 if (core.doc.noFollow) {
                     headList.Add("<meta name=\"robots\" content=\"nofollow\" >");
+                    headList.Add("<meta name=\"robots\" content=\"noindex\" >");
                     headList.Add("<meta name=\"mssmarttagspreventparsing\" content=\"true\" >");
                 }
                 //

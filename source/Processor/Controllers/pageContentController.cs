@@ -80,6 +80,16 @@ namespace Contensive.Processor.Controllers {
                 result += loadPage(core, core.docProperties.getInteger(rnPageId), core.doc.domain);
                 if (!core.doc.continueProcessing) { return result; }
                 //
+                // -- processing cannot continue if not current page
+                if (core?.doc?.pageController?.page == null) { return result; }
+                //
+                // -- current page
+                PageContentModel page = core.doc.pageController.page;
+
+
+
+
+                //
                 // -- create context object to use for page and template dependencies
                 CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextSimple,
@@ -88,7 +98,7 @@ namespace Contensive.Processor.Controllers {
                     hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
                         contentName = PageContentModel.tableMetadata.contentName,
                         fieldName = "copyfilename",
-                        recordId = core.doc.pageController.page.id
+                        recordId = page.id
                     },
                     isDependency = false
                 };
@@ -109,7 +119,7 @@ namespace Contensive.Processor.Controllers {
                 // -- execute page addons
                 //
                 // -- execute page Dependencies
-                List<AddonModel> pageAddonList = AddonModel.createList_pageDependencies(core.cpParent, core.doc.pageController.page.id);
+                List<AddonModel> pageAddonList = AddonModel.createList_pageDependencies(core.cpParent, page.id);
                 if (pageAddonList.Count > 0) {
                     string addonContextMessage = executeContext.errorContextMessage;
                     foreach (AddonModel addon in pageAddonList) {
@@ -403,8 +413,8 @@ namespace Contensive.Processor.Controllers {
                 // -- check secure certificate required
                 //{
                 //    bool SecureLink_Page_Required = false;
-                //    foreach (PageContentModel page in core.doc.pageController.pageToRootList) {
-                //        SecureLink_Page_Required = core.doc.pageController.page.isSecure;
+                //    foreach (PageContentModel page in pageToRootList) {
+                //        SecureLink_Page_Required = page.isSecure;
                 //        if (SecureLink_Page_Required) { break; }
                 //    }
                 //    bool SecureLink_Required = core.doc.pageController.template.isSecure || SecureLink_Page_Required;
@@ -465,23 +475,18 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- add meta data only if no title added so far.
                 // -- last, the first entry should be the most-specific (inner-most), the last should be the least specific (outer most)
-                if (core?.doc?.pageController?.page!=null) {
-                    PageContentModel page = core.doc.pageController.page;
-                    //
-                    // -- title tag. If metaTitle is empty, only add page.name if the title is empty
-                    //if(core.doc.htmlMetaContent_TitleList.Count == 0) {
-                    if (string.IsNullOrEmpty(page.pageTitle)) {
-                        core.html.addTitle(HtmlController.encodeHtml(page.name), "page content");
-                    } else {
-                        core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
-                    }
-                    //}
-                    if (core.doc.htmlMetaContent_Description.Count == 0) {
-                        core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content"); 
-                    }
-                    core.html.addHeadTag(page.otherHeadTags, "page content");
-                    core.html.addMetaKeywordList(page.metaKeywordList, "page content");
+                // -- title tag. If metaTitle is empty, only add page.name if the title is empty
+                if (string.IsNullOrEmpty(page.pageTitle)) {
+                    core.html.addTitle(HtmlController.encodeHtml(page.name), "page content");
+                } else {
+                    core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
                 }
+                if (core.doc.htmlMetaContent_Description.Count == 0) {
+                    core.html.addMetaDescription(HtmlController.encodeHtml(page.metaDescription), "page content");
+                }
+                core.html.addHeadTag(page.otherHeadTags, "page content");
+                core.html.addMetaKeywordList(page.metaKeywordList, "page content");
+                core.doc.noFollow |= page.allowMetaContentNoFollow;
                 //
                 return result;
             } catch (Exception ex) {
@@ -1710,7 +1715,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- protocol, assume http and let hosting system forward. No other way to know
                 string linkprotocol = "http://";
-                if(core.webServer.httpContext!=null) {
+                if (core.webServer.httpContext != null) {
                     //
                     // -- this is a website hit, use the current protocol
                     linkprotocol = (core.webServer.requestSecure ? "https://" : "http://");
