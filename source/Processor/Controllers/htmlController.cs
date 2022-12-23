@@ -3167,19 +3167,19 @@ namespace Contensive.Processor.Controllers {
                 string VirtualFilename = core.siteProperties.getText("faviconfilename");
                 switch (Path.GetExtension(VirtualFilename).ToLowerInvariant()) {
                     case ".ico":
-                        headList.Add(getAddedByComment("site setting favicon upload"));
+                        if (allowDebug) { headList.Add(getAddedByComment("site setting favicon upload")); };
                         headList.Add("<link rel=\"icon\" type=\"image/vnd.microsoft.icon\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".png":
-                        headList.Add(getAddedByComment("site setting favicon upload"));
+                        if (allowDebug) { headList.Add(getAddedByComment("site setting favicon upload")); };
                         headList.Add("<link rel=\"icon\" type=\"image/png\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".gif":
-                        headList.Add(getAddedByComment("site setting favicon upload"));
+                        if (allowDebug) { headList.Add(getAddedByComment("site setting favicon upload")); };
                         headList.Add("<link rel=\"icon\" type=\"image/gif\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                     case ".jpg":
-                        headList.Add(getAddedByComment("site setting favicon upload"));
+                        if (allowDebug) { headList.Add(getAddedByComment("site setting favicon upload")); };
                         headList.Add("<link rel=\"icon\" type=\"image/jpg\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                 }

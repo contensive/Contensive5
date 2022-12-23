@@ -533,10 +533,10 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- replace page content into templatecontent
                         result = strReplace(result, fpoContentBox, contentBoxHtml);
-                    } else {
-                        //
-                        // If Content was not found, add it to the end
-                        result += contentBoxHtml;
+                    //} else {
+                    //    //
+                    //    // If Content was not found, add it to the end
+                    //    result += contentBoxHtml;
                     }
                     //
                     // -- add template edit link
