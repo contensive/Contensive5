@@ -525,6 +525,17 @@ namespace Contensive.Processor.Controllers {
                     string templateName = core.doc.pageController.template.name;
                     if (string.IsNullOrEmpty(templateName)) { templateName = "Template " + core.doc.pageController.template.id; }
                     //
+                    // -- Mustache encoding
+                    if (core.doc.pageController.template.mustacheDataSetAddonId>0) {
+                        //
+                        // -- need a method that executes an addon and returns an object, not a string
+                        string dataSetJson = core.addon.execute(core.doc.pageController.template.mustacheDataSetAddonId, new CPUtilsBaseClass.addonExecuteContext {
+                             addonType = CPUtilsBaseClass.addonContext.ContextTemplate
+                        });
+                        object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
+                        templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
+                    }
+                    //
                     // -- Encode Template
                     result += ActiveContentController.renderHtmlForWeb(core, templateHtml, "Page Templates", core.doc.pageController.template.id, 0, core.webServer.requestProtocol + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextTemplate);
                     //

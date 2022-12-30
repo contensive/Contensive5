@@ -20,5 +20,9 @@ namespace Contensive.Models.Db {
         [Obsolete("Deprecated. https vs http should be controlled by the webserver software.", false)]
         public bool isSecure { get; set; }
         public int collectionId { get; set; }
+        /// <summary>
+        /// if not empty, this addon returns an object that is used as the data source for a mustance rendering of this template
+        /// </summary>
+        public int mustacheDataSetAddonId { get; set; }
     }
 }

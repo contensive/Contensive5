@@ -638,6 +638,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <remarks></remarks>
         public CoreController(CPClass cp) {
+            cpParent = cp;
+            cpParent.core = this;
+            metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            //
             coreController_Initialize(cp, null, null, false);
         }
         //
@@ -650,6 +655,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appName"></param>
         /// <remarks></remarks>
         public CoreController(CPClass cp, string appName) {
+            cpParent = cp;
+            cpParent.core = this;
+            metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            //
             coreController_Initialize(cp, appName, null, false);
         }
         //
@@ -663,6 +673,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appName"></param>
         /// <remarks></remarks>
         public CoreController(CPClass cp, string appName, bool allowSession) {
+            cpParent = cp;
+            cpParent.core = this;
+            metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            //
             coreController_Initialize(cp, appName, null, allowSession);
         }
         //
@@ -672,6 +687,11 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public CoreController(CPClass cp, string appName, HttpContextModel httpContext) {
             try {
+                cpParent = cp;
+                cpParent.core = this;
+                metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+                tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+                //
                 coreController_Initialize(cp, appName, httpContext, true);
             } catch (Exception ex) {
                 LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
@@ -690,17 +710,11 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         private void coreController_Initialize(CPClass cp, string? appName, HttpContextModel? httpContext, bool allowVisit) {
             try {
-
-                this.cpParent = cp;
-                this.cpParent.core = this;
                 //
                 // -- clear mock datetime
                 _mockNow = null;
                 //
                 LogController.log(this, "coreController_Initialize, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                //
-                metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-                tableSchemaDictionary = null;
                 //
                 serverConfig = ServerConfigModel.getObject(this);
                 serverConfig.defaultDataSourceType = ServerConfigBaseModel.DataSourceTypeEnum.sqlServer;
@@ -797,9 +811,7 @@ namespace Contensive.Processor.Controllers {
             if (metaDataDictionary != null) {
                 metaDataDictionary.Clear();
             }
-            if (tableSchemaDictionary != null) {
-                tableSchemaDictionary.Clear();
-            }
+            tableSchemaDictionary.Clear();
             contentNameIdDictionaryClear();
         }
         //

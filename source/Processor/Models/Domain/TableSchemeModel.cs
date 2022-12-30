@@ -41,12 +41,7 @@ namespace Contensive.Processor.Models.Domain {
                 } else {
                     if (!string.IsNullOrEmpty(TableName)) {
                         string lowerTablename = TableName.ToLowerInvariant();
-                        bool isInCache = false;
-                        if ((core.tableSchemaDictionary) == null) {
-                            core.tableSchemaDictionary = new Dictionary<string, Models.Domain.TableSchemaModel>();
-                        } else {
-                            isInCache = core.tableSchemaDictionary.TryGetValue(lowerTablename, out tableSchema);
-                        }
+                        bool isInCache = core.tableSchemaDictionary.TryGetValue(lowerTablename, out tableSchema);
                         bool buildCache = !isInCache;
                         if (isInCache) {
                             buildCache = tableSchema.dirty;
