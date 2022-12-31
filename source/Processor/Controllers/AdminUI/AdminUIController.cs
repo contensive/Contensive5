@@ -1341,8 +1341,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="content"></param>
         /// <returns></returns>
         public static string getAdminHintWrapper(CoreController core, string content) {
-            //string msg = "<div class=\"ccHintWrapperContent\"><h4>Administrator</h4>" + content + "</div>";
-            //return (core.session.isEditing() || core.session.isAuthenticatedAdmin()) ? content : string.Empty;
             return core.session.isEditing() ? content : string.Empty;
         }
         //

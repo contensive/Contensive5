@@ -177,7 +177,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static int getGroupId(CoreController core, string GroupName) {
             var group = DbBaseModel.createByUniqueName<GroupModel>(core.cpParent, GroupName);
-            if (group != null) return group.id;
+            if (group != null) { return group.id; }
             return 0;
         }
         //
@@ -190,7 +190,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getGroupName(CoreController core, int groupId) {
             var group = DbBaseModel.create<GroupModel>(core.cpParent, groupId);
-            if (group != null) return group.name;
+            if (group != null) { return group.name; }
             return String.Empty;
         }
         //

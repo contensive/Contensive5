@@ -244,7 +244,6 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static string  getPlatformAsset(CPBaseClass cp,  string platform5Asset, string defaultAsset) {
             string cssUrl = (cp.Site.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(platform5Asset)) ? platform5Asset : defaultAsset;
-            //string cssUrl = (cp.Site.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
             return cssUrl.Trim();
         }
     }

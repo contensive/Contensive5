@@ -25,8 +25,8 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         public static void awsConfigure(CoreController core) {
-            if (core.serverConfig == null) return;
-            if (string.IsNullOrWhiteSpace(core.serverConfig.awsCloudWatchLogGroup)) return;
+            if (core.serverConfig == null) { return; }
+            if (string.IsNullOrWhiteSpace(core.serverConfig.awsCloudWatchLogGroup)) { return; }
             var awsTarget = new AWSTarget {
                 Layout = "${longdate}|${level:uppercase=true}|${callsite}|${message}",
                 LogGroup = core.serverConfig.awsCloudWatchLogGroup,
@@ -270,25 +270,6 @@ namespace Contensive.Processor.Controllers {
                 log.visitorId = (core?.session?.visitor == null) ? 0 : core.session.visitor.id;
                 log.save(core.cpParent);
                 return log.id;
-                ////
-                //if (subject == null) { subject = ""; }
-                //if (string.IsNullOrEmpty(activityDetails)) { 
-                //    activityDetails = ""; 
-                //} else {
-                //    if (activityDetails.Length > 255) activityDetails = activityDetails.Substring(0, 255);
-                //}
-                //using CsModel csData = new(core);
-                //csData.insert("Activity Log");
-                //csData.set("name", subject);
-                //csData.set("typeid", (typeId<1) ? 1 : typeId);
-                //csData.set("MemberID", activityUserId);
-                //csData.set("Message", activityDetails);
-                //csData.set("VisitorID", (core?.session?.visitor == null ) ? 0 : core.session.visitor.id);
-                //csData.set("VisitID", (core?.session?.visit == null) ? 0 : core.session.visit.id);
-                //csData.set("dateScheduled", dateScheduled);
-                //csData.set("duration", duration);
-                //csData.set("scheduledStaffId", scheduledStaffId);
-                //return csData.getInteger("id");
             } catch (Exception ex) {
                 log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                 // do not abort page over logging issues

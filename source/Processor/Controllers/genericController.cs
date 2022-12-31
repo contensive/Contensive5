@@ -2156,7 +2156,7 @@ namespace Contensive.Processor.Controllers {
             }
         }
         public static bool isDate(object expression) {
-            if (expression == null) return false;
+            if (expression == null) { return false; }
             return DateTime.TryParse(expression.ToString(), out DateTime testDate);
         }
         //

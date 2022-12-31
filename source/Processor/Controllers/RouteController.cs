@@ -227,28 +227,6 @@ namespace Contensive.Processor.Controllers {
                                 core.docProperties.setProperty(nameValue.name, nameValue.value);
                             }
                             return false;
-                            //LinkAliasModel linkAlias = DbBaseModel.create<LinkAliasModel>(core.cpParent, route.linkAliasId);
-                            //if (linkAlias != null) {
-                            //    // -- set the link alias page number, unless it has been overridden
-                            //    if (!core.docProperties.containsKey("bid")) { core.docProperties.setProperty("bid", linkAlias.pageId); }
-                            //    if (!string.IsNullOrWhiteSpace(linkAlias.queryStringSuffix)) {
-                            //        string[] keyValuePairs = linkAlias.queryStringSuffix.Split('&');
-                            //        // -- iterate through all the key=value pairs
-                            //        foreach (var keyEqualsValue in keyValuePairs) {
-                            //            string[] keyValue = keyEqualsValue.Split('=');
-                            //            if (!string.IsNullOrEmpty(keyValue[0])) {
-                            //                if (!core.docProperties.containsKey(keyValue[0])) {
-                            //                    if (keyValue.Length > 1) {
-                            //                        core.docProperties.setProperty(keyValue[0], keyValue[1]);
-                            //                    } else {
-                            //                        core.docProperties.setProperty(keyValue[0], string.Empty);
-                            //                    }
-                            //                }
-                            //            }
-                            //        }
-                            //    }
-                            //}
-                            //return true;
                         }
                     case RouteMapModel.RouteTypeEnum.linkForward: {
                             //
@@ -391,7 +369,6 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static void processBuiltInForms(CoreController core) {
             try {
-                //if(!core.docProperties.containsKey("ccformsn")) { return; }
                 string formType = core.docProperties.getText(core.docProperties.getText("ccformsn") + "type");
                 if (string.IsNullOrEmpty(formType)) { return;  }
                 //

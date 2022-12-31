@@ -541,7 +541,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="source"></param>
         /// <returns></returns>
         public static string encodeCData(string source) {
-            if (string.IsNullOrWhiteSpace(source)) return "";
+            if (string.IsNullOrWhiteSpace(source)) { return ""; }
             return "<![CDATA[" + Strings.Replace(source, "]]>", "]]]]><![CDATA[>") + "]]>";
         }
         // 

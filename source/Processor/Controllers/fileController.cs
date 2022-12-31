@@ -1631,7 +1631,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- 0 if the remote file does not exist
                     FileDetail remoteFile = getFileDetails_remote(dosPathFilename);
-                    if (remoteFile == null) return 0;
+                    if (remoteFile == null) { return 0; }
                     return (int)remoteFile.Size;
                 } else {
                     List<FileDetail> files = getFileList(dosPathFilename);
@@ -1653,19 +1653,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="pathFilename">Path and filename in the form "myfolder\subfolder\MyFile.txt"</param>
         /// <returns></returns>
         public bool localFileStale(string pathFilename) {
-            if (isLocal) return false;
+            if (isLocal) { return false; }
             //
             // -- true if the local file does not exist
-            if (!fileExists_local(pathFilename)) return true;
+            if (!fileExists_local(pathFilename)) { return true; }
             //
             // -- true if the local file details cannot be read
             string dosPathFilename = normalizeDosPathFilename(pathFilename);
             FileDetail localFile = getFileDetails_local(dosPathFilename);
-            if (localFile == null) return true;
+            if (localFile == null) { return true; }
             //
             // -- false if the remote file does not exist
             FileDetail remoteFile = getFileDetails_remote(dosPathFilename);
-            if (remoteFile == null) return false;
+            if (remoteFile == null) { return false; }
             //
             // -- false if remote and local files are the same size and modification date, or the remote is older, dont copy
             return ((remoteFile.Size != localFile.Size) || (remoteFile.DateLastModified > localFile.DateLastModified));
@@ -1684,11 +1684,11 @@ namespace Contensive.Processor.Controllers {
                 LogController.logTrace(core, $"copyFileLocalToRemote, [{pathFilename}], isLocal [{isLocal}]");
                 //
                 // -- if local mode, done
-                if (isLocal) return false;
+                if (isLocal) { return false; }
                 //
                 // -- if local file does not exist, done
                 pathFilename = normalizeDosPathFilename(pathFilename);
-                if (!fileExists_local(pathFilename)) return false;
+                if (!fileExists_local(pathFilename)) { return false; }
                 //
                 // -- verify the remote path
                 verifyPath_remote(getPath(pathFilename));
@@ -1720,11 +1720,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="pathFilename">Path and filename in the form "myfolder\subfolder\MyFile.txt"</param>
         public bool copyFileRemoteToLocal(string pathFilename) {
             try {
-                if (isLocal) return false;
+                if (isLocal) { return false; }
                 string dosPathFilename = normalizeDosPathFilename(pathFilename);
                 //
                 // -- check if local mirror has an up-to-date copy of the file
-                if (!localFileStale(dosPathFilename)) return true;
+                if (!localFileStale(dosPathFilename)) { return true; }
                 //
                 // note: local call is not exception, can be used regardless of isLocal
                 verifyPath_remote(getPath(dosPathFilename));

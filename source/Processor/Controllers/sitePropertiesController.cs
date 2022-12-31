@@ -32,7 +32,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="key"></param>
         public void clearProperty(string key) {
-            if (string.IsNullOrWhiteSpace(key)) return;
+            if (string.IsNullOrWhiteSpace(key)) { return; }
             //
             // -- clear local cache
             setProperty(key, string.Empty);
@@ -734,9 +734,6 @@ namespace Contensive.Processor.Controllers {
         public string robotsTxt {
             get {
                 const string defaultFilename = "settings/RobotsTxtFilename.txt";
-                //string cacheKey = core.cache.createKey("RobotsTxt Base Text");
-                //string result = core.cache.getText(cacheKey);
-                //if (!string.IsNullOrEmpty(result)) { return result;  }
                 //
                 string result = core.privateFiles.readFileText(robotsTxtFilename);
                 // -- legacy migrations

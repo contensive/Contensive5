@@ -325,7 +325,7 @@ namespace Contensive.Processor {
         //
         public override bool IsLocked(string contentName, string recordId) {
             var contentTable = TableModel.createByContentName(cp, contentName);
-            if (contentTable != null) return WorkflowController.isRecordLocked(cp.core, contentTable.id, GenericController.encodeInteger(recordId));
+            if (contentTable != null) { return WorkflowController.isRecordLocked(cp.core, contentTable.id, GenericController.encodeInteger(recordId)); }
             return false;
         }
         //
@@ -479,7 +479,7 @@ namespace Contensive.Processor {
         //
         public override int GetID(string ContentName) {
             var content = DbBaseModel.createByUniqueName<ContentModel>(cp, ContentName);
-            if (content != null) return content.id;
+            if (content != null) { return content.id; }
             return 0;
         }
         //
@@ -487,7 +487,7 @@ namespace Contensive.Processor {
         //
         public override string GetName(int contentId) {
             var content = DbBaseModel.create<ContentModel>(cp, contentId);
-            if (content != null) return content.name;
+            if (content != null) { return content.name; }
             return string.Empty;
         }
         //

@@ -81,17 +81,6 @@ namespace Contensive.Processor.Addons.Housekeeping {
 
                 }
                 {
-                    // -- very slow query
-                    // -- not necessary for block.
-                    // -- if you check the box, people may think that unchecking the box will solve sending problem, but no
-                    ////
-                    //env.log("Housekeep, People-Daily, mark all people allowbulkemail if their email address is in the emailbouncelist");
-                    //// 
-                    //string sql = "update ccmembers set allowbulkemail=0 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null";
-                    //env.core.db.sqlCommandTimeout = 1800;
-                    //env.core.cpParent.Db.ExecuteNonQuery(sql);
-                }
-                {
                     //
                     env.log("Housekeep, delete people created by bots (visitor)");
                     // 

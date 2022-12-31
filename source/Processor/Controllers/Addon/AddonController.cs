@@ -60,7 +60,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="AddonObjResult"></param>
         /// <returns></returns>
         public static string convertAddonReturntoString(object AddonObjResult) {
-            if (AddonObjResult == null) return string.Empty;
+            if (AddonObjResult == null) { return string.Empty; }
             if (AddonObjResult.GetType() == typeof(string)) { return (string)AddonObjResult; }
             if (AddonObjResult.GetType() == typeof(int)) { return ((int)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
             if (AddonObjResult.GetType() == typeof(double)) { return ((double)AddonObjResult).ToString(CultureInfo.InvariantCulture); }
@@ -276,7 +276,6 @@ namespace Contensive.Processor.Controllers {
                 core.doc.addonExecutionStack.Push(addon);
                 executeContext.dependencyRecursionTestStack.Push(addon.id);
                 // -- add all addons to the dependencyrecursionTestStack, only test them if they are dependencies - but block them even if they were first run as non-dependencies
-                //if (executeContext.isDependency) { executeContext.dependencyRecursionTestStack.Push(addon.id); }
                 hint = 2;
                 //
                 // -- track recursion and continue
@@ -321,44 +320,7 @@ namespace Contensive.Processor.Controllers {
                     string addonDescription = getAddonDescription(core, addon);
                     throw new GenericException("Addon is no longer supported because it contains an active-X component, add-on " + addonDescription + ".");
                 }
-                ////
-                ////
-                ////--------------------------------------------------------------------------
-                ////
-                ////
-                //hint = 2;
-                ////
-                //// -- check for addon recursion beyond limit (addonRecursionLimit)
-                //bool blockRecursion = false;
-                //bool inRecursionList = core.doc.addonRecursionDepth.ContainsKey(addon.id);
-                //if (inRecursionList) { blockRecursion = (core.doc.addonRecursionDepth[addon.id] > addonRecursionLimit); }
-                //if (blockRecursion) {
-                //    //
-                //    // -- error -- cannot call an addon within an addon
-                //    string errorMsg = ", recursive depth by addon ";
-                //    foreach (KeyValuePair<int, int> kvp in core.doc.addonRecursionDepth) {
-                //        errorMsg += "[addonId " + kvp.Key + ",recursive calls " + kvp.Value + "]";
-                //    }
-                //    //
-                //    errorMsg += ", addon stack ";
-                //    foreach (var addonInStack in core.doc.addonModelStack) {
-                //        errorMsg += "[" + addonInStack.id + ", " + addonInStack.name + "]";
-                //    }
-                //    throw new GenericException("Addon recursion limit exceeded. An addon [#" + addon.id + ", " + addon.name + "] cannot be called by itself more than " + addonRecursionLimit + " times." + errorMsg);
-                //}
-                //hint = 3;
-                ////
-                //// -- track recursion and continue
-                //if (!inRecursionList) {
-                //    core.doc.addonRecursionDepth.Add(addon.id, 1);
-                //} else {
-                //    core.doc.addonRecursionDepth[addon.id] += 1;
-                //}
-                ////
-                ////
-                ////--------------------------------------------------------------------------
-                ////
-                ////
+
                 //
                 // -- if root level addon, and the addon is an html document, create the html document around it and uglify if not debugging
                 if (executeContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
@@ -375,21 +337,6 @@ namespace Contensive.Processor.Controllers {
                 if (!string.IsNullOrWhiteSpace(executeContext.instanceGuid)) {
                     core.docProperties.setProperty("instanceId", executeContext.instanceGuid);
                 }
-                ////
-                //// ----- Dependencies
-                ////
-                //// -- if the addon's javascript is required in the head, set it in the executeContext now so it will propigate into the dependant addons as well
-                //executeContext.forceJavascriptToHead = executeContext.forceJavascriptToHead || addon.javascriptForceHead;
-                ////
-                //// -- run included add-ons before their parent
-                //foreach (var dependentAddon in core.addonCache.getDependsOnList(addon.id)) {
-                //    if (dependentAddon == null) {
-                //        LogController.logWarn(core, new GenericException("Dependent addon not found. An included addon of [" + addon.name + "] was not found. The included addon may have been deleted. Recreate or reinstall the missing addon, then reinstall [" + addon.name + "] or manually correct the included addon selection."));
-                //        continue;
-                //    }
-                //    executeContext.errorContextMessage = "adding dependent addon [" + dependentAddon.name + "] for addon [" + addon.name + "] called within context [" + executeContext.errorContextMessage + "]";
-                //    result.Append(executeDependency(dependentAddon, executeContext));
-                //}
                 hint = 4;
                 //
                 // -- properties referenced multiple time 
@@ -657,8 +604,6 @@ namespace Contensive.Processor.Controllers {
                         // -- add scripting and dotnet code last, so if the execution adds javascript to the head, the code in the fields is first.
                         // -- Scripting code
                         hint = 14;
-                        //if (addon == null) { LogController.logError(core, new GenericException("AddonController.execute, addon became null at hint-14"), ""); }
-                        //if (addon.scriptingCode == null) { LogController.logError(core, new GenericException("AddonController.execute, addon.scriptCode is null at hint-14"), ""); }
                         if (!string.IsNullOrEmpty(addon.scriptingCode) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ScriptingCodeExecution)) {
                             try {
                                 if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
@@ -845,7 +790,6 @@ namespace Contensive.Processor.Controllers {
                 // -- remove this addon from the recursion test stack
                 // -- add all addons to the dependencyrecursionTestStack, only test them if they are dependencies - but block them even if they were first run as non-dependencies
                 executeContext.dependencyRecursionTestStack.Pop();
-                //if (executeContext.isDependency) { executeContext.dependencyRecursionTestStack.Pop(); }
                 //
                 // -- pop modelstack and test point message
                 core.doc.addonExecutionStack.Pop();

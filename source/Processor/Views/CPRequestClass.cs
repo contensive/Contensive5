@@ -330,7 +330,7 @@ namespace Contensive.Processor {
         /// </summary>
         public override string Body {
             get {
-                if ((cp.core.webServer.httpContext == null) || (cp.core.webServer.httpContext.Request == null)) return "";
+                if ((cp.core.webServer.httpContext == null) || (cp.core.webServer.httpContext.Request == null)) { return ""; }
                 return cp.core.webServer.httpContext.Request.requestBody;
             }
         }

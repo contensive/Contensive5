@@ -1078,7 +1078,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         //
         public static string encodeSQLNumber(double? expression) {
-            if (expression == null) return "null";
+            if (expression == null) { return "null"; }
             return expression.ToString();
         }
         //
@@ -1089,7 +1089,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="expression"></param>
         /// <returns></returns>
         public static string encodeSQLNumber(int? expression) {
-            if (expression == null) return "null";
+            if (expression == null) { return "null"; }
             return expression.ToString();
         }
         //
@@ -1140,7 +1140,6 @@ namespace Contensive.Processor.Controllers {
                     tableName = tmp;
                 }
                 // -- allow for non-guid formated guid values (can just be unique)
-                //if (!isGuid(guid)) { throw new GenericException("Guid is not valid [" + guid + "]"); }
                 executeNonQuery("delete from " + tableName + " where ccguid=" + encodeSQLText(guid));
             } catch (Exception ex) {
                 LogController.logError(core, ex);

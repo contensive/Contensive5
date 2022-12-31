@@ -34,20 +34,6 @@ namespace Contensive.Processor.Controllers {
                             cssRaw += Environment.NewLine + core.wwwFiles.readFileText(cssUrl);
                         }
                     }
-                    //string cssUrl = (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.StylesLinkPlatform5Href)) ? addon.StylesLinkPlatform5Href : addon.stylesLinkHref;
-                    //cssUrl = cssUrl.Trim();
-                    //if (!string.IsNullOrEmpty(cssUrl)) {
-                    //    if (cssUrl.Length > 1 && cssUrl.Substring(0, 1) == "/" && cssUrl.Substring(0, 2) != "//") {
-                    //        // -- detect if in www files, or cdn files by checking if it starts with the serverConfig cdn prefix
-                    //        if (cssUrl.IndexOf(core.appConfig.cdnFileUrl) == 0) {
-                    //            // -- url is in cdn files
-                    //            cssRaw += Environment.NewLine + core.cdnFiles.readFileText(cssUrl.Substring(core.appConfig.cdnFileUrl.Length));
-                    //        } else {
-                    //            // -- url is in www files
-                    //            cssRaw += Environment.NewLine + core.wwwFiles.readFileText(cssUrl);
-                    //        }
-                    //    }
-                    //}
                     addon.minifyStylesFilename.content = NUglify.Uglify.Css(cssRaw).Code;
                 }
                 {

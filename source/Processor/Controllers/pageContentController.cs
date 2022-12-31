@@ -1169,18 +1169,6 @@ namespace Contensive.Processor.Controllers {
                     pageModifiedDate = core.cpParent.Content.LatestContentModifiedDate.Get();
                     if (pageModifiedDate != DateTime.MinValue) {
                         result.Append("\r<p>This page was last modified " + encodeDate(pageModifiedDate).ToString("G"));
-                        //if (core.session.isAuthenticatedAdmin()) {
-                        //    if (core.doc.pageController.page.modifiedBy == 0) {
-                        //        result.Append(" (admin only: modified by unknown)");
-                        //    } else {
-                        //        string personName = MetadataController.getRecordName(core, "people", encodeInteger(core.doc.pageController.page.modifiedBy));
-                        //        if (string.IsNullOrEmpty(personName)) {
-                        //            result.Append(" (admin only: modified by person with unnamed or deleted record #" + core.doc.pageController.page.modifiedBy + ")");
-                        //        } else {
-                        //            result.Append(" (admin only: modified by " + personName + ")");
-                        //        }
-                        //    }
-                        //}
                         result.Append("</p>");
                     }
                 }
@@ -1731,12 +1719,6 @@ namespace Contensive.Processor.Controllers {
                     // -- this is a website hit, use the current protocol
                     linkprotocol = (core.webServer.requestSecure ? "https://" : "http://");
                 }
-
-                //if (core.doc.pageController.page.isSecure || core.doc.pageController.template.isSecure) {
-                //    linkprotocol = "https://";
-                //} else {
-                //    linkprotocol = "http://";
-                //}
                 //
                 // -- assemble
                 result = linkprotocol + linkDomain + linkPathPage;

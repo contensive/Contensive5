@@ -1485,7 +1485,6 @@ function OpenTextArea(TextAreaID) {
     to.value = tc.value;
     document.body.style.overflow = "hidden";
     if (document.compatMode && document.compatMode !== "BackCompat") {
-        //using doctype
         document.body.style.height = "100%";
         h = window.size().height;
         w = window.size().width;

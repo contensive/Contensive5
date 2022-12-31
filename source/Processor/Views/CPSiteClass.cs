@@ -459,9 +459,9 @@ namespace Contensive.Processor {
         //
         [Obsolete("Use GetInteger(LandingPageID)", false)]
         public override int LandingPageId(string domainName) {
-            if (string.IsNullOrWhiteSpace(domainName)) return GetInteger("LandingPageID", 0);
+            if (string.IsNullOrWhiteSpace(domainName)) { return GetInteger("LandingPageID", 0); }
             var domain = DbBaseModel.createByUniqueName<DomainModel>(cp, domainName);
-            if (domain == null) return GetInteger("LandingPageID", 0);
+            if (domain == null) { return GetInteger("LandingPageID", 0); }
             return domain.rootPageId;
         }
         //

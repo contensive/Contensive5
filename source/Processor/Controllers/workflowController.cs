@@ -77,9 +77,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recordId"></param>
         /// <returns></returns>
         private static string getAuthoringControlCriteria(CoreController core, Models.Domain.ContentMetadataModel cdef, int recordId) {
-            if (cdef == null) return "(1=0)";
+            if (cdef == null) { return "(1=0)"; }
             var table = DbBaseModel.createByUniqueName<TableModel>(core.cpParent, cdef.tableName);
-            if (table == null) return "(1=0)";
+            if (table == null) { return "(1=0)"; }
             return getAuthoringControlCriteria(getTableRecordKey(table.id, recordId),core.dateTimeNowMockable);
         }
         //

@@ -1480,7 +1480,7 @@ namespace Contensive.Models.Db {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public static bool containsField<T>(string fieldName) {
-            if (string.IsNullOrEmpty(fieldName)) return false;
+            if (string.IsNullOrEmpty(fieldName)) { return false; }
             foreach (PropertyInfo instanceProperty in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                 if (instanceProperty.Name.Equals(fieldName, StringComparison.InvariantCultureIgnoreCase)) { return true; }
             }
@@ -1509,7 +1509,7 @@ namespace Contensive.Models.Db {
         /// <param name="childRecordId"></param>
         /// <param name="childIdList"></param>
         public static bool isParentOf<T>(CPBaseClass cp, int parentRecordId, int childRecordId, List<int> childIdList) {
-            if (parentRecordId == childRecordId) return true;
+            if (parentRecordId == childRecordId) { return true; }
             if (!containsField<T>("parentid")) { return false; }
             if (childIdList.Contains(childRecordId)) { return false; }
             using DataTable dt = cp.Db.ExecuteQuery("select parentId from " + derivedTableName(typeof(T)) + " where id=" + childRecordId);
@@ -1547,7 +1547,7 @@ namespace Contensive.Models.Db {
             if ((!parentIdFieldVerified) && (!containsField<T>("parentid"))) { return false; }
             if ((childRecordId < 1) || (parentRecordId < 1)) { return false; }
             if (parentIdList.Contains(childRecordId)) { return false; }
-            if (parentRecordId == childRecordId) return true;
+            if (parentRecordId == childRecordId) { return true; }
             using DataTable dt = cp.Db.ExecuteQuery("select id from " + derivedTableName(typeof(T)) + " where parentId=" + parentRecordId);
             if (dt != null) {
                 if (dt.Rows.Count > 0) {
@@ -1625,7 +1625,7 @@ namespace Contensive.Models.Db {
         /// <param name="recordId"></param>
         /// <returns></returns>
         private static T readRecordCache<T>(CPBaseClass cp, int recordId) where T : DbBaseModel {
-            if (!allowRecordCaching(typeof(T))) return null;
+            if (!allowRecordCaching(typeof(T))) { return null; }
             T result = cp.Cache.GetObject<T>(cp.Cache.CreateRecordKey(recordId, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -1640,7 +1640,7 @@ namespace Contensive.Models.Db {
         /// <param name="ccGuid"></param>
         /// <returns></returns>
         private static T readRecordCacheByGuidPtr<T>(CPBaseClass cp, string ccGuid) where T : DbBaseModel {
-            if (!allowRecordCaching(typeof(T))) return null;
+            if (!allowRecordCaching(typeof(T))) { return null; }
             T result = cp.Cache.GetObject<T>(cp.Cache.CreatePtrKeyforDbRecordGuid(ccGuid, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -1655,7 +1655,7 @@ namespace Contensive.Models.Db {
         /// <param name="uniqueName"></param>
         /// <returns></returns>
         private static T readRecordCacheByUniqueNamePtr<T>(CPBaseClass cp, string uniqueName) where T : DbBaseModel {
-            if (!allowRecordCaching(typeof(T))) return null;
+            if (!allowRecordCaching(typeof(T))) { return null; }
             T result = cp.Cache.GetObject<T>(cp.Cache.CreatePtrKeyforDbRecordUniqueName(uniqueName, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -1702,7 +1702,7 @@ namespace Contensive.Models.Db {
             try {
                 int result = 0;
                 using var dt = cp.Db.ExecuteQuery(getCountSql<T>(sqlCriteria));
-                if (dt.Rows.Count == 0) return result;
+                if (dt.Rows.Count == 0) { return result; }
                 return cp.Utils.EncodeInteger(dt.Rows[0][0]);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

@@ -783,7 +783,7 @@ namespace Contensive.Processor {
         /// <param name="appName"></param>
         /// <returns></returns>
         public override AppConfigBaseModel GetAppConfig(string appName) {
-            if (!core.serverConfig.apps.ContainsKey(appName)) return null;
+            if (!core.serverConfig.apps.ContainsKey(appName)) { return null; }
             return core.serverConfig.apps[appName];
         }
         //

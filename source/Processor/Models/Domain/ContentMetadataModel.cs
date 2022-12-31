@@ -664,7 +664,7 @@ namespace Contensive.Processor.Models.Domain {
                         returnCriteria = "";
                         //
                         // -- first contentid in list, include contentid 0
-                        if (parentIdList.Count == 0) returnCriteria += "(" + contentTableName + ".contentcontrolId=0)or";
+                        if (parentIdList.Count == 0) { returnCriteria += "(" + contentTableName + ".contentcontrolId=0)or"; }
                         parentIdList.Add(contentId);
                         //
                         // -- add this content id to the list
@@ -805,7 +805,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public static int getContentId(CoreController core, string contentName) {
             try {
-                if (string.IsNullOrWhiteSpace(contentName)) return 0;
+                if (string.IsNullOrWhiteSpace(contentName)) { return 0; }
                 var nameLower = contentName.Trim().ToLowerInvariant();
                 if (core.contentNameIdDictionary.ContainsKey(nameLower)) { return core.contentNameIdDictionary[nameLower]; }
                 ContentModel content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
@@ -827,8 +827,8 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public static ContentFieldMetadataModel getField(CoreController core, ContentMetadataModel meta, string fieldName) {
-            if (meta == null) return null;
-            if (!meta.fields.ContainsKey(fieldName.ToLower(CultureInfo.InvariantCulture))) return null;
+            if (meta == null) { return null; }
+            if (!meta.fields.ContainsKey(fieldName.ToLower(CultureInfo.InvariantCulture))) { return null; }
             return meta.fields[fieldName.ToLower(CultureInfo.InvariantCulture)];
         }
         //

@@ -135,7 +135,7 @@ public static class ExtensionMethods {
     /// <param name="comparisonType">String comparison type</param>
     /// <returns></returns>
     public static string replace(this string s, string oldValue, string newValue, StringComparison comparisonType) {
-        if (s == null) return null;
+        if (s == null) { return null; }
         if (String.IsNullOrEmpty(oldValue))  return s;
         StringBuilder result = new(Math.Min(4096, s.Length));
         int pos = 0;
@@ -178,7 +178,7 @@ public static class ExtensionMethods {
         StringBuilder sbData = new();
         //
         // -- Only return Null if there is no structure.
-        if (dataTable.Columns.Count == 0) return null;
+        if (dataTable.Columns.Count == 0) { return null; }
         //
         // -- append header
         foreach (var col in dataTable.Columns) {

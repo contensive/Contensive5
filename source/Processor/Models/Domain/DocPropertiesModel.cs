@@ -292,16 +292,6 @@ namespace Contensive.Processor.Models.Domain {
             //
             // -- key was forced lowecase, but changing the dictionary to allow ingnorecase stringcomparer means no longer needed.
             return sourceKey;
-            //string returnResult = "";
-            //try {
-            //    if (!string.IsNullOrEmpty(sourceKey)) {
-            //        returnResult = sourceKey.ToLowerInvariant();
-            //    }
-            //} catch (Exception ex) {
-            //    LogController.logError(core, ex);
-            //    throw;
-            //}
-            //return returnResult;
         }
         //
         //

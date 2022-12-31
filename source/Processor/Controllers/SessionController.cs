@@ -655,7 +655,7 @@ namespace Contensive.Processor.Controllers {
                 LogController.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
                 //
                 if (core.session.isAuthenticatedAdmin()) { return true; }
-                if (_isAuthenticatedContentManagerAnything_loaded && _isAuthenticatedContentManagerAnything_userId.Equals(user.id)) return _isAuthenticatedContentManagerAnything;
+                if (_isAuthenticatedContentManagerAnything_loaded && _isAuthenticatedContentManagerAnything_userId.Equals(user.id)) { return _isAuthenticatedContentManagerAnything; }
                 //
                 // -- Is a CM for any content def
                 using (var csData = new CsModel(core)) {
@@ -703,12 +703,6 @@ namespace Contensive.Processor.Controllers {
                     return;
                 }
                 user = SessionController.createGuest(core, true);
-                //var defaultValues = ContentMetadataModel.getDefaultValueDict(core, PersonModel.tableMetadata.contentName);
-                //user = DbBaseModel.addDefault<PersonModel>(core.cpParent, defaultValues);
-                //if (user == null) {
-                //    LogController.logError(core, "logout failed because new user could not be created");
-                //    return;
-                //}
                 //
                 // -- guest was created from a logout, disable autoLogin
                 user.autoLogin = false;
@@ -1116,7 +1110,6 @@ namespace Contensive.Processor.Controllers {
                     return false; 
                 }
                 bool editingSiteProperty = core.visitProperty.getBoolean("AllowEditing") || core.visitProperty.getBoolean("AllowAdvancedEditor");
-                //if (!editingSiteProperty) { return false; }
                 isEditingLocal = editingSiteProperty && (core.session.user.admin || core.session.user.developer);
                 return (bool)isEditingLocal;
             } catch (Exception ex) {
@@ -1308,7 +1301,7 @@ namespace Contensive.Processor.Controllers {
             //
             LogController.logTrace(core, "SessionController.getAuthoringStatusMessage, enter");
             //
-            if (!RecordEditLocked) return Msg_WorkflowDisabled;
+            if (!RecordEditLocked) { return Msg_WorkflowDisabled; }
             //
             // ----- site does not support workflow authoring
             string result = strReplace(Msg_EditLock, "<EDITNAME>", main_EditLockName);

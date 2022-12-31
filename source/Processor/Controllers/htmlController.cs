@@ -1608,35 +1608,6 @@ namespace Contensive.Processor.Controllers {
                             Index.setPtr("Template Text", ItemsCnt);
                             ItemsCnt += 1;
                         }
-                    } else {
-                        ////
-                        //// ----- Web Only AC Tags
-                        ////
-                        //// Watch Lists
-                        ////
-                        //using (var csData = new CsModel(core)) {
-                        //    if (csData.open("Content Watch Lists", "", "Name,ID", false, 0, "Name,ID", 20, 1)) {
-                        //        while (csData.ok()) {
-                        //            string FieldName = encodeText(csData.getText("name")).Trim(' ');
-                        //            if (!string.IsNullOrEmpty(FieldName)) {
-                        //                string FieldCaption = "Watch List [" + FieldName + "]";
-                        //                IconIDControlString = "AC,WATCHLIST,0," + FieldName + ",ListName=" + FieldName + "&SortField=[DateAdded|Link|LinkLabel|Clicks|WhatsNewDateExpires]&SortDirection=Z-A[A-Z|Z-A]";
-                        //                IconImg = AddonController.getAddonIconImg("/" + core.appConfig.adminRoute, 0, 0, 0, true, IconIDControlString, "", core.appConfig.cdnFileUrl, FieldCaption, "Rendered as the " + FieldCaption, "", 0);
-                        //                IconImg = GenericController.encodeJavascriptStringSingleQuote(IconImg);
-                        //                FieldCaption = GenericController.encodeJavascriptStringSingleQuote(FieldCaption);
-                        //                ItemsHtmlId[ItemsCnt] = "['" + FieldCaption + "','" + IconImg + "']";
-                        //                ItemsJson[ItemsCnt] = "['" + FieldCaption + "','" + IconImg + "']";
-                        //                Index.setPtr(FieldCaption, ItemsCnt);
-                        //                ItemsCnt += 1;
-                        //                if (ItemsCnt >= ItemsSize) {
-                        //                    ItemsSize = ItemsSize + 100;
-                        //                    Array.Resize(ref ItemsHtmlId, ItemsSize + 1);
-                        //                }
-                        //            }
-                        //            csData.goNext();
-                        //        }
-                        //    }
-                        //}
                     }
                     //
                     // -- addons
@@ -1744,7 +1715,7 @@ namespace Contensive.Processor.Controllers {
         /// replace string new-line with html break
         /// </summary>
         public static string convertNewLineToHtmlBreak(string text) {
-            if (string.IsNullOrWhiteSpace(text)) return "";
+            if (string.IsNullOrWhiteSpace(text)) { return ""; }
             return text.Replace(windowsNewLine, "<br>").Replace(unixNewLine, "<br>").Replace(macNewLine, "<br>");
         }
         //

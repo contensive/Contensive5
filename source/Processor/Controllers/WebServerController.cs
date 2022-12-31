@@ -84,7 +84,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public int requestPort {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) return 0;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) { return 0; }
                 if (_requestPort == null) {
                     _requestPort = httpContext.Request.Url.Port;
                 }
@@ -100,7 +100,7 @@ namespace Contensive.Processor.Controllers {
         public string requestPathPage {
             get {
                 if (string.IsNullOrEmpty(_requestPathPage)) {
-                    if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) return string.Empty;
+                    if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
                     _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? core.webServer.httpContext.Request.ServerVariables["SCRIPT_NAME"] : "";
                 }
                 return _requestPathPage;
@@ -115,7 +115,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestReferrer {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
                 return (httpContext.Request.ServerVariables.ContainsKey("HTTP_REFERER")) ? core.webServer.httpContext.Request.ServerVariables["HTTP_REFERER"] : "";
             }
         }
@@ -164,7 +164,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestRemoteIP {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
                 return (core.webServer.httpContext.Request.ServerVariables.ContainsKey("REMOTE_ADDR")) ? core.webServer.httpContext.Request.ServerVariables["REMOTE_ADDR"] : "";
             }
         }
@@ -175,7 +175,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestBrowser {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
                 return (core.webServer.httpContext.Request.ServerVariables.ContainsKey("HTTP_USER_AGENT")) ? core.webServer.httpContext.Request.ServerVariables["HTTP_USER_AGENT"] : "";
             }
         }
@@ -187,7 +187,7 @@ namespace Contensive.Processor.Controllers {
         public string requestQueryString {
             get {
                 if (_requestQueryString != null) { return _requestQueryString; }
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.QueryString == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.QueryString == null)) { return string.Empty; }
                 _requestQueryString = "";
                 string delimiter = "";
                 foreach (var qsPair in httpContext.Request.QueryString) {
@@ -206,7 +206,7 @@ namespace Contensive.Processor.Controllers {
         public string requestUrlSource {
             get {
                 if (_requestUrlSource != null) { return _requestUrlSource; }
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) { return string.Empty; }
                 _requestUrlSource = httpContext.Request.Url.AbsoluteUri;
                 return _requestUrlSource;
             }
@@ -219,7 +219,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestLinkForwardSource {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) { return string.Empty; }
                 _requestUrlSource = httpContext.Request.Url.AbsoluteUri;
                 return _requestUrlSource;
             }
@@ -255,7 +255,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestReferer {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.UrlReferrer == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.UrlReferrer == null)) { return string.Empty; }
                 return httpContext.Request.UrlReferrer.AbsoluteUri;
             }
         }
@@ -322,7 +322,7 @@ namespace Contensive.Processor.Controllers {
         public string requestPath {
             get {
                 if (_requestPath != null) { return _requestPath; }
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) { return string.Empty; }
                 var segments = splitUrl(httpContext.Request.Url.AbsoluteUri);
                 _requestPath = segments.unixPath;
                 return _requestPath;
@@ -337,7 +337,7 @@ namespace Contensive.Processor.Controllers {
         public string requestPage {
             get {
                 if (_requestPage != null) { return _requestPage; }
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) return string.Empty;
+                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.Url == null)) { return string.Empty; }
                 var segments = splitUrl(httpContext.Request.Url.AbsoluteUri);
                 _requestPage = segments.filename;
                 return _requestPage;
@@ -402,7 +402,7 @@ namespace Contensive.Processor.Controllers {
         public string requestContentType {
             get {
                 if (_requestContentType != null) { return _requestContentType; };
-                if ((httpContext == null) || (httpContext.Request == null)) return "";
+                if ((httpContext == null) || (httpContext.Request == null)) { return ""; }
                 _requestContentType = httpContext.Request.ContentType;
                 return _requestContentType;
             }
@@ -586,21 +586,6 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                //
-                // -- prefer a manual solution, adding CORS to web.config because this requires an extra query and http INFO does not execute code, called before uploads in some frameworks
-                ////
-                //// todo - CORS cannot be generated dynamically because info http method does not execute code
-                //// -- add default CORS headers to approved domains
-                //if ((httpContext != null) && (httpContext.Request != null) && (httpContext.Request.UrlReferrer != null)) {
-                //    Uri originUri = httpContext.Request.UrlReferrer;
-                //    if ((originUri?.Host != null) && (core?.domain?.name != null) && ((originUri.Host.ToLowerInvariant() == core.domain.name.ToLowerInvariant()) || DomainModel.testCORS(core.cpParent, originUri.Host))) {
-                //        addResponseHeader("Access-Control-Allow-Credentials", "true");
-                //        addResponseHeader("Access-Control-Allow-Methods", "POST,GET,OPTIONS");
-                //        addResponseHeader("Access-Control-Headers", "Content-Type,soapaction,X-Requested-With");
-                //        addResponseHeader("Access-Control-Allow-Origin", originUri.GetLeftPart(UriPartial.Authority));
-
-                //    }
-                //}
                 //
                 LogController.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //

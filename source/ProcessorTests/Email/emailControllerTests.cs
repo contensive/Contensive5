@@ -23,7 +23,6 @@ namespace Tests {
             DbBaseModel.deleteRows<MemberRuleModel>(cp, "1=1");
             Assert.AreEqual(0, cp.core.mockEmailList.Count);
             // arrange
-            //string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
             PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
             person1.name = "person1";
             person1.email = emailAddress1;
@@ -31,7 +30,6 @@ namespace Tests {
             person1.save(cp);
             Assert.IsFalse(EmailController.isOnBlockedList(cp.core, emailAddress1));
             //
-            //string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
             PersonModel person2 = DbBaseModel.addDefault<PersonModel>(cp);
             person2.name = "person2";
             person2.email = emailAddress2;
@@ -84,7 +82,6 @@ namespace Tests {
             DbBaseModel.deleteRows<MemberRuleModel>(cp, "1=1");
             Assert.AreEqual(0, cp.core.mockEmailList.Count);
             // arrange
-            //string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
             PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
             person1.name = "person1";
             person1.email = emailAddress1;
@@ -92,7 +89,6 @@ namespace Tests {
             person1.save(cp);
             Assert.IsFalse(EmailController.isOnBlockedList(cp.core, emailAddress1));
             //
-            //string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
             PersonModel person2 = DbBaseModel.addDefault<PersonModel>(cp);
             person2.name = "person2";
             person2.email = emailAddress2;

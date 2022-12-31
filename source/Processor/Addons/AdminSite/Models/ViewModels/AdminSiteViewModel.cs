@@ -59,7 +59,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     });
                 }
                 navList.Add(new NavItem {
-                    navDivider=true
+                    navDivider = true
                 });
                 navList.Add(new NavItem {
                     navItemName = "Groups",
@@ -87,7 +87,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-nav-settings-list");
                 navSettingsList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-                if (navSettingsList_local != null) return navSettingsList_local;
+                if (navSettingsList_local != null) { return navSettingsList_local; }
                 navSettingsList_local = new List<NavItem>();
                 //
                 //
@@ -118,7 +118,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-nav-tools-list");
                 navToolsList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-                if (navToolsList_local != null) return navToolsList_local;
+                if (navToolsList_local != null) { return navToolsList_local; }
                 navToolsList_local = new List<NavItem>();
                 //
                 //
@@ -150,7 +150,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-nav-comm-list");
                 navCommList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-                if (navCommList_local != null) return navCommList_local;
+                if (navCommList_local != null) { return navCommList_local; }
                 navCommList_local = new List<NavItem>();
                 //
                 // -- consider selecting with navagator entry content
@@ -196,16 +196,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Text Message Log"),
                     navItemName = "Text Message Log"
                 });
-                //using (DataTable dt = cp.Db.ExecuteQuery("select name,ccguid from ccaggregatefunctions where (navTypeId=4)and(admin>0)and(name is not null)and(ccguid is not null) order by name")) {
-                //    if (dt?.Rows != null) {
-                //        foreach (DataRow dr in dt.Rows) {
-                //            navCommList_local.Add(new NavItem {
-                //                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])),
-                //                navItemName = cp.Utils.EncodeText(dr["name"])
-                //            });
-                //        }
-                //    }
-                //}
                 navCommList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
@@ -224,23 +214,24 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-nav-design-list");
                 navDesignList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-                if (navDesignList_local != null) return navDesignList_local;
-                navDesignList_local = new List<NavItem>();
-                //
-                // -- consider selecting with navagator entry content
-                //
-                navDesignList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Layouts"),
-                    navItemName = "Layouts"
-                });
-                navDesignList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Menus"),
-                    navItemName = "Menus"
-                });
-                navDesignList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Page Templates"),
-                    navItemName = "Templates"
-                });
+                if (navDesignList_local != null) { return navDesignList_local; }
+                navDesignList_local = new List<NavItem> {
+                    //
+                    // -- consider selecting with navagator entry content
+                    //
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Layouts"),
+                        navItemName = "Layouts"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Menus"),
+                        navItemName = "Menus"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Page Templates"),
+                        navItemName = "Templates"
+                    }
+                };
                 navDesignList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
@@ -259,7 +250,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-recent-List-" + cp.User.Id);
                 localRecentList = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-                if (localRecentList != null) return localRecentList;
+                if (localRecentList != null) { return localRecentList; }
                 localRecentList = new List<NavItem>();
                 //
                 //
@@ -295,7 +286,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         private PersonModel user {
             get {
-                if (user_local != null) return user_local;
+                if (user_local != null) { return user_local; }
                 user_local = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
                 return user_local;
             }
@@ -308,7 +299,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         private OrganizationModel userOrganization {
             get {
-                if (userOrganization_local != null) return userOrganization_local;
+                if (userOrganization_local != null) { return userOrganization_local; }
                 userOrganization_local = DbBaseModel.create<OrganizationModel>(cp, cp.User.OrganizationID);
                 return userOrganization_local;
             }
