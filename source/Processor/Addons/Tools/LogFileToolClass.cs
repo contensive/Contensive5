@@ -95,7 +95,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // Parent Folder is the path to the parent of current folder, and must start with a slash
                 //
-                Position = CurrentPath.LastIndexOf("\\") + 1;
+                Position = CurrentPath.LastIndexOf("\\", StringComparison.InvariantCulture) + 1;
                 if (Position == 1) {
                     ParentPath = "\\";
                 } else {

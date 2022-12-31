@@ -110,7 +110,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 } else {
                                     collectionPath = GenericController.toLCase(collectionPath);
                                     string CollectionRootPath = collectionPath;
-                                    int Pos = CollectionRootPath.LastIndexOf("\\") + 1;
+                                    int Pos = CollectionRootPath.LastIndexOf("\\", StringComparison.InvariantCulture) + 1;
                                     if (Pos <= 0) {
                                         //
                                         env.log("CollectionPath has no '\\', skipping");

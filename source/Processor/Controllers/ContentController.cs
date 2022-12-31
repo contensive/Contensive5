@@ -49,14 +49,14 @@ namespace Contensive.Processor.Controllers {
                 using (var csData = new CsModel(core)) {
                     if (csData.openRecord("library files", recordID)) {
                         string Filename = csData.getText("filename");
-                        int Pos = Filename.LastIndexOf("/") + 1;
+                        int Pos = Filename.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
                         string FilePath = "";
                         if (Pos > 0) {
                             FilePath = Filename.left(Pos);
                             Filename = Filename.Substring(Pos);
                         }
                         csData.set("filesize", core.wwwFiles.getFileSize(FilePath + Filename));
-                        Pos = Filename.LastIndexOf(".") + 1;
+                        Pos = Filename.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
                         if (Pos > 0) {
                             string FilenameExt = Filename.Substring(Pos);
                             string FilenameNoExt = Filename.left(Pos - 1);

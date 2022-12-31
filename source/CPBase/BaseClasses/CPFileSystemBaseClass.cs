@@ -50,7 +50,7 @@ namespace Contensive.BaseClasses {
                 get {
                     if (string.IsNullOrEmpty(_extension)) {
                         if (!string.IsNullOrEmpty(Name)) {
-                            int pos = Name.LastIndexOf(".");
+                            int pos = Name.LastIndexOf(".", StringComparison.InvariantCulture);
                             if ((pos >= 0) && (pos < Name.Length)) {
                                 _extension = Name.Substring(pos);
                             }

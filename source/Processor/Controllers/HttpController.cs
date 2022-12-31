@@ -124,7 +124,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     privateResponseFilename = physicalFilename;
                     string path = physicalFilename.Replace("/", "\\");
-                    int ptr = path.LastIndexOf("\\");
+                    int ptr = path.LastIndexOf("\\", StringComparison.InvariantCulture);
                     if (ptr > 0) {
                         path = physicalFilename.left(ptr);
                         Directory.CreateDirectory(path);

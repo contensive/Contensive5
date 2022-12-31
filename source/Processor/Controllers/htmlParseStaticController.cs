@@ -7,7 +7,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Tools used to assemble html document elements. This is not a storage for assembling a document (see docController)
     /// </summary>
-    public class HtmlParseStaticController {
+    public static class HtmlParseStaticController {
         //
         //====================================================================================================
         /// <summary>
@@ -64,7 +64,7 @@ namespace Contensive.Processor.Controllers {
                             posStart = GenericController.strInstr(posStart + 1, layout, ">");
                             if (posStart != 0) {
                                 posStart = posStart + 1;
-                                posEnd = layout.LastIndexOf("<", posEnd - 2) + 1;
+                                posEnd = layout.LastIndexOf("<", posEnd - 2,StringComparison.InvariantCulture) + 1;
                                 if (posEnd != 0) {
                                     returnValue = layout.left( posStart - 1) + textToInsert + layout.Substring(posEnd - 1);
                                 }
@@ -100,14 +100,14 @@ namespace Contensive.Processor.Controllers {
                         posStart = GenericController.strInstr(posStart + 1, layout, ">");
                         if (posStart != 0) {
                             posStart = posStart + 1;
-                            posEnd = layout.LastIndexOf("<", posEnd - 2) + 1;
+                            posEnd = layout.LastIndexOf("<", posEnd - 2,StringComparison.InvariantCulture) + 1;
                             if (posEnd != 0) {
                                 //
                                 // now move the end forward to skip trailing whitespace
                                 //
                                 do {
                                     posEnd = posEnd + 1;
-                                } while ((posEnd < layout.Length) && (("\t\r\n\t ").IndexOf(layout.Substring(posEnd - 1, 1)) != -1));
+                                } while ((posEnd < layout.Length) && (("\t\r\n\t ").IndexOf(layout.Substring(posEnd - 1, 1), StringComparison.InvariantCulture) != -1));
                                 posEnd = posEnd - 1;
                                 returnValue = layout.Substring(posStart - 1, (posEnd - posStart));
                             }
@@ -139,7 +139,7 @@ namespace Contensive.Processor.Controllers {
                 if (posStart > 0) {
                     //
                     // now backtrack to include the leading whitespace
-                    while ((posStart > 0) && (("\t\r\n\t ").IndexOf(workingLayout.Substring(posStart - 1, 1)) != -1)) {
+                    while ((posStart > 0) && (("\t\r\n\t ").IndexOf(workingLayout.Substring(posStart - 1, 1),StringComparison.InvariantCulture ) != -1)) {
                         posStart = posStart - 1;
                     }
                     workingLayout = workingLayout.Substring(posStart - 1);
@@ -322,14 +322,12 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         public static  int getTagStartPos(CoreController core, string layout, int layoutStartPos, string Key) {
-            int returnValue = 0;
             try {
                 int returnPos = 0;
                 int SegmentStart = 0;
                 int Pos = 0;
                 int LoopPtr = 0;
                 string searchKey = null;
-                int lenSearchKey = 0;
                 int Ptr = 0;
                 string workingKey = null;
                 string[] workingKeys = null;
@@ -448,7 +446,6 @@ namespace Contensive.Processor.Controllers {
                         //
                         searchKey = "<" + searchTag;
                     }
-                    lenSearchKey = searchKey.Length;
                     Pos = layoutStartPos;
                     do {
                         Pos = GenericController.strInstr(Pos, layout, searchKey);
@@ -461,7 +458,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // string found - go to the start of the tag
                             //
-                            posStartTag = layout.LastIndexOf("<", Pos) + 1;
+                            posStartTag = layout.LastIndexOf("<", Pos, StringComparison.InvariantCulture) + 1;
                             if (posStartTag <= 0) {
                                 //
                                 // bad html, no start tag found
@@ -496,12 +493,11 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                returnValue = returnPos;
+                return returnPos;
             } catch (Exception ex) {
                 LogController.logError( core,ex);
                 throw;
             }
-            return returnValue;
         }
         //
         //=================================================================================================

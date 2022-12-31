@@ -711,7 +711,7 @@ namespace Contensive.Processor.Controllers {
                     // -- create a fileDetail for each file found
                     string fileName = file.Key;
                     string keyPath = "";
-                    int pos = fileName.LastIndexOf("/");
+                    int pos = fileName.LastIndexOf("/", StringComparison.InvariantCulture);
                     if (pos > -1) {
                         keyPath = fileName.Substring(0, pos + 1);
                         fileName = fileName.Substring(pos + 1);
@@ -2026,7 +2026,7 @@ namespace Contensive.Processor.Controllers {
                     // -- create a fileDetail for each file found
                     string fileName = s3File.Key;
                     string keyPath = "";
-                    int pos = fileName.LastIndexOf("/");
+                    int pos = fileName.LastIndexOf("/", StringComparison.InvariantCulture);
                     if (pos > -1) {
                         keyPath = fileName.Substring(0, pos + 1);
                         fileName = fileName.Substring(pos + 1);

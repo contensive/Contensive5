@@ -163,7 +163,7 @@ namespace Contensive.Processor.Controllers {
                     if (routeTest.IndexOf("/") < 0) {
                         break;
                     }
-                    routeTest = routeTest.left(routeTest.LastIndexOf("/"));
+                    routeTest = routeTest.left(routeTest.LastIndexOf("/", StringComparison.InvariantCulture));
                     routeCnt -= 1;
                 } while ((routeCnt > 0) && (!routeFound));
                 if (!routeFound) { return false; }

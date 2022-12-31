@@ -1488,7 +1488,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="DbObject"></param>
         /// <returns></returns>
         public static string getDbObjectTableName(string DbObject) {
-            int Position = DbObject.LastIndexOf(".") + 1;
+            int Position = DbObject.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
             if (Position > 0) {
                 return DbObject.Substring(Position);
             }

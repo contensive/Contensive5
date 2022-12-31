@@ -310,7 +310,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case CPContentBaseClass.FieldTypeIdEnum.FileImage: {
                                 string filename = csData.getText(field.nameLc);
                                 filename = GenericController.strReplace(filename, "\\", "/");
-                                Pos = filename.LastIndexOf("/") + 1;
+                                Pos = filename.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
                                 if (Pos != 0) {
                                     filename = filename.Substring(Pos);
                                 }

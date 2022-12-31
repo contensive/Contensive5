@@ -1563,7 +1563,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getSimpleEmailFromFriendlyEmail(CPBaseClass cp, string source) {
             string result = source;
-            int posStart = result.LastIndexOf('<');
+            int posStart = result.LastIndexOf("<", StringComparison.InvariantCulture);
             if (posStart < 0) { return result; }
             result = result.Substring(posStart + 1);
             int posEnd = result.IndexOf('>');

@@ -138,7 +138,7 @@ namespace Contensive.Processor.Controllers {
                                                     CollectionFileLink = metaDataInterfaces.InnerText;
                                                     CollectionFileCnt = CollectionFileCnt + 1;
                                                     if (!string.IsNullOrEmpty(CollectionFileLink)) {
-                                                        Pos = CollectionFileLink.LastIndexOf("/") + 1;
+                                                        Pos = CollectionFileLink.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
                                                         if ((Pos <= 0) && (Pos < CollectionFileLink.Length)) {
                                                             //
                                                             // Skip this file because the collecion file link has no slash (no file)
@@ -172,7 +172,7 @@ namespace Contensive.Processor.Controllers {
                                                         if (string.IsNullOrEmpty(ResourceFilename)) {
                                                             //
                                                             // Take Filename from Link
-                                                            Pos = ResourceLink.LastIndexOf("/") + 1;
+                                                            Pos = ResourceLink.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
                                                             if (Pos != 0) {
                                                                 ResourceFilename = ResourceLink.Substring(Pos);
                                                             }

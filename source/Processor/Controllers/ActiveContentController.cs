@@ -694,12 +694,12 @@ namespace Contensive.Processor.Controllers {
                                                                         if (recordId != 0) {
                                                                             string ImageFilename = Paths[3];
                                                                             string ImageVirtualFilePath = GenericController.strReplace(ImageVirtualFilename, ImageFilename, "");
-                                                                            Pos = ImageFilename.LastIndexOf(".") + 1;
+                                                                            Pos = ImageFilename.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
                                                                             if (Pos > 0) {
                                                                                 string ImageFilenameAltSize = "";
                                                                                 string ImageFilenameExt = ImageFilename.Substring(Pos);
                                                                                 string ImageFilenameNoExt = ImageFilename.left(Pos - 1);
-                                                                                Pos = ImageFilenameNoExt.LastIndexOf("-") + 1;
+                                                                                Pos = ImageFilenameNoExt.LastIndexOf("-", StringComparison.InvariantCulture) + 1;
                                                                                 if (Pos > 0) {
                                                                                     //
                                                                                     // ImageAltSize should be set from the width and height of the img tag,
@@ -763,13 +763,13 @@ namespace Contensive.Processor.Controllers {
                                                                                         int RecordHeight = file.height;
                                                                                         string RecordAltSizeList = file.altSizeList;
                                                                                         string RecordFilename = RecordVirtualFilename;
-                                                                                        Pos = RecordVirtualFilename.LastIndexOf("/") + 1;
+                                                                                        Pos = RecordVirtualFilename.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
                                                                                         if (Pos > 0) {
                                                                                             RecordFilename = RecordVirtualFilename.Substring(Pos);
                                                                                         }
                                                                                         string RecordFilenameExt = "";
                                                                                         string RecordFilenameNoExt = RecordFilename;
-                                                                                        Pos = RecordFilenameNoExt.LastIndexOf(".") + 1;
+                                                                                        Pos = RecordFilenameNoExt.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
                                                                                         if (Pos > 0) {
                                                                                             RecordFilenameExt = RecordFilenameNoExt.Substring(Pos);
                                                                                             RecordFilenameNoExt = RecordFilenameNoExt.left(Pos - 1);

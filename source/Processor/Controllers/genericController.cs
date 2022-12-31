@@ -553,7 +553,7 @@ namespace Contensive.Processor.Controllers {
                 host = host.left(pos - 1);
                 //
                 // separate page from path
-                pos = path.LastIndexOf("/") + 1;
+                pos = path.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
                 if (pos == 0) {
                     //
                     // no path, just a page
@@ -1881,19 +1881,19 @@ namespace Contensive.Processor.Controllers {
             string UcaseAnchorText = toUCase(iAnchorText);
             string result = "";
             if ((!string.IsNullOrEmpty(iAnchorTag)) && (!string.IsNullOrEmpty(iAnchorText))) {
-                int LinkPosition = UcaseAnchorText.LastIndexOf("<LINK>") + 1;
+                int LinkPosition = UcaseAnchorText.LastIndexOf("<LINK>", StringComparison.InvariantCulture) + 1;
                 if (LinkPosition == 0) {
                     result = iAnchorTag + iAnchorText + "</a>";
                 } else {
                     result = iAnchorText;
-                    LinkPosition = UcaseAnchorText.LastIndexOf("</LINK>") + 1;
+                    LinkPosition = UcaseAnchorText.LastIndexOf("</LINK>", StringComparison.InvariantCulture) + 1;
                     while (LinkPosition > 1) {
                         result = result.left(LinkPosition - 1) + "</a>" + result.Substring(LinkPosition + 6);
-                        LinkPosition = UcaseAnchorText.LastIndexOf("<LINK>", LinkPosition - 2) + 1;
+                        LinkPosition = UcaseAnchorText.LastIndexOf("<LINK>", LinkPosition - 2, StringComparison.InvariantCulture) + 1;
                         if (LinkPosition != 0) {
                             result = result.left(LinkPosition - 1) + iAnchorTag + result.Substring(LinkPosition + 5);
                         }
-                        LinkPosition = UcaseAnchorText.LastIndexOf("</LINK>", LinkPosition - 1) + 1;
+                        LinkPosition = UcaseAnchorText.LastIndexOf("</LINK>", LinkPosition - 1, StringComparison.InvariantCulture) + 1;
                     }
                 }
             }
