@@ -263,31 +263,31 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// Title Bar for the index page
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="IndexConfig"></param>
+        /// <param name="indexConfig"></param>
         /// <param name="adminContext.content"></param>
         /// <param name="recordCnt"></param>
         /// <param name="ContentAccessLimitMessage"></param>
         /// <returns></returns>
-        public static string getForm_Index_Header(CoreController core, IndexConfigClass IndexConfig, ContentMetadataModel content, int recordCnt, string ContentAccessLimitMessage) {
+        public static string getForm_Index_Header(CoreController core, IndexConfigClass indexConfig, ContentMetadataModel content, int recordCnt, string ContentAccessLimitMessage) {
             var filterLine = new StringBuilder();
-            filterLine.Append((IndexConfig.activeOnly) ? ", only active records" : "");
+            filterLine.Append((indexConfig.activeOnly) ? ", only active records" : "");
             string filterLastEdited = "";
-            if (IndexConfig.lastEditedByMe) {
+            if (indexConfig.lastEditedByMe) {
                 filterLastEdited = filterLastEdited + " by " + core.session.user.name;
             }
-            if (IndexConfig.lastEditedPast30Days) {
+            if (indexConfig.lastEditedPast30Days) {
                 filterLastEdited += " in the past 30 days";
             }
-            if (IndexConfig.lastEditedPast7Days) {
+            if (indexConfig.lastEditedPast7Days) {
                 filterLastEdited += " in the week";
             }
-            if (IndexConfig.lastEditedToday) {
+            if (indexConfig.lastEditedToday) {
                 filterLastEdited += " today";
             }
             if (!string.IsNullOrEmpty(filterLastEdited)) {
                 filterLine.Append(", last edited" + filterLastEdited);
             }
-            foreach (var kvp in IndexConfig.findWords) {
+            foreach (var kvp in indexConfig.findWords) {
                 IndexConfigFindWordClass findWord = kvp.Value;
                 if (!string.IsNullOrEmpty(findWord.Name)) {
                     var fieldMeta = ContentMetadataModel.getField(core, content, findWord.Name);
@@ -335,8 +335,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             }
-            if (IndexConfig.subCDefID > 0) {
-                string ContentName = MetadataController.getContentNameByID(core, IndexConfig.subCDefID);
+            if (indexConfig.subCDefID > 0) {
+                string ContentName = MetadataController.getContentNameByID(core, indexConfig.subCDefID);
                 if (!string.IsNullOrEmpty(ContentName)) {
                     filterLine.Append(", in Sub-content '" + ContentName + "'");
                 }
@@ -344,31 +344,22 @@ namespace Contensive.Processor.Addons.AdminSite {
             //
             // add groups to caption
             //
-            if ((content.tableName.ToLowerInvariant() == "ccmembers") && (IndexConfig.groupListCnt > 0)) {
-                string GroupList = "";
-                for (int Ptr = 0; Ptr < IndexConfig.groupListCnt; Ptr++) {
-                    if (!string.IsNullOrEmpty(IndexConfig.groupList[Ptr])) {
-                        GroupList += "\t" + IndexConfig.groupList[Ptr];
+            if ((content.tableName.ToLowerInvariant() == "ccmembers") && (indexConfig.groupListCnt > 0)) {
+                var groups = new List<string>();
+                for (int ptr = 0; ptr < indexConfig.groupListCnt; ptr++) {
+                    if (!string.IsNullOrEmpty(indexConfig.groupList[ptr])) {
+                        groups.Add(indexConfig.groupList[ptr]);
                     }
                 }
-                if (!string.IsNullOrEmpty(GroupList)) {
-                    string[] groups = GroupList.Split('\t');
-                    var filterGroups = new StringBuilder();
-                    for (int ptr = 0; ptr <= groups.GetUpperBound(0); ptr++) {
-                        if (!string.IsNullOrWhiteSpace(groups[ptr])) {
-                            filterGroups.Append(", '" + groups[ptr] + "'");
-                        }
-                    }
-                    if (!filterGroups.Length.Equals(0)) {
-                        filterLine.Append(", in group(s) " + filterGroups.ToString().Substring(1));
-                    }
+                if (groups.Count > 0) {
+                    filterLine.Append(", in group(s) " + string.Join(",", groups));
                 }
             }
             //
             // add sort details to caption
             //
             string sortLine = "";
-            foreach (var kvp in IndexConfig.sorts) {
+            foreach (var kvp in indexConfig.sorts) {
                 IndexConfigSortClass sort = kvp.Value;
                 if (sort.direction > 0) {
                     sortLine = sortLine + ", then " + content.fields[sort.fieldName].caption;
@@ -377,7 +368,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             }
-            string pageNavigation = getForm_index_pageNavigation(core, IndexConfig.pageNumber, IndexConfig.recordsPerPage, recordCnt, content.name);
+            string pageNavigation = getForm_index_pageNavigation(core, indexConfig.pageNumber, indexConfig.recordsPerPage, recordCnt, content.name);
             //
             // ----- TitleBar
             //
