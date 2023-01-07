@@ -85,6 +85,21 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Log a message
         /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="logMessage"></param>
+        public abstract void Warn(Exception ex, string logMessage);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log a message
+        /// </summary>
+        /// <param name="ex"></param>
+        public abstract void Warn(Exception ex);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log a message
+        /// </summary>
         /// <param name="logMessage"></param>
         public abstract void Error(string logMessage);
         //
@@ -92,8 +107,38 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Log a message
         /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="logMessage"></param>
+        public abstract void Error(Exception ex, string logMessage);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log a message
+        /// </summary>
+        /// <param name="ex"></param>
+        public abstract void Error(Exception ex);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log a message
+        /// </summary>
         /// <param name="logMessage"></param>
         public abstract void Fatal(string logMessage);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log a message
+        /// </summary>
+        /// <param name="ex"></param>
+        /// <param name="logMessage"></param>
+        public abstract void Fatal(Exception ex, string logMessage);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log a message
+        /// </summary>
+        /// <param name="ex"></param>
+        public abstract void Fatal(Exception ex);
         //
         //====================================================================================================
         /// <summary>

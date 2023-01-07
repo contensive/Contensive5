@@ -68,6 +68,24 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         /// <summary>
+        /// add a log message at the warn level (trace, debug, info, warn, error, fatal)
+        /// </summary>
+        /// <param name="logMessage"></param>
+        public override void Warn(Exception ex, string logMessage) {
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.processLogMessage(cp.core, logMessage + ", exception [" + ex + "]", true)));
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// add a log message at the warn level (trace, debug, info, warn, error, fatal)
+        /// </summary>
+        /// <param name="logMessage"></param>
+        public override void Warn(Exception ex) {
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.processLogMessage(cp.core, "exception [" + ex + "]", true)));
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
         /// add a log message at the error level (trace, debug, info, warn, error, fatal)
         /// </summary>
         /// <param name="logMessage"></param>
@@ -77,11 +95,47 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         /// <summary>
+        /// add a log message at the error level (trace, debug, info, warn, error, fatal)
+        /// </summary>
+        /// <param name="logMessage"></param>
+        public override void Error(Exception ex, string logMessage) {
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.processLogMessage(cp.core, logMessage + ", exception [" + ex + "]", true)));
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// add a log message at the error level (trace, debug, info, warn, error, fatal)
+        /// </summary>
+        /// <param name="logMessage"></param>
+        public override void Error(Exception ex) {
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.processLogMessage(cp.core, "exception [" + ex + "]", true)));
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
         /// add a log message at the fatal level (trace, debug, info, warn, error, fatal)
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(string logMessage) {
             Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.processLogMessage(cp.core, logMessage, true)));
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// add a log message at the fatal level (trace, debug, info, warn, error, fatal)
+        /// </summary>
+        /// <param name="logMessage"></param>
+        public override void Fatal(Exception ex, string logMessage) {
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.processLogMessage(cp.core, logMessage + ", exception[" + ex + "]", true)));
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// add a log message at the fatal level (trace, debug, info, warn, error, fatal)
+        /// </summary>
+        /// <param name="logMessage"></param>
+        public override void Fatal(Exception ex) {
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.processLogMessage(cp.core, "exception[" + ex + "]", true)));
         }
         //
         // ====================================================================================================

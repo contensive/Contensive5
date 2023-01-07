@@ -78,7 +78,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public override List<string> domainList { get; set; } //= new List<string>();
         /// <summary>
-        /// route to admin site. The url pathpath that executes the addon site
+        /// route to admin site. Use "/" + adminRoute as the url pathpath that executes the addon site. 
         /// </summary>
         public override string adminRoute { get; set; } //= "";
         /// <summary>

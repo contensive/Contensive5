@@ -394,13 +394,13 @@ namespace Contensive.Processor {
         internal const string AjaxOpenIndexFilter = "Ls8jCDt87kpU45YH";
         internal const string AjaxOpenIndexFilterGetContent = "llL98bbJQ38JC0KJm";
         internal const string AjaxStyleEditorAddStyle = "ajaxstyleeditoradd";
-        internal const string AjaxPing = "ajaxalive";
+        //internal const string AjaxPing = "ajaxalive";
         internal const string AjaxGetFormEditTabContent = "ajaxgetformedittabcontent";
         internal const string AjaxData = "data";
         internal const string AjaxGetVisitProperty = "getvisitproperty";
         internal const string AjaxSetVisitProperty = "setvisitproperty";
-        internal const string AjaxGetDefaultAddonOptionString = "ccGetDefaultAddonOptionString";
-        internal const string ajaxGetFieldEditorPreferenceForm = "ajaxgetfieldeditorpreference";
+        //internal const string AjaxGetDefaultAddonOptionString = "ccGetDefaultAddonOptionString";
+        //internal const string ajaxGetFieldEditorPreferenceForm = "ajaxgetfieldeditorpreference";
         //
         //-----------------------------------------------------------------------
         //   Remote Methods
