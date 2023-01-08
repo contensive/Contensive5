@@ -232,7 +232,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public string getTextFromWysiwygEditor(string key) {
             try {
-                return ActiveContentController.processWysiwygResponseForSave(core, GenericController.encodeText(getProperty(key).value));
+                return ContentRenderController.processWysiwygResponseForSave(core, GenericController.encodeText(getProperty(key).value));
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

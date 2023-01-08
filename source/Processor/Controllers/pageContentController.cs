@@ -537,7 +537,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- Encode Template
-                    result += ActiveContentController.renderHtmlForWeb(core, templateHtml, "Page Templates", core.doc.pageController.template.id, 0, core.webServer.requestProtocol + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextTemplate);
+                    result += ContentRenderController.renderHtmlForWeb(core, templateHtml, "Page Templates", core.doc.pageController.template.id, 0, core.webServer.requestProtocol + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextTemplate);
                     //
                     // -- add content into template
                     if (result.IndexOf(fpoContentBox) != -1) {
@@ -697,7 +697,7 @@ namespace Contensive.Processor.Controllers {
                                 // ----- Custom Message
                                 //
                                 result = string.IsNullOrWhiteSpace(CustomBlockMessageFilename) ? "" : core.cdnFiles.readFileText(CustomBlockMessageFilename);
-                                result = ActiveContentController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
+                                result = ContentRenderController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
                                 break;
                             }
                         case ContentBlockWithLogin: {
@@ -797,7 +797,7 @@ namespace Contensive.Processor.Controllers {
                     if (!core.siteProperties.beta200327_BlockCCmdPostPageRender) {
                         //
                         // -- {%%} execution should be limited to legacy pagecontent.copy only so this was moved down to _contentbox_renderelements
-                        result = ActiveContentController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
+                        result = ContentRenderController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
                     }
                     if (!string.IsNullOrWhiteSpace(result) && !string.IsNullOrWhiteSpace(core.doc.refreshQueryString)) {
                         result = result.Replace("?method=login", "?method=Login&" + core.doc.refreshQueryString);
@@ -834,7 +834,7 @@ namespace Contensive.Processor.Controllers {
                         if (!core.siteProperties.beta200327_BlockCCmdPostPageRender) {
                             //
                             // -- {%%} execution should be limited to legacy pagecontent.copy only so this was moved down to _contentbox_renderelements
-                            result = ActiveContentController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
+                            result = ContentRenderController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
                         }
                         if (!core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
                             //
@@ -1073,7 +1073,7 @@ namespace Contensive.Processor.Controllers {
                             // -- page content, directly from the record can be {%%} rendered.
                             // -- if the content includes {%%} executables, render them
                             // -- if those executables return content containing executables, those are block by post-processing executeaddon result to remove {%%}
-                            htmlPageContent = ActiveContentController.renderHtmlForWeb(core, htmlPageContent, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
+                            htmlPageContent = ContentRenderController.renderHtmlForWeb(core, htmlPageContent, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
                         }
                         resultInnerContent.Append(htmlPageContent);
                     }
@@ -1226,7 +1226,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 var copyRecord = DbBaseModel.createByUniqueName<CopyContentModel>(core.cpParent, ContentBlockCopyName);
                 if (copyRecord != null) {
-                    return ActiveContentController.renderHtmlForWeb(core, copyRecord.copy, PageContentModel.tableMetadata.contentName, 0, 0, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
+                    return ContentRenderController.renderHtmlForWeb(core, copyRecord.copy, PageContentModel.tableMetadata.contentName, 0, 0, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
                 }
                 //
                 // ----- Do not allow blank message - if still nothing, create default
@@ -2298,7 +2298,7 @@ namespace Contensive.Processor.Controllers {
                     PageContentModel page = DbBaseModel.create<PageContentModel>(core.cpParent, recordId);
                     if (page != null) {
                         string Copy = core.docProperties.getText("copyFilename");
-                        Copy = ActiveContentController.processWysiwygResponseForSave(core, Copy);
+                        Copy = ContentRenderController.processWysiwygResponseForSave(core, Copy);
                         if (Copy != page.copyfilename.content) {
                             page.copyfilename.content = Copy;
                             SaveButNoChanges = false;

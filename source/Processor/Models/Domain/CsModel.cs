@@ -436,7 +436,7 @@ namespace Contensive.Processor {
         public string getTextEncoded(string FieldName) {
             if (!isOpen) { throw new ArgumentException("source dataset is not valid"); }
             if (contentMeta == null) { throw new ArgumentException("Cannot return rendered html because dataset was created with a sql query."); }
-            return ActiveContentController.renderHtmlForWeb(core, getText(FieldName), contentMeta.name, getInteger("id"), core.session.user.id, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
+            return ContentRenderController.renderHtmlForWeb(core, getText(FieldName), contentMeta.name, getInteger("id"), core.session.user.id, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
         }
         //
         //========================================================================

@@ -1398,7 +1398,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 // this is a fix for when Site Managers leave white space in the editor, and do not realize it
                                                 //   then cannot fixgure out how to remove it
                                                 //
-                                                ResponseFieldValueText = ActiveContentController.processWysiwygResponseForSave(core, ResponseFieldValueText);
+                                                ResponseFieldValueText = ContentRenderController.processWysiwygResponseForSave(core, ResponseFieldValueText);
                                                 if (string.IsNullOrEmpty(ResponseFieldValueText.ToLowerInvariant().Replace(' '.ToString(), "").Replace("&nbsp;", ""))) {
                                                     ResponseFieldValueText = "";
                                                 }

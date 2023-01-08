@@ -13,7 +13,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// interpret dynamic elements with content including <AC></AC> tags and {% {} %} JSON-based content commands.
     /// </summary>
-    public static class ActiveContentController {
+    public static class ContentRenderController {
         //
         //  active content:
         //      1) addons dropped into wysiwyg editor
@@ -65,7 +65,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="deprecated_personalizationIsAuthenticated"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static string renderActiveContent(CoreController core, string sourceHtmlContent, int deprecated_personalizationPeopleId, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context = CPUtilsBaseClass.addonContext.ContextPage) {
+        public static string renderContent(CoreController core, string sourceHtmlContent, int deprecated_personalizationPeopleId, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context = CPUtilsBaseClass.addonContext.ContextPage) {
             string result = sourceHtmlContent;
             try {
                 //
@@ -472,12 +472,12 @@ namespace Contensive.Processor.Controllers {
                                 if (DHTML.isTag(ElementPointer)) {
                                     int AttributeCount = 0;
                                     switch (GenericController.toUCase(DHTML.tagName(ElementPointer))) {
-                                        case "FORM": {
-                                                //
-                                                // User created form - add the attribute "Contensive=1"
-                                                //
-                                                break;
-                                            }
+                                        //case "FORM": {
+                                        //        //
+                                        //        // User created form - add the attribute "Contensive=1"
+                                        //        //
+                                        //        break;
+                                        //    }
                                         case "IMG": {
                                                 AttributeCount = DHTML.elementAttributeCount(ElementPointer);
                                                 if (AttributeCount > 0) {
@@ -1028,7 +1028,7 @@ namespace Contensive.Processor.Controllers {
                     hint = "30";
                     if (addLinkAuthToAllLinks || EncodeActiveFormatting || EncodeActiveImages || EncodeActiveEditIcons) {
                         string AdminURL = "/" + core.appConfig.adminRoute;
-                        result = renderActiveContent(core, result, deprecated_personalizationPeopleId, ContextContentName, ContextRecordID, addLinkAuthToAllLinks, EncodeActiveFormatting, EncodeActiveImages, EncodeActiveEditIcons, EncodeActivePersonalization, queryStringForLinkAppend, ProtocolHostLink, IsEmailContent, AdminURL, personalizationIsAuthenticated, Context);
+                        result = renderContent(core, result, deprecated_personalizationPeopleId, ContextContentName, ContextRecordID, addLinkAuthToAllLinks, EncodeActiveFormatting, EncodeActiveImages, EncodeActiveEditIcons, EncodeActivePersonalization, queryStringForLinkAppend, ProtocolHostLink, IsEmailContent, AdminURL, personalizationIsAuthenticated, Context);
                     }
                     //
                     // -- Do Plain Text Conversion

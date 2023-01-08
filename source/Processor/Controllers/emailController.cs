@@ -1088,7 +1088,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- body
             if (!string.IsNullOrWhiteSpace(body)) {
-                body = ActiveContentController.renderHtmlForEmail(core, body, recipientId, "", false);
+                body = ContentRenderController.renderHtmlForEmail(core, body, recipientId, "", false);
             }
             //
             if (!isHTML) {
@@ -1135,7 +1135,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- subject
             if (!string.IsNullOrWhiteSpace(subject)) {
-                subject = ActiveContentController.renderHtmlForEmail(core, subject, recipientId, queryStringForLinkAppend, false);
+                subject = ContentRenderController.renderHtmlForEmail(core, subject, recipientId, queryStringForLinkAppend, false);
                 subject = HtmlController.convertLinksToAbsolute(subject, webAddressProtocolDomain + "/");
                 try {
                     subject = HtmlController.convertHtmlToText(core, "<body>" + subject + "</body>");
@@ -1149,16 +1149,16 @@ namespace Contensive.Processor.Controllers {
             //
             // -- body
             if (!string.IsNullOrWhiteSpace(body)) {
-                body = ActiveContentController.renderHtmlForEmail(core, body, recipientId, queryStringForLinkAppend, addLinkAuthToAllLinks);
+                body = ContentRenderController.renderHtmlForEmail(core, body, recipientId, queryStringForLinkAppend, addLinkAuthToAllLinks);
             }
             //
             // -- encode and merge template
             if (!string.IsNullOrWhiteSpace(template)) {
                 //
                 // hotfix - templates no longer have wysiwyg editors, so content may not be saved correctly - preprocess to convert wysiwyg content
-                template = ActiveContentController.processWysiwygResponseForSave(core, template);
+                template = ContentRenderController.processWysiwygResponseForSave(core, template);
                 //
-                template = ActiveContentController.renderHtmlForEmail(core, template, recipientId, queryStringForLinkAppend, addLinkAuthToAllLinks);
+                template = ContentRenderController.renderHtmlForEmail(core, template, recipientId, queryStringForLinkAppend, addLinkAuthToAllLinks);
                 if (template.IndexOf(fpoContentBox) != -1) {
                     body = GenericController.strReplace(template, fpoContentBox, body);
                 } else {

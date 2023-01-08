@@ -91,7 +91,7 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override string EncodeContentForWeb(string Source, string ContextContentName = "", int ContextRecordId = 0, int WrapperId = 0) {
-            return ActiveContentController.renderHtmlForWeb(cp.core, Source, ContextContentName, ContextRecordId, 0, "", WrapperId, CPUtilsBaseClass.addonContext.ContextPage);
+            return ContentRenderController.renderHtmlForWeb(cp.core, Source, ContextContentName, ContextRecordId, 0, "", WrapperId, CPUtilsBaseClass.addonContext.ContextPage);
         }
         //
         // ====================================================================================================
@@ -315,7 +315,7 @@ namespace Contensive.Processor {
         /// <param name="Source"></param>
         /// <returns></returns>
         public override string EncodeHtmlForWysiwygEditor(string Source) {
-            return ActiveContentController.renderHtmlForWysiwygEditor(cp.core, Source);
+            return ContentRenderController.renderHtmlForWysiwygEditor(cp.core, Source);
         }
         //
         //====================================================================================================
@@ -325,7 +325,7 @@ namespace Contensive.Processor {
         /// <param name="Source"></param>
         /// <returns></returns>
         public override string DecodeHtmlFromWysiwygEditor(string Source) {
-            return ActiveContentController.processWysiwygResponseForSave(cp.core, Source);
+            return ContentRenderController.processWysiwygResponseForSave(cp.core, Source);
         }
         //
         //====================================================================================================

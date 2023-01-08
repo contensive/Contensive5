@@ -485,10 +485,10 @@ namespace Contensive.Processor.Controllers {
                             //
                             switch (executeContext.addonType) {
                                 case CPUtilsBaseClass.addonContext.ContextEditor:
-                                    contentParts = ActiveContentController.renderHtmlForWysiwygEditor(core, contentParts);
+                                    contentParts = ContentRenderController.renderHtmlForWysiwygEditor(core, contentParts);
                                     break;
                                 case CPUtilsBaseClass.addonContext.ContextEmail:
-                                    contentParts = ActiveContentController.renderHtmlForEmail(core, contentParts, core.session.user.id, "", false);
+                                    contentParts = ContentRenderController.renderHtmlForEmail(core, contentParts, core.session.user.id, "", false);
                                     break;
                                 case CPUtilsBaseClass.addonContext.ContextFilter:
                                 case CPUtilsBaseClass.addonContext.ContextOnBodyEnd:
@@ -499,17 +499,17 @@ namespace Contensive.Processor.Controllers {
                                 case CPUtilsBaseClass.addonContext.ContextTemplate:
                                 case CPUtilsBaseClass.addonContext.ContextAdmin:
                                 case CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml:
-                                    contentParts = ActiveContentController.renderHtmlForWeb(core, contentParts, executeContext.hostRecord.contentName, executeContext.hostRecord.recordId, 0, "", 0, executeContext.addonType);
+                                    contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, executeContext.hostRecord.contentName, executeContext.hostRecord.recordId, 0, "", 0, executeContext.addonType);
                                     break;
                                 case CPUtilsBaseClass.addonContext.ContextOnContentChange:
                                 case CPUtilsBaseClass.addonContext.ContextSimple:
-                                    contentParts = ActiveContentController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
+                                    contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
                                     break;
                                 case CPUtilsBaseClass.addonContext.ContextRemoteMethodJson:
-                                    contentParts = ActiveContentController.renderJSONForRemoteMethod(core, contentParts, "", 0, 0, "", executeContext.addonType);
+                                    contentParts = ContentRenderController.renderJSONForRemoteMethod(core, contentParts, "", 0, 0, "", executeContext.addonType);
                                     break;
                                 default:
-                                    contentParts = ActiveContentController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
+                                    contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
                                     break;
                             }
                             result.Append(contentParts);

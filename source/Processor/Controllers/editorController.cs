@@ -46,7 +46,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // ----- convert editor active edit icons
                     //
-                    ContentCopy = ActiveContentController.processWysiwygResponseForSave(core, ContentCopy);
+                    ContentCopy = ContentRenderController.processWysiwygResponseForSave(core, ContentCopy);
                     //
                     // ----- save the content
                     //

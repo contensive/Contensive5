@@ -2278,7 +2278,7 @@ namespace Contensive.Processor.Controllers {
                         if (PosACInstanceId == 0) {
                             LogController.logError(core, new Exception("AC Instance [" + ACInstanceId + "] not found in record with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
                         } else {
-                            Copy = ActiveContentController.updateLibraryFilesInHtmlContent(core, Copy);
+                            Copy = ContentRenderController.updateLibraryFilesInHtmlContent(core, Copy);
                             ParseOK = false;
                             PosStart = Copy.LastIndexOf("<ac ", PosACInstanceId - 1, System.StringComparison.OrdinalIgnoreCase) + 1;
                             if (PosStart != 0) {
@@ -3448,7 +3448,7 @@ namespace Contensive.Processor.Controllers {
                         RecordID = csData.getInteger("ID");
                         contactPeopleId = csData.getInteger("modifiedBy");
                         returnCopy = csData.getText("Copy");
-                        returnCopy = ActiveContentController.renderHtmlForWeb(core, returnCopy, "copy content", RecordID, personalizationPeopleId, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
+                        returnCopy = ContentRenderController.renderHtmlForWeb(core, returnCopy, "copy content", RecordID, personalizationPeopleId, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
                         //
                         {
                             if (core.session.isEditing()) {

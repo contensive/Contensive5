@@ -22,7 +22,7 @@ namespace Tests {
                 string source = "<ac Type=\"content\">";
                 // act
                 DateTime dateBefore = cp.core.dateTimeNowMockable.AddSeconds(-1);
-                string resultString = ActiveContentController.renderHtmlForWeb(
+                string resultString = ContentRenderController.renderHtmlForWeb(
                     core: cp.core,
                     source: source,
                     contextContentName: "",
