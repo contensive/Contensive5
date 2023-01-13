@@ -23,24 +23,6 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// render active content for a web page
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="source"></param>
-        /// <param name="contextContentName">optional, content from which the data being rendered originated (like 'Page Content')</param>
-        /// <param name="ContextRecordID">optional, id of the record from which the data being rendered originated</param>
-        /// <param name="deprecated_ContextContactPeopleID">optional, the id of the person who should be contacted for this content. If 0, uses current user.</param>
-        /// <param name="ProtocolHostString">The protocol + domain to be used to build URLs if the content includes dynamically generated images (resource library active content) and the domain is different from where the content is being rendered already. Leave blank and the URL will start with a slash.</param>
-        /// <param name="DefaultWrapperID">optional, if provided and addon is html on a page, the content will be wrapped in the wrapper indicated</param>
-        /// <param name="addonContext">Where this addon is being executed, like as a process, or in an email, or on a page. If not provided page context is assumed (adding assets like js and css to document)</param>
-        /// <returns></returns>
-        public static string renderHtmlForWeb(CoreController core, string source, string contextContentName = "", int ContextRecordId = 0, int deprecated_ContextContactPeopleId = 0, string ProtocolHostString = "", int DefaultWrapperId = 0, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextPage) {
-            string result = ContentCmdController.executeContentCommands(core, source, CPUtilsBaseClass.addonContext.ContextAdmin);
-            return encode(core, result, core.session.user.id, contextContentName, ContextRecordId, deprecated_ContextContactPeopleId, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
-        }
-        //
-        //====================================================================================================
-        /// <summary>
         /// render addLinkAuthToAllLinks, ActiveFormatting, ActiveImages and ActiveEditIcons. 
         /// 1) addLinkAuthToAllLinks adds a link authentication querystring to all anchor tags pointed to this application's domains.
         /// 2) ActiveFormatting converts AC type="" /AC tags into thier rendered equvalent.
@@ -50,7 +32,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="sourceHtmlContent">The html source to be parsed.</param>
-        /// <param name="deprecated_personalizationPeopleId">The user to whom this rendering will be targeted</param>
+        /// <param name="peopleId">The user to whom this rendering will be targeted</param>
         /// <param name="ContextContentName">If this content is from a DbModel, this is the content name.</param>
         /// <param name="ContextRecordID">If this content is from a DbModel, this is the record id.</param>
         /// <param name="addLinkAuthenticationToAllLinks">If true, link authentication is added to all anchor tags</param>
@@ -65,14 +47,14 @@ namespace Contensive.Processor.Controllers {
         /// <param name="deprecated_personalizationIsAuthenticated"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static string renderContent(CoreController core, string sourceHtmlContent, int deprecated_personalizationPeopleId, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context = CPUtilsBaseClass.addonContext.ContextPage) {
+        public static string renderContent_ACTags_AnchorTags(CoreController core, string sourceHtmlContent, int peopleId, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context = CPUtilsBaseClass.addonContext.ContextPage) {
             string result = sourceHtmlContent;
             try {
                 //
                 // Fixup Anchor Query (additional AddonOptionString pairs to add to the end)
                 string AnchorQuery = "";
-                if (addLinkAuthenticationToAllLinks && (deprecated_personalizationPeopleId != 0)) {
-                    AnchorQuery += "&eid=" + encodeURL(SecurityController.encodeToken(core, deprecated_personalizationPeopleId, core.dateTimeNowMockable.AddDays(30)));
+                if (addLinkAuthenticationToAllLinks && (peopleId != 0)) {
+                    AnchorQuery += "&eid=" + encodeURL(SecurityController.encodeToken(core, peopleId, core.dateTimeNowMockable.AddDays(30)));
                 }
                 //
                 if (!string.IsNullOrEmpty(queryStringToAppendToAllLinks)) {
@@ -84,7 +66,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // Test early if this needs to run at all
-                bool ProcessACTags = (((EncodeNonCachableTags || encodeACResourceLibraryImages || encodeForWysiwygEditor)) && (result.IndexOf("<AC ", System.StringComparison.OrdinalIgnoreCase) != -1));
+                bool ProcessACTags = (EncodeNonCachableTags || encodeACResourceLibraryImages || encodeForWysiwygEditor) && (result.IndexOf("<AC ", System.StringComparison.OrdinalIgnoreCase) != -1);
                 bool ProcessAnchorTags = (!string.IsNullOrEmpty(AnchorQuery)) && (result.IndexOf("<A ", System.StringComparison.OrdinalIgnoreCase) != -1);
                 if ((!string.IsNullOrEmpty(result)) && (ProcessAnchorTags || ProcessACTags)) {
                     //
@@ -92,8 +74,9 @@ namespace Contensive.Processor.Controllers {
                     //
                     HtmlParserController KmaHTML = new HtmlParserController(core);
                     KmaHTML.load(result);
-                    StringBuilderLegacyController Stream = new StringBuilderLegacyController(); int ElementPointer = 0;
-                    int FormInputCount = 0;
+                    StringBuilderLegacyController Stream = new StringBuilderLegacyController();
+                    int ElementPointer = 0;
+                    //int FormInputCount = 0;
                     if (KmaHTML.elementCount > 0) {
                         ElementPointer = 0;
                         result = "";
@@ -109,12 +92,12 @@ namespace Contensive.Processor.Controllers {
                                 string AddonOptionStringHTMLEncoded = null;
                                 string ACInstanceId = null;
                                 switch (ElementTag) {
-                                    case "INPUT": {
-                                            if (EncodeNonCachableTags) {
-                                                FormInputCount += 1;
-                                            }
-                                            break;
-                                        }
+                                    //case "INPUT": {
+                                    //        if (EncodeNonCachableTags) {
+                                    //            FormInputCount += 1;
+                                    //        }
+                                    //        break;
+                                    //    }
                                     case "A": {
                                             if (!string.IsNullOrEmpty(AnchorQuery)) {
                                                 //
@@ -195,7 +178,7 @@ namespace Contensive.Processor.Controllers {
                                                                             // -- start block text
                                                                             Copy = "";
                                                                             string GroupIDList = HtmlController.getAddonOptionStringValue("AllowGroups", addonOptionString);
-                                                                            if (!GroupController.isInGroupList(core, deprecated_personalizationPeopleId, true, GroupIDList, true)) {
+                                                                            if (!GroupController.isInGroupList(core, peopleId, true, GroupIDList, true)) {
                                                                                 //
                                                                                 // Block content if not allowed
                                                                                 //
@@ -434,7 +417,225 @@ namespace Contensive.Processor.Controllers {
             }
             return result;
         }
-        //   
+        //
+        //===================================================================================================
+        /// <summary>
+        /// Internal routine to render htmlContent.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="sourceHtmlContent">The content to be rendered</param>
+        /// <param name="userId">Personalize the content for this person</param>
+        /// <param name="contextContentName">The type of content that the source content. (page content, email, page template etc)</param>
+        /// <param name="contextRecordID">The recordid of the content </param>
+        /// <param name="contextContactPeopleID"></param>
+        /// <param name="convertHtmlToText">if true, the html source will be converted to plain text.</param>
+        /// <param name="addLinkAuthToAllLinks"></param>
+        /// <param name="encodeActiveFormatting"></param>
+        /// <param name="encodeActiveImages"></param>
+        /// <param name="encodeActiveEditIcons"></param>
+        /// <param name="encodeActivePersonalization"></param>
+        /// <param name="queryStringForLinkAppend"></param>
+        /// <param name="protocolHostLink"></param>
+        /// <param name="isEmailContent"></param>
+        /// <param name="ignore_DefaultWrapperID"></param>
+        /// <param name="ignore_TemplateCaseOnly_Content"></param>
+        /// <param name="addonExecuteContext"></param>
+        /// <param name="userIsAuthenticated"></param>
+        /// <param name="nothingObject"></param>
+        /// <param name="userIsEditing"></param>
+        /// <returns></returns>
+        //
+        public static string renderContent(CoreController core, string sourceHtmlContent, int userId, string contextContentName, int contextRecordID, int contextContactPeopleID, bool convertHtmlToText, bool addLinkAuthToAllLinks, bool encodeActiveFormatting, bool encodeActiveImages, bool encodeActiveEditIcons, bool encodeActivePersonalization, string queryStringForLinkAppend, string protocolHostLink, bool isEmailContent, CPUtilsBaseClass.addonContext addonExecuteContext, bool userIsAuthenticated, bool userIsEditing) {
+            string result = sourceHtmlContent;
+            string hint = "0";
+            try {
+                if (string.IsNullOrEmpty(sourceHtmlContent)) { return result; }
+                hint = "10";
+                //
+                //
+                if (userId <= 0) { userId = core.session.user.id; }
+                hint = "20";
+                //
+                // -- resize images
+                result = updateLibraryFilesInHtmlContent(core, result);
+                //
+                // -- Do Active Content Conversion
+                hint = "30";
+                if (addLinkAuthToAllLinks || encodeActiveFormatting || encodeActiveImages || encodeActiveEditIcons) {
+                    string AdminURL = "/" + core.appConfig.adminRoute;
+                    result = renderContent_ACTags_AnchorTags(core, result, userId, contextContentName, contextRecordID, addLinkAuthToAllLinks, encodeActiveFormatting, encodeActiveImages, encodeActiveEditIcons, encodeActivePersonalization, queryStringForLinkAppend, protocolHostLink, isEmailContent, AdminURL, userIsAuthenticated, addonExecuteContext);
+                }
+                //
+                // -- Do Plain Text Conversion
+                hint = "40";
+                if (convertHtmlToText) {
+                    result = HtmlController.convertHtmlToText(core, result);
+                }
+                //
+                // Process Addons
+                //   parse as <!-- Addon "Addon Name","OptionString" -->
+                //   They are handled here because Addons are written against coreClass, not the Content Server class
+                //   ...so Group Email can not process addons 8(
+                //   Later, remove the csv routine that translates <ac to this, and process it directly right here
+                //   Later, rewrite so addons call csv, not coreClass, so email processing can include addons
+                // (2/16/2010) - move csv_EncodeContent to csv, or wait and move it all to CP
+                //    eventually, everything should migrate to csv and/or cp to eliminate the coreClass dependancy
+                //    and all add-ons run as processes the same as they run on pages, or as remote methods
+                // (2/16/2010) - if <!-- AC --> has four arguments, the fourth is the addon guid
+                //
+                // todo - deprecate execute addons based on this comment system "<!-- addon"
+                int LineStart = 0;
+                try {
+                    hint = "50";
+                    const string StartFlag = "<!-- ADDON";
+                    const string EndFlag = " -->";
+                    if (result.IndexOf(StartFlag) != -1) {
+                        hint = "51";
+                        int LineEnd = 0;
+                        while (result.IndexOf(StartFlag) != -1) {
+                            hint = "52";
+                            LineStart = GenericController.strInstr(1, result, StartFlag);
+                            LineEnd = GenericController.strInstr(LineStart, result, EndFlag);
+                            string Copy = "";
+                            if (LineEnd == 0) {
+                                LogController.logWarn(core, "csv_EncodeContent9, Addon could not be inserted into content because the HTML comment holding the position is not formated correctly");
+                                break;
+                            } else {
+                                hint = "53";
+                                string AddonName = "";
+                                string addonOptionString = "";
+                                string ACInstanceId = "";
+                                string AddonGuid = "";
+                                int copyLength = LineEnd - LineStart - 11;
+                                if (copyLength <= 0) {
+                                    //
+                                    // -- nothing between start and end, someone added a comment <!-- ADDON -->
+                                } else {
+                                    hint = "54";
+                                    Copy = result.Substring(LineStart + 10, copyLength);
+                                    string[] ArgSplit = GenericController.splitDelimited(Copy, ",");
+                                    int ArgCnt = ArgSplit.GetUpperBound(0) + 1;
+                                    if (!string.IsNullOrEmpty(ArgSplit[0])) {
+                                        hint = "55";
+                                        AddonName = ArgSplit[0].Substring(1, ArgSplit[0].Length - 2);
+                                        if (ArgCnt > 1) {
+                                            if (!string.IsNullOrEmpty(ArgSplit[1])) {
+                                                addonOptionString = ArgSplit[1].Substring(1, ArgSplit[1].Length - 2);
+                                                addonOptionString = HtmlController.decodeHtml(addonOptionString.Trim(' '));
+                                            }
+                                            if (ArgCnt > 2) {
+                                                if (!string.IsNullOrEmpty(ArgSplit[2])) {
+                                                    ACInstanceId = ArgSplit[2].Substring(1, ArgSplit[2].Length - 2);
+                                                }
+                                                if (ArgCnt > 3) {
+                                                    if (!string.IsNullOrEmpty(ArgSplit[3])) {
+                                                        AddonGuid = ArgSplit[3].Substring(1, ArgSplit[3].Length - 2);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // dont have any way of getting fieldname yet
+                                        hint = "56";
+                                        CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
+                                            addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                                            cssContainerClass = "",
+                                            cssContainerId = "",
+                                            hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
+                                                contentName = contextContentName,
+                                                fieldName = "",
+                                                recordId = contextRecordID
+                                            },
+                                            instanceGuid = ACInstanceId,
+                                            argumentKeyValuePairs = GenericController.convertQSNVAArgumentstoDocPropertiesList(core, addonOptionString),
+                                            errorContextMessage = "rendering active content with guid [" + AddonGuid + "] or name [" + AddonName + "]"
+                                        };
+                                        hint = "57, AddonGuid [" + AddonGuid + "], AddonName [" + AddonName + "]";
+                                        if (!string.IsNullOrEmpty(AddonGuid)) {
+                                            Copy = core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, AddonGuid), executeContext);
+                                        } else {
+                                            Copy = core.addon.execute(AddonModel.createByUniqueName(core.cpParent, AddonName), executeContext);
+                                        }
+                                    }
+                                }
+                            }
+                            hint = "58";
+                            result = result.left(LineStart - 1) + Copy + result.Substring(LineEnd + 3);
+                        }
+                    }
+                } catch (Exception ex) {
+                    //
+                    // -- handle error, but don't abort encode
+                    LogController.logError(core, ex, "hint [" + hint + "]");
+                }
+                //
+                // process out text block comments inserted by addons
+                // remove all content between BlockTextStartMarker and the next BlockTextEndMarker, or end of copy
+                // exception made for the content with just the startmarker because when the AC tag is replaced with
+                // with the marker, encode content is called with the result, which is just the marker, and this
+                // section will remove it
+                //
+                hint = "60";
+                bool DoAnotherPass = false;
+                if ((!userIsEditing) && (result != BlockTextStartMarker)) {
+                    DoAnotherPass = true;
+                    while ((result.IndexOf(BlockTextStartMarker, System.StringComparison.OrdinalIgnoreCase) != -1) && DoAnotherPass) {
+                        LineStart = GenericController.strInstr(1, result, BlockTextStartMarker, 1);
+                        if (LineStart == 0) {
+                            DoAnotherPass = false;
+                        } else {
+                            int LineEnd = GenericController.strInstr(LineStart, result, BlockTextEndMarker, 1);
+                            if (LineEnd <= 0) {
+                                DoAnotherPass = false;
+                                result = result.left(LineStart - 1);
+                            } else {
+                                LineEnd = GenericController.strInstr(LineEnd, result, " -->");
+                                if (LineEnd <= 0) {
+                                    DoAnotherPass = false;
+                                } else {
+                                    result = result.left(LineStart - 1) + result.Substring(LineEnd + 3);
+                                }
+                            }
+                        }
+                    }
+                }
+                if (userIsEditing) {
+                    if (result.IndexOf("<!-- AFScript -->", System.StringComparison.OrdinalIgnoreCase) != -1) {
+                        string Copy = AdminUIController.getEditWrapper(core, "Aggregate Script", "##MARKER##");
+                        string[] Wrapper = GenericController.stringSplit(Copy, "##MARKER##");
+                        result = GenericController.strReplace(result, "<!-- AFScript -->", Wrapper[0], 1, 99, 1);
+                        result = GenericController.strReplace(result, "<!-- /AFScript -->", Wrapper[1], 1, 99, 1);
+                    }
+                    if (result.IndexOf("<!-- AFReplacement -->", System.StringComparison.OrdinalIgnoreCase) != -1) {
+                        string Copy = AdminUIController.getEditWrapper(core, "Aggregate Replacement", "##MARKER##");
+                        string[] Wrapper = GenericController.stringSplit(Copy, "##MARKER##");
+                        result = GenericController.strReplace(result, "<!-- AFReplacement -->", Wrapper[0], 1, 99, 1);
+                        result = GenericController.strReplace(result, "<!-- /AFReplacement -->", Wrapper[1], 1, 99, 1);
+                    }
+                }
+            } catch (Exception ex) {
+                LogController.logError(core, ex, "hint [" + hint + "]");
+            }
+            return result;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// render active content for a web page
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="source"></param>
+        /// <param name="contextContentName">optional, content from which the data being rendered originated (like 'Page Content')</param>
+        /// <param name="ContextRecordID">optional, id of the record from which the data being rendered originated</param>
+        /// <param name="deprecated_ContextContactPeopleID">optional, the id of the person who should be contacted for this content. If 0, uses current user.</param>
+        /// <param name="ProtocolHostString">The protocol + domain to be used to build URLs if the content includes dynamically generated images (resource library active content) and the domain is different from where the content is being rendered already. Leave blank and the URL will start with a slash.</param>
+        /// <param name="DefaultWrapperID">optional, if provided and addon is html on a page, the content will be wrapped in the wrapper indicated</param>
+        /// <param name="addonContext">Where this addon is being executed, like as a process, or in an email, or on a page. If not provided page context is assumed (adding assets like js and css to document)</param>
+        /// <returns></returns>
+        public static string renderHtmlForWeb(CoreController core, string source, string contextContentName = "", int ContextRecordId = 0, int deprecated_ContextContactPeopleId = 0, string ProtocolHostString = "", int DefaultWrapperId = 0, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextPage) {
+            string result = ContentCmdController.executeContentCommands(core, source, CPUtilsBaseClass.addonContext.ContextAdmin);
+            return renderContent(core, result, core.session.user.id, contextContentName, ContextRecordId, deprecated_ContextContactPeopleId, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
+        }
+        // 
         //====================================================================================================
         /// <summary>
         /// Decodes ActiveContent and EditIcons into AC tags.
@@ -981,214 +1182,6 @@ namespace Contensive.Processor.Controllers {
             //
         }
         //
-        //===================================================================================================
-        /// <summary>
-        /// Internal routine to render htmlContent.
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="sourceHtmlContent"></param>
-        /// <param name="deprecated_personalizationPeopleId"></param>
-        /// <param name="ContextContentName"></param>
-        /// <param name="ContextRecordID"></param>
-        /// <param name="ContextContactPeopleID"></param>
-        /// <param name="convertHtmlToText">if true, the html source will be converted to plain text.</param>
-        /// <param name="addLinkAuthToAllLinks"></param>
-        /// <param name="EncodeActiveFormatting"></param>
-        /// <param name="EncodeActiveImages"></param>
-        /// <param name="EncodeActiveEditIcons"></param>
-        /// <param name="EncodeActivePersonalization"></param>
-        /// <param name="queryStringForLinkAppend"></param>
-        /// <param name="ProtocolHostLink"></param>
-        /// <param name="IsEmailContent"></param>
-        /// <param name="ignore_DefaultWrapperID"></param>
-        /// <param name="ignore_TemplateCaseOnly_Content"></param>
-        /// <param name="Context"></param>
-        /// <param name="personalizationIsAuthenticated"></param>
-        /// <param name="nothingObject"></param>
-        /// <param name="isEditingAnything"></param>
-        /// <returns></returns>
-        //
-        public static string encode(CoreController core, string sourceHtmlContent, int deprecated_personalizationPeopleId, string ContextContentName, int ContextRecordID, int ContextContactPeopleID, bool convertHtmlToText, bool addLinkAuthToAllLinks, bool EncodeActiveFormatting, bool EncodeActiveImages, bool EncodeActiveEditIcons, bool EncodeActivePersonalization, string queryStringForLinkAppend, string ProtocolHostLink, bool IsEmailContent, CPUtilsBaseClass.addonContext Context, bool personalizationIsAuthenticated, bool isEditingAnything) {
-            string result = sourceHtmlContent;
-            string hint = "0";
-            try {
-                if (!string.IsNullOrEmpty(sourceHtmlContent)) {
-                    hint = "10";
-                    int LineStart = 0;
-                    //
-                    if (deprecated_personalizationPeopleId <= 0) {
-                        deprecated_personalizationPeopleId = core.session.user.id;
-                    }
-                    //
-                    // -- resize images
-                    hint = "20";
-                    result = updateLibraryFilesInHtmlContent(core, result);
-                    //
-                    // -- Do Active Content Conversion
-                    hint = "30";
-                    if (addLinkAuthToAllLinks || EncodeActiveFormatting || EncodeActiveImages || EncodeActiveEditIcons) {
-                        string AdminURL = "/" + core.appConfig.adminRoute;
-                        result = renderContent(core, result, deprecated_personalizationPeopleId, ContextContentName, ContextRecordID, addLinkAuthToAllLinks, EncodeActiveFormatting, EncodeActiveImages, EncodeActiveEditIcons, EncodeActivePersonalization, queryStringForLinkAppend, ProtocolHostLink, IsEmailContent, AdminURL, personalizationIsAuthenticated, Context);
-                    }
-                    //
-                    // -- Do Plain Text Conversion
-                    hint = "40";
-                    if (convertHtmlToText) {
-                        result = HtmlController.convertHtmlToText(core, result);
-                    }
-                    //
-                    // Process Addons
-                    //   parse as <!-- Addon "Addon Name","OptionString" -->
-                    //   They are handled here because Addons are written against coreClass, not the Content Server class
-                    //   ...so Group Email can not process addons 8(
-                    //   Later, remove the csv routine that translates <ac to this, and process it directly right here
-                    //   Later, rewrite so addons call csv, not coreClass, so email processing can include addons
-                    // (2/16/2010) - move csv_EncodeContent to csv, or wait and move it all to CP
-                    //    eventually, everything should migrate to csv and/or cp to eliminate the coreClass dependancy
-                    //    and all add-ons run as processes the same as they run on pages, or as remote methods
-                    // (2/16/2010) - if <!-- AC --> has four arguments, the fourth is the addon guid
-                    //
-                    // todo - deprecate execute addons based on this comment system "<!-- addon"
-                    try {
-                        hint = "50";
-                        const string StartFlag = "<!-- ADDON";
-                        const string EndFlag = " -->";
-                        if (result.IndexOf(StartFlag) != -1) {
-                            hint = "51";
-                            int LineEnd = 0;
-                            while (result.IndexOf(StartFlag) != -1) {
-                                hint = "52";
-                                LineStart = GenericController.strInstr(1, result, StartFlag);
-                                LineEnd = GenericController.strInstr(LineStart, result, EndFlag);
-                                string Copy = "";
-                                if (LineEnd == 0) {
-                                    LogController.logWarn(core, "csv_EncodeContent9, Addon could not be inserted into content because the HTML comment holding the position is not formated correctly");
-                                    break;
-                                } else {
-                                    hint = "53";
-                                    string AddonName = "";
-                                    string addonOptionString = "";
-                                    string ACInstanceId = "";
-                                    string AddonGuid = "";
-                                    int copyLength = LineEnd - LineStart - 11;
-                                    if (copyLength <= 0) {
-                                        //
-                                        // -- nothing between start and end, someone added a comment <!-- ADDON -->
-                                    } else {
-                                        hint = "54";
-                                        Copy = result.Substring(LineStart + 10, copyLength);
-                                        string[] ArgSplit = GenericController.splitDelimited(Copy, ",");
-                                        int ArgCnt = ArgSplit.GetUpperBound(0) + 1;
-                                        if (!string.IsNullOrEmpty(ArgSplit[0])) {
-                                            hint = "55";
-                                            AddonName = ArgSplit[0].Substring(1, ArgSplit[0].Length - 2);
-                                            if (ArgCnt > 1) {
-                                                if (!string.IsNullOrEmpty(ArgSplit[1])) {
-                                                    addonOptionString = ArgSplit[1].Substring(1, ArgSplit[1].Length - 2);
-                                                    addonOptionString = HtmlController.decodeHtml(addonOptionString.Trim(' '));
-                                                }
-                                                if (ArgCnt > 2) {
-                                                    if (!string.IsNullOrEmpty(ArgSplit[2])) {
-                                                        ACInstanceId = ArgSplit[2].Substring(1, ArgSplit[2].Length - 2);
-                                                    }
-                                                    if (ArgCnt > 3) {
-                                                        if (!string.IsNullOrEmpty(ArgSplit[3])) {
-                                                            AddonGuid = ArgSplit[3].Substring(1, ArgSplit[3].Length - 2);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            // dont have any way of getting fieldname yet
-                                            hint = "56";
-                                            CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
-                                                addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                                                cssContainerClass = "",
-                                                cssContainerId = "",
-                                                hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
-                                                    contentName = ContextContentName,
-                                                    fieldName = "",
-                                                    recordId = ContextRecordID
-                                                },
-                                                instanceGuid = ACInstanceId,
-                                                argumentKeyValuePairs = GenericController.convertQSNVAArgumentstoDocPropertiesList(core, addonOptionString),
-                                                errorContextMessage = "rendering active content with guid [" + AddonGuid + "] or name [" + AddonName + "]"
-                                            };
-                                            hint = "57, AddonGuid [" + AddonGuid + "], AddonName [" + AddonName + "]";
-                                            if (!string.IsNullOrEmpty(AddonGuid)) {
-                                                Copy = core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, AddonGuid), executeContext);
-                                            } else {
-                                                Copy = core.addon.execute(AddonModel.createByUniqueName(core.cpParent, AddonName), executeContext);
-                                            }
-                                        }
-                                    }
-                                }
-                                hint = "58";
-                                result = result.left(LineStart - 1) + Copy + result.Substring(LineEnd + 3);
-                            }
-                        }
-                    } catch (Exception ex) {
-                        //
-                        // -- handle error, but don't abort encode
-                        LogController.logError(core, ex, "hint [" + hint + "]");
-                    }
-                    //
-                    // process out text block comments inserted by addons
-                    // remove all content between BlockTextStartMarker and the next BlockTextEndMarker, or end of copy
-                    // exception made for the content with just the startmarker because when the AC tag is replaced with
-                    // with the marker, encode content is called with the result, which is just the marker, and this
-                    // section will remove it
-                    //
-                    hint = "60";
-                    bool DoAnotherPass = false;
-                    if ((!isEditingAnything) && (result != BlockTextStartMarker)) {
-                        DoAnotherPass = true;
-                        while ((result.IndexOf(BlockTextStartMarker, System.StringComparison.OrdinalIgnoreCase) != -1) && DoAnotherPass) {
-                            LineStart = GenericController.strInstr(1, result, BlockTextStartMarker, 1);
-                            if (LineStart == 0) {
-                                DoAnotherPass = false;
-                            } else {
-                                int LineEnd = GenericController.strInstr(LineStart, result, BlockTextEndMarker, 1);
-                                if (LineEnd <= 0) {
-                                    DoAnotherPass = false;
-                                    result = result.left(LineStart - 1);
-                                } else {
-                                    LineEnd = GenericController.strInstr(LineEnd, result, " -->");
-                                    if (LineEnd <= 0) {
-                                        DoAnotherPass = false;
-                                    } else {
-                                        result = result.left(LineStart - 1) + result.Substring(LineEnd + 3);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (isEditingAnything) {
-                        if (result.IndexOf("<!-- AFScript -->", System.StringComparison.OrdinalIgnoreCase) != -1) {
-                            string Copy = AdminUIController.getEditWrapper(core, "Aggregate Script", "##MARKER##");
-                            string[] Wrapper = GenericController.stringSplit(Copy, "##MARKER##");
-                            result = GenericController.strReplace(result, "<!-- AFScript -->", Wrapper[0], 1, 99, 1);
-                            result = GenericController.strReplace(result, "<!-- /AFScript -->", Wrapper[1], 1, 99, 1);
-                        }
-                        if (result.IndexOf("<!-- AFReplacement -->", System.StringComparison.OrdinalIgnoreCase) != -1) {
-                            string Copy = AdminUIController.getEditWrapper(core, "Aggregate Replacement", "##MARKER##");
-                            string[] Wrapper = GenericController.stringSplit(Copy, "##MARKER##");
-                            result = GenericController.strReplace(result, "<!-- AFReplacement -->", Wrapper[0], 1, 99, 1);
-                            result = GenericController.strReplace(result, "<!-- /AFReplacement -->", Wrapper[1], 1, 99, 1);
-                        }
-                    }
-                    //
-                    // Process Feedback form
-                    hint = "70";
-                    if (GenericController.strInstr(1, result, FeedbackFormNotSupportedComment, 1) != 0) {
-                        result = GenericController.strReplace(result, FeedbackFormNotSupportedComment, PageContentController.getFeedbackForm(core, ContextContentName, ContextRecordID, ContextContactPeopleID), 1, 99, 1);
-                    }
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex, "hint [" + hint + "]");
-            }
-            return result;
-        }
-        //
         //================================================================================================================
         /// <summary>
         /// for html content, this routine optimizes images referenced in the html if they are from library file
@@ -1254,7 +1247,7 @@ namespace Contensive.Processor.Controllers {
         /// Convert an active content field (html data stored with ac /ac html tags) to a wysiwyg editor request (html with edit icon img for ac /ac)
         /// </summary>
         public static string renderHtmlForWysiwygEditor(CoreController core, string editorValue) {
-            return encode(core, editorValue, 0, "", 0, 0, false, false, false, true, true, false, "", "", false, Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple, false, false);
+            return renderContent(core, editorValue, 0, "", 0, 0, false, false, false, true, true, false, "", "", false, Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple, false, false);
         }
         //
         //====================================================================================================
@@ -1275,7 +1268,7 @@ namespace Contensive.Processor.Controllers {
             if (core.siteProperties.beta200327_BlockCCmdForJSONRemoteMethods) { return Source; }
             string result = Source;
             result = ContentCmdController.executeContentCommands(core, result, CPUtilsBaseClass.addonContext.ContextAdmin);
-            result = encode(core, result, core.session.user.id, ContextContentName, ContextRecordID, deprecated_ContextContactPeopleID, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
+            result = renderContent(core, result, core.session.user.id, ContextContentName, ContextRecordID, deprecated_ContextContactPeopleID, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
             return result;
         }
         //
@@ -1299,7 +1292,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 string result = ContentCmdController.executeContentCommands(cp.core, source, CPUtilsBaseClass.addonContext.ContextEmail);
-                result = encode(cp.core, result, sendToPersonId, "", 0, 0, false, addLinkAuthToAllLinks, true, true, false, true, queryStringForLinkAppend, "", true, CPUtilsBaseClass.addonContext.ContextEmail, true, false);
+                result = renderContent(cp.core, result, sendToPersonId, "", 0, 0, false, addLinkAuthToAllLinks, true, true, false, true, queryStringForLinkAppend, "", true, CPUtilsBaseClass.addonContext.ContextEmail, true, false);
                 return result;
             };
         }

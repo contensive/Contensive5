@@ -2539,27 +2539,25 @@ namespace Contensive.Processor.Controllers {
                         //
                         // ----- Determine which secondary records are associated by a rule
                         // ----- (exclude new record issue ID=0)
-                        using (var csData = new CsModel(core)) {
-                            string sql = ""
-                                + "SELECT "
-                                    + secondaryMeta.tableName + ".id AS secondaryId," + rulesMeta.tableName + ".id as ruleId"
-                                + " FROM "
-                                    + secondaryMeta.tableName + " LEFT JOIN"
-                                    + " " + rulesMeta.tableName + " ON " + secondaryMeta.tableName + ".Id = " + rulesMeta.tableName + "." + rulesSecondaryFieldName
-                                + " WHERE "
-                                    + " (" + rulesMeta.tableName + "." + rulesPrimaryFieldname + "=" + primaryRecordID + ")"
-                                    + " AND (" + rulesMeta.tableName + ".Active<>0)"
-                                    + " AND (" + secondaryMeta.tableName + ".Active<>0)"
-                                    + " And (" + secondaryMeta.tableName + ".ContentControlID IN (" + string.Join(",", contentControlIdList) + "))"
-                                    + (!string.IsNullOrEmpty(secondaryContentSelectCriteria) ? "AND(" + secondaryContentSelectCriteria + ")" : "");
-                            csData.openSql(sql);
-                            if (csData.ok()) {
-                                while (csData.ok()) {
-                                    int secondaryId = csData.getInteger("secondaryId");
-                                    if (secondaryIdDict.ContainsKey(secondaryId)) { continue; }
-                                    secondaryIdDict.Add(secondaryId, new RuleIdSecondaryIdModel() { secondaryId = secondaryId, ruleId = csData.getInteger("ruleId") });
-                                    csData.goNext();
-                                }
+                        //using var csData = new CsModel(core);
+                        string sql = ""
+                            + "SELECT "
+                                + secondaryMeta.tableName + ".id AS secondaryId," + rulesMeta.tableName + ".id as ruleId"
+                            + " FROM "
+                                + secondaryMeta.tableName + " LEFT JOIN"
+                                + " " + rulesMeta.tableName + " ON " + secondaryMeta.tableName + ".Id = " + rulesMeta.tableName + "." + rulesSecondaryFieldName
+                            + " WHERE "
+                                + " (" + rulesMeta.tableName + "." + rulesPrimaryFieldname + "=" + primaryRecordID + ")"
+                                + " AND (" + rulesMeta.tableName + ".Active<>0)"
+                                + " AND (" + secondaryMeta.tableName + ".Active<>0)"
+                                + " And (" + secondaryMeta.tableName + ".ContentControlID IN (" + string.Join(",", contentControlIdList) + "))"
+                                + (!string.IsNullOrEmpty(secondaryContentSelectCriteria) ? "AND(" + secondaryContentSelectCriteria + ")" : "");
+                        using DataTable dt = core.cpParent.Db.ExecuteQuery(sql);
+                        if (dt?.Rows != null) {
+                            foreach (DataRow row in dt.Rows) {
+                                int secondaryId = GenericController.encodeInteger(row["secondaryId"]);
+                                if (secondaryIdDict.ContainsKey(secondaryId)) { continue; }
+                                secondaryIdDict.Add(secondaryId, new RuleIdSecondaryIdModel() { secondaryId = secondaryId, ruleId = GenericController.encodeInteger(row["ruleId"]) });
                             }
                         }
                     }

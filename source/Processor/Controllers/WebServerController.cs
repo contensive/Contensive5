@@ -658,13 +658,33 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// set cookie in iis response. creates a cookie, to the current requestDomain, with "/" path, not secure
+        /// set cookie in iis response. creates a cookie, to the current requestDomain, with "/" path, not secure.
+        /// if requestDomain is domain, use domain
+        /// if requestDomain is domain.com, use .domain.com
+        /// if requestDomain is www.domain.com, use .domain.com
+        /// if requestDomain is www.test.domain.com, user .test.domain.com
         /// </summary>
         /// <param name="name">The cookie key</param>
         /// <param name="value">The cookie value</param>
         /// <param name="dateExpires">If MinDate, no expiration and the cookie is not persistent. If not MinDate, the cookied expires on the is date and is persistent.</param>
         public void addResponseCookie(string name, string value, DateTime dateExpires) {
-            addResponseCookie(name, value, dateExpires, requestDomain, "/", false);
+            string cookieDomain = "";
+            if (!string.IsNullOrEmpty(requestDomain)) {
+                //
+                // -- convert www.domain.com to .domain.com
+                // -- if a.b.domain.com, convert to .b.domain.com
+                string[] domainSegments = requestDomain.Split('.');
+                if (domainSegments.Length == 1) {
+                    cookieDomain = requestDomain;
+                } else if (domainSegments.Length == 2) {
+                    cookieDomain = "." + requestDomain;
+                } else {
+                    for (var i = 1; i < domainSegments.Count(); i++) {
+                        cookieDomain += "." + domainSegments[i];
+                    }
+                }
+            }
+            addResponseCookie(name, value, dateExpires, cookieDomain, "/", false);
         }
         //
         //====================================================================================================
