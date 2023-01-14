@@ -91,6 +91,12 @@ namespace Contensive.Models.Db {
         /// 
         /// </summary>
         public DbBaseModel.FieldTypeCSSFile stylesFilename { get; set; }
+        /// <summary>
+        /// id of addon used to personalize email when it is sent. 
+        /// Addon returns an object with public properties used with mustache to personalize.
+        /// Addon will be run in an environment with the recipient as the session user
+        /// </summary>
+        public int personalizeAddonId { get; set; }
     }
     /// <summary>
     /// define the process for sending the email

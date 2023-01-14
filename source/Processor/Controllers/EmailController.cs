@@ -231,7 +231,7 @@ namespace Contensive.Processor.Controllers {
         /// Add an email to the queue
         /// </summary>
         /// <returns>false if the email is not sent successfully and the returnUserWarning argument contains a user compatible message. If true, the returnUserWanting may contain a user compatible message about email issues.</returns>
-        public static bool queueAdHocEmail(CoreController core, string emailContextMessage, int loggedPersonId, string toAddress, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, string ignore, bool isImmediate, bool isHTML, int loggedEmailId, ref string returnSendStatus) {
+        public static bool queueAdHocEmail(CoreController core, string emailContextMessage, int loggedPersonId, string toAddress, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, string ignore, bool isImmediate, bool isHTML, int loggedEmailId, ref string returnSendStatus, int personalizeAddonId) {
             bool result = false;
             try {
                 if (!verifyEmailAddress(core, toAddress)) {
@@ -272,9 +272,10 @@ namespace Contensive.Processor.Controllers {
                             LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                         }
                     }
-                    string subjectRendered = encodeEmailTextBody(core, false, subject, null);
-                    string htmlBody = encodeEmailHtmlBody(core, isHTML, body, "", subject, null, "", false);
-                    string textBody = encodeEmailTextBody(core, isHTML, body, null);
+                    object bodyRenderData = getRenderData(core, personalizeAddonId);
+                    string subjectRendered = encodeEmailTextBody(core, false, subject, null, bodyRenderData);
+                    string htmlBody = encodeEmailHtmlBody(core, isHTML, body, "", subject, null, "", false, bodyRenderData);
+                    string textBody = encodeEmailTextBody(core, isHTML, body, null, bodyRenderData);
                     queueEmail(core, isImmediate, emailContextMessage, new EmailSendRequest {
                         attempts = 0,
                         bounceAddress = bounceAddress,
@@ -315,7 +316,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="queryStringForLinkAppend"></param>
         /// <param name="emailContextMessage">Brief description for the log entry (Conditional Email, etc)</param>
         /// <returns> returns ok if send is successful, otherwise returns the principle issue as a user error</returns>
-        public static bool tryQueuePersonEmail(CoreController core, PersonModel recipient, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailId, string template, bool addLinkAuthToAllLinks, ref string userErrorMessage, string queryStringForLinkAppend, string emailContextMessage) {
+        public static bool tryQueuePersonEmail(CoreController core, PersonModel recipient, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailId, string template, bool addLinkAuthToAllLinks, ref string userErrorMessage, string queryStringForLinkAppend, string emailContextMessage, int personalizeAddonId) {
             bool result = false;
             try {
                 if (recipient == null) {
@@ -330,9 +331,10 @@ namespace Contensive.Processor.Controllers {
                     //
                     userErrorMessage = "Email not sent because the to-address is blocked by this application. See the Blocked Email Report.";
                 } else {
-                    string subjectRendered = encodeEmailTextBody(core, false, subject, recipient);
-                    string htmlBody = encodeEmailHtmlBody(core, isHTML, body, template, subject, recipient, queryStringForLinkAppend, addLinkAuthToAllLinks);
-                    string textBody = encodeEmailTextBody(core, isHTML, body, recipient);
+                    object bodyRenderData = getRenderData(core, personalizeAddonId);
+                    string subjectRendered = encodeEmailTextBody(core, false, subject, recipient, bodyRenderData);
+                    string htmlBody = encodeEmailHtmlBody(core, isHTML, body, template, subject, recipient, queryStringForLinkAppend, addLinkAuthToAllLinks, bodyRenderData);
+                    string textBody = encodeEmailTextBody(core, isHTML, body, recipient, bodyRenderData);
                     string recipientName = (!string.IsNullOrWhiteSpace(recipient.name) && !recipient.name.ToLower().Equals("guest")) ? recipient.name : string.Empty;
                     if (string.IsNullOrWhiteSpace(recipientName)) {
                         recipientName = ""
@@ -392,8 +394,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="EmailAllowLinkEID"></param>
         /// <param name="returnSendStatus"></param>
         /// <returns></returns>
-        public static bool tryQueuePersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID, ref string returnSendStatus) {
-            return tryQueuePersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage);
+        public static bool tryQueuePersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID, ref string returnSendStatus, int personalizeAddonId) {
+            return tryQueuePersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage, personalizeAddonId);
         }
         /// <summary>
         /// 
@@ -412,9 +414,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="template"></param>
         /// <param name="EmailAllowLinkEID"></param>
         /// <returns></returns>
-        public static bool tryQueuePersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID) {
+        public static bool tryQueuePersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID, int personalizeAddonId) {
             string returnSendStatus = "";
-            return tryQueuePersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage);
+            return tryQueuePersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
@@ -582,7 +584,7 @@ namespace Contensive.Processor.Controllers {
                         } else {
                             string EmailStatus = "";
                             string queryStringForLinkAppend = "";
-                            tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email");
+                            tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                             //
                             LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
@@ -830,7 +832,9 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                return queueAdHocEmail(core, "Form Submission Email", core.session.user.id, toAddress, fromAddress, emailSubjectWorking, Message, "", "", "", false, false, 0, ref userErrorMessage);
+                // todo -- add personalization
+                int personalizeAddonId = 0;
+                return queueAdHocEmail(core, "Form Submission Email", core.session.user.id, toAddress, fromAddress, emailSubjectWorking, Message, "", "", "", false, false, 0, ref userErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -888,11 +892,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isHtml"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool tryQueueGroupEmail(CoreController core, List<string> groupNameList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage) {
+        public static bool tryQueueGroupEmail(CoreController core, List<string> groupNameList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId ) {
             try {
                 if (groupNameList.Count <= 0) { return true; }
                 foreach (var person in PersonModel.createListFromGroupNameList(core.cpParent, groupNameList, true)) {
-                    tryQueuePersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false);
+                    tryQueuePersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false, personalizeAddonId);
                 }
                 return true;
             } catch (Exception ex) {
@@ -915,11 +919,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isHtml"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool tryQueueGroupEmail(CoreController core, List<int> groupIdList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage) {
+        public static bool tryQueueGroupEmail(CoreController core, List<int> groupIdList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
             try {
                 if (groupIdList.Count <= 0) { return true; }
                 foreach (var person in PersonModel.createListFromGroupIdList(core.cpParent, groupIdList, true)) {
-                    tryQueuePersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false);
+                    tryQueuePersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false, personalizeAddonId);
                 }
                 return true;
             } catch (Exception ex) {
@@ -1080,38 +1084,35 @@ namespace Contensive.Processor.Controllers {
         /// create a simple text version of the email
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="isHTML"></param>
+        /// <param name="isHTML">true if the body is html</param>
         /// <param name="body"></param>
         /// <returns></returns>
-        public static string encodeEmailTextBody(CoreController core, bool isHTML, string body, PersonModel recipient) {
+        public static string encodeEmailTextBody(CoreController core, bool isHTML, string body, PersonModel recipient, object bodyRenderData) {
             int recipientId = (recipient == null) ? 0 : recipient.id;
-            //
-            // -- body
-            if (!string.IsNullOrWhiteSpace(body)) {
-                body = ContentRenderController.renderHtmlForEmail(core, body, recipientId, "", false);
+            if (string.IsNullOrWhiteSpace(body)) {
+                //
+                // -- body is empty
+                return "";
             }
             //
-            if (!isHTML) {
+            // -- render email body (fixup links and execute addons)
+            body = MustacheController.renderStringToString(body, bodyRenderData);
+            body = ContentRenderController.renderHtmlForEmail(core, body, recipientId, "", false);
+            //
+            if (!isHTML || body.ToLower(CultureInfo.InvariantCulture).IndexOf("<html") < 0) {
+                //
+                // -- html not needed, or the body has no html
                 return body;
-            } else if (body.ToLower(CultureInfo.InvariantCulture).IndexOf("<html") >= 0) {
-                //
-                // -- isHtml, if the body includes an html tag, this is the entire body, just send it
-                try {
-                    return HtmlController.convertHtmlToText(core, body);
-                } catch (Exception ex) {
-                    LogController.logError(core, ex, "Nuglify error while creating text body from full html.");
-                    return string.Empty;
-                }
-            } else {
-                //
-                // -- isHtml but no body tag, add an html wrapper
-                try {
-                    return HtmlController.convertHtmlToText(core, "<body>" + body + "</body>");
-                } catch (Exception ex) {
-                    LogController.logError(core, ex, "Nuglify error while creating text body from html body.");
-                    return string.Empty;
-                }
             }
+            //
+            // -- isHtml, if the body includes an html tag, this is the entire body, just send it
+            try {
+                return HtmlController.convertHtmlToText(core, body);
+            } catch (Exception ex) {
+                LogController.logError(core, ex, "Error creating text body from full html.");
+                return string.Empty;
+            }
+
         }
         //
         //====================================================================================================        
@@ -1126,7 +1127,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recipient"></param>
         /// <param name="queryStringForLinkAppend"></param>
         /// <returns></returns>
-        public static string encodeEmailHtmlBody(CoreController core, bool isHTML, string body, string template, string subject, PersonModel recipient, string queryStringForLinkAppend, bool addLinkAuthToAllLinks) {
+        public static string encodeEmailHtmlBody(CoreController core, bool isHTML, string body, string template, string subject, PersonModel recipient, string queryStringForLinkAppend, bool addLinkAuthToAllLinks, object bodyRenderData) {
             int recipientId = (recipient == null) ? 0 : recipient.id;
             string recipientEmail = (recipient == null) ? "" : recipient.email;
             //
@@ -1135,6 +1136,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- subject
             if (!string.IsNullOrWhiteSpace(subject)) {
+                subject = MustacheController.renderStringToString(subject, bodyRenderData);
                 subject = ContentRenderController.renderHtmlForEmail(core, subject, recipientId, queryStringForLinkAppend, false);
                 subject = HtmlController.convertLinksToAbsolute(subject, webAddressProtocolDomain + "/");
                 try {
@@ -1149,6 +1151,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- body
             if (!string.IsNullOrWhiteSpace(body)) {
+                body = MustacheController.renderStringToString(body, bodyRenderData);
                 body = ContentRenderController.renderHtmlForEmail(core, body, recipientId, queryStringForLinkAppend, addLinkAuthToAllLinks);
             }
             //
@@ -1569,6 +1572,14 @@ namespace Contensive.Processor.Controllers {
             int posEnd = result.IndexOf('>');
             if (posEnd < 0) { return ""; }
             return result.Substring(0, posEnd);
+        }
+        //
+        public static object getRenderData(CoreController core, int personalizeAddonId) {
+            if (personalizeAddonId > 0) { return null; }
+            string dataSetJson = core.addon.execute(personalizeAddonId, new CPUtilsBaseClass.addonExecuteContext {
+                addonType = CPUtilsBaseClass.addonContext.ContextEmail
+            });
+            return Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
         }
         //
         //====================================================================================================

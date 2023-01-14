@@ -102,7 +102,9 @@ namespace Contensive.Processor.Controllers {
                     if (groupTextMessage.testMemberID > 0) {
                         var confirmPerson = DbBaseModel.create<PersonModel>(core.cpParent, groupTextMessage.testMemberID);
                         if (confirmPerson != null) {
-                            sendConfirmation(core, confirmPerson, groupTextMessage.body, recipientList, 0, groupTextMessage.id);
+                            // todo -- add personalization to text
+                            int renderDataAddonId = 0;
+                            sendConfirmation(core, confirmPerson, groupTextMessage.body, recipientList, 0, groupTextMessage.id, renderDataAddonId);
                             needToSend = true;
                         }
                     }
@@ -265,7 +267,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recipientList"></param>
         /// <param name="systemTextMessageId"></param>
         /// <returns></returns>
-        public static bool sendConfirmation(CoreController core, PersonModel person, string originalTextMessageBody, List<string> recipientList, int systemTextMessageId, int groupTextMessageId) {
+        public static bool sendConfirmation(CoreController core, PersonModel person, string originalTextMessageBody, List<string> recipientList, int systemTextMessageId, int groupTextMessageId, int renderDataAddonId) {
             try {
                 if (person == null) { return false; }
                 //
@@ -284,7 +286,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- queue email and text, run email and text send (no doc conext needed)
                 string emailStatus = "";
-                EmailController.queueAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus);
+                EmailController.queueAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus,renderDataAddonId);
                 AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
                 //
                 bool result = queuePersonTextMessage(core, person, "Text message complete from " + core.appConfig.name + ". A detailed confirmation email was sent to [" + person.id + ", " + person.name + "]", true, systemTextMessageId, groupTextMessageId, ref emailStatus, "System Text Confirmation");
@@ -353,7 +355,9 @@ namespace Contensive.Processor.Controllers {
                 //
                 if (confirmationMemberId != 0) {
                     PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, confirmationMemberId);
-                    sendConfirmation(core, person, textBody, recipientList, textMessage.id, 0);
+                    // todo -- add personalization
+                    int renderDataAddonId = 0;
+                    sendConfirmation(core, person, textBody, recipientList, textMessage.id, 0, renderDataAddonId);
                     needToSend = true;
                 }
                 //

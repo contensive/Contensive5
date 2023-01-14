@@ -40,7 +40,9 @@ namespace Contensive.Processor {
         /// <param name="bodyIsHTML"></param>
         public override void send(string toAddress, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHTML, ref string userErrorMessage) {
             try {
-                EmailController.queueAdHocEmail(cp.core, "Ad Hoc email from api", 0, toAddress, fromAddress, subject, body, fromAddress, fromAddress, "", sendImmediately, bodyIsHTML,0 , ref userErrorMessage);
+                // todo -- add personalization to text
+                int renderDataAddonId = 0;
+                EmailController.queueAdHocEmail(cp.core, "Ad Hoc email from api", 0, toAddress, fromAddress, subject, body, fromAddress, fromAddress, "", sendImmediately, bodyIsHTML,0 , ref userErrorMessage, renderDataAddonId);
             } catch (Exception ex) {
                 LogController.logError( cp.core,ex);
                 throw;
