@@ -75,7 +75,7 @@ Public Class Global_asax
                 '
                 ' -- dont log [The file '...' does not exist.]
                 Dim exMsg As String = exception.Message
-                If (exMsg.Substring(0, 10).Equals("The file '") And exMsg.Substring(exMsg.Length - 17, 17).Equals("' does not exist.")) Then
+                If (exMsg.Substring(0, 10).Equals("The file '") AndAlso exMsg.Substring(exMsg.Length - 17, 17).Equals("' does not exist.")) Then
                     '
                     ' -- File does not exist, thrown for every bot searching content
                     Return

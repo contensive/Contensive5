@@ -92,6 +92,10 @@ namespace Contensive.Processor {
         /// if true, you can login with just your username or email, without a password
         /// </summary>
         internal const string sitePropertyName_AllowNoPasswordLogin = "allowNoPasswordLogin";
+        /// <summary>
+        /// if true, user plain text password field to login. If false, has the entered password and compare to passwordHash
+        /// </summary>
+        internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
         //
         //========================================================================
         // html

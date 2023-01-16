@@ -735,82 +735,97 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials enter");
                 //
-                bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin);
                 if (string.IsNullOrEmpty(username)) {
                     //
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, username blank");
-                    //
                     // -- username blank, stop here
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, username blank");
                     return 0;
                 }
                 bool allowNoPassword = !requestIncludesPassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
                 if (string.IsNullOrEmpty(password) && !allowNoPassword) {
                     //
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, password blank");
-                    //
                     // -- password blank, stop here
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, password blank");
                     return 0;
                 }
                 if (visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts) {
                     //
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, maxVisitLoginAttempts reached");
-                    //
                     // ----- already tried 5 times
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, maxVisitLoginAttempts reached");
                     return 0;
                 }
                 string Criteria;
+                bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin);
                 if (allowEmailLogin) {
                     //
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt email login");
-                    //
                     // -- login by username or email
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt email login");
                     Criteria = "((username=" + DbController.encodeSQLText(username) + ")or(email=" + DbController.encodeSQLText(username) + "))";
                 } else {
                     //
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt username login");
-                    //
                     // -- login by username only
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt username login");
                     Criteria = "(username=" + DbController.encodeSQLText(username) + ")";
                 }
                 Criteria += "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
+                string peopleFieldList = "ID,passwordHash,admin,developer,ccguid";
+                bool allowPlainTextPassword = core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPassword, true);
+                if (allowPlainTextPassword) {
+                    peopleFieldList = "ID,password,admin,developer,ccguid";
+                }
                 using (var cs = new CsModel(core)) {
-                    if (!cs.open("People", Criteria, "id", true, user.id, "ID,password,admin,developer", PageSize: 2)) {
-                        //
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, user record not found");
+                    if (!cs.open("People", Criteria, "id", true, user.id, peopleFieldList, PageSize: 2)) {
                         //
                         // -- fail, username not found, stop here
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, user record not found");
                         return 0;
                     }
                     if (cs.getRowCount() > 1) {
                         //
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, multiple users found");
-                        //
                         // -- fail, multiple matches
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, multiple users found");
                         return 0;
                     }
                     if (!allowNoPassword) {
                         //
                         // -- password mode
-                        if (!string.IsNullOrEmpty(password) && password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
+                        if (string.IsNullOrEmpty(password)) {
                             //
-                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
+                            // -- fail, no password
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank password");
+                            return 0;
+                        }
+                        if (allowPlainTextPassword) {
                             //
-                            // -- success, password match
-                            return cs.getInteger("ID");
+                            // -- legacy plain text password mode
+                            if (password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
+                                //
+                                // -- success, password match
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
+                                return cs.getInteger("ID");
+                            }
+                        } else {
+                            //
+                            // -- test encrypted password entered with passwordHash saved
+                            string passwordHash = SecurityController.encryptOneWay(core, password, cs.getText("ccguid"));
+                            if (passwordHash.Equals(cs.getText("passwordHash"), StringComparison.InvariantCultureIgnoreCase)) {
+                                //
+                                // -- success, password match
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
+                                return cs.getInteger("ID");
+                            }
                         }
                         //
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
-                        //
                         // -- fail, blank or incorrect password
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
                         return 0;
                     }
                     //
                     // -- no-password mode
                     if (cs.getBoolean("admin") || cs.getBoolean("developer")) {
                         //
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode matched admin/dev");
-                        //
                         // -- fail, no-password-mode and match is admin/dev
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode matched admin/dev");
                         return 0;
                     }
                     //
@@ -828,9 +843,8 @@ namespace Contensive.Processor.Controllers {
                         + ");";
                     if (!csRules.openSql(SQL)) {
                         //
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
-                        //
                         // -- success, match is not content manager
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
                         return cs.getInteger("ID");
                     }
                 }

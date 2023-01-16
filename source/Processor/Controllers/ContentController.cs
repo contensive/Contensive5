@@ -161,6 +161,16 @@ namespace Contensive.Processor.Controllers {
                     // -- PersonModel
                     if (!isDelete) {
                         LogController.addActivityCompletedEdit(core, "Edit", core.session.user.name + " saved changes to user #" + recordId + " (" + recordName + ")", recordId);
+                        // -- if password is saved, and plaintext is disabled, create and save hash
+                        bool allowPlainTextPassword = core.siteProperties.getBoolean(Constants.sitePropertyName_AllowPlainTextPassword, true);
+                        if (!allowPlainTextPassword) {
+                            PersonModel user = DbBaseModel.create<PersonModel>(core.cpParent, recordId);
+                            if (user != null && !string.IsNullOrEmpty(user.password)) {
+                                user.passwordHash = SecurityController.encryptOneWay(core, user.password, user.ccguid);
+                                user.password = "";
+                                user.save(core.cpParent);
+                            }
+                        }
                     }
                 } else if (tableNameLower == SitePropertyModel.tableMetadata.tableNameLower) {
                     //

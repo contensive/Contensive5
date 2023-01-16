@@ -127,6 +127,10 @@ namespace Contensive.Models.Db {
         /// location of address
         /// </summary>
         public double longitude { get; set; }
+        /// <summary>
+        /// if siteproperty "allow plain text password" is false, this is password hashed with encryptOneWay. login tests this field
+        /// </summary>
+        public string passwordHash { get; set; }
         //
         // -- to be deprecated
         public string resumeFilename { get; set; }

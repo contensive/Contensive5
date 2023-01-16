@@ -74,10 +74,11 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static string encryptOneWay(CoreController core, string password) {
+        public static string encryptOneWay(CoreController core, string password, string salt) {
             string returnResult = "";
             try {
-                returnResult = HashEncode.computeHash(password, "SHA512", null);
+                byte[] emptySalt = Encoding.ASCII.GetBytes(salt);
+                returnResult = HashEncode.computeHash(password, "SHA512", emptySalt);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -264,43 +265,45 @@ namespace Contensive.Processor.Controllers {
             /// MD5 hashing algorithm will be used). This value is case-insensitive.
             /// </param>
             /// <param name="saltBytes">
-            /// Salt bytes. This parameter can be null, in which case a random salt
-            /// value will be generated.
+            /// Salt bytes. Can be empty. If provided, the salt must be saved
             /// </param>
             /// <returns>
             /// Hash value formatted as a base64-encoded string.
             /// </returns>
             public static string computeHash(string plainText, string hashAlgorithm, byte[] saltBytes) {
-                byte[] workingSalt;
-                if (saltBytes != null) {
-                    //
-                    // -- use provide sale
-                    workingSalt = saltBytes.ToArray();
-                } else {
-                    //
-                    // If salt is not specified, generate it on the fly.
-                    int minSaltSize = 4;
-                    int maxSaltSize = 8;
-                    //
-                    // Generate a random number for the size of the salt.
-                    Random random = new Random();
-                    int saltSize = random.Next(minSaltSize, maxSaltSize);
-                    //
-                    // Allocate a byte array, which will hold the salt.
-                    workingSalt = new byte[saltSize];
-                    //
-                    // Initialize 
-                    RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-                    //
-                    // Fill the salt with cryptographically strong byte values.
-                    rng.GetNonZeroBytes(workingSalt);
+                if (string.IsNullOrEmpty(plainText)) {
+                    return "";
                 }
+                //byte[] workingSalt;
+                //if (saltBytes != null) {
+                //    //
+                //    // -- use provide sale
+                //    workingSalt = saltBytes.ToArray();
+                //} else {
+                //    //
+                //    // If salt is not specified, generate it on the fly.
+                //    int minSaltSize = 4;
+                //    int maxSaltSize = 8;
+                //    //
+                //    // Generate a random number for the size of the salt.
+                //    Random random = new Random();
+                //    int saltSize = random.Next(minSaltSize, maxSaltSize);
+                //    //
+                //    // Allocate a byte array, which will hold the salt.
+                //    workingSalt = new byte[saltSize];
+                //    //
+                //    // Initialize 
+                //    RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
+                //    //
+                //    // Fill the salt with cryptographically strong byte values.
+                //    rng.GetNonZeroBytes(workingSalt);
+                //}
                 //
                 // Convert plain text into a byte array.
                 byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);
                 //
                 // Allocate array, which will hold plain text and salt.
-                byte[] plainTextWithSaltBytes = new byte[plainTextBytes.Length + workingSalt.Length];
+                byte[] plainTextWithSaltBytes = new byte[plainTextBytes.Length + saltBytes.Length];
                 //
                 // Copy plain text bytes into resulting array.
                 for (int i = 0; i < plainTextBytes.Length; i++) {
@@ -308,8 +311,8 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // Append salt bytes to the resulting array.
-                for (int i = 0; i < workingSalt.Length; i++) {
-                    plainTextWithSaltBytes[plainTextBytes.Length + i] = workingSalt[i];
+                for (int i = 0; i < saltBytes.Length; i++) {
+                    plainTextWithSaltBytes[plainTextBytes.Length + i] = saltBytes[i];
                 }
                 //
                 // Because we support multiple hashing algorithms, we must define
@@ -343,7 +346,7 @@ namespace Contensive.Processor.Controllers {
                 byte[] hashBytes = hash.ComputeHash(plainTextWithSaltBytes);
                 //
                 // Create array which will hold hash and original salt bytes.
-                byte[] hashWithSaltBytes = new byte[hashBytes.Length + workingSalt.Length];
+                byte[] hashWithSaltBytes = new byte[hashBytes.Length + saltBytes.Length];
                 //
                 // Copy hash bytes into resulting array.
                 for (int i = 0; i < hashBytes.Length; i++) {
@@ -351,8 +354,8 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // Append salt bytes to the result.
-                for (int i = 0; i < workingSalt.Length; i++) {
-                    hashWithSaltBytes[hashBytes.Length + i] = workingSalt[i];
+                for (int i = 0; i < saltBytes.Length; i++) {
+                    hashWithSaltBytes[hashBytes.Length + i] = saltBytes[i];
                 }
                 //
                 // Convert result into a base64-encoded string.

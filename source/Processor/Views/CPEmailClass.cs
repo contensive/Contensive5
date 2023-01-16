@@ -41,8 +41,8 @@ namespace Contensive.Processor {
         public override void send(string toAddress, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHTML, ref string userErrorMessage) {
             try {
                 // todo -- add personalization to text
-                int renderDataAddonId = 0;
-                EmailController.queueAdHocEmail(cp.core, "Ad Hoc email from api", 0, toAddress, fromAddress, subject, body, fromAddress, fromAddress, "", sendImmediately, bodyIsHTML,0 , ref userErrorMessage, renderDataAddonId);
+                int personalizeAddonId = 0;
+                EmailController.queueAdHocEmail(cp.core, "Ad Hoc email from api", 0, toAddress, fromAddress, subject, body, fromAddress, fromAddress, "", sendImmediately, bodyIsHTML,0 , ref userErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
                 LogController.logError( cp.core,ex);
                 throw;
@@ -137,85 +137,101 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override void sendGroup(string groupName, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml, ref string userErrorMessage) {
-            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(string groupName, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(string groupName, string fromAddress, string subject, string body, bool sendImmediately) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(string groupName, string fromAddress, string subject, string body) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, true, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, new List<string> { groupName }, fromAddress, subject, body, true, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
         //
         public override void sendGroup(int groupId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml, ref string userErrorMessage) {
-            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0; 
+            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(int groupId, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(int groupId, string fromAddress, string subject, string body, bool sendImmediately) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(int groupId, string fromAddress, string subject, string body) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, true, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, new List<int> { groupId }, fromAddress, subject, body, true, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
         //
         public override void sendGroup(List<string> groupNameList, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml, ref string userErrorMessage) {
-            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(List<string> groupNameList, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(List<string> groupNameList, string fromAddress, string subject, string body, bool sendImmediately) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(List<string> groupNameList, string fromAddress, string subject, string body) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, true, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupNameList, fromAddress, subject, body, true, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
         //
         public override void sendGroup(List<int> groupIdList, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml, ref string userErrorMessage) {
-            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(List<int> groupIdList, string fromAddress, string subject, string body, bool sendImmediately, bool bodyIsHtml) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, sendImmediately, bodyIsHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(List<int> groupIdList, string fromAddress, string subject, string body, bool sendImmediately) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, sendImmediately, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         public override void sendGroup(List<int> groupIdList, string fromAddress, string subject, string body) {
             string userErrorMessage = "";
-            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, true, true, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueueGroupEmail(cp.core, groupIdList, fromAddress, subject, body, true, true, ref userErrorMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
@@ -226,7 +242,8 @@ namespace Contensive.Processor {
                 userErrorMessage = "An email could not be sent because the user could not be located.";
                 return;
             }
-            EmailController.tryQueuePersonEmail(cp.core, "Ad Hoc Email", person, fromAddress, subject, body, "", "", sendImmediately, bodyIsHtml, 0,"",false, ref userErrorMessage);
+            int personalizeAddonId = 0;
+            EmailController.tryQueuePersonEmail(cp.core, "Ad Hoc Email", person, fromAddress, subject, body, "", "", sendImmediately, bodyIsHtml, 0,"",false, ref userErrorMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
@@ -312,7 +329,7 @@ namespace Contensive.Processor {
         //
         //==========================================================================================
         //
-        protected virtual void Dispose(bool disposing_email) {
+        protected virtual void dispose(bool disposing_email) {
             if (!this.disposed_email) {
                 if (disposing_email) {
                     //
@@ -328,11 +345,11 @@ namespace Contensive.Processor {
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
         public void Dispose()  {
-            Dispose(true);
+            dispose(true);
             GC.SuppressFinalize(this);
         }
         ~CPEmailClass()  {
-            Dispose(false);
+            dispose(false);
         }
         protected bool disposed_email;
         #endregion

@@ -1329,8 +1329,8 @@
     <Field Name="addonList" active="1" AdminOnly="0" Authorable="1" Caption="Add-on List" DeveloperOnly="1" EditSortPriority="9999" FieldType="LongText" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="Control Info" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[Developer Only: This field contains a JSON string that outlines the structure of the content. Use the Page Builder mode on the Tool Panel at the top of the public page to create and edit this feature. ]]></HelpDefault>
     </Field>
-    <Field Name="personalizeAddonId" active="1" AdminOnly="0" Authorable="1" Caption="Personalization Addon" DeveloperOnly="0" EditSortPriority="9999" FieldType="Lookup" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="Add-ons" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
-      <HelpDefault><![CDATA[When this email is sent to each recipient, this addon will be executed and should return a list of replacements comaptible with the Mustache-Templating standard.]]></HelpDefault>
+    <Field Name="personalizeAddonId" active="1" AdminOnly="0" Authorable="1" Caption="Personalization Addon" DeveloperOnly="0" EditSortPriority="9999" FieldType="Lookup" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="Add-ons" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="{FF864BEF-8021-4742-AFF0-4AB7D3CB4E9A}" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[When this email is sent to each recipient, this addon will be executed and should return a list of replacements compatible with the Mustache-Templating standard.]]></HelpDefault>
     </Field>
     <!-- deprecated -->
     <Field Name="InlineStyles" active="1" AdminOnly="0" Authorable="0" Caption="deprecated" DeveloperOnly="0" EditSortPriority="9999" FieldType="LongText" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="1" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
@@ -2470,7 +2470,10 @@
     </Field>
   </CDef>
   <CDef Name="Tasks" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccTasks" ContentDataSourceName="DEFAULT" ContentTableName="ccTasks" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" IgnoreContentControl="0" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{371E0F66-DA81-471C-B366-7F6A035B7B63}">
-    <Field Name="cmdDetail" active="1" AdminOnly="0" Authorable="1" Caption="Command Detail" DeveloperOnly="0" EditSortPriority="1012" FieldType="LongText" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="" NotEditable="1" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+    <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="40" LookupContent="" NotEditable="1" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="1" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[ ]]></HelpDefault>
+    </Field>
+    <Field Name="cmdDetail" active="1" AdminOnly="0" Authorable="1" Caption="Command Detail" DeveloperOnly="0" EditSortPriority="1012" FieldType="LongText" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="1" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
     <Field Name="DateStarted" active="1" AdminOnly="0" Authorable="1" Caption="Started" DeveloperOnly="0" EditSortPriority="2000" FieldType="Date" HTMLContent="0" IndexColumn="2" IndexSortDirection="-1" IndexSortOrder="1" IndexWidth="20" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
@@ -2482,7 +2485,7 @@
     <Field Name="cmdRunner" active="1" AdminOnly="0" Authorable="1" Caption="Command Runner Assigned" DeveloperOnly="0" EditSortPriority="2030" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="1" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
-    <Field Name="resultMessage" active="1" AdminOnly="0" Authorable="1" Caption="Result Message" DeveloperOnly="0" EditSortPriority="2020" FieldType="text" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="40" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+    <Field Name="resultMessage" active="1" AdminOnly="0" Authorable="1" Caption="Result Message" DeveloperOnly="0" EditSortPriority="2020" FieldType="text" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
     <Field Name="resultDownloadId" active="1" AdminOnly="0" Authorable="1" Caption="Result Download" DeveloperOnly="0" EditSortPriority="2040" FieldType="Lookup" HTMLContent="0" IndexColumn="" IndexSortDirection="" IndexSortOrder="" IndexWidth="" LookupContent="Downloads" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitleField="0" RSSDescriptionField="0" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
@@ -2663,7 +2666,7 @@
       <HelpDefault><![CDATA[The default html compatible text file for this layout. This layout should be used when no other layout is provided, or when the site is set to Html Platform version 4 (bootstrap 4 based designs). The Html Platform version is a site property the coordinates resources like style and layouts for one set of standards (like Bootstrap 4 vs 5).]]></HelpDefault>
     </Field>
     <Field Name="LayoutPlatform5" active="1" AdminOnly="0" Authorable="1" Caption="Layout for Html Plaform 5" DeveloperOnly="0" EditSortPriority="1000" FieldType="HtmlCodeFile" HTMLContent="0" IndexColumn="" IndexSortDirection="" IndexSortOrder="" IndexWidth="" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Platform 5" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
-      <HelpDefault><![CDATA[The html compatible text file for this layout when the site is set to Html Platform version 5 (bootstrap 5 based designs). The Html Platform version is a site property the coordinates resrources like style and layouts for one set of standards.]]></HelpDefault>
+      <HelpDefault><![CDATA[The html compatible text file for this layout when the site is set to Html Platform version 5 (bootstrap 5 based designs). The Html Platform version is a site property that coordinates resources like styles and layouts for each set of standards.]]></HelpDefault>
     </Field>
     <Field Name="InstalledByCollectionID" active="1" AdminOnly="0" Authorable="1" Caption="Installed By Collection" DeveloperOnly="0" EditSortPriority="9999" FieldType="Lookup" HTMLContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Control Info" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="Add-on Collections" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault>The addon collection that installed this record.</HelpDefault>
@@ -2924,6 +2927,10 @@
   </CDef>
   <CDef Name="Time Zones" Active="1" AdminOnly="0" AllowAdd="1" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowMetaContent="0" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="Default" AuthoringTableName="timezones" ContentDataSourceName="Default" ContentTableName="timezones" DefaultSortMethod="" DeveloperOnly="0" DropDownFieldList="Name" EditorGroupName="" Parent="" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" isbasecontent="" guid="{9942FB1C-4EBC-4504-B991-D29EB00AC4B4}" >
   </CDef>
+  <!-- returns an object with default personlization -->
+  <Addon name="Personalization Default" guid="{FF864BEF-8021-4742-AFF0-4AB7D3CB4E9A}" type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.PersonalizeDefaultAddon]]></DotNetClass>
+  </Addon>
 	<Addon name="People Email Block Editor" guid="{a0c2cde5-074e-4124-a0e6-58d540c08ce6}" type="Add-on">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.PeopleEmailBlockEditor]]></DotNetClass>
 		<ProcessInterval></ProcessInterval>
@@ -3082,7 +3089,6 @@ $(function () {
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
     <IncludeAddon name="Bootstrap" guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
   </Addon>
-
   <Addon name="Page Manager" guid="{3a01572e-0f08-4feb-b189-18371752a3c3}" type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3093,7 +3099,7 @@ $(function () {
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.getHtmlBodyClass]]></DotNetClass>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
     <htmlDocument>Yes</htmlDocument>
-	<ActiveXProgramID></ActiveXProgramID>
+	  <ActiveXProgramID></ActiveXProgramID>
   </Addon>
   <Addon name="savePageManagerChildListSort" guid="{8429641A-03C9-4CD1-9369-5B9F2FA509E9}" type="Add-on">
     <Category></Category>

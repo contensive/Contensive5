@@ -166,7 +166,7 @@ Public Class ConfigurationClass
     Public Shared Sub storeNameValues(nameValues As NameValueCollection, store As Dictionary(Of String, String), skipEmptyValues As Boolean)
         For i As Integer = 0 To nameValues.Count - 1
             Dim value As String = nameValues.Get(i)
-            If skipEmptyValues And String.IsNullOrWhiteSpace(value) Then Continue For
+            If skipEmptyValues AndAlso String.IsNullOrWhiteSpace(value) Then Continue For
             Dim key As String = nameValues.GetKey(i)
             If String.IsNullOrWhiteSpace(key) Then Continue For
             If store.ContainsKey(key) Then store.Remove(key)

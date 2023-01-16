@@ -241,6 +241,25 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         private List<NavItem> navDesignList_local;
         //
+        public List<NavItem> NavDomainList {
+            get {
+                if (navDomainList_Local != null) { return navDomainList_Local; }
+                if (cp.User.Id == 0) { return new List<NavItem>(); }
+                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
+                //
+                navDomainList_Local = new List<NavItem>();
+                foreach (DomainModel domain in DbBaseModel.createList<DomainModel>(cp, "")) {
+                    navDomainList_Local.Add(new NavItem {
+                        navDivider = false,
+                        navItemHref = "https://" + domain.name,
+                        navItemName = domain.name
+                    });
+                }
+                return navDomainList_Local;
+            }
+        }
+        private List<NavItem> navDomainList_Local = null;
+        //
         //====================================================================================================
         public List<NavItem> recentList {
             get {
