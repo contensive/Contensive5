@@ -75,7 +75,6 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add(HtmlController.checkbox("AddAdminMenuEntry", AddAdminMenuEntry));
                 Stream.add("<br><br>");
                 //
-                //Stream.Add( core.main_GetFormInputHidden(RequestNameAdminForm, AdminFormToolCreateChildContent)
                 Stream.add("</SPAN>");
                 //
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);

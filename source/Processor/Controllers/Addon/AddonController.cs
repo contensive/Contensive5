@@ -741,10 +741,6 @@ namespace Contensive.Processor.Controllers {
                 // -- this completes the execute of this core.addon. remove it from the 'running' list
                 core.doc.addonInstanceCnt = core.doc.addonInstanceCnt + 1;
                 //
-                // -- restored right after dependency call
-                //// -- restore the forceJavascriptToHead value of the caller
-                //executeContext.forceJavascriptToHead = save_forceJavascriptToHead;
-                //
                 // -- restore the parent instanceid
                 core.docProperties.setProperty("instanceId", parentInstanceId);
                 //

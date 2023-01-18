@@ -190,7 +190,6 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- clear routeMap, is rebuilt on exit
                     // -- no, normal save calls addlinkalias, which calls routemaprebuild
-                    //core.routeMapRebuild();
                     //
                     // -- set ChildPagesFound true for parent page
                     if (recordParentID > 0) {

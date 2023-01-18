@@ -29,7 +29,7 @@ namespace Contensive.Processor.Addons {
                 //
                 cp.Utils.AppendLog("AwsSesProcessClass.execute, enter");
                 //
-                //first set each people record to not allowgroupemail if they are in the email bounce list and aren't transient
+                // first set each people record to not allowgroupemail if they are in the email bounce list and aren't transient
                 removeAllowGroupEmailFromPermanentFails(core);
                 //
                 const string spAwsSecretAccessKey = "AWS Secret Access Key";

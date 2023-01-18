@@ -414,38 +414,6 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             + ")";
                         env.core.db.sqlCommandTimeout = 180;
                         env.core.db.executeNonQuery(SQL);
-                        ////
-                        //// Find missing daily summaries, summarize that date
-                        ////
-                        //SQL = env.core.db.getSQLSelect("ccVisitSummary", "DateNumber", "TimeDuration=24 and DateNumber>=" + env.oldestVisitSummaryWeCareAbout.Date.ToOADate(), "DateNumber,TimeNumber");
-                        //using (var csData = new CsModel(env.core)) {
-                        //    csData.openSql(SQL);
-                        //    DateTime datePtr = env.oldestVisitSummaryWeCareAbout;
-                        //    while (datePtr <= env.yesterday) {
-                        //        if (!csData.ok()) {
-                        //            //
-                        //            // Out of data, start with this DatePtr
-                        //            //
-                        //            VisitSummaryClass.summarizePeriod(env, datePtr, datePtr, 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
-                        //        } else {
-                        //            DateTime workingDate = DateTime.MinValue.AddDays(csData.getInteger("DateNumber"));
-                        //            if (datePtr < workingDate) {
-                        //                //
-                        //                // There are missing dates, update them
-                        //                //
-                        //                VisitSummaryClass.summarizePeriod(env, datePtr, workingDate.AddDays(-1), 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
-                        //            }
-                        //        }
-                        //        if (csData.ok()) {
-                        //            //
-                        //            // if there is more data, go to the next record
-                        //            //
-                        //            csData.goNext();
-                        //        }
-                        //        datePtr = datePtr.AddDays(1).Date;
-                        //    }
-                        //    csData.close();
-                        //}
                     }
                 }
                 //

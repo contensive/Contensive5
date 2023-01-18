@@ -28,7 +28,6 @@ namespace Contensive.Processor.Controllers {
                 // todo - move locals
                 hint += "enter";
                 using (var engine = new Microsoft.ClearScript.Windows.VBScriptEngine()) {
-                    //var engine = new Microsoft.ClearScript.Windows.VBScriptEngine(Microsoft.ClearScript.Windows.WindowsScriptEngineFlags.EnableDebugging);
                     string entryPoint = addon.scriptingEntryPoint;
                     if (string.IsNullOrEmpty(entryPoint)) {
                         //

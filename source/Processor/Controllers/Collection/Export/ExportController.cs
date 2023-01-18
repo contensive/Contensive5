@@ -335,7 +335,6 @@ namespace Contensive.Processor.Controllers {
                     if (true) {
                         foreach (var contentUnixPathFilename in cdnUnixFileList) {
                             if (contentUnixPathFilename != "") {
-                                //PathFilename = Strings.Replace(PathFilename, @"\", "/");
                                 string Path = "";
                                 string Filename = contentUnixPathFilename;
                                 int Pos = Strings.InStrRev(contentUnixPathFilename, "/");

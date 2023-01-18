@@ -67,8 +67,7 @@ namespace Contensive.Processor.Controllers {
                 userError = "Error sending";
                 return false;
 //#else
-                //userError = "Core AWS Text Message not implemented";
-                //return false;
+                // --  "Core AWS Text Message not implemented";
 //#endif
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

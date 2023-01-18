@@ -248,11 +248,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
                 //
                 navDomainList_Local = new List<NavItem>();
-                foreach (DomainModel domain in DbBaseModel.createList<DomainModel>(cp, "")) {
+                foreach (DomainModel domain in DbBaseModel.createList<DomainModel>(cp, "(name<>'*')")) {
+                    string navItemHref = domain.name.Contains("://") ? domain.name : "https://" + domain.name;
                     navDomainList_Local.Add(new NavItem {
                         navDivider = false,
-                        navItemHref = "https://" + domain.name,
-                        navItemName = domain.name
+                        navItemHref = navItemHref,
+                        navItemName = navItemHref
                     });
                 }
                 return navDomainList_Local;

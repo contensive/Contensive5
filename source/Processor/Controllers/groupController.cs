@@ -92,7 +92,6 @@ namespace Contensive.Processor.Controllers {
             if (group == null) {
                 //
                 // -- inactive or invalid groupId
-                //LogController.logError(core, new GenericException("addUser called with invalid groupId [" + groupId + "]"));
                 return;
             }
             if (userId.Equals(0)) {
@@ -104,7 +103,6 @@ namespace Contensive.Processor.Controllers {
             if (user == null) {
                 //
                 // -- inactive or invalid userId
-                //LogController.logError(core, new GenericException("addUser called with invalid userId [" + userId + "]"));
                 return;
             }
             addUser(core, group, user, dateExpires);

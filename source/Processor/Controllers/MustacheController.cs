@@ -15,8 +15,6 @@ namespace Contensive.Processor.Controllers {
         public static string renderStringToString(string template, object dataSet) {
             //
             // -- stubble (is not signed, manually signed but cannot add to nuget package)
-            //var stubble = new StubbleBuilder().Build();
-            //return stubble.Render(template, dataSet);
 #if NETCOREAPP3_1
             //
             // -- handlebars issue, {{#thing}}this{{thing}}that{{/thing}} 

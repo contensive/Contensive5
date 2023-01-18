@@ -747,9 +747,6 @@ namespace Contensive.Processor.Controllers {
                     result = "User-agent: *\r\nDisallow: /admin/";
                     core.privateFiles.saveFile(robotsTxtFilename, result);
                 }
-                //
-                // -- cache because hit every page. Short 
-                //core.cache.storeObject(cacheKey, result, DateTime.Now.AddMinutes(15));
                 return result;
             }
         }

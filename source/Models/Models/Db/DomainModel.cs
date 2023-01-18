@@ -50,10 +50,6 @@ namespace Contensive.Models.Db {
         /// the default code to execute for this domain
         /// </summary>
         public int defaultRouteId { get; set; }
-        ///// <summary>
-        ///// deprecated (if true, add the default CORS headers)
-        ///// </summary>
-        //public bool allowCORS { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -84,41 +80,11 @@ namespace Contensive.Models.Db {
             domain.save(cp);
             return domain;
         }
-        ////
-        ////====================================================================================================
-        ///// <summary>
-        ///// test if this domain allows CORS. Not called for now, using webconfig solution
-        ///// </summary>
-        ///// <param name="cp"></param>
-        ///// <param name="requestDomain"></param>
-        ///// <returns></returns>
-        //public static bool testCORS(CPBaseClass cp, string requestDomain) {
-        //    if (string.IsNullOrEmpty(requestDomain)) { return false; }
-        //    DataTable dt = cp.Db.ExecuteQuery("select top 1 id from ccdomains where name=" + cp.Db.EncodeSQLText(requestDomain) + " and allowCORS>0");
-        //    if (dt?.Rows == null) { return false; }
-        //    return dt.Rows.Count == 1;
-        //}
-        ////
-        ////====================================================================================================
-        ////
-        //public static Dictionary<string, DomainModel> createDictionary(CPBaseClass cp, string sqlCriteria) {
-        //    var result = new Dictionary<string, DomainModel> { };
-        //    foreach (var domain in DbBaseModel.createList<DomainModel>(cp, sqlCriteria)) {
-        //        if (!result.ContainsKey(domain.name.ToLowerInvariant())) {
-        //            result.Add(domain.name.ToLowerInvariant(), domain);
-        //        }
-        //    }
-        //    return result;
-        //}
         //
         public enum DomainTypeEnum {
             Normal = 1,
             ForwardToUrl = 2,
             ForwardToReplacementDomain = 3
         }
-
-
-
     }
-
 }

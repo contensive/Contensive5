@@ -697,12 +697,6 @@ namespace Contensive.Processor.Models.Domain {
                         // --- Display only information
                         //
                         break;
-                    //case "VIEWINGS":
-                    //    field.caption = "Viewings";
-                    //    field.readOnly = true;
-                    //    field.editSortPriority = 5000;
-                    //    field.defaultValue = "0";
-                    //    break;
                     case "CLICKS":
                         field.caption = "Clicks";
                         field.readOnly = true;

@@ -108,7 +108,6 @@ namespace Contensive.Processor.Controllers {
                         core.tempFiles.copyFile(baseCollectionZipFilename, baseCollectionZipPathFilename);
                         core.tempFiles.deleteFile(baseCollectionZipFilename);
                         //
-                        //core.programFiles.copyFile(baseCollectionFilename, installTempPath + baseCollectionFilename, core.tempFiles);
                         string installErrorMessage = "";
                         string installedCollectionGuid = "";
                         bool isDependency = false;

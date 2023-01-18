@@ -208,11 +208,6 @@ namespace Contensive.CLI {
                                 // -- turn on, off or run both services together
                                 TasksCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
                                 break;
-                            //case "--logging":
-                            //    //
-                            //    // -- logging on|off
-                            //    LoggingCmd.execute(cpServer, appName, getNextCmdArg(args, ref argPtr));
-                            //    break;
                             case "--execute":
                                 //
                                 // -- execute an addon

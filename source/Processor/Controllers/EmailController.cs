@@ -335,7 +335,6 @@ namespace Contensive.Processor.Controllers {
                     string subjectRendered = encodeEmailText(core,  subject, recipient, bodyRenderData);
                     string htmlBody = encodeEmailHtml(core, isHTML, body, template, subject, recipient, queryStringForLinkAppend, addLinkAuthToAllLinks, bodyRenderData);
                     string textBody = HtmlController.convertHtmlToText(core, htmlBody);
-                    //string textBody = encodeEmailTextBody(core, isHTML, body, recipient, bodyRenderData);
                     string recipientName = (!string.IsNullOrWhiteSpace(recipient.name) && !recipient.name.ToLower().Equals("guest")) ? recipient.name : string.Empty;
                     if (string.IsNullOrWhiteSpace(recipientName)) {
                         recipientName = ""

@@ -452,18 +452,6 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- Need to be converted to Url parameter addons
                 switch ((AjaxFunction)) {
-                    //case ajaxGetFieldEditorPreferenceForm: {
-                    //        //
-                    //        // moved to Addons.AdminSite
-                    //        returnResult = (new Contensive.Processor.Addons.AdminSite.GetFieldEditorPreference()).Execute(core.cpParent).ToString();
-                    //        return true;
-                    //    }
-                    //case AjaxGetDefaultAddonOptionString: {
-                    //        //
-                    //        // moved to Addons.AdminSite
-                    //        returnResult = (new Contensive.Processor.Addons.AdminSite.GetAjaxDefaultAddonOptionStringClass()).Execute(core.cpParent).ToString();
-                    //        return true;
-                    //    }
                     case AjaxSetVisitProperty: {
                             //
                             // moved to Addons.AdminSite
@@ -482,12 +470,6 @@ namespace Contensive.Processor.Controllers {
                             returnResult = (new Contensive.Processor.Addons.AdminSite.ProcessAjaxDataClass()).Execute(core.cpParent).ToString();
                             return true;
                         }
-                    //case AjaxPing: {
-                    //        //
-                    //        // moved to Addons.AdminSite
-                    //        returnResult = (new Contensive.Processor.Addons.AdminSite.GetOKClass()).Execute(core.cpParent).ToString();
-                    //        return true;
-                    //    }
                     case AjaxOpenIndexFilter: {
                             //
                             // moved to Addons.AdminSite

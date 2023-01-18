@@ -1525,9 +1525,7 @@ namespace Contensive.Processor.Controllers {
                             // copy tmp private files to the appropriate folder in the destination file system
                             //
                             var WindowsTempFiles = new FileController(core, System.IO.Path.GetTempPath());
-                            WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dstDosPathFilename, this);
-
-                            //core.tempFiles.copyFile(docProperty.tempfilename, dstDosPathFilename, this);
+                            WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dstDosPathFilename, this); 
                             //
                             if (!isLocal) {
                                 copyFileLocalToRemote(dstDosPathFilename);
@@ -2086,8 +2084,6 @@ namespace Contensive.Processor.Controllers {
             string unixPathFilename = encodeDosFilename(pathFilename);
             filename = Path.GetFileName(unixPathFilename);
             path = getPath(unixPathFilename);
-            //splitDosPathFilename(pathFilename, ref path, ref filename);
-            //path = convertToUnixSlash(path);
         }
         //
         //====================================================================================================

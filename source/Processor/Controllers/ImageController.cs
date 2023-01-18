@@ -311,9 +311,6 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- unknown exception
                 LogController.logError(core, ex);
-                //
-                // -- hard decision -- if an image (like missing image) causes an issue, do we crush that page?
-                //throw;
                 return imageCdnPathFilename;
             }
         }

@@ -398,13 +398,10 @@ namespace Contensive.Processor {
         internal const string AjaxOpenIndexFilter = "Ls8jCDt87kpU45YH";
         internal const string AjaxOpenIndexFilterGetContent = "llL98bbJQ38JC0KJm";
         internal const string AjaxStyleEditorAddStyle = "ajaxstyleeditoradd";
-        //internal const string AjaxPing = "ajaxalive";
         internal const string AjaxGetFormEditTabContent = "ajaxgetformedittabcontent";
         internal const string AjaxData = "data";
         internal const string AjaxGetVisitProperty = "getvisitproperty";
         internal const string AjaxSetVisitProperty = "setvisitproperty";
-        //internal const string AjaxGetDefaultAddonOptionString = "ccGetDefaultAddonOptionString";
-        //internal const string ajaxGetFieldEditorPreferenceForm = "ajaxgetfieldeditorpreference";
         //
         //-----------------------------------------------------------------------
         //   Remote Methods
@@ -946,7 +943,6 @@ namespace Contensive.Processor {
         internal const int EmailLogTypeBlockRequest = 5; // recipient asked us to stop sending email
         internal const int EmailLogTypeImmediateSend = 6; // Email was dropped                                                        
         internal const string DefaultSpamFooter = "<p><link>Unsubscribe</link> to block all future emails from this site.</p>";
-        //internal const string FeedbackFormNotSupportedComment = "<!--\r\nFeedback form is not supported in this context\r\n-->";
         //
         //-------------------------------------------------------------------------------------
         //   Page Content constants

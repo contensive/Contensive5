@@ -63,9 +63,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     template.ccguid = recordGuid;
                     template.name = templateName;
-                    //record.bodyHTML = templateNode.InnerText;
                     template.collectionId = collectionId;
-                    //template.isSecure = XmlController.getXMLAttributeBoolean(core, templateNode, "issecure", false);
                     template.save(core.cpParent);
                 }
             } catch (Exception ex) {

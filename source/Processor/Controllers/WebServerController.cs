@@ -50,34 +50,6 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public HttpContextModel httpContext { get; set; } = null;
         //
-        // -- this code looks good, but consider how we will use this before we add it to the codebase
-        //
-        ////
-        ///// <summary>
-        ///// block an ip address from the site programmatically
-        ///// </summary>
-        ///// <param name="ipAddress"></param>
-        //public void blockSingleIP(string ipAddress) {
-        //    //
-        //    // -- this is the iis implementation
-        //    // -- this requires the iis module ipaddress and domain blokcing be added
-        //    if (IPAddress.TryParse(ipAddress, out IPAddress ip)) {
-        //        using (ServerManager serverManager = new ServerManager()) {
-        //            //
-        //            // -- create the security object
-        //            Configuration config = serverManager.GetApplicationHostConfiguration();
-        //            ConfigurationSection ipSecuritySection = config.GetSection("system.webServer/security/ipSecurity");
-        //            ConfigurationElementCollection ipSecurity = ipSecuritySection.GetCollection();
-        //            //
-        //            // -- create ip address block element and add it to the security object
-        //            var addElement = ipSecurity.CreateElement("add");
-        //            addElement.SetAttributeValue("ipAddress", ipAddress);
-        //            addElement.SetAttributeValue("allowed", "false");
-        //            ipSecurity.Add(addElement);
-        //            serverManager.CommitChanges();
-        //        }
-        //    }
-        //}
         //====================================================================================================
         /// <summary>
         /// request port

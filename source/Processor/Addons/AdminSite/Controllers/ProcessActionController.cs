@@ -197,7 +197,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 //
                                                 // -- send the test immediate. This is a content test, not a test of the process
                                                 TextMessageController.sendImmediate(cp.core, request, ref userErrorMessage, "Sent Test to " + recipient.name);
-                                                //TextMessageController.queuePersonTextMessage(cp.core, recipient, textBody, true, adminData.editRecord.id, ref userErrorMessage, "Admin Send Test");
                                                 if (!string.IsNullOrEmpty(userErrorMessage)) {
                                                     ErrorController.addUserError(cp.core, "There was an error sending the test text message [" + userErrorMessage + "]");
                                                 } else {
@@ -1068,7 +1067,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // -- no, routemap is cleared in addLinkAlias
                             // -- clear the routemap, rebuilt on exit
-                            //cp.core.routeMapCacheClear();
+                            // cp.core.routeMapCacheClear();
                         }
                     }
                 }

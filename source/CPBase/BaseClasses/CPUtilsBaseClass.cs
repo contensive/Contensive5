@@ -651,7 +651,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        ///Returns current DateTime.Now if cp.Mock.DateTime is not set, else returns Mock.DateTime
+        /// Returns current DateTime.Now if cp.Mock.DateTime is not set, else returns Mock.DateTime
         /// </summary>
         /// <returns></returns>
         public abstract DateTime GetDateTimeMockable();

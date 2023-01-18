@@ -110,7 +110,6 @@ namespace Contensive.Processor.Controllers {
                 }
                 GetSystemTimePreciseAsFileTime(out long fileTime);
                 return DateTimeOffset.FromFileTime(fileTime).DateTime;
-                //return DateTime.Now;
             }
         }
         [DllImport("Kernel32.dll", CallingConvention = CallingConvention.Winapi)]

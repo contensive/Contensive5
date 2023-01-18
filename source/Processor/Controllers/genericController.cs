@@ -1072,7 +1072,6 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     UrlDetailsClass urlDetails = splitUrl(url);
                     string path = urlDetails.unixPath;
-                    //splitUrl(Link, ref Protocol, ref Host, ref Path, ref Page, ref QueryString);
                     if (VirtualHosted) {
                         //
                         // Virtual hosted site, add VirualPath if it is not there
@@ -1321,11 +1320,9 @@ namespace Contensive.Processor.Controllers {
                 p.StartInfo.CreateNoWindow = true;
                 p.StartInfo.ErrorDialog = false;
                 p.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                //p.StartInfo.RedirectStandardOutput = WaitForReturn;
                 p.Start();
                 if (WaitForReturn) {
                     p.WaitForExit(1000 * 60 * 5);
-                    //return p.StandardOutput.ReadToEnd();
                 }
             }
             return "";

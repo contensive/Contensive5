@@ -28,8 +28,7 @@ namespace Contensive.CLI {
             Console.Write(IisRecycleCmd.helpText);
             Console.Write(IisResetCmd.helpText);
             Console.Write(InstallCmd.helpText);
-            Console.Write(InstallFileCmd.helpText);
-            //Console.Write(LoggingCmd.helpText);
+            Console.Write(InstallFileCmd.helpText); 
             Console.Write(RepairCmd.helpText);
             Console.Write(RunTaskCmd.helpText);
             Console.Write(StatusCmd.helpText);

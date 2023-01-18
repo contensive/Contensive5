@@ -47,12 +47,12 @@ window.size = function () {
     var h = 0;
     //IE
     if (!window.innerWidth) {
-        //strict mode
+        // strict mode
         if (!(document.documentElement.clientWidth === 0)) {
             w = document.documentElement.clientWidth;
             h = document.documentElement.clientHeight;
         }
-        //quirks mode
+        // quirks mode
         else {
             w = document.body.clientWidth;
             h = document.body.clientHeight;
@@ -124,7 +124,6 @@ function hideselect(hiddenIn) {
     }
     // Hide MS Selects
     if (browser.isIE) {
-        //alert("ie");
         objs = document.getElementsByTagName("SELECT");
         for (i = 0; i < objs.length; i++) {
             if (selectsHidden && menuClicks === 0) {
@@ -139,7 +138,6 @@ function hideselect(hiddenIn) {
             if (selectsHidden && menuClicks === 0) {
                 objs[i].style.visibility = "";
             } else {
-                //var wmodeSet=false;
                 var p = objs[i].getElementsByTagName("param");
                 for (var pi = 0; pi < p.length; pi++) {
                     paramName = p[pi].name.toLowerCase();
@@ -374,7 +372,6 @@ function ccFlyoutButtonClick(event, menuId, position, StyleSheetPrefix, OpenOnHo
         if (clickButton !== 2) {
             button.className += " kmaMenuDown " + StyleSheetPrefix + "ButtonDown";
         }
-        //button.className += " ccFlyoutButtonDown";
         // put menu under button
         if (position === 1) {
             // Flyout to the right
@@ -460,7 +457,6 @@ function ccFlyoutPanelButtonHover(event, menuId, StyleSheetPrefix) {
     var maxX, maxY;
     if (browser.isIE)
         item = getContainerWith(window.event.srcElement, "A", StyleSheetPrefix + "PanelButton");
-    //item = getContainerWith(window.event.srcElement, "A", "ccFlyoutPanelButton");
     else
         item = event.currentTarget;
     menu = getContainerWith(item, "DIV", StyleSheetPrefix + "Panel");
@@ -692,7 +688,6 @@ function ExecCmdPlus(cmd, ui, opt, ObjectName) {
         CommandPassed = editor.document.execCommand(cmd, ui, opt);
         if (CommandPassed) {
             // removed to allow formating undo -- onblur covers the save case
-            //SaveFieldPlus(ObjectName);
             document.body.all.tags("div")[ObjectName].focus();
         } else {
             alert("This function failed. Your browser may not support this command, or you may need to make a text selection before using this function.")
@@ -1422,9 +1417,7 @@ function switchContentFolderDiv(ShowID, HideID, ContentCaptionDivID, ContentCapt
     ShowDiv = document.getElementById(ShowID);
     if (ShowDiv) {
         if (ShowDiv.id === ShowID) {
-            //ShowDiv.style.visibility = "hidden";
             ShowDiv.style.display = "block";
-            //ShowDiv.style.visibility = "visible";
             Hit = true;
         }
     }
@@ -1433,9 +1426,7 @@ function switchContentFolderDiv(ShowID, HideID, ContentCaptionDivID, ContentCapt
         if (HiddenInput.length > 0) {
             Hit = true
             for (ptr = 0; ptr < HiddenInput.length; ptr++) {
-                //HiddenInput[ptr].parentNode.style.visibility = "hidden";
                 HiddenInput[ptr].parentNode.style.display = "block";
-                //HiddenInput[ptr].parentNode.style.visibility = "visible";
             }
         }
     }

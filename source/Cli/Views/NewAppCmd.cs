@@ -213,17 +213,7 @@ namespace Contensive.CLI {
                         };
                         GetBucketPolicyResponse getResponse = await s3client.GetBucketPolicyAsync(getRequest);
                         string policyString = getResponse.Policy;
-
-                        //var actionGet = new Amazon.Auth.AccessControlPolicy.ActionIdentifier("s3:Get*");
-                        //var policy = new Amazon.Auth.AccessControlPolicy.Policy {
-                        //    Id = "DemoEC2Permissions",
-                        //    Version = "2012-10-17",
-                        //    Statements = statements
-                        //};
                         AwsBucketPolicy policy = cp.JSON.Deserialize<AwsBucketPolicy>(policyString);
-                        //Amazon.Auth.AccessControlPolicy.Policy policy = cp.JSON.Deserialize<Amazon.Auth.AccessControlPolicy.Policy>(policyString);
-                        //dynamic policy = cp.JSON.Deserialize<dynamic>(policyString);
-                        //AwsBucketPolicy policy = cp.JSON.Deserialize<AwsBucketPolicy>(policyString);
                         policy.Statement.Add(new AwsBucketPolicyStatement {
                             Action = "s3:GetObject",
                             Effect = "Allow",

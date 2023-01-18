@@ -131,7 +131,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sourceHtml"></param>
         /// <returns></returns>
         public static string convertHtmlToText(CoreController core, string sourceHtml) {
-            //return NUglify.Uglify.HtmlToText(sourceHtml, NUglify.Html.HtmlToTextOptions.KeepStructure).Code.Trim();
             if (string.IsNullOrEmpty(sourceHtml)) { return ""; }
             if (!sourceHtml.Contains("<")) { return sourceHtml; }
             return NUglify.Uglify.HtmlToText("<div>" + sourceHtml + "</div>", NUglify.Html.HtmlToTextOptions.KeepStructure).Code.Trim();
@@ -2539,7 +2538,6 @@ namespace Contensive.Processor.Controllers {
                         //
                         // ----- Determine which secondary records are associated by a rule
                         // ----- (exclude new record issue ID=0)
-                        //using var csData = new CsModel(core);
                         string sql = ""
                             + "SELECT "
                                 + secondaryMeta.tableName + ".id AS secondaryId," + rulesMeta.tableName + ".id as ruleId"

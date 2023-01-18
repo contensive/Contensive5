@@ -419,22 +419,6 @@ namespace Contensive.Processor.Properties {
                 return ResourceManager.GetString("sqlConditionalEmail_DaysAfterJoin", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to                 
-        ///                
-        ///SELECT DISTINCT 
-        ///ccEmail.TestMemberID AS TestMemberID,
-        ///ccEmail.ID AS EmailID, 
-        ///ccMembers.ID AS MemberID, 
-        ///ccMemberRules.DateExpires AS DateExpires,
-        ///ccEmail.BlockSiteStyles,ccEmail.stylesFilename
-        ///
-        ///FROM ((((ccEmail
-        ///LEFT JOIN ccEmailGroups ON ccEmail.Id = ccEmailGroups.EmailID)
-        ///LEFT JOIN ccGroups ON ccEmailGroups.GroupId = ccGroups.ID)
-        ///LEFT JOIN ccMemberRules ON ccGroups.Id = ccMemberRules.GroupID)
-        ///LEFT JOIN ccMembers ON ccMemberRules.memberId = ccMembers.ID)
         ///
         ///W [rest of string was truncated]&quot;;.
         /// </summary>
@@ -443,21 +427,6 @@ namespace Contensive.Processor.Properties {
                 return ResourceManager.GetString("sqlConditionalEmail_DaysBeforeExpiration", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to IF EXISTS (SELECT * FROM sys.objects WHERE [name] = N&apos;ccManyManyRuleDelete_{ruleTable}_{ruleField}&apos; AND [type] = &apos;TR&apos;)
-        ///BEGIN
-        ///      DROP TRIGGER [dbo].[ccManyManyRuleDelete_{ruleTable}_{ruleField}];
-        ///END
-        ///GO
-        ///DROP TRIGGER IF EXISTS ccManyManyRuleDelete_{ruleTable}_{ruleField}
-        ///CREATE TRIGGER ccManyManyRuleDelete_{ruleTable}_{ruleField}
-        ///ON {joinTable}
-        ///AFTER UPDATE,DELETE
-        ///AS
-        ///delete from {ruleTable} 
-        ///from {ruleTable} r 
-        ///left join {joinTable} a on a.{joinField}=r.{ruleField} where a.id is null
         ///
         ///--sampl [rest of string was truncated]&quot;;.
         /// </summary>

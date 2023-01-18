@@ -624,7 +624,6 @@ namespace Contensive.Processor.Controllers {
             try {
                 logger.Trace(LogController.processLogMessage(core, "invalidate, keyHash [key:" + keyHash.key + "], recursionLimit [" + recursionLimit + "]", false));
                 if ((recursionLimit > 0) && (keyHash != null)) {
-                    //CacheKeyHashClass keyHash = createKeyHash(key);
                     //
                     // if key is a ptr, we need to invalidate the real key
                     CacheDocumentClass cacheDocument = getCacheDocument(keyHash);

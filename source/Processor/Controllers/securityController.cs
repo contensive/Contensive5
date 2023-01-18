@@ -274,30 +274,6 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(plainText)) {
                     return "";
                 }
-                //byte[] workingSalt;
-                //if (saltBytes != null) {
-                //    //
-                //    // -- use provide sale
-                //    workingSalt = saltBytes.ToArray();
-                //} else {
-                //    //
-                //    // If salt is not specified, generate it on the fly.
-                //    int minSaltSize = 4;
-                //    int maxSaltSize = 8;
-                //    //
-                //    // Generate a random number for the size of the salt.
-                //    Random random = new Random();
-                //    int saltSize = random.Next(minSaltSize, maxSaltSize);
-                //    //
-                //    // Allocate a byte array, which will hold the salt.
-                //    workingSalt = new byte[saltSize];
-                //    //
-                //    // Initialize 
-                //    RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider();
-                //    //
-                //    // Fill the salt with cryptographically strong byte values.
-                //    rng.GetNonZeroBytes(workingSalt);
-                //}
                 //
                 // Convert plain text into a byte array.
                 byte[] plainTextBytes = Encoding.UTF8.GetBytes(plainText);

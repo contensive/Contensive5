@@ -47,7 +47,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="deprecated_personalizationIsAuthenticated"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static string renderContent_ACTags_AnchorTags(CoreController core, string sourceHtmlContent, int peopleId, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context = CPUtilsBaseClass.addonContext.ContextPage) {
+        public static string renderContent_ACTags_AnchorTags(CoreController core, string sourceHtmlContent, int peopleId, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context) {
             string result = sourceHtmlContent;
             try {
                 //
@@ -76,7 +76,6 @@ namespace Contensive.Processor.Controllers {
                     KmaHTML.load(result);
                     StringBuilderLegacyController Stream = new StringBuilderLegacyController();
                     int ElementPointer = 0;
-                    //int FormInputCount = 0;
                     if (KmaHTML.elementCount > 0) {
                         ElementPointer = 0;
                         result = "";
@@ -92,12 +91,6 @@ namespace Contensive.Processor.Controllers {
                                 string AddonOptionStringHTMLEncoded = null;
                                 string ACInstanceId = null;
                                 switch (ElementTag) {
-                                    //case "INPUT": {
-                                    //        if (EncodeNonCachableTags) {
-                                    //            FormInputCount += 1;
-                                    //        }
-                                    //        break;
-                                    //    }
                                     case "A": {
                                             if (!string.IsNullOrEmpty(AnchorQuery)) {
                                                 //
@@ -673,12 +666,6 @@ namespace Contensive.Processor.Controllers {
                                 if (DHTML.isTag(ElementPointer)) {
                                     int AttributeCount = 0;
                                     switch (GenericController.toUCase(DHTML.tagName(ElementPointer))) {
-                                        //case "FORM": {
-                                        //        //
-                                        //        // User created form - add the attribute "Contensive=1"
-                                        //        //
-                                        //        break;
-                                        //    }
                                         case "IMG": {
                                                 AttributeCount = DHTML.elementAttributeCount(ElementPointer);
                                                 if (AttributeCount > 0) {

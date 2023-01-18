@@ -333,8 +333,6 @@ namespace Contensive.Models.Db {
                 if (!namespaceWithinTests && !namespaceWithinProcessor && !namespaceWithinDbModels) { return false; }
             }
             return true;
-            //
-            //return sourceType.Namespace.ToLower().Equals("contensive.models.db");
         }
         //
         //====================================================================================================
@@ -1496,7 +1494,6 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public bool isParentOf<T>(CPBaseClass cp, int childRecordId) {
             if (id == childRecordId) { return true; }
-            //var usedIdList = new List<int>();
             return isParentOf<T>(cp, id, childRecordId, new List<int>());
         }
         //

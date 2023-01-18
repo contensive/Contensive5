@@ -195,8 +195,7 @@ namespace Contensive.Processor.Controllers {
                                 log.save(core.cpParent);
                             }
                             //
-                            // -- redirect to resources
-                            //core.webServer.responseContentType = MimeMapping.MimeUtility.GetMimeMapping(file.filename);
+                            // -- redirect to resources 
                             string link = getCdnFileLink(core, file.filename);
                             return core.webServer.redirect(link, "Redirecting because the active download request variable is set to a valid Library Files record.");
                         }
@@ -836,10 +835,7 @@ namespace Contensive.Processor.Controllers {
                             // -- {%%} execution should be limited to legacy pagecontent.copy only so this was moved down to _contentbox_renderelements
                             result = ContentRenderController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
                         }
-                        if (!core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
-                            //
-                            // -- tracking (viewings deprecated, page is cached, track externally)
-                            //core.db.executeNonQuery("update ccpagecontent set viewings=" + (core.doc.pageController.page.viewings + 1) + " where id=" + core.doc.pageController.page.id);
+                        if (!core.session.isEditing(PageContentModel.tableMetadata.contentName)) { 
                             //
                             // -- Page Hit Notification
                             if ((!core.session.visit.excludeFromAnalytics) && (core.doc.pageController.page.contactMemberId != 0) && (core.webServer.requestBrowser.IndexOf("kmahttp", System.StringComparison.OrdinalIgnoreCase) == -1)) {
@@ -1450,16 +1446,6 @@ namespace Contensive.Processor.Controllers {
                     core.html.addScriptLinkSrc(GenericController.getCdnFileLink(core, core.doc.pageController.page.jSFilename), "page content");
                 }
                 core.html.addScriptCode(core.doc.pageController.page.jSEndBody, "page content");
-                // moved to last element of pagecontentcontroller so first page title is the inner most
-                ////
-                ////---------------------------------------------------------------------------------
-                //// Set the Meta Content flag
-                ////---------------------------------------------------------------------------------
-                ////
-                //core.html.addTitle(HtmlController.encodeHtml(core.doc.pageController.page.pageTitle), "page content");
-                //core.html.addMetaDescription(HtmlController.encodeHtml(core.doc.pageController.page.metaDescription), "page content");
-                //core.html.addHeadTag(core.doc.pageController.page.otherHeadTags, "page content");
-                //core.html.addMetaKeywordList(core.doc.pageController.page.metaKeywordList, "page content");
                 //
                 //---------------------------------------------------------------------------------
                 // add open graph properties

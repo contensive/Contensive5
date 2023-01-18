@@ -887,8 +887,6 @@ namespace Contensive.Processor.Controllers {
                                     checkboxInput = HtmlController.checkbox("MemberRules." + GroupCount, GroupActive),
                                     groupCaption = GroupCaption,
                                     expiresInput = getDateTimeEditor(core, "MemberRules." + GroupCount + ".DateExpires", DateExpire, false, "", false),
-                                    //expiresInput = HtmlController.inputDate(core, "MemberRules." + GroupCount + ".DateExpires", DateExpire, "","", "text form-control", false,false,false),
-                                    //expiresInput = HtmlController.inputText_Legacy(core, "MemberRules." + GroupCount + ".DateExpires", DateExpireValue, 1, 20, "", false, false, "text form-control", -1, false, "expires"),
                                     relatedButtonList = relatedButtonList,
                                     roleInput = getRoleSelect(core, RoleSelectDefault, groupRoleId, GroupCount)
                                 };

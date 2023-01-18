@@ -124,7 +124,6 @@ function cjAddHeadStyle(styles) {
     } else {
         st.appendChild(document.createTextNode(styles));
     }
-    //st.innerHTML=styles;
     var ht = document.getElementsByTagName("head")[0];
     ht.appendChild(st);
 }
@@ -915,8 +914,6 @@ function cjRemote(options) {
                         }
                     }
                     else {
-                        //e.innerText = serverResponse;
-                        //jQuery(e).html(serverResponse);
                         scripts = e.getElementsByTagName("script");
                         sLen = scripts.length;
                         if (sLen > 0) {

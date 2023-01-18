@@ -38,7 +38,6 @@ namespace Contensive.CLI {
                 Console.WriteLine("    ElastiCacheConfigurationEndpoint: " + cpServer.core.serverConfig.awsElastiCacheConfigurationEndpoint);
                 Console.WriteLine("File System:");
                 Console.WriteLine("    isLocal: " + cpServer.core.serverConfig.isLocalFileSystem.ToString());
-                //Console.WriteLine("    cdnFilesRemoteEndpoint: " + cp.core.serverConfig.cdnFilesRemoteEndpoint);
                 Console.WriteLine("    awsBucketRegionName: " + cpServer.core.serverConfig.awsRegionName);
                 Console.WriteLine("    awsBucketName: " + cpServer.core.serverConfig.awsBucketName);
                 Console.WriteLine("    awsAccessKey: " + cpServer.core.serverConfig.awsAccessKey);
@@ -51,8 +50,6 @@ namespace Contensive.CLI {
                 Console.WriteLine("    TaskScheduler: " + cpServer.core.serverConfig.allowTaskSchedulerService.ToString());
                 Console.WriteLine("    TaskRunner: " + cpServer.core.serverConfig.allowTaskRunnerService.ToString());
                 Console.WriteLine("    TaskRunner-MaxConcurrentTasksPerServer: " + cpServer.core.serverConfig.maxConcurrentTasksPerServer.ToString());
-                //Console.WriteLine("Logging:");
-                //Console.WriteLine("    enableLogging: " + cpServer.core.serverConfig.enableLogging.ToString());
                 Console.WriteLine("Applications: " + cpServer.core.serverConfig.apps.Count);
                 foreach (var kvp in cpServer.core.serverConfig.apps) {
                     AppConfigModel app = (AppConfigModel)kvp.Value;

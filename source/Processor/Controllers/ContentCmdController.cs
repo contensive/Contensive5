@@ -209,8 +209,6 @@ namespace Contensive.Processor.Controllers {
                         //
                     } else {
                         //
-                        //bool badCmd = false;
-                        //
                         // scan until we have passed all double and single quotes that are before the next
                         //
                         bool notFound = true;
@@ -308,7 +306,6 @@ namespace Contensive.Processor.Controllers {
                 List<object> cmdCollection = null;
                 Dictionary<string, object> cmdDef = null;
                 Dictionary<string, object> cmdArgDef = new Dictionary<string, object>();
-                //var json = new System.Web.Script.Serialization.JavaScriptSerializer();
                 //
                 cmdSrc = cmdSrc.Trim(' ');
                 string whiteChrs = Environment.NewLine + "\t ";
@@ -486,7 +483,6 @@ namespace Contensive.Processor.Controllers {
                         } else {
                             cmd = Newtonsoft.Json.JsonConvert.DeserializeObject<string>(tmp);
                         }
-                        //Dictionary<string, object> cmd = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(tmp);
                         //
                         string cmdTypeName = cmd.GetType().FullName.ToLowerInvariant();
                         string cmdText = "";
@@ -524,7 +520,6 @@ namespace Contensive.Processor.Controllers {
                                     // -- json jobject that mimiks dictionary. serialize it and re-deserialize 
                                     string asdfasdf = Newtonsoft.Json.JsonConvert.SerializeObject(cmdDef[cmdDefKey]);
                                     cmdArgDef = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(asdfasdf);
-                                    //cmdArgDef = (Dictionary<string, object>)cmdDef[cmdDefKey];
                                 } else {
                                     //
                                     // syntax error, bad command
