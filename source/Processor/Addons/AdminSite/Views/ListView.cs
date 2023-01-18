@@ -510,6 +510,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                                 }
                                 break;
+                            default:
+                                // do nothing
+                                break;
                         }
                     }
                 }
@@ -924,6 +927,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                 sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<" + DbController.encodeSQLNumber(FindWordValueInteger) + ")");
                                                                 break;
                                                             }
+                                                        default:
+                                                            // do nothing
+                                                            break;
                                                     }
                                                     exitFor = true;
                                                     break;
@@ -1031,6 +1037,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                     sqlWhere.Append("AND(LookupTable" + FieldPtr + ".Name LIKE " + DbController.encodeSQLText("%" + FindWordValue + "%") + ")");
                                                                     break;
                                                                 }
+                                                            default:
+                                                                // do nothing
+                                                                break;
                                                         }
                                                     } else if (!string.IsNullOrEmpty(field.lookupList)) {
                                                         //
@@ -1294,6 +1303,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 break;
                             case FindWordMatchEnum.MatchTrue:
                                 returnContent += HtmlController.div(getDeleteLink(Link) + "&nbsp;" + fieldCaption + "&nbsp;is&nbsp;true", "ccFilterIndent");
+                                break;
+                            default:
+                                // do nothing
                                 break;
                         }
                     }
