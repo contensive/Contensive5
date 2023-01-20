@@ -576,16 +576,19 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         public DomainModel domain {
             get {
-                if (_domains == null) {
-                    _domains = new DomainModel();
+                if (_domain == null) {
+                    _domain = new DomainModel {
+                        name = "*",
+                        defaultRouteId = siteProperties.defaultRouteId
+                    };
                 }
-                return _domains;
+                return _domain;
             }
             set {
-                _domains = value;
+                _domain = value;
             }
         }
-        private DomainModel _domains;
+        private DomainModel _domain;
         /// <summary>
         /// domains configured for this app. keys are lowercase
         /// </summary>
@@ -954,7 +957,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         _siteProperties = null;
-                        _domains = null;
+                        _domain = null;
                         _docProperties = null;
                         _webServer = null;
                         _visitProperty = null;

@@ -117,13 +117,20 @@ namespace Tests {
                 testPage.name = cp.Utils.GetRandomInteger().ToString();
                 testPage.addonList = cp.JSON.Serialize(testAddonList);
                 testPage.save(cp);
+                // -- link alias for page
+                LinkAliasModel linkAlias = DbBaseModel.addDefault<LinkAliasModel>(cp);
+                linkAlias.name = testPage.name;
+                linkAlias.pageId = testPage.id;
+                linkAlias.save(cp);
+                // -- rebuild routes after adding new page
+                cp.core.routeMapRebuild();
                 //
                 // act
                 string doc = cp.executeRoute("/" + testPage.name);
                 //
                 // assert 
                 Assert.IsTrue(doc.Contains(testString));
-                // no html
+                // full html page
                 Assert.IsTrue(doc.ToLower().Contains("<html"));
                 Assert.IsTrue(doc.ToLower().Contains("<head"));
                 Assert.IsTrue(doc.ToLower().Contains("<body"));

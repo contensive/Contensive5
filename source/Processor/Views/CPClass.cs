@@ -110,11 +110,11 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeRoute(string route) {
             try {
-                if (core?.appConfig == null) {
-                    if (core == null) { throw new ApplicationException("cp.executeRoute(route) failed because coreController null"); }
-                    throw new ApplicationException("cp.executeRoute(route) failed because core.appConfig null");
-                }
-                if (!core.appConfig.enabled) {
+                //
+                // -- check appConfig at the CP interface
+                if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
+                    if (core == null) { throw new ApplicationException("cp.executeRoute failed because coreController null"); }
+                    if (core?.appConfig == null) { throw new ApplicationException("cp.executeRoute failed because core.appConfig null"); }
                     LogController.logDebug(core, "cp.executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
@@ -132,11 +132,9 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeRoute() {
             try {
-                if (core?.appConfig == null) {
-                    if (core == null) { throw new ApplicationException("cp.executeRoute() failed because coreController null"); }
-                    throw new ApplicationException("cp.executeRoute() failed because core.appConfig null");
-                }
-                if (!core.appConfig.enabled) {
+                if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
+                    if (core == null) { throw new ApplicationException("cp.executeRoute failed because coreController null"); }
+                    if (core?.appConfig == null) { throw new ApplicationException("cp.executeRoute failed because core.appConfig null"); }
                     LogController.logDebug(core, "cp.executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
@@ -156,35 +154,39 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeAddon(string addonNameOrGuid, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextSimple) {
             try {
-                if ((core?.appConfig == null) || (!core.appConfig.enabled)) { return string.Empty; }
+                if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
+                    if (core == null) { throw new ApplicationException("cp.executeAddon failed because coreController null"); }
+                    if (core?.appConfig == null) { throw new ApplicationException("cp.executeAddon failed because core.appConfig null"); }
+                    LogController.logDebug(core, "cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
+                    return string.Empty;
+                }
                 if (GenericController.isGuid(addonNameOrGuid)) {
                     //
                     // -- call by guid
-                    AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonNameOrGuid);
-                    if (addon == null) {
+                    AddonModel addonByGuid = DbBaseModel.create<AddonModel>(core.cpParent, addonNameOrGuid);
+                    if (addonByGuid == null) {
                         throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");
                     } else {
-                        return core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
+                        return core.addon.execute(addonByGuid, new CPUtilsBaseClass.addonExecuteContext {
                             addonType = addonContext,
                             errorContextMessage = "external call to execute addon [" + addonNameOrGuid + "]"
                         });
                     }
+                }
+                AddonModel addonByName = AddonModel.createByUniqueName(core.cpParent, addonNameOrGuid);
+                if (addonByName != null) {
+                    //
+                    // -- call by name
+                    return core.addon.execute(addonByName, new CPUtilsBaseClass.addonExecuteContext {
+                        addonType = addonContext,
+                        errorContextMessage = "external call to execute addon [" + addonNameOrGuid + "]"
+                    });
+                } else if (addonNameOrGuid.isNumeric()) {
+                    //
+                    // -- compatibility - call by id
+                    return executeAddon(GenericController.encodeInteger(addonNameOrGuid), addonContext);
                 } else {
-                    AddonModel addon = AddonModel.createByUniqueName(core.cpParent, addonNameOrGuid);
-                    if (addon != null) {
-                        //
-                        // -- call by name
-                        return core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
-                            addonType = addonContext,
-                            errorContextMessage = "external call to execute addon [" + addonNameOrGuid + "]"
-                        });
-                    } else if (addonNameOrGuid.isNumeric()) {
-                        //
-                        // -- compatibility - call by id
-                        return executeAddon(GenericController.encodeInteger(addonNameOrGuid), addonContext);
-                    } else {
-                        throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");
-                    }
+                    throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");
                 }
             } catch (Exception ex) {
                 Site.ErrorReport(ex);
@@ -201,9 +203,10 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public string executeAddon(int addonId, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextSimple) {
             try {
-                if (!core.appConfig.enabled) {
-                    //
-                    // -- if app not enabled, exit with empty
+                if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
+                    if (core == null) { throw new ApplicationException("cp.executeAddon failed because coreController null"); }
+                    if (core?.appConfig == null) { throw new ApplicationException("cp.executeAddon failed because core.appConfig null"); }
+                    LogController.logDebug(core, "cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
                 AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonId);

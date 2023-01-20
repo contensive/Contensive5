@@ -39,100 +39,88 @@ namespace Contensive.Processor.Controllers {
             sw.Start();
             LogController.log(core, "CoreController executeRoute, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
             try {
-                if (core.appConfig != null) {
+                //
+                // -- test fix for 404 response during routing - could it be a response left over from processing before we are called
+                core.webServer.setResponseStatus(WebServerController.httpResponseStatus200_Success);
+                //
+                // -- execute intercept methods first, like login, that run before the route that returns the page
+                // -- intercept routes should be addons alos
+                //
+                // -- determine the route: try routeOverride
+                string normalizedRoute = GenericController.normalizeRoute(routeOverride);
+                if (string.IsNullOrEmpty(normalizedRoute)) {
                     //
-                    // -- test fix for 404 response during routing - could it be a response left over from processing before we are called
-                    core.webServer.setResponseStatus(WebServerController.httpResponseStatus200_Success);
-                    //
-                    // -- execute intercept methods first, like login, that run before the route that returns the page
-                    // -- intercept routes should be addons alos
-                    //
-                    // -- determine the route: try routeOverride
-                    string normalizedRoute = GenericController.normalizeRoute(routeOverride);
+                    // -- no override, try argument route (remoteMethodAddon=)
+                    normalizedRoute = GenericController.normalizeRoute(core.docProperties.getText(RequestNameRemoteMethodAddon));
                     if (string.IsNullOrEmpty(normalizedRoute)) {
                         //
-                        // -- no override, try argument route (remoteMethodAddon=)
-                        normalizedRoute = GenericController.normalizeRoute(core.docProperties.getText(RequestNameRemoteMethodAddon));
-                        if (string.IsNullOrEmpty(normalizedRoute)) {
-                            //
-                            // -- no override or argument, use the url as the route
-                            normalizedRoute = GenericController.normalizeRoute(core.webServer.requestPathPage.ToLowerInvariant());
-                        }
+                        // -- no override or argument, use the url as the route
+                        normalizedRoute = GenericController.normalizeRoute(core.webServer.requestPathPage.ToLowerInvariant());
                     }
-                    //
-                    // -- legacy form process methods 
-                    // todo -- move legacy form process methods to process within their own code
-                    string ajaxfnRouteResult = "";
-                    if (tryExecuteAjaxfnRoute(core, normalizedRoute, ref ajaxfnRouteResult)) {
-                        return ajaxfnRouteResult;
-                    }
-                    //
-                    // -- legacy email intercept methods
-                    // todo -- convert email intercept methods to remote methods
-                    if (core.docProperties.getInteger(rnEmailOpenFlag) > 0) {
-                        //
-                        // -- Process Email Open
-                        return (new Contensive.Processor.Addons.Primitives.OpenEmailClass()).Execute(core.cpParent).ToString();
-                    }
-                    if (core.docProperties.getInteger(rnEmailClickFlag) > 0) {
-                        //
-                        // -- Process Email click, execute and continue
-                        (new Contensive.Processor.Addons.Primitives.ClickEmailClass()).Execute(core.cpParent).ToString();
-                    }
-                    if (!string.IsNullOrWhiteSpace(core.docProperties.getText(rnEmailBlockRecipientEmail))) {
-                        //
-                        // -- Process Email block
-                        return (new Contensive.Processor.Addons.Primitives.BlockEmailClass()).Execute(core.cpParent).ToString();
-                    }
-                    //
-                    // -- legacy form process methods 
-                    processBuiltInForms(core);
-                    //
-                    // -- try legacy methods (?method=login)
-                    string methodRouteResult = "";
-                    if (tryExecuteMethodRoute(core, normalizedRoute, ref methodRouteResult)) {
-                        return methodRouteResult;
-                    }
-                    //
-                    // -- try route Dictionary (addons, admin, link forwards, link alias), from full route to first segment one at a time
-                    string routeDictionaryResult = "";
-                    if (tryExecuteRouteDictionary(core, normalizedRoute, ref routeDictionaryResult)) {
-                        return routeDictionaryResult;
-                    }
-                    //
-                    // -- default route 
-                    int defaultAddonId = 0;
-                    if (core.domain != null) {
-                        //
-                        // -- try domain default route
-                        defaultAddonId = core.domain.defaultRouteId;
-                    }
-                    if (defaultAddonId == 0) {
-                        //
-                        // -- try site default route
-                        defaultAddonId = core.siteProperties.defaultRouteId;
-                    }
-                    if (defaultAddonId > 0) {
-                        //
-                        // -- default route is run if no other route is found, which includes the route=defaultPage (default.aspx)
-                        CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
-                            addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                            cssContainerClass = "",
-                            cssContainerId = "",
-                            hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
-                                contentName = "",
-                                fieldName = "",
-                                recordId = 0
-                            },
-                            errorContextMessage = "calling default route addon [" + defaultAddonId + "] during execute route method"
-                        };
-                        return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, defaultAddonId), executeContext);
-                    }
-                    //
-                    // -- unrecognized route and no default route
-                    LogController.logWarn(core, "executeRoute called with an unknown route [" + normalizedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
-                    result = "Unknown command";
                 }
+                //
+                // -- legacy form process methods 
+                // todo -- move legacy form process methods to process within their own code
+                string ajaxfnRouteResult = "";
+                if (tryExecuteAjaxfnRoute(core, normalizedRoute, ref ajaxfnRouteResult)) {
+                    return ajaxfnRouteResult;
+                }
+                //
+                // -- legacy email intercept methods
+                // todo -- convert email intercept methods to remote methods
+                if (core.docProperties.getInteger(rnEmailOpenFlag) > 0) {
+                    //
+                    // -- Process Email Open
+                    return (new Contensive.Processor.Addons.Primitives.OpenEmailClass()).Execute(core.cpParent).ToString();
+                }
+                if (core.docProperties.getInteger(rnEmailClickFlag) > 0) {
+                    //
+                    // -- Process Email click, execute and continue
+                    (new Contensive.Processor.Addons.Primitives.ClickEmailClass()).Execute(core.cpParent).ToString();
+                }
+                if (!string.IsNullOrWhiteSpace(core.docProperties.getText(rnEmailBlockRecipientEmail))) {
+                    //
+                    // -- Process Email block
+                    return (new Contensive.Processor.Addons.Primitives.BlockEmailClass()).Execute(core.cpParent).ToString();
+                }
+                //
+                // -- legacy form process methods 
+                processBuiltInForms(core);
+                //
+                // -- try legacy methods (?method=login)
+                string methodRouteResult = "";
+                if (tryExecuteMethodRoute(core, normalizedRoute, ref methodRouteResult)) {
+                    return methodRouteResult;
+                }
+                //
+                // -- try route Dictionary (addons, admin, link forwards, link alias), from full route to first segment one at a time
+                // -- addons and admin are addon execution, link forward and link alias are page manager execution
+                string routeDictionaryResult = "";
+                if (tryExecuteRouteDictionary(core, normalizedRoute, ref routeDictionaryResult)) {
+                    return routeDictionaryResult;
+                }
+                //
+                // -- default route 
+                if (core.domain.defaultRouteId > 0) {
+                    //
+                    // -- default route is run if no other route is found, which includes the route=defaultPage (default.aspx)
+                    CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
+                        addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                        cssContainerClass = "",
+                        cssContainerId = "",
+                        hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {
+                            contentName = "",
+                            fieldName = "",
+                            recordId = 0
+                        },
+                        errorContextMessage = "calling default route addon [" + core.domain.defaultRouteId + "] during execute route method"
+                    };
+                    return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, core.domain.defaultRouteId), executeContext);
+                }
+                //
+                // -- unrecognized route and no default route
+                LogController.logWarn(core, "executeRoute called with an unknown route [" + normalizedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
+                result = "Unknown command";
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             } finally {

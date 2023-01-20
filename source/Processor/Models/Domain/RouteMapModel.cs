@@ -7,7 +7,7 @@ using Contensive.Processor.Exceptions;
 //
 namespace Contensive.Processor.Models.Domain {
     /// <summary>
-    /// Dictionary of Routes
+    /// Dictionary of Routes, addons marked remote method, link forwards and link aliases
     /// </summary>
     public class RouteMapModel {
         /// <summary>

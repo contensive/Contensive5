@@ -1,10 +1,11 @@
 ﻿
 using System;
 using Contensive.Processor.Controllers;
+using Contensive.BaseClasses;
 //
 namespace Contensive.Processor.Addons.PageManager {
     //
-    public class GetHtmlBodyClass : Contensive.BaseClasses.AddonBaseClass {
+    public class PageManagerClass : AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
@@ -12,10 +13,9 @@ namespace Contensive.Processor.Addons.PageManager {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
+        public override object Execute(CPBaseClass cp) {
             try {
                 CoreController core = ((CPClass)cp).core;
-                cp.Doc.SetProperty("allowToolPanel", true);
                 string result = PageContentController.getHtmlBody(core);
                 if (core.doc.pageController.page !=null ) {
                     //
@@ -29,4 +29,13 @@ namespace Contensive.Processor.Addons.PageManager {
             }
         }
     }
-}   
+    /// <summary>
+    /// 230120 tmp class to handle transition from incorrect class name to PageManager namespace
+    /// </summary>
+    public class GetHtmlBodyClass : AddonBaseClass {
+        public override object Execute(BaseClasses.CPBaseClass cp) {
+            PageManagerClass pageManager = new();
+            return pageManager.Execute(cp);
+        }
+    }
+}
