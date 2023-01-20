@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static Tests.TestConstants;
 
 namespace Tests {
-    [TestClass()]
+    [TestClass]
     public class RouteMapModelTests {
         [TestMethod]
         public void models_RouteMap_DictionaryHasAdmin() {

@@ -1088,25 +1088,27 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- render addonList
-                        if (!string.IsNullOrWhiteSpace(core.doc.pageController.page.addonList)) {
-                            try {
-                                AddonModel addonListRender = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidRenderAddonList);
-                                if (addonListRender == null) {
-                                    //
-                                    // -- not installed
-                                    resultInnerContent.Append("<!-- Page Builder AddonList Render not available -->");
-                                } else {
-                                    //
-                                    // -- execute PageBuilder RenderAddonList
-                                    core.docProperties.setProperty("addonList", core.doc.pageController.page.addonList);
-                                    resultInnerContent.Append(core.addon.execute(addonListRender, new CPUtilsBaseClass.addonExecuteContext {
-                                        addonType = CPUtilsBaseClass.addonContext.ContextPage
-                                    }));
-                                }
-                            } catch (Exception) {
-                                LogController.logWarn(core, "The addonList for page [" + core.doc.pageController.page.id + ", " + core.doc.pageController.page.name + "] was not empty, but deserialized to null, addonList '" + core.doc.pageController.page.addonList + "'");
-                            }
-                        }
+                        resultInnerContent.Append(AddonListItemModel_Dup.render(core, core.doc.pageController.page.addonList));
+                        //if (!string.IsNullOrWhiteSpace(core.doc.pageController.page.addonList)) {
+
+                        //    //try {
+                        //    //    AddonModel addonListRender = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidRenderAddonList);
+                        //    //    if (addonListRender == null) {
+                        //    //        //
+                        //    //        // -- not installed
+                        //    //        resultInnerContent.Append("<!-- Page Builder AddonList Render not available -->");
+                        //    //    } else {
+                        //    //        //
+                        //    //        // -- execute PageBuilder RenderAddonList
+                        //    //        core.docProperties.setProperty("addonList", core.doc.pageController.page.addonList);
+                        //    //        resultInnerContent.Append(core.addon.execute(addonListRender, new CPUtilsBaseClass.addonExecuteContext {
+                        //    //            addonType = CPUtilsBaseClass.addonContext.ContextPage
+                        //    //        }));
+                        //    //    }
+                        //    //} catch (Exception) {
+                        //    //    LogController.logWarn(core, "The addonList for page [" + core.doc.pageController.page.id + ", " + core.doc.pageController.page.name + "] was not empty, but deserialized to null, addonList '" + core.doc.pageController.page.addonList + "'");
+                        //    //}
+                        //}
                     }
                 }
                 // -- End Text Search

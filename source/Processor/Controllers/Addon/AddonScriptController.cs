@@ -13,7 +13,7 @@ namespace Contensive.Processor.Controllers {
     /// - disposable region at end
     /// - if disposable is not needed add: not IDisposable - not contained classes that need to be disposed
     /// </summary>
-    public static class AddonControllerScript {
+    public static class AddonScriptController {
         //
         //====================================================================================================
         /// <summary>

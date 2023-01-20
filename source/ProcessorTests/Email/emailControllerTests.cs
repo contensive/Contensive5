@@ -495,7 +495,7 @@ namespace Tests {
                 string sendStatus = "";
                 string ResultLogFilename = "";
                 // act
-                EmailController.queueAdHocEmail(cp.core, "Unit Test", 0, "to@kma.net", "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", ResultLogFilename, true, true, 0, ref sendStatus);
+                EmailController.queueAdHocEmail(cp.core, "Unit Test", 0, "to@kma.net", "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", ResultLogFilename, true, true, 0, ref sendStatus,0);
                 Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.EmailSendTask();
                 addon.Execute(cp);
                 // assert
@@ -531,7 +531,7 @@ namespace Tests {
                 toPerson.save(cp);
                 string sendStatus = "";
                 // act
-                Assert.IsTrue(EmailController.tryQueuePersonEmail(cp.core, "Function Test", toPerson, "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", true, true, 0, "", true, ref sendStatus));
+                Assert.IsTrue(EmailController.tryQueuePersonEmail(cp.core, "Function Test", toPerson, "from@kma.net", "subject", body, "bounce@kma.net", "replyTo@kma.net", true, true, 0, "", true, ref sendStatus,0));
                 Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.EmailSendTask();
                 addon.Execute(cp);
                 // assert

@@ -607,9 +607,9 @@ namespace Contensive.Processor.Controllers {
                         if (!string.IsNullOrEmpty(addon.scriptingCode) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ScriptingCodeExecution)) {
                             try {
                                 if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
-                                    result.Append(AddonControllerScript.execute_Script_JScript(core, ref addon));
+                                    result.Append(AddonScriptController.execute_Script_JScript(core, ref addon));
                                 } else {
-                                    result.Append(AddonControllerScript.execute_Script_VBScript(core, ref addon));
+                                    result.Append(AddonScriptController.execute_Script_VBScript(core, ref addon));
                                 }
                             } catch (Exception ex) {
                                 //
