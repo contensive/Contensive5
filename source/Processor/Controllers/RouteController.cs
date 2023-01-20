@@ -102,10 +102,10 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- default route 
                     int defaultAddonId = 0;
-                    if (core.doc.domain != null) {
+                    if (core.domain != null) {
                         //
                         // -- try domain default route
-                        defaultAddonId = core.doc.domain.defaultRouteId;
+                        defaultAddonId = core.domain.defaultRouteId;
                     }
                     if (defaultAddonId == 0) {
                         //

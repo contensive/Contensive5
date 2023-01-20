@@ -60,24 +60,28 @@ namespace Contensive.Processor.Controllers {
                 if (!core.doc.continueProcessing) { return ""; }
                 string result = "";
                 //
-                // -- setup domain
-                string domainTest = core.webServer.requestDomain.Trim().ToLowerInvariant().Replace("..", ".");
-                core.doc.domain = null;
-                if (!string.IsNullOrEmpty(domainTest)) {
-                    int posDot = 0;
-                    int loopCnt = 10;
-                    do {
-                        core.doc.domain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, domainTest);
-                        posDot = domainTest.IndexOf('.');
-                        if ((posDot >= 0) && (domainTest.Length > 1)) {
-                            domainTest = domainTest.Substring(posDot + 1);
-                        }
-                        loopCnt -= 1;
-                    } while ((core.doc.domain == null) && (posDot >= 0) && (loopCnt > 0));
-                }
+                // -- domain is setup in httpInit
+                // -- core.domain property should initialize to empty domain if not set
+                //
+                ////
+                //// -- setup domain
+                //string domainTest = core.webServer.requestDomain.Trim().ToLowerInvariant().Replace("..", ".");
+                //core.domain = null;
+                //if (!string.IsNullOrEmpty(domainTest)) {
+                //    int posDot = 0;
+                //    int loopCnt = 10;
+                //    do {
+                //        core.domain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, domainTest);
+                //        posDot = domainTest.IndexOf('.');
+                //        if ((posDot >= 0) && (domainTest.Length > 1)) {
+                //            domainTest = domainTest.Substring(posDot + 1);
+                //        }
+                //        loopCnt -= 1;
+                //    } while ((core.domain == null) && (posDot >= 0) && (loopCnt > 0));
+                //}
                 //
                 // -- load requested page/template
-                result += loadPage(core, core.docProperties.getInteger(rnPageId), core.doc.domain);
+                result += loadPage(core, core.docProperties.getInteger(rnPageId), core.domain);
                 if (!core.doc.continueProcessing) { return result; }
                 //
                 // -- processing cannot continue if not current page
@@ -444,7 +448,7 @@ namespace Contensive.Processor.Controllers {
                 // -- if endpoint is domain + route (link alias), the route determines the page, which may determine the core.doc.pageController.template. If this template is not allowed for this domain, redirect to the domain's landingcore.doc.pageController.page.
                 //
                 {
-                    DataTable ruleList = core.db.executeQuery("select t.id from ccdomaintemplaterules r left join cctemplates t on t.id=r.templateid where (r.domainId=" + core.doc.domain.id + ")");
+                    DataTable ruleList = core.db.executeQuery("select t.id from ccdomaintemplaterules r left join cctemplates t on t.id=r.templateid where (r.domainId=" + core.domain.id + ")");
                     if (ruleList.Rows.Count > 0) {
                         //
                         // -- current template has a domain preference, test it
@@ -457,7 +461,7 @@ namespace Contensive.Processor.Controllers {
                         if (!allowTemplate) {
                             //
                             // -- must redirect to a domain's landing page
-                            core.doc.redirectLink = core.webServer.requestProtocol + core.doc.domain.name;
+                            core.doc.redirectLink = core.webServer.requestProtocol + core.domain.name;
                             core.doc.redirectBecausePageNotFound = false;
                             core.doc.redirectReason = "Redirecting because this domain has template requiements set, and this template is not configured [" + core.doc.pageController.template.name + "].";
                             core.doc.redirectBecausePageNotFound = false;
@@ -503,7 +507,7 @@ namespace Contensive.Processor.Controllers {
         public static string getHtmlBody_BodyTag(CoreController core) {
             string result = "";
             try {
-                if (core.doc.domain == null) {
+                if (core.domain == null) {
                     //
                     // -- If no domain, block content with message
                     string errMsg = "Domain not recognized:" + core.webServer.requestUrlSource;
@@ -1665,7 +1669,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- domain -- determine if the domain has any template requirements, and if so, is this template allowed
-                string SqlCriteria = "(domainId=" + core.doc.domain.id + ")";
+                string SqlCriteria = "(domainId=" + core.domain.id + ")";
                 List<TemplateDomainRuleModel> allowTemplateRuleList = DbBaseModel.createList<TemplateDomainRuleModel>(core.cpParent, SqlCriteria);
                 bool templateAllowed = false;
                 foreach (TemplateDomainRuleModel rule in allowTemplateRuleList) {

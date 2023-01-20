@@ -3,6 +3,7 @@ using Contensive.Models.Db;
 using Contensive.Processor;
 using Contensive.Processor.Models.Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 using static Tests.TestConstants;
 
 namespace Tests {
@@ -92,22 +93,43 @@ namespace Tests {
                 //
                 // arrange
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
-                //
+                // -- addon collection
+                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                AddonCollectionModel testCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
+                // -- test addon returns testString
+                AddonModel testAddon = DbBaseModel.addDefault<AddonModel>(cp);
+                testAddon.name = cp.Utils.GetRandomInteger().ToString();
+                testAddon.dotNetClass = "Contensive.Processor.Addons.TestAddon";
+                testAddon.remoteMethod = true;
+                testAddon.collectionId = testCollection.id;
+                testAddon.htmlDocument = true;
+                testAddon.save(cp);
+                string testString = cp.Utils.GetRandomInteger().ToString();
+                cp.Doc.SetProperty("test-in", testString);
+                // -- addonList for page
+                List<AddonListItemModel_Dup> testAddonList = new();
+                testAddonList.Add(new AddonListItemModel_Dup() {
+                     designBlockTypeGuid = testAddon.ccguid,
+                     designBlockTypeName = "test addon"
+                });
+                // -- page to render
                 PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
                 testPage.name = cp.Utils.GetRandomInteger().ToString();
-                testPage.addonList = "";
+                testPage.addonList = cp.JSON.Serialize(testAddonList);
                 testPage.save(cp);
                 //
                 // act
                 string doc = cp.executeRoute("/" + testPage.name);
                 //
                 // assert 
-                Assert.AreEqual("", doc);
+                Assert.IsTrue(doc.Contains(testString));
                 // no html
                 Assert.IsTrue(doc.ToLower().Contains("<html"));
                 Assert.IsTrue(doc.ToLower().Contains("<head"));
                 Assert.IsTrue(doc.ToLower().Contains("<body"));
                 // cleanup
+                DbBaseModel.delete<AddonCollectionModel>(cp, testCollection.id);
+                DbBaseModel.delete<AddonModel>(cp, testAddon.id);
                 DbBaseModel.delete<PageContentModel>(cp, testPage.id);
             }
         }

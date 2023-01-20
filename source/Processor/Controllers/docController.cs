@@ -23,7 +23,7 @@ namespace Contensive.Processor.Controllers {
             //
             errorList = new List<string>();
             pageController = new PageContentController();
-            domain = new DomainModel();
+            //domain = new DomainModel();
             wysiwygAddonList = new Dictionary<CPHtml5BaseClass.EditorContentType, string>();
         }
         //
@@ -94,12 +94,12 @@ namespace Contensive.Processor.Controllers {
         /// html meta keywords
         /// </summary>
         public List<HtmlMetaClass> htmlMetaContent_KeyWordList { get; set; } = new List<HtmlMetaClass>();
-        //
-        //====================================================================================================
-        /// <summary>
-        /// current domain for website documents. For all others this is the primary domain for the application.
-        /// </summary>
-        public DomainModel domain { get; set; }
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// current domain for website documents. For all others this is the primary domain for the application.
+        ///// </summary>
+        //public DomainModel domain { get; set; }
         //
         //====================================================================================================
         /// <summary>
