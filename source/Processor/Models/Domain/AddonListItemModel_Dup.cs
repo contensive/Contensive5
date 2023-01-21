@@ -19,36 +19,36 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// The guid of the design block addon that is in this position
         /// </summary>
-        public string designBlockTypeGuid;
+        public string designBlockTypeGuid { get; set; }
         /// <summary>
         /// The name of the design block to be used for non-rendered mode
         /// </summary>
-        public string designBlockTypeName;
+        public string designBlockTypeName { get; set; }
         /// <summary>
         /// the Guid of the data instance in this position
         /// </summary>
-        public string instanceGuid;
+        public string instanceGuid { get; set; }
         /// <summary>
         /// todo - create view model separate from domain model because UI mode might need it
         /// Not saved in DB, use only for view. 
         /// </summary>
-        public string renderedHtml;
+        public string renderedHtml { get; set; }
         /// <summary>
         /// Assets added to the html document during html rendering
         /// </summary>
-        public AddonAssetsModel renderedAssets;
+        public AddonAssetsModel renderedAssets { get; set; }
         /// <summary>
         /// If this design block is structural, it contains one or more addon lists
         /// </summary>
-        public List<AddonListColumnItemModel> columns;
+        public List<AddonListColumnItemModel> columns { get; set; }
         /// <summary>
         /// If the addon has a settings record, this is the admin edit url to be used on the UI
         /// </summary>
-        public string settingsEditUrl;
+        public string settingsEditUrl { get; set; }
         /// <summary>
         /// if the addon can be edited, this is the url to the admin sits
         /// </summary>
-        public string addonEditUrl;
+        public string addonEditUrl { get; set; }
         //
         // todo -- replace the method (and this class) with the pagebuilder render process, so pagebuilder calls CPBaseClass and other processes can share without the overhead of executing the pagebuilder addon
         //
@@ -88,32 +88,31 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// css styles added to the head
         /// </summary>
-        public List<string> headStyles = new List<string>();
+        public List<string> headStyles { get; set; } = new List<string>();
         //
-        public List<string> headStylesheetLinks = new List<string>();
+        public List<string> headStylesheetLinks { get; set; } = new List<string>();
         //
-        public List<string> headJs = new List<string>();
+        public List<string> headJs { get; set; } = new List<string>();
         //
-        public List<string> headJsLinks = new List<string>();
+        public List<string> headJsLinks { get; set; } = new List<string>();
         //
-        public List<string> bodyJs = new List<string>();
+        public List<string> bodyJs { get; set; } = new List<string>();
         //
-        public List<string> bodyJsLinks = new List<string>();
+        public List<string> bodyJsLinks { get; set; } = new List<string>();
     }
     [System.Serializable]
     public class AddonListColumnItemModel {
         /// <summary>
         /// the integer width of a column, where the row totals 12
         /// </summary>
-        public int col;
+        public int col { get; set; }
         /// <summary>
         /// optional class that represents the width of the column
         /// </summary>
-        public string className;
+        public string className { get; set; }
         /// <summary>
         /// Each column contains an addon list. This extra object layer was created to make it more convenient for the UI javascript
         /// </summary>
-        public List<AddonListItemModel_Dup> addonList;
+        public List<AddonListItemModel_Dup> addonList { get; set; }
     }
 }
-    

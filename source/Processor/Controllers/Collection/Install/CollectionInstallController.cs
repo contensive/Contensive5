@@ -1175,7 +1175,7 @@ namespace Contensive.Processor.Controllers {
                             if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                 //
                                 // Could not find add-on, this is an error, but do not abort
-                                LogController.logError(core, new ApplicationException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
+                                LogController.logError(core, new GenericException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
                                 return;
                             }
                         }
@@ -1277,7 +1277,7 @@ namespace Contensive.Processor.Controllers {
                                         if (!addonCs.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                             //
                                             // Could not find add-on, this is an error, but do not abort
-                                            LogController.logError(core, new ApplicationException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
+                                            LogController.logError(core, new GenericException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
                                             return;
                                         }
                                     }

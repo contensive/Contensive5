@@ -243,7 +243,7 @@ namespace Contensive.Processor.Controllers {
                     recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
                 }
                 recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
-                LogController.logError(core, new ApplicationException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
+                LogController.logError(core, new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
                 return "";
             }
             //
@@ -259,7 +259,7 @@ namespace Contensive.Processor.Controllers {
                     recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
                 }
                 recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
-                LogController.logError(core, new ApplicationException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
+                LogController.logError(core, new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
                 return "";
             }
             //

@@ -760,7 +760,6 @@ namespace Contensive.Processor.Controllers {
         public string redirect(string nonEncodedLink, string redirectReason, bool isPageNotFound, bool allowDebugMessage) {
             string result = HtmlController.div("Redirecting to [" + nonEncodedLink + "], reason [" + redirectReason + "]", "ccWarningBox");
             try {
-                if (!core.doc.continueProcessing) { return result; }
                 if ((httpContext == null) || (httpContext.Response == null)) { return result; }
                 //
                 // -- convert link to a long link on this domain

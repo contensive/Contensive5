@@ -459,7 +459,7 @@ namespace Contensive.Processor.Models.Domain {
                 var groupByGuid = DbBaseModel.create<GroupModel>(core.cpParent, _memberSelectGroupName);
                 if ( groupByGuid == null ) {
                     core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
-                    LogController.logError(core, new ApplicationException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+                    LogController.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
                     _memberSelectGroupId = 0;
                     return 0;
                 }
@@ -481,7 +481,7 @@ namespace Contensive.Processor.Models.Domain {
             }
             //
             // -- memberSelectGroupName was not valid
-            LogController.logError(core, new ApplicationException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+            LogController.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
             core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
             _memberSelectGroupId = 0;
             return 0;

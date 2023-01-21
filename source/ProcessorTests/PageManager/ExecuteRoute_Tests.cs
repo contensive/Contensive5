@@ -16,11 +16,13 @@ namespace Tests {
         /// plain remote method
         /// </summary>
         [TestMethod]
-        public void ExeuteRoute_RemoteMethod_Test() {
-            using (CPClass cp = new(testAppName)) {
+        public void ExecuteRoute_RemoteMethod_Test() {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
                 //
                 // arrange
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
+                cp.Site.SetProperty("AnonymousUserResponseID", 0);
                 //
                 // arrange
                 const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
@@ -32,6 +34,9 @@ namespace Tests {
                 addon.remoteMethod = true;
                 addon.collectionId = baseCollection.id;
                 addon.save(cp);
+                // -- rebuild routes after adding new page
+                cp.core.routeMapRebuild();
+                //
                 string testString = cp.Utils.GetRandomInteger().ToString();
                 cp.Doc.SetProperty("test-in", testString);
                 // act
@@ -51,11 +56,12 @@ namespace Tests {
         /// plain remote method
         /// </summary>
         [TestMethod]
-        public void ExeuteRoute_RemoteMethod_Html_Test() {
+        public void ExecuteRoute_RemoteMethod_Html_Test() {
             using (CPClass cp = new(testAppName)) {
                 //
                 // arrange
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
+                cp.Site.SetProperty("AnonymousUserResponseID", 0);
                 //
                 const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
@@ -67,6 +73,9 @@ namespace Tests {
                 addon.collectionId = baseCollection.id;
                 addon.htmlDocument = true;
                 addon.save(cp);
+                // -- rebuild routes after adding new page
+                cp.core.routeMapRebuild();
+                //
                 string testString = cp.Utils.GetRandomInteger().ToString();
                 cp.Doc.SetProperty("test-in", testString);
                 //
@@ -88,20 +97,21 @@ namespace Tests {
         /// 
         /// </summary>
         [TestMethod]
-        public void ExeuteRoute_Page_Test() {
+        public void ExecuteRoute_Page_Test() {
             using (CPClass cp = new(testAppName)) {
                 //
                 // arrange
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
+                cp.Site.SetProperty("AnonymousUserResponseID", 0);
                 // -- addon collection
                 const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
-                AddonCollectionModel testCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
+                AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 // -- test addon returns testString
                 AddonModel testAddon = DbBaseModel.addDefault<AddonModel>(cp);
                 testAddon.name = cp.Utils.GetRandomInteger().ToString();
                 testAddon.dotNetClass = "Contensive.Processor.Addons.TestAddon";
                 testAddon.remoteMethod = true;
-                testAddon.collectionId = testCollection.id;
+                testAddon.collectionId = baseCollection.id;
                 testAddon.htmlDocument = true;
                 testAddon.save(cp);
                 string testString = cp.Utils.GetRandomInteger().ToString();
@@ -109,8 +119,8 @@ namespace Tests {
                 // -- addonList for page
                 List<AddonListItemModel_Dup> testAddonList = new();
                 testAddonList.Add(new AddonListItemModel_Dup() {
-                     designBlockTypeGuid = testAddon.ccguid,
-                     designBlockTypeName = "test addon"
+                    designBlockTypeGuid = testAddon.ccguid,
+                    designBlockTypeName = "test addon"
                 });
                 // -- page to render
                 PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
@@ -135,8 +145,101 @@ namespace Tests {
                 Assert.IsTrue(doc.ToLower().Contains("<head"));
                 Assert.IsTrue(doc.ToLower().Contains("<body"));
                 // cleanup
-                DbBaseModel.delete<AddonCollectionModel>(cp, testCollection.id);
                 DbBaseModel.delete<AddonModel>(cp, testAddon.id);
+                DbBaseModel.delete<PageContentModel>(cp, testPage.id);
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [TestMethod]
+        public void ExecuteRoute_Page_AnonymousBlock_Redirect_Test() {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
+                //
+                // arrange
+                cp.Site.SetProperty("ALLOW HTML MINIFY", false);
+                //
+                // -- addon collection
+                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
+                //
+                // -- test addon returns testString
+                AddonModel renderPageAddon = DbBaseModel.addDefault<AddonModel>(cp);
+                renderPageAddon.name = cp.Utils.GetRandomInteger().ToString();
+                renderPageAddon.dotNetClass = "Contensive.Processor.Addons.TestAddon";
+                renderPageAddon.remoteMethod = true;
+                renderPageAddon.collectionId = baseCollection.id;
+                renderPageAddon.htmlDocument = true;
+                renderPageAddon.save(cp);
+                //
+                string renderPageContent = cp.Utils.GetRandomInteger().ToString();
+                cp.Doc.SetProperty("test-in", renderPageContent);
+                //
+                // -- addonList for page
+                List<AddonListItemModel_Dup> testAddonList = new();
+                testAddonList.Add(new AddonListItemModel_Dup() {
+                    designBlockTypeGuid = renderPageAddon.ccguid,
+                    designBlockTypeName = "test addon"
+                });
+                // -- page to render
+                PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
+                testPage.name = cp.Utils.GetRandomInteger().ToString();
+                testPage.addonList = cp.JSON.Serialize(testAddonList);
+                testPage.save(cp);
+                //
+                // -- link alias for render page
+                LinkAliasModel renderLinkAlias = DbBaseModel.addDefault<LinkAliasModel>(cp);
+                renderLinkAlias.name = testPage.name;
+                renderLinkAlias.pageId = testPage.id;
+                renderLinkAlias.save(cp);
+                //
+                // -- login form addon
+                AddonModel loginAddon = DbBaseModel.addDefault<AddonModel>(cp);
+                loginAddon.name = cp.Utils.GetRandomInteger().ToString();
+                loginAddon.collectionId = baseCollection.id;
+                loginAddon.copyText = cp.Utils.GetRandomInteger().ToString();
+                loginAddon.save(cp);
+                //
+                // -- addonList for login form
+                List<AddonListItemModel_Dup> loginAddonList = new();
+                loginAddonList.Add(new AddonListItemModel_Dup() {
+                    designBlockTypeGuid = loginAddon.ccguid,
+                    designBlockTypeName = "login addon"
+                });
+                //
+                // -- page for login
+                PageContentModel loginPage = DbBaseModel.addDefault<PageContentModel>(cp);
+                loginPage.name = cp.Utils.GetRandomInteger().ToString();
+                loginPage.addonList = cp.JSON.Serialize(loginAddonList);
+                loginPage.save(cp);
+                //
+                // -- link alias for login page
+                LinkAliasModel loginLinkAlias = DbBaseModel.addDefault<LinkAliasModel>(cp);
+                loginLinkAlias.name = loginPage.name;
+                loginLinkAlias.pageId = loginPage.id;
+                loginLinkAlias.save(cp);
+                //
+                // -- rebuild routes after adding new page
+                cp.core.routeMapRebuild();
+                //
+                // -- anonymouse redirect to login page
+                cp.Site.SetProperty("AnonymousUserResponseID", 3);
+                cp.Site.SetProperty("loginpageid", loginPage.id);
+                //
+                // act - test page should be rediredct to login page
+                string doc = cp.executeRoute("/" + testPage.name);
+                //
+                // assert neither page is returned, just a redirect to the login page
+                string redirectProtocol = "";
+                string redirectDomain = "";
+                string redirectPath = "";
+                string redirectPage = "";
+                string redirectQueryString = "";
+                cp.Utils.SeparateURL(httpContext.Response.redirectUrl, ref redirectProtocol, ref redirectDomain, ref redirectPath, ref redirectPage, ref redirectQueryString);
+                Assert.AreEqual(loginLinkAlias.name, redirectPath + redirectPage);
+                // cleanup
+                DbBaseModel.delete<AddonModel>(cp, renderPageAddon.id);
                 DbBaseModel.delete<PageContentModel>(cp, testPage.id);
             }
         }

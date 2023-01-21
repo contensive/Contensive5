@@ -384,16 +384,13 @@ namespace Contensive.Processor.Controllers {
                         //
                         // admin page is excluded from custom blocking
                     } else {
-                        int AnonymousUserResponseId = GenericController.encodeInteger(core.siteProperties.getText("AnonymousUserResponseID", "0"));
-                        switch (AnonymousUserResponseId) {
+                        bool loginAddonBlock = false;
+                        switch (core.siteProperties.getInteger("AnonymousUserResponseID", 0)) {
                             case 1: {
                                     //
                                     // -- block with login
-                                    core.doc.continueProcessing = false;
-                                    return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
-                                        addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                                        errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
-                                    });
+                                    loginAddonBlock = true;
+                                    break;
                                 }
                             case 2: {
                                     //
@@ -402,10 +399,34 @@ namespace Contensive.Processor.Controllers {
                                     core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
                                     return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), TemplateDefaultBodyTag, true, true);
                                 }
+                            case 3: {
+                                    //
+                                    // -- block with forward to login page
+                                    int loginPageId = core.siteProperties.getInteger("loginpageid", 0);
+                                    if (loginPageId == 0) {
+                                        loginAddonBlock = true;
+                                        break;
+                                    }
+                                    string pageLink = core.cpParent.Content.GetPageLink(loginPageId);
+                                    if (string.IsNullOrEmpty(pageLink)) {
+                                        loginAddonBlock = true;
+                                        break;
+                                    }
+                                    core.webServer.redirect(pageLink, "Anonymouse user blocked with redirect to login page.");
+                                    core.doc.continueProcessing = false;
+                                    return "";
+                                }
                             default: {
                                     // do nothing
                                     break;
                                 }
+                        }
+                        if (loginAddonBlock) {
+                            core.doc.continueProcessing = false;
+                            return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
+                                addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                                errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
+                            });
                         }
                     }
                 }
@@ -529,11 +550,11 @@ namespace Contensive.Processor.Controllers {
                     if (string.IsNullOrEmpty(templateName)) { templateName = "Template " + core.doc.pageController.template.id; }
                     //
                     // -- Mustache encoding
-                    if (core.doc.pageController.template.mustacheDataSetAddonId>0) {
+                    if (core.doc.pageController.template.mustacheDataSetAddonId > 0) {
                         //
                         // -- need a method that executes an addon and returns an object, not a string
                         string dataSetJson = core.addon.execute(core.doc.pageController.template.mustacheDataSetAddonId, new CPUtilsBaseClass.addonExecuteContext {
-                             addonType = CPUtilsBaseClass.addonContext.ContextTemplate
+                            addonType = CPUtilsBaseClass.addonContext.ContextTemplate
                         });
                         object dataSet = Newtonsoft.Json.JsonConvert.DeserializeObject(dataSetJson);
                         templateHtml = MustacheController.renderStringToString(templateHtml, dataSet);
@@ -547,10 +568,10 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- replace page content into templatecontent
                         result = strReplace(result, fpoContentBox, contentBoxHtml);
-                    //} else {
-                    //    //
-                    //    // If Content was not found, add it to the end
-                    //    result += contentBoxHtml;
+                        //} else {
+                        //    //
+                        //    // If Content was not found, add it to the end
+                        //    result += contentBoxHtml;
                     }
                     //
                     // -- add template edit link
@@ -839,7 +860,7 @@ namespace Contensive.Processor.Controllers {
                             // -- {%%} execution should be limited to legacy pagecontent.copy only so this was moved down to _contentbox_renderelements
                             result = ContentRenderController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
                         }
-                        if (!core.session.isEditing(PageContentModel.tableMetadata.contentName)) { 
+                        if (!core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
                             //
                             // -- Page Hit Notification
                             if ((!core.session.visit.excludeFromAnalytics) && (core.doc.pageController.page.contactMemberId != 0) && (core.webServer.requestBrowser.IndexOf("kmahttp", System.StringComparison.OrdinalIgnoreCase) == -1)) {
