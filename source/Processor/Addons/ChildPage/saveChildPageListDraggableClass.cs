@@ -4,7 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using Contensive.Models.Db;
 //
 namespace Contensive.Processor.Addons.PageManager {

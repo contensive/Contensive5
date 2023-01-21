@@ -127,10 +127,11 @@ namespace Contensive.Processor.Controllers {
                             Styles = CS.GetText("StylesFilename").Trim();
                         string StylesTest = CS.GetText("CustomStylesFilename").Trim();
                         if (StylesTest != "") {
-                            if (Styles != "")
+                            if (Styles != "") {
                                 Styles = Styles + System.Environment.NewLine + StylesTest;
-                            else
+                            } else {
                                 Styles = StylesTest;
+                            }
                         }
                         // -- styles node for stylesFilename field
                         result += ExportController.getNode("Styles", Styles);
@@ -145,8 +146,9 @@ namespace Contensive.Processor.Controllers {
                         // Scripting
                         // 
                         string NodeInnerText = CS.GetText("ScriptingCode").Trim();
-                        if (NodeInnerText != "")
+                        if (NodeInnerText != "") {
                             NodeInnerText = System.Environment.NewLine + "\t" + "\t" + "<Code>" + ExportController.encodeCData(NodeInnerText) + "</Code>";
+                        }
                         using (CPCSBaseClass CS2 = cp.CSNew()) {
                             CS2.Open("Add-on Scripting Module Rules", "addonid=" + addonid);
                             while (CS2.OK()) {
@@ -168,10 +170,11 @@ namespace Contensive.Processor.Controllers {
                             }
                             CS2.Close();
                         }
-                        if (NodeInnerText == "")
+                        if (NodeInnerText == "") {
                             result += System.Environment.NewLine + "\t" + "<Scripting Language=\"" + CS.GetText("ScriptingLanguageID") + "\" EntryPoint=\"" + CS.GetText("ScriptingEntryPoint") + "\" Timeout=\"" + CS.GetText("ScriptingTimeout") + "\"/>";
-                        else
+                        } else {
                             result += System.Environment.NewLine + "\t" + "<Scripting Language=\"" + CS.GetText("ScriptingLanguageID") + "\" EntryPoint=\"" + CS.GetText("ScriptingEntryPoint") + "\" Timeout=\"" + CS.GetText("ScriptingTimeout") + "\">" + NodeInnerText + System.Environment.NewLine + "\t" + "</Scripting>";
+                        }
                         // 
                         // Shared Styles
                         // 
@@ -220,8 +223,9 @@ namespace Contensive.Processor.Controllers {
                             }
                             CS2.Close();
                         }
-                        if (NodeInnerText != "")
+                        if (NodeInnerText != "") {
                             result += System.Environment.NewLine + "\t" + "<ProcessTriggers>" + NodeInnerText + System.Environment.NewLine + "\t" + "</ProcessTriggers>";
+                        }
                         // 
                         // Editors
                         // 
@@ -232,26 +236,29 @@ namespace Contensive.Processor.Controllers {
                                 while (CS2.OK()) {
                                     int fieldTypeID = CS2.GetInteger("contentFieldTypeID");
                                     string fieldType = cp.Content.GetRecordName("Content Field Types", fieldTypeID);
-                                    if (fieldType != "")
+                                    if (fieldType != "") {
                                         NodeInnerText = NodeInnerText + System.Environment.NewLine + "\t" + "\t" + "<type>" + fieldType + "</type>";
+                                    }
                                     CS2.GoNext();
                                 }
                                 CS2.Close();
                             }
-                            if (NodeInnerText != "")
+                            if (NodeInnerText != "") {
                                 result += System.Environment.NewLine + "\t" + "<Editors>" + NodeInnerText + System.Environment.NewLine + "\t" + "</Editors>";
+                            }
                         }
                         // 
                         string addonGuid = CS.GetText("ccGuid");
-                        if ((string.IsNullOrWhiteSpace(addonGuid))) {
+                        if (string.IsNullOrWhiteSpace(addonGuid)) {
                             addonGuid = cp.Utils.CreateGuid();
                             CS.SetField("ccGuid", addonGuid);
                         }
-                        string NavType = CS.GetText("NavTypeID");
-                        if ((NavType == ""))
-                            NavType = "Add-on";
+                        string navType = CS.GetText("NavTypeID");
+                        if (string.IsNullOrEmpty(navType)) {
+                            navType = "Add-on";
+                        }
                         result = ""
-                        + System.Environment.NewLine + "\t" + "<Addon name=\"" + System.Net.WebUtility.HtmlEncode(addonName) + "\" guid=\"" + addonGuid + "\" type=\"" + NavType + "\">"
+                        + System.Environment.NewLine + "\t" + "<Addon name=\"" + System.Net.WebUtility.HtmlEncode(addonName) + "\" guid=\"" + addonGuid + "\" type=\"" + navType + "\">"
                         + HtmlController.indent(result, 1)
                         + System.Environment.NewLine + "\t" + "</Addon>";
                     }

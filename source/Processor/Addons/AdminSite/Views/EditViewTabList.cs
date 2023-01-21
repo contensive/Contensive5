@@ -1,6 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;

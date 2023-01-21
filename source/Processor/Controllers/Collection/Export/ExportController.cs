@@ -45,12 +45,13 @@ namespace Contensive.Processor.Controllers {
                         CS.SetField("ccGuid", CollectionGuid);
                     }
                     string onInstallAddonGuid = "";
-                    if ((CS.FieldOK("onInstallAddonId"))) {
+                    if (CS.FieldOK("onInstallAddonId")) {
                         int onInstallAddonId = CS.GetInteger("onInstallAddonId");
-                        if ((onInstallAddonId > 0)) {
+                        if (onInstallAddonId > 0) {
                             AddonModel addon = AddonModel.create<AddonModel>(cp, onInstallAddonId);
-                            if ((addon != null))
+                            if (addon != null) {
                                 onInstallAddonGuid = addon.ccguid;
+                            }
                         }
                     }
                     string CollectionName = CS.GetText("name");
@@ -342,11 +343,11 @@ namespace Contensive.Processor.Controllers {
                                     Filename = Strings.Mid(contentUnixPathFilename, Pos + 1);
                                     Path = Strings.Mid(contentUnixPathFilename, 1, Pos - 1);
                                 }
-                                if (tempPathFileList.Contains(tempExportPath + Filename))
+                                if (tempPathFileList.Contains(tempExportPath + Filename)) {
                                     cp.UserError.Add("There was an error exporting this collection because there were multiple files with the same filename [" + Filename + "]");
-                                else if ((!cp.CdnFiles.FileExists(contentUnixPathFilename)))
+                                } else if (!cp.CdnFiles.FileExists(contentUnixPathFilename)) {
                                     cp.UserError.Add("There was an error exporting this collection because the cdn file [" + contentUnixPathFilename + "] was not found.");
-                                else {
+                                } else {
                                     cp.CdnFiles.Copy(contentUnixPathFilename, tempExportPath + Filename, cp.TempFiles);
                                     tempPathFileList.Add(tempExportPath + Filename);
                                     collectionXml.Append(System.Environment.NewLine + "\t" + "<Resource name=\"" + System.Net.WebUtility.HtmlEncode(Filename) + "\" type=\"content\" path=\"" + System.Net.WebUtility.HtmlEncode(Path) + "\" />");
@@ -363,8 +364,9 @@ namespace Contensive.Processor.Controllers {
                     // 
                     string OtherXML;
                     OtherXML = CS.GetText("otherxml");
-                    if (Strings.Trim(OtherXML) != "")
+                    if (Strings.Trim(OtherXML) != "") {
                         collectionXml.Append(System.Environment.NewLine + OtherXML);
+                    }
                     collectionXml.Append(System.Environment.NewLine + "</Collection>");
                     CS.Close();
                     string tempExportXml_Filename = encodeFilename(cp, CollectionName + ".xml");
@@ -372,8 +374,9 @@ namespace Contensive.Processor.Controllers {
                     // Save the installation file and add it to the archive
                     // 
                     cp.TempFiles.Save(tempExportPath + tempExportXml_Filename, collectionXml.ToString());
-                    if (!tempPathFileList.Contains(tempExportPath + tempExportXml_Filename))
+                    if (!tempPathFileList.Contains(tempExportPath + tempExportXml_Filename)) {
                         tempPathFileList.Add(tempExportPath + tempExportXml_Filename);
+                    }
                     string tempExportZip_Filename = encodeFilename(cp, CollectionName + ".zip");
                     // 
                     // -- zip up the folder to make the collection zip file in temp filesystem

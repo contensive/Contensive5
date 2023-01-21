@@ -2,7 +2,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Contensive.BaseClasses;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using Contensive.Processor.Extensions;
 using Contensive.Processor.Models.Domain;
 using ICSharpCode.SharpZipLib.Zip;

@@ -257,6 +257,10 @@ namespace Contensive.Processor.Controllers {
                                                 }
                                             }
                                             break;
+                                        default: {
+                                                // -- do nothing
+                                                break;
+                                            }
                                     }
                                     if (!string.IsNullOrEmpty(return_ErrorMessage)) {
                                         //
@@ -352,6 +356,10 @@ namespace Contensive.Processor.Controllers {
                                     case "path":
                                         collectionNode.InnerText = collectionVersionFolderName;
                                         break;
+                                    default: {
+                                            // -- do nothing
+                                            break;
+                                        }
                                 }
                             }
                             break;

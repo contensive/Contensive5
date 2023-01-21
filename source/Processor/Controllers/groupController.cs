@@ -1,6 +1,6 @@
 ﻿
 using System;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using System.Linq;
 using static Contensive.Processor.Controllers.GenericController;
 using Contensive.Models.Db;

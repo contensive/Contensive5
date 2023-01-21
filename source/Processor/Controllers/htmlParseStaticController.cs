@@ -1,7 +1,7 @@
 ﻿
 using System;
 using static Contensive.Processor.Controllers.GenericController;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>

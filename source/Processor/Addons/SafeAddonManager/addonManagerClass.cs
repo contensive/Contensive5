@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
 using Contensive.Models.Db;
 //

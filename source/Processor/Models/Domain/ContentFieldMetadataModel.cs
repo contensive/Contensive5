@@ -2,6 +2,7 @@
 using System;
 using System.Data;
 using Contensive.BaseClasses;
+using Contensive.Exceptions;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 

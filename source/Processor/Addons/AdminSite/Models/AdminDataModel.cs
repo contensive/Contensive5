@@ -3,7 +3,7 @@ using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Addons.AdminSite.Models;
 using Contensive.Processor.Controllers;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;

@@ -2,7 +2,7 @@
 using System;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using System.Collections.Generic;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;

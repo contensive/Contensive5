@@ -1,7 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Data;

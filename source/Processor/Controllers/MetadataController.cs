@@ -3,7 +3,7 @@ using System;
 using static Contensive.Processor.Constants;
 using Contensive.Processor.Models.Domain;
 using System.Data;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using System.Globalization;

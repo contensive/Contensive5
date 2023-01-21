@@ -1,4 +1,5 @@
 ﻿
+using Contensive.Exceptions;
 using System;
 using static Contensive.Processor.Controllers.GenericController;
 using static Newtonsoft.Json.JsonConvert;

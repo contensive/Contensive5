@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using Contensive.BaseClasses;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
 

@@ -1,7 +1,7 @@
 ﻿
 using System;
 using Contensive.Processor.Controllers;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 
 namespace Contensive.Processor.Addons.AdminSite {
     //

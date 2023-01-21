@@ -2,7 +2,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 //
 namespace Contensive.Processor.Controllers {
     //

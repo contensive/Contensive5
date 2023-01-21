@@ -1,6 +1,6 @@
 ﻿
 
-namespace Contensive.Processor.Exceptions {
+namespace Contensive.Exceptions {
     /// <summary>
     /// Non-specific exception. Used during code conversion. Do not add to future code.
     /// </summary>

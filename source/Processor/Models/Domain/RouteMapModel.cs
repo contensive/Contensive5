@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 //
 namespace Contensive.Processor.Models.Domain {
     /// <summary>

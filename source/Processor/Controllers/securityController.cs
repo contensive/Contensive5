@@ -4,7 +4,7 @@ using System.Text;
 using System.Security.Cryptography;
 using System.IO;
 using static Contensive.Processor.Controllers.GenericController;
-using Contensive.Processor.Exceptions;
+using Contensive.Exceptions;
 using System.Linq;
 //
 namespace Contensive.Processor.Controllers {
