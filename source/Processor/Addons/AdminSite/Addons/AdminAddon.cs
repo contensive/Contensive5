@@ -31,11 +31,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!cp.core.session.isAuthenticated) {
                     //
                     // --- must be authenticated to continue. Force a local login
-                    cp.Doc.SetProperty("requirePassword", true);
-                    return cp.core.addon.execute(addonGuidLoginPage, new CPUtilsBaseClass.addonExecuteContext {
-                        errorContextMessage = "get Login Page for Admin Site",
-                        addonType = CPUtilsBaseClass.addonContext.ContextPage
-                    });
+                    return LoginController.getLoginPage(((CPClass)cp).core, true, true);
+                    //cp.Doc.SetProperty("requirePassword", true);
+                    //return cp.core.addon.execute(addonGuidLoginPage, new CPUtilsBaseClass.addonExecuteContext {
+                    //    errorContextMessage = "get Login Page for Admin Site",
+                    //    addonType = CPUtilsBaseClass.addonContext.ContextPage
+                    //});
                 }
                 if (!cp.core.session.isAuthenticatedContentManager()) {
                     //

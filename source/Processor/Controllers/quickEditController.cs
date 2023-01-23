@@ -109,7 +109,7 @@ namespace Contensive.Processor.Controllers {
                         if (string.IsNullOrEmpty(pageCaption)) {
                             pageCaption = "no name #" + GenericController.encodeText(testPage.id);
                         }
-                        pageCaption = "<a href=\"" + PageContentController.getPageLink(core, testPage.id, "")  + "\">" + pageCaption + "</a>";
+                        pageCaption = "<a href=\"" + PageManagerController.getPageLink(core, testPage.id, "")  + "\">" + pageCaption + "</a>";
                         pageList = "<ul class=\"qeListUL\"><li class=\"qeListLI\">" + pageCaption + pageList + "</li></ul>";
                     }
                 }

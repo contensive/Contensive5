@@ -13,27 +13,44 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class LoginController {
         //
-        //========================================================================
+        //=============================================================================
         /// <summary>
-        /// A complete html page with the login form in the middle. If it processes successfully it returns and empty response to signal success.
+        /// A login form that can be added to any page. This is just form with no surrounding border, etc. 
         /// </summary>
-        /// <param name="core"></param>
-        /// <param name="forceDefaultLogin"></param>
-        /// <param name="blockNoPasswordMode">If true, the no-password mode is blocked and a password login is required</param>
         /// <returns></returns>
-        public static string getLoginPage(CoreController core, bool forceDefaultLogin, bool blockNoPasswordMode) {
+        public static string getLoginPage(CoreController core, bool forceDefaultLoginForm, bool blockNoPasswordMode) {
             try {
                 //
-                LogController.logTrace(core, "loginController.getLoginPage, enter");
+                LogController.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + blockNoPasswordMode + "]");
                 //
-                string result;
-                if (forceDefaultLogin) {
-                    result = getLoginForm_Default(core, blockNoPasswordMode);
-                } else {
-                    result = getLoginForm(core, false, blockNoPasswordMode);
+                if (forceDefaultLoginForm || core.siteProperties.loginPageAddonId == 0) {
+                    //
+                    // -- use default login
+                    return getLoginPage_Default(core, blockNoPasswordMode);
                 }
-                if (string.IsNullOrWhiteSpace(result)) { return result; }
-                return "<div style=\"width:100%;padding:100px 0 0 0\"><div class=\"ccCon bg-light pt-2 pb-4\" style=\"width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">" + result + "</div></div>";
+                //
+                // -- Custom Login
+                AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, core.siteProperties.loginPageAddonId);
+                if (addon == null) {
+                    //
+                    // -- custom login not valid, use default login
+                    return getLoginPage_Default(core, blockNoPasswordMode);
+                }
+                string result = core.addon.execute(addon, new() {
+                    addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                    errorContextMessage = "calling login form addon [" + core.siteProperties.loginPageAddonId + "] from internal method"
+                });
+                if (!string.IsNullOrEmpty(result)) {
+                    //
+                    // -- non-empty result, display the login html
+                    return result;
+                }
+                //
+                // -- login addon return empty (successful), redirect back to this page (without a method)
+                string qs = core.doc.refreshQueryString;
+                qs = GenericController.modifyQueryString(qs, "method", "");
+                qs = GenericController.modifyQueryString(qs, "RequestBinary", "");
+                return core.webServer.redirect("?" + qs, "Login form success");
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -47,13 +64,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="blockNoPasswordMode">If true, the no-password mode is blocked and a password is required.</param>
         /// <returns></returns>
-        public static string getLoginForm_Default(CoreController core, bool blockNoPasswordMode) {
-            string result = "";
+        private static string getLoginPage_Default(CoreController core, bool blockNoPasswordMode) {
             try {
                 //
                 LogController.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
                 //
-                bool needLoginForm = true;
                 string formType = core.docProperties.getText("type");
                 if (formType == FormTypeLogin) {
                     //
@@ -62,131 +77,84 @@ namespace Contensive.Processor.Controllers {
                     string requestPassword = core.cpParent.Doc.GetText("password");
                     bool passwordRequestValid = core.cpParent.Doc.IsProperty("password");
                     if (processLoginFormDefault(core, requestUsername, requestPassword, passwordRequestValid)) {
-                        result = "";
-                        needLoginForm = false;
+                        return "";
                     }
-                } else if (formType == FormTypePasswordRecovery) {
+                }
+                string result = "";
+                if (formType == FormTypePasswordRecovery) {
                     //
                     // -- process send password
                     PasswordRecoveryController.processPasswordRecoveryForm(core);
                     result += "<p>If this email address was found, an email was sent to it with login instructions.</p>";
                 }
-                if (needLoginForm) {
-                    string layout;
-                    //
-                    // -- select the correct layout
-                    bool allowAutoLogin = core.siteProperties.getBoolean(sitePropertyName_AllowAutoLogin, false);
-                    bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false);
-                    bool allowNoPasswordLogin = !blockNoPasswordMode && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin, false);
-                    //
-                    if (allowEmailLogin && allowNoPasswordLogin && allowAutoLogin) {
-                        //
-                        // -- email, no-password, auto
-                        //
-                        layout = Properties.Resources.login_email_nopassword_auto;
-                    } else if (allowEmailLogin && allowNoPasswordLogin && !allowAutoLogin) {
-                        //
-                        // -- email, no-password, no-auto
-                        //
-                        layout = Properties.Resources.login_email_nopassword;
-                    } else if (allowEmailLogin && !allowNoPasswordLogin && allowAutoLogin) {
-                        //
-                        // -- email, password, auto
-                        //
-                        layout = Properties.Resources.login_email_password_auto;
-                    } else if (allowEmailLogin && !allowNoPasswordLogin && !allowAutoLogin) {
-                        //
-                        // -- email, password, no-auto
-                        //
-                        layout = Properties.Resources.login_email_password;
-                    } else if (!allowEmailLogin && allowNoPasswordLogin && allowAutoLogin) {
-                        //
-                        // -- username, no-password, auto
-                        //
-                        layout = Properties.Resources.login_username_nopassword_auto;
-                    } else if (!allowEmailLogin && allowNoPasswordLogin && !allowAutoLogin) {
-                        //
-                        // -- username, no-password, no-auto
-                        //
-                        layout = Properties.Resources.login_username_nopassword;
-                    } else if (!allowEmailLogin && !allowNoPasswordLogin && allowAutoLogin) {
-                        //
-                        // -- username, password, auto
-                        //
-                        layout = Properties.Resources.login_username_password_auto;
-                    } else {
-                        //
-                        // -- username, password, no-auto
-                        //
-                        layout = Properties.Resources.login_username_password;
-                    }
-                    //
-                    // -- add user errors
-                    if (!core.doc.userErrorList.Count.Equals(0)) {
-                        layout = layout.Replace("{{userError}}", ErrorController.getUserError(core));
-                    } else {
-                        layout = layout.Replace("{{userError}}", "");
-                    }
-                    //
-                    // -- wrap in form
-                    layout += HtmlController.inputHidden("Type", FormTypeLogin);
-                    result += HtmlController.form(core, layout);
-                    //
-                    // ----- Password Form
-                    if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {
-                        result += PasswordRecoveryController.getPasswordRecoveryForm(core);
-                    }
-                    //
-                    result = HtmlController.div(result, "ccLoginFormCon");
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-            return result;
-        }
-        //
-        //=============================================================================
-        /// <summary>
-        /// A login form that can be added to any page. This is just form with no surrounding border, etc. 
-        /// </summary>
-        /// <returns></returns>
-        public static string getLoginForm(CoreController core, bool forceDefaultLoginForm, bool blockNoPasswordMode) {
-            try {
                 //
-                LogController.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + blockNoPasswordMode + "]");
+                // -- select the correct layout
+                bool allowAutoLogin = core.siteProperties.getBoolean(sitePropertyName_AllowAutoLogin, false);
+                bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false);
+                bool allowNoPasswordLogin = !blockNoPasswordMode && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin, false);
                 //
-                string returnHtml = "";
-                int loginAddonId = 0;
-                if (!forceDefaultLoginForm) {
-                    loginAddonId = core.siteProperties.loginPageAddonId;
-                    if (loginAddonId != 0) {
-                        //
-                        // -- Custom Login
-                        AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, loginAddonId);
-                        CPUtilsBaseClass.addonExecuteContext executeContext = new() {
-                            addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                            errorContextMessage = "calling login form addon [" + loginAddonId + "] from internal method"
-                        };
-                        returnHtml = core.addon.execute(addon, executeContext);
-                        if (string.IsNullOrEmpty(returnHtml)) {
-                            //
-                            // -- login successful, redirect back to this page (without a method)
-                            string QS = core.doc.refreshQueryString;
-                            QS = GenericController.modifyQueryString(QS, "method", "");
-                            QS = GenericController.modifyQueryString(QS, "RequestBinary", "");
-                            //
-                            return core.webServer.redirect("?" + QS, "Login form success");
-                        }
-                    }
-                }
-                if (loginAddonId == 0) {
+                string layout;
+                if (allowEmailLogin && allowNoPasswordLogin && allowAutoLogin) {
                     //
-                    // ----- When page loads, set focus on login username
+                    // -- email, no-password, auto
                     //
-                    returnHtml = getLoginForm_Default(core, blockNoPasswordMode);
+                    layout = Properties.Resources.login_email_nopassword_auto;
+                } else if (allowEmailLogin && allowNoPasswordLogin && !allowAutoLogin) {
+                    //
+                    // -- email, no-password, no-auto
+                    //
+                    layout = Properties.Resources.login_email_nopassword;
+                } else if (allowEmailLogin && !allowNoPasswordLogin && allowAutoLogin) {
+                    //
+                    // -- email, password, auto
+                    //
+                    layout = Properties.Resources.login_email_password_auto;
+                } else if (allowEmailLogin && !allowNoPasswordLogin && !allowAutoLogin) {
+                    //
+                    // -- email, password, no-auto
+                    //
+                    layout = Properties.Resources.login_email_password;
+                } else if (!allowEmailLogin && allowNoPasswordLogin && allowAutoLogin) {
+                    //
+                    // -- username, no-password, auto
+                    //
+                    layout = Properties.Resources.login_username_nopassword_auto;
+                } else if (!allowEmailLogin && allowNoPasswordLogin && !allowAutoLogin) {
+                    //
+                    // -- username, no-password, no-auto
+                    //
+                    layout = Properties.Resources.login_username_nopassword;
+                } else if (!allowEmailLogin && !allowNoPasswordLogin && allowAutoLogin) {
+                    //
+                    // -- username, password, auto
+                    //
+                    layout = Properties.Resources.login_username_password_auto;
+                } else {
+                    //
+                    // -- username, password, no-auto
+                    //
+                    layout = Properties.Resources.login_username_password;
                 }
-                return returnHtml;
+                //
+                // -- add user errors
+                if (!core.doc.userErrorList.Count.Equals(0)) {
+                    layout = layout.Replace("{{userError}}", ErrorController.getUserError(core));
+                } else {
+                    layout = layout.Replace("{{userError}}", "");
+                }
+                //
+                // -- wrap in form
+                layout += HtmlController.inputHidden("Type", FormTypeLogin);
+                result += HtmlController.form(core, layout);
+                //
+                // -- Password Form
+                if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {
+                    result += PasswordRecoveryController.getPasswordRecoveryForm(core);
+                }
+                //
+                result = HtmlController.div(result, "ccLoginFormCon");
+                if (string.IsNullOrWhiteSpace(result)) { return result; }
+                return "<div style=\"width:100%;padding:100px 0 0 0\"><div class=\"ccCon bg-light pt-2 pb-4\" style=\"width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">" + result + "</div></div>";
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -195,7 +163,8 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
-        /// Process the login form username and password
+        /// Process the login form username and password.
+        /// if successful, return true else false
         /// </summary>
         /// <param name="core"></param>
         /// <param name="requestUsername">The username submitted from the request</param>
@@ -207,7 +176,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.logTrace(core, "loginController.processLoginFormDefault, requestUsername [" + requestUsername + "], requestPassword [" + requestPassword + "], requestIncludesPassword [" + requestIncludesPassword + "]");
                 //
-                if ((!core.session.visit.cookieSupport) && (core.session.visit.pageVisits>1)) {
+                if ((!core.session.visit.cookieSupport) && (core.session.visit.pageVisits > 1)) {
                     //
                     // -- no cookies
                     ErrorController.addUserError(core, "The login failed because cookies are disabled.");

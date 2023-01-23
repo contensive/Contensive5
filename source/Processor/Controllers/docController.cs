@@ -22,7 +22,7 @@ namespace Contensive.Processor.Controllers {
             this.core = core;
             //
             errorList = new List<string>();
-            pageController = new PageContentController();
+            pageController = new PageManagerController();
             wysiwygAddonList = new Dictionary<CPHtml5BaseClass.EditorContentType, string>();
         }
         //
@@ -98,7 +98,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// if this document is composed of page content records and templates, this object provides supporting properties and methods
         /// </summary>
-        public PageContentController pageController { get; }
+        public PageManagerController pageController { get; }
         //
         //====================================================================================================
         /// <summary>

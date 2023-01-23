@@ -84,7 +84,7 @@ namespace Contensive.Processor.Addons.PageManager {
                         if (!testPageIdList.Contains("," + childPage.id + ",")) {
                             currentPageChildPageIdList += "," + childPage.id;
                         }
-                        string PageLink = PageContentController.getPageLink(core, childPage.id, "", true, false);
+                        string PageLink = PageManagerController.getPageLink(core, childPage.id, "", true, false);
                         string pageMenuHeadline = childPage.menuHeadline;
                         if (string.IsNullOrEmpty(pageMenuHeadline)) {
                             pageMenuHeadline = childPage.name.Trim(' ');
@@ -103,7 +103,7 @@ namespace Contensive.Processor.Addons.PageManager {
                         }
                         bool blockContentComposite = false;
                         if (childPage.blockContent || childPage.blockPage) {
-                            blockContentComposite = !PageContentController.allowThroughPageBlock(core, childPage.id);
+                            blockContentComposite = !PageManagerController.allowThroughPageBlock(core, childPage.id);
                         }
                         string LinkedText = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(link) + "\">", pageMenuHeadline);
                         if ((string.IsNullOrEmpty(UcaseRequestedListName)) && (childPage.parentListName != "") && (!isAuthoring)) {

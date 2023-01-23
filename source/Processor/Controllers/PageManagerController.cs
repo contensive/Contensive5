@@ -17,11 +17,11 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// build page content system. Persistence is the docController.
     /// </summary>
-    public class PageContentController : IDisposable {
+    public class PageManagerController : IDisposable {
         /// <summary>
         /// Constructor
         /// </summary>
-        public PageContentController() {
+        public PageManagerController() {
             page = new PageContentModel();
             pageToRootList = new List<PageContentModel>();
             template = new PageTemplateModel();
@@ -580,7 +580,7 @@ namespace Contensive.Processor.Controllers {
                     LogController.logInfo(core, "Requested page/document not found:" + core.webServer.requestUrlSource);
                     core.doc.redirectBecausePageNotFound = true;
                     core.doc.redirectReason = "Redirecting because the page selected could not be found.";
-                    core.doc.redirectLink = PageContentController.getPageNotFoundRedirectLink(core, core.doc.redirectReason, "", "", 0);
+                    core.doc.redirectLink = PageManagerController.getPageNotFoundRedirectLink(core, core.doc.redirectReason, "", "", 0);
                     return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                 }
                 //
@@ -2324,7 +2324,7 @@ namespace Contensive.Processor.Controllers {
                             csData.set("copyFilename", "");
                             csData.save();
                             recordId = csData.getInteger("ID");
-                            Link = PageContentController.getPageLink(core, recordId, "", true, false);
+                            Link = PageManagerController.getPageLink(core, recordId, "", true, false);
                             core.webServer.redirect(Link, "Redirecting because a new page has been added with the quick editor.", false, false);
                         }
                     }
@@ -2351,7 +2351,7 @@ namespace Contensive.Processor.Controllers {
                                 csData.save();
                                 recordId = csData.getInteger("ID");
                                 //
-                                Link = PageContentController.getPageLink(core, recordId, "", true, false);
+                                Link = PageManagerController.getPageLink(core, recordId, "", true, false);
                                 core.webServer.redirect(Link, "Redirecting because a new page has been added with the quick editor.", false, false);
                             }
                         }
@@ -2369,7 +2369,7 @@ namespace Contensive.Processor.Controllers {
                     DbBaseModel.invalidateCacheOfRecord<PageContentModel>(core.cpParent, recordId);
                     //
                     if (!false) {
-                        Link = PageContentController.getPageLink(core, ParentId, "", true, false);
+                        Link = PageManagerController.getPageLink(core, ParentId, "", true, false);
                         Link = GenericController.modifyLinkQuery(Link, "AdminWarningMsg", "The page has been deleted, and you have been redirected to the parent of the deleted page.", true);
                         core.webServer.redirect(Link, "Redirecting to the parent page because the page was deleted with the quick editor.", core.doc.redirectBecausePageNotFound, false);
                         return;
@@ -2441,7 +2441,7 @@ namespace Contensive.Processor.Controllers {
                     returnHtml = pageCaption;
                 } else {
                     string BreadCrumbDelimiter = core.siteProperties.getText("BreadCrumbDelimiter", " &gt; ");
-                    returnHtml = "<a href=\"" + HtmlController.encodeHtml(PageContentController.getPageLink(core, testpage.id, "", true, false)) + "\">" + pageCaption + "</a>" + BreadCrumbDelimiter + returnHtml;
+                    returnHtml = "<a href=\"" + HtmlController.encodeHtml(PageManagerController.getPageLink(core, testpage.id, "", true, false)) + "\">" + pageCaption + "</a>" + BreadCrumbDelimiter + returnHtml;
                 }
             }
             return returnHtml;
@@ -2510,7 +2510,7 @@ namespace Contensive.Processor.Controllers {
                     int cutClipRecordId = GenericController.encodeInteger(clipBoardArray[1]);
                     if (!pasteParentContentMetadata.isParentOf(core, cutClipContentId)) { return; }
                     var clipChildContentMetadata = Models.Domain.ContentMetadataModel.create(core, cutClipContentId);
-                    if (DbBaseModel.isChildOf<PageContentController>(core.cpParent, pasteParentRecordId, cutClipRecordId, new List<int>())) {
+                    if (DbBaseModel.isChildOf<PageManagerController>(core.cpParent, pasteParentRecordId, cutClipRecordId, new List<int>())) {
                         ErrorController.addUserError(core, "The paste operation failed because the destination location is a child of the clipboard data record.");
                     } else {
                         //
@@ -2602,7 +2602,7 @@ namespace Contensive.Processor.Controllers {
             GC.SuppressFinalize(this);
         }
         //
-        ~PageContentController() {
+        ~PageManagerController() {
             // do not add code here. Use the Dispose(disposing) overload
             Dispose(false);
 

@@ -16,7 +16,7 @@ namespace Contensive.Processor.Addons.PageManager {
         public override object Execute(CPBaseClass cp) {
             try {
                 CoreController core = ((CPClass)cp).core;
-                string result = PageContentController.getHtmlBody(core);
+                string result = PageManagerController.getHtmlBody(core);
                 if (core.doc.pageController.page !=null && string.IsNullOrEmpty(core.webServer.httpContext.Response.redirectUrl) ) {
                     //
                     // -- add page# wrapper. This helps create targetted styles, like active style for menu active

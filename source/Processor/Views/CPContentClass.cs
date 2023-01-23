@@ -271,15 +271,15 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetPageLink(int pageID, string queryStringSuffix, bool allowLinkAlias) {
-            return PageContentController.getPageLink(cp.core, pageID, queryStringSuffix, allowLinkAlias, false);
+            return PageManagerController.getPageLink(cp.core, pageID, queryStringSuffix, allowLinkAlias, false);
         }
         //
         public override string GetPageLink(int pageID, string queryStringSuffix) {
-            return PageContentController.getPageLink(cp.core, pageID, queryStringSuffix, true, false);
+            return PageManagerController.getPageLink(cp.core, pageID, queryStringSuffix, true, false);
         }
         //
         public override string GetPageLink(int pageID) {
-            return PageContentController.getPageLink(cp.core, pageID, "", true, false);
+            return PageManagerController.getPageLink(cp.core, pageID, "", true, false);
         }
         //
         //====================================================================================================

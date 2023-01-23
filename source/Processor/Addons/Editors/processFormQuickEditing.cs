@@ -15,7 +15,7 @@ namespace Contensive.Processor.Addons.Primitives {
             string result = "";
             try {
                 CoreController core = ((CPClass)cp).core;
-                PageContentController.processFormQuickEditing(core);
+                PageManagerController.processFormQuickEditing(core);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
             }
