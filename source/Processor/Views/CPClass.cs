@@ -108,42 +108,16 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="route"></param>
         /// <returns></returns>
-        public string executeRoute(string route) {
-            try {
-                //
-                // -- check appConfig at the CP interface
-                if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
-                    if (core == null) { throw new GenericException("cp.executeRoute failed because coreController null"); }
-                    if (core?.appConfig == null) { throw new GenericException("cp.executeRoute failed because core.appConfig null"); }
-                    LogController.logDebug(core, "cp.executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
-                    return string.Empty;
-                }
-                return RouteController.executeRoute(core, route);
-            } catch (Exception ex) {
-                Site.ErrorReport(ex);
-                throw;
-            }
-        }
+        public string executeRoute(string route) 
+            => RouteController.executeRoute(core, route);
         //
         //==========================================================================================
         /// <summary>
         /// Executes the default route set in the admin settings is used.
         /// </summary>
         /// <returns></returns>
-        public string executeRoute() {
-            try {
-                if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
-                    if (core == null) { throw new GenericException("cp.executeRoute failed because coreController null"); }
-                    if (core?.appConfig == null) { throw new GenericException("cp.executeRoute failed because core.appConfig null"); }
-                    LogController.logDebug(core, "cp.executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
-                    return string.Empty;
-                }
-                return RouteController.executeRoute(core);
-            } catch (Exception ex) {
-                Site.ErrorReport(ex);
-                throw;
-            }
-        }
+        public string executeRoute() 
+            => RouteController.executeRoute(core, "");
         //
         //====================================================================================================
         /// <summary>

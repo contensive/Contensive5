@@ -1,0 +1,10 @@
+
+
+c5 issues
+
+-- getpagelink needs to
+	- always return https://
+	- know what domain is required for each page (each template)
+		-- to be easier, should we change templates so the domain is a select, not a checkbox list
+		-- each template would have only one domain
+		-- a domain might have many templates (a forward type)

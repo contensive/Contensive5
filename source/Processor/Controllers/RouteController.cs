@@ -28,17 +28,17 @@ namespace Contensive.Processor.Controllers {
         /// 
         /// </summary>
         /// <returns>The doc created by the default addon. (html, json, etc)</returns>
-        public static string executeRoute(CoreController core, string routeOverride = "") {
-            if (!core.appConfig.enabled) {
-                //
-                // -- if app not enabled, exit with empty
-                return string.Empty;
-            }
-            string result = "";
-            var sw = new Stopwatch();
-            sw.Start();
-            LogController.log(core, "CoreController executeRoute, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+        public static string executeRoute(CoreController core, string routeOverride) {
             try {
+                //
+                // -- check appConfig
+                if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
+                    if (core == null) { throw new GenericException("executeRoute failed because coreController null"); }
+                    if (core?.appConfig == null) { throw new GenericException("executeRoute failed because core.appConfig null"); }
+                    LogController.logDebug(core, "executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
+                    return string.Empty;
+                }
+                LogController.log(core, "CoreController executeRoute, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 // -- test fix for 404 response during routing - could it be a response left over from processing before we are called
                 core.webServer.setResponseStatus(WebServerController.httpResponseStatus200_Success);
@@ -100,8 +100,18 @@ namespace Contensive.Processor.Controllers {
                     return routeDictionaryResult;
                 }
                 //
-                // -- default route 
+                // -- default route, try domain default route first, then site default route, then just use page manager
+                AddonModel routeAddon = null;
                 if (core.domain.defaultRouteId > 0) {
+                    routeAddon = DbBaseModel.create<AddonModel>(core.cpParent, core.domain.defaultRouteId);
+                }
+                if (routeAddon == null && core.siteProperties.defaultRouteId > 0) {
+                    routeAddon = DbBaseModel.create<AddonModel>(core.cpParent, core.siteProperties.defaultRouteId);
+                }
+                if (routeAddon == null) {
+                    routeAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidPageManager);
+                }
+                if (routeAddon != null) {
                     //
                     // -- default route is run if no other route is found, which includes the route=defaultPage (default.aspx)
                     CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
@@ -115,18 +125,18 @@ namespace Contensive.Processor.Controllers {
                         },
                         errorContextMessage = "calling default route addon [" + core.domain.defaultRouteId + "] during execute route method"
                     };
-                    return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, core.domain.defaultRouteId), executeContext);
+                    return core.addon.execute(routeAddon, executeContext);
                 }
                 //
                 // -- unrecognized route and no default route
                 LogController.logWarn(core, "executeRoute called with an unknown route [" + normalizedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
-                result = "Unknown command";
+                return "Unknown command";
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                return "";
             } finally {
                 LogController.log(core, "CoreController executeRoute, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
             }
-            return result;
         }
         //
         /// <summary>
@@ -358,7 +368,7 @@ namespace Contensive.Processor.Controllers {
         public static void processBuiltInForms(CoreController core) {
             try {
                 string formType = core.docProperties.getText(core.docProperties.getText("ccformsn") + "type");
-                if (string.IsNullOrEmpty(formType)) { return;  }
+                if (string.IsNullOrEmpty(formType)) { return; }
                 //
                 // set the meta content flag to show it is not needed for the head tag
                 switch (formType) {

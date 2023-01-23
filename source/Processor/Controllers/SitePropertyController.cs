@@ -25,6 +25,81 @@ namespace Contensive.Processor.Controllers {
         public SitePropertiesController(CoreController core) {
             this.core = core;
         }
+        //AnonymousUserResponseCopy
+
+        //
+        /// <summary>
+        /// if site property anonymousUserResponseID is set to 3 (redirect), this is the redirect destination
+        /// </summary>
+        public string anonymousUserResponseCopy {
+            get {
+                if (anonymousUserResponseCopy_local != null) { return anonymousUserResponseCopy_local; }
+                anonymousUserResponseCopy_local = core.cpParent.Content.GetCopy(anonymousUserResponseCopy_copyName, defaultvalue);
+                return anonymousUserResponseCopy_local;
+            }
+            set {
+                core.cpParent.Content.SetCopy(anonymousUserResponseCopy_copyName, value);
+            }
+        }
+        private const string defaultvalue = "<p style=\"text-align:center;margin-top:100px;\">This site is not available for anonymous access.</p>";
+        private const string anonymousUserResponseCopy_copyName = "anonymousUserResponseCopy";
+        private string anonymousUserResponseCopy_local;
+        //
+        /// <summary>
+        /// if site property anonymousUserResponseID is set to 3 (redirect), this is the redirect destination
+        /// </summary>
+        public int loginPageId {
+            get {
+                if (loginPageId_local != null) { return (int)loginPageId_local; }
+                loginPageId_local = getInteger(loginPageId_spName, 0);
+                return (int)loginPageId_local;
+            }
+            set {
+                loginPageId_local = value;
+                setProperty(loginPageId_spName, (int)loginPageId_local);
+            }
+        }
+        private const string loginPageId_spName = "loginpageid";
+        private int? loginPageId_local;
+        //
+        /// <summary>
+        /// Login Page AddonID - when not set, the default login is used for /admin and all authentication blocks
+        /// when set, this addon is called to process authetication. On success, authetnicate and return EMPTY STRING. otherwise return a login form
+        /// </summary>
+        public int loginPageAddonId {
+            get {
+                if (loginPageAddonId_local != null) { return (int)loginPageAddonId_local; }
+                loginPageAddonId_local = getInteger(loginPageAddonId_spName, 0);
+                return (int)loginPageAddonId_local;
+            }
+            set {
+                loginPageAddonId_local = value;
+                setProperty(loginPageAddonId_spName, (int)loginPageAddonId_local);
+            }
+        }
+        private const string loginPageAddonId_spName = "Login Page AddonID";
+        private int? loginPageAddonId_local;
+        //
+        /// <summary>
+        /// How to handle anonymouse access
+        /// 0 = allow anonymouse access
+        /// 1 = block with login form (addon site propery loginaddonid)
+        /// 2 = block with login message (getcontentcopy with name = site property AnonymousUserResponseCopy)
+        /// 3 = redirect to login page
+        /// </summary>
+        public int anonymousUserResponseID {
+            get {
+                if (anonymousUserResponseID_local != null) { return (int)anonymousUserResponseID_local; }
+                anonymousUserResponseID_local = getInteger(anonymousUserResponseId_spName, 0);
+                return (int)anonymousUserResponseID_local;
+            }
+            set {
+                anonymousUserResponseID_local = value;
+                setProperty(anonymousUserResponseId_spName, (int)anonymousUserResponseID_local);
+            }
+        }
+        private const string anonymousUserResponseId_spName = "anonymousUserResponseID";
+        private int? anonymousUserResponseID_local;
         //
         //====================================================================================================
         /// <summary>

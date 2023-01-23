@@ -19,18 +19,18 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="forceDefaultLogin"></param>
-        /// <param name="requirePassword">If true, the no-password mode is blocked and a password login is required</param>
+        /// <param name="blockNoPasswordMode">If true, the no-password mode is blocked and a password login is required</param>
         /// <returns></returns>
-        public static string getLoginPage(CoreController core, bool forceDefaultLogin, bool requirePassword) {
+        public static string getLoginPage(CoreController core, bool forceDefaultLogin, bool blockNoPasswordMode) {
             try {
                 //
                 LogController.logTrace(core, "loginController.getLoginPage, enter");
                 //
                 string result;
                 if (forceDefaultLogin) {
-                    result = getLoginForm_Default(core, requirePassword);
+                    result = getLoginForm_Default(core, blockNoPasswordMode);
                 } else {
-                    result = getLoginForm(core, false, requirePassword);
+                    result = getLoginForm(core, false, blockNoPasswordMode);
                 }
                 if (string.IsNullOrWhiteSpace(result)) { return result; }
                 return "<div style=\"width:100%;padding:100px 0 0 0\"><div class=\"ccCon bg-light pt-2 pb-4\" style=\"width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">" + result + "</div></div>";
@@ -45,13 +45,13 @@ namespace Contensive.Processor.Controllers {
         /// process and return the default login form. If processing is successful, a blank response is returned
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="requirePassword">If true, the no-password mode is blocked and a password is required.</param>
+        /// <param name="blockNoPasswordMode">If true, the no-password mode is blocked and a password is required.</param>
         /// <returns></returns>
-        public static string getLoginForm_Default(CoreController core, bool requirePassword) {
+        public static string getLoginForm_Default(CoreController core, bool blockNoPasswordMode) {
             string result = "";
             try {
                 //
-                LogController.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + requirePassword + "]");
+                LogController.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
                 //
                 bool needLoginForm = true;
                 string formType = core.docProperties.getText("type");
@@ -77,7 +77,7 @@ namespace Contensive.Processor.Controllers {
                     // -- select the correct layout
                     bool allowAutoLogin = core.siteProperties.getBoolean(sitePropertyName_AllowAutoLogin, false);
                     bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false);
-                    bool allowNoPasswordLogin = !requirePassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin, false);
+                    bool allowNoPasswordLogin = !blockNoPasswordMode && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin, false);
                     //
                     if (allowEmailLogin && allowNoPasswordLogin && allowAutoLogin) {
                         //
@@ -151,15 +151,15 @@ namespace Contensive.Processor.Controllers {
         /// A login form that can be added to any page. This is just form with no surrounding border, etc. 
         /// </summary>
         /// <returns></returns>
-        public static string getLoginForm(CoreController core, bool forceDefaultLoginForm, bool requirePassword) {
+        public static string getLoginForm(CoreController core, bool forceDefaultLoginForm, bool blockNoPasswordMode) {
             try {
                 //
-                LogController.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + requirePassword + "]");
+                LogController.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + blockNoPasswordMode + "]");
                 //
                 string returnHtml = "";
                 int loginAddonId = 0;
                 if (!forceDefaultLoginForm) {
-                    loginAddonId = core.siteProperties.getInteger("Login Page AddonID");
+                    loginAddonId = core.siteProperties.loginPageAddonId;
                     if (loginAddonId != 0) {
                         //
                         // -- Custom Login
@@ -184,7 +184,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // ----- When page loads, set focus on login username
                     //
-                    returnHtml = getLoginForm_Default(core, requirePassword);
+                    returnHtml = getLoginForm_Default(core, blockNoPasswordMode);
                 }
                 return returnHtml;
             } catch (Exception ex) {

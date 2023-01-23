@@ -385,7 +385,7 @@ namespace Contensive.Processor.Controllers {
                         // admin page is excluded from custom blocking
                     } else {
                         bool loginAddonBlock = false;
-                        switch (core.siteProperties.getInteger("AnonymousUserResponseID", 0)) {
+                        switch (core.siteProperties.anonymousUserResponseID) {
                             case 1: {
                                     //
                                     // -- block with login
@@ -402,7 +402,7 @@ namespace Contensive.Processor.Controllers {
                             case 3: {
                                     //
                                     // -- block with forward to login page
-                                    int loginPageId = core.siteProperties.getInteger("loginpageid", 0);
+                                    int loginPageId = core.siteProperties.loginPageId;
                                     if (loginPageId == 0) {
                                         loginAddonBlock = true;
                                         break;
@@ -423,10 +423,18 @@ namespace Contensive.Processor.Controllers {
                         }
                         if (loginAddonBlock) {
                             core.doc.continueProcessing = false;
-                            return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
-                                addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                                errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
-                            });
+                            return LoginController.getLoginPage(core, false, false);
+                            //int addonFormId = core.siteProperties.loginPageAddonId;
+                            //AddonModel loginAddon;
+                            //if(addonFormId>0) {
+                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonFormId);
+                            //} else {
+                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage);
+                            //}
+                            //return core.addon.execute(loginAddon, new CPUtilsBaseClass.addonExecuteContext {
+                            //    addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                            //    errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
+                            //});
                         }
                     }
                 }
