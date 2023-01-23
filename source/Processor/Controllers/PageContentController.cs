@@ -58,27 +58,68 @@ namespace Contensive.Processor.Controllers {
         public static string getHtmlBody(CoreController core) {
             try {
                 if (!core.doc.continueProcessing) { return ""; }
+                //
+                // ----- do anonymous access blocking
+                if (!core.session.isAuthenticated) {
+                    if ((core.webServer.requestPath != "/") && GenericController.strInstr(1, "/" + core.appConfig.adminRoute, core.webServer.requestPath, 1) != 0) {
+                        //
+                        // admin page is excluded from custom blocking
+                    } else {
+                        bool loginAddonBlock = false;
+                        switch (core.siteProperties.anonymousUserResponseID) {
+                            case 1: {
+                                    //
+                                    // -- block with login
+                                    loginAddonBlock = true;
+                                    break;
+                                }
+                            case 2: {
+                                    //
+                                    // -- block with custom content
+                                    core.doc.continueProcessing = false;
+                                    core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
+                                    return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), TemplateDefaultBodyTag, true, true);
+                                }
+                            case 3: {
+                                    //
+                                    // -- block with forward to login page
+                                    int loginPageId = core.siteProperties.loginPageId;
+                                    if (loginPageId == 0) {
+                                        loginAddonBlock = true;
+                                        break;
+                                    }
+                                    string pageLink = core.cpParent.Content.GetPageLink(loginPageId);
+                                    if (string.IsNullOrEmpty(pageLink)) {
+                                        loginAddonBlock = true;
+                                        break;
+                                    }
+                                    core.webServer.redirect(pageLink, "Anonymouse user blocked with redirect to login page.");
+                                    core.doc.continueProcessing = false;
+                                    return "";
+                                }
+                            default: {
+                                    // do nothing
+                                    break;
+                                }
+                        }
+                        if (loginAddonBlock) {
+                            core.doc.continueProcessing = false;
+                            return LoginController.getLoginPage(core, false, false);
+                            //int addonFormId = core.siteProperties.loginPageAddonId;
+                            //AddonModel loginAddon;
+                            //if(addonFormId>0) {
+                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonFormId);
+                            //} else {
+                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage);
+                            //}
+                            //return core.addon.execute(loginAddon, new CPUtilsBaseClass.addonExecuteContext {
+                            //    addonType = CPUtilsBaseClass.addonContext.ContextPage,
+                            //    errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
+                            //});
+                        }
+                    }
+                }
                 string result = "";
-                //
-                // -- domain is setup in httpInit
-                // -- core.domain property should initialize to empty domain if not set
-                //
-                ////
-                //// -- setup domain
-                //string domainTest = core.webServer.requestDomain.Trim().ToLowerInvariant().Replace("..", ".");
-                //core.domain = null;
-                //if (!string.IsNullOrEmpty(domainTest)) {
-                //    int posDot = 0;
-                //    int loopCnt = 10;
-                //    do {
-                //        core.domain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, domainTest);
-                //        posDot = domainTest.IndexOf('.');
-                //        if ((posDot >= 0) && (domainTest.Length > 1)) {
-                //            domainTest = domainTest.Substring(posDot + 1);
-                //        }
-                //        loopCnt -= 1;
-                //    } while ((core.domain == null) && (posDot >= 0) && (loopCnt > 0));
-                //}
                 //
                 // -- load requested page/template
                 result += loadPage(core, core.docProperties.getInteger(rnPageId), core.domain);
@@ -89,10 +130,6 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- current page
                 PageContentModel page = core.doc.pageController.page;
-
-
-
-
                 //
                 // -- create context object to use for page and template dependencies
                 CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
@@ -117,10 +154,6 @@ namespace Contensive.Processor.Controllers {
                     }
                     executeContext.errorContextMessage = addonContextMessage;
                 }
-                //
-                // -- execute on page start addons (after body tag)//
-                // 
-                // -- execute page addons
                 //
                 // -- execute page Dependencies
                 List<AddonModel> pageAddonList = AddonModel.createList_pageDependencies(core.cpParent, page.id);
@@ -374,67 +407,6 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                             }
-                        }
-                    }
-                }
-                //
-                // ----- do anonymous access blocking
-                if (!core.session.isAuthenticated) {
-                    if ((core.webServer.requestPath != "/") && GenericController.strInstr(1, "/" + core.appConfig.adminRoute, core.webServer.requestPath, 1) != 0) {
-                        //
-                        // admin page is excluded from custom blocking
-                    } else {
-                        bool loginAddonBlock = false;
-                        switch (core.siteProperties.anonymousUserResponseID) {
-                            case 1: {
-                                    //
-                                    // -- block with login
-                                    loginAddonBlock = true;
-                                    break;
-                                }
-                            case 2: {
-                                    //
-                                    // -- block with custom content
-                                    core.doc.continueProcessing = false;
-                                    core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
-                                    return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), TemplateDefaultBodyTag, true, true);
-                                }
-                            case 3: {
-                                    //
-                                    // -- block with forward to login page
-                                    int loginPageId = core.siteProperties.loginPageId;
-                                    if (loginPageId == 0) {
-                                        loginAddonBlock = true;
-                                        break;
-                                    }
-                                    string pageLink = core.cpParent.Content.GetPageLink(loginPageId);
-                                    if (string.IsNullOrEmpty(pageLink)) {
-                                        loginAddonBlock = true;
-                                        break;
-                                    }
-                                    core.webServer.redirect(pageLink, "Anonymouse user blocked with redirect to login page.");
-                                    core.doc.continueProcessing = false;
-                                    return "";
-                                }
-                            default: {
-                                    // do nothing
-                                    break;
-                                }
-                        }
-                        if (loginAddonBlock) {
-                            core.doc.continueProcessing = false;
-                            return LoginController.getLoginPage(core, false, false);
-                            //int addonFormId = core.siteProperties.loginPageAddonId;
-                            //AddonModel loginAddon;
-                            //if(addonFormId>0) {
-                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonFormId);
-                            //} else {
-                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage);
-                            //}
-                            //return core.addon.execute(loginAddon, new CPUtilsBaseClass.addonExecuteContext {
-                            //    addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                            //    errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
-                            //});
                         }
                     }
                 }
@@ -1560,28 +1532,28 @@ namespace Contensive.Processor.Controllers {
             }
             return landingPage;
         }
-        //
-        //====================================================================================================
-        // Verify a link from the template link field to be used as a Template Link
-        //
-        internal static string verifyTemplateLink(CoreController core, string linkSrc) {
-            if (string.IsNullOrEmpty(linkSrc)) { return string.Empty; }
-            if (strInstr(1, linkSrc, "://") != 0) {
-                //
-                // protocol provided, do not fixup
-                return GenericController.encodeVirtualPath(linkSrc, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
-            }
-            //
-            // no protocol, convert to short link
-            string result = linkSrc;
-            if (result.left(1) != "/") {
-                //
-                // page entered without path, assume it is in root path
-                result = "/" + result;
-            }
-            result = GenericController.convertLinkToShortLink(result, core.webServer.requestDomain, core.appConfig.cdnFileUrl);
-            return GenericController.encodeVirtualPath(result, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
-        }
+        ////
+        ////====================================================================================================
+        //// Verify a link from the template link field to be used as a Template Link
+        ////
+        //internal static string verifyTemplateLink(CoreController core, string linkSrc) {
+        //    if (string.IsNullOrEmpty(linkSrc)) { return string.Empty; }
+        //    if (strInstr(1, linkSrc, "://") != 0) {
+        //        //
+        //        // protocol provided, do not fixup
+        //        return GenericController.encodeVirtualPath(linkSrc, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
+        //    }
+        //    //
+        //    // no protocol, convert to short link
+        //    string result = linkSrc;
+        //    if (result.left(1) != "/") {
+        //        //
+        //        // page entered without path, assume it is in root path
+        //        result = "/" + result;
+        //    }
+        //    result = GenericController.convertLinkToShortLink(result, core.webServer.requestDomain, core.appConfig.cdnFileUrl);
+        //    return GenericController.encodeVirtualPath(result, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
+        //}
         //
         //====================================================================================================
         //
