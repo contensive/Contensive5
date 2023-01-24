@@ -8,3 +8,6 @@ c5 issues
 		-- to be easier, should we change templates so the domain is a select, not a checkbox list
 		-- each template would have only one domain
 		-- a domain might have many templates (a forward type)
+		
+		
+	-- pagemanagercontroller, line 1711 -- I think httpcontext should hold if request is secure, not core.webServer.requestSecure

@@ -88,11 +88,15 @@ namespace Contensive.Processor.Controllers {
                                         loginAddonBlock = true;
                                         break;
                                     }
+                                    // -- if current page is the login page, continue processing
+                                    if (core.docProperties.getInteger(rnPageId) == loginPageId) { break; }
+                                    // -- get url for the login page
                                     string pageLink = core.cpParent.Content.GetPageLink(loginPageId);
                                     if (string.IsNullOrEmpty(pageLink)) {
                                         loginAddonBlock = true;
                                         break;
                                     }
+                                    // -- redirect to login page
                                     core.webServer.redirect(pageLink, "Anonymouse user blocked with redirect to login page.");
                                     core.doc.continueProcessing = false;
                                     return "";
@@ -1706,8 +1710,8 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                // -- protocol, assume http and let hosting system forward. No other way to know
-                string linkprotocol = "http://";
+                // -- protocol, assume https and let hosting system override. No other way to know
+                string linkprotocol = "https://";
                 if (core.webServer.httpContext != null) {
                     //
                     // -- this is a website hit, use the current protocol
