@@ -47,14 +47,14 @@ namespace Contensive.Processor.Controllers {
         /// <param name="deprecated_personalizationIsAuthenticated"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public static string renderContent_ACTags_AnchorTags(CoreController core, string sourceHtmlContent, int peopleId, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context) {
+        public static string renderContent_ACTags_AnchorTags(CoreController core, string sourceHtmlContent, PersonModel userNullable, string ContextContentName, int ContextRecordID, bool addLinkAuthenticationToAllLinks, bool ignore, bool encodeACResourceLibraryImages, bool encodeForWysiwygEditor, bool EncodeNonCachableTags, string queryStringToAppendToAllLinks, string protocolHost, bool IsEmailContent, string AdminURL, bool deprecated_personalizationIsAuthenticated, CPUtilsBaseClass.addonContext context) {
             string result = sourceHtmlContent;
             try {
                 //
                 // Fixup Anchor Query (additional AddonOptionString pairs to add to the end)
                 string AnchorQuery = "";
-                if (addLinkAuthenticationToAllLinks && (peopleId != 0)) {
-                    AnchorQuery += "&eid=" + encodeURL(SecurityController.encodeToken(core, peopleId, core.dateTimeNowMockable.AddDays(30)));
+                if (addLinkAuthenticationToAllLinks && userNullable != null) {
+                    AnchorQuery += "&eid=" + encodeURL(SecurityController.encodeToken(core, userNullable.id, core.dateTimeNowMockable.AddDays(30)));
                 }
                 //
                 if (!string.IsNullOrEmpty(queryStringToAppendToAllLinks)) {
@@ -171,7 +171,7 @@ namespace Contensive.Processor.Controllers {
                                                                             // -- start block text
                                                                             Copy = "";
                                                                             string GroupIDList = HtmlController.getAddonOptionStringValue("AllowGroups", addonOptionString);
-                                                                            if (!GroupController.isInGroupList(core, peopleId, true, GroupIDList, true)) {
+                                                                            if (userNullable!=null && !GroupController.isInGroupList(core, userNullable.id, true, GroupIDList, true)) {
                                                                                 //
                                                                                 // Block content if not allowed
                                                                                 //
@@ -438,15 +438,13 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userIsEditing"></param>
         /// <returns></returns>
         //
-        public static string renderContent(CoreController core, string sourceHtmlContent, int userId, string contextContentName, int contextRecordID, int contextContactPeopleID, bool convertHtmlToText, bool addLinkAuthToAllLinks, bool encodeActiveFormatting, bool encodeActiveImages, bool encodeActiveEditIcons, bool encodeActivePersonalization, string queryStringForLinkAppend, string protocolHostLink, bool isEmailContent, CPUtilsBaseClass.addonContext addonExecuteContext, bool userIsAuthenticated, bool userIsEditing) {
+        public static string renderContent(CoreController core, string sourceHtmlContent, PersonModel userNullable, string contextContentName, int contextRecordID, int contextContactPeopleID, bool convertHtmlToText, bool addLinkAuthToAllLinks, bool encodeActiveFormatting, bool encodeActiveImages, bool encodeActiveEditIcons, bool encodeActivePersonalization, string queryStringForLinkAppend, string protocolHostLink, bool isEmailContent, CPUtilsBaseClass.addonContext addonExecuteContext, bool userIsAuthenticated, bool userIsEditing) {
             string result = sourceHtmlContent;
             string hint = "0";
             try {
                 if (string.IsNullOrEmpty(sourceHtmlContent)) { return result; }
                 hint = "10";
                 //
-                //
-                if (userId <= 0) { userId = core.session.user.id; }
                 hint = "20";
                 //
                 // -- resize images
@@ -456,7 +454,7 @@ namespace Contensive.Processor.Controllers {
                 hint = "30";
                 if (addLinkAuthToAllLinks || encodeActiveFormatting || encodeActiveImages || encodeActiveEditIcons) {
                     string AdminURL = "/" + core.appConfig.adminRoute;
-                    result = renderContent_ACTags_AnchorTags(core, result, userId, contextContentName, contextRecordID, addLinkAuthToAllLinks, encodeActiveFormatting, encodeActiveImages, encodeActiveEditIcons, encodeActivePersonalization, queryStringForLinkAppend, protocolHostLink, isEmailContent, AdminURL, userIsAuthenticated, addonExecuteContext);
+                    result = renderContent_ACTags_AnchorTags(core, result, userNullable, contextContentName, contextRecordID, addLinkAuthToAllLinks, encodeActiveFormatting, encodeActiveImages, encodeActiveEditIcons, encodeActivePersonalization, queryStringForLinkAppend, protocolHostLink, isEmailContent, AdminURL, userIsAuthenticated, addonExecuteContext);
                 }
                 //
                 // -- Do Plain Text Conversion
@@ -626,7 +624,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string renderHtmlForWeb(CoreController core, string source, string contextContentName = "", int ContextRecordId = 0, int deprecated_ContextContactPeopleId = 0, string ProtocolHostString = "", int DefaultWrapperId = 0, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextPage) {
             string result = ContentCmdController.executeContentCommands(core, source, CPUtilsBaseClass.addonContext.ContextAdmin);
-            return renderContent(core, result, core.session.user.id, contextContentName, ContextRecordId, deprecated_ContextContactPeopleId, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
+            return renderContent(core, result, core.session.user, contextContentName, ContextRecordId, deprecated_ContextContactPeopleId, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
         }
         // 
         //====================================================================================================
@@ -1234,7 +1232,7 @@ namespace Contensive.Processor.Controllers {
         /// Convert an active content field (html data stored with ac /ac html tags) to a wysiwyg editor request (html with edit icon img for ac /ac)
         /// </summary>
         public static string renderHtmlForWysiwygEditor(CoreController core, string editorValue) {
-            return renderContent(core, editorValue, 0, "", 0, 0, false, false, false, true, true, false, "", "", false, Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple, false, false);
+            return renderContent(core, editorValue, core.session.user, "", 0, 0, false, false, false, true, true, false, "", "", false, Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple, false, false);
         }
         //
         //====================================================================================================
@@ -1255,7 +1253,7 @@ namespace Contensive.Processor.Controllers {
             if (core.siteProperties.beta200327_BlockCCmdForJSONRemoteMethods) { return Source; }
             string result = Source;
             result = ContentCmdController.executeContentCommands(core, result, CPUtilsBaseClass.addonContext.ContextAdmin);
-            result = renderContent(core, result, core.session.user.id, ContextContentName, ContextRecordID, deprecated_ContextContactPeopleID, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
+            result = renderContent(core, result, core.session.user, ContextContentName, ContextRecordID, deprecated_ContextContactPeopleID, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
             return result;
         }
         //
@@ -1265,21 +1263,21 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="source"></param>
-        /// <param name="sendToPersonId"></param>
+        /// <param name="recipientNullable">If null, skip personalization</param>
         /// <param name="queryStringForLinkAppend"></param>
         /// <returns></returns>
-        public static string renderHtmlForEmail(CoreController core, string source, int sendToPersonId, string queryStringForLinkAppend, bool addLinkAuthToAllLinks) {
+        public static string renderHtmlForEmail(CoreController core, string source, PersonModel recipientNullable, string queryStringForLinkAppend, bool addLinkAuthToAllLinks) {
             //
             // -- create new session context for this user and queue the email.
             using (CPClass cp = new(core.appConfig.name)) {
                 //
                 // -- if user is valid, attempt to authenticate, else leave as guest
-                if (sendToPersonId > 0) {
-                    cp.core.session.authenticateById(sendToPersonId, cp.core.session);
+                if (recipientNullable!= null && recipientNullable.id > 0) {
+                    cp.core.session.authenticateById(recipientNullable.id, cp.core.session);
                 }
                 //
                 string result = ContentCmdController.executeContentCommands(cp.core, source, CPUtilsBaseClass.addonContext.ContextEmail);
-                result = renderContent(cp.core, result, sendToPersonId, "", 0, 0, false, addLinkAuthToAllLinks, true, true, false, true, queryStringForLinkAppend, "", true, CPUtilsBaseClass.addonContext.ContextEmail, true, false);
+                result = renderContent(cp.core, result, recipientNullable, "", 0, 0, false, addLinkAuthToAllLinks, true, true, false, true, queryStringForLinkAppend, "", true, CPUtilsBaseClass.addonContext.ContextEmail, true, false);
                 return result;
             };
         }

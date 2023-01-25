@@ -347,7 +347,7 @@ namespace Tests {
                 rule3.save(cp);
                 //
                 // act
-                cp.Addon.Execute(TestConstants.addonGuidTextMessageSendTask);
+                cp.Addon.Execute(TestConstants.addonGuidTextMessageProcessTask);
                 //
                 // assert
                 Assert.IsTrue(cp.core.mockTextMessageList.Count == 2);

@@ -488,7 +488,7 @@ namespace Contensive.Processor.Controllers {
                                     contentParts = ContentRenderController.renderHtmlForWysiwygEditor(core, contentParts);
                                     break;
                                 case CPUtilsBaseClass.addonContext.ContextEmail:
-                                    contentParts = ContentRenderController.renderHtmlForEmail(core, contentParts, core.session.user.id, "", false);
+                                    contentParts = ContentRenderController.renderHtmlForEmail(core, contentParts, core.session.user, "", false);
                                     break;
                                 case CPUtilsBaseClass.addonContext.ContextFilter:
                                 case CPUtilsBaseClass.addonContext.ContextOnBodyEnd:

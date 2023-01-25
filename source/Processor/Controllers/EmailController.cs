@@ -191,6 +191,21 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// email subject cannot have crlf
+        /// </summary>
+        public static bool verifyEmailSubject(CoreController core, string emailSubject) {
+            try {
+                if (string.IsNullOrWhiteSpace(emailSubject)) { return true; }
+                if (emailSubject.Contains(windowsNewLine) || emailSubject.Contains(unixNewLine) || emailSubject.Contains(macNewLine)) { return false; }
+                //
+                return true;
+            } catch (Exception) {
+                return false;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// email address must have at least one character before the @, and have a valid email domain
         /// </summary>
         public static bool verifyEmailAddress(CoreController core, string EmailAddress) {
@@ -234,61 +249,71 @@ namespace Contensive.Processor.Controllers {
         public static bool queueAdHocEmail(CoreController core, string emailContextMessage, int loggedPersonId, string toAddress, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, string ignore, bool isImmediate, bool isHTML, int loggedEmailId, ref string returnSendStatus, int personalizeAddonId) {
             bool result = false;
             try {
+                // -- validate arguments
+                if (!verifyEmailSubject(core, subject)) {
+                    returnSendStatus = "Email not sent because the subject is not valid.";
+                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    return false;
+                }
                 if (!verifyEmailAddress(core, toAddress)) {
                     //
                     returnSendStatus = "Email not sent because the to-address is not valid [" + toAddress + "].";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                } else if (!verifyEmailAddress(core, fromAddress)) {
+                    return false;
+                }
+                if(!verifyEmailAddress(core, fromAddress)) {
                     //
                     returnSendStatus = "Email not sent because the from-address is not valid [" + fromAddress + "].";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                } else if (isOnBlockedList(core, toAddress)) {
+                    return false;
+                }
+                if (isOnBlockedList(core, toAddress)) {
                     //
                     returnSendStatus = "Email not sent because the address [" + toAddress + "] is blocked by this application.";
                     LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                } else {
-                    //
-                    // Test for from-address / to-address matches
-                    if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
-                        fromAddress = core.siteProperties.getText("EmailFromAddress", "");
-                        if (string.IsNullOrEmpty(fromAddress)) {
-                            //
-                            //
-                            //
-                            fromAddress = toAddress;
-                            returnSendStatus = "The from-address is blank. This email was sent, but may be blocked by spam filtering.";
-                            LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                        } else if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
-                            //
-                            //
-                            //
-                            returnSendStatus = "The from-address matches the to-address [" + fromAddress + "] . This email was sent, but may be blocked by spam filtering.";
-                            LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                        } else {
-                            //
-                            //
-                            //
-                            returnSendStatus = "The from-address matches the to-address. The from-address was changed to [" + fromAddress + "] to prevent it from being blocked by spam filtering.";
-                            LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                        }
-                    }
-                    object bodyRenderData = getRenderData(core, personalizeAddonId);
-                    string subjectRendered = encodeEmailText(core,  subject, null, bodyRenderData);
-                    string htmlBody = encodeEmailHtml(core, isHTML, body, "", subject, null, "", false, bodyRenderData);
-                    string textBody = HtmlController.convertHtmlToText(core, htmlBody);
-                    queueEmail(core, isImmediate, emailContextMessage, new EmailSendRequest {
-                        attempts = 0,
-                        bounceAddress = bounceAddress,
-                        fromAddress = fromAddress,
-                        htmlBody = htmlBody,
-                        replyToAddress = replyToAddress,
-                        subject = subjectRendered,
-                        textBody = textBody,
-                        toAddress = toAddress
-                    });
-                    core.addon.executeAsProcess(addonGuidEmailSendTask);
-                    LogController.logInfo(core, "queueAdHocEmail, added to queue, toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    return false;
                 }
+                //
+                // Test for from-address / to-address matches
+                if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
+                    fromAddress = core.siteProperties.getText("EmailFromAddress", "");
+                    if (string.IsNullOrEmpty(fromAddress)) {
+                        //
+                        //
+                        //
+                        fromAddress = toAddress;
+                        returnSendStatus = "The from-address is blank. This email was sent, but may be blocked by spam filtering.";
+                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    } else if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
+                        //
+                        //
+                        //
+                        returnSendStatus = "The from-address matches the to-address [" + fromAddress + "] . This email was sent, but may be blocked by spam filtering.";
+                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    } else {
+                        //
+                        //
+                        //
+                        returnSendStatus = "The from-address matches the to-address. The from-address was changed to [" + fromAddress + "] to prevent it from being blocked by spam filtering.";
+                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    }
+                }
+                object bodyRenderData = getRenderData(core, personalizeAddonId);
+                string subjectRendered = encodeEmailSubjectText(core, subject, null, bodyRenderData);
+                string htmlBody = encodeEmailBodyHtml(core, isHTML, body, "", null, "", false, bodyRenderData);
+                string textBody = HtmlController.convertHtmlToText(core, htmlBody);
+                queueEmail(core, isImmediate, emailContextMessage, new EmailSendRequest {
+                    attempts = 0,
+                    bounceAddress = bounceAddress,
+                    fromAddress = fromAddress,
+                    htmlBody = htmlBody,
+                    replyToAddress = replyToAddress,
+                    subject = subjectRendered,
+                    textBody = textBody,
+                    toAddress = toAddress
+                });
+                core.addon.executeAsProcess(addonGuidEmailSendTask);
+                LogController.logInfo(core, "queueAdHocEmail, added to queue, toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -319,56 +344,71 @@ namespace Contensive.Processor.Controllers {
         public static bool tryQueuePersonEmail(CoreController core, PersonModel recipient, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailId, string template, bool addLinkAuthToAllLinks, ref string userErrorMessage, string queryStringForLinkAppend, string emailContextMessage, int personalizeAddonId) {
             bool result = false;
             try {
+                // -- validate arguments
                 if (recipient == null) {
-                    userErrorMessage = "The email was not sent because the recipient could not be found by thier id [" + recipient.id + "]";
-                } else if (!verifyEmailAddress(core, recipient.email)) {
-                    //
+                    userErrorMessage = "The email was not sent because the recipient is not valid [empty]";
+                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [null], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    return false;
+                }
+                if (!verifyEmailSubject(core, subject)) {
+                    userErrorMessage = "Email not sent because the subject is not valid.";
+                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    return false;
+                }
+                if (!verifyEmailAddress(core, recipient.email)) {
                     userErrorMessage = "Email not sent because the to-address is not valid.";
-                } else if (!verifyEmailAddress(core, fromAddress)) {
+                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    return false;
+                }
+                if (!verifyEmailAddress(core, fromAddress)) {
                     //
                     userErrorMessage = "Email not sent because the from-address is not valid.";
-                } else if (isOnBlockedList(core, recipient.email)) {
+                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    return false;
+                } 
+                if (isOnBlockedList(core, recipient.email)) {
                     //
                     userErrorMessage = "Email not sent because the to-address is blocked by this application. See the Blocked Email Report.";
+                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    return false;
+                }
+                object bodyRenderData = getRenderData(core, personalizeAddonId);
+                string subjectRendered = encodeEmailSubjectText(core, subject, recipient, bodyRenderData);
+                string htmlBody = encodeEmailBodyHtml(core, isHTML, body, template,  recipient, queryStringForLinkAppend, addLinkAuthToAllLinks, bodyRenderData);
+                string textBody = HtmlController.convertHtmlToText(core, htmlBody);
+                string recipientName = (!string.IsNullOrWhiteSpace(recipient.name) && !recipient.name.ToLower().Equals("guest")) ? recipient.name : string.Empty;
+                if (string.IsNullOrWhiteSpace(recipientName)) {
+                    recipientName = ""
+                        + ((!string.IsNullOrWhiteSpace(recipient.firstName) && !recipient.firstName.ToLower().Equals("guest")) ? recipient.firstName : string.Empty)
+                        + " "
+                        + ((!string.IsNullOrWhiteSpace(recipient.lastName) && !recipient.lastName.ToLower().Equals("guest")) ? recipient.lastName : string.Empty);
+                }
+                recipientName = recipientName.Trim();
+                string toAddress = "";
+                if (recipient.email.Contains("<")) {
+                    //
+                    // -- person record include friendly email format
+                    toAddress = recipient.email;
                 } else {
-                    object bodyRenderData = getRenderData(core, personalizeAddonId);
-                    string subjectRendered = encodeEmailText(core,  subject, recipient, bodyRenderData);
-                    string htmlBody = encodeEmailHtml(core, isHTML, body, template, subject, recipient, queryStringForLinkAppend, addLinkAuthToAllLinks, bodyRenderData);
-                    string textBody = HtmlController.convertHtmlToText(core, htmlBody);
-                    string recipientName = (!string.IsNullOrWhiteSpace(recipient.name) && !recipient.name.ToLower().Equals("guest")) ? recipient.name : string.Empty;
-                    if (string.IsNullOrWhiteSpace(recipientName)) {
-                        recipientName = ""
-                            + ((!string.IsNullOrWhiteSpace(recipient.firstName) && !recipient.firstName.ToLower().Equals("guest")) ? recipient.firstName : string.Empty)
-                            + " "
-                            + ((!string.IsNullOrWhiteSpace(recipient.lastName) && !recipient.lastName.ToLower().Equals("guest")) ? recipient.lastName : string.Empty);
-                    }
-                    recipientName = recipientName.Trim();
-                    string toAddress = "";
-                    if (recipient.email.Contains("<")) {
-                        //
-                        // -- person record include friendly email format
-                        toAddress = recipient.email;
-                    } else {
-                        //
-                        // -- people record includes simple email format
-                        toAddress = (string.IsNullOrWhiteSpace(recipientName)) ? recipient.email : "\"" + recipientName.Replace("\"", "") + "\" <" + recipient.email.Trim() + ">";
-                    }
-                    var email = new EmailSendRequest {
-                        attempts = 0,
-                        bounceAddress = bounceAddress,
-                        emailId = emailId,
-                        fromAddress = fromAddress,
-                        htmlBody = htmlBody,
-                        replyToAddress = replyToAddress,
-                        subject = subjectRendered,
-                        textBody = textBody,
-                        toAddress = toAddress,
-                        toMemberId = recipient.id
-                    };
-                    if (tryVerifyEmail(core, email, ref userErrorMessage)) {
-                        queueEmail(core, Immediate, emailContextMessage, email);
-                        result = true;
-                    }
+                    //
+                    // -- people record includes simple email format
+                    toAddress = (string.IsNullOrWhiteSpace(recipientName)) ? recipient.email : "\"" + recipientName.Replace("\"", "") + "\" <" + recipient.email.Trim() + ">";
+                }
+                var email = new EmailSendRequest {
+                    attempts = 0,
+                    bounceAddress = bounceAddress,
+                    emailId = emailId,
+                    fromAddress = fromAddress,
+                    htmlBody = htmlBody,
+                    replyToAddress = replyToAddress,
+                    subject = subjectRendered,
+                    textBody = textBody,
+                    toAddress = toAddress,
+                    toMemberId = recipient.id
+                };
+                if (tryVerifyEmail(core, email, ref userErrorMessage)) {
+                    queueEmail(core, Immediate, emailContextMessage, email);
+                    result = true;
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -449,7 +489,7 @@ namespace Contensive.Processor.Controllers {
                         LogController.logError(core, new GenericException("No system email was found with the name [" + emailName + "]. A new email blank was created but not sent."));
                     }
                 }
-                return queueSystemEmail(core, email, appendedCopy, additionalMemberID, ref userErrorMessage);
+                return tryQueueSystemEmail(core, email, appendedCopy, additionalMemberID, ref userErrorMessage);
             } else {
                 return false;
             }
@@ -507,7 +547,7 @@ namespace Contensive.Processor.Controllers {
                 LogController.logError(core, new GenericException("No system email was found with the id [" + emailid + "]"));
                 return false;
             }
-            return queueSystemEmail(core, email, appendedCopy, additionalMemberID, ref userErrorMessage);
+            return tryQueueSystemEmail(core, email, appendedCopy, additionalMemberID, ref userErrorMessage);
         }
         /// <summary>
         /// 
@@ -553,8 +593,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="additionalMemberID"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns>Admin message if something went wrong (email addresses checked, etc.</returns>
-        public static bool queueSystemEmail(CoreController core, SystemEmailModel email, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
+        public static bool tryQueueSystemEmail(CoreController core, SystemEmailModel email, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             try {
+                // -- validate arguments
+                if (!verifyEmailSubject(core,email.subject)) {
+                    userErrorMessage = "The email subject is not valid.";
+                    return false; 
+                }
+                if (!verifyEmailAddress(core, email.fromAddress)) {
+                    //
+                    userErrorMessage = "Email not sent because the from-address is not valid.";
+                    LogController.logInfo(core, "tryQueueSystemEmail, NOT SENT [" + userErrorMessage + "], email [" + email.name + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
+                    return false;
+                }
                 string BounceAddress = core.siteProperties.emailBounceAddress;
                 EmailTemplateModel emailTemplate = DbBaseModel.create<EmailTemplateModel>(core.cpParent, email.emailTemplateId);
                 string EmailTemplateSource = "";
@@ -581,6 +632,8 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         if (string.IsNullOrWhiteSpace(person.email)) {
                             confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because their email address was blank." + BR);
+                        }else if (!verifyEmailAddress(core, person.email)) {
+                            confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because their email address was invalid [" + person.email + "]." + BR);
                         } else {
                             string EmailStatus = "";
                             string queryStringForLinkAppend = "";
@@ -600,12 +653,16 @@ namespace Contensive.Processor.Controllers {
                 foreach (var personId in peopleIdList) {
                     var person = DbBaseModel.create<PersonModel>(core.cpParent, personId);
                     if (person == null) {
-                        confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + additionalMemberID + "] because the user record could not be found." + BR);
+                        confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + personId + "] because the user record could not be found." + BR);
                         continue;
                     }
                     string simpleEmail = EmailController.getSimpleEmailFromFriendlyEmail(core.cpParent, person.email);
                     if (string.IsNullOrWhiteSpace(simpleEmail)) {
-                        confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + additionalMemberID + "] because their email address was blank." + BR);
+                        confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + personId + "] because their email address was blank." + BR);
+                        continue;
+                    }
+                    if(!verifyEmailAddress(core, simpleEmail)) {
+                        confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + personId + "] because their email address was invalid [" + simpleEmail + "]." + BR);
                         continue;
                     }
                     if (usedEmail.Contains(simpleEmail)) {
@@ -807,6 +864,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userErrorMessage"></param>
         public static bool tryQueueFormEmail(CoreController core, string toAddress, string fromAddress, string emailSubject, out string userErrorMessage) {
             try {
+                // -- validate arguments
+                if (!verifyEmailAddress(core, toAddress)) {
+                    userErrorMessage = "The to-address [" + toAddress + "] is not valid.";
+                    return false;
+                }
+                if (!verifyEmailAddress(core, toAddress)) {
+                    userErrorMessage = "The from-address [" + fromAddress + "] is not valid.";
+                    return false;
+                }
+                if (!verifyEmailSubject(core, emailSubject)) {
+                    userErrorMessage = "The email subject is not valid.";
+                    return false;
+                }
                 userErrorMessage = "";
                 string Message = "";
                 string emailSubjectWorking = emailSubject;
@@ -998,11 +1068,15 @@ namespace Contensive.Processor.Controllers {
                             if (!verifyEmailAddress(core, emailData.toAddress)) {
                                 //
                                 // -- to address is reasonForFail
-                                reasonForFail = $"Send-to address is invalid [{emailData.toAddress}]";
+                                reasonForFail = $"email to-address is invalid [{emailData.toAddress}]";
+                            } else if (!verifyEmailSubject(core, emailData.subject)) {
+                                //
+                                // -- from address is reasonForFail
+                                reasonForFail = $"email subject is invalid [{emailData.subject}]";
                             } else if (!verifyEmailAddress(core, emailData.fromAddress)) {
                                 //
                                 // -- from address is reasonForFail
-                                reasonForFail = $"Send-from address is invalid [{emailData.fromAddress}]";
+                                reasonForFail = $"email from-address is invalid [{emailData.fromAddress}]";
                             } else if (sendWithSES) {
                                 //
                                 // -- send with Amazon SES
@@ -1085,28 +1159,13 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="isHTML">true if the body is html</param>
-        /// <param name="body"></param>
+        /// <param name="subject"></param>
         /// <returns></returns>
-        public static string encodeEmailText(CoreController core,  string body, PersonModel recipient, object bodyRenderData) {
-            int recipientId = (recipient == null) ? 0 : recipient.id;
-            if (string.IsNullOrWhiteSpace(body)) {
-                //
-                // -- body is empty
-                return "";
-            }
-            //
-            // -- render email body (fixup links and execute addons)
-            body = MustacheController.renderStringToString(body, bodyRenderData);
-            body = ContentRenderController.renderHtmlForEmail(core, body, recipientId, "", false);
-            //
-            // -- isHtml, if the body includes an html tag, this is the entire body, just send it
-            try {
-                return HtmlController.convertHtmlToText(core, body);
-            } catch (Exception ex) {
-                LogController.logError(core, ex, "Error creating text body from full html.");
-                return string.Empty;
-            }
-
+        public static string encodeEmailSubjectText(CoreController core,  string subject, PersonModel recipientNullable, object bodyRenderData) {
+            if (string.IsNullOrWhiteSpace(subject)) { return ""; }
+            subject = MustacheController.renderStringToString(subject, bodyRenderData);
+            subject = ContentRenderController.renderHtmlForEmail(core, subject, recipientNullable, "", false);
+            return subject;
         }
         //
         //====================================================================================================        
@@ -1118,35 +1177,18 @@ namespace Contensive.Processor.Controllers {
         /// <param name="body"></param>
         /// <param name="template"></param>
         /// <param name="subject"></param>
-        /// <param name="recipient"></param>
+        /// <param name="recipientNullable"></param>
         /// <param name="queryStringForLinkAppend"></param>
         /// <returns></returns>
-        public static string encodeEmailHtml(CoreController core, bool isHTML, string body, string template, string subject, PersonModel recipient, string queryStringForLinkAppend, bool addLinkAuthToAllLinks, object bodyRenderData) {
-            int recipientId = (recipient == null) ? 0 : recipient.id;
-            string recipientEmail = (recipient == null) ? "" : recipient.email;
+        public static string encodeEmailBodyHtml(CoreController core, bool isHTML, string body, string template, PersonModel recipientNullable, string queryStringForLinkAppend, bool addLinkAuthToAllLinks, object bodyRenderData) {
             //
             // -- add www website address to root relative links 
             string webAddressProtocolDomain = HttpController.getWebAddressProtocolDomain(core);
             //
-            // -- subject
-            if (!string.IsNullOrWhiteSpace(subject)) {
-                subject = MustacheController.renderStringToString(subject, bodyRenderData);
-                subject = ContentRenderController.renderHtmlForEmail(core, subject, recipientId, queryStringForLinkAppend, false);
-                subject = HtmlController.convertLinksToAbsolute(subject, webAddressProtocolDomain + "/");
-                try {
-                    subject = HtmlController.convertHtmlToText(core, "<body>" + subject + "</body>");
-                } catch (Exception ex) {
-                    LogController.logError(core, ex, "Nuglify error while creating text subject line.");
-                    subject = string.Empty;
-                }
-                if (subject == null) { subject = string.Empty; }
-                subject = subject.Trim();
-            }
-            //
             // -- body
             if (!string.IsNullOrWhiteSpace(body)) {
                 body = MustacheController.renderStringToString(body, bodyRenderData);
-                body = ContentRenderController.renderHtmlForEmail(core, body, recipientId, queryStringForLinkAppend, addLinkAuthToAllLinks);
+                body = ContentRenderController.renderHtmlForEmail(core, body, recipientNullable, queryStringForLinkAppend, addLinkAuthToAllLinks);
             }
             //
             // -- encode and merge template
@@ -1155,7 +1197,7 @@ namespace Contensive.Processor.Controllers {
                 // hotfix - templates no longer have wysiwyg editors, so content may not be saved correctly - preprocess to convert wysiwyg content
                 template = ContentRenderController.processWysiwygResponseForSave(core, template);
                 //
-                template = ContentRenderController.renderHtmlForEmail(core, template, recipientId, queryStringForLinkAppend, addLinkAuthToAllLinks);
+                template = ContentRenderController.renderHtmlForEmail(core, template, recipientNullable, queryStringForLinkAppend, addLinkAuthToAllLinks);
                 if (template.IndexOf(fpoContentBox) != -1) {
                     body = GenericController.strReplace(template, fpoContentBox, body);
                 } else {
@@ -1167,8 +1209,10 @@ namespace Contensive.Processor.Controllers {
             body = HtmlController.convertLinksToAbsolute(body, webAddressProtocolDomain + "/");
             //
             // -- support legacy replace
-            body = GenericController.strReplace(body, "#member_id#", recipientId.ToString());
-            body = GenericController.strReplace(body, "#member_email#", recipientEmail);
+            if(recipientNullable!=null) {
+                body = GenericController.strReplace(body, "#member_id#", recipientNullable.id.ToString());
+                body = GenericController.strReplace(body, "#member_email#", recipientNullable.email);
+            }
             if (!isHTML) {
                 //
                 // -- non html email, return a text version of the finished document
@@ -1177,10 +1221,10 @@ namespace Contensive.Processor.Controllers {
             //
             // -- Spam Footer under template, remove the marker for any other place in the email then add it as needed
             bool AllowSpamFooter = true;
-            if (AllowSpamFooter) {
+            if (AllowSpamFooter && recipientNullable != null) {
                 //
                 // non-authorable, default true - leave it as an option in case there is an important exception
-                body += "<div style=\"padding:10px 0;\">" + GenericController.getLinkedText("<a href=\"" + webAddressProtocolDomain + "?" + rnEmailBlockRecipientEmail + "=" + GenericController.encodeRequestVariable(recipientEmail) + "\">", core.siteProperties.getText("EmailSpamFooter", DefaultSpamFooter)) + "</div>";
+                body += "<div style=\"padding:10px 0;\">" + GenericController.getLinkedText("<a href=\"" + webAddressProtocolDomain + "?" + rnEmailBlockRecipientEmail + "=" + GenericController.encodeRequestVariable(recipientNullable.email) + "\">", core.siteProperties.getText("EmailSpamFooter", DefaultSpamFooter)) + "</div>";
             }
 
             if (body.ToLower(CultureInfo.InvariantCulture).IndexOf("<html") >= 0) {
@@ -1190,9 +1234,9 @@ namespace Contensive.Processor.Controllers {
             }
             //
             // -- html without an html tag. wrap it
+            // -- 230124 removed title tag (subject), because it adds subject to text version
             return "<html lang=\"en-US\">"
                 + "<head>"
-                + "<Title>" + subject + "</Title>"
                 + "<Base href=\"" + webAddressProtocolDomain + "\" >"
                 + "</head>"
                 + "<body class=\"ccBodyEmail\">" + body + "</body>"

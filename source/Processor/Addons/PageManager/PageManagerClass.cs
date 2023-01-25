@@ -17,7 +17,7 @@ namespace Contensive.Processor.Addons.PageManager {
             try {
                 CoreController core = ((CPClass)cp).core;
                 string result = PageManagerController.getHtmlBody(core);
-                if (core.doc.pageController.page !=null && string.IsNullOrEmpty(core.webServer.httpContext.Response.redirectUrl) ) {
+                if ((core.doc.pageController?.page != null) && (core?.webServer?.httpContext?.Response != null) && string.IsNullOrEmpty(core.webServer.httpContext.Response.redirectUrl)) {
                     //
                     // -- add page# wrapper. This helps create targetted styles, like active style for menu active
                     result = "<div id=\"page" + core.doc.pageController.page.id + "\">" + result + "</div>";

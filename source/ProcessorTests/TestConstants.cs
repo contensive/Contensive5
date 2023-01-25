@@ -8,6 +8,7 @@
         //
         public const string testAppName = "c5test";
         internal const string addonGuidTextMessageSendTask = "{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}";
+        internal const string addonGuidTextMessageProcessTask = "{62F33A3B-A958-4EB6-942E-ACBA5FC2C914}";
     }
 }
 

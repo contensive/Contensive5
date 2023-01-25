@@ -11,3 +11,52 @@ c5 issues
 		
 		
 	-- pagemanagercontroller, line 1711 -- I think httpcontext should hold if request is secure, not core.webServer.requestSecure
+
+
+weave organiztionid fields should always be set readonly or writeonce.
+
+time
+	- server and sql server always on UTC
+	- change to sync with time.nist.gov
+	- users have timezoneid for translating times in view.
+	- timezone table that holds a 'key' that can be used by the system (or external call) to generate current time
+	- ? ms or international timezones ?
+
+enhanded logging
+	- setup nlog to log to cloudwatch
+	- verify login, logout logging
+	- we need an alert on logging failure
+	- (cloudwatch?) need an automated system that reviews logs and alerts us that something is unusual
+	- (cloudwatch?) need a tool that generates reports (or filters so we can find things)
+	
+
+upgraded passwords
+	- turn on/off with site property 'allow plain text password'
+		if true
+			- password is read and written to field 'password'
+			- admin password save calls method setPassword (in after-save) which creates one-way hash saved in passwordHash
+		if false
+			- admin password save calls method setPassword (in after-save) which creates one-way hash saved in passwordHash
+			- login attempts are checked agains passwordHash
+			- if a login attempt is made and passwordHash is blank and password is not blank, the password field is hashed, saved to passwordHash, and password is cleared
+	- need new cp.user method to setPassword() -- saves to passwordHash and password (if allow plain text is true)
+	- password policy is enforced in setPassword() from a password-policy json saved in a site property
+		- min number of characters
+		- req upper/lower, special, numerics
+		- 
+		
+session enhandements
+	- account is locked for 30 minutes if 3 failed attempts in 15 minutes on a username
+	- only allow 2 active sessions per user. If a new one starts, the first is logged out
+	- verify session terminates after 60 minutes of inactivity
+
+
+
+Convert config to support different S3 buckets for public, private, www.
+	- leave config.json alone - no change to serverconfig and appconfig models
+	- serverconfig 
+		- awsBucketName should be used as the default bucketname
+	- appConfig
+		- remoteWwwPath, remoteFilePath, remotePrivatePage
+			- begin with "/", use the serverconfig bucketname
+			- begin with "S3://" this is an s3 resource and use is just as it is included

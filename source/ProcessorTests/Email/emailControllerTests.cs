@@ -507,7 +507,7 @@ namespace Tests {
                 Assert.AreEqual("bounce@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.bounceAddress));
                 Assert.AreEqual("replyTo@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.replyToAddress));
                 Assert.AreEqual("subject", sentEmail.email.subject);
-                Assert.AreEqual(body, sentEmail.email.textBody);
+                Assert.IsTrue(sentEmail.email.textBody.Contains(body));
             }
         }
         //
@@ -543,7 +543,7 @@ namespace Tests {
                 Assert.AreEqual("bounce@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.bounceAddress));
                 Assert.AreEqual("replyTo@kma.net", EmailController.getSimpleEmailFromFriendlyEmail(cp,sentEmail.email.replyToAddress));
                 Assert.AreEqual("subject", sentEmail.email.subject);
-                Assert.AreEqual(body, sentEmail.email.textBody);
+                Assert.IsTrue(sentEmail.email.textBody.Contains(body));
             }
         }
         //
@@ -599,7 +599,9 @@ namespace Tests {
                 string userErrorMessage = "";
                 int additionalMemberId = 0;
                 string appendedCopy = "";
+                // -- add systeme email to queue
                 Assert.IsTrue(EmailController.tryQueueSystemEmail(cp.core, systemEmail.name, appendedCopy, additionalMemberId, ref userErrorMessage));
+                // -- send system queue
                 Contensive.BaseClasses.AddonBaseClass addon = new Contensive.Processor.Addons.Email.EmailSendTask();
                 addon.Execute(cp);
                 //

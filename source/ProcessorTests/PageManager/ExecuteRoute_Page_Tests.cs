@@ -165,6 +165,97 @@ namespace Tests {
             }
         }
         /// <summary>
+        /// setup to redirect to login page if anonymouse.
+        /// if the hit is the login page, no redirect
+        /// </summary>
+        [TestMethod]
+        public void ExecuteRoute_Page_AnonymousBlock_Redirect_Except_Test() {
+            HttpContextModel httpContext = new HttpContextModel();
+            using (CPClass cp = new(testAppName, httpContext)) {
+                //
+                // arrange
+                cp.Site.SetProperty("ALLOW HTML MINIFY", false);
+                //
+                // -- addon collection
+                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
+                ////
+                //// -- test addon returns testString
+                //AddonModel testPageAddon = DbBaseModel.addDefault<AddonModel>(cp);
+                //testPageAddon.name = cp.Utils.GetRandomInteger().ToString();
+                //testPageAddon.dotNetClass = "Contensive.Processor.Addons.TestAddon";
+                //testPageAddon.remoteMethod = true;
+                //testPageAddon.collectionId = baseCollection.id;
+                //testPageAddon.htmlDocument = true;
+                //testPageAddon.save(cp);
+                //
+                string renderPageContent = cp.Utils.GetRandomInteger().ToString();
+                cp.Doc.SetProperty("test-in", renderPageContent);
+                ////
+                //// -- addonList for page
+                //List<AddonListItemModel_Dup> testAddonList = new();
+                //testAddonList.Add(new AddonListItemModel_Dup() {
+                //    designBlockTypeGuid = renderPageAddon.ccguid,
+                //    designBlockTypeName = "test addon"
+                //});
+                //// -- page to render
+                //PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
+                //testPage.name = cp.Utils.GetRandomInteger().ToString();
+                //testPage.addonList = cp.JSON.Serialize(testAddonList);
+                //testPage.save(cp);
+                ////
+                //// -- link alias for render page
+                //LinkAliasModel renderLinkAlias = DbBaseModel.addDefault<LinkAliasModel>(cp);
+                //renderLinkAlias.name = testPage.name;
+                //renderLinkAlias.pageId = testPage.id;
+                //renderLinkAlias.save(cp);
+                //
+                // -- login form addon
+                AddonModel loginAddon = DbBaseModel.addDefault<AddonModel>(cp);
+                loginAddon.name = cp.Utils.GetRandomInteger().ToString();
+                loginAddon.collectionId = baseCollection.id;
+                loginAddon.copyText = cp.Utils.GetRandomInteger().ToString();
+                loginAddon.save(cp);
+                //
+                // -- addonList for login form
+                List<AddonListItemModel_Dup> loginAddonList = new();
+                loginAddonList.Add(new AddonListItemModel_Dup() {
+                    designBlockTypeGuid = loginAddon.ccguid,
+                    designBlockTypeName = "login addon"
+                });
+                //
+                // -- page for login
+                PageContentModel loginPage = DbBaseModel.addDefault<PageContentModel>(cp);
+                loginPage.name = cp.Utils.GetRandomInteger().ToString();
+                loginPage.addonList = cp.JSON.Serialize(loginAddonList);
+                loginPage.save(cp);
+                //
+                // -- link alias for login page
+                LinkAliasModel loginLinkAlias = DbBaseModel.addDefault<LinkAliasModel>(cp);
+                loginLinkAlias.name = loginPage.name;
+                loginLinkAlias.pageId = loginPage.id;
+                loginLinkAlias.save(cp);
+                //
+                // -- rebuild routes after adding new page
+                cp.core.routeMapRebuild();
+                //
+                // -- anonymouse redirect to login page mode
+                cp.core.siteProperties.anonymousUserResponseID = 3;
+                cp.core.siteProperties.loginPageId = loginPage.id;
+                //
+                // act - test page should be rediredct to login page
+                string doc = cp.executeRoute("/" + loginPage.name);
+                //
+                // -- there was no redirect and we are on login page
+                Assert.IsTrue(string.IsNullOrEmpty(httpContext.Response.redirectUrl));
+                Assert.IsTrue(doc.Contains(loginAddon.copyText));
+                // cleanup
+                //DbBaseModel.delete<AddonModel>(cp, testPageAddon.id);
+                DbBaseModel.delete<PageContentModel>(cp, loginPage.id);
+                DbBaseModel.delete<LinkAliasModel>(cp, loginLinkAlias.id);
+            }
+        }
+        /// <summary>
         /// 
         /// </summary>
         [TestMethod]

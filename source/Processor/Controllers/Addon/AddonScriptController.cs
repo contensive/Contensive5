@@ -58,20 +58,6 @@ namespace Contensive.Processor.Controllers {
                     }
                     hint += ",entrypoint[" + entryPoint + "]";
                     //
-                    // -- adding cclib
-                    try {
-                        hint += ",add cclib";
-                        MainCsvScriptCompatibilityClass mainCsv = new(core);
-                        engine.AddHostObject("ccLib", mainCsv);
-                    } catch (Microsoft.ClearScript.ScriptEngineException ex) {
-                        string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object ex-6, hint[" + hint + "]");
-                        LogController.logError(core, ex, errorMessage);
-                        throw new GenericException(errorMessage, ex);
-                    } catch (Exception ex) {
-                        LogController.logError(core, ex, "ex-7, hint[" + hint + "]");
-                        throw;
-                    }
-                    //
                     // -- adding cp
                     try {
                         hint += ",add cp";
@@ -151,19 +137,6 @@ namespace Contensive.Processor.Controllers {
                     int posClose = entryPoint.IndexOf("(");
                     if (posClose < 0) {
                         entryPoint = entryPoint.Trim() + "()";
-                    }
-                    //
-                    // -- load cclib object
-                    try {
-                        MainCsvScriptCompatibilityClass mainCsv = new MainCsvScriptCompatibilityClass(core);
-                        engine.AddHostObject("ccLib", mainCsv);
-                    } catch (Microsoft.ClearScript.ScriptEngineException ex) {
-                        string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object");
-                        LogController.logError(core, ex, errorMessage);
-                        throw new GenericException(errorMessage, ex);
-                    } catch (Exception ex) {
-                        LogController.logError(core, ex, "Clearscript Javascript exception.");
-                        throw;
                     }
                     //
                     // -- load cp

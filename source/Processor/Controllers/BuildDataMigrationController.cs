@@ -380,7 +380,7 @@ namespace Contensive.Processor.Controllers {
                             }
                         }
                     }
-                    }
+                }
                 // -- Reload
                 core.cache.invalidateAll();
                 core.clearMetaData();

@@ -409,7 +409,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 // -- return if no messages
-                using (DataTable dt = core.db.executeQuery("select count(id) from ccTextMessageQueue")) {
+                using (DataTable dt = core.db.executeQuery("select top 1 id from ccTextMessageQueue")) {
                     if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
                 }
                 //
