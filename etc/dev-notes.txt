@@ -13,7 +13,7 @@ c5 issues
 	-- pagemanagercontroller, line 1711 -- I think httpcontext should hold if request is secure, not core.webServer.requestSecure
 
 
-weave organiztionid fields should always be set readonly or writeonce.
+-- multitenant - set organiztionid fields should always be set readonly or writeonce.
 
 time
 	- server and sql server always on UTC
