@@ -154,7 +154,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 result = HtmlController.div(result, "ccLoginFormCon");
                 if (string.IsNullOrWhiteSpace(result)) { return result; }
-                return "<div style=\"width:100%;padding:100px 0 0 0\"><div class=\"ccCon bg-light pt-2 pb-4\" style=\"width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">" + result + "</div></div>";
+                return "<div style=\"width:100%;padding:50px 0\"><div class=\"ccCon bg-light pt-2 pb-4\" style=\"width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">" + result + "</div></div>";
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
