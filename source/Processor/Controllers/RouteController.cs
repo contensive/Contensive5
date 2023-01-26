@@ -393,7 +393,7 @@ namespace Contensive.Processor.Controllers {
                             string requestUsername = core.cpParent.Doc.GetText("username");
                             string requestPassword = core.cpParent.Doc.GetText("password");
                             bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
-                            LoginController.processLoginFormDefault(core, requestUsername, requestPassword, requestIncludesPassword);
+                            LoginController.processLoginPage_Default(core, requestUsername, requestPassword, requestIncludesPassword);
                             return;
                         }
                     case FormTypeToolsPanel: {

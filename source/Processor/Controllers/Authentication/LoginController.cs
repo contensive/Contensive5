@@ -9,13 +9,17 @@ namespace Contensive.Processor.Controllers {
     //
     //========================================================================
     /// <summary>
-    /// methods to manage common authentication.
+    /// Create and process a login form.
+    /// For admin access, the default login form is used.
+    /// For public use, the getLoginPage returns a blank html page and runs either the default login addon, or a replacement that can be selected in site-settings
     /// </summary>
     public static class LoginController {
         //
         //=============================================================================
         /// <summary>
-        /// A login form that can be added to any page. This is just form with no surrounding border, etc. 
+        /// Create and process the login page.
+        /// On successful login, the user is authenticated and an empty string is returned.
+        /// If the login was not successful, the login form is returned
         /// </summary>
         /// <returns></returns>
         public static string getLoginPage(CoreController core, bool forceDefaultLoginForm, bool blockNoPasswordMode) {
@@ -76,7 +80,7 @@ namespace Contensive.Processor.Controllers {
                     string requestUsername = core.cpParent.Doc.GetText("username");
                     string requestPassword = core.cpParent.Doc.GetText("password");
                     bool passwordRequestValid = core.cpParent.Doc.IsProperty("password");
-                    if (processLoginFormDefault(core, requestUsername, requestPassword, passwordRequestValid)) {
+                    if (processLoginPage_Default(core, requestUsername, requestPassword, passwordRequestValid)) {
                         return "";
                     }
                 }
@@ -171,7 +175,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="requestPassword">The password submitted from the request</param>
         /// <param name="requestIncludesPassword">true if the request includes a password property. if true, the no-password mode is blocked and a password is required. Typically used to create an admin/developer login</param>
         /// <returns></returns>
-        public static bool processLoginFormDefault(CoreController core, string requestUsername, string requestPassword, bool requestIncludesPassword) {
+        public static bool processLoginPage_Default(CoreController core, string requestUsername, string requestPassword, bool requestIncludesPassword) {
             try {
                 //
                 LogController.logTrace(core, "loginController.processLoginFormDefault, requestUsername [" + requestUsername + "], requestPassword [" + requestPassword + "], requestIncludesPassword [" + requestIncludesPassword + "]");

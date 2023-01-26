@@ -19,7 +19,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 string requestUsername = cp.Doc.GetText("username");
                 string requestPassword = cp.Doc.GetText("password");
                 bool passwordRequestValid = cp.Doc.IsProperty("password");
-                LoginController.processLoginFormDefault(((CPClass)cp).core, requestUsername, requestPassword, passwordRequestValid);
+                LoginController.processLoginPage_Default(((CPClass)cp).core, requestUsername, requestPassword, passwordRequestValid);
                 return "";
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

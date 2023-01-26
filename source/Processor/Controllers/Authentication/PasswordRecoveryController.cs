@@ -14,7 +14,10 @@ namespace Contensive.Processor.Controllers {
         //
         //=============================================================================
         /// <summary>
-        /// returns a simple email password form that can be stacked into the login page
+        /// Emails the user;s username and password
+        /// todo -- deprecate this. 
+        /// Add 1. emailed link to a change password form that does not require previous password, emailing a hashed token with id and current time, saved in user record with an expiration date/time.
+        /// Add 2. One-Time-Password, send (email or text) a 6 digit number and present a OTP login form for the number. Number is one-way encoded and stored in user record with an expiration date/time.
         /// </summary>
         /// <returns></returns>
         public static string getPasswordRecoveryForm(CoreController core) {

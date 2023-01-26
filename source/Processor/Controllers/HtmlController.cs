@@ -2026,7 +2026,7 @@ namespace Contensive.Processor.Controllers {
                                     string requestUsername = core.cpParent.Doc.GetText(legacyFormSn + "username");
                                     string requestPassword = core.cpParent.Doc.GetText(legacyFormSn + "password");
                                     bool passwordRequestValid = core.cpParent.Doc.IsProperty(legacyFormSn + "password");
-                                    LoginController.processLoginFormDefault(core, requestUsername, requestPassword, passwordRequestValid);
+                                    LoginController.processLoginPage_Default(core, requestUsername, requestPassword, passwordRequestValid);
                                 }
                                 break;
                             case ButtonApply: {

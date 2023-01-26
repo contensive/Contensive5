@@ -12,6 +12,14 @@ namespace Contensive.Processor.Controllers {
         //========================================================================
         /// <summary>
         /// Simple registration (join) form to setup the user's people record and if approporate, authenticate
+        /// on success, the user is logged into the new account
+        /// of fail, a userError is added to the system describing the reason for the failure. 
+        /// siteproperty: AllowMemberJoin - turn this feature on/off. If off, a userError is added.
+        /// docProperty: username
+        /// docProperty: password
+        /// docProperty: firstName
+        /// docProperty: lastName
+        /// docProperty: email
         /// </summary>
         /// <param name="core"></param>
         public static void processRegisterForm(CoreController core) {
@@ -37,6 +45,7 @@ namespace Contensive.Processor.Controllers {
                     // -- user error occured somewhere during the process, exit
                     return;
                 }
+                // todo -- use model no cs
                 using (var csPerson = new CsModel(core)) {
                     if (!csPerson.open("people", "ID=" + core.session.user.id)) {
                         //
