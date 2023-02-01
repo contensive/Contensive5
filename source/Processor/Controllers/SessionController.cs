@@ -768,11 +768,8 @@ namespace Contensive.Processor.Controllers {
                     Criteria = "(username=" + DbController.encodeSQLText(username) + ")";
                 }
                 Criteria += "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
-                string peopleFieldList = "ID,passwordHash,admin,developer,ccguid";
+                string peopleFieldList = "ID,password,passwordHash,admin,developer,ccguid";
                 bool allowPlainTextPassword = core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPassword, true);
-                if (allowPlainTextPassword) {
-                    peopleFieldList = "ID,password,admin,developer,ccguid";
-                }
                 using (var cs = new CsModel(core)) {
                     if (!cs.open("People", Criteria, "id", true, user.id, peopleFieldList, PageSize: 2)) {
                         //
@@ -804,21 +801,40 @@ namespace Contensive.Processor.Controllers {
                                 LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
                                 return cs.getInteger("ID");
                             }
+                            //
+                            // -- fail, plain text
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                            return 0;
                         } else {
                             //
                             // -- test encrypted password entered with passwordHash saved
                             string passwordHash = SecurityController.encryptOneWay(core, password, cs.getText("ccguid"));
                             if (passwordHash.Equals(cs.getText("passwordHash"), StringComparison.InvariantCultureIgnoreCase)) {
                                 //
-                                // -- success, password match
+                                // -- success, encrypted password match
                                 LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
                                 return cs.getInteger("ID");
                             }
+                            if (!core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPasswordHash, true)) {
+                                //
+                                // -- migration mode disabled, encrypted password fail
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                                return 0;
+                            }
+                            if (!string.IsNullOrEmpty(cs.getText("password")) && string.IsNullOrEmpty(cs.getText("passwordhash")) && password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
+                                //
+                                // -- migration model -- password matches plain text password, no hash, allow 1-time and migrate
+                                cs.set("passwordHash", passwordHash);
+                                cs.set("password", "");
+                                cs.save();
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw migration");
+                                return cs.getInteger("ID");
+                            }
+                            //
+                            // -- fail, hash password
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                            return 0;
                         }
-                        //
-                        // -- fail, blank or incorrect password
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
-                        return 0;
                     }
                     //
                     // -- no-password mode
@@ -1116,12 +1132,12 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isEditing() {
             try {
-                if (isEditingLocal != null) { return (bool)isEditingLocal;  }
+                if (isEditingLocal != null) { return (bool)isEditingLocal; }
                 //
                 // -- return true if admin and editing is turned on
                 if (!isAuthenticated) {
                     isEditingLocal = false;
-                    return false; 
+                    return false;
                 }
                 bool editingSiteProperty = core.visitProperty.getBoolean("AllowEditing") || core.visitProperty.getBoolean("AllowAdvancedEditor");
                 isEditingLocal = editingSiteProperty && (core.session.user.admin || core.session.user.developer);

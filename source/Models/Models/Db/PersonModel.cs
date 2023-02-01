@@ -303,5 +303,39 @@ namespace Contensive.Models.Db {
                 return name;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// set the current user's password. returns false if password does not meet password rule criteria
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="password"></param>
+        public static bool setPassword(CPBaseClass cp, string password) {
+            return setPassword(cp, password, cp.User.Id);
+        }
+        //
+        //====================================================================================================
+        //
+        public static bool setPassword(CPBaseClass cp, string password, int userId) {
+            //
+            // todo -- add password criteria like min-length
+            //
+            if (cp.Site.GetBoolean("allow plain text password", true)) {
+                //
+                // -- set plain-text password
+                string sqlPassword = cp.Db.EncodeSQLText(password);
+                cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={sqlPassword} where id={userId}");
+                return true;
+            }
+            //
+            // -- set hash password
+            string guid = "";
+            using (DataTable dt = cp.Db.ExecuteQuery($"select ccguid from ccmembers where id={userId}"))
+                if (dt?.Rows != null && dt.Rows.Count > 0) { guid = cp.Utils.EncodeText(dt.Rows[0][0]); }
+            string passwordHash = cp.Security.EncryptOneWay(password, guid);
+            string sqlPasswordHash = cp.Db.EncodeSQLText(passwordHash);
+            cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={sqlPasswordHash} where id={userId}");
+            return true;
+        }
     }
 }

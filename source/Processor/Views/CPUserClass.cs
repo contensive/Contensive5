@@ -444,6 +444,18 @@ namespace Contensive.Processor {
             return cp.core.userProperty.getObject<T>(key);
         }
         //
+        //=======================================================================================================
+        //
+        public override void SetPassword(string password) {
+            Contensive.Models.Db.PersonModel.setPassword(cp, password);
+        }
+        //
+        //=======================================================================================================
+        //
+        public override void SetPassword(string password, int userId) {
+            Contensive.Models.Db.PersonModel.setPassword(cp, password, userId);
+        }
+        //
         //====================================================================================================
         // todo  obsolete
         //
@@ -535,6 +547,7 @@ namespace Contensive.Processor {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+
         ~CPUserClass() {
             Dispose(false);
         }

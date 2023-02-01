@@ -440,6 +440,21 @@ namespace Contensive.BaseClasses {
         public abstract void SetProperty(string key, DateTime value, int userId);
         //
         //====================================================================================================
+        /// <summary>
+        /// Set the current user's password. If in plain-text password mode, the password field is populated, else the passwordHash field is populated.
+        /// </summary>
+        /// <param name="password"></param>
+        public abstract void SetPassword(string password);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Set the specific user's password. If in plain-text password mode, the password field is populated, else the passwordHash field is populated.
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="userId"></param>
+        public abstract void SetPassword(string password, int userId);
+        //
+        //====================================================================================================
         //
         // -- deprecated
         //

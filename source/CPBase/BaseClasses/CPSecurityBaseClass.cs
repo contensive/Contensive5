@@ -8,11 +8,20 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// return an encrypted string. This is a one way so use it passwords, etc.
+        /// return an encrypted string. One-way encryption cannot be reversed. This is a hash.
         /// </summary>
         /// <param name="unencryptedString"></param>
         /// <returns></returns>
         public abstract string EncryptOneWay(string unencryptedString);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// return an encrypted string. One-way encryption cannot be reversed. This is a hash.
+        /// </summary>
+        /// <param name="unencryptedString"></param>
+        /// <param name="salt"></param>
+        /// <returns></returns>
+        public abstract string EncryptOneWay(string unencryptedString, string salt);
         //
         //==========================================================================================
         //

@@ -8,6 +8,34 @@ using static Tests.TestConstants;
 namespace Tests {
     [TestClass()]
     public class CpUserTests {
+        //
+        //====================================================================================================
+        /// <summary>
+        ///   
+        /// </summary>
+        [TestMethod]
+        public void cpUser_setPassword_plainText() {
+            using (var cp = new CPClass(testAppName)) {
+                // arrange
+                // act
+                // assert
+                Assert.Fail();
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        ///   
+        /// </summary>
+        [TestMethod]
+        public void cpUser_setPassword_hash() {
+            using (var cp = new CPClass(testAppName)) {
+                // arrange
+                // act
+                // assert
+                Assert.Fail();
+            }
+        }
         //====================================================================================================
         /// <summary>
         ///  Test 1 - cp ok without application (cluster mode).
