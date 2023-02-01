@@ -9,7 +9,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         //====================================================================================================
         //
         public static string get( CoreController core )  {
-            string tempGetForm_QuickStats = null;
+            string result = null;
             try {
                 string sql = null;
                 string RowColor = null;
@@ -133,16 +133,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 Stream.add("</td></tr></table>");
                 //
-                tempGetForm_QuickStats = HtmlController.form(core, Stream.text);
-                core.html.addTitle("Quick Stats", "Quick Stats");
-                return tempGetForm_QuickStats;
+                result = HtmlController.form(core, Stream.text);
+                return result;
                 //
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
-            return tempGetForm_QuickStats;
+            return result;
         }
         //
 
