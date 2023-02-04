@@ -4,6 +4,7 @@ using Contensive.Processor;
 using Amazon;
 using System.Text;
 using System.Reflection;
+using Contensive.CLI.Controllers;
 
 namespace Contensive.CLI {
     static class ConfigureCmd {

@@ -310,21 +310,50 @@ namespace Contensive.Models.Db {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="password"></param>
+        public static bool setPassword(CPBaseClass cp, string password, int userId) {
+            string userErrorMessage = "";
+            return setPassword(cp, password, userId, ref userErrorMessage);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// set the current user's password. returns false if password does not meet password rule criteria
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="password"></param>
         public static bool setPassword(CPBaseClass cp, string password) {
-            return setPassword(cp, password, cp.User.Id);
+            string userErrorMessage = "";
+            return setPassword(cp, password, cp.User.Id, ref userErrorMessage);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// set the current user's password. returns false if password does not meet password rule criteria
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="password"></param>
+        public static bool setPassword(CPBaseClass cp, string password, ref string userErrorMessage) {
+            return setPassword(cp, password, cp.User.Id, ref userErrorMessage);
         }
         //
         //====================================================================================================
         //
-        public static bool setPassword(CPBaseClass cp, string password, int userId) {
+        public static bool setPassword(CPBaseClass cp, string password, int userId, ref string userErrorMessage) {
             //
-            // todo -- add password criteria like min-length
+            // todo -- add password policy tests, like min-length
+            //
+            int passwordMinLength = cp.Site.GetInteger("password min length",5);
+            if(password.Length<passwordMinLength) {
+                userErrorMessage = "Password length must be at least " + passwordMinLength.ToString() + " characters.";
+                return false;
+            }
             //
             if (cp.Site.GetBoolean("allow plain text password", true)) {
                 //
                 // -- set plain-text password
                 string sqlPassword = cp.Db.EncodeSQLText(password);
                 cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={sqlPassword} where id={userId}");
+                invalidateCacheOfRecord<PersonModel>(cp, userId);
                 return true;
             }
             //
@@ -335,6 +364,7 @@ namespace Contensive.Models.Db {
             string passwordHash = cp.Security.EncryptOneWay(password, guid);
             string sqlPasswordHash = cp.Db.EncodeSQLText(passwordHash);
             cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={sqlPasswordHash} where id={userId}");
+            invalidateCacheOfRecord<PersonModel>(cp, userId);
             return true;
         }
     }

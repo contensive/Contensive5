@@ -654,6 +654,9 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         /// <summary>
         /// return a new model with the data selected.
+        /// Models from this namespace are cached. 
+        /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
+        /// To prevent caching and lose the performance advantage, create and use a subclass.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="recordId"></param>
@@ -666,6 +669,9 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         /// <summary>
         /// return a new model with the data selected. All cacheNames related to the object will be added to the cacheNameList.
+        /// Models from this namespace are cached. 
+        /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
+        /// To prevent caching and lose the performance advantage, create and use a subclass.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="recordId">The id of the record to be read into the new object</param>
@@ -688,6 +694,9 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         /// <summary>
         /// create an object from a record with matching ccGuid
+        /// Models from this namespace are cached. 
+        /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
+        /// To prevent caching and lose the performance advantage, create and use a subclass.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
@@ -701,6 +710,9 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         /// <summary>
         /// create an object from a record with a matching ccguid, add an object cache name to the argument list
+        /// Models from this namespace are cached. 
+        /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
+        /// To prevent caching and lose the performance advantage, create and use a subclass.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="recordGuid"></param>
@@ -723,6 +735,9 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         /// <summary>
         /// create an object from the first record found from a list created with matching name records, ordered by id
+        /// Models from this namespace are cached. 
+        /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
+        /// To prevent caching and lose the performance advantage, create and use a subclass.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
@@ -737,6 +752,9 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         /// <summary>
         /// create an object from the first record found from a list created with matching name records, ordered by id, add an object cache name to the argument list
+        /// Models from this namespace are cached. 
+        /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
+        /// To prevent caching and lose the performance advantage, create and use a subclass.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="recordName"></param>

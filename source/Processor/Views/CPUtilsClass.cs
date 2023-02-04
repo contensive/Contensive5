@@ -176,9 +176,33 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
-        public override int GetRandomInteger()  {
+        public override int GetRandomInteger() {
             return GenericController.getRandomInteger(cp.core);
         }
+        //
+        // ====================================================================================================
+        //
+        public override int GetRandomInteger(int maxValue) {
+            return GenericController.getRandomInteger(cp.core, maxValue);
+        }
+        //
+        // ====================================================================================================
+        //
+        public override double GetRandomDouble() {
+            return GenericController.getRandomDouble(cp.core);
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// generate a random alphanumeric string, upper and lower case text and numerics (0...9, a...z, A...Z, no special characters)
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override string GetRandomString(int length) {
+            return GenericController.GetRandomString(cp.core, length);
+        }
+
         //
         // ====================================================================================================
         //
@@ -639,7 +663,6 @@ namespace Contensive.Processor {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
         ~CPUtilsClass()  {
             Dispose(false);
         }

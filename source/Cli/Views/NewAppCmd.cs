@@ -10,6 +10,7 @@ using System.Reflection;
 using Amazon.S3;
 using Amazon.S3.Model;
 using System.Collections.Generic;
+using Contensive.CLI.Controllers;
 
 namespace Contensive.CLI {
     static class NewAppCmd {

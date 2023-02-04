@@ -75,15 +75,13 @@ namespace Contensive.Processor.Controllers {
         /// <param name="password"></param>
         /// <returns></returns>
         public static string encryptOneWay(CoreController core, string password, string salt) {
-            string returnResult = "";
             try {
                 byte[] emptySalt = Encoding.ASCII.GetBytes(salt);
-                returnResult = HashEncode.computeHash(password, "SHA512", emptySalt);
+                return HashEncode.computeHash(password, "SHA512", emptySalt);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnResult;
         }
         //
         //====================================================================================================

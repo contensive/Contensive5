@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a menucrm0210 --tasks run"
+      "commandLineArgs": "-a menucrm0210 --addroot"
     }
   }
 }

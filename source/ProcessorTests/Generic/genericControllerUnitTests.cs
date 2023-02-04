@@ -12,14 +12,7 @@ namespace Tests {
     public class GenericControllerUnitTests {
         //
         [TestMethod]
-        public void controllers_empty_test() {
-            // arrange
-            // act
-            // assert
-        }
-        //
-        [TestMethod]
-        public void generic_JoinQueryString() {
+        public void joinQueryString_test() {
             Assert.AreEqual("", GenericController.joinQueryString("", ""));
             Assert.AreEqual("a=1", GenericController.joinQueryString("a=1", ""));
             Assert.AreEqual("a=1", GenericController.joinQueryString("a=1", "a"));
@@ -31,7 +24,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeJavascript_test() {
+        public void encodeJavascript_test() {
             // arrange
             // act
             string result1 = GenericController.encodeJavascriptStringSingleQuote("a'b");
@@ -40,7 +33,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_getSingular_test() {
+        public void getSingular_test() {
             // arrange
             // act
             // assert
@@ -51,7 +44,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeInitialCaps_test() {
+        public void encodeInitialCaps_test() {
             // arrange
             // act
             // assert
@@ -59,7 +52,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_getLinkedText_test() {
+        public void getLinkedText_test() {
             // arrange
             // act
             string result1 = GenericController.getLinkedText("<a href=\"goHere\">", "abc<link>zzzz</link>def");
@@ -68,7 +61,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_ConvertLinkToShortLink_test() {
+        public void ConvertLinkToShortLink_test() {
             // arrange
             // act
             string result1 = GenericController.convertLinkToShortLink("/c/d.html", "domain.com", "/a/b");
@@ -79,7 +72,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_getYesNo_test() {
+        public void getYesNo_test() {
             // arrange
             // act
             // assert
@@ -88,18 +81,18 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_getFirstNonzeroInteger_test() {
+        public void getFirstNonzeroInteger_test() {
             // arrange            
 
             // act
             // assert
-            Assert.AreEqual(1, GenericController.getFirstNonZeroInteger(1,2));
+            Assert.AreEqual(1, GenericController.getFirstNonZeroInteger(1, 2));
             Assert.AreEqual(1, GenericController.getFirstNonZeroInteger(2, 1));
             Assert.AreEqual(2, GenericController.getFirstNonZeroInteger(0, 2));
         }
         //
         [TestMethod]
-        public void controllers_getFirstNonzeroDate_test() {
+        public void getFirstNonzeroDate_test() {
             // arrange            
             DateTime zeroDate = new DateTime(1990, 8, 7);
             DateTime newBeginning = new DateTime(1999, 2, 2);
@@ -116,7 +109,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_decodeUrl_test() {
+        public void decodeUrl_test() {
             const string pattern1 = "a/b c";
             // arrange
             string test1 = GenericController.encodeURL(pattern1);
@@ -127,7 +120,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_decodeRequestString_test() {
+        public void decodeRequestString_test() {
             // arrange
             // act
 
@@ -138,7 +131,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeRequestVariable_test() {
+        public void encodeRequestVariable_test() {
             // arrange
             // act
             string result1 = GenericController.encodeRequestVariable("abc");
@@ -149,7 +142,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeQuerySting_test() {
+        public void encodeQuerySting_test() {
             // arrange
             // act
             string result1 = GenericController.encodeQueryString("a=b&c=d");
@@ -160,7 +153,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeUrl_test() {
+        public void encodeUrl_test() {
             // arrange
             // act
             string result1 = GenericController.encodeURL("http://www.a.com/b/c.html");
@@ -171,7 +164,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_isInDelimitedString_test() {
+        public void isInDelimitedString_test() {
             // arrange
             // act
             // assert
@@ -184,7 +177,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_getIntegerString_test() {
+        public void getIntegerString_test() {
             // arrange
             // act
             // assert
@@ -192,7 +185,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_getRandomInteger_test() {
+        public void getRandomInteger_test() {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
@@ -203,9 +196,40 @@ namespace Tests {
             }
         }
         //
+        [TestMethod]
+        public void getRandomInteger_maxValue_test() {
+            using (CPClass cp = new(testAppName)) {
+                // arrange
+                // act
+                for (int i = 0; i < 100; i++) {
+                    int test = GenericController.getRandomInteger(cp.core, 10);
+                    Assert.IsTrue(test >= 0 && test <= 10);
+                }
+                for (int i = 0; i < 100; i++) {
+                    int test = GenericController.getRandomInteger(cp.core, 1000000);
+                    Assert.IsTrue(test >= 0 && test <= 1000000);
+                }
+            }
+        }
         //
         [TestMethod]
-        public void controllers_getValueFromNameValueString_test() {
+        public void getRandomString_test() {
+            using (CPClass cp = new(testAppName)) {
+                // arrange
+                List<string> dupCheck = new();
+                // act
+                for (int i = 0; i < 100; i++) {
+                    string test = GenericController.GetRandomString(cp.core, 1000);
+                    Assert.IsFalse(dupCheck.Contains(test));
+                    dupCheck.Add(test); 
+                    Assert.IsTrue(test.Length==1000);
+                }
+            }
+        }
+        //
+        //
+        [TestMethod]
+        public void getValueFromNameValueString_test() {
             // arrange
             const string test1 = "a=1&b=2&c=3";
             // act
@@ -221,7 +245,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_splitUrl_test() {
+        public void splitUrl_test() {
             // arrange
             const string test1 = "http://www.a.com/b/c.html?d=e";
             string expect1 = SerializeObject(new GenericController.UrlDetailsClass() {
@@ -237,7 +261,7 @@ namespace Tests {
                 filename = "d",
                 host = "a.org",
                 port = "80",
-                pathSegments = new List<string>() { "b","c" },
+                pathSegments = new List<string>() { "b", "c" },
                 protocol = "https://",
                 queryString = "?d=e"
             });
@@ -250,7 +274,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_splitNewLine_test() {
+        public void splitNewLine_test() {
             // arrange
             const string test1 = "1\r2\n3\r\n4";
             const string test2 = "1 \r 2\n 3 \r\n4";
@@ -274,7 +298,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_convertLinksToAbsolute_test() {
+        public void convertLinksToAbsolute_test() {
             // arrange
             const string link1 = "http://www.good.com/";
             const string link2 = "https://www.good.com/";
@@ -298,7 +322,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_decodeHtml_test() {
+        public void decodeHtml_test() {
             // arrange
             string test1 = "&quot; &amp; &apos; &minus; &lt; &gt;";
             string test2 = "&#34; &#35; &#36; &#37;";
@@ -311,7 +335,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_modifyLinkQuery_test() {
+        public void modifyLinkQuery_test() {
             // arrange
             string testLink1 = "http://www.test.com/path/page.aspx?a=1&b=2";
             // act
@@ -327,7 +351,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_modifyQueryString_test3() {
+        public void modifyQueryString_test3() {
             // arrange
             string testLink1 = "a=1&b=2";
             // act
@@ -347,7 +371,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_modifyQueryString_test2() {
+        public void modifyQueryString_test2() {
             // arrange
             string testLink1 = "a=1&b=2";
             // act
@@ -367,7 +391,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_modifyQueryString_test() {
+        public void modifyQueryString_test() {
             // arrange
             string testLink1 = "a=1&b=2";
             // act
@@ -387,7 +411,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeEmptyDate_test() {
+        public void encodeEmptyDate_test() {
             // arrange
             DateTime zeroDate = new DateTime(1990, 8, 7);
             DateTime newBeginning = new DateTime(1999, 2, 2);
@@ -403,7 +427,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeEmpty_test() {
+        public void encodeEmpty_test() {
             // arrange
             // act
             string test1 = GenericController.encodeEmpty("1", "2");
@@ -416,7 +440,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_encodeEmptyInteger_test() {
+        public void encodeEmptyInteger_test() {
             // arrange
             // act
             int test1 = GenericController.encodeEmptyInteger("1", 2);
@@ -431,7 +455,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_isGUID_test() {
+        public void isGUID_test() {
             // arrange
             // act
             // assert
@@ -448,7 +472,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_getGUID_test() {
+        public void getGUID_test() {
             // arrange
             // act
             string test1 = GenericController.getGUID();
@@ -468,7 +492,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_span_test1() {
+        public void span_test1() {
             // arrange
             // act
             string result = HtmlController.span("test", "testClass");
@@ -479,7 +503,7 @@ namespace Tests {
         }
         //
         [TestMethod]
-        public void controllers_SplitDelimited_test1() {
+        public void SplitDelimited_test1() {
             // arrange
             string in1 = "this and that";
             string in2 = "this and \"that and another\"";

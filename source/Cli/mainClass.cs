@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using Contensive.Processor;
 using System.Security.Principal;
+using Contensive.CLI.Controllers;
 
 namespace Contensive.CLI {
     //
@@ -73,7 +74,7 @@ namespace Contensive.CLI {
                                 // -- pause for input (use for debuggin)
                                 {
                                     String prompt = "\nPaused. Hit enter to continue.";
-                                    GenericController.promptForReply(prompt, "");
+                                    Contensive.CLI.Controllers.GenericController.promptForReply(prompt, "");
                                 }
                                 break;
                             case "-a":
@@ -282,9 +283,11 @@ namespace Contensive.CLI {
                                 break;
                             case "--addroot":
                                 //
-                                // -- add an administrator
+                                // -- add root developer
+                                string password = getNextCmdArg(args, ref argPtr);
                                 AddRootCmd.execute(cpServer,
-                                    appName
+                                    appName,
+                                    password
                                 );
                                 break;
 

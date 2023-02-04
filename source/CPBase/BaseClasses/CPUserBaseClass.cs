@@ -442,17 +442,40 @@ namespace Contensive.BaseClasses {
         //====================================================================================================
         /// <summary>
         /// Set the current user's password. If in plain-text password mode, the password field is populated, else the passwordHash field is populated.
+        /// Return true if the password meets password policies.
         /// </summary>
         /// <param name="password"></param>
-        public abstract void SetPassword(string password);
+        public abstract bool SetPassword(string password);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Set the current user's password. If in plain-text password mode, the password field is populated, else the passwordHash field is populated.
+        /// Return true if the password meets password policies.
+        /// If error, return a user appropriate error message.
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="userErrorMessage"></param>
+        public abstract bool SetPassword(string password, ref string userErrorMessage);
         //
         //====================================================================================================
         /// <summary>
         /// Set the specific user's password. If in plain-text password mode, the password field is populated, else the passwordHash field is populated.
+        /// Return true if the password meets password policies.
         /// </summary>
         /// <param name="password"></param>
         /// <param name="userId"></param>
-        public abstract void SetPassword(string password, int userId);
+        public abstract bool SetPassword(string password, int userId);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Set the specific user's password. If in plain-text password mode, the password field is populated, else the passwordHash field is populated.
+        /// Return true if the password meets password policies.
+        /// If error, return a user appropriate error message.
+        /// </summary>
+        /// <param name="password"></param>
+        /// <param name="userId"></param>
+        /// <param name="userErrorMessage"></param>
+        public abstract bool SetPassword(string password, int userId, ref string userErrorMessage);
         //
         //====================================================================================================
         //

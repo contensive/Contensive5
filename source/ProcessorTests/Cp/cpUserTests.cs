@@ -1,4 +1,5 @@
 ﻿
+using Contensive.Models.Db;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -14,12 +15,60 @@ namespace Tests {
         ///   
         /// </summary>
         [TestMethod]
+        public void cpUser_setPassword_minLength() {
+            using (var cp = new CPClass(testAppName)) {
+                // arrange
+                cp.Site.SetProperty("allow plain text password", true);
+                cp.Site.SetProperty("password min length", 5);
+                // act
+                string returnMsg = "1234";
+                Assert.IsFalse(cp.User.SetPassword("1", ref returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
+                Assert.IsFalse(cp.User.SetPassword("12", ref returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
+                Assert.IsFalse(cp.User.SetPassword("123", ref returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
+                Assert.IsFalse(cp.User.SetPassword("1234", ref returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("123456", ref returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("1234567", ref returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("12345678", ref returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("123456789", ref returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("1234567890", ref returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        ///   
+        /// </summary>
+        [TestMethod]
         public void cpUser_setPassword_plainText() {
             using (var cp = new CPClass(testAppName)) {
                 // arrange
+                cp.Site.SetProperty("allow plain text password", true);
+                cp.Site.SetProperty("allow plain text password auto conversion to hash", false);
+                string testPassword = cp.Utils.GetRandomInteger().ToString();
+                string testUsername = cp.Utils.GetRandomInteger().ToString();
+                PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
+                userBefore.username = testUsername;
+                userBefore.password = cp.Utils.GetRandomInteger().ToString();
+                userBefore.passwordHash = cp.Utils.GetRandomInteger().ToString();
+                userBefore.save(cp);
                 // act
+                Assert.IsTrue(cp.User.SetPassword(testPassword));
+                Assert.IsTrue(cp.User.Login(testUsername, testPassword));
                 // assert
-                Assert.Fail();
+                PersonModel userAfter = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
+                Assert.AreEqual(testPassword, userAfter.password);
+                Assert.AreEqual(string.Empty, userAfter.passwordHash);
+                // cleanup
+                cp.Db.ExecuteNonQuery($"update ccmembers set username=null,password=null,passwordhash=null where id={cp.User.Id}");
             }
         }
         //
@@ -31,9 +80,55 @@ namespace Tests {
         public void cpUser_setPassword_hash() {
             using (var cp = new CPClass(testAppName)) {
                 // arrange
+                cp.Site.SetProperty("allow plain text password", false);
+                cp.Site.SetProperty("allow plain text password auto conversion to hash", false);
+                string testPassword = cp.Utils.GetRandomInteger().ToString();
+                string testUsername = cp.Utils.GetRandomInteger().ToString();
+                PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
+                userBefore.username = testUsername;
+                userBefore.password = cp.Utils.GetRandomInteger().ToString();
+                userBefore.passwordHash = cp.Utils.GetRandomInteger().ToString();
+                userBefore.save(cp);
                 // act
+                Assert.IsTrue(cp.User.SetPassword(testPassword));
+                Assert.IsTrue(cp.User.Login(testUsername, testPassword));
                 // assert
-                Assert.Fail();
+                PersonModel userAfter = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
+                Assert.AreEqual(String.Empty, userAfter.password);
+                Assert.AreNotEqual(string.Empty, userAfter.passwordHash);
+                Assert.AreNotEqual(testPassword, userAfter.passwordHash);
+                // cleanup
+                cp.Db.ExecuteNonQuery($"update ccmembers set username=null,password=null,passwordhash=null where id={cp.User.Id}");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        ///   
+        /// </summary>
+        [TestMethod]
+        public void cpUser_setPassword_hash_autoConvert() {
+            using (var cp = new CPClass(testAppName)) {
+                // arrange
+                cp.Site.SetProperty("allow plain text password", false);
+                cp.Site.SetProperty("allow plain text password auto conversion to hash", true);
+                string testPassword = cp.Utils.GetRandomInteger().ToString();
+                string testUsername = cp.Utils.GetRandomInteger().ToString();
+                PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
+                userBefore.username = testUsername;
+                userBefore.password = testPassword;
+                userBefore.passwordHash = "";
+                userBefore.save(cp);
+                // act
+                Assert.IsTrue(cp.User.SetPassword(testPassword));
+                Assert.IsTrue(cp.User.Login(testUsername, testPassword));
+                // assert
+                PersonModel userAfter = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
+                Assert.AreEqual(String.Empty, userAfter.password);
+                Assert.AreNotEqual(string.Empty, userAfter.passwordHash);
+                Assert.AreNotEqual(testPassword, userAfter.passwordHash);
+                // cleanup
+                cp.Db.ExecuteNonQuery($"update ccmembers set username=null,password=null,passwordhash=null where id={cp.User.Id}");
             }
         }
         //====================================================================================================

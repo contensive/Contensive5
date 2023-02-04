@@ -381,6 +381,28 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Return a random integer between 0 and maxValue
+        /// </summary>
+        /// <returns></returns>
+        public abstract int GetRandomInteger(int maxValue);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return a random double between 0.0 and 1.0
+        /// </summary>
+        /// <returns></returns>
+        public abstract double GetRandomDouble();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// generate a random alphanumeric string, upper and lower case text and numerics (0...9, a...z, A...Z, no special characters)
+        /// </summary>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public abstract string GetRandomString(int length);
+        //
+        //====================================================================================================
+        /// <summary>
         /// returns true if the string is a guid (start/end with brace, char count, check dashes
         /// </summary>
         /// <param name="guid"></param>

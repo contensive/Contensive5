@@ -446,14 +446,26 @@ namespace Contensive.Processor {
         //
         //=======================================================================================================
         //
-        public override void SetPassword(string password) {
-            Contensive.Models.Db.PersonModel.setPassword(cp, password);
+        public override bool SetPassword(string password, ref string userErrorMessage) {
+            return Contensive.Models.Db.PersonModel.setPassword(cp, password, ref  userErrorMessage);
         }
         //
         //=======================================================================================================
         //
-        public override void SetPassword(string password, int userId) {
-            Contensive.Models.Db.PersonModel.setPassword(cp, password, userId);
+        public override bool SetPassword(string password, int userId, ref string userErrorMessage) {
+            return Contensive.Models.Db.PersonModel.setPassword(cp, password, userId, ref  userErrorMessage);
+        }
+        //
+        //=======================================================================================================
+        //
+        public override bool SetPassword(string password) {
+            return Contensive.Models.Db.PersonModel.setPassword(cp, password);
+        }
+        //
+        //=======================================================================================================
+        //
+        public override bool SetPassword(string password, int userId) {
+            return Contensive.Models.Db.PersonModel.setPassword(cp, password, userId);
         }
         //
         //====================================================================================================
