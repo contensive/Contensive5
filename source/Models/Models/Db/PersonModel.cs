@@ -342,8 +342,8 @@ namespace Contensive.Models.Db {
             //
             // todo -- add password policy tests, like min-length
             //
-            int passwordMinLength = cp.Site.GetInteger("password min length",5);
-            if(password.Length<passwordMinLength) {
+            int passwordMinLength = cp.Site.GetInteger("password min length", 5);
+            if (password.Length < passwordMinLength) {
                 userErrorMessage = "Password length must be at least " + passwordMinLength.ToString() + " characters.";
                 return false;
             }
@@ -351,8 +351,7 @@ namespace Contensive.Models.Db {
             if (cp.Site.GetBoolean("allow plain text password", true)) {
                 //
                 // -- set plain-text password
-                string sqlPassword = cp.Db.EncodeSQLText(password);
-                cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={sqlPassword} where id={userId}");
+                cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={cp.Db.EncodeSQLText(password)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id} where id={userId}");
                 invalidateCacheOfRecord<PersonModel>(cp, userId);
                 return true;
             }
@@ -362,8 +361,7 @@ namespace Contensive.Models.Db {
             using (DataTable dt = cp.Db.ExecuteQuery($"select ccguid from ccmembers where id={userId}"))
                 if (dt?.Rows != null && dt.Rows.Count > 0) { guid = cp.Utils.EncodeText(dt.Rows[0][0]); }
             string passwordHash = cp.Security.EncryptOneWay(password, guid);
-            string sqlPasswordHash = cp.Db.EncodeSQLText(passwordHash);
-            cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={sqlPasswordHash} where id={userId}");
+            cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={cp.Db.EncodeSQLText(passwordHash)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id} where id={userId}");
             invalidateCacheOfRecord<PersonModel>(cp, userId);
             return true;
         }
