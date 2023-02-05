@@ -109,37 +109,78 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
         }
         private List<NavItem> navSettingsList_local;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Tool list
+        /// </summary>
         public List<NavItem> navToolsList {
             get {
-                if (navToolsList_local != null) { return navToolsList_local; }
+                return getNavItemsByType(4, ref navToolsList_local);
+            }
+        }
+        private List<NavItem> navToolsList_local;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// get nav list for addons in a category
+        /// </summary>
+        /// <param name="navTypeId"></param>
+        /// <param name="localListCache"></param>
+        /// <returns></returns>
+        public List<NavItem> getNavItemsByType(int navTypeId, ref List<NavItem> localListCache) {
+            try {
+                if (localListCache != null) { return localListCache; }
                 if (cp.User.Id == 0) { return new List<NavItem>(); }
                 if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
                 //
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-nav-tools-list");
-                navToolsList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-                if (navToolsList_local != null) { return navToolsList_local; }
-                navToolsList_local = new List<NavItem>();
+                localListCache = cp.Cache.GetObject<List<NavItem>>(cacheKey);
+                if (localListCache != null) { return localListCache; }
+                localListCache = new List<NavItem>();
                 //
                 //
-                using (DataTable dt = cp.Db.ExecuteQuery("select name,ccguid from ccaggregatefunctions where (navTypeId=4)and(admin>0)and(name is not null)and(ccguid is not null) order by name")) {
+                using (DataTable dt = cp.Db.ExecuteQuery($"select a.name,a.ccguid,c.name as categoryName from ccaggregatefunctions a left join ccaddoncategories c on c.id=a.addonCategoryId where (a.navTypeId={navTypeId})and(a.admin>0)and(a.name is not null)and(a.ccguid is not null) order by c.name,a.name")) {
                     if (dt?.Rows != null) {
+                        string categoryNameLast = "";
                         foreach (DataRow dr in dt.Rows) {
-                            navToolsList_local.Add(new NavItem {
+                            string categoryName = cp.Utils.EncodeText(dr["categoryName"]);
+                            categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName;
+                            if (!string.IsNullOrEmpty(categoryName) && categoryName != categoryNameLast) {
+                                //
+                                // -- create category header for this entry
+                                localListCache.Add(new NavItem {
+                                    navDivider = true
+                                });
+                                localListCache.Add(new NavItem {
+                                    navItemName = categoryName.replace(".", " > ",System.StringComparison.InvariantCultureIgnoreCase),
+                                    isCategory = true
+                                });
+                                categoryNameLast = categoryName;
+                            }
+                            //
+                            // -- create entry
+                            string entryName = cp.Utils.EncodeText(dr["name"]);
+                            entryName = string.IsNullOrEmpty(entryName) ? "" : entryName;
+                            localListCache.Add(new NavItem {
                                 navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])),
-                                navItemName = cp.Utils.EncodeText(dr["name"])
+                                navItemName = entryName,
+                                isCategory = false
                             });
                         }
                     }
                 }
-                navToolsList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
+                //localListCache.Sort((a, b) => a.sortOrder.CompareTo(b.sortOrder));
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
-                cp.Cache.Store(cacheKey, navToolsList_local, depKey);
-                return navToolsList_local;
+                cp.Cache.Store(cacheKey, localListCache, depKey);
+                return localListCache;
+            } catch (System.Exception ex) {
+                cp.Site.ErrorReport(ex, "getNavItemsByType");
+                return new();
             }
         }
-        private List<NavItem> navToolsList_local;
         //
         public List<NavItem> navCommList {
             get {
@@ -151,51 +192,52 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string cacheKey = cp.Cache.CreateKey("admin-nav-comm-list");
                 navCommList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
                 if (navCommList_local != null) { return navCommList_local; }
-                navCommList_local = new List<NavItem>();
-                //
-                // -- consider selecting with navagator entry content
-                //
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Group Email"),
-                    navItemName = "Group Email"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("System Email"),
-                    navItemName = "System Email"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Conditional Email"),
-                    navItemName = "Conditional Email"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Bounce List"),
-                    navItemName = "Email Bounce List"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Log"),
-                    navItemName = "Email Log"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Templates"),
-                    navItemName = "Email Templates"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(addonGuidEmailDropReport),
-                    navItemName = cp.Utils.EncodeText("Email Drop Report")
-                });
-                //
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Group Text Messages"),
-                    navItemName = "Group Text Messages"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("System Text Messages"),
-                    navItemName = "System Text Messages"
-                });
-                navCommList_local.Add(new NavItem {
-                    navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Text Message Log"),
-                    navItemName = "Text Message Log"
-                });
+                navCommList_local = new List<NavItem> {
+                    //
+                    // -- consider selecting with navagator entry content
+                    //
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Group Email"),
+                        navItemName = "Group Email"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("System Email"),
+                        navItemName = "System Email"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Conditional Email"),
+                        navItemName = "Conditional Email"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Bounce List"),
+                        navItemName = "Email Bounce List"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Log"),
+                        navItemName = "Email Log"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Templates"),
+                        navItemName = "Email Templates"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(addonGuidEmailDropReport),
+                        navItemName = cp.Utils.EncodeText("Email Drop Report")
+                    },
+                    //
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Group Text Messages"),
+                        navItemName = "Group Text Messages"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("System Text Messages"),
+                        navItemName = "System Text Messages"
+                    },
+                    new NavItem {
+                        navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Text Message Log"),
+                        navItemName = "Text Message Log"
+                    }
+                };
                 navCommList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
@@ -241,7 +283,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         private List<NavItem> navDesignList_local;
         //
-        public List<NavItem> NavDomainList {
+        public List<NavItem> navDomainList {
             get {
                 if (navDomainList_Local != null) { return navDomainList_Local; }
                 if (cp.User.Id == 0) { return new List<NavItem>(); }
@@ -455,6 +497,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// if true, a divider is added and name/href ignored
         /// </summary>
         public bool navDivider { get; set; }
+        /// <summary>
+        /// if true, this navItemName is a category, boldeed and without link
+        /// </summary>
+        public bool isCategory { get; set; }
     }
 }
 

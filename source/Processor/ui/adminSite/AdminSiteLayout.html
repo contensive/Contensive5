@@ -1,6 +1,5 @@
 <div class="container-fluid ccBodyAdmin ccCon">
     {{{adminExceptions}}}
-
     <nav class="navbar navbar-expand-md navbar-dark bg-dark justify-content-center ccAdminHeaderNav">
         <a class="navbar-brand abs" href="{{adminRoute}}">{{{leftSideMessage}}}</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsingNavbar">
@@ -49,8 +48,11 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDesignDropdown">
                         {{#navDesignList}}
-                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                        {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
+                            {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
+                            {{^navDivider}}
+                                {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
+                                {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}                        
+                            {{/navDivider}}
                         {{/navDesignList}}
                     </div>
               	</li>
@@ -62,8 +64,11 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarCommDropdown">
                         {{#navCommList}}
-                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                        {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
+                            {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
+                            {{^navDivider}}
+                                {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
+                                {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}                        
+                            {{/navDivider}}
                         {{/navCommList}}
                     </div>
               	</li>
@@ -74,8 +79,11 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarToolsDropdown">
                         {{#navToolsList}}
-                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                        {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
+                            {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
+                            {{^navDivider}}
+                                {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
+                                {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}                        
+                            {{/navDivider}}
                         {{/navToolsList}}
                     </div>
                 </li>
@@ -86,8 +94,11 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarSettingsDropdown">
                         {{#navSettingsList}}
-                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                        {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
+                            {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
+                            {{^navDivider}}
+                                {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
+                                {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}                        
+                            {{/navDivider}}
                         {{/navSettingsList}}
                     </div>
                 </li>
@@ -98,8 +109,11 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right my-0" aria-labelledby="navbarProfileDropdown">
                         {{#navProfileList}}
-                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                        {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
+                            {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
+                            {{^navDivider}}
+                                {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
+                                {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}                        
+                            {{/navDivider}}
                         {{/navProfileList}}
                     </div>
                 </li>
@@ -124,5 +138,11 @@
         transform: translateX(-50%);
         text-align: center;
     }
+}
+div.dropdown-header 
+{    
+    font-weight: 700;
+    font-size: 1rem;
+    text-transform: uppercase;
 }
 </style>
