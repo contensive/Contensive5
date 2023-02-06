@@ -145,7 +145,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //-------------------------------------------------------------------------------
                 //
                 if (adminData.srcFormId == AdminFormEdit) {
-                    if (cp.core.doc.userErrorList.Count.Equals(0) && (adminData.srcFormButton.Equals(ButtonOK) || adminData.srcFormButton.Equals(ButtonCancel) || adminData.srcFormButton.Equals(ButtonDelete))) {
+                    if (cp.core.doc.userErrorList.Count.Equals(0) && adminData.allowRedirectToRefer ) {
                         string EditReferer = cp.core.docProperties.getText("EditReferer");
                         string CurrentLink = GenericController.modifyLinkQuery(cp.core.webServer.requestUrl, "editreferer", "", false);
                         CurrentLink = GenericController.toLCase(CurrentLink);
@@ -756,6 +756,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     case ButtonMarkReviewed: {
                                             adminData.admin_Action = Constants.AdminActionMarkReviewed;
                                             adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
                                             break;
 
                                         }
@@ -770,6 +771,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     case ButtonDelete: {
                                             adminData.admin_Action = Constants.AdminActionDelete;
                                             adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
                                             break;
 
                                         }
@@ -791,6 +793,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     case ButtonOK: {
                                             adminData.admin_Action = Constants.AdminActionSave;
                                             adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
                                             break;
 
                                         }
@@ -798,6 +801,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     case ButtonCancel: {
                                             adminData.admin_Action = Constants.AdminActionNop;
                                             adminData.dstFormId = AdminFormIndex;
+                                            adminData.allowRedirectToRefer = true;
                                             break;
 
                                         }

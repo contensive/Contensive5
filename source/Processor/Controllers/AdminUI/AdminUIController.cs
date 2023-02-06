@@ -702,7 +702,7 @@ namespace Contensive.Processor.Controllers {
                 result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name) + ":&nbsp;New record", "col-sm-12");
             } else {
                 result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name + ":&nbsp;#") + headerInfo.recordId + ", " + HtmlController.encodeHtml(editRecord.nameLc), "col-sm-4");
-                result += HtmlController.div(HtmlController.strong("Created:&nbsp;") + HtmlController.encodeHtml( getEditForm_TitleBarDetails_EditorString(editRecord.dateAdded, editRecord.createdBy, "unknown")), "col-sm-4");
+                result += HtmlController.div(HtmlController.strong("Created:&nbsp;") + HtmlController.encodeHtml(getEditForm_TitleBarDetails_EditorString(editRecord.dateAdded, editRecord.createdBy, "unknown")), "col-sm-4");
                 result += HtmlController.div(HtmlController.strong("Modified:&nbsp;") + HtmlController.encodeHtml(getEditForm_TitleBarDetails_EditorString(editRecord.modifiedDate, editRecord.modifiedBy, "not modified")), "col-sm-4");
             }
             return HtmlController.div(result, "row");
@@ -990,6 +990,20 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// return the edit url
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="contentId"></param>
+        /// <param name="recordId"></param>
+        /// <returns></returns>
+        public static string getRecordEditUrl(CoreController core, int contentId, int recordId) 
+            => $"/{core.appConfig.adminRoute}?af=4&aa=2&ad=1&cid={contentId}&id={recordId}";
+        //
+        public static string getRecordEditUrl( CoreController core, int contentId, string recordGuid) 
+            => $"/{core.appConfig.adminRoute}?af=4&aa=2&ad=1&cid={contentId}&guid={recordGuid}";
+        //
+        //====================================================================================================
+        /// <summary>
         /// return an addon edit link
         /// </summary>
         /// <param name="core"></param>
@@ -1000,8 +1014,7 @@ namespace Contensive.Processor.Controllers {
         public static string getAddonEditAnchorTag(CoreController core, int addonId, string caption) {
             var cdef = ContentMetadataModel.createByUniqueName(core, "add-ons");
             if (cdef == null) { return string.Empty; }
-            string link = "/" + core.appConfig.adminRoute + "?af=4&aa=2&ad=1&cid=" + cdef.id + "&id=" + addonId;
-            return HtmlController.a(iconAddon_Green + ((string.IsNullOrWhiteSpace(caption)) ? "" : "&nbsp;" + caption), link, "ccAddonEditLink");
+            return HtmlController.a(iconAddon_Green + ((string.IsNullOrWhiteSpace(caption)) ? "" : "&nbsp;" + caption), getRecordEditUrl(core,cdef.id,addonId), "ccAddonEditLink");
         }
         //
         //====================================================================================================
@@ -1298,10 +1311,10 @@ namespace Contensive.Processor.Controllers {
             => getRecordEditAnchorTag(core, cdef, recordId, "");
         //
         public static string getRecordEditAnchorTag(CoreController core, ContentMetadataModel cdef, int recordId, string caption)
-            => getRecordEditAnchorTag("/" + core.appConfig.adminRoute + "?af=4&aa=2&ad=1&cid=" + cdef.id + "&id=" + recordId, caption, "ccRecordEditLink");
+            => getRecordEditAnchorTag(getRecordEditUrl(core, cdef.id, recordId), caption, "ccRecordEditLink");
         //
         public static string getRecordEditAnchorTag(CoreController core, ContentMetadataModel cdef, int recordId, string caption, string htmlClass)
-            => getRecordEditAnchorTag("/" + core.appConfig.adminRoute + "?af=4&aa=2&ad=1&cid=" + cdef.id + "&id=" + recordId, caption, htmlClass);
+            => getRecordEditAnchorTag(getRecordEditUrl(core, cdef.id, recordId), caption, htmlClass);
         //
         //====================================================================================================
         /// <summary>
@@ -1315,7 +1328,7 @@ namespace Contensive.Processor.Controllers {
             => getRecordEditAnchorTag(core, cdef, recordGuid, "");
         //
         public static string getRecordEditAnchorTag(CoreController core, ContentMetadataModel cdef, string recordGuid, string caption)
-            => getRecordEditAnchorTag("/" + core.appConfig.adminRoute + "?af=4&aa=2&ad=1&cid=" + cdef.id + "&guid=" + recordGuid, caption, "ccRecordEditLink");
+            => getRecordEditAnchorTag(getRecordEditUrl(core,cdef.id,recordGuid) , caption, "ccRecordEditLink");
         //
         //====================================================================================================
         /// <summary>

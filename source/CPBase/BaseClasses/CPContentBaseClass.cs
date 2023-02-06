@@ -244,7 +244,8 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Get the system edit link
+        /// Use GetEditUrl for simple anchor tag href to the edit page for this record.
+        /// Get the system edit link, including the design graphic
         /// </summary>
         /// <param name="contentName"></param>
         /// <param name="recordId"></param>
@@ -325,6 +326,36 @@ namespace Contensive.BaseClasses {
         /// <param name="customCaption"></param>
         /// <returns></returns>
         public abstract string GetEditLink(int contentId, string recordGuid, string customCaption);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Get the url to the admin site edit page
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordId"></param>
+        /// <returns></returns>
+        public abstract string GetEditUrl(string contentName, int recordId);
+        /// <summary>
+        /// Get the url to the admin site edit page
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordGuid"></param>
+        /// <returns></returns>
+        public abstract string GetEditUrl(string contentName, string recordGuid);
+        /// <summary>
+        /// Get the url to the admin site edit page
+        /// </summary>
+        /// <param name="contentId"></param>
+        /// <param name="recordId"></param>
+        /// <returns></returns>
+        public abstract string GetEditUrl(int contentId, int recordId);
+        /// <summary>
+        /// Get the url to the admin site edit page
+        /// </summary>
+        /// <param name="contentId"></param>
+        /// <param name="recordGuid"></param>
+        /// <returns></returns>
+        public abstract string GetEditUrl(int contentId, string recordGuid);
         //
         //====================================================================================================
         /// <summary>

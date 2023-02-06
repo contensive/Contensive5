@@ -23,23 +23,23 @@ namespace Tests {
                 // act
                 string returnMsg = "1234";
                 Assert.IsFalse(cp.User.SetPassword("1", ref returnMsg));
-                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
                 Assert.IsFalse(cp.User.SetPassword("12", ref returnMsg));
-                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
                 Assert.IsFalse(cp.User.SetPassword("123", ref returnMsg));
-                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
                 Assert.IsFalse(cp.User.SetPassword("1234", ref returnMsg));
+                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("12345", ref returnMsg));
                 Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
                 Assert.IsTrue(cp.User.SetPassword("123456", ref returnMsg));
-                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
                 Assert.IsTrue(cp.User.SetPassword("1234567", ref returnMsg));
-                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
                 Assert.IsTrue(cp.User.SetPassword("12345678", ref returnMsg));
-                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
                 Assert.IsTrue(cp.User.SetPassword("123456789", ref returnMsg));
-                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
-                Assert.IsTrue(cp.User.SetPassword("1234567890", ref returnMsg));
-                Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
+                Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
             }
         }
         //

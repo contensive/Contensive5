@@ -540,8 +540,23 @@ namespace Contensive.Processor {
         //
         [Obsolete("Deprecated, use methods tih FieldTypeIdEnum instead", false)]
         public override int AddContentField(string ContentName, string FieldName, fileTypeIdEnum fileTypeEnum) {
-            AddContentField(ContentName, FieldName, (FieldTypeIdEnum)fileTypeEnum);
-            throw new NotImplementedException();
+            return AddContentField(ContentName, FieldName, (FieldTypeIdEnum)fileTypeEnum);
+        }
+
+        public override string GetEditUrl(string contentName, int recordId) {
+            return AdminUIController.getRecordEditUrl(cp.core, GetID(contentName), recordId);
+        }
+
+        public override string GetEditUrl(string contentName, string recordGuid) {
+            return AdminUIController.getRecordEditUrl(cp.core, GetID(contentName), recordGuid);
+        }
+
+        public override string GetEditUrl(int contentId, int recordId) {
+            return AdminUIController.getRecordEditUrl(cp.core, contentId, recordId);
+        }
+
+        public override string GetEditUrl(int contentId, string recordGuid) {
+            return AdminUIController.getRecordEditUrl(cp.core, contentId, recordGuid);
         }
     }
 }

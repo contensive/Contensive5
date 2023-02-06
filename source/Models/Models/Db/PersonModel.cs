@@ -342,6 +342,7 @@ namespace Contensive.Models.Db {
             //
             // todo -- add password policy tests, like min-length
             //
+            userErrorMessage = "";
             int passwordMinLength = cp.Site.GetInteger("password min length", 5);
             if (password.Length < passwordMinLength) {
                 userErrorMessage = "Password length must be at least " + passwordMinLength.ToString() + " characters.";

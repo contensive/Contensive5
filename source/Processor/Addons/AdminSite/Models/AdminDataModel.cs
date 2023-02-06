@@ -59,6 +59,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //====================================================================================================
         /// <summary>
+        /// true if this button/action allows redirect to the referring page, like OK vs Save
+        /// </summary>
+        public bool allowRedirectToRefer { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// The action to be performed before the next form
         /// </summary>
         public int admin_Action { get; set; }
