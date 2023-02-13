@@ -286,7 +286,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- queue email and text, run email and text send (no doc conext needed)
                 string emailStatus = "";
-                EmailController.queueAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus,personalizeAddonId);
+                EmailController.sendAdHocEmail(core, "Text Message Confirmation", person.id, person.email, core.siteProperties.emailFromAddress, "Text Message Sent", ConfirmBody, core.siteProperties.emailBounceAddress, core.siteProperties.emailFromAddress, "", true, true, 0, ref emailStatus,personalizeAddonId);
                 AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask);
                 //
                 bool result = queuePersonTextMessage(core, person, "Text message complete from " + core.appConfig.name + ". A detailed confirmation email was sent to [" + person.id + ", " + person.name + "]", true, systemTextMessageId, groupTextMessageId, ref emailStatus, "System Text Confirmation");

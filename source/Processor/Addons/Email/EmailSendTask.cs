@@ -20,7 +20,7 @@ namespace Contensive.Processor.Addons.Email {
                 CoreController core = ((CPClass)cp).core;
                 //
                 // -- send queue
-                EmailController.sendEmailInQueue(core);
+                EmailController.sendImmediateFromQueue(core);
                 //
                 core.siteProperties.setProperty("EmailServiceLastCheck", encodeText(core.dateTimeNowMockable));
             } catch (Exception ex) {

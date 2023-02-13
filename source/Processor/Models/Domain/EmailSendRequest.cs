@@ -17,5 +17,13 @@ namespace Contensive.Processor.Models.Domain {
         public string htmlBody { get; set; }
         public int attempts { get; set; }
         public int emailId { get; set; }
+        /// <summary>
+        /// if this email came from a group email drop, this id will be logged
+        /// </summary>
+        public int emailDropId { get; set; }
+        /// <summary>
+        /// The name of the email log created during send, was previously the name of the log queue record
+        /// </summary>
+        public string emailContextMessage { get; set; }
     }
 }

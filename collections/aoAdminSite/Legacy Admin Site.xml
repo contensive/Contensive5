@@ -2,5 +2,5 @@
 <Collection name="Admin Site" guid="{06CF29A1-B5E9-4170-894B-069CF36C7E7D}" system="No" updatable="Yes" blockNavigatorNode="Yes" onInstallAddonGuid="">
 	<HelpLink></HelpLink>
 	<Help></Help>
-	<Resource name="AdminSiteLayout.html" type="file" path="adminsite" />
+	<!-- deprecated. Admin site addon is now in base5. This collection remains in the collection library for legacy installation upgrade/repair operations -->
 </Collection>

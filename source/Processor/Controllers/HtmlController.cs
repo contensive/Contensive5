@@ -985,10 +985,10 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         public static string form(CoreController core, string innerHtml, HtmlAttributesForm attributes) {
-            StringBuilder result = new StringBuilder("<form");
-            result.Append((string.IsNullOrWhiteSpace(attributes.acceptcharset)) ? "" : "" + " accept-charset=\"" + attributes.acceptcharset + "\"");
-            result.Append(" action=\"" + ((string.IsNullOrWhiteSpace(attributes.action)) ? "?" + core.doc.refreshQueryString : attributes.action) + "\"");
-            result.Append((!attributes.autocomplete) ? "" : "" + " autocomplete=\"on\"");
+            StringBuilder result = new("<form");
+            result.Append((string.IsNullOrWhiteSpace(attributes.acceptcharset)) ? "" : $" accept-charset=\"{attributes.acceptcharset}\"");
+            result.Append($" action=\"{(string.IsNullOrWhiteSpace(attributes.action) ? "?" + core.doc.refreshQueryString : attributes.action)}\"");
+            result.Append((!attributes.autocomplete) ? "" : " autocomplete=\"on\"");
             switch (attributes.enctype) {
                 case HtmlAttributesForm.HtmlEncTypeEnum.application_x_www_form_urlencoded: {
                         result.Append(" enctype=\"application/x-www-form-urlencoded\"");
@@ -1007,12 +1007,12 @@ namespace Contensive.Processor.Controllers {
             }
             if (!attributes.enctype.Equals(HtmlAttributesForm.HtmlEncTypeEnum.none)) {
             }
-            result.Append(" method=" + ((attributes.method.Equals(HtmlAttributesForm.HtmlMethodEnum.get)) ? "\"get\"" : "\"post\""));
-            result.Append((string.IsNullOrWhiteSpace(attributes.name)) ? "" : "" + " name=\"" + attributes.name + "\"");
-            result.Append((!attributes.novalidate) ? "" : "" + " novalidate");
-            result.Append((attributes.target.Equals(HtmlAttributesForm.HtmlAttributeTarget.none)) ? "" : "" + " enctype=\"" + attributes.target + "\"");
+            result.Append($" method={(attributes.method.Equals(HtmlAttributesForm.HtmlMethodEnum.get) ? "\"get\"" : "\"post\"")}");
+            result.Append((string.IsNullOrWhiteSpace(attributes.name)) ? "" : $" name=\"{attributes.name}\"");
+            result.Append((!attributes.novalidate) ? "" : " novalidate");
+            result.Append((attributes.target.Equals(HtmlAttributesForm.HtmlAttributeTarget.none)) ? "" : $" enctype=\"{attributes.target}\"");
             result.Append(getHtmlAttributesGlobal(attributes));
-            return result + ">" + innerHtml + "</form>";
+            return $"{result}>{innerHtml}</form>";
         }
         //
         public static string form(CoreController core, string innerHtml, string actionQueryString, string htmlName, string htmlClass, string htmlId) {

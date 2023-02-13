@@ -149,7 +149,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             int EmailToConfirmationMemberId = 0;
                                             if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
                                                 EmailToConfirmationMemberId = GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value);
-                                                EmailController.queueConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
+                                                EmailController.sendConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
                                                 //
                                                 if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
                                                     //

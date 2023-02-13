@@ -58,8 +58,7 @@ namespace Contensive.Processor.Controllers {
         public void verifyUser() {
             if (user.id == 0) {
                 var user = createGuest(core, false);
-                SessionController session = this;
-                recognizeById(core, user.id, session);
+                recognizeById(core, user.id, this);
             }
         }
 
@@ -486,7 +485,8 @@ namespace Contensive.Processor.Controllers {
             user.dateAdded = core.doc.profileStartTime;
             user.modifiedBy = user.id;
             user.modifiedDate = core.doc.profileStartTime;
-            user.visits = 1;
+            // 23.2.12 changed from 1 to 0 because next step is always recognize, which increments
+            user.visits = 0;
             user.autoLogin = false;
             user.admin = false;
             user.developer = false;

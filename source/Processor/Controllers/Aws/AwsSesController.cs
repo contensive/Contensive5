@@ -23,7 +23,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Send email by SMTP. return 'ok' if success, else return a user compatible error message
         /// </summary>
-        public static bool send(CoreController core, AmazonSimpleEmailServiceClient client, EmailSendRequest email, ref string reasonForFail) {
+        public static bool send(CoreController core,  EmailSendRequest email, ref string reasonForFail) {
             string logShortDetail = ", subject [" + email.subject + "], toMemberId [" + email.toMemberId + "], toAddress [" + email.toAddress + "], fromAddress [" + email.fromAddress + "]";
             string logLongDetail = logShortDetail + ", BounceAddress [" + email.bounceAddress + "], replyToAddress [" + email.replyToAddress + "]";
             reasonForFail = "";
@@ -49,7 +49,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- send email
-                Body messageBody = new Body { };
+                Body messageBody = new() { };
                 if (!string.IsNullOrEmpty(email.htmlBody)) {
                     messageBody.Html = new Content { Charset = "UTF-8", Data = email.htmlBody };
                 }
@@ -68,7 +68,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 try {
                     LogController.logInfo(core, "Sending SES email" + logShortDetail);
-                    var response = client.SendEmailAsync(sendRequest).waitSynchronously();
+                    var response = core.sesClient.SendEmailAsync(sendRequest).waitSynchronously();
                     return true;
                 } catch (Exception ex) {
                     reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;

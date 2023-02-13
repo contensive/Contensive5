@@ -16,17 +16,16 @@ namespace Contensive.Processor.Controllers {
             returnErrorMessage = "";
             try {
                 string smtpServer = core.siteProperties.getText("SMTPServer", "127.0.0.1");
-                SmtpClient client = new SmtpClient(smtpServer);
-                MailMessage mailMessage = new MailMessage();
-                MailAddress fromAddresses = new MailAddress(email.fromAddress.Trim());
-                ContentType mimeType = null;
-                AlternateView alternate = null;
-                //
-                mailMessage.From = fromAddresses;
+                SmtpClient client = new(smtpServer) {
+                    EnableSsl = false,
+                    UseDefaultCredentials = false
+                };
+                MailAddress fromAddresses = new(email.fromAddress.Trim());
+                MailMessage mailMessage = new MailMessage {
+                    From = fromAddresses,
+                    Subject = email.subject
+                };
                 mailMessage.To.Add(new MailAddress(email.toAddress.Trim()));
-                mailMessage.Subject = email.subject;
-                client.EnableSsl = false;
-                client.UseDefaultCredentials = false;
                 //
                 if ((string.IsNullOrEmpty(email.textBody)) && (!string.IsNullOrEmpty(email.htmlBody))) {
                     //
@@ -43,8 +42,8 @@ namespace Contensive.Processor.Controllers {
                     // both html and text
                     mailMessage.Body = email.textBody;
                     mailMessage.IsBodyHtml = false;
-                    mimeType = new System.Net.Mime.ContentType("text/html");
-                    alternate = AlternateView.CreateAlternateViewFromString(email.htmlBody, mimeType);
+                    ContentType mimeType = new("text/html");
+                    AlternateView alternate = AlternateView.CreateAlternateViewFromString(email.htmlBody, mimeType);
                     mailMessage.AlternateViews.Add(alternate);
                 }
                 if (core.mockEmail) {
@@ -62,12 +61,12 @@ namespace Contensive.Processor.Controllers {
                         client.Send(mailMessage);
                         status = true;
                     } catch (Exception ex) {
-                        string errMsg = "There was an error sending email";
-                        Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
+                        returnErrorMessage = "There was an smtp error sending the email";
+                        Logger.Error(ex, LogController.processLogMessage(core, returnErrorMessage, true));
                     }
                 }
             } catch (Exception ex) {
-                string errMsg = "There was an error configuring smtp server";
+                string errMsg = "There was an error configuring the smtp server";
                 Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 throw;
             }

@@ -26,7 +26,7 @@ namespace Contensive.Processor.Addons.Email {
                 EmailController.processConditionalEmail(core);
                 //
                 // -- send queue
-                EmailController.sendEmailInQueue(core);
+                EmailController.sendImmediateFromQueue(core);
                 //
                 core.siteProperties.setProperty("EmailServiceLastCheck", encodeText(core.dateTimeNowMockable));
             } catch (Exception ex) {

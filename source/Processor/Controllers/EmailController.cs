@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using static Contensive.Processor.Constants;
 using static Newtonsoft.Json.JsonConvert;
+using Amazon.SimpleEmail;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -246,31 +247,30 @@ namespace Contensive.Processor.Controllers {
         /// Add an email to the queue
         /// </summary>
         /// <returns>false if the email is not sent successfully and the returnUserWarning argument contains a user compatible message. If true, the returnUserWanting may contain a user compatible message about email issues.</returns>
-        public static bool queueAdHocEmail(CoreController core, string emailContextMessage, int loggedPersonId, string toAddress, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, string ignore, bool isImmediate, bool isHTML, int loggedEmailId, ref string returnSendStatus, int personalizeAddonId) {
-            bool result = false;
+        public static bool sendAdHocEmail(CoreController core, string emailContextMessage, int loggedPersonId, string toAddress, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, string ignore, bool isImmediate, bool isHTML, int loggedEmailId, ref string userErrorMessage, int personalizeAddonId) {
             try {
                 // -- validate arguments
                 if (!verifyEmailSubject(core, subject)) {
-                    returnSendStatus = "Email not sent because the subject is not valid.";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    userErrorMessage = "Email not sent because the subject is not valid.";
+                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, toAddress)) {
                     //
-                    returnSendStatus = "Email not sent because the to-address is not valid [" + toAddress + "].";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    userErrorMessage = "Email not sent because the to-address is not valid [" + toAddress + "].";
+                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
-                if(!verifyEmailAddress(core, fromAddress)) {
+                if (!verifyEmailAddress(core, fromAddress)) {
                     //
-                    returnSendStatus = "Email not sent because the from-address is not valid [" + fromAddress + "].";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    userErrorMessage = "Email not sent because the from-address is not valid [" + fromAddress + "].";
+                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (isOnBlockedList(core, toAddress)) {
                     //
-                    returnSendStatus = "Email not sent because the address [" + toAddress + "] is blocked by this application.";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    userErrorMessage = "Email not sent because the address [" + toAddress + "] is blocked by this application.";
+                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 //
@@ -282,27 +282,27 @@ namespace Contensive.Processor.Controllers {
                         //
                         //
                         fromAddress = toAddress;
-                        returnSendStatus = "The from-address is blank. This email was sent, but may be blocked by spam filtering.";
-                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        userErrorMessage = "The from-address is blank. This email was sent, but may be blocked by spam filtering.";
+                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     } else if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
                         //
                         //
                         //
-                        returnSendStatus = "The from-address matches the to-address [" + fromAddress + "] . This email was sent, but may be blocked by spam filtering.";
-                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        userErrorMessage = "The from-address matches the to-address [" + fromAddress + "] . This email was sent, but may be blocked by spam filtering.";
+                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     } else {
                         //
                         //
                         //
-                        returnSendStatus = "The from-address matches the to-address. The from-address was changed to [" + fromAddress + "] to prevent it from being blocked by spam filtering.";
-                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + returnSendStatus + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        userErrorMessage = "The from-address matches the to-address. The from-address was changed to [" + fromAddress + "] to prevent it from being blocked by spam filtering.";
+                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     }
                 }
                 object bodyRenderData = getRenderData(core, personalizeAddonId);
                 string subjectRendered = encodeEmailSubjectText(core, subject, null, bodyRenderData);
                 string htmlBody = encodeEmailBodyHtml(core, isHTML, body, "", null, "", false, bodyRenderData);
                 string textBody = HtmlController.convertHtmlToText(core, htmlBody);
-                queueEmail(core, isImmediate, emailContextMessage, new EmailSendRequest {
+                EmailSendRequest sendRequest = new EmailSendRequest {
                     attempts = 0,
                     bounceAddress = bounceAddress,
                     fromAddress = fromAddress,
@@ -310,15 +310,22 @@ namespace Contensive.Processor.Controllers {
                     replyToAddress = replyToAddress,
                     subject = subjectRendered,
                     textBody = textBody,
-                    toAddress = toAddress
-                });
-                core.addon.executeAsProcess(addonGuidEmailSendTask);
-                LogController.logInfo(core, "queueAdHocEmail, added to queue, toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    toAddress = toAddress,
+                    emailContextMessage = emailContextMessage,
+                    emailDropId = 0,
+                    emailId = 0,
+                    toMemberId = 0,
+                };
+                if (isImmediate) {
+                    using var sesClient = new AmazonSimpleEmailServiceClient();
+                    return trySendImmediate(core,  sendRequest, ref userErrorMessage);
+                }
+                queueEmail(core, false, sendRequest);
+                return true;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return result;
         }
         //
         //====================================================================================================
@@ -341,8 +348,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="queryStringForLinkAppend"></param>
         /// <param name="emailContextMessage">Brief description for the log entry (Conditional Email, etc)</param>
         /// <returns> returns ok if send is successful, otherwise returns the principle issue as a user error</returns>
-        public static bool tryQueuePersonEmail(CoreController core, PersonModel recipient, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailId, string template, bool addLinkAuthToAllLinks, ref string userErrorMessage, string queryStringForLinkAppend, string emailContextMessage, int personalizeAddonId) {
-            bool result = false;
+        public static bool trySendPersonEmail(CoreController core, PersonModel recipient, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailId, string template, bool addLinkAuthToAllLinks, ref string userErrorMessage, string queryStringForLinkAppend, string emailContextMessage, int personalizeAddonId) {
             try {
                 // -- validate arguments
                 if (recipient == null) {
@@ -365,16 +371,16 @@ namespace Contensive.Processor.Controllers {
                     userErrorMessage = "Email not sent because the from-address is not valid.";
                     LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
-                } 
+                }
                 if (isOnBlockedList(core, recipient.email)) {
                     //
-                    userErrorMessage = "Email not sent because the to-address is blocked by this application. See the Blocked Email Report.";
+                    userErrorMessage = "Email not sent because the to-address requested email block. See the Email Bounce List.";
                     LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 object bodyRenderData = getRenderData(core, personalizeAddonId);
                 string subjectRendered = encodeEmailSubjectText(core, subject, recipient, bodyRenderData);
-                string htmlBody = encodeEmailBodyHtml(core, isHTML, body, template,  recipient, queryStringForLinkAppend, addLinkAuthToAllLinks, bodyRenderData);
+                string htmlBody = encodeEmailBodyHtml(core, isHTML, body, template, recipient, queryStringForLinkAppend, addLinkAuthToAllLinks, bodyRenderData);
                 string textBody = HtmlController.convertHtmlToText(core, htmlBody);
                 string recipientName = (!string.IsNullOrWhiteSpace(recipient.name) && !recipient.name.ToLower().Equals("guest")) ? recipient.name : string.Empty;
                 if (string.IsNullOrWhiteSpace(recipientName)) {
@@ -394,7 +400,7 @@ namespace Contensive.Processor.Controllers {
                     // -- people record includes simple email format
                     toAddress = (string.IsNullOrWhiteSpace(recipientName)) ? recipient.email : "\"" + recipientName.Replace("\"", "") + "\" <" + recipient.email.Trim() + ">";
                 }
-                var email = new EmailSendRequest {
+                var sendRequest = new EmailSendRequest {
                     attempts = 0,
                     bounceAddress = bounceAddress,
                     emailId = emailId,
@@ -404,17 +410,28 @@ namespace Contensive.Processor.Controllers {
                     subject = subjectRendered,
                     textBody = textBody,
                     toAddress = toAddress,
-                    toMemberId = recipient.id
+                    toMemberId = recipient.id,
+                    emailContextMessage = emailContextMessage,
+                    emailDropId = 0
                 };
-                if (tryVerifyEmail(core, email, ref userErrorMessage)) {
-                    queueEmail(core, Immediate, emailContextMessage, email);
-                    result = true;
+                if (!tryVerifyEmail(core, sendRequest, ref userErrorMessage)) {
+                    //
+                    // -- error sending
+                    return false;
                 }
+                if (Immediate) {
+                    //
+                    // -- send immediate
+                    return trySendImmediate(core,  sendRequest, ref userErrorMessage);
+                }
+                //
+                // -- add to queue
+                queueEmail(core, false, sendRequest);
+                return true;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return result;
         }
         /// <summary>
         /// 
@@ -434,8 +451,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="EmailAllowLinkEID"></param>
         /// <param name="returnSendStatus"></param>
         /// <returns></returns>
-        public static bool tryQueuePersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID, ref string returnSendStatus, int personalizeAddonId) {
-            return tryQueuePersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage, personalizeAddonId);
+        public static bool trySendPersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID, ref string returnSendStatus, int personalizeAddonId) {
+            return trySendPersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage, personalizeAddonId);
         }
         /// <summary>
         /// 
@@ -454,9 +471,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="template"></param>
         /// <param name="EmailAllowLinkEID"></param>
         /// <returns></returns>
-        public static bool tryQueuePersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID, int personalizeAddonId) {
+        public static bool trySendPersonEmail(CoreController core, string emailContextMessage, PersonModel person, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, bool Immediate, bool isHTML, int emailIdOrZeroForLog, string template, bool EmailAllowLinkEID, int personalizeAddonId) {
             string returnSendStatus = "";
-            return tryQueuePersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage, personalizeAddonId);
+            return trySendPersonEmail(core, person, fromAddress, subject, body, bounceAddress, replyToAddress, Immediate, isHTML, emailIdOrZeroForLog, template, EmailAllowLinkEID, ref returnSendStatus, "", emailContextMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
@@ -469,7 +486,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="additionalMemberID"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns>Admin message if something went wrong (email addresses checked, etc.</returns>
-        public static bool tryQueueSystemEmail(CoreController core, string emailName, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, string emailName, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             if (!string.IsNullOrEmpty(emailName)) {
                 SystemEmailModel email = DbBaseModel.createByUniqueName<SystemEmailModel>(core.cpParent, emailName);
                 if (email == null) {
@@ -489,7 +506,7 @@ namespace Contensive.Processor.Controllers {
                         LogController.logError(core, new GenericException("No system email was found with the name [" + emailName + "]. A new email blank was created but not sent."));
                     }
                 }
-                return tryQueueSystemEmail(core, email, appendedCopy, additionalMemberID, ref userErrorMessage);
+                return trySendSystemEmail(core, immediate, email, appendedCopy, additionalMemberID, ref userErrorMessage);
             } else {
                 return false;
             }
@@ -502,9 +519,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appendedCopy"></param>
         /// <param name="additionalMemberID"></param>
         /// <returns></returns>
-        public static bool tryQueueSystemEmail(CoreController core, string emailName, string appendedCopy, int additionalMemberID) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, string emailName, string appendedCopy, int additionalMemberID) {
             string userErrorMessage = "";
-            return tryQueueSystemEmail(core, emailName, appendedCopy, additionalMemberID, ref userErrorMessage);
+            return trySendSystemEmail(core, immediate, emailName, appendedCopy, additionalMemberID, ref userErrorMessage);
         }
         /// <summary>
         /// 
@@ -513,9 +530,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="emailName"></param>
         /// <param name="appendedCopy"></param>
         /// <returns></returns>
-        public static bool tryQueueSystemEmail(CoreController core, string emailName, string appendedCopy) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, string emailName, string appendedCopy) {
             string userErrorMessage = "";
-            return tryQueueSystemEmail(core, emailName, appendedCopy, 0, ref userErrorMessage);
+            return trySendSystemEmail(core, immediate, emailName, appendedCopy, 0, ref userErrorMessage);
         }
         /// <summary>
         /// 
@@ -523,9 +540,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="emailName"></param>
         /// <returns></returns>
-        public static bool tryQueueSystemEmail(CoreController core, string emailName) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, string emailName) {
             string userErrorMessage = "";
-            return tryQueueSystemEmail(core, emailName, "", 0, ref userErrorMessage);
+            return trySendSystemEmail(core, immediate, emailName, "", 0, ref userErrorMessage);
         }
         /// <summary>
         /// 
@@ -536,7 +553,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="additionalMemberID"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool tryQueueSystemEmail(CoreController core, int emailid, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, int emailid, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             //
             // -- argument check. if emailid is 0, the configuration is set to not send, and this should not have been called. If non-zero and no email found, that is a data error.
             if (emailid == 0) { return false; }
@@ -547,7 +564,7 @@ namespace Contensive.Processor.Controllers {
                 LogController.logError(core, new GenericException("No system email was found with the id [" + emailid + "]"));
                 return false;
             }
-            return tryQueueSystemEmail(core, email, appendedCopy, additionalMemberID, ref userErrorMessage);
+            return trySendSystemEmail(core, immediate, email, appendedCopy, additionalMemberID, ref userErrorMessage);
         }
         /// <summary>
         /// 
@@ -557,9 +574,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="appendedCopy"></param>
         /// <param name="additionalMemberID"></param>
         /// <returns></returns>
-        public static bool tryQueueSystemEmail(CoreController core, int emailid, string appendedCopy, int additionalMemberID) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, int emailid, string appendedCopy, int additionalMemberID) {
             string userErrorMessage = "";
-            return tryQueueSystemEmail(core, emailid, appendedCopy, additionalMemberID, ref userErrorMessage);
+            return trySendSystemEmail(core, immediate, emailid, appendedCopy, additionalMemberID, ref userErrorMessage);
         }
         /// <summary>
         /// 
@@ -568,9 +585,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="emailid"></param>
         /// <param name="appendedCopy"></param>
         /// <returns></returns>
-        public static bool tryQueueSystemEmail(CoreController core, int emailid, string appendedCopy) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, int emailid, string appendedCopy) {
             string userErrorMessage = "";
-            return tryQueueSystemEmail(core, emailid, appendedCopy, 0, ref userErrorMessage);
+            return trySendSystemEmail(core, immediate, emailid, appendedCopy, 0, ref userErrorMessage);
         }
         /// <summary>
         /// 
@@ -578,9 +595,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="emailid"></param>
         /// <returns></returns>
-        public static bool tryQueueSystemEmail(CoreController core, int emailid) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, int emailid) {
             string userErrorMessage = "";
-            return tryQueueSystemEmail(core, emailid, "", 0, ref userErrorMessage);
+            return trySendSystemEmail(core, immediate, emailid, "", 0, ref userErrorMessage);
         }
         //
         //====================================================================================================
@@ -593,12 +610,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="additionalMemberID"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns>Admin message if something went wrong (email addresses checked, etc.</returns>
-        public static bool tryQueueSystemEmail(CoreController core, SystemEmailModel email, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
+        public static bool trySendSystemEmail(CoreController core, bool immediate, SystemEmailModel email, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             try {
                 // -- validate arguments
-                if (!verifyEmailSubject(core,email.subject)) {
+                if (!verifyEmailSubject(core, email.subject)) {
                     userErrorMessage = "The email subject is not valid.";
-                    return false; 
+                    return false;
                 }
                 if (!verifyEmailAddress(core, email.fromAddress)) {
                     //
@@ -632,12 +649,12 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         if (string.IsNullOrWhiteSpace(person.email)) {
                             confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because their email address was blank." + BR);
-                        }else if (!verifyEmailAddress(core, person.email)) {
+                        } else if (!verifyEmailAddress(core, person.email)) {
                             confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because their email address was invalid [" + person.email + "]." + BR);
                         } else {
                             string EmailStatus = "";
                             string queryStringForLinkAppend = "";
-                            tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
+                            trySendPersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", immediate, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                             //
                             LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
@@ -661,7 +678,7 @@ namespace Contensive.Processor.Controllers {
                         confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + personId + "] because their email address was blank." + BR);
                         continue;
                     }
-                    if(!verifyEmailAddress(core, simpleEmail)) {
+                    if (!verifyEmailAddress(core, simpleEmail)) {
                         confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to user [#" + personId + "] because their email address was invalid [" + simpleEmail + "]." + BR);
                         continue;
                     }
@@ -671,7 +688,7 @@ namespace Contensive.Processor.Controllers {
                     usedEmail.Add(simpleEmail);
                     string EmailStatus = "";
                     string queryStringForLinkAppend = "";
-                    tryQueuePersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", false, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
+                    trySendPersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "",immediate, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
                     confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                     //
                     LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
@@ -702,7 +719,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         string EmailStatus = "";
                         string queryStringForLinkAppend = "";
-                        tryQueuePersonEmail(core, person, email.fromAddress, "System Email confirmation from " + core.appConfig.domainList[0], ConfirmBody, "", "", false, true, emailRecordId, "", false, ref EmailStatus, queryStringForLinkAppend, "System Email",email.personalizeAddonId);
+                        trySendPersonEmail(core, person, email.fromAddress, "System Email confirmation from " + core.appConfig.domainList[0], ConfirmBody, "", "", immediate, true, emailRecordId, "", false, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
                     }
                 }
             } catch (Exception ex) {
@@ -718,7 +735,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="EmailID"></param>
         /// <param name="confirmationMemberId"></param>
-        public static void queueConfirmationTestEmail(CoreController core, int EmailID, int confirmationMemberId) {
+        public static void sendConfirmationTestEmail(CoreController core, int EmailID, int confirmationMemberId) {
             try {
                 // todo -- convert to model
                 using (var csData = new CsModel(core)) {
@@ -817,18 +834,18 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (BlankCnt == 1) {
                         ErrorController.addUserError(core, "There is 1 blank email address. See the test email for details");
-                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">WARNING: There is 1 blank email address.</div>";
+                        ConfirmFooter += "<div style=\"clear:all\">WARNING: There is 1 blank email address.</div>";
                     } else if (BlankCnt > 1) {
                         ErrorController.addUserError(core, "There are " + DupCnt + " blank email addresses. See the test email for details.");
                         ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">WARNING: There are " + BlankCnt + " blank email addresses.</div>";
                     }
                     //
                     if (TotalCnt == 0) {
-                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">WARNING: There are no recipients for this email.</div>";
+                        ConfirmFooter += "<div style=\"clear:all\">WARNING: There are no recipients for this email.</div>";
                     } else if (TotalCnt == 1) {
-                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">There is 1 recipient<div style=\"margin:20px;\">" + TotalList + "</div></div>";
+                        ConfirmFooter += "<div style=\"clear:all\">There is 1 recipient<div style=\"margin:20px;\">" + TotalList + "</div></div>";
                     } else {
-                        ConfirmFooter = ConfirmFooter + "<div style=\"clear:all\">There are " + TotalCnt + " recipients<div style=\"margin:20px;\">" + TotalList + "</div></div>";
+                        ConfirmFooter += "<div style=\"clear:all\">There are " + TotalCnt + " recipients<div style=\"margin:20px;\">" + TotalList + "</div></div>";
                     }
                     //
                     if (confirmationMemberId == 0) {
@@ -838,10 +855,10 @@ namespace Contensive.Processor.Controllers {
                         if (person == null) {
                             ErrorController.addUserError(core, "No confirmation email was send because a Confirmation member is not selected");
                         } else {
-                            EmailBody = EmailBody + "<div style=\"clear:both;padding:10px;margin:10px;border:1px dashed #888;\">Administrator<br><br>" + ConfirmFooter + "</div>";
+                            EmailBody += "<div style=\"clear:both;padding:10px;margin:10px;border:1px dashed #888;\">Administrator<br><br>" + ConfirmFooter + "</div>";
                             string queryStringForLinkAppend = "";
                             string sendStatus = "";
-                            if (!tryQueuePersonEmail(core, person, csData.getText("FromAddress"), csData.getText("Subject"), EmailBody, "", "", true, true, EmailID, EmailTemplate, false, ref sendStatus, queryStringForLinkAppend, "Test Email", csData.getInteger("personalizeAddonId"))) {
+                            if (!trySendPersonEmail(core, person, csData.getText("FromAddress"), csData.getText("Subject"), EmailBody, "", "", true, true, EmailID, EmailTemplate, false, ref sendStatus, queryStringForLinkAppend, "Test Email", csData.getInteger("personalizeAddonId"))) {
                                 ErrorController.addUserError(core, sendStatus);
                             }
                         }
@@ -862,7 +879,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="fromAddress"></param>
         /// <param name="emailSubject"></param>
         /// <param name="userErrorMessage"></param>
-        public static bool tryQueueFormEmail(CoreController core, string toAddress, string fromAddress, string emailSubject, out string userErrorMessage) {
+        public static bool trySendFormEmail(CoreController core, string toAddress, string fromAddress, string emailSubject, out string userErrorMessage) {
             try {
                 // -- validate arguments
                 if (!verifyEmailAddress(core, toAddress)) {
@@ -904,7 +921,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 // todo -- add personalization
                 int personalizeAddonId = 0;
-                return queueAdHocEmail(core, "Form Submission Email", core.session.user.id, toAddress, fromAddress, emailSubjectWorking, Message, "", "", "", false, false, 0, ref userErrorMessage, personalizeAddonId);
+                return sendAdHocEmail(core, "Form Submission Email", core.session.user.id, toAddress, fromAddress, emailSubjectWorking, Message, "", "", "", false, false, 0, ref userErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -923,10 +940,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isImmediate"></param>
         /// <param name="isHtml"></param>
         /// <param name="userErrorMessage"></param>
-        public static bool tryQueueGroupEmail(CoreController core, string groupCommaList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
+        public static bool trySendGroupEmail(CoreController core, string groupCommaList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
             try {
                 if (string.IsNullOrWhiteSpace(groupCommaList)) { return true; }
-                return tryQueueGroupEmail(core, groupCommaList.Split(',').ToList<string>().FindAll(t => !string.IsNullOrWhiteSpace(t)), fromAddress, subject, body, isImmediate, isHtml, ref userErrorMessage, personalizeAddonId);
+                return trySendGroupEmail(core, groupCommaList.Split(',').ToList<string>().FindAll(t => !string.IsNullOrWhiteSpace(t)), fromAddress, subject, body, isImmediate, isHtml, ref userErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 userErrorMessage = "There was an unknown error sending the email;";
@@ -944,9 +961,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isImmediate"></param>
         /// <param name="isHtml"></param>
         /// <returns></returns>
-        public static bool tryQueueGroupEmail(CoreController core, string groupCommaList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, int personalizeAddonId) {
+        public static bool trySendGroupEmail(CoreController core, string groupCommaList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, int personalizeAddonId) {
             string userErrorMessage = "";
-            return tryQueueGroupEmail(core, groupCommaList, fromAddress, subject, body, isImmediate, isHtml, ref userErrorMessage, personalizeAddonId);
+            return trySendGroupEmail(core, groupCommaList, fromAddress, subject, body, isImmediate, isHtml, ref userErrorMessage, personalizeAddonId);
         }
         //
         //====================================================================================================
@@ -962,11 +979,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isHtml"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool tryQueueGroupEmail(CoreController core, List<string> groupNameList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId ) {
+        public static bool trySendGroupEmail(CoreController core, List<string> groupNameList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
             try {
                 if (groupNameList.Count <= 0) { return true; }
                 foreach (var person in PersonModel.createListFromGroupNameList(core.cpParent, groupNameList, true)) {
-                    tryQueuePersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false, personalizeAddonId);
+                    trySendPersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false, personalizeAddonId);
                 }
                 return true;
             } catch (Exception ex) {
@@ -989,11 +1006,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isHtml"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool tryQueueGroupEmail(CoreController core, List<int> groupIdList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
+        public static bool trySendGroupEmail(CoreController core, List<int> groupIdList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
             try {
                 if (groupIdList.Count <= 0) { return true; }
                 foreach (var person in PersonModel.createListFromGroupIdList(core.cpParent, groupIdList, true)) {
-                    tryQueuePersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false, personalizeAddonId);
+                    trySendPersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false, personalizeAddonId);
                 }
                 return true;
             } catch (Exception ex) {
@@ -1008,19 +1025,20 @@ namespace Contensive.Processor.Controllers {
         /// add email to the email queue
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="immediate"></param>
+        /// <param name="frontOfQueue">Add this email to the front of the send queue</param>
         /// <param name="email"></param>
         /// <param name="emailContextMessage">A short description of the email (Conditional Email, Group Email, Confirmation for Group Email, etc.)</param>
-        private static void queueEmail(CoreController core, bool immediate, string emailContextMessage, EmailSendRequest email) {
+        private static void queueEmail(CoreController core, bool frontOfQueue, EmailSendRequest email) {
             try {
                 var emailQueue = EmailQueueModel.addEmpty<EmailQueueModel>(core.cpParent);
-                emailQueue.name = emailContextMessage;
-                emailQueue.immediate = immediate;
+                emailQueue.name = email.emailContextMessage;
+                emailQueue.immediate = frontOfQueue;
                 emailQueue.toAddress = email.toAddress;
                 emailQueue.subject = email.subject;
                 emailQueue.content = SerializeObject(email);
                 emailQueue.attempts = email.attempts;
                 emailQueue.save(core.cpParent);
+                LogController.logInfo(core, "queueEmail, toAddress [" + email.toAddress + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
@@ -1028,128 +1046,140 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// Send email in email queue. Log errors and swallow, as this process is an async from the sending client
+        /// </summary>
+        /// <param name="core"></param>
+        public static void sendImmediateFromQueue(CoreController core) {
+            //
+            // -- only send a limited number (100?) and exit so if there is only one task running, sending email will not block all other processes
+            // -- make it thread safe(r), from the samples, mark one record and read back marked record. Still exposed to a second process selecting the target-marked email before this process deletes
+            // -- get a list of queue records that need to be sent right now. 
+            // -- One at a time mark the first for this one sending process
+            // -- read back the marked record and if it is there, then no other process is likely looking at it so it can be sent
+            // -- this will help prevent duplicate sends, and if the process aborts, only one queued email per queue will be stuck
+            List<EmailQueueModel> queueSampleList = DbBaseModel.createList<EmailQueueModel>(core.cpParent, "", "immediate,id asc", 100, 1);
+            if (queueSampleList.Count == 0) { return; }
+            //
+            using var sesClient = AwsSesController.getSesClient(core);
+            foreach (EmailQueueModel queueSample in queueSampleList) {
+                //
+                // -- mark the current sample and select back asa target if it marked, send or skip
+                string targetGuid = GenericController.getGUID();
+                core.db.update(EmailQueueModel.tableMetadata.tableNameLower, "(ccguid=" + DbController.encodeSQLText(queueSample.ccguid) + ")", new System.Collections.Specialized.NameValueCollection { { "ccguid", DbController.encodeSQLText(targetGuid) } });
+                EmailQueueModel targetQueueRecord = DbBaseModel.create<EmailQueueModel>(core.cpParent, targetGuid);
+                if (targetQueueRecord != null) {
+                    //
+                    // -- this queue record is not shared with another process, send it
+                    DbBaseModel.delete<EmailQueueModel>(core.cpParent, targetQueueRecord.id);
+                    EmailSendRequest sendRequest = DeserializeObject<EmailSendRequest>(targetQueueRecord.content);
+                    string reasonForFail = "";
+                    trySendImmediate(core,  sendRequest, ref reasonForFail);
+                }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Send the emails in the current Queue
         /// </summary>
-        public static void sendEmailInQueue(CoreController core) {
+        public static bool trySendImmediate(CoreController core, EmailSendRequest sendRequest, ref string userErrorMessage) {
             try {
                 //
-                // -- only send a limited number (100?) and exit so if there is only one task running, sending email will not block all other processes
-                // -- make it thread safe(r), from the samples, mark one record and read back marked record. Still exposed to a second process selecting the target-marked email before this process deletes
-                // -- get a list of queue records that need to be sent right now. 
-                // -- One at a time mark the first for this one sending process
-                // -- read back the marked record and if it is there, then no other process is likely looking at it so it can be sent
-                // -- this will help prevent duplicate sends, and if the process aborts, only one queued email per queue will be stuck
-                List<EmailQueueModel> queueSampleList = DbBaseModel.createList<EmailQueueModel>(core.cpParent, "", "immediate,id asc", 100, 1);
-                if (queueSampleList.Count == 0) { return; }
-                //
+                if (!verifyEmailAddress(core, sendRequest.toAddress)) {
+                    //
+                    // -- to address is reasonForFail
+                    userErrorMessage = $"email to-address is invalid [{sendRequest.toAddress}]";
+                    LogController.logInfo(core, "FAIL send emai:" + userErrorMessage);
+                    return false;
+                }
+                if (!verifyEmailSubject(core, sendRequest.subject)) {
+                    //
+                    // -- from address is reasonForFail
+                    userErrorMessage = $"email subject is invalid [{sendRequest.subject}]";
+                    LogController.logInfo(core, "FAIL send emai:" + userErrorMessage);
+                    return false;
+                }
+                if (!verifyEmailAddress(core, sendRequest.fromAddress)) {
+                    //
+                    // -- from address is reasonForFail
+                    userErrorMessage = $"email from-address is invalid [{sendRequest.fromAddress}]";
+                    LogController.logInfo(core, "FAIL send emai:" + userErrorMessage);
+                    return false;
+                }
                 bool sendWithSES = core.siteProperties.getBoolean(Constants.sitePropertyName_SendEmailWithAmazonSES);
+                bool sendSuccess = false;
+                if (sendWithSES) {
+                    //
+                    // -- send with Amazon SES
+                    sendSuccess = AwsSesController.send(core, sendRequest, ref userErrorMessage);
+                } else {
+                    //
+                    // --fall back to SMTP
+                    sendSuccess = EmailSmtpController.send(core, sendRequest, ref userErrorMessage);
+                }
+                if (sendSuccess) {
+                    //
+                    // -- success, log the send
+                    var log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
+                    log.name = "Successfully sent: " + sendRequest.emailContextMessage;
+                    log.toAddress = sendRequest.toAddress;
+                    log.fromAddress = sendRequest.fromAddress;
+                    log.subject = sendRequest.subject;
+                    log.body = sendRequest.htmlBody;
+                    log.sendStatus = "ok";
+                    log.logType = EmailLogTypeImmediateSend;
+                    log.emailId = sendRequest.emailId;
+                    log.memberId = sendRequest.toMemberId;
+                    log.emailDropId = sendRequest.emailDropId;
+                    log.save(core.cpParent);
+                    LogController.logInfo(core, "sendEmailInQueue, send successful, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "]");
+                    return true;
+                }
                 //
-                LogController.logInfo(core, "sending queued email with " + (sendWithSES ? "AWS SES" : "SMTP") + ", based on site property [" + Constants.sitePropertyName_SendEmailWithAmazonSES + "]");
+                // -- fail, retry
+                if (sendRequest.attempts >= 3) {
+                    //
+                    // -- too many retries, log error
+                    string sendStatus = "Failed after 3 retries, reason [" + userErrorMessage + "]";
+                    sendStatus = sendStatus.Substring(0, (sendStatus.Length > 254) ? 254 : sendStatus.Length);
+                    var log = EmailLogModel.addDefault<EmailLogModel>(core.cpParent);
+                    log.name = "Aborting unsuccessful send: " + sendRequest.emailContextMessage;
+                    log.toAddress = sendRequest.toAddress;
+                    log.fromAddress = sendRequest.fromAddress;
+                    log.subject = sendRequest.subject;
+                    log.body = sendRequest.htmlBody;
+                    log.sendStatus = sendStatus;
+                    log.logType = EmailLogTypeImmediateSend;
+                    log.emailId = sendRequest.emailId;
+                    log.memberId = sendRequest.toMemberId;
+                    log.save(core.cpParent);
+                    LogController.logInfo(core, "sendEmailInQueue, send FAILED [" + userErrorMessage + "], NOT resent because too many retries, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "], attempts [" + sendRequest.attempts + "]");
+                    return false;
+                }
                 //
-                using (var sesClient = AwsSesController.getSesClient(core)) {
-                    foreach (EmailQueueModel queueSample in queueSampleList) {
-                        //
-                        // -- mark the current sample and select back asa target if it marked, send or skip
-                        string targetGuid = GenericController.getGUID();
-                        core.db.update(EmailQueueModel.tableMetadata.tableNameLower, "(ccguid=" + DbController.encodeSQLText(queueSample.ccguid) + ")", new System.Collections.Specialized.NameValueCollection { { "ccguid", DbController.encodeSQLText(targetGuid) } });
-                        EmailQueueModel targetQueueRecord = DbBaseModel.create<EmailQueueModel>(core.cpParent, targetGuid);
-                        if (targetQueueRecord != null) {
-                            //
-                            // -- this queue record is not shared with another process, send it
-                            DbBaseModel.delete<EmailQueueModel>(core.cpParent, targetQueueRecord.id);
-                            int emailDropId = 0;
-                            EmailSendRequest emailData = DeserializeObject<EmailSendRequest>(targetQueueRecord.content);
-                            List<EmailDropModel> DropList = DbBaseModel.createList<EmailDropModel>(core.cpParent, "(emailId=" + emailData.emailId + ")", "id desc");
-                            if (DropList.Count > 0) {
-                                emailDropId = DropList.First().id;
-                            }
-                            string reasonForFail = "";
-                            bool sendSuccess = false;
-                            if (!verifyEmailAddress(core, emailData.toAddress)) {
-                                //
-                                // -- to address is reasonForFail
-                                reasonForFail = $"email to-address is invalid [{emailData.toAddress}]";
-                            } else if (!verifyEmailSubject(core, emailData.subject)) {
-                                //
-                                // -- from address is reasonForFail
-                                reasonForFail = $"email subject is invalid [{emailData.subject}]";
-                            } else if (!verifyEmailAddress(core, emailData.fromAddress)) {
-                                //
-                                // -- from address is reasonForFail
-                                reasonForFail = $"email from-address is invalid [{emailData.fromAddress}]";
-                            } else if (sendWithSES) {
-                                //
-                                // -- send with Amazon SES
-                                sendSuccess = AwsSesController.send(core, sesClient, emailData, ref reasonForFail);
-                            } else {
-                                //
-                                // --fall back to SMTP
-                                sendSuccess = EmailSmtpController.send(core, emailData, ref reasonForFail);
-                            }
-
-                            if (sendSuccess) {
-                                //
-                                // -- success, log the send
-                                var log = EmailLogModel.addDefault<EmailLogModel>(core.cpParent);
-                                log.name = "Successfully sent: " + targetQueueRecord.name;
-                                log.toAddress = emailData.toAddress;
-                                log.fromAddress = emailData.fromAddress;
-                                log.subject = emailData.subject;
-                                log.body = emailData.htmlBody;
-                                log.sendStatus = "ok";
-                                log.logType = EmailLogTypeImmediateSend;
-                                log.emailId = emailData.emailId;
-                                log.memberId = emailData.toMemberId;
-                                log.emailDropId = emailDropId;
-                                log.save(core.cpParent);
-                                LogController.logInfo(core, "sendEmailInQueue, send successful, toAddress [" + emailData.toAddress + "], fromAddress [" + emailData.fromAddress + "], subject [" + emailData.subject + "]");
-                            } else {
-                                //
-                                // -- fail, retry
-                                if (emailData.attempts >= 3) {
-                                    //
-                                    // -- too many retries, log error
-                                    string sendStatus = "Failed after 3 retries, reason [" + reasonForFail + "]";
-                                    sendStatus = sendStatus.Substring(0, (sendStatus.Length > 254) ? 254 : sendStatus.Length);
-                                    var log = EmailLogModel.addDefault<EmailLogModel>(core.cpParent);
-                                    log.name = "Aborting unsuccessful send: " + targetQueueRecord.name;
-                                    log.toAddress = emailData.toAddress;
-                                    log.fromAddress = emailData.fromAddress;
-                                    log.subject = emailData.subject;
-                                    log.body = emailData.htmlBody;
-                                    log.sendStatus = sendStatus;
-                                    log.logType = EmailLogTypeImmediateSend;
-                                    log.emailId = emailData.emailId;
-                                    log.memberId = emailData.toMemberId;
-                                    log.save(core.cpParent);
-                                    LogController.logInfo(core, "sendEmailInQueue, send FAILED [" + reasonForFail + "], NOT resent because too many retries, toAddress [" + emailData.toAddress + "], fromAddress [" + emailData.fromAddress + "], subject [" + emailData.subject + "], attempts [" + emailData.attempts + "]");
-                                } else {
-                                    //
-                                    // -- fail, add back to end of queue for retry
-                                    string sendStatus = "Retrying unsuccessful send (" + emailData.attempts + " of 3), reason [" + reasonForFail + "]";
-                                    sendStatus = sendStatus.Substring(0, (sendStatus.Length > 254) ? 254 : sendStatus.Length);
-                                    emailData.attempts += 1;
-                                    var log = EmailLogModel.addDefault<EmailLogModel>(core.cpParent);
-                                    log.name = "Failed send queued for retry: " + targetQueueRecord.name;
-                                    log.toAddress = emailData.toAddress;
-                                    log.fromAddress = emailData.fromAddress;
-                                    log.subject = emailData.subject;
-                                    log.body = emailData.htmlBody;
-                                    log.sendStatus = sendStatus;
-                                    log.logType = EmailLogTypeImmediateSend;
-                                    log.emailId = emailData.emailId;
-                                    log.memberId = emailData.toMemberId;
-                                    log.save(core.cpParent);
-                                    queueEmail(core, false, targetQueueRecord.name, emailData);
-                                    LogController.logInfo(core, "sendEmailInQueue, failed attempt (" + emailData.attempts + " of 3), reason [" + reasonForFail + "], added to end of queue, toAddress [" + emailData.toAddress + "], fromAddress [" + emailData.fromAddress + "], subject [" + emailData.subject + "], attempts [" + emailData.attempts + "]");
-                                }
-                            }
-                        }
-                    }
-                    return;
+                // -- fail, add back to end of queue for retry
+                {
+                    string sendStatus = "Retrying unsuccessful send (" + sendRequest.attempts + " of 3), reason [" + userErrorMessage + "]";
+                    sendStatus = sendStatus.Substring(0, (sendStatus.Length > 254) ? 254 : sendStatus.Length);
+                    sendRequest.attempts += 1;
+                    var log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
+                    log.name = "Failed send queued for retry: " + sendRequest.emailContextMessage;
+                    log.toAddress = sendRequest.toAddress;
+                    log.fromAddress = sendRequest.fromAddress;
+                    log.subject = sendRequest.subject;
+                    log.body = sendRequest.htmlBody;
+                    log.sendStatus = sendStatus;
+                    log.logType = EmailLogTypeImmediateSend;
+                    log.emailId = sendRequest.emailId;
+                    log.memberId = sendRequest.toMemberId;
+                    log.save(core.cpParent);
+                    queueEmail(core, false, sendRequest);
+                    LogController.logInfo(core, "sendEmailInQueue, failed attempt (" + sendRequest.attempts + " of 3), reason [" + userErrorMessage + "], added to end of queue, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "], attempts [" + sendRequest.attempts + "]");
+                    return false;
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                throw;
             }
         }
         //
@@ -1161,7 +1191,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isHTML">true if the body is html</param>
         /// <param name="subject"></param>
         /// <returns></returns>
-        public static string encodeEmailSubjectText(CoreController core,  string subject, PersonModel recipientNullable, object bodyRenderData) {
+        public static string encodeEmailSubjectText(CoreController core, string subject, PersonModel recipientNullable, object bodyRenderData) {
             if (string.IsNullOrWhiteSpace(subject)) { return ""; }
             subject = MustacheController.renderStringToString(subject, bodyRenderData);
             subject = ContentRenderController.renderHtmlForEmail(core, subject, recipientNullable, "", false);
@@ -1209,7 +1239,7 @@ namespace Contensive.Processor.Controllers {
             body = HtmlController.convertLinksToAbsolute(body, webAddressProtocolDomain + "/");
             //
             // -- support legacy replace
-            if(recipientNullable!=null) {
+            if (recipientNullable != null) {
                 body = GenericController.strReplace(body, "#member_id#", recipientNullable.id.ToString());
                 body = GenericController.strReplace(body, "#member_email#", recipientNullable.email);
             }
@@ -1325,7 +1355,7 @@ namespace Contensive.Processor.Controllers {
                                             EmailStatusList = EmailStatusList + "Not Sent to " + sendToPersonName + ", duplicate email address (" + sendToPersonEmail + ")" + BR;
                                         } else {
                                             usedEmails.Add(simpleEmail);
-                                            EmailStatusList = EmailStatusList + queueEmailRecord(core, "Group Email", sendToPersonId, emailId, DateTime.MinValue, EmailDropId, BounceAddress, EmailFrom, EmailTemplate, EmailFrom, EmailSubject, EmailCopy, CSEmail.getBoolean("AllowSpamFooter"), CSEmail.getBoolean("AddLinkEID"), "", personalizeAddonId) + BR;
+                                            EmailStatusList = EmailStatusList + sendEmailRecord_nonImmediate(core, "Group Email", sendToPersonId, emailId, DateTime.MinValue, EmailDropId, BounceAddress, EmailFrom, EmailTemplate, EmailFrom, EmailSubject, EmailCopy, CSEmail.getBoolean("AllowSpamFooter"), CSEmail.getBoolean("AddLinkEID"), "", personalizeAddonId) + BR;
                                             LogController.addActivityCompleted(core, "Group email sent", "Group email sent [" + CSEmail.getText("name") + "]", sendToPersonId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
                                         }
                                     }
@@ -1337,7 +1367,7 @@ namespace Contensive.Processor.Controllers {
                             // Send the confirmation
                             //
                             int ConfirmationMemberId = CSEmail.getInteger("testmemberid");
-                            queueConfirmationEmail(core, ConfirmationMemberId, EmailDropId, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", EmailFrom, EmailStatusList, "Group Email", personalizeAddonId);
+                            sendConfirmationEmail(core, ConfirmationMemberId, EmailDropId, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", EmailFrom, EmailStatusList, "Group Email", personalizeAddonId);
                             CSEmail.goNext();
                         }
                     }
@@ -1387,8 +1417,8 @@ namespace Contensive.Processor.Controllers {
                             string EmailSubject = csEmail.getText("Subject");
                             string EmailCopy = csEmail.getText("CopyFilename");
                             int personalizeAddonId = csEmail.getInteger("personalizeAddonId");
-                            string EmailStatus = queueEmailRecord(core, "Conditional Email", EmailMemberId, emailId, EmailDateExpires, 0, bounceAddress, FromAddress, EmailTemplate, FromAddress, EmailSubject, EmailCopy, csEmail.getBoolean("AllowSpamFooter"), EmailAddLinkEid, "", personalizeAddonId);
-                            queueConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", FromAddress, EmailStatus + "<BR>", "Conditional Email", personalizeAddonId);
+                            string EmailStatus = sendEmailRecord_nonImmediate(core, "Conditional Email", EmailMemberId, emailId, EmailDateExpires, 0, bounceAddress, FromAddress, EmailTemplate, FromAddress, EmailSubject, EmailCopy, csEmail.getBoolean("AllowSpamFooter"), EmailAddLinkEid, "", personalizeAddonId);
+                            sendConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", FromAddress, EmailStatus + "<BR>", "Conditional Email", personalizeAddonId);
                             emailsEffected++;
                             LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
                         }
@@ -1437,11 +1467,11 @@ namespace Contensive.Processor.Controllers {
                             string EmailSubject = csEmail.getText("Subject");
                             string EmailCopy = csEmail.getText("CopyFilename");
                             int personalizeAddonId = csEmail.getInteger("personalizeAddonId");
-                            string EmailStatus = queueEmailRecord(core, "Conditional Email", EmailMemberId, emailId, EmailDateExpires, 0, bounceAddress, fromAddress, EmailTemplate, fromAddress, csEmail.getText("Subject"), csEmail.getText("CopyFilename"), csEmail.getBoolean("AllowSpamFooter"), csEmail.getBoolean("AddLinkEID"), "", personalizeAddonId);
+                            string EmailStatus = sendEmailRecord_nonImmediate(core, "Conditional Email", EmailMemberId, emailId, EmailDateExpires, 0, bounceAddress, fromAddress, EmailTemplate, fromAddress, csEmail.getText("Subject"), csEmail.getText("CopyFilename"), csEmail.getBoolean("AllowSpamFooter"), csEmail.getBoolean("AddLinkEID"), "", personalizeAddonId);
                             emailsEffected++;
                             //
                             // -- send confirmation for this send
-                            queueConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", fromAddress, EmailStatus + "<BR>", "Conditional Email", personalizeAddonId);
+                            sendConfirmationEmail(core, ConfirmationMemberId, 0, EmailTemplate, EmailAddLinkEid, EmailSubject, EmailCopy, "", fromAddress, EmailStatus + "<BR>", "Conditional Email", personalizeAddonId);
                             //
                             LogController.addActivityCompleted(core, "Conditional email sent", "Conditional email sent [" + csEmail.getText("name") + "]", EmailMemberId, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
                         }
@@ -1507,7 +1537,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="EmailAllowLinkEID"></param>
         /// <param name="emailStyles"></param>
         /// <returns>OK if successful, else returns user error.</returns>
-        public static string queueEmailRecord(CoreController core, string emailContextMessage, int sendToPersonId, int emailID, DateTime DateBlockExpires, int emailDropID, string BounceAddress, string ReplyToAddress, string EmailTemplate, string FromAddress, string EmailSubject, string EmailBody, bool AllowSpamFooter, bool EmailAllowLinkEID, string emailStyles, int personalizeAddonId) {
+        public static string sendEmailRecord_nonImmediate(CoreController core, string emailContextMessage, int sendToPersonId, int emailID, DateTime DateBlockExpires, int emailDropID, string BounceAddress, string ReplyToAddress, string EmailTemplate, string FromAddress, string EmailSubject, string EmailBody, bool AllowSpamFooter, bool EmailAllowLinkEID, string emailStyles, int personalizeAddonId) {
             PersonModel recipient = DbBaseModel.create<PersonModel>(core.cpParent, sendToPersonId);
             string returnStatus = "";
             //
@@ -1519,7 +1549,8 @@ namespace Contensive.Processor.Controllers {
             // -- click detect
             string queryStringForLinkAppend = rnEmailClickFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId;
             //
-            if (EmailController.tryQueuePersonEmail(core, recipient, FromAddress, EmailSubject, EmailBody, BounceAddress, ReplyToAddress, false, true, emailID, EmailTemplate, EmailAllowLinkEID, ref returnStatus, queryStringForLinkAppend, emailContextMessage, personalizeAddonId)) {
+            bool immediate = false;
+            if (trySendPersonEmail(core, recipient, FromAddress, EmailSubject, EmailBody, BounceAddress, ReplyToAddress, immediate, true, emailID, EmailTemplate, EmailAllowLinkEID, ref returnStatus, queryStringForLinkAppend, emailContextMessage, personalizeAddonId)) {
                 returnStatus = "Added to queue, email for " + recipient.name + " at " + recipient.email;
             }
             return returnStatus;
@@ -1535,13 +1566,11 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getEmailClickLink(CoreController core, int emailDropID, int sendToPersonId) {
             string webAddressProtocolDomain = HttpController.getWebAddressProtocolDomain(core);
-            string defaultPage = core.siteProperties.serverPageDefault;
-            switch (core.siteProperties.getInteger("GroupEmailOpenTriggerMethod", 0)) {
-                case 1:
-                    return "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + webAddressProtocolDomain + "?" + rnEmailOpenCssFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">";
-                default:
-                    return "<img src=\"" + webAddressProtocolDomain + "?" + rnEmailOpenFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">";
-            }
+            //string defaultPage = core.siteProperties.serverPageDefault;
+            return core.siteProperties.getInteger("GroupEmailOpenTriggerMethod", 0) switch {
+                1 => "<link rel=\"stylesheet\" type=\"text/css\" href=\"" + webAddressProtocolDomain + "?" + rnEmailOpenCssFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">",
+                _ => "<img src=\"" + webAddressProtocolDomain + "?" + rnEmailOpenFlag + "=" + emailDropID + "&" + rnEmailMemberId + "=" + sendToPersonId + "\">",
+            };
         }
         //
         //====================================================================================================
@@ -1568,7 +1597,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="emailStyles"></param>
         /// <param name="EmailFrom"></param>
         /// <param name="EmailStatusList"></param>
-        public static void queueConfirmationEmail(CoreController core, int ConfirmationMemberID, int EmailDropID, string EmailTemplate, bool EmailAllowLinkEID, string EmailSubject, string emailBody, string emailStyles, string EmailFrom, string EmailStatusList, string emailContextMessage, int personalizeAddonId) {
+        public static void sendConfirmationEmail(CoreController core, int ConfirmationMemberID, int EmailDropID, string EmailTemplate, bool EmailAllowLinkEID, string EmailSubject, string emailBody, string emailStyles, string EmailFrom, string EmailStatusList, string emailContextMessage, int personalizeAddonId) {
             try {
                 PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, ConfirmationMemberID);
                 if (person != null) {
@@ -1590,7 +1619,7 @@ namespace Contensive.Processor.Controllers {
                         + BR;
                     string queryStringForLinkAppend = rnEmailClickFlag + "=" + EmailDropID + "&" + rnEmailMemberId + "=" + person.id;
                     string sendStatus = "";
-                    EmailController.tryQueuePersonEmail(core, person, EmailFrom, "Email confirmation from " + HttpController.getWebAddressProtocolDomain(core), ConfirmBody, "", "", true, true, EmailDropID, EmailTemplate, EmailAllowLinkEID, ref sendStatus, queryStringForLinkAppend, emailContextMessage, personalizeAddonId);
+                    EmailController.trySendPersonEmail(core, person, EmailFrom, "Email confirmation from " + HttpController.getWebAddressProtocolDomain(core), ConfirmBody, "", "", true, true, EmailDropID, EmailTemplate, EmailAllowLinkEID, ref sendStatus, queryStringForLinkAppend, emailContextMessage, personalizeAddonId);
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);

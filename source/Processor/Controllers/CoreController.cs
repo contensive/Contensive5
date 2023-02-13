@@ -1,4 +1,5 @@
-﻿using Contensive.BaseModels;
+﻿using Amazon.SimpleEmail;
+using Contensive.BaseModels;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
@@ -124,6 +125,20 @@ namespace Contensive.Processor.Controllers {
                 return DbController.encodeSQLDate(dateTimeNowMockable);
             }
         }
+        //
+        //===================================================================================================
+        //
+        /// <summary>
+        /// hold ses client for scope of core
+        /// </summary>
+        public AmazonSimpleEmailServiceClient sesClient {
+            get { 
+                if(sesClient_local!=null) { return sesClient_local;  }
+                sesClient_local = AwsSesController.getSesClient(this);
+                return sesClient_local;
+            } 
+        }
+        private AmazonSimpleEmailServiceClient? sesClient_local = null;
         //
         //===================================================================================================
         /// <summary>
@@ -954,6 +969,10 @@ namespace Contensive.Processor.Controllers {
                         if (_db != null) {
                             _db.Dispose();
                             _db = null;
+                        }
+                        //
+                        if(sesClient_local!=null) {
+                            sesClient_local.Dispose();
                         }
                         //
                         _siteProperties = null;
