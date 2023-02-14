@@ -716,6 +716,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="logPrefix"></param>
+        /// <param name="isNewBuild">if new build, basic indexes are created</param>
         internal static void verifyBasicTables(CoreController core, string logPrefix) {
             try {
                 {

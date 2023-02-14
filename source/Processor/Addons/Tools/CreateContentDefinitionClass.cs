@@ -54,6 +54,8 @@ namespace Contensive.Processor.Addons.Tools {
                     Stream.add("<P>Creating content [" + ContentName + "] on table [" + TableName + "] on Datasource [" + datasource.name + "].</P>");
                     if ((!string.IsNullOrEmpty(ContentName)) && (!string.IsNullOrEmpty(TableName)) && (!string.IsNullOrEmpty(datasource.name))) {
                         using (var db = new DbController(core, datasource.name)) {
+                            //
+                            // -- create table and core fields, plus core indexes. Then during maintenance, remove unused indexes
                             db.createSQLTable(TableName);
                         }
                         ContentMetadataModel.createFromSQLTable(core, datasource, TableName, ContentName);

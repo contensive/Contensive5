@@ -520,7 +520,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="tableName"></param>
         /// <param name="allowAutoIncrement"></param>
-        public void createSQLTable(string tableName, bool allowAutoIncrement = true) {
+        public void createSQLTable(string tableName) {
             try {
                 if (string.IsNullOrEmpty(tableName)) {
                     //
@@ -534,15 +534,12 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- Local table -- create if not in schema
-                if (TableSchemaModel.getTableSchema(core, tableName, dataSourceName) == null) {
+                bool isNewTable = TableSchemaModel.getTableSchema(core, tableName, dataSourceName) == null;
+                if (isNewTable) {
                     //
                     LogController.logInfo(core, "creating sql table [" + tableName + "], datasource [" + dataSourceName + "]");
                     //
-                    if (!allowAutoIncrement) {
-                        executeNonQuery("Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.Integer) + ");");
-                    } else {
-                        executeNonQuery("Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement) + ");");
-                    }
+                    executeNonQuery("Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement) + ");");
                 }
                 //
                 // ----- Test the common fields required in all tables
@@ -559,13 +556,15 @@ namespace Contensive.Processor.Controllers {
                 createSQLTableField(tableName, "createKey", CPContentBaseClass.FieldTypeIdEnum.Integer);
                 //
                 // ----- setup core indexes
-                createSQLIndex(tableName, tableName + "Active", "active");
-                createSQLIndex(tableName, tableName + "Name", "name");
-                createSQLIndex(tableName, tableName + "SortOrder", "sortOrder");
-                createSQLIndex(tableName, tableName + "DateAdded", "dateAdded");
-                createSQLIndex(tableName, tableName + "ContentControlId", "contentControlId");
-                createSQLIndex(tableName, tableName + "ModifiedDate", "modifiedDate");
-                createSQLIndex(tableName, tableName + "CcGuid", "ccGuid");
+                if (isNewTable) {
+                    createSQLIndex(tableName, tableName + "Active", "active");
+                    createSQLIndex(tableName, tableName + "Name", "name");
+                    createSQLIndex(tableName, tableName + "SortOrder", "sortOrder");
+                    createSQLIndex(tableName, tableName + "DateAdded", "dateAdded");
+                    createSQLIndex(tableName, tableName + "ContentControlId", "contentControlId");
+                    createSQLIndex(tableName, tableName + "ModifiedDate", "modifiedDate");
+                    createSQLIndex(tableName, tableName + "CcGuid", "ccGuid");
+                }
                 //
                 TableSchemaModel.tableSchemaListClear(core);
             } catch (Exception ex) {

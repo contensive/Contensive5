@@ -49,7 +49,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- send email
-                Body messageBody = new() { };
+                Body messageBody = new();
                 if (!string.IsNullOrEmpty(email.htmlBody)) {
                     messageBody.Html = new Content { Charset = "UTF-8", Data = email.htmlBody };
                 }
