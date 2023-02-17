@@ -1,6 +1,7 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using Contensive.BaseModels;
 using Contensive.Exceptions;
 using Contensive.Processor.Controllers;
 //
@@ -101,7 +102,12 @@ namespace Contensive.Processor.Models.Domain {
         /// limit to number of content managers or any kind
         /// </summary>
         public override int adminLimit { get; set; }
-
+        /// <summary>
+        /// if serverconfig.useSecretManager if true, this is not used.
+        /// if false, app secrets are stored here.
+        /// values stored in secrets override properties in server and app config.
+        /// </summary>
+        public override List<NameValueBaseModel> secrets { get; set; }
         //
         //====================================================================================================
         /// <summary>

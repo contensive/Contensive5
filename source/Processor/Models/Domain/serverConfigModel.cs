@@ -58,7 +58,14 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// datasource for the cluster (only sql support for now)
         /// </summary>
-        public override DataSourceTypeEnum defaultDataSourceType { get; set; }
+        public override DataSourceTypeEnum defaultDataSourceType { 
+            get {
+                if(useSecretManager) {
+                    return SecretManagerController.getSecret(cp)
+                }
+            }
+            set; 
+        }
         /// <summary>
         /// default datasource endpoint (server:port)
         /// </summary>
@@ -108,9 +115,19 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public Dictionary <string, AppConfigModel> apps { get; set; }
         /// <summary>
-        /// if true, the connection will be forced secure
+        /// if true, the connection will be forced secure by appending "Encrypt=yes" to the connection string
         /// </summary>
         public override bool defaultDataSourceSecure { get; set; }
+        /// <summary>
+        /// if true, AWS secret manager through cp.site.getSecret(secretName)
+        /// The following properties in this object are replaced by secret
+        /// awsSecretAccessKey
+        /// awsAccessKey
+        /// defaultDataSourceUsername
+        /// defaultDataSourcePassword
+        /// defaultDataSourceAddress
+        /// </summary>
+        public override bool useSecretManager { get; set; }
 
         //
         //====================================================================================================

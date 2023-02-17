@@ -9,7 +9,34 @@ namespace Tests {
     //====================================================================================================
     //
     [TestClass()]
-    public class Test_LinkAliasController {
+    public class LinkAliasController_Tests {
+        //
+        //====================================================================================================
+        //
+        [TestMethod]
+        public void test_GetLinkAlias_simple() {
+            using (CPClass cp = new(testAppName)) {
+                CoreController core = cp.core;
+                //
+                // arrange
+                core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
+                cp.Cache.InvalidateTable(LinkAliasModel.tableMetadata.tableNameLower);
+                //
+                int pageId = 1;
+                string pageQs = "this=that&one=another";
+                string pageName = "test";
+                string pageLink = "https://" + cp.GetAppConfig().domainList[0] + "/" + pageName;
+                //
+                // act
+                LinkAliasController.addLinkAlias(core, pageName, pageId, pageQs);
+                var linkAliasList = DbBaseModel.createList<LinkAliasModel>(cp, "(name='/test')");
+                //
+                var resultPageLink = PageManagerController.getPageLink(core, pageId, pageQs);
+                //
+                // assert
+                Assert.AreEqual(pageLink, resultPageLink);
+            }
+        }
         //
         //====================================================================================================
         //

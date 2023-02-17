@@ -23,13 +23,27 @@ namespace Contensive.Processor.Controllers {
         /// Returns the Alias link (SourceLink) from the actual link (DestinationLink).
         /// if not found, it creates the link alias from the default
         /// </summary>
-        public static string getLinkAlias(CoreController core, int PageID, string QueryStringSuffix, string DefaultPageName) {
-            string linkAlias = DefaultPageName;
-            List<LinkAliasModel> linkAliasList = LinkAliasModel.createPageList(core.cpParent, PageID, QueryStringSuffix);
+        public static string getLinkAlias(CoreController core, int pageId, string queryStringSuffix, string defaultPageName) {
+            string linkAlias;
+            string linkAliasKey = $"{pageId}.{queryStringSuffix}";
+            //string linkAliasKey = pageId + "." + queryStringSuffix;
+            if (core.linkAliasPageDict.ContainsKey(linkAliasKey)) {
+                //
+                // -- get link alias from cache created for routemap
+                linkAlias = core.linkAliasPageDict[linkAliasKey].name;
+                if (linkAlias.left(1) != "/") {
+                    linkAlias = "/" + linkAlias;
+                }
+                return linkAlias;
+            }
+            //
+            // -- get link alias from table
+
+            List<LinkAliasModel> linkAliasList = LinkAliasModel.createPageList(core.cpParent, pageId, queryStringSuffix);
             if (linkAliasList.Count == 0) {
                 //
                 // -- this page/qs does not have a link alias, add the default page name
-                return addLinkAlias(core, DefaultPageName, PageID, QueryStringSuffix);
+                return addLinkAlias(core, defaultPageName, pageId, queryStringSuffix);
             }
             linkAlias = linkAliasList.First().name;
             if (linkAlias.left(1) != "/") {
@@ -89,7 +103,7 @@ namespace Contensive.Processor.Controllers {
                     int Ptr = 0;
                     while (normalizedLinkAlias.Contains("\t\t") && (Ptr < 100)) {
                         normalizedLinkAlias = GenericController.strReplace(normalizedLinkAlias, "\t\t", "\t");
-                        Ptr = Ptr + 1;
+                        Ptr++;
                     }
                     if (normalizedLinkAlias.Substring(normalizedLinkAlias.Length - 1) == "\t") {
                         normalizedLinkAlias = normalizedLinkAlias.left(normalizedLinkAlias.Length - 1);

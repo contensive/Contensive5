@@ -44,6 +44,121 @@ namespace Contensive.Processor.Controllers {
         }
         private RouteMapModel _routeMap;
         //
+        public class LayoutDict {
+            public Dictionary<int, LayoutModel> layoutIdDict { get; set; } = new();
+            public Dictionary<string, LayoutModel> layoutGuidDict { get; set; } = new();
+            public Dictionary<string, LayoutModel> layoutNameDict { get; set; } = new();
+        }
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// load and return the layout dictionaries
+        /// </summary>
+        /// <returns></returns>
+        private LayoutDict getLayoutDict() {
+            string cacheKey = "layoutDict";
+            LayoutDict layoutDict  = cache.getObject<LayoutDict>(cacheKey);
+            if (layoutDict != null) { return layoutDict; }
+            //
+            // -- load from db
+            layoutDict = new LayoutDict();
+            foreach (LayoutModel linkAlias in DbBaseModel.createList<LayoutModel>(cpParent)) {
+                if (!layoutDict.layoutIdDict.ContainsKey(linkAlias.id)) {
+                    layoutDict.layoutIdDict.Add(linkAlias.id, linkAlias);
+                }
+                if (!string.IsNullOrEmpty(linkAlias.ccguid) &&  !layoutDict.layoutGuidDict.ContainsKey(linkAlias.ccguid)) {
+                    layoutDict.layoutGuidDict.Add(linkAlias.ccguid, linkAlias);
+                }
+                if (!string.IsNullOrEmpty(linkAlias.name) && !layoutDict.layoutNameDict.ContainsKey(linkAlias.name)) {
+                    layoutDict.layoutNameDict.Add(linkAlias.name, linkAlias);
+                }
+            }
+            //
+            // -- update cache
+            var dependentKeyHastList = new List<CacheKeyHashClass>() { cache.createTableDependencyKeyHash(LayoutModel.tableMetadata.tableNameLower) };
+            cache.storeObject(cacheKey, layoutDict, dependentKeyHastList);
+            return layoutDict;
+        }
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// cache dictionary of layout by id
+        /// </summary>
+        public Dictionary<int, LayoutModel> layoutIdDict {
+            get {
+                if (layoutIdDict_Local != null) { return layoutIdDict_Local; }
+                LayoutDict layout = getLayoutDict();
+                layoutIdDict_Local = layout.layoutIdDict;
+                layoutGuidDict_Local = layout.layoutGuidDict;
+                layoutNameDict_Local = layout.layoutNameDict;
+                return layoutIdDict_Local;
+            }
+        }
+        private Dictionary<int, LayoutModel> layoutIdDict_Local;
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// cache dictionary of layout by name
+        /// </summary>
+        public Dictionary<string, LayoutModel> layoutNameDict {
+            get {
+                if (layoutNameDict_Local != null) { return layoutNameDict_Local; }
+                LayoutDict layout = getLayoutDict();
+                layoutIdDict_Local = layout.layoutIdDict;
+                layoutGuidDict_Local = layout.layoutGuidDict;
+                layoutNameDict_Local = layout.layoutNameDict;
+                return layoutNameDict_Local;
+            }
+        }
+        private Dictionary<string, LayoutModel> layoutNameDict_Local;
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// cache dictionary of layout by id
+        /// </summary>
+        public Dictionary<string, LayoutModel> layoutGuidDict {
+            get {
+                if (layoutGuidDict_Local != null) { return layoutGuidDict_Local; }
+                LayoutDict layout = getLayoutDict();
+                layoutIdDict_Local = layout.layoutIdDict;
+                layoutGuidDict_Local = layout.layoutGuidDict;
+                layoutNameDict_Local = layout.layoutNameDict;
+                return layoutGuidDict_Local;
+            }
+        }
+        private Dictionary<string, LayoutModel> layoutGuidDict_Local;
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// Link alias cache dictionary. loads when initializing routemap, available for getPageLink() methods
+        /// </summary>
+        public Dictionary<string, LinkAliasModel> linkAliasPageDict {
+            get {
+                if (linkAliasPageDict_Local != null) { return linkAliasPageDict_Local; }
+                //
+                string cacheKey = "linkAliasPageDict";
+                linkAliasPageDict_Local = cache.getObject<Dictionary<string, LinkAliasModel>>(cacheKey);
+                if (linkAliasPageDict_Local != null) { return linkAliasPageDict_Local; }
+                //
+                // -- order by "pageid,queryStringSuffix,id desc" for routemap
+                linkAliasPageDict_Local = new Dictionary<string, LinkAliasModel>();
+                foreach (LinkAliasModel linkAlias in DbBaseModel.createList<LinkAliasModel>(cpParent, "name Is Not null", "pageid,queryStringSuffix,id desc")) {
+                    string key = $"{linkAlias.pageId}.{linkAlias.queryStringSuffix}";
+                    if (linkAliasPageDict_Local.ContainsKey(key)) { continue; }
+                    linkAliasPageDict_Local.Add(key, linkAlias);
+                }
+                var dependentKeyHastList = new List<CacheKeyHashClass>() { cache.createTableDependencyKeyHash(LinkAliasModel.tableMetadata.tableNameLower) };
+                cache.storeObject(cacheKey, linkAliasPageDict_Local, dependentKeyHastList);
+                return linkAliasPageDict_Local;
+            }
+        }
+        private Dictionary<string, LinkAliasModel> linkAliasPageDict_Local;
+        //
         //===================================================================================================
         /// <summary>
         /// server configuration - this is the node's configuration, including everything needed to attach to resources required (db,cache,filesystem,etc)
@@ -132,11 +247,11 @@ namespace Contensive.Processor.Controllers {
         /// hold ses client for scope of core
         /// </summary>
         public AmazonSimpleEmailServiceClient sesClient {
-            get { 
-                if(sesClient_local!=null) { return sesClient_local;  }
+            get {
+                if (sesClient_local != null) { return sesClient_local; }
                 sesClient_local = AwsSesController.getSesClient(this);
                 return sesClient_local;
-            } 
+            }
         }
         private AmazonSimpleEmailServiceClient? sesClient_local = null;
         //
@@ -971,7 +1086,7 @@ namespace Contensive.Processor.Controllers {
                             _db = null;
                         }
                         //
-                        if(sesClient_local!=null) {
+                        if (sesClient_local != null) {
                             sesClient_local.Dispose();
                         }
                         //

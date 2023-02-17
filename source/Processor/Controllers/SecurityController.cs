@@ -1,11 +1,9 @@
-﻿
+﻿using Contensive.Exceptions;
 using System;
-using System.Text;
-using System.Security.Cryptography;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 using static Contensive.Processor.Controllers.GenericController;
-using Contensive.Exceptions;
-using System.Linq;
 //
 namespace Contensive.Processor.Controllers {
     public class SecurityController {
@@ -62,7 +60,7 @@ namespace Contensive.Processor.Controllers {
         public class TokenData {
             public int id { get; set; }
             public DateTime expires { get; set; }
-            public TokenData()  {
+            public TokenData() {
                 id = 0;
                 expires = DateTime.MinValue;
             }
@@ -411,7 +409,7 @@ namespace Contensive.Processor.Controllers {
         /// A class for creating a symetric encryption
         /// </summary>
         protected class Crypto {
-            protected Crypto()  { }
+            protected Crypto() { }
             //
             // While an app specific salt is not the best practice for
             // password based encryption, it's probably safe enough as long as

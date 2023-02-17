@@ -99,6 +99,12 @@ namespace Contensive.BaseModels {
         /// limit to the number of content managers
         /// </summary>
         public abstract int adminLimit { get; set; }
+        /// <summary>
+        /// if serverconfig.useSecretManager if true, this is not used.
+        /// if false, app secrets are stored here.
+        /// values stored in secrets override properties in server and app config.
+        /// </summary>
+        public abstract List<NameValueBaseModel> secrets { get; set; }
         //
         //====================================================================================================
         /// <summary>

@@ -1667,31 +1667,35 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- domain -- determine if the domain has any template requirements, and if so, is this template allowed
-                string SqlCriteria = "(domainId=" + core.domain.id + ")";
-                List<TemplateDomainRuleModel> allowTemplateRuleList = DbBaseModel.createList<TemplateDomainRuleModel>(core.cpParent, SqlCriteria);
-                bool templateAllowed = false;
-                foreach (TemplateDomainRuleModel rule in allowTemplateRuleList) {
-                    if (rule.templateId == core.doc.pageController.template.id) {
-                        templateAllowed = true;
-                        break;
+                bool templateAllowed = true;
+                List<TemplateDomainRuleModel> allowTemplateRuleList = new();
+                if (core.domain.id>0) {
+                    allowTemplateRuleList = DbBaseModel.createList<TemplateDomainRuleModel>(core.cpParent, $"(domainId={core.domain.id})");
+                    templateAllowed = false;
+                    foreach (TemplateDomainRuleModel rule in allowTemplateRuleList) {
+                        if (rule.templateId == core.doc.pageController.template.id) {
+                            templateAllowed = true;
+                            break;
+                        }
                     }
                 }
                 string linkDomain = "";
+                string domainDefault = !string.IsNullOrWhiteSpace(core.webServer.requestDomain) ? core.webServer.requestDomain : core.appConfig.domainList.FirstOrDefault();
                 if (allowTemplateRuleList.Count == 0) {
                     //
                     // this template has no domain preference, use current domain
                     //
-                    linkDomain = core.webServer.requestDomain;
+                    linkDomain = domainDefault;
                 } else if (core.domain.id == 0) {
                     //
                     // the current domain is not recognized, or is default - use it
                     //
-                    linkDomain = core.webServer.requestDomain;
+                    linkDomain = domainDefault;
                 } else if (templateAllowed) {
                     //
                     // current domain is in the allowed domain list
                     //
-                    linkDomain = core.webServer.requestDomain;
+                    linkDomain = domainDefault;
                 } else {
                     //
                     // there is an allowed domain list and current domain is not on it, or use first
@@ -1699,7 +1703,7 @@ namespace Contensive.Processor.Controllers {
                     int setdomainId = allowTemplateRuleList.First().domainId;
                     linkDomain = MetadataController.getRecordName(core, "domains", setdomainId);
                     if (string.IsNullOrEmpty(linkDomain)) {
-                        linkDomain = core.webServer.requestDomain;
+                        linkDomain = domainDefault;
                     }
                 }
                 //

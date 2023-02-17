@@ -151,7 +151,9 @@ namespace Contensive.Processor.Models.Domain {
                 // -- add link aliases
                 // 221119 - each destination (pageid+qsSuffix) may have mulitple urls (name). if not primary (highest id) link alias for this page/qs, forward to the first
                 Dictionary<string, string> usedPages = new();
-                foreach (var linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent, "name Is Not null", "pageid,queryStringSuffix,id desc")) {
+                foreach (KeyValuePair<string,LinkAliasModel> kvp in core.linkAliasPageDict ) {
+                    LinkAliasModel linkAlias = kvp.Value;   
+                    //foreach (var linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent, "name Is Not null", "pageid,queryStringSuffix,id desc")) {
                     string localRoute = GenericController.normalizeRoute(linkAlias.name);
                     if (string.IsNullOrEmpty(localRoute)) { continue; }
                     //
@@ -196,8 +198,8 @@ namespace Contensive.Processor.Models.Domain {
                                 if (!core.docProperties.containsKey(keyValue[0])) {
                                     if (keyValue.Length > 1) {
                                         linkAliasQSList.Add(new NameValueModel {
-                                             name = keyValue[0],
-                                             value = keyValue[1]
+                                            name = keyValue[0],
+                                            value = keyValue[1]
                                         });
                                     } else {
                                         linkAliasQSList.Add(new NameValueModel {

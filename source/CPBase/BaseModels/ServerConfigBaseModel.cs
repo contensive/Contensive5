@@ -126,6 +126,7 @@ namespace Contensive.BaseModels {
             /// </summary>
             sqlServer = 2
         }
+        public abstract bool useSecretManager { get; set; }
     }
 }
 
