@@ -17,8 +17,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <returns></returns>
         public static AmazonSimpleNotificationServiceClient getSnsClient(CoreController core) {
-            BasicAWSCredentials cred = new BasicAWSCredentials(core.awsCredentials.awsAccessKeyId, core.awsCredentials.awsSecretAccessKey);
-            return new AmazonSimpleNotificationServiceClient(cred, core.awsCredentials.awsRegion);
+            BasicAWSCredentials cred = new BasicAWSCredentials(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey);
+            Amazon.RegionEndpoint region = Amazon.RegionEndpoint.GetBySystemName(core.serverConfig.awsRegionName);
+            return new AmazonSimpleNotificationServiceClient(cred, region);
         }
         //
         //====================================================================================================

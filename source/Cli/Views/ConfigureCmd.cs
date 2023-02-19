@@ -5,6 +5,7 @@ using Amazon;
 using System.Text;
 using System.Reflection;
 using Contensive.CLI.Controllers;
+using Contensive.Processor.Controllers.Aws;
 
 namespace Contensive.CLI {
     static class ConfigureCmd {
@@ -36,6 +37,15 @@ namespace Contensive.CLI {
                         cp.core.serverConfig.name = GenericController.promptForReply(prompt, defaultValue);
                     }
                     //
+                    // -- remote secrets
+                    {
+                        Console.WriteLine($"\n\nSecrets Manager");
+                        Console.WriteLine($"Create and use a secrets manager application [{cp.core.serverConfig.name}]. Store secrets like database endpoint and credentials automatically in Secrets manager. If no, store secrets in local file config.json.");
+                        String prompt = "Use AWS Secrets Manager (y/n)?";
+                        String defaultValue = (cp.core.serverConfig.useSecretManager) ? "y" : "n";
+                        cp.core.serverConfig.useSecretManager = Equals(GenericController.promptForReply(prompt, defaultValue).ToLowerInvariant(), "y");
+                    }
+                    //
                     // -- production server?
                     {
                         Console.WriteLine("\n\nProduction Server");
@@ -65,19 +75,31 @@ namespace Contensive.CLI {
                     //
                     // -- aws credentials
                     {
+                        string awsAccessKey = cp.core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(cp.core, "awsAccessKey") : cp.core.serverConfig.awsAccessKey;
+                        string awsSecretAccessKey = cp.core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(cp.core, "awsSecretAccessKey") : cp.core.serverConfig.awsSecretAccessKey;
                         Console.WriteLine("\n\nAWS Credentials.");
                         Console.WriteLine("Configure the AWS credentials for this server. Use AWS IAM to create a user with programmatic credentials. This user will require policies for each of the services used by this server, such as S3 bucket access for remote files and logging for cloudwatch.");
                         do {
-                            cp.core.serverConfig.awsAccessKey = GenericController.promptForReply("Enter the AWS Access Key", cp.core.serverConfig.awsAccessKey);
-                        } while (string.IsNullOrWhiteSpace(cp.core.serverConfig.awsAccessKey));
+                            awsAccessKey = GenericController.promptForReply("Enter the AWS Access Key", awsAccessKey);
+                        } while (string.IsNullOrWhiteSpace(awsAccessKey));
                         //
                         do {
-                            cp.core.serverConfig.awsSecretAccessKey = GenericController.promptForReply("Enter the AWS Access Secret", cp.core.serverConfig.awsSecretAccessKey);
-                        } while (string.IsNullOrWhiteSpace(cp.core.serverConfig.awsSecretAccessKey));
+                            awsSecretAccessKey = GenericController.promptForReply("Enter the AWS Access Secret", awsSecretAccessKey);
+                        } while (string.IsNullOrWhiteSpace(awsSecretAccessKey));
+
+
+                        if (cp.core.serverConfig.useSecretManager) {
+                            AwsSecretManagerController.setSecret(cp.core, "awsAccessKey", awsAccessKey);
+                            AwsSecretManagerController.setSecret(cp.core, "awsSecretAccessKey", awsSecretAccessKey);
+                        } else {
+                            cp.core.serverConfig.awsAccessKey = awsAccessKey;
+                            cp.core.serverConfig.awsSecretAccessKey = awsSecretAccessKey;
+                        }
                     }
                     //
                     // -- aws region
                     {
+                        string awsRegionName = cp.core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(cp.core, "awsRegionName") : cp.core.serverConfig.awsRegionName;
                         Console.WriteLine("\n\nAWS Region.");
                         Console.WriteLine("Configure the AWS region for this server. The region is used for remote files and cloudwatch logging.");
                         var regionList = new StringBuilder();
@@ -85,15 +107,20 @@ namespace Contensive.CLI {
                             regionList.Append(region.SystemName);
                         }
                         do {
-                            string selectedRegion = GenericController.promptForReply("Enter the AWS region (" + regionList + ")", cp.core.serverConfig.awsRegionName).ToLowerInvariant();
-                            cp.core.serverConfig.awsRegionName = "";
+                            string selectedRegion = GenericController.promptForReply("Enter the AWS region (" + regionList + ")", awsRegionName).ToLowerInvariant();
+                            awsRegionName = "";
                             foreach (var region in RegionEndpoint.EnumerableAllRegions) {
                                 if (selectedRegion == region.SystemName.ToLowerInvariant()) {
-                                    cp.core.serverConfig.awsRegionName = region.SystemName;
+                                    awsRegionName = region.SystemName;
                                     break;
                                 }
                             }
-                        } while (string.IsNullOrWhiteSpace(cp.core.serverConfig.awsRegionName));
+                        } while (string.IsNullOrWhiteSpace(awsRegionName));
+                        if (cp.core.serverConfig.useSecretManager) {
+                            AwsSecretManagerController.setSecret(cp.core, "awsRegionName", awsRegionName);
+                        } else {
+                            cp.core.serverConfig.awsRegionName = awsRegionName;
+                        }
                     }
                     //
                     // -- aws s3 bucket configure for non-local
@@ -125,16 +152,25 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- Sql Server Driver
-                    cp.core.serverConfig.defaultDataSourceType = BaseModels.ServerConfigBaseModel.DataSourceTypeEnum.sqlServer;
+                    if (cp.core.serverConfig.useSecretManager) {
+                        AwsSecretManagerController.setSecret(cp.core, "defaultDataSourceType", ((int)BaseModels.ServerConfigBaseModel.DataSourceTypeEnum.sqlServer).ToString());
+                    } else {
+                        cp.core.serverConfig.defaultDataSourceType = BaseModels.ServerConfigBaseModel.DataSourceTypeEnum.sqlServer;
+                    }
                     //
                     // -- Sql Server end-point
                     {
+                        string defaultDataSourceAddress = cp.core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(cp.core, "defaultDataSourceAddress") : cp.core.serverConfig.defaultDataSourceAddress;
                         Console.WriteLine("\n\nSql Server endpoint.");
                         Console.WriteLine("Sql Server endpoint or endpoint:port. Use endpoint '(local)' for Sql Server on this machine:");
-                        if (!String.IsNullOrEmpty(cp.core.serverConfig.defaultDataSourceAddress)) { Console.Write("(" + cp.core.serverConfig.defaultDataSourceAddress + ")"); }
-                        string reply = Console.ReadLine();
-                        if (String.IsNullOrEmpty(reply)) { reply = cp.core.serverConfig.defaultDataSourceAddress; }
-                        cp.core.serverConfig.defaultDataSourceAddress = reply;
+                        if (!String.IsNullOrEmpty(defaultDataSourceAddress)) { Console.Write("(" + defaultDataSourceAddress + ")"); }
+                        defaultDataSourceAddress = Console.ReadLine();
+                        if (String.IsNullOrEmpty(defaultDataSourceAddress)) { defaultDataSourceAddress = cp.core.serverConfig.defaultDataSourceAddress; }
+                        if (cp.core.serverConfig.useSecretManager) {
+                            AwsSecretManagerController.setSecret(cp.core, "defaultDataSourceAddress", defaultDataSourceAddress);
+                        } else {
+                            cp.core.serverConfig.defaultDataSourceAddress = defaultDataSourceAddress;
+                        }
                     }
                     //
                     // -- Sql Server Credentials

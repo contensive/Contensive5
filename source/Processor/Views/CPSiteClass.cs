@@ -22,120 +22,122 @@ namespace Contensive.Processor {
         public CPSiteClass(CPClass cp) {
             this.cp = cp;
         }
-        //
-        //=======================================================================================================
-        /// <summary>
-        /// get a secret value
-        /// if useSecretManager, get value from secretManager
-        /// else get from matching property, if not match, from local secrets store
-        /// </summary>
-        /// <param name="secretName"></param>
-        public override string GetSecret(string secretName) {
-            if (cp.core.serverConfig.useSecretManager) {
-                //
-                // -- use secret manager
-                return SecretManagerController.getSecret(cp.core, secretName);
-            }
-            //
-            // -- use local secrets and secret properties
-            switch (secretName) {
-                case "defaultdatasourceaddress": {
-                        return cp.core.serverConfig.defaultDataSourceAddress;
-                    }
-                case "defaultdatasourceusername": {
-                        return cp.core.serverConfig.defaultDataSourceUsername;
-                    }
-                case "defaultdatasourcepassword": {
-                        return cp.core.serverConfig.defaultDataSourcePassword;
-                    }
-                case "defaultdatasourcetype": {
-                        return cp.core.serverConfig.defaultDataSourceType.ToString();
-                    }
-                case "defaultdatasourcesecure": {
-                        return cp.core.serverConfig.defaultDataSourceSecure.ToString();
-                    }
-                case "awsaccesskey": {
-                        return cp.core.serverConfig.awsAccessKey;
-                    }
-                case "awssecretaccesskey": {
-                        return cp.core.serverConfig.awsSecretAccessKey;
-                    }
-                case "awsregionname": {
-                        return cp.core.serverConfig.awsRegionName;
-                    }
-                case "awsbucketname": {
-                        return cp.core.serverConfig.awsBucketName;
-                    }
-                default: {
-                        //
-                        // -- use local secrets, didnt match property
-                        BaseModels.NameValueBaseModel result = cp.core.appConfig.secrets.Find(x => x.name.ToLowerInvariant() == secretName.ToLowerInvariant());
-                        if (result == null) { return ""; }
-                        return result.value;
-                    }
-            }
-        }
-        //
-        //=======================================================================================================
-        /// <summary>
-        /// set a secret value
-        /// if useSecretManager, set it there
-        /// else if property match, set the match
-        /// else set in local secrets
-        /// </summary>
-        /// <param name="secretName"></param>
-        public override void SetSecret(string secretName, string secretValue) {
-            if (cp.core.serverConfig.useSecretManager) {
-                //
-                // -- use secret manager
-                SecretManagerController.setSecret(cp.core, secretName, secretValue);
-                return;
-            }
-            //
-            // -- use local configuration
-            switch (secretName) {
-                case "defaultdatasourceaddress": {
-                        cp.core.serverConfig.defaultDataSourceAddress = secretValue;
-                        break;
-                    }
-                case "defaultdatasourceusername": {
-                        cp.core.serverConfig.defaultDataSourceUsername = secretValue;
-                        break;
-                    }
-                case "defaultdatasourcepassword": {
-                        cp.core.serverConfig.defaultDataSourcePassword = secretValue;
-                        break;
-                    }
-                case "defaultdatasourcetype": {
-                        cp.core.serverConfig.defaultDataSourceType = (BaseModels.ServerConfigBaseModel.DataSourceTypeEnum)cp.Utils.EncodeInteger(secretValue);
-                        break;
-                    }
-                case "defaultdatasourcesecure": {
-                        cp.core.serverConfig.defaultDataSourceSecure = cp.Utils.EncodeBoolean(secretValue);
-                        break;
-                    }
-                case "awsaccesskey": {
-                        cp.core.serverConfig.awsAccessKey = secretValue;
-                        break;
-                    }
-                case "awssecretaccesskey": {
-                        cp.core.serverConfig.awsSecretAccessKey = secretValue;
-                        break;
-                    }
-                case "awsregionname": {
-                        cp.core.serverConfig.awsRegionName = secretValue;
-                        break;
-                    }
-                case "awsbucketname": {
-                        cp.core.serverConfig.awsBucketName = secretValue;
-                        break;
-                    }
-                default: {
-                        SecretManagerController.setSecret(cp.core, secretName, secretValue);
-                        break;
-                    }
-            }
-        }
+        ////
+        ////=======================================================================================================
+        ///// <summary>
+        ///// get a secret value
+        ///// if useSecretManager, get value from secretManager
+        ///// else get from matching property, if not match, from local secrets store
+        ///// </summary>
+        ///// <param name="secretName"></param>
+        //public override string GetSecret(string secretName) {
+        //    if (cp.core.serverConfig.useSecretManager) {
+        //        //
+        //        // -- use secret manager
+        //        return SecretManagerController.getSecret(cp.core, secretName);
+        //    }
+        //    //
+        //    // -- use local secrets and secret properties
+        //    switch (secretName) {
+        //        case "defaultdatasourceaddress": {
+        //                return cp.core.serverConfig.defaultDataSourceAddress;
+        //            }
+        //        case "defaultdatasourceusername": {
+        //                return cp.core.serverConfig.defaultDataSourceUsername;
+        //            }
+        //        case "defaultdatasourcepassword": {
+        //                return cp.core.serverConfig.defaultDataSourcePassword;
+        //            }
+        //        case "defaultdatasourcetype": {
+        //                return cp.core.serverConfig.defaultDataSourceType.ToString();
+        //            }
+        //        case "defaultdatasourcesecure": {
+        //                return cp.core.serverConfig.defaultDataSourceSecure.ToString();
+        //            }
+        //        case "awsaccesskey": {
+        //                return cp.core.serverConfig.awsAccessKey;
+        //            }
+        //        case "awssecretaccesskey": {
+        //                return cp.core.serverConfig.awsSecretAccessKey;
+        //            }
+        //        case "awsregionname": {
+        //                return cp.core.serverConfig.awsRegionName;
+        //            }
+        //        case "awsbucketname": {
+        //                return cp.core.serverConfig.awsBucketName;
+        //            }
+        //        default: {
+        //                //
+        //                // -- use local secrets, didnt match property
+        //                BaseModels.NameValueBaseModel result = cp.core.appConfig.secrets.Find(x => x.name.ToLowerInvariant() == secretName.ToLowerInvariant());
+        //                if (result == null) { return ""; }
+        //                return result.value;
+        //            }
+        //    }
+        //}
+        ////
+        ////=======================================================================================================
+        ///// <summary>
+        ///// set a secret value
+        ///// if useSecretManager, set it there
+        ///// else if property match, set the match
+        ///// else set in local secrets
+        ///// </summary>
+        ///// <param name="secretName"></param>
+        //public override void SetSecret(string secretName, string secretValue) {
+        //    if (cp.core.serverConfig.useSecretManager) {
+        //        //
+        //        // -- use secret manager
+        //        SecretManagerController.setSecret(cp.core, secretName, secretValue);
+        //        return;
+        //    }
+        //    SecretManagerController.setSecret(cp.core, secretName, secretValue);
+        //    return;
+        //    ////
+        //    //// -- use local configuration
+        //    //switch (secretName) {
+        //    //    case "defaultdatasourceaddress": {
+        //    //            cp.core.serverConfig.defaultDataSourceAddress = secretValue;
+        //    //            break;
+        //    //        }
+        //    //    case "defaultdatasourceusername": {
+        //    //            cp.core.serverConfig.defaultDataSourceUsername = secretValue;
+        //    //            break;
+        //    //        }
+        //    //    case "defaultdatasourcepassword": {
+        //    //            cp.core.serverConfig.defaultDataSourcePassword = secretValue;
+        //    //            break;
+        //    //        }
+        //    //    case "defaultdatasourcetype": {
+        //    //            cp.core.serverConfig.defaultDataSourceType = (BaseModels.ServerConfigBaseModel.DataSourceTypeEnum)cp.Utils.EncodeInteger(secretValue);
+        //    //            break;
+        //    //        }
+        //    //    case "defaultdatasourcesecure": {
+        //    //            cp.core.serverConfig.defaultDataSourceSecure = cp.Utils.EncodeBoolean(secretValue);
+        //    //            break;
+        //    //        }
+        //    //    case "awsaccesskey": {
+        //    //            cp.core.serverConfig.awsAccessKey = secretValue;
+        //    //            break;
+        //    //        }
+        //    //    case "awssecretaccesskey": {
+        //    //            cp.core.serverConfig.awsSecretAccessKey = secretValue;
+        //    //            break;
+        //    //        }
+        //    //    case "awsregionname": {
+        //    //            cp.core.serverConfig.awsRegionName = secretValue;
+        //    //            break;
+        //    //        }
+        //    //    case "awsbucketname": {
+        //    //            cp.core.serverConfig.awsBucketName = secretValue;
+        //    //            break;
+        //    //        }
+        //    //    default: {
+        //    //            SecretManagerController.setSecret(cp.core, secretName, secretValue);
+        //    //            break;
+        //    //        }
+        //    //}
+        //}
         //
         //=======================================================================================================
         /// <summary>

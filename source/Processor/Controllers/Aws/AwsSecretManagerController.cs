@@ -2,8 +2,8 @@
 using Amazon.SecretsManager.Model;
 using System;
 //
-namespace Contensive.Processor.Controllers {
-    public class SecretManagerController {
+namespace Contensive.Processor.Controllers.Aws {
+    public class AwsSecretManagerController {
         //
         //========================================================================
         /// <summary>
@@ -14,8 +14,8 @@ namespace Contensive.Processor.Controllers {
         public static void setSecret(CoreController core, string secretName, string secretValue) {
             try {
                 CreateSecretRequest secretRequest = new() {
-                     Name = secretName,
-                     SecretString = secretValue                     
+                    Name = secretName,
+                    SecretString = secretValue
                 };
                 var client = new AmazonSecretsManagerClient();
                 CreateSecretResponse result = client.CreateSecret(secretRequest);
@@ -34,7 +34,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getSecret(CoreController core, string secretName) {
             try {
-                Amazon.SecretsManager.Model.GetSecretValueRequest secretRequest = new() {
+                GetSecretValueRequest secretRequest = new() {
                     SecretId = secretName
                 };
                 var client = new AmazonSecretsManagerClient();

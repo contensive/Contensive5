@@ -735,10 +735,21 @@ namespace Contensive.Processor {
                 return _Security;
             }
         }
+        private CPSecurityBaseClass _Security;
         //
         //=========================================================================================================
-        //
-        private CPSecurityBaseClass _Security;
+        /// <summary>
+        /// 
+        /// </summary>
+        public override CPSecretsBaseClass Secrets {
+            get {
+                if (_Secrets == null) {
+                    _Secrets = new CPSecretsClass(core);
+                }
+                return _Secrets;
+            }
+        }
+        private CPSecretsBaseClass _Secrets;
         //
         //=========================================================================================================
         /// <summary>

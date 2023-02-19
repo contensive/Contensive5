@@ -277,6 +277,12 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// exposes base credentials and methods to get/set credentials
+        /// </summary>
+        public abstract CPSecretsBaseClass Secrets { get; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Text messaging services
         /// </summary>
         public abstract CPSMSBaseClass SMS { get; }

@@ -73,7 +73,7 @@ namespace Contensive.Processor.Addons.NewApp {
                     appConfig.appStatus = AppConfigModel.AppStatusEnum.maintenance;
                     cpServer.core.serverConfig.apps.Add(appConfig.name, appConfig);
                     cpServer.core.serverConfig.save(cpServer.core);
-                    cpServer.core.serverConfig = ServerConfigModel.getObject(cpServer.core);
+                    cpServer.core.serverConfig = ServerConfigModel.create(cpServer.core);
                     cpServer.core.appConfig = AppConfigModel.getObject(cpServer.core, cpServer.core.serverConfig, appConfig.name);
                     // 
                     // update local host file

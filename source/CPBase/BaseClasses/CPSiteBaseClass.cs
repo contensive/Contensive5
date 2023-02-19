@@ -11,20 +11,6 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// If useSecretManager is true (config.json) values are stored in AWS Secret Manager
-        /// if false, values are stored in config.json file, app.secrets list
-        /// </summary>
-        public abstract string GetSecret(string secretName);
-        //
-        //====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        //
-        public abstract void SetSecret(string secretName, string secretValue);
-        //
-        //====================================================================================================
-        /// <summary>
         /// The html platform version for this site.
         /// replaces the site property html platform version
         /// htmlPlatform 0-4 is Bootstrap 4.

@@ -17,8 +17,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <returns></returns>
         public static AmazonSQSClient getSqsClient(CoreController core) {
-            BasicAWSCredentials cred = new(core.awsCredentials.awsAccessKeyId, core.awsCredentials.awsSecretAccessKey);
-            return new AmazonSQSClient(cred, core.awsCredentials.awsRegion);
+            BasicAWSCredentials cred = new(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey);
+            Amazon.RegionEndpoint region = Amazon.RegionEndpoint.GetBySystemName(core.serverConfig.awsRegionName);
+            return new AmazonSQSClient(cred, region);
         }
         //
         //====================================================================================================

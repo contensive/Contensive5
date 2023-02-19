@@ -16,7 +16,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <returns></returns>
         public static AmazonSimpleEmailServiceClient getSesClient(CoreController core) {
-            return new AmazonSimpleEmailServiceClient(core.awsCredentials.awsAccessKeyId, core.awsCredentials.awsSecretAccessKey, core.awsCredentials.awsRegion);
+            return new AmazonSimpleEmailServiceClient(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.awsRegion);
         }
         //
         //====================================================================================================

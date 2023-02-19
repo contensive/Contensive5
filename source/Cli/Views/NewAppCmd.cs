@@ -234,7 +234,7 @@ namespace Contensive.CLI {
                     appConfig.appStatus = AppConfigModel.AppStatusEnum.maintenance;
                     cp.core.serverConfig.apps.Add(appConfig.name, appConfig);
                     cp.core.serverConfig.save(cp.core);
-                    cp.core.serverConfig = ServerConfigModel.getObject(cp.core);
+                    cp.core.serverConfig = ServerConfigModel.create(cp.core);
                     cp.core.appConfig = AppConfigModel.getObject(cp.core, cp.core.serverConfig, appConfig.name);
                     // 
                     // update local host file

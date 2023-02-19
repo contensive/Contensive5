@@ -168,20 +168,6 @@ namespace Contensive.Processor.Controllers {
         //
         //===================================================================================================
         /// <summary>
-        /// Common property holding all AWS credentials. These data include hooks for legacy credential strategies.
-        /// </summary>
-        public AwsCredentialsModel awsCredentials {
-            get {
-                if (_awsCredentials == null) {
-                    _awsCredentials = new AwsCredentialsModel(this);
-                }
-                return _awsCredentials;
-            }
-        }
-        private AwsCredentialsModel? _awsCredentials = null;
-        //
-        //===================================================================================================
-        /// <summary>
         /// An instance of the sessionController, populated for the current session (user state, visit state, etc)
         /// </summary>
         public SessionController session { get; set; }
@@ -755,13 +741,27 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public DbServerController dbServer {
             get {
-                if (_dbEngine == null) {
-                    _dbEngine = new DbServerController(this);
+                if (_dbServer == null) {
+                    _dbServer = new DbServerController(this);
                 }
-                return _dbEngine;
+                return _dbServer;
             }
         }
-        private DbServerController _dbEngine;
+        private DbServerController _dbServer;
+        //
+        //===================================================================================================
+        /// <summary>
+        /// secrets
+        /// </summary>
+        public SecretsModel secrets {
+            get {
+                if (_secrets == null) {
+                    _secrets = new SecretsModel(this);
+                }
+                return _secrets;
+            }
+        }
+        private SecretsModel _secrets;
         //
         //====================================================================================================
         /// <summary>
@@ -848,7 +848,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.log(this, "coreController_Initialize, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
-                serverConfig = ServerConfigModel.getObject(this);
+                serverConfig = ServerConfigModel.create(this);
                 serverConfig.defaultDataSourceType = ServerConfigBaseModel.DataSourceTypeEnum.sqlServer;
                 doc.continueProcessing = true;
                 appConfig = null;

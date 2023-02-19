@@ -56,7 +56,7 @@ namespace Contensive.Processor.Controllers {
                 if (local_s3Client == null) {
                     LogController.logInfo(core, "construct Amazon S3 client");
 
-                    local_s3Client = new AmazonS3Client(core.serverConfig.awsAccessKey, core.serverConfig.awsSecretAccessKey, core.awsCredentials.awsRegion);
+                    local_s3Client = new AmazonS3Client(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.awsRegion);
                 };
                 return local_s3Client;
             }
