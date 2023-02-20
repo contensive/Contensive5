@@ -86,7 +86,7 @@ namespace Contensive.Processor {
         public bool serverOk {
             get {
                 if (core?.serverConfig == null) { return false; }
-                return !string.IsNullOrEmpty(core.serverConfig.defaultDataSourceAddress);
+                return !string.IsNullOrEmpty(core.secrets.defaultDataSourceAddress);
             }
         }
         //

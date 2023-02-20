@@ -206,7 +206,7 @@ namespace Contensive.CLI {
                     if (!cp.core.serverConfig.isLocalFileSystem) {
                         //
                         // -- update the server's bucket policy to make the remoteFilesPath public
-                        AmazonS3Client s3client = new AmazonS3Client(cp.core.serverConfig.awsAccessKey, cp.core.serverConfig.awsSecretAccessKey);
+                        AmazonS3Client s3client = new AmazonS3Client(cp.core.secrets.awsAccessKey, cp.core.secrets.awsSecretAccessKey);
                         //
                         // -- get current policy for this bucket
                         GetBucketPolicyRequest getRequest = new GetBucketPolicyRequest {

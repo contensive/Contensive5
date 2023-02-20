@@ -6,7 +6,7 @@ using System;
 //
 namespace Contensive.Processor.Models.Domain {
     /// <summary>
-    /// expose secrets
+    /// expose secrets for the application
     /// legacy secrets in siteproperties are deprecated and when found should log warnings
     /// if config.userSecretsManager true, get secrets from secret manager
     /// else relay secrets from config
@@ -14,7 +14,7 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     public class SecretsModel {
         //
-        private CoreController core;
+        private readonly CoreController core;
         //
         public SecretsModel(CoreController core) {
             this.core = core;
@@ -22,37 +22,72 @@ namespace Contensive.Processor.Models.Domain {
         //
         public  string awsAccessKey {
             get { 
-                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, "awsAccessKey") : core.serverConfig.awsAccessKey;
+                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "awsAccessKey") : core.serverConfig.awsAccessKey;
+            }
+            set {
+                if(core.serverConfig.useSecretManager) {
+                    AwsSecretManagerController.setSecret(core, core.serverConfig.getAwsRegion(), "awsAccessKey", value);
+                } else {
+                    core.serverConfig.awsAccessKey = value;
+                }
             }
         }
         //
         public  string awsSecretAccessKey {
             get {
-                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, "awsSecretAccessKey") : core.serverConfig.awsSecretAccessKey;
+                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "awsSecretAccessKey") : core.serverConfig.awsSecretAccessKey;
+            }
+            set {
+                if (core.serverConfig.useSecretManager) {
+                    AwsSecretManagerController.setSecret(core, core.serverConfig.getAwsRegion(), "awsSecretAccessKey", value);
+                } else {
+                    core.serverConfig.awsSecretAccessKey = value;
+                }
             }
         }
         //
         public  string defaultDataSourceAddress {
             get {
-                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, "defaultDataSourceAddress") : core.serverConfig.defaultDataSourceAddress;
+                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourceAddress") : core.serverConfig.defaultDataSourceAddress;
+            }
+            set {
+                if (core.serverConfig.useSecretManager) {
+                    AwsSecretManagerController.setSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourceAddress", value);
+                } else {
+                    core.serverConfig.defaultDataSourceAddress = value;
+                }
             }
         }
         //
         public  string defaultDataSourceUsername {
             get {
-                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, "defaultDataSourceUsername") : core.serverConfig.defaultDataSourceUsername;
+                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourceUsername") : core.serverConfig.defaultDataSourceUsername;
+            }
+            set {
+                if (core.serverConfig.useSecretManager) {
+                    AwsSecretManagerController.setSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourceUsername", value);
+                } else {
+                    core.serverConfig.defaultDataSourceUsername = value;
+                }
             }
         }
         //
         public  string defaultDataSourcePassword {
             get {
-                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, "defaultDataSourcePassword") : core.serverConfig.defaultDataSourcePassword;
+                return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourcePassword") : core.serverConfig.defaultDataSourcePassword;
+            }
+            set {
+                if (core.serverConfig.useSecretManager) {
+                    AwsSecretManagerController.setSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourcePassword", value);
+                } else {
+                    core.serverConfig.defaultDataSourcePassword = value;
+                }
             }
         }
         //
         public string getSecret(string secretName) {
             if (core.serverConfig.useSecretManager) {
-                return AwsSecretManagerController.getSecret(core, secretName);
+                return AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), secretName);
             }
             NameValueModel secretNameValue = (NameValueModel)core.appConfig.secrets.Find( x=> x.name==secretName );
             if (secretNameValue != null) { return secretNameValue.value; }
@@ -61,7 +96,7 @@ namespace Contensive.Processor.Models.Domain {
         //
         public void setSecret(string secretName, string secretValue) {
             if (core.serverConfig.useSecretManager) {
-                AwsSecretManagerController.setSecret(core, secretName, secretValue);
+                AwsSecretManagerController.setSecret(core, core.serverConfig.getAwsRegion(), secretName, secretValue);
             }
             NameValueModel secretNameValue = (NameValueModel)core.appConfig.secrets.Find(x => x.name == secretName);
             if (secretNameValue != null) {

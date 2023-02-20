@@ -11,13 +11,13 @@ namespace Contensive.Processor.Controllers.Aws {
         /// </summary>
         /// <param name="secretName"></param>
         /// <returns></returns>
-        public static void setSecret(CoreController core, string secretName, string secretValue) {
+        public static void setSecret(CoreController core, Amazon.RegionEndpoint region, string secretName, string secretValue) {
             try {
                 CreateSecretRequest secretRequest = new() {
                     Name = secretName,
                     SecretString = secretValue
                 };
-                var client = new AmazonSecretsManagerClient();
+                var client = new AmazonSecretsManagerClient( region);
                 CreateSecretResponse result = client.CreateSecret(secretRequest);
                 return;
             } catch (Exception ex) {
@@ -32,12 +32,12 @@ namespace Contensive.Processor.Controllers.Aws {
         /// </summary>
         /// <param name="secretName"></param>
         /// <returns></returns>
-        public static string getSecret(CoreController core, string secretName) {
+        public static string getSecret(CoreController core, Amazon.RegionEndpoint region, string secretName) {
             try {
                 GetSecretValueRequest secretRequest = new() {
                     SecretId = secretName
                 };
-                var client = new AmazonSecretsManagerClient();
+                var client = new AmazonSecretsManagerClient(region);
                 GetSecretValueResponse result = client.GetSecretValue(secretRequest);
                 return result.SecretString;
             } catch (Exception ex) {

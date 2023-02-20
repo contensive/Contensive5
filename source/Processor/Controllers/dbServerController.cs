@@ -50,14 +50,14 @@ namespace Contensive.Processor.Controllers {
             //
             string returnConnString = "";
             try {
-                string serverUrl = core.serverConfig.defaultDataSourceAddress;
+                string serverUrl = core.secrets.defaultDataSourceAddress;
                 if (serverUrl.IndexOf(":") > 0) {
                     serverUrl = serverUrl.left(serverUrl.IndexOf(":"));
                 }
                 returnConnString += ""
                     + "server=" + serverUrl + ";"
-                    + "User Id=" + core.serverConfig.defaultDataSourceUsername + ";"
-                    + "Password=" + core.serverConfig.defaultDataSourcePassword + ";"
+                    + "User Id=" + core.secrets.defaultDataSourceUsername + ";"
+                    + "Password=" + core.secrets.defaultDataSourcePassword + ";"
                     + "";
                 //
                 // -- add certificate requirement, if true, set yes, if false, no not add it

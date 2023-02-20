@@ -118,7 +118,7 @@ namespace Contensive.Models.Db {
                     createKey = 0,
                     dateAdded = DateTime.MinValue,
                     dbTypeId = 2,
-                    endpoint = cp.ServerConfig.defaultDataSourceAddress,
+                    endpoint = cp.Secrets.DefaultDataSourceAddress,
                     name = "default"
                 };
             } catch (Exception ex) {

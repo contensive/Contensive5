@@ -40,12 +40,10 @@ namespace Contensive.CLI {
                 Console.WriteLine("    isLocal: " + cpServer.core.serverConfig.isLocalFileSystem.ToString());
                 Console.WriteLine("    awsBucketRegionName: " + cpServer.core.serverConfig.awsRegionName);
                 Console.WriteLine("    awsBucketName: " + cpServer.core.serverConfig.awsBucketName);
-                Console.WriteLine("    awsAccessKey: " + cpServer.core.serverConfig.awsAccessKey);
-                Console.WriteLine("    awsSecretAccessKey: " + cpServer.core.serverConfig.awsSecretAccessKey);
+                Console.WriteLine("    awsAccessKey: " + cpServer.core.secrets.awsAccessKey);
                 Console.WriteLine("Database:");
-                Console.WriteLine("    defaultDataSourceAddress: " + cpServer.core.serverConfig.defaultDataSourceAddress.ToString());
-                Console.WriteLine("    defaultDataSourceType: " + cpServer.core.serverConfig.defaultDataSourceType.ToString());
-                Console.WriteLine("    defaultDataSourceUsername: " + cpServer.core.serverConfig.defaultDataSourceUsername.ToString());
+                Console.WriteLine("    defaultDataSourceAddress: " + cpServer.core.secrets.defaultDataSourceAddress.ToString());
+                Console.WriteLine("    defaultDataSourceUsername: " + cpServer.core.secrets.defaultDataSourceUsername.ToString());
                 Console.WriteLine("Services:");
                 Console.WriteLine("    TaskScheduler: " + cpServer.core.serverConfig.allowTaskSchedulerService.ToString());
                 Console.WriteLine("    TaskRunner: " + cpServer.core.serverConfig.allowTaskRunnerService.ToString());

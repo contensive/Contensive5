@@ -40,7 +40,7 @@ namespace Contensive.Processor.Addons {
                     } else {
                         //
                         // -- setup aws client
-                        AmazonSQSClient sqsClient = new(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.awsRegion);
+                        AmazonSQSClient sqsClient = new(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey, core.serverConfig.getAwsRegion());
                         ReceiveMessageRequest receiveMessageRequest = new() {
                             QueueUrl = awsSQSBounceEmailQueueEndpoint,
                             MaxNumberOfMessages = 10

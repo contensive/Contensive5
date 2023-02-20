@@ -17,148 +17,62 @@ namespace Contensive.Processor.Models.Domain {
     public class ServerConfigModel : ServerConfigBaseModel {
         //
         private CoreController core;
+        //
         /// <summary>
         /// full dos path to the contensive program file installation. 
         /// </summary>
         public override string programFilesPath { get; set; }
+        //
         /// <summary>
         /// if true, this instance can run tasks from the task queue
         /// </summary>
         public override bool allowTaskRunnerService { get; set; }
+        //
         /// <summary>
         /// if true, instances on this server can schedule tasks (add them to the task queue)
         /// </summary>
         public override bool allowTaskSchedulerService { get; set; }
+        //
         /// <summary>
         /// if running tasks, this is the number of concurrent tasks that the task runner
         /// </summary>
         public override int maxConcurrentTasksPerServer { get; set; }
+        //
         /// <summary>
         /// name for this server group
         /// </summary>
         public override string name { get; set; }
+        //
         /// <summary>
         /// If true, use local dotnet memory cache backed by filesystem
         /// </summary>
         public override bool enableLocalMemoryCache { get; set; }
+        //
         /// <summary>
         /// if true, used local files to cache, backing up local cache, then remote cache
         /// </summary>
         public override bool enableLocalFileCache { get; set; }
+        //
         /// <summary>
         /// if true, elasticache is used
         /// </summary>
         public override bool enableRemoteCache { get; set; }
+        //
         /// <summary>
         /// AWS elaticcache  server:port
         /// </summary>
         public override string awsElastiCacheConfigurationEndpoint { get; set; }
+        //
         /// <summary>
         /// deprecated
         /// </summary>
         public override bool enableEnyimNLog { get; set; }
-        /// <summary>
-        /// deprecated, default is always sql server. Will never support multiple types
-        /// </summary>
-        public override DataSourceTypeEnum defaultDataSourceType { get; set; }
-        //public override DataSourceTypeEnum defaultDataSourceType {
-        //    get {
-        //        if (useSecretManager) { return (DataSourceTypeEnum)GenericController.encodeInteger(SecretManagerController.getSecret(core, "defaultDataSourceType")); }
-        //        return _defaultDataSourceType;
-        //    }
-        //    set {
-        //        if (useSecretManager) { SecretManagerController.setSecret(core, "defaultDataSourceType", ((int)value).ToString()); }
-        //        _defaultDataSourceType = value;
-        //    }
-        //}
-        //private DataSourceTypeEnum _defaultDataSourceType;
         //
         /// <summary>
-        /// default datasource endpoint (server:port)
+        /// aws region for this server (default=empty) for all services. Within the application, this can be over-ridden
         /// </summary>
-        public override string defaultDataSourceAddress { get; set; }
-        //public override string defaultDataSourceAddress {
-        //    get {
-        //        if (useSecretManager) { return SecretManagerController.getSecret(core, "defaultDataSourceAddress"); }
-        //        return _defaultDataSourceAddress;
-        //    }
-        //    set {
-        //        if (useSecretManager) { SecretManagerController.setSecret(core, "defaultDataSourceAddress", value); }
-        //        _defaultDataSourceAddress = value;
-        //    }
-        //}
-        //private string _defaultDataSourceAddress;
-        //
-        /// <summary>
-        /// default datasource endpoint username
-        /// </summary>
-        public override string defaultDataSourceUsername { get; set; }
-        //public override string defaultDataSourceUsername {
-        //    get {
-        //        if (useSecretManager) { return SecretManagerController.getSecret(core, "defaultDataSourceUsername"); }
-        //        return _defaultDataSourceUsername;
-        //    }
-        //    set {
-        //        if (useSecretManager) { SecretManagerController.setSecret(core, "defaultDataSourceUsername", value); }
-        //        _defaultDataSourceUsername = value;
-        //    }
-        //}
-        //private string _defaultDataSourceUsername;
-        //
-        /// <summary>
-        /// default datasource endpoint password
-        /// </summary>
-        public override string defaultDataSourcePassword { get; set; }
-        //public override string defaultDataSourcePassword {
-        //    get {
-        //        if (useSecretManager) { return SecretManagerController.getSecret(core, "defaultDataSourcePassword"); }
-        //        return _defaultDataSourcePassword;
-        //    }
-        //    set {
-        //        if (useSecretManager) { SecretManagerController.setSecret(core, "defaultDataSourcePassword", value); }
-        //        _defaultDataSourcePassword = value;
-        //    }
-        //}
-        //private string _defaultDataSourcePassword;
-        //
-        /// <summary>
-        /// aws programmatic user for all services. Within the application, this can be over-ridden
-        /// </summary>
-        public override string awsAccessKey { get; set; }
-        //public override string awsAccessKey {
-        //    get {
-        //        if (useSecretManager) { return SecretManagerController.getSecret(core, "awsAccessKey"); }
-        //        return _awsAccessKey;
-        //    }
-        //    set {
-        //        if (useSecretManager) { SecretManagerController.setSecret(core, "awsAccessKey", value); }
-        //        _awsAccessKey = value;
-        //    }
-        //}
-        //private string _awsAccessKey;
-        //
-        /// <summary>
-        /// aws programmatic user for all services. Within the application, this can be over-ridden
-        /// </summary>
-        public override string awsSecretAccessKey { get; set; }
-        //public override string awsSecretAccessKey {
-        //    get {
-        //        if (useSecretManager) { return SecretManagerController.getSecret(core, "awsSecretAccessKey"); }
-        //        return _awsSecretAccessKey;
-        //    }
-        //    set {
-        //        if (useSecretManager) { SecretManagerController.setSecret(core, "awsSecretAccessKey", value); }
-        //        _awsSecretAccessKey = value;
-        //    }
-        //}
-        //private string _awsSecretAccessKey;
-        //
-        /// <summary>
-        /// aws region for this server (default us-east-1) for all services. Within the application, this can be over-ridden
-        /// </summary>
-        public override string awsRegionName { 
+        public override string awsRegionName {
             get {
-                //if(string.IsNullOrEmpty(_awsRegionName)) { return "us-east-1"; }
                 return _awsRegionName;
             }
             set {
@@ -175,59 +89,61 @@ namespace Contensive.Processor.Models.Domain {
                 } catch (Exception) {
                     throw;
                 }
-            } 
+            }
         }
         private string _awsRegionName;
         //
         /// <summary>
-        /// return the awsRegionName as an  Amazon RegionEndpoint type
+        /// Return the awsRegionName as anAmazon RegionEndpoint type.
+        /// Returns null if regionname is not valid.
         /// </summary>
-        public Amazon.RegionEndpoint awsRegion {
-            get {
+        public Amazon.RegionEndpoint getAwsRegion() {
+            if (string.IsNullOrEmpty(awsRegionName)) { return null; }
+            try {
                 return Amazon.RegionEndpoint.GetBySystemName(awsRegionName);
+            } catch (Exception) {
+                //
+                // -- misconfigured region
+                //
+                return null;
             }
         }
-        //
-        //public override string awsRegionName {
-        //    get {
-        //        if (useSecretManager) { return SecretManagerController.getSecret(core, "awsRegionName"); }
-        //        return _awsRegionName;
-        //    }
-        //    set {
-        //        if (useSecretManager) { SecretManagerController.setSecret(core, "awsRegionName", value); }
-        //        _awsRegionName = value;
-        //    }
-        //}
-        //private string _awsRegionName;
         //
         /// <summary>
         /// if true, files are stored locally (d-drive, etc.). if false, cdnFiles and wwwFiles are stored on Aws S3 and mirrored locally
         /// </summary>
         public override bool isLocalFileSystem { get; set; }
+        //
         /// <summary>
         /// Drive letter for local drive storage. Subfolder is /inetpub/ then the application names
         /// </summary>
         public override string localDataDriveLetter { get; set; }
+        //
         /// <summary>
         /// If remote file storage, this is the bucket used for storage. Subfolders are the application names
         /// </summary>
         public override string awsBucketName { get; set; }
+        //
         /// <summary>
         /// if provided, NLog data will be sent to this CloudWatch LogGroup 
         /// </summary>
         public override string awsCloudWatchLogGroup { get; set; }
+        //
         /// <summary>
         /// used by applications to enable/disable features, like  ecommerce batch should only run in production
         /// </summary>
         public override bool productionEnvironment { get; set; }
+        //
         /// <summary>
         /// List of all apps on this server
         /// </summary>
         public Dictionary<string, AppConfigModel> apps { get; set; }
+        //
         /// <summary>
         /// if true, the connection will be forced secure by appending "Encrypt=yes" to the connection string
         /// </summary>
         public override bool defaultDataSourceSecure { get; set; }
+        //
         /// <summary>
         /// if true, AWS secret manager through cp.site.getSecret(secretName)
         /// The following properties in this object are replaced by secret
@@ -238,6 +154,46 @@ namespace Contensive.Processor.Models.Domain {
         /// defaultDataSourceAddress
         /// </summary>
         public override bool useSecretManager { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        // -- Secrets, valid only if useSecretManager is false. else get/set should go to core.secrets
+        //
+        /// <summary>
+        /// Do not read from here. Read from cp.core.secrets
+        /// default datasource endpoint (server:port)
+        /// </summary>
+        public override string defaultDataSourceAddress { get; set; }
+        //
+        /// <summary>
+        /// Do not read from here. Read from cp.core.secrets
+        /// default datasource endpoint username
+        /// </summary>
+        public override string defaultDataSourceUsername { get; set; }
+        //
+        /// <summary>
+        /// Do not read from here. Read from cp.core.secrets
+        /// default datasource endpoint password
+        /// </summary>
+        public override string defaultDataSourcePassword { get; set; }
+        //
+        /// <summary>
+        /// Do not read from here. Read from cp.core.secrets
+        /// aws programmatic user for all services. Within the application, this can be over-ridden
+        /// </summary>
+        public override string awsAccessKey { get; set; }
+        //
+        /// <summary>
+        /// Do not read from here. Read from cp.core.secrets
+        /// aws programmatic user for all services. Within the application, this can be over-ridden
+        /// </summary>
+        public override string awsSecretAccessKey { get; set; }
+        //
+        // -- Deprecated
+        //
+        /// <summary>
+        /// deprecated, default is always sql server. Will never support multiple types
+        /// </summary>
+        public override DataSourceTypeEnum defaultDataSourceType { get; set; }
 
         //
         //====================================================================================================
@@ -279,8 +235,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="recordId"></param>
         public static ServerConfigModel create(CoreController core) {
             try {
-                ServerConfigModel returnModel = new();
-                returnModel.core = core;
+                ServerConfigModel returnModel;// = new();
                 //
                 // ----- read/create serverConfig
                 string JSONTemp = core.programDataFiles.readFileText("config.json");
@@ -290,8 +245,10 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     returnModel = new ServerConfigModel();
                     core.programDataFiles.saveFile("config.json", SerializeObject(returnModel));
+                    returnModel.core = core;
                 } else {
                     returnModel = DeserializeObject<ServerConfigModel>(JSONTemp);
+                    returnModel.core = core;
                 }
                 return returnModel;
             } catch (Exception ex) {

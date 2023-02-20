@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using static Contensive.Processor.Constants;
 //
-#nullable enable
+// todo implement #nullable enable
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -239,7 +239,7 @@ namespace Contensive.Processor.Controllers {
                 return sesClient_local;
             }
         }
-        private AmazonSimpleEmailServiceClient? sesClient_local = null;
+        private AmazonSimpleEmailServiceClient sesClient_local;
         //
         //===================================================================================================
         /// <summary>
@@ -674,7 +674,7 @@ namespace Contensive.Processor.Controllers {
                 return _addonCacheNonPersistent;
             }
         }
-        private AddonCacheModel? _addonCacheNonPersistent;
+        private AddonCacheModel _addonCacheNonPersistent;
         /// <summary>
         /// method to clear the core instance of routeMap. Explained in routeMap.
         /// </summary>
@@ -775,7 +775,7 @@ namespace Contensive.Processor.Controllers {
             metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
             tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
-            coreController_Initialize(cp, null, null, false);
+            coreController_Initialize(null, null, false);
         }
         //
         //====================================================================================================
@@ -792,7 +792,7 @@ namespace Contensive.Processor.Controllers {
             metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
             tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
-            coreController_Initialize(cp, appName, null, false);
+            coreController_Initialize(appName, null, false);
         }
         //
         //====================================================================================================
@@ -810,7 +810,7 @@ namespace Contensive.Processor.Controllers {
             metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
             tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
-            coreController_Initialize(cp, appName, null, allowSession);
+            coreController_Initialize(appName, null, allowSession);
         }
         //
         //====================================================================================================
@@ -824,7 +824,7 @@ namespace Contensive.Processor.Controllers {
                 metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
                 tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
                 //
-                coreController_Initialize(cp, appName, httpContext, true);
+                coreController_Initialize(appName, httpContext, true);
             } catch (Exception ex) {
                 LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
@@ -840,7 +840,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="httpContext"></param>
         /// <param name="cp"></param>
         /// <remarks></remarks>
-        private void coreController_Initialize(CPClass cp, string? appName, HttpContextModel? httpContext, bool allowVisit) {
+        private void coreController_Initialize(string appName, HttpContextModel httpContext, bool allowVisit) {
             try {
                 //
                 // -- clear mock datetime
@@ -919,7 +919,7 @@ namespace Contensive.Processor.Controllers {
             addonCacheClear();
             //
             // -- rebuild the map
-            var ignore = routeMap;
+            _ = routeMap;
         }
         //
         //====================================================================================================
@@ -980,7 +980,7 @@ namespace Contensive.Processor.Controllers {
         /// dispose pattern
         /// </summary>
         /// <param name="disposing"></param>
-        protected virtual void Dispose(bool disposing) {
+        protected virtual void dispose(bool disposing) {
             string hint = "10";
             try {
                 if (!this.disposed) {
@@ -1118,7 +1118,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public void Dispose() {
             // do not add code here. Use the Dispose(disposing) overload
-            Dispose(true);
+            dispose(true);
             GC.SuppressFinalize(this);
         }
         /// <summary>
@@ -1126,7 +1126,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         ~CoreController() {
             // do not add code here. Use the Dispose(disposing) overload
-            Dispose(false);
+            dispose(false);
         }
         #endregion
     }
