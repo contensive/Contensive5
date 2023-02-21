@@ -599,13 +599,14 @@ namespace Contensive.Processor.Controllers {
                 if (driveNameList.Contains("D:\\")) {
                     //
                     // -- d-drive exists, create a new folder in d:\contensive
-                    _programDataFiles = new FileController(this, FileController.normalizeDosPath(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)) + "Contensive\\");
+                    System.IO.Directory.CreateDirectory("d:\\Contensive");
+                    _programDataFiles = new FileController(this, "d:\\Contensive\\");
                     return _programDataFiles;
                 }
                 //
                 // -- no d-drive exists, create a new folder in c:\contensive
-                System.IO.Directory.CreateDirectory("C:\\");
-                _programDataFiles = new FileController(this, FileController.normalizeDosPath(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)) + "Contensive\\");
+                System.IO.Directory.CreateDirectory("c:\\Contensive");
+                _programDataFiles = new FileController(this, "c:\\Contensive\\");
                 return _programDataFiles;
             }
         }
