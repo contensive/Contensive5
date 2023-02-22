@@ -131,7 +131,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // Request the download
                                 //
-                                var ExportCSVAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidExportCSV);
+                                var ExportCSVAddon = core.cacheStore.addonCache.create(addonGuidExportCSV);
                                 if (ExportCSVAddon == null) {
                                     LogController.logError(core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
                                 } else {

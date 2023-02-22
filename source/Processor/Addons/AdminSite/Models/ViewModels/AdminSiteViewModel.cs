@@ -421,7 +421,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         public string adminNav {
             get {
-                return cp.core.addon.execute(DbBaseModel.create<AddonModel>(cp, AdminNavigatorGuid), new CPUtilsBaseClass.addonExecuteContext {
+                return cp.core.addon.execute(cp.core.cacheStore.addonCache.create(AdminNavigatorGuid), new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
                     errorContextMessage = "executing Admin Navigator in Admin"
                 });

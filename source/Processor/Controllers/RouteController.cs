@@ -103,13 +103,13 @@ namespace Contensive.Processor.Controllers {
                 // -- default route, try domain default route first, then site default route, then just use page manager
                 AddonModel routeAddon = null;
                 if (core.domain.defaultRouteId > 0) {
-                    routeAddon = DbBaseModel.create<AddonModel>(core.cpParent, core.domain.defaultRouteId);
+                    routeAddon = core.cacheStore.addonCache.create(core.domain.defaultRouteId);
                 }
                 if (routeAddon == null && core.siteProperties.defaultRouteId > 0) {
-                    routeAddon = DbBaseModel.create<AddonModel>(core.cpParent, core.siteProperties.defaultRouteId);
+                    routeAddon = core.cacheStore.addonCache.create(core.siteProperties.defaultRouteId);
                 }
                 if (routeAddon == null) {
-                    routeAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidPageManager);
+                    routeAddon = core.cacheStore.addonCache.create(addonGuidPageManager);
                 }
                 if (routeAddon != null) {
                     //
@@ -174,7 +174,7 @@ namespace Contensive.Processor.Controllers {
                             // -- admin site, force platform to 4 until layouts upgraded
                             core.siteProperties.htmlPlatformOverride = 4;
                             //
-                            AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidAdminSite);
+                            AddonModel addon = core.cacheStore.addonCache.create(addonGuidAdminSite);
                             if (addon == null) {
                                 LogController.logError(core, new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."));
                                 returnResult = "The default admin site addon could not be found. Please run an upgrade on this application to restore default services (command line> cc -a appName -r )";
@@ -190,7 +190,7 @@ namespace Contensive.Processor.Controllers {
                     case RouteMapModel.RouteTypeEnum.remoteMethod: {
                             //
                             // -- remote method
-                            AddonModel addon = core.addonCache.getAddonById(route.remoteMethodAddonId);
+                            AddonModel addon = core.cacheStore.addonCache.create(route.remoteMethodAddonId);
                             if (addon == null) {
                                 LogController.logError(core, new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
                                 return true;
@@ -311,7 +311,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- process the login method, or return the login form
                             core.doc.continueProcessing = false;
-                            returnResult = core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
+                            returnResult = core.addon.execute(core.cacheStore.addonCache.create(addonGuidLoginPage), new CPUtilsBaseClass.addonExecuteContext {
                                 addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                 argumentKeyValuePairs = new Dictionary<string, string> {
                                             { "Force Default Login", "false" }

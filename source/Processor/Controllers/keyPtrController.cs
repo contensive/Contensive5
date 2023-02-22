@@ -45,7 +45,7 @@ namespace Contensive.Processor.Controllers {
         //
         //
         public string exportPropertyBag()  {
-            string returnBag = "";
+            string returnBag;
             try {
                 returnBag = SerializeObject(store);
             } catch (Exception ex) {
@@ -71,7 +71,7 @@ namespace Contensive.Processor.Controllers {
         //========================================================================
         //
         private int GetArrayPointer(string Key) {
-            int ArrayPointer = -1;
+            int ArrayPointer;
             try {
                 string UcaseTargetKey = null;
                 int HighGuess = 0;
@@ -79,7 +79,7 @@ namespace Contensive.Processor.Controllers {
                 int PointerGuess = 0;
                 //
                 if (store.ArrayDirty) {
-                    Sort();
+                    sort();
                 }
                 //
                 ArrayPointer = -1;
@@ -125,14 +125,14 @@ namespace Contensive.Processor.Controllers {
                 if (store.ArrayPointer > -1) {
                     MatchFound = true;
                     while (MatchFound) {
-                        store.ArrayPointer = store.ArrayPointer - 1;
+                        store.ArrayPointer--;
                         if (store.ArrayPointer < 0) {
                             MatchFound = false;
                         } else {
                             MatchFound = (store.UcaseKeyArray[store.ArrayPointer] == UcaseKey);
                         }
                     }
-                    store.ArrayPointer = store.ArrayPointer + 1;
+                    store.ArrayPointer++;
                     returnKey = GenericController.encodeInteger(store.PointerArray[store.ArrayPointer]);
                 }
             } catch (Exception ex) {
@@ -154,12 +154,12 @@ namespace Contensive.Processor.Controllers {
                 keyToSave = GenericController.strReplace(Key.ToUpper(), Environment.NewLine, "");
                 //
                 if (store.ArrayCount >= store.ArraySize) {
-                    store.ArraySize = store.ArraySize + KeyPointerArrayChunk;
+                    store.ArraySize += KeyPointerArrayChunk;
                     Array.Resize(ref store.PointerArray, store.ArraySize + 1);
                     Array.Resize(ref store.UcaseKeyArray, store.ArraySize + 1);
                 }
                 store.ArrayPointer = store.ArrayCount;
-                store.ArrayCount = store.ArrayCount + 1;
+                store.ArrayCount++;
                 store.UcaseKeyArray[store.ArrayPointer] = keyToSave;
                 store.PointerArray[store.ArrayPointer] = Pointer.ToString();
                 store.ArrayDirty = true;
@@ -179,12 +179,12 @@ namespace Contensive.Processor.Controllers {
                 string UcaseKey = null;
                 //
                 if (store.ArrayPointer < (store.ArrayCount - 1)) {
-                    store.ArrayPointer = store.ArrayPointer + 1;
+                    store.ArrayPointer++;
                     UcaseKey = GenericController.toUCase(Key);
                     if (store.UcaseKeyArray[store.ArrayPointer] == UcaseKey) {
                         nextPointerMatch = GenericController.encodeInteger(store.PointerArray[store.ArrayPointer]);
                     } else {
-                        store.ArrayPointer = store.ArrayPointer - 1;
+                        store.ArrayPointer--;
                     }
                 }
             } catch (Exception ex) {
@@ -202,7 +202,7 @@ namespace Contensive.Processor.Controllers {
             int firstPointer = -1;
             try {
                 if (store.ArrayDirty) {
-                    Sort();
+                    sort();
                 }
                 //
                 // GetFirstPointer = -1
@@ -226,11 +226,11 @@ namespace Contensive.Processor.Controllers {
             int nextPointer = -1;
             try {
                 if (store.ArrayDirty) {
-                    Sort();
+                    sort();
                 }
                 //
                 if ((store.ArrayPointer + 1) < store.ArrayCount) {
-                    store.ArrayPointer = store.ArrayPointer + 1;
+                    store.ArrayPointer++;
                     nextPointer = GenericController.encodeInteger(store.PointerArray[store.ArrayPointer]);
                 }
             } catch (Exception ex) {
@@ -241,57 +241,15 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         //
-        //========================================================================
-        //
-        private void BubbleSort()  {
-            try {
-                string TempUcaseKey = null;
-                string tempPtrString = null;
-                bool CleanPass = false;
-                int MaxPointer = 0;
-                int SlowPointer = 0;
-                int FastPointer = 0;
-                int PointerDelta = 0;
-                //
-                if (store.ArrayCount > 1) {
-                    PointerDelta = 1;
-                    MaxPointer = store.ArrayCount - 2;
-                    for (SlowPointer = MaxPointer; SlowPointer >= 0; SlowPointer--) {
-                        CleanPass = true;
-                        int tempVar = MaxPointer - SlowPointer;
-                        for (FastPointer = MaxPointer; FastPointer >= tempVar; FastPointer--) {
-                            if (string.CompareOrdinal(store.UcaseKeyArray[FastPointer], store.UcaseKeyArray[FastPointer + PointerDelta]) > 0) {
-                                TempUcaseKey = store.UcaseKeyArray[FastPointer + PointerDelta];
-                                tempPtrString = store.PointerArray[FastPointer + PointerDelta];
-                                store.UcaseKeyArray[FastPointer + PointerDelta] = store.UcaseKeyArray[FastPointer];
-                                store.PointerArray[FastPointer + PointerDelta] = store.PointerArray[FastPointer];
-                                store.UcaseKeyArray[FastPointer] = TempUcaseKey;
-                                store.PointerArray[FastPointer] = tempPtrString;
-                                CleanPass = false;
-                            }
-                        }
-                        if (CleanPass) {
-                            break;
-                        }
-                    }
-                }
-                store.ArrayDirty = false;
-            } catch (Exception ex) {
-                throw new IndexException("BubbleSort error", ex);
-            }
-        }
-        //
-        //========================================================================
-        //
         // Made by Michael Ciurescu (CVMichael from vbforums.com)
         // Original thread: http://www.vbforums.com/showthread.php?t=231925
         //
         //========================================================================
         //
-        private void QuickSort()  {
+        private void quickSort()  {
             try {
                 if (store.ArrayCount >= 2) {
-                    QuickSort_Segment(store.UcaseKeyArray, store.PointerArray, 0, store.ArrayCount - 1);
+                    quickSort_Segment(store.UcaseKeyArray, store.PointerArray, 0, store.ArrayCount - 1);
                 }
             } catch (Exception ex) {
                 throw new IndexException("QuickSort error", ex);
@@ -306,7 +264,7 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         //
-        private void QuickSort_Segment(string[] C, string[] P, int First, int Last) {
+        private void quickSort_Segment(string[] C, string[] P, int First, int Last) {
             try {
                 int Low = 0;
                 int High = 0;
@@ -320,10 +278,10 @@ namespace Contensive.Processor.Controllers {
                 //
                 do {
                     while (string.CompareOrdinal(C[Low], MidValue) < 0) {
-                        Low = Low + 1;
+                        Low++;
                     }
                     while (string.CompareOrdinal(C[High], MidValue) > 0) {
-                        High = High - 1;
+                        High--;
                     }
                     if (Low <= High) {
                         TC = C[Low];
@@ -332,15 +290,15 @@ namespace Contensive.Processor.Controllers {
                         P[Low] = P[High];
                         C[High] = TC;
                         P[High] = TP;
-                        Low = Low + 1;
-                        High = High - 1;
+                        Low++;
+                        High--;
                     }
                 } while (Low <= High);
                 if (First < High) {
-                    QuickSort_Segment(C, P, First, High);
+                    quickSort_Segment(C, P, First, High);
                 }
                 if (Low < Last) {
-                    QuickSort_Segment(C, P, Low, Last);
+                    quickSort_Segment(C, P, Low, Last);
                 }
             } catch (Exception ex) {
                 throw new IndexException("QuickSort_Segment error", ex);
@@ -349,9 +307,9 @@ namespace Contensive.Processor.Controllers {
         //
         //
         //
-        private void Sort()  {
+        private void sort()  {
             try {
-                QuickSort();
+                quickSort();
                 store.ArrayDirty = false;
             } catch (Exception ex) {
                 throw new IndexException("Sort error", ex);

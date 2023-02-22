@@ -209,9 +209,9 @@ namespace Contensive.Processor.Controllers {
                     // -- initialize for Page Builder for new sites
                     core.siteProperties.getBoolean("ALLOW ADDONLIST EDITOR FOR QUICK EDITOR", true);
                     //
-                    AddonModel defaultRouteAddon = DbBaseModel.create<AddonModel>(core.cpParent, core.siteProperties.defaultRouteId);
+                    AddonModel defaultRouteAddon = core.cacheStore.addonCache.create(core.siteProperties.defaultRouteId);
                     if (defaultRouteAddon == null) {
-                        defaultRouteAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidPageManager);
+                        defaultRouteAddon = core.cacheStore.addonCache.create(addonGuidPageManager);
                         if (defaultRouteAddon != null) {
                             core.siteProperties.defaultRouteId = defaultRouteAddon.id;
                         }
@@ -848,8 +848,8 @@ namespace Contensive.Processor.Controllers {
                     if (!string.IsNullOrWhiteSpace(menu.addonGuid)) {
                         returnEntry = 0;
                     }
-                    AddonModel addon = ((!string.IsNullOrWhiteSpace(menu.addonGuid)) ? DbBaseModel.create<AddonModel>(core.cpParent, menu.addonGuid) : null);
-                    addon = addon ?? ((!string.IsNullOrWhiteSpace(menu.addonName)) ? AddonModel.createByUniqueName(core.cpParent, menu.addonName) : null);
+                    AddonModel addon = ((!string.IsNullOrWhiteSpace(menu.addonGuid)) ? core.cacheStore.addonCache.create(menu.addonGuid) : null);
+                    addon ??= ((!string.IsNullOrWhiteSpace(menu.addonName)) ? core.cacheStore.addonCache.createByUniqueName(menu.addonName) : null);
                     int parentId = verifyNavigatorEntry_getParentIdFromNameSpace(core, menu.menuNameSpace);
                     int contentId = ContentMetadataModel.getContentId(core, menu.contentName);
                     string listCriteria = "(name=" + DbController.encodeSQLText(menu.name) + ")and(Parentid=" + parentId + ")";

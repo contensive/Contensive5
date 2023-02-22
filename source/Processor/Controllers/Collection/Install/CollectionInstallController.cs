@@ -839,7 +839,7 @@ namespace Contensive.Processor.Controllers {
                                 // -- setup onInstall if included
                                 int collectionOninstalladdonid = 0;
                                 if (!string.IsNullOrWhiteSpace(collectionOninstalladdonGuid)) {
-                                    var addon = DbBaseModel.create<AddonModel>(core.cpParent, collectionOninstalladdonGuid);
+                                    var addon = core.cacheStore.addonCache.create(collectionOninstalladdonGuid);
                                     if (addon != null) {
                                         collection.oninstalladdonid = collectionOninstalladdonid;
                                         collection.save(core.cpParent);
@@ -863,7 +863,7 @@ namespace Contensive.Processor.Controllers {
                                 } else {
                                     //
                                     // -- install the install addon
-                                    var addon = DbBaseModel.create<AddonModel>(core.cpParent, collectionOninstalladdonGuid);
+                                    var addon = core.cacheStore.addonCache.create(collectionOninstalladdonGuid);
                                     if (addon != null) {
                                         var executeContext = new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
                                             addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextSimple,

@@ -330,7 +330,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         adminData.loadEditRecord_Request(cp.core);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         cp.core.cache.invalidateAll();
-                                        cp.core.clearMetaData();
+                                        cp.core.cacheStore.clearMetaData();
                                     }
                                     // convert so action can be used in as a refresh
                                     adminData.admin_Action = Constants.AdminActionNop;
@@ -513,7 +513,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             adminData.loadContentTrackingResponse(cp.core);
                             SaveContentTracking(cp, adminData);
                             {
-                                var addon = DbBaseModel.create<AddonModel>(cp, adminData.editRecord.id);
+                                var addon = cp.core.cacheStore.addonCache.create(adminData.editRecord.id);
                                 MinifyController.minifyAddon(cp.core, addon);
                             }
                         } else {

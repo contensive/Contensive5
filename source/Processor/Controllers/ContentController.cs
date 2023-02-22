@@ -209,6 +209,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Delete Link Alias entries with this PageID
                         core.db.executeNonQuery("delete from cclinkAliases where PageID=" + recordId);
+                        DbBaseModel.invalidateCacheOfTable<LinkAliasModel>(core.cpParent);
                     }
                     DbBaseModel.invalidateCacheOfRecord<PageContentModel>(core.cpParent, recordId);
                 } else if (tableNameLower == LibraryFilesModel.tableMetadata.tableNameLower) {
@@ -247,7 +248,7 @@ namespace Contensive.Processor.Controllers {
                             + Environment.NewLine + "recordid=" + recordId + "";
                     }
                     while (csData.ok()) {
-                        var addon = DbBaseModel.create<AddonModel>(core.cpParent, csData.getInteger("Addonid"));
+                        var addon = core.cacheStore.addonCache.create(csData.getInteger("Addonid"));
                         if (addon != null) {
                             if (onChangeAddonsAsync) {
                                 //

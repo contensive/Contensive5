@@ -383,7 +383,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 // -- Reload
                 core.cache.invalidateAll();
-                core.clearMetaData();
+                core.cacheStore.clearMetaData();
             } catch (Exception ex) {
                 LogController.logError(core, ex, "Warning during upgrade, data migration");
             }

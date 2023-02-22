@@ -1983,7 +1983,7 @@ namespace Contensive.Processor.Controllers {
                         { "editorStyles", styleList },
                         { "editorStyleOptions", styleOptionList }
                     };
-                    var addon = DbBaseModel.create<AddonModel>(core.cpParent, FieldEditorAddonId);
+                    var addon = core.cacheStore.addonCache.create(FieldEditorAddonId);
                     returnHtml = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
                         addonType = CPUtilsBaseClass.addonContext.ContextEditor,
                         argumentKeyValuePairs = arguments,
@@ -2097,7 +2097,7 @@ namespace Contensive.Processor.Controllers {
                 // ----- Page Content Child List Add-on
                 //
                 if (RecordID != 0) {
-                    AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidChildList);
+                    AddonModel addon = core.cacheStore.addonCache.create(addonGuidChildList);
                     if (addon != null) {
                         FoundAddon = true;
                         AddonOptionConstructor = addon.argumentList;
@@ -2155,7 +2155,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 AddonName = FieldName;
                 FoundAddon = false;
-                AddonModel addon = core.addonCache.getAddonByName(AddonName);
+                AddonModel addon = core.cacheStore.addonCache.createByUniqueName(AddonName);
                 if (addon != null) {
                     FoundAddon = true;
                     AddonOptionConstructor = addon.argumentList;
@@ -2292,7 +2292,7 @@ namespace Contensive.Processor.Controllers {
                                         AddonName = Copy.Substring(PosNameStart - 1, PosNameEnd - PosNameStart);
                                         //????? test this
                                         FoundAddon = false;
-                                        AddonModel embeddedAddon = core.addonCache.getAddonByName(AddonName);
+                                        AddonModel embeddedAddon = core.cacheStore.addonCache.createByUniqueName(AddonName);
                                         if (embeddedAddon != null) {
                                             FoundAddon = true;
                                             AddonOptionConstructor = GenericController.encodeText(embeddedAddon.argumentList);
@@ -2417,7 +2417,7 @@ namespace Contensive.Processor.Controllers {
                             SQL = "update ccfields set caption=" + DbController.encodeSQLText(HelpCaption) + ",HelpMessage=" + DbController.encodeSQLText(HelpMessage) + " where id=" + RecordID;
                             core.db.executeNonQuery(SQL);
                             core.cache.invalidateAll();
-                            core.clearMetaData();
+                            core.cacheStore.clearMetaData();
                         }
                     }
                     break;
@@ -3487,7 +3487,7 @@ namespace Contensive.Processor.Controllers {
                 { "SelectLinkObjectName", SelectLinkObjectName },
                 { "AllowGroupAdd", AllowGroupAdd.ToString() }
             };
-            return core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidResourceLibrary), new CPUtilsBaseClass.addonExecuteContext {
+            return core.addon.execute(core.cacheStore.addonCache.create(addonGuidResourceLibrary), new CPUtilsBaseClass.addonExecuteContext {
                 addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
                 argumentKeyValuePairs = arguments,
                 errorContextMessage = "calling resource library addon [" + addonGuidResourceLibrary + "] from internal method"

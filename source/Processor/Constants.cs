@@ -51,11 +51,6 @@ namespace Contensive.Processor {
         /// </summary>
         public const string cdnPrefix = "https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/";
         //
-        //========================================================================
-        // cache names
-        //
-        internal const string cacheName_addonCachePersistent = "addonCache";
-        //
         /// <summary>
         /// default number of days that a cache is invalidated
         /// </summary>

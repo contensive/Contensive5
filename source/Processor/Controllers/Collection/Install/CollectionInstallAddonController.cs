@@ -450,7 +450,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- style and js minification
                         if (addonId > 0) {
-                            var addon = DbBaseModel.create<AddonModel>(core.cpParent, addonId);
+                            var addon = core.cacheStore.addonCache.create(addonId);
                             if (addon != null) {
                                 MinifyController.minifyAddon(core, addon);
                             }

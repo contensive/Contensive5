@@ -21,7 +21,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 if (core.session.isAuthenticatedAdmin()) {
                     int addonId = core.docProperties.getInteger("AddonID");
                     if (addonId > 0) {
-                       AddonModel styleAddon =DbBaseModel.create<AddonModel>(core.cpParent, addonId);
+                       AddonModel styleAddon = core.cacheStore.addonCache.create(addonId);
                         if (styleAddon.stylesFilename.content != core.docProperties.getText("CustomStyles")) {
                             styleAddon.stylesFilename.content = core.docProperties.getText("CustomStyles");
                             styleAddon.save(core.cpParent);

@@ -262,7 +262,7 @@ namespace Contensive.Processor.Controllers {
                             DateTime dateStarted = cp.core.dateTimeNowMockable;
                             var cmdDetail = DeserializeObject<TaskModel.CmdDetailClass>(task.cmdDetail);
                             if (cmdDetail != null) {
-                                var addon = DbBaseModel.create<AddonModel>(cp, cmdDetail.addonId);
+                                var addon = cp.core.cacheStore.addonCache.create(cmdDetail.addonId);
                                 if (addon != null) {
                                     var context = new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
                                         backgroundProcess = true,

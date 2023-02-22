@@ -130,12 +130,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
                 int addonId = cp.core.docProperties.getInteger("addonid");
-                string AddonGuid = cp.core.docProperties.getText("addonguid");
+                string addonGuid = cp.core.docProperties.getText("addonguid");
                 if (adminData.dstFormId == AdminFormLegacyAddonManager) {
                     //
                     // patch out any old links to the legacy addon manager
                     adminData.dstFormId = 0;
-                    AddonGuid = addonGuidAddonManager;
+                    addonGuid = addonGuidAddonManager;
                 }
                 //
                 //-------------------------------------------------------------------------------
@@ -202,26 +202,26 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // normalize guid
                 //
-                if (!string.IsNullOrEmpty(AddonGuid)) {
-                    if ((AddonGuid.Length == 38) && (AddonGuid.left(1) == "{") && (AddonGuid.Substring(AddonGuid.Length - 1) == "}")) {
+                if (!string.IsNullOrEmpty(addonGuid)) {
+                    if ((addonGuid.Length == 38) && (addonGuid.left(1) == "{") && (addonGuid.Substring(addonGuid.Length - 1) == "}")) {
                         //
                         // Good to go
                         //
-                    } else if (AddonGuid.Length == 36) {
+                    } else if (addonGuid.Length == 36) {
                         //
                         // might be valid with the brackets, add them
                         //
-                        AddonGuid = "{" + AddonGuid + "}";
-                    } else if (AddonGuid.Length == 32) {
+                        addonGuid = "{" + addonGuid + "}";
+                    } else if (addonGuid.Length == 32) {
                         //
                         // might be valid with the brackets and the dashes, add them
                         //
-                        AddonGuid = "{" + AddonGuid.left(8) + "-" + AddonGuid.Substring(8, 4) + "-" + AddonGuid.Substring(12, 4) + "-" + AddonGuid.Substring(16, 4) + "-" + AddonGuid.Substring(20) + "}";
+                        addonGuid = "{" + addonGuid.left(8) + "-" + addonGuid.Substring(8, 4) + "-" + addonGuid.Substring(12, 4) + "-" + addonGuid.Substring(16, 4) + "-" + addonGuid.Substring(20) + "}";
                     } else {
                         //
                         // not valid
                         //
-                        AddonGuid = "";
+                        addonGuid = "";
                     }
                 }
                 //
@@ -230,7 +230,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //-------------------------------------------------------------------------------
                 //
                 string content = "";
-                string AddonName = "";
+                string addonName = "";
                 if (HelpAddonId != 0) {
                     //
                     // display Addon Help
@@ -371,11 +371,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 break;
                             }
                     }
-                } else if ((addonId != 0) || (!string.IsNullOrEmpty(AddonGuid)) || (!string.IsNullOrEmpty(AddonName))) {
+                } else if ((addonId != 0) || (!string.IsNullOrEmpty(addonGuid)) || (!string.IsNullOrEmpty(addonName))) {
                     //
                     // execute an addon
                     //
-                    if ((AddonGuid == addonGuidAddonManager) || (AddonName.ToLowerInvariant() == "add-on manager") || (AddonName.ToLowerInvariant() == "addon manager")) {
+                    if ((addonGuid == addonGuidAddonManager) || (addonName.ToLowerInvariant() == "add-on manager") || (addonName.ToLowerInvariant() == "addon manager")) {
                         //
                         // Special case, call the routine that provides a backup
                         //
@@ -387,19 +387,20 @@ namespace Contensive.Processor.Addons.AdminSite {
                         if (addonId != 0) {
                             executeContextErrorCaption = " addon id:" + addonId + " for Admin";
                             cp.core.doc.addRefreshQueryString("addonid", addonId.ToString());
-                            addon = DbBaseModel.create<AddonModel>(cp, addonId);
-                        } else if (!string.IsNullOrEmpty(AddonGuid)) {
-                            executeContextErrorCaption = "addon guid:" + AddonGuid + " for Admin";
-                            cp.core.doc.addRefreshQueryString("addonguid", AddonGuid);
-                            addon = DbBaseModel.create<AddonModel>(cp, AddonGuid);
-                        } else if (!string.IsNullOrEmpty(AddonName)) {
-                            executeContextErrorCaption = "addon name:" + AddonName + " for Admin";
-                            cp.core.doc.addRefreshQueryString("addonname", AddonName);
-                            addon = AddonModel.createByUniqueName(cp, AddonName);
+                            addon = cp.core.cacheStore.addonCache.create(addonId);
+                        } else if (!string.IsNullOrEmpty(addonGuid)) {
+                            executeContextErrorCaption = "addon guid:" + addonGuid + " for Admin";
+                            cp.core.doc.addRefreshQueryString("addonguid", addonGuid);
+                            addon = cp.core.cacheStore.addonCache.create(addonGuid);
+                        } else if (!string.IsNullOrEmpty(addonName)) {
+                            executeContextErrorCaption = "addon name:" + addonName + " for Admin";
+                            cp.core.doc.addRefreshQueryString("addonname", addonName);
+                            addon = cp.core.cacheStore.addonCache.createByUniqueName(addonName);
+                            //addon = AddonModel.createByUniqueName(cp, AddonName);
                         }
                         if (addon != null) {
                             addonId = addon.id;
-                            AddonName = addon.name;
+                            addonName = addon.name;
                             cp.core.doc.addRefreshQueryString(RequestNameRunAddon, addonId.ToString());
                         }
                         //
@@ -407,7 +408,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         AdminRecentModel.insertAdminRecentAddon(cp, cp.User.Id, addon.name, "/" + cp.GetAppConfig().adminRoute + "?addonid=" + addon.id);
                         //
                         // -- execute
-                        string InstanceOptionString = cp.core.userProperty.getText("Addon [" + AddonName + "] Options", "");
+                        string InstanceOptionString = cp.core.userProperty.getText("Addon [" + addonName + "] Options", "");
                         int DefaultWrapperId = -1;
                         content = cp.core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
                             addonType = Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
@@ -485,7 +486,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // Included Addons
                         //
                         var IncludeHelp = new StringBuilder();
-                        foreach (var addonon in cp.core.addonCache.getDependsOnList(HelpAddonID)) {
+                        foreach (var addonon in cp.core.cacheStore.addonCache.getDependsOnList(HelpAddonID)) {
                             IncludeHelp.Append(GetAddonHelp(cp, addonon.id, HelpAddonID + "," + addonon.id.ToString()));
                         }
                         if (!string.IsNullOrEmpty(helpLink)) {

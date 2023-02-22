@@ -16,7 +16,7 @@ namespace Contensive.Processor.Addons.RobotsTxt {
             try {
                 CoreController core = ((CPClass)cp).core;
                 result = core.siteProperties.robotsTxt;
-                result += core.addonCache.robotsTxt;
+                result += core.cacheStore.addonCache.robotsTxt;
                 core.webServer.responseContentType = "text/plain";
                 core.doc.continueProcessing = false;
             } catch (Exception ex) {

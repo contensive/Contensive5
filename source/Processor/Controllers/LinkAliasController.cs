@@ -24,32 +24,32 @@ namespace Contensive.Processor.Controllers {
         /// if not found, it creates the link alias from the default
         /// </summary>
         public static string getLinkAlias(CoreController core, int pageId, string queryStringSuffix, string defaultPageName) {
-            string linkAlias;
+            string result;
+            //
+            // -- get link alias from cacheStore
             string linkAliasKey = $"{pageId}.{queryStringSuffix}";
-            //string linkAliasKey = pageId + "." + queryStringSuffix;
-            if (core.linkAliasPageDict.ContainsKey(linkAliasKey)) {
+            if (core.cacheStore.linkAliasKeyDict.ContainsKey(linkAliasKey)) {
                 //
                 // -- get link alias from cache created for routemap
-                linkAlias = core.linkAliasPageDict[linkAliasKey].name;
-                if (linkAlias.left(1) != "/") {
-                    linkAlias = "/" + linkAlias;
+                result = core.cacheStore.linkAliasKeyDict[linkAliasKey].name;
+                if (result.left(1) != "/") {
+                    result = "/" + result;
                 }
-                return linkAlias;
+                return result;
             }
             //
-            // -- get link alias from table
-
+            // -- failover - get link alias from table
             List<LinkAliasModel> linkAliasList = LinkAliasModel.createPageList(core.cpParent, pageId, queryStringSuffix);
             if (linkAliasList.Count == 0) {
                 //
                 // -- this page/qs does not have a link alias, add the default page name
                 return addLinkAlias(core, defaultPageName, pageId, queryStringSuffix);
             }
-            linkAlias = linkAliasList.First().name;
-            if (linkAlias.left(1) != "/") {
-                linkAlias = "/" + linkAlias;
+            result = linkAliasList.First().name;
+            if (result.left(1) != "/") {
+                result = "/" + result;
             }
-            return linkAlias;
+            return result;
         }
         //
         //====================================================================================================
@@ -152,7 +152,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // Make sure there is one here for this
                             //
-                            bool flushLinkAliasCache = false;
+                            bool invalidateLinkAliasTableCache = false;
                             int linkAliasId = 0;
                             using (var csData = new CsModel(core)) {
                                 csData.open("Link Aliases", "name=" + DbController.encodeSQLText(normalizedLinkAlias), "", false, 0, "Name,PageID,QueryStringSuffix");
@@ -168,7 +168,7 @@ namespace Contensive.Processor.Controllers {
                                         csData.set("Name", normalizedLinkAlias);
                                         csData.set("Pageid", pageId);
                                         csData.set("QueryStringSuffix", queryStringSuffix);
-                                        flushLinkAliasCache = true;
+                                        invalidateLinkAliasTableCache = true;
                                     }
                                 } else {
                                     int recordPageId = csData.getInteger("pageID");
@@ -222,7 +222,7 @@ namespace Contensive.Processor.Controllers {
                                             // change the Link Alias to the new link
                                             csData.set("Pageid", pageId);
                                             csData.set("QueryStringSuffix", queryStringSuffix);
-                                            flushLinkAliasCache = true;
+                                            invalidateLinkAliasTableCache = true;
                                         } else if (dupCausesWarning) {
                                             //
                                             LogController.logTrace(core, "addLinkAlias, overRideDuplicate false, dupCausesWarning true, just return user warning if this is from admin");
@@ -244,13 +244,12 @@ namespace Contensive.Processor.Controllers {
                                 linkAliasId = csData.getInteger("id");
                                 csData.close();
                             }
-                            if (flushLinkAliasCache) {
+                            if (invalidateLinkAliasTableCache) {
                                 //
                                 // -- invalidate all linkAlias
                                 core.cache.invalidateRecordKey(linkAliasId, LinkAliasModel.tableMetadata.tableNameLower);
                                 //
                                 // -- invalidate routemap
-                                //Models.Domain.RouteMapModel.invalidateCache(core);
                                 core.routeMapRebuild();
                             }
                         }

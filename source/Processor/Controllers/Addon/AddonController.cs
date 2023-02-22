@@ -81,7 +81,7 @@ namespace Contensive.Processor.Controllers {
             var result = new StringBuilder();
             //
             // -- OnBodyStart add-ons
-            foreach (AddonModel addon in core.addonCache.getOnBodyStartAddonList()) {
+            foreach (AddonModel addon in core.cacheStore.addonCache.getOnBodyStartAddonList()) {
                 var bodyStartContext = new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextOnBodyStart,
                     errorContextMessage = "calling onBodyStart addon [" + addon.name + "] in HtmlBodyTemplate"
@@ -100,7 +100,7 @@ namespace Contensive.Processor.Controllers {
             var result = new StringBuilder();
             //
             // -- OnBodyEnd add-ons
-            foreach (var addon in core.addonCache.getOnBodyEndAddonList()) {
+            foreach (var addon in core.cacheStore.addonCache.getOnBodyEndAddonList()) {
                 var bodyEndContext = new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextFilter,
                     errorContextMessage = "calling onBodyEnd addon [" + addon.name + "] in HtmlBodyTemplate"
@@ -167,7 +167,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="executeContext"></param>
         /// <returns></returns>
         public string execute(string addonGuid, CPUtilsBaseClass.addonExecuteContext executeContext) {
-            AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuid);
+            AddonModel addon = core.cacheStore.addonCache.create(addonGuid);
             if (addon == null) {
                 if (executeContext == null) {
                     LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext is null");
@@ -187,7 +187,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="executeContext"></param>
         /// <returns></returns>
         public string execute(int addonId, CPUtilsBaseClass.addonExecuteContext executeContext) {
-            AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonId);
+            AddonModel addon = core.cacheStore.addonCache.create(addonId);
             if (addon == null) {
                 if (executeContext == null) {
                     LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonId [" + addonId + "], executeContext is null");
@@ -291,7 +291,7 @@ namespace Contensive.Processor.Controllers {
                     executeContext.forceJavascriptToHead = executeContext.forceJavascriptToHead || addon.javascriptForceHead;
                     //
                     // -- run included add-ons before their parent
-                    foreach (var dependentAddon in core.addonCache.getDependsOnList(addon.id)) {
+                    foreach (var dependentAddon in core.cacheStore.addonCache.getDependsOnList(addon.id)) {
                         if (dependentAddon == null) {
                             LogController.logWarn(core, new GenericException("Dependent addon not found. An included addon of [" + addon.name + "] was not found. The included addon may have been deleted. Recreate or reinstall the missing addon, then reinstall [" + addon.name + "] or manually correct the included addon selection."));
                             continue;
@@ -507,6 +507,14 @@ namespace Contensive.Processor.Controllers {
                                     break;
                                 case CPUtilsBaseClass.addonContext.ContextRemoteMethodJson:
                                     contentParts = ContentRenderController.renderJSONForRemoteMethod(core, contentParts, "", 0, 0, "", executeContext.addonType);
+                                    break;
+                                case CPUtilsBaseClass.addonContext.ContextOnNewVisit:
+                                    break;
+                                case CPUtilsBaseClass.addonContext.ContextHelpUser:
+                                    break;
+                                case CPUtilsBaseClass.addonContext.ContextHelpAdmin:
+                                    break;
+                                case CPUtilsBaseClass.addonContext.ContextHelpDeveloper:
                                     break;
                                 default:
                                     contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
@@ -1121,7 +1129,8 @@ namespace Contensive.Processor.Controllers {
                                                                             { "FieldName", fieldName },
                                                                             { "FieldValue", core.siteProperties.getText(fieldName, FieldDefaultValue) }
                                                                         };
-                                                                        AddonModel addon = AddonModel.createByUniqueName(core.cpParent, FieldAddon);
+                                                                        AddonModel addon = core.cacheStore.addonCache.createByUniqueName(FieldAddon);
+                                                                        //if (addon == null) { addon = AddonModel.createByUniqueName(core.cpParent, FieldAddon); };
                                                                         Copy = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
                                                                             addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
                                                                             argumentKeyValuePairs = arguments,
@@ -1446,8 +1455,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- has addon been found before
                 string assemblyFileDictKey = (addonCollection.ccguid + addon.dotNetClass).ToLower(CultureInfo.InvariantCulture);
-                if (core.assemblyList_AddonsFound.ContainsKey(assemblyFileDictKey)) {
-                    return execute_dotNetClass_assembly(addon, core.assemblyList_AddonsFound[assemblyFileDictKey].pathFilename);
+                if (core.cacheStore.assemblyList_AddonsFound.ContainsKey(assemblyFileDictKey)) {
+                    return execute_dotNetClass_assembly(addon, core.cacheStore.assemblyList_AddonsFound[assemblyFileDictKey].pathFilename);
                 }
                 //
                 // -- try to find addon in current executing path (built in addons)
@@ -1511,12 +1520,12 @@ namespace Contensive.Processor.Controllers {
                         // -- lock to prevent change between containsKey and add
                         object lockObj = new object();
                         lock (lockObj) {
-                            if (!core.assemblyList_AddonsFound.ContainsKey(assemblyFileDictKey)) {
-                                core.assemblyList_AddonsFound.Add(assemblyFileDictKey, new AssemblyFileDetails {
+                            if (!core.cacheStore.assemblyList_AddonsFound.ContainsKey(assemblyFileDictKey)) {
+                                core.cacheStore.assemblyList_AddonsFound.Add(assemblyFileDictKey, new AssemblyFileDetails {
                                     pathFilename = testDosAbsPathFilename,
                                     path = ""
                                 });
-                                core.assemblyList_AddonsFound_save();
+                                core.cacheStore.assemblyList_AddonsFound_save();
                             }
                         }
                         return returnValue;
@@ -1714,7 +1723,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="OptionString"></param>
         public void executeAsProcess(string guid, string OptionString = "") {
             if (string.IsNullOrEmpty(guid)) { throw new ArgumentException("executeAsync called with invalid guid [" + guid + "]"); }
-            var addon = DbBaseModel.create<AddonModel>(core.cpParent, guid);
+            var addon = core.cacheStore.addonCache.create(guid);
             if (addon == null) { throw new ArgumentException("ExecuteAsync cannot find Addon for guid [" + guid + "]"); }
             executeAsProcess(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
         }
@@ -1727,7 +1736,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="OptionString"></param>
         public void executeAsProcessByName(string name, string OptionString = "") {
             if (string.IsNullOrEmpty(name)) { throw new ArgumentException("executeAsyncByName called with invalid name [" + name + "]"); }
-            var addon = AddonModel.createByUniqueName(core.cpParent, name);
+            AddonModel addon = core.cacheStore.addonCache.createByUniqueName(name);
+            //var addon = AddonModel.createByUniqueName(core.cpParent, name);
             if (addon == null) { throw new ArgumentException("executeAsyncByName cannot find Addon for name [" + name + "]"); }
             executeAsProcess(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
         }
@@ -2098,7 +2108,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 bool AddonStatusOK = true;
                 try {
-                    AddonModel addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidAddonManager);
+                    AddonModel addon = core.cacheStore.addonCache.create(addonGuidAddonManager);
                     if (addon != null) {
                         result = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
                             addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
@@ -2173,7 +2183,7 @@ namespace Contensive.Processor.Controllers {
                     while (cs.ok()) {
                         int addonid = cs.getInteger("addonid");
                         if (addonid != 0) {
-                            var addon = DbBaseModel.create<AddonModel>(core.cpParent, addonid);
+                            var addon = core.cacheStore.addonCache.create(addonid);
                             returnString += core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
                                 addonType = CPUtilsBaseClass.addonContext.ContextSimple,
                                 errorContextMessage = "calling handler addon id [" + addonid + "] for event [" + eventNameIdOrGuid + "]"

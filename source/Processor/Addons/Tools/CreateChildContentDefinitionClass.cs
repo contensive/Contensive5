@@ -16,20 +16,20 @@ namespace Contensive.Processor.Addons.Tools {
         /// <param name="cp"></param>
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cpBase) {
-            return GetForm_CreateChildContent(((CPClass)cpBase).core);
+            return getForm_CreateChildContent(((CPClass)cpBase).core);
         }
         //
         //=============================================================================
         // Create a child content
         //=============================================================================
         //
-        private string GetForm_CreateChildContent(CoreController core) {
+        private string getForm_CreateChildContent(CoreController core) {
             string result = "";
             try {
                 int ParentContentId = 0;
                 string ChildContentName = "";
                 bool AddAdminMenuEntry = false;
-                StringBuilderLegacyController Stream = new StringBuilderLegacyController();
+                StringBuilderLegacyController Stream = new();
                 string ButtonList = ButtonCancel + "," + ButtonRun;
                 //
                 Stream.add(AdminUIController.getHeaderTitleDescription("Create a Child Content from a Content Definition", "This tool creates a Content Definition based on another Content Definition."));
@@ -56,7 +56,7 @@ namespace Contensive.Processor.Addons.Tools {
                         //
                         Stream.add("<br>Reloading Content Definitions...");
                         core.cache.invalidateAll();
-                        core.clearMetaData();
+                        core.cacheStore.clearMetaData();
                         Stream.add("<br>Finished</P>");
                     }
                     Stream.add("</SPAN>");

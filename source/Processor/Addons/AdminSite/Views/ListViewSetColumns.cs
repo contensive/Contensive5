@@ -216,7 +216,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // Reload CDef if it changed
                         //
                         if (reloadMetadata) {
-                            core.clearMetaData();
+                            core.cacheStore.clearMetaData();
                             core.cache.invalidateAll();
                             CDef = ContentMetadataModel.createByUniqueName(core, adminContent.name);
                         }

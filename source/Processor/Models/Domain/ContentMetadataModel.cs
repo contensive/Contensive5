@@ -271,11 +271,11 @@ namespace Contensive.Processor.Models.Domain {
             ContentMetadataModel result = null;
             try {
                 if (content == null) { return null; }
-                if ((!forceDbLoad) && (core.metaDataDictionary.ContainsKey(content.id.ToString()))) { return core.metaDataDictionary[content.id.ToString()]; }
-                if (core.metaDataDictionary.ContainsKey(content.id.ToString())) {
+                if ((!forceDbLoad) && (core.cacheStore.metaDataDictionary.ContainsKey(content.id.ToString()))) { return core.cacheStore.metaDataDictionary[content.id.ToString()]; }
+                if (core.cacheStore.metaDataDictionary.ContainsKey(content.id.ToString())) {
                     //
                     // -- key is already there, remove it first                        
-                    core.metaDataDictionary.Remove(content.id.ToString());
+                    core.cacheStore.metaDataDictionary.Remove(content.id.ToString());
                 }
                 if (!forceDbLoad) {
                     result = getCache(core, content.id);
@@ -580,7 +580,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                     setCache(core, content.id, result);
                 }
-                core.metaDataDictionary.Add(content.id.ToString(), result);
+                core.cacheStore.metaDataDictionary.Add(content.id.ToString(), result);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
@@ -807,10 +807,10 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 if (string.IsNullOrWhiteSpace(contentName)) { return 0; }
                 var nameLower = contentName.Trim().ToLowerInvariant();
-                if (core.contentNameIdDictionary.ContainsKey(nameLower)) { return core.contentNameIdDictionary[nameLower]; }
+                if (core.cacheStore.contentNameIdDictionary.ContainsKey(nameLower)) { return core.cacheStore.contentNameIdDictionary[nameLower]; }
                 ContentModel content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
                 if (content == null) { return 0; }
-                core.contentNameIdDictionary.Add(nameLower, content.id);
+                core.cacheStore.contentNameIdDictionary.Add(nameLower, content.id);
                 return content.id;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1013,7 +1013,7 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     if (!blockCacheClear) {
                         core.cache.invalidateAll();
-                        core.clearMetaData();
+                        core.cacheStore.clearMetaData();
                     }
                 }
                 if (fieldMetadata.id == 0) {
@@ -1319,7 +1319,7 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 ContentModel.invalidateCacheOfTable<ContentModel>(core.cpParent);
                 ContentFieldModel.invalidateCacheOfTable<ContentFieldModel>(core.cpParent);
-                core.clearMetaData();
+                core.cacheStore.clearMetaData();
                 core.cache.invalidateAll();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1372,7 +1372,7 @@ namespace Contensive.Processor.Models.Domain {
                             // todo - verifyContent needs to return the model
                             contentMetadata = create(core, contentMetadata.id);
                             core.cache.invalidateAll();
-                            core.clearMetaData();
+                            core.cacheStore.clearMetaData();
                         }
                         //
                         // -- Create the ccFields records for the new table, locate the field in the content field table
@@ -1407,7 +1407,7 @@ namespace Contensive.Processor.Models.Domain {
                         //
                         // ----- Load metadata, Load only if the previous state of autoload was true, Leave Autoload false during load so more do not trigger
                         core.cache.invalidateAll();
-                        core.clearMetaData();
+                        core.cacheStore.clearMetaData();
                     }
                 }
                 return contentMetadata;
@@ -1564,7 +1564,7 @@ namespace Contensive.Processor.Models.Domain {
                 // ----- Load metadata
                 //
                 core.cache.invalidateAll();
-                core.clearMetaData();
+                core.cacheStore.clearMetaData();
                 //
                 return create(core, childContent);
             } catch (Exception ex) {

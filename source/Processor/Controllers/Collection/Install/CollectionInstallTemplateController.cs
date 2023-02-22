@@ -41,7 +41,7 @@ namespace Contensive.Processor.Controllers {
                                     string addonGuid = XmlController.getXMLAttribute(core, childNode, "guid", "");
                                     string addonName = XmlController.getXMLAttribute(core, childNode, "name", "No Name");
                                     if (!string.IsNullOrEmpty(addonGuid)) {
-                                        var addon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuid);
+                                        var addon = core.cacheStore.addonCache.create(addonGuid);
                                         if (addon == null) {
                                             return_ErrorMessage += "Addon dependency [" + addonName + "] for template [" + templateName + "] could not be found by its guid [" + addonGuid + "]";
                                         }

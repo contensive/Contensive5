@@ -109,17 +109,6 @@ namespace Contensive.Processor.Controllers {
                         if (loginAddonBlock) {
                             core.doc.continueProcessing = false;
                             return LoginController.getLoginPage(core, false, false);
-                            //int addonFormId = core.siteProperties.loginPageAddonId;
-                            //AddonModel loginAddon;
-                            //if(addonFormId>0) {
-                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonFormId);
-                            //} else {
-                            //    loginAddon = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginPage);
-                            //}
-                            //return core.addon.execute(loginAddon, new CPUtilsBaseClass.addonExecuteContext {
-                            //    addonType = CPUtilsBaseClass.addonContext.ContextPage,
-                            //    errorContextMessage = "calling login page addon [" + addonGuidLoginPage + "] because page is blocked"
-                            //});
                         }
                     }
                 }
@@ -373,15 +362,16 @@ namespace Contensive.Processor.Controllers {
                             }
                         }
                         //
-                        if ((string.IsNullOrEmpty(core.doc.redirectLink)) && !isLinkForward) {
+                        if (string.IsNullOrEmpty(core.doc.redirectLink) && !isLinkForward) {
                             //
-                            // Test for Link Alias
+                            // -- find link alias and inject into request (doc) the linkAlias.querystring elements
                             //
-                            if (!string.IsNullOrEmpty(linkAliasTest1 + linkAliasTest2)) {
-                                string sqlLinkAliasCriteria = "(name=" + DbController.encodeSQLText(linkAliasTest1) + ")or(name=" + DbController.encodeSQLText(linkAliasTest2) + ")";
-                                List<LinkAliasModel> linkAliasList = DbBaseModel.createList<LinkAliasModel>(core.cpParent, sqlLinkAliasCriteria, "id desc");
-                                if (linkAliasList.Count > 0) {
-                                    LinkAliasModel linkAlias = linkAliasList.First();
+                            if (!string.IsNullOrEmpty(linkAliasTest1) && !string.IsNullOrEmpty(linkAliasTest2)) {
+                                Dictionary<string,LinkAliasModel> linkAliasNameDict = core.cacheStore.linkAliasNameDict;
+                                LinkAliasModel linkAlias  = null;
+                                if(linkAliasNameDict.ContainsKey(linkAliasTest1)) { linkAlias  = linkAliasNameDict[linkAliasTest1];  }
+                                if(linkAlias ==null && linkAliasNameDict.ContainsKey(linkAliasTest2)) { linkAlias  = linkAliasNameDict[linkAliasTest2]; }
+                                if(linkAlias !=null) {
                                     string LinkQueryString = rnPageId + "=" + linkAlias.pageId + "&" + linkAlias.queryStringSuffix;
                                     core.docProperties.setProperty(rnPageId, linkAlias.pageId, DocPropertyModel.DocPropertyTypesEnum.userDefined);
                                     string[] nameValuePairs = linkAlias.queryStringSuffix.Split('&');
@@ -394,6 +384,24 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                 }
+
+
+                                //string sqlLinkAliasCriteria = "(name=" + DbController.encodeSQLText(linkAliasTest1) + ")or(name=" + DbController.encodeSQLText(linkAliasTest2) + ")";
+                                //List<LinkAliasModel> linkAliasList = DbBaseModel.createList<LinkAliasModel>(core.cpParent, sqlLinkAliasCriteria, "id desc");
+                                //if (linkAliasList.Count > 0) {
+                                //    LinkAliasModel linkAlias = linkAliasList.First(); 
+                                //    string LinkQueryString = rnPageId + "=" + linkAlias.pageId + "&" + linkAlias.queryStringSuffix;
+                                //    core.docProperties.setProperty(rnPageId, linkAlias.pageId, DocPropertyModel.DocPropertyTypesEnum.userDefined);
+                                //    string[] nameValuePairs = linkAlias.queryStringSuffix.Split('&');
+                                //    foreach (string nameValuePair in nameValuePairs) {
+                                //        string[] nameValueThing = nameValuePair.Split('=');
+                                //        if (nameValueThing.GetUpperBound(0) == 0) {
+                                //            core.docProperties.setProperty(nameValueThing[0], "", DocPropertyModel.DocPropertyTypesEnum.userDefined);
+                                //        } else {
+                                //            core.docProperties.setProperty(nameValueThing[0], nameValueThing[1], DocPropertyModel.DocPropertyTypesEnum.userDefined);
+                                //        }
+                                //    }
+                                //}
                             }
                             //
                             // No Link Forward, no Link Alias, no RemoteMethodFromPage, not Robots.txt
@@ -718,7 +726,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // -- either not authenticated or not authorized
                                     blockForm = ""
-                                        + core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
+                                        + core.addon.execute(core.cacheStore.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked and user not authenticated"
                                         });
@@ -726,7 +734,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // -- not authorized, login form can detect isAuthenticated and determine authorization
                                     blockForm = ""
-                                        + core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
+                                        + core.addon.execute(core.cacheStore.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked and user does not have access to content"
                                         });
@@ -735,8 +743,8 @@ namespace Contensive.Processor.Controllers {
                                 // todo -- remove this hardcoded html. Should be included with login form. Will distrupt custom addon.
                                 result = ""
                                     + "<div style=\"margin: 100px, auto, auto, auto;text-align:left;\">"
-                                    + ErrorController.getUserError(core) 
-                                    + blockForm 
+                                    + ErrorController.getUserError(core)
+                                    + blockForm
                                     + "</div>";
                                 break;
                             }
@@ -752,7 +760,7 @@ namespace Contensive.Processor.Controllers {
                                     BlockForm = ""
                                         + "<p>This content has limited access. If you have an account, please login using this form.</p>"
                                         + "<p>If you do not have an account, <a href=\"?" + core.doc.refreshQueryString + "&subform=0\">click here to register</a>.</p>"
-                                        + core.addon.execute(DbBaseModel.create<AddonModel>(core.cpParent, addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
+                                        + core.addon.execute(core.cacheStore.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked for registration"
                                         });
@@ -813,7 +821,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- OnPageStart Event
                     Dictionary<string, string> instanceArguments = new Dictionary<string, string> { { "CSPage", "-1" } };
-                    foreach (var addon in core.addonCache.getOnPageStartAddonList()) {
+                    foreach (var addon in core.cacheStore.addonCache.getOnPageStartAddonList()) {
                         CPUtilsBaseClass.addonExecuteContext pageStartContext = new CPUtilsBaseClass.addonExecuteContext {
                             instanceGuid = "-1",
                             argumentKeyValuePairs = instanceArguments,
@@ -955,7 +963,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- OnPageEndEvent
                     core.doc.bodyContent = result;
-                    foreach (AddonModel addon in core.addonCache.getOnPageEndAddonList()) {
+                    foreach (AddonModel addon in core.cacheStore.addonCache.getOnPageEndAddonList()) {
                         CPUtilsBaseClass.addonExecuteContext pageEndContext = new CPUtilsBaseClass.addonExecuteContext {
                             instanceGuid = "-1",
                             argumentKeyValuePairs = instanceArguments,
@@ -1091,26 +1099,6 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- render addonList
                         resultInnerContent.Append(AddonListItemModel_Dup.render(core, core.doc.pageController.page.addonList));
-                        //if (!string.IsNullOrWhiteSpace(core.doc.pageController.page.addonList)) {
-
-                        //    //try {
-                        //    //    AddonModel addonListRender = DbBaseModel.create<AddonModel>(core.cpParent, addonGuidRenderAddonList);
-                        //    //    if (addonListRender == null) {
-                        //    //        //
-                        //    //        // -- not installed
-                        //    //        resultInnerContent.Append("<!-- Page Builder AddonList Render not available -->");
-                        //    //    } else {
-                        //    //        //
-                        //    //        // -- execute PageBuilder RenderAddonList
-                        //    //        core.docProperties.setProperty("addonList", core.doc.pageController.page.addonList);
-                        //    //        resultInnerContent.Append(core.addon.execute(addonListRender, new CPUtilsBaseClass.addonExecuteContext {
-                        //    //            addonType = CPUtilsBaseClass.addonContext.ContextPage
-                        //    //        }));
-                        //    //    }
-                        //    //} catch (Exception) {
-                        //    //    LogController.logWarn(core, "The addonList for page [" + core.doc.pageController.page.id + ", " + core.doc.pageController.page.name + "] was not empty, but deserialized to null, addonList '" + core.doc.pageController.page.addonList + "'");
-                        //    //}
-                        //}
                     }
                 }
                 // -- End Text Search
@@ -1669,7 +1657,7 @@ namespace Contensive.Processor.Controllers {
                 // -- domain -- determine if the domain has any template requirements, and if so, is this template allowed
                 bool templateAllowed = true;
                 List<TemplateDomainRuleModel> allowTemplateRuleList = new();
-                if (core.domain.id>0) {
+                if (core.domain.id > 0) {
                     allowTemplateRuleList = DbBaseModel.createList<TemplateDomainRuleModel>(core.cpParent, $"(domainId={core.domain.id})");
                     templateAllowed = false;
                     foreach (TemplateDomainRuleModel rule in allowTemplateRuleList) {

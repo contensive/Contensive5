@@ -124,14 +124,14 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- custom datasource from Db in primary datasource
-                if (!core.dataSourceDictionary.ContainsKey(normalizedDataSourceName)) {
+                if (!core.cacheStore.dataSourceDictionary.ContainsKey(normalizedDataSourceName)) {
                     //
                     // -- not found, this is a hard error
                     throw new GenericException("Datasource [" + normalizedDataSourceName + "] was not found.");
                 }
                 //
                 // -- found in local cache
-                var datasource = core.dataSourceDictionary[normalizedDataSourceName];
+                var datasource = core.cacheStore.dataSourceDictionary[normalizedDataSourceName];
                 string returnConnString = ""
                     + "server=tcp:" + datasource.endpoint + ";"
                     + "User Id=" + datasource.username + ";"
@@ -597,7 +597,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (clearMetadataCache) {
                         core.cache.invalidateAll();
-                        core.clearMetaData();
+                        core.cacheStore.clearMetaData();
                     }
                 }
             } catch (Exception ex) {
@@ -615,7 +615,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 executeNonQuery("DROP TABLE " + tableName);
                 core.cache.invalidateAll();
-                core.clearMetaData();
+                core.cacheStore.clearMetaData();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -705,7 +705,7 @@ namespace Contensive.Processor.Controllers {
                 // -- clear cache
                 if (!clearMetaCache) { return; }
                 core.cache.invalidateAll();
-                core.clearMetaData();
+                core.cacheStore.clearMetaData();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -820,7 +820,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
                 core.cache.invalidateAll();
-                core.clearMetaData();
+                core.cacheStore.clearMetaData();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

@@ -79,6 +79,13 @@ namespace Contensive.Processor.Models.Domain {
                         dictNameId.Add(addon.name.ToLowerInvariant(), addon.id);
                     }
                 }
+                if (!string.IsNullOrEmpty(addon.aliasList)) {
+                    foreach (var aliasName in addon.aliasList.Split(',')) {
+                        if(!dictNameId.ContainsKey(aliasName)) {
+                            dictNameId.Add(aliasName.ToLowerInvariant(), addon.id);
+                        }
+                    }
+                }
             }
             if ((addon.onBodyEnd) && (!onBodyEndIdList.Contains(addon.id))) onBodyEndIdList.Add(addon.id);
             if ((addon.onBodyStart) && (!onBodyStartIdList.Contains(addon.id))) onBodyStartIdList.Add(addon.id);
@@ -95,9 +102,9 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="guid"></param>
         /// <returns></returns>
-        public AddonModel getAddonByGuid(string guid) {
-            if (this.dictGuidId.ContainsKey(guid.ToLowerInvariant())) {
-                return getAddonById(this.dictGuidId[guid.ToLowerInvariant()]);
+        public AddonModel create(string guid) {
+            if (dictGuidId.ContainsKey(guid.ToLowerInvariant())) {
+                return create(this.dictGuidId[guid.ToLowerInvariant()]);
             }
             return null;
         }
@@ -108,10 +115,12 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public AddonModel getAddonByName(string name) {
-            if (this.dictNameId.ContainsKey(name.ToLowerInvariant())) {
-                return getAddonById(this.dictNameId[name.ToLowerInvariant()]);
+        public AddonModel createByUniqueName(string name) {
+            if (dictNameId.ContainsKey(name.ToLowerInvariant())) {
+                return create(this.dictNameId[name.ToLowerInvariant()]);
             }
+
+
             return null;
         }
         //
@@ -121,8 +130,8 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="addonId"></param>
         /// <returns></returns>
-        public AddonModel getAddonById(int addonId) {
-            if (this.dictIdAddon.ContainsKey(addonId)) {
+        public AddonModel create(int addonId) {
+            if (dictIdAddon.ContainsKey(addonId)) {
                 return this.dictIdAddon[addonId];
             }
             return null;
@@ -137,7 +146,7 @@ namespace Contensive.Processor.Models.Domain {
         private List<AddonModel> getAddonList(List<int> addonIdList) {
             List<AddonModel> result = new List<AddonModel>();
             foreach (int addonId in addonIdList) {
-                result.Add(getAddonById(addonId));
+                result.Add(create(addonId));
             }
             return result;
         }

@@ -44,121 +44,6 @@ namespace Contensive.Processor.Controllers {
         }
         private RouteMapModel _routeMap;
         //
-        public class LayoutDict {
-            public Dictionary<int, LayoutModel> layoutIdDict { get; set; } = new();
-            public Dictionary<string, LayoutModel> layoutGuidDict { get; set; } = new();
-            public Dictionary<string, LayoutModel> layoutNameDict { get; set; } = new();
-        }
-        //
-        //====================================================================================================
-        //
-        /// <summary>
-        /// load and return the layout dictionaries
-        /// </summary>
-        /// <returns></returns>
-        private LayoutDict getLayoutDict() {
-            string cacheKey = "layoutDict";
-            LayoutDict layoutDict  = cache.getObject<LayoutDict>(cacheKey);
-            if (layoutDict != null) { return layoutDict; }
-            //
-            // -- load from db
-            layoutDict = new LayoutDict();
-            foreach (LayoutModel linkAlias in DbBaseModel.createList<LayoutModel>(cpParent)) {
-                if (!layoutDict.layoutIdDict.ContainsKey(linkAlias.id)) {
-                    layoutDict.layoutIdDict.Add(linkAlias.id, linkAlias);
-                }
-                if (!string.IsNullOrEmpty(linkAlias.ccguid) &&  !layoutDict.layoutGuidDict.ContainsKey(linkAlias.ccguid)) {
-                    layoutDict.layoutGuidDict.Add(linkAlias.ccguid, linkAlias);
-                }
-                if (!string.IsNullOrEmpty(linkAlias.name) && !layoutDict.layoutNameDict.ContainsKey(linkAlias.name)) {
-                    layoutDict.layoutNameDict.Add(linkAlias.name, linkAlias);
-                }
-            }
-            //
-            // -- update cache
-            var dependentKeyHastList = new List<CacheKeyHashClass>() { cache.createTableDependencyKeyHash(LayoutModel.tableMetadata.tableNameLower) };
-            cache.storeObject(cacheKey, layoutDict, dependentKeyHastList);
-            return layoutDict;
-        }
-        //
-        //====================================================================================================
-        //
-        /// <summary>
-        /// cache dictionary of layout by id
-        /// </summary>
-        public Dictionary<int, LayoutModel> layoutIdDict {
-            get {
-                if (layoutIdDict_Local != null) { return layoutIdDict_Local; }
-                LayoutDict layout = getLayoutDict();
-                layoutIdDict_Local = layout.layoutIdDict;
-                layoutGuidDict_Local = layout.layoutGuidDict;
-                layoutNameDict_Local = layout.layoutNameDict;
-                return layoutIdDict_Local;
-            }
-        }
-        private Dictionary<int, LayoutModel> layoutIdDict_Local;
-        //
-        //====================================================================================================
-        //
-        /// <summary>
-        /// cache dictionary of layout by name
-        /// </summary>
-        public Dictionary<string, LayoutModel> layoutNameDict {
-            get {
-                if (layoutNameDict_Local != null) { return layoutNameDict_Local; }
-                LayoutDict layout = getLayoutDict();
-                layoutIdDict_Local = layout.layoutIdDict;
-                layoutGuidDict_Local = layout.layoutGuidDict;
-                layoutNameDict_Local = layout.layoutNameDict;
-                return layoutNameDict_Local;
-            }
-        }
-        private Dictionary<string, LayoutModel> layoutNameDict_Local;
-        //
-        //====================================================================================================
-        //
-        /// <summary>
-        /// cache dictionary of layout by id
-        /// </summary>
-        public Dictionary<string, LayoutModel> layoutGuidDict {
-            get {
-                if (layoutGuidDict_Local != null) { return layoutGuidDict_Local; }
-                LayoutDict layout = getLayoutDict();
-                layoutIdDict_Local = layout.layoutIdDict;
-                layoutGuidDict_Local = layout.layoutGuidDict;
-                layoutNameDict_Local = layout.layoutNameDict;
-                return layoutGuidDict_Local;
-            }
-        }
-        private Dictionary<string, LayoutModel> layoutGuidDict_Local;
-        //
-        //====================================================================================================
-        //
-        /// <summary>
-        /// Link alias cache dictionary. loads when initializing routemap, available for getPageLink() methods
-        /// </summary>
-        public Dictionary<string, LinkAliasModel> linkAliasPageDict {
-            get {
-                if (linkAliasPageDict_Local != null) { return linkAliasPageDict_Local; }
-                //
-                string cacheKey = "linkAliasPageDict";
-                linkAliasPageDict_Local = cache.getObject<Dictionary<string, LinkAliasModel>>(cacheKey);
-                if (linkAliasPageDict_Local != null) { return linkAliasPageDict_Local; }
-                //
-                // -- order by "pageid,queryStringSuffix,id desc" for routemap
-                linkAliasPageDict_Local = new Dictionary<string, LinkAliasModel>();
-                foreach (LinkAliasModel linkAlias in DbBaseModel.createList<LinkAliasModel>(cpParent, "name Is Not null", "pageid,queryStringSuffix,id desc")) {
-                    string key = $"{linkAlias.pageId}.{linkAlias.queryStringSuffix}";
-                    if (linkAliasPageDict_Local.ContainsKey(key)) { continue; }
-                    linkAliasPageDict_Local.Add(key, linkAlias);
-                }
-                var dependentKeyHastList = new List<CacheKeyHashClass>() { cache.createTableDependencyKeyHash(LinkAliasModel.tableMetadata.tableNameLower) };
-                cache.storeObject(cacheKey, linkAliasPageDict_Local, dependentKeyHastList);
-                return linkAliasPageDict_Local;
-            }
-        }
-        private Dictionary<string, LinkAliasModel> linkAliasPageDict_Local;
-        //
         //===================================================================================================
         /// <summary>
         /// server configuration - this is the node's configuration, including everything needed to attach to resources required (db,cache,filesystem,etc)
@@ -267,32 +152,6 @@ namespace Contensive.Processor.Controllers {
         //
         //===================================================================================================
         /// <summary>
-        /// Dictionary of cdef, index by name
-        /// </summary>
-        internal Dictionary<string, Models.Domain.ContentMetadataModel> metaDataDictionary { get; set; }
-        //
-        //===================================================================================================
-        /// <summary>
-        /// Dictionary of tableschema, index by name
-        /// </summary>
-        internal Dictionary<string, Models.Domain.TableSchemaModel> tableSchemaDictionary { get; set; }
-        //
-        //===================================================================================================
-        /// <summary>
-        /// lookup contentId by contentName
-        /// </summary>
-        internal Dictionary<string, int> contentNameIdDictionary {
-            get {
-                if (_contentNameIdDictionary == null) {
-                    _contentNameIdDictionary = new Dictionary<string, int>();
-                }
-                return _contentNameIdDictionary;
-            }
-        }
-        internal Dictionary<string, int> _contentNameIdDictionary;
-        //
-        //===================================================================================================
-        /// <summary>
         /// assembly files to skip
         /// </summary>
         internal List<string> assemblyList_NonAddonsInstalled { get; set; } = new List<string> {
@@ -340,54 +199,6 @@ namespace Contensive.Processor.Controllers {
             "\\system.data.entity.design.dll",
             "\\system.data.entity.dll"
         };
-        //
-        //===================================================================================================
-        // todo move to class
-        /// <summary>
-        /// A dictionary of addon collection.namespace.class and the file assembly where it was found. Built during execution, stored in cache
-        /// </summary>
-        public Dictionary<string, AssemblyFileDetails> assemblyList_AddonsFound {
-            get {
-                if (_assemblyFileDict != null) { return _assemblyFileDict; }
-                //
-                // -- if remote-mode collections.xml file is updated, invalidate cache
-                if (!privateFiles.localFileStale(AddonController.getPrivateFilesAddonPath() + "Collections.xml")) {
-                    _assemblyFileDict = cache.getObject<Dictionary<string, AssemblyFileDetails>>(AssemblyFileDictCacheName);
-                }
-                if (_assemblyFileDict == null) {
-                    _assemblyFileDict = new Dictionary<string, AssemblyFileDetails>();
-                }
-                return _assemblyFileDict;
-            }
-        }
-        //
-        //===================================================================================================
-        /// <summary>
-        /// list of assemblies found to be addons. used to speed up execution
-        /// </summary>
-        public void assemblyList_AddonsFound_save() {
-            var dependentKeyList = new List<CacheKeyHashClass> {
-                cpParent.core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
-                cpParent.core.cache.createTableDependencyKeyHash(AddonCollectionModel.tableMetadata.tableNameLower)
-            };
-            cache.storeObject(AssemblyFileDictCacheName, _assemblyFileDict, dependentKeyList);
-        }
-        private Dictionary<string, AssemblyFileDetails> _assemblyFileDict;
-        private const string AssemblyFileDictCacheName = "assemblyFileDict";
-        //
-        //===================================================================================================
-        /// <summary>
-        /// List of datasources. The default datasourse is the first entry, and is populated from the initialization configuration. Additional datasources come from the datasources content in the primary datasourse.
-        /// </summary>
-        public Dictionary<string, DataSourceModel> dataSourceDictionary {
-            get {
-                if (_dataSources == null) {
-                    _dataSources = DataSourceModel.getNameDict(this.cpParent);
-                }
-                return _dataSources;
-            }
-        }
-        private Dictionary<string, DataSourceModel> _dataSources;
         //
         //===================================================================================================
         /// <summary>
@@ -660,32 +471,6 @@ namespace Contensive.Processor.Controllers {
         //
         //===================================================================================================
         /// <summary>
-        /// provide an addon cache object lazy populated from the Domain.addonCacheModel. This object provides an
-        /// interface to lookup read addon data and common lists
-        /// </summary>
-        public AddonCacheModel addonCache {
-            get {
-                if (_addonCacheNonPersistent == null) {
-                    _addonCacheNonPersistent = cache.getObject<AddonCacheModel>(cacheName_addonCachePersistent);
-                    if (_addonCacheNonPersistent == null || _addonCacheNonPersistent.isEmpty) {
-                        _addonCacheNonPersistent = new AddonCacheModel(this);
-                        cache.storeObject(cacheName_addonCachePersistent, _addonCacheNonPersistent);
-                    }
-                }
-                return _addonCacheNonPersistent;
-            }
-        }
-        private AddonCacheModel _addonCacheNonPersistent;
-        /// <summary>
-        /// method to clear the core instance of routeMap. Explained in routeMap.
-        /// </summary>
-        public void addonCacheClear() {
-            cache.invalidate(cacheName_addonCachePersistent);
-            _addonCacheNonPersistent = null;
-        }
-        //
-        //===================================================================================================
-        /// <summary>
         /// The current domain. If not set, an empty domain model is returned
         /// </summary>
         /// <value></value>
@@ -706,12 +491,11 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private DomainModel _domain;
-        /// <summary>
-        /// domains configured for this app. keys are lowercase
-        /// </summary>
-        public Dictionary<string, DomainModel> domainDictionary { get; set; }
         //
         //===================================================================================================
+        /// <summary>
+        /// cache controller
+        /// </summary>
         public Controllers.CacheController cache {
             get {
                 if (_cache == null) {
@@ -721,6 +505,21 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Controllers.CacheController _cache;
+        //
+        //===================================================================================================
+        /// <summary>
+        /// cache store controller
+        /// store frequently accessed records.
+        /// </summary>
+        public CacheStoreController cacheStore {
+            get {
+                if (_cacheStore == null) {
+                    _cacheStore = new CacheStoreController(this);
+                }
+                return _cacheStore;
+            }
+        }
+        private CacheStoreController _cacheStore;
         //
         //===================================================================================================
         /// <summary>
@@ -773,8 +572,8 @@ namespace Contensive.Processor.Controllers {
         public CoreController(CPClass cp) {
             cpParent = cp;
             cpParent.core = this;
-            metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
             coreController_Initialize(null, null, false);
         }
@@ -790,8 +589,8 @@ namespace Contensive.Processor.Controllers {
         public CoreController(CPClass cp, string appName) {
             cpParent = cp;
             cpParent.core = this;
-            metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
             coreController_Initialize(appName, null, false);
         }
@@ -808,8 +607,8 @@ namespace Contensive.Processor.Controllers {
         public CoreController(CPClass cp, string appName, bool allowSession) {
             cpParent = cp;
             cpParent.core = this;
-            metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
             coreController_Initialize(appName, null, allowSession);
         }
@@ -822,8 +621,8 @@ namespace Contensive.Processor.Controllers {
             try {
                 cpParent = cp;
                 cpParent.core = this;
-                metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-                tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+                cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+                cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
                 //
                 coreController_Initialize(appName, httpContext, true);
             } catch (Exception ex) {
@@ -917,7 +716,7 @@ namespace Contensive.Processor.Controllers {
             _routeMap = null;
             //
             // -- no idea why we added the addon clear
-            addonCacheClear();
+            cacheStore.addonCacheClear();
             //
             // -- rebuild the map
             _ = routeMap;
@@ -934,24 +733,6 @@ namespace Contensive.Processor.Controllers {
             AssemblyName myAssemblyname = myAssembly.GetName();
             Version myVersion = myAssemblyname.Version;
             return myVersion.Major.ToString("0") + "." + myVersion.Minor.ToString("0") + "." + myVersion.Build.ToString("0") + "." + myVersion.Revision.ToString("0");
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Clear all data from the metaData current instance. Next request will load from cache.
-        /// </summary>
-        public void clearMetaData() {
-            if (metaDataDictionary != null) {
-                metaDataDictionary.Clear();
-            }
-            tableSchemaDictionary.Clear();
-            contentNameIdDictionaryClear();
-        }
-        //
-        //====================================================================================================
-        //
-        internal void contentNameIdDictionaryClear() {
-            _contentNameIdDictionary = null;
         }
         //
         //====================================================================================================

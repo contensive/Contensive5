@@ -1,7 +1,4 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.Exceptions;
-using Contensive.Models.Db;
+﻿using Contensive.Models.Db;
 using System;
 using System.Collections.Generic;
 
@@ -43,10 +40,10 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- load the layout from the catalog settings selection
                 LayoutModel layout;
-                if (cp.core.layoutGuidDict.ContainsKey(layoutGuid)) {
+                if (cp.core.cacheStore.layoutGuidDict.ContainsKey(layoutGuid)) {
                     //
                     // --most common cases
-                    layout = cp.core.layoutGuidDict[layoutGuid];
+                    layout = cp.core.cacheStore.layoutGuidDict[layoutGuid];
                     if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) { return layout.layoutPlatform5.content; }
                     return layout.layout.content;
                 }
@@ -79,8 +76,8 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getLayout(CPClass cp, int layoutId) {
             try {
-                if (!cp.core.layoutIdDict.ContainsKey(layoutId)) { return ""; }
-                var layout = cp.core.layoutIdDict[layoutId];
+                if (!cp.core.cacheStore.layoutIdDict.ContainsKey(layoutId)) { return ""; }
+                var layout = cp.core.cacheStore.layoutIdDict[layoutId];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -98,8 +95,8 @@ namespace Contensive.Processor.Controllers {
         public static string getLayout(CPClass cp, string layoutGuid) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutGuid)) { return ""; }
-                if (!cp.core.layoutGuidDict.ContainsKey(layoutGuid)) { return ""; }
-                var layout = cp.core.layoutGuidDict[layoutGuid];
+                if (!cp.core.cacheStore.layoutGuidDict.ContainsKey(layoutGuid)) { return ""; }
+                var layout = cp.core.cacheStore.layoutGuidDict[layoutGuid];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -117,8 +114,8 @@ namespace Contensive.Processor.Controllers {
         public static string getLayoutByName(CPClass cp, string layoutName) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return ""; }
-                if (!cp.core.layoutNameDict.ContainsKey(layoutName)) { return ""; }
-                var layout = cp.core.layoutNameDict[layoutName];
+                if (!cp.core.cacheStore.layoutNameDict.ContainsKey(layoutName)) { return ""; }
+                var layout = cp.core.cacheStore.layoutNameDict[layoutName];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -137,8 +134,8 @@ namespace Contensive.Processor.Controllers {
         public static string getLayoutByName(CPClass cp, string layoutName, string defaultLayout) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return defaultLayout; }
-                if (cp.core.layoutNameDict.ContainsKey(layoutName)) {
-                    var layout = cp.core.layoutNameDict[layoutName];
+                if (cp.core.cacheStore.layoutNameDict.ContainsKey(layoutName)) {
+                    var layout = cp.core.cacheStore.layoutNameDict[layoutName];
                     return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
                 }
                 {
