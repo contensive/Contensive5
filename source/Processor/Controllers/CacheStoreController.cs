@@ -33,19 +33,36 @@ namespace Contensive.Processor.Controllers {
         /// provide an addon cache object lazy populated from the Domain.addonCacheModel. This object provides an
         /// interface to lookup read addon data and common lists
         /// </summary>
-        public AddonCacheModel addonCache {
+        public CacheStore_AddonModel addonCache {
             get {
+                CacheKeyHashClass keyHash = core.cache.createKeyHash(cacheName_addonCache);
+                if (core.cache.tryGetCacheDocument<CacheStore_AddonModel>(keyHash, out CacheDocumentClass cacheDocument)) {
+                    // -- cache miss
+                    _addonCache = new CacheStore_AddonModel(core);
+                    List<CacheKeyHashClass> dependencyList = new List<CacheKeyHashClass> {
+                        core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
+                        core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
+                    };
+                    core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
+                    return _addonCache;
+                }
                 if (_addonCache == null) {
-                    _addonCache = core.cache.getObject<AddonCacheModel>(cacheName_addonCache);
+                    // -- populate local version from cache
+                    _addonCache = core.cache.getObject<CacheStore_AddonModel>(cacheName_addonCache);
                     if (_addonCache == null || _addonCache.isEmpty) {
-                        _addonCache = new AddonCacheModel(core);
-                        core.cache.storeObject(cacheName_addonCache, _addonCache);
+                        // -- cache empty (should not be possible since cache miss was covered)
+                        _addonCache = new CacheStore_AddonModel(core);
+                        List<CacheKeyHashClass> dependencyList = new List<CacheKeyHashClass> {
+                            core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
+                            core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
+                        };
+                        core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
                     }
                 }
                 return _addonCache;
             }
         }
-        private AddonCacheModel _addonCache;
+        private CacheStore_AddonModel _addonCache;
         internal const string cacheName_addonCache = "addonCache";
         //
         /// <summary>
@@ -146,8 +163,6 @@ namespace Contensive.Processor.Controllers {
             public Dictionary<string, LayoutModel> layoutNameDict { get; set; } = new();
         }
         //
-        //====================================================================================================
-        //
         /// <summary>
         /// load and return the layout dictionaries
         /// </summary>
@@ -177,8 +192,6 @@ namespace Contensive.Processor.Controllers {
             return layoutDict;
         }
         //
-        //====================================================================================================
-        //
         /// <summary>
         /// cache dictionary of layout by id
         /// </summary>
@@ -193,8 +206,6 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Dictionary<int, LayoutModel> layoutIdDict_Local;
-        //
-        //====================================================================================================
         //
         /// <summary>
         /// cache dictionary of layout by name
@@ -211,8 +222,6 @@ namespace Contensive.Processor.Controllers {
         }
         private Dictionary<string, LayoutModel> layoutNameDict_Local;
         //
-        //====================================================================================================
-        //
         /// <summary>
         /// cache dictionary of layout by id
         /// </summary>
@@ -227,41 +236,6 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Dictionary<string, LayoutModel> layoutGuidDict_Local;
-        ////
-        ////====================================================================================================
-        ////
-        ///// <summary>
-        ///// Link alias cache dictionary. loads when initializing routemap, available for getPageLink() methods
-        ///// </summary>
-        //public Dictionary<string, LinkAliasModel> linkAliasPageDict {
-        //    get {
-        //        if (linkAliasPageDict_Local != null) { return linkAliasPageDict_Local; }
-        //        //
-        //        string cacheKey = "linkAliasPageDict";
-        //        linkAliasPageDict_Local = core.cache.getObject<Dictionary<string, LinkAliasModel>>(cacheKey);
-        //        if (linkAliasPageDict_Local != null) { return linkAliasPageDict_Local; }
-        //        //
-        //        // -- order by "pageid,queryStringSuffix,id desc" for routemap
-        //        linkAliasPageDict_Local = new Dictionary<string, LinkAliasModel>();
-        //        foreach (LinkAliasModel linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent, "name Is Not null", "pageid,queryStringSuffix,id desc")) {
-        //            string key = $"{linkAlias.pageId}.{linkAlias.queryStringSuffix}";
-        //            if (linkAliasPageDict_Local.ContainsKey(key)) { continue; }
-        //            linkAliasPageDict_Local.Add(key, linkAlias);
-        //        }
-        //        var dependentKeyHastList = new List<CacheKeyHashClass>() { core.cache.createTableDependencyKeyHash(LinkAliasModel.tableMetadata.tableNameLower) };
-        //        core.cache.storeObject(cacheKey, linkAliasPageDict_Local, dependentKeyHastList);
-        //        return linkAliasPageDict_Local;
-        //    }
-        //}
-        //private Dictionary<string, LinkAliasModel> linkAliasPageDict_Local;
-        //
-        //
-        //
-        //
-        //
-        //
-        //
-
         //
         //===================================================================================================
         //
@@ -271,8 +245,6 @@ namespace Contensive.Processor.Controllers {
             public Dictionary<string, LinkAliasModel> linkAliasNameDict { get; set; } = new();
             public Dictionary<string, LinkAliasModel> linkAliasKeyDict { get; set; } = new();
         }
-        //
-        //====================================================================================================
         //
         /// <summary>
         /// load and return the LinkAlias dictionaries
@@ -307,8 +279,6 @@ namespace Contensive.Processor.Controllers {
             return linkAliasStore;
         }
         //
-        //====================================================================================================
-        //
         /// <summary>
         /// cache dictionary of LinkAlias by id
         /// </summary>
@@ -323,8 +293,6 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Dictionary<int, LinkAliasModel> linkAliasIdDict_Local;
-        //
-        //====================================================================================================
         //
         /// <summary>
         /// cache dictionary of LinkAlias by name
@@ -341,8 +309,6 @@ namespace Contensive.Processor.Controllers {
         }
         private Dictionary<string, LinkAliasModel> linkAliasNameDict_Local;
         //
-        //====================================================================================================
-        //
         /// <summary>
         /// cache dictionary of LinkAlias by id
         /// </summary>
@@ -358,8 +324,6 @@ namespace Contensive.Processor.Controllers {
         }
         private Dictionary<string, LinkAliasModel> linkAliasGuidDict_Local;
         //
-        //====================================================================================================
-        //
         /// <summary>
         /// cache dictionary of LinkAlias by key ($"{pageId}.{queryStringSuffix}")
         /// </summary>
@@ -374,5 +338,120 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Dictionary<string, LinkAliasModel> linkAliasKeyDict_Local;
+        //
+        //===================================================================================================
+        //
+        public class ContentStoreModel {
+            public Dictionary<int, ContentModel> ContentIdDict { get; set; } = new();
+            public Dictionary<string, ContentModel> ContentGuidDict { get; set; } = new();
+            public Dictionary<string, ContentModel> ContentNameDict { get; set; } = new();
+            public Dictionary<string, ContentModel> ContentKeyDict { get; set; } = new();
+        }
+        //
+        /// <summary>
+        /// load and return the Content dictionaries
+        /// </summary>
+        /// <returns></returns>
+        private ContentStoreModel getContentStore() {
+            string cacheKey = "ContentStore";
+            ContentStoreModel ContentStore = core.cache.getObject<ContentStoreModel>(cacheKey);
+            if (ContentStore != null) { return ContentStore; }
+            //
+            // -- load from db
+            ContentStore = new ContentStoreModel();
+            foreach (ContentModel Content in DbBaseModel.createList<ContentModel>(core.cpParent)) {
+                if (!ContentStore.ContentIdDict.ContainsKey(Content.id)) {
+                    ContentStore.ContentIdDict.Add(Content.id, Content);
+                }
+                string key = Content.ccguid.ToLowerInvariant();
+                if (!string.IsNullOrEmpty(key) && !ContentStore.ContentGuidDict.ContainsKey(key)) {
+                    ContentStore.ContentGuidDict.Add(key, Content);
+                }
+                key = Content.name.ToLowerInvariant();
+                if (!string.IsNullOrEmpty(key) && !ContentStore.ContentNameDict.ContainsKey(key)) {
+                    ContentStore.ContentNameDict.Add(key, Content);
+                }
+            }
+            //
+            // -- update cache
+            var dependentKeyHastList = new List<CacheKeyHashClass>() { core.cache.createTableDependencyKeyHash(ContentModel.tableMetadata.tableNameLower) };
+            core.cache.storeObject(cacheKey, ContentStore, dependentKeyHastList);
+            return ContentStore;
+        }
+        //
+        /// <summary>
+        /// cache dictionary of Content by id
+        /// </summary>
+        public Dictionary<int, ContentModel> ContentIdDict {
+            get {
+
+               if( core.cache.tryGetCacheDocument<ContentStoreModel>(core.cache.createKeyHash("ContentStoreModel"), out CacheDocumentClass _)) {
+                    if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
+                }
+
+
+                //if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
+                ContentStoreModel Content = getContentStore();
+                ContentIdDict_Local = Content.ContentIdDict;
+                ContentGuidDict_Local = Content.ContentGuidDict;
+                ContentNameDict_Local = Content.ContentNameDict;
+                return ContentIdDict_Local;
+            }
+        }
+        private Dictionary<int, ContentModel> ContentIdDict_Local;
+        //
+        /// <summary>
+        /// cache dictionary of Content by name
+        /// </summary>
+        public Dictionary<string, ContentModel> ContentNameDict {
+            get {
+                if (ContentNameDict_Local != null) { return ContentNameDict_Local; }
+                ContentStoreModel Content = getContentStore();
+                ContentIdDict_Local = Content.ContentIdDict;
+                ContentGuidDict_Local = Content.ContentGuidDict;
+                ContentNameDict_Local = Content.ContentNameDict;
+                return ContentNameDict_Local;
+            }
+        }
+        private Dictionary<string, ContentModel> ContentNameDict_Local;
+        //
+        /// <summary>
+        /// cache dictionary of Content by id
+        /// </summary>
+        public Dictionary<string, ContentModel> ContentGuidDict {
+            get {
+                if (ContentGuidDict_Local != null) { return ContentGuidDict_Local; }
+                ContentStoreModel Content = getContentStore();
+                ContentIdDict_Local = Content.ContentIdDict;
+                ContentGuidDict_Local = Content.ContentGuidDict;
+                ContentNameDict_Local = Content.ContentNameDict;
+                return ContentGuidDict_Local;
+            }
+        }
+        private Dictionary<string, ContentModel> ContentGuidDict_Local;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

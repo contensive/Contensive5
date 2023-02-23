@@ -339,41 +339,14 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)]
-        public override string getLayout(string layoutName) {
-            try {
-                if (string.IsNullOrWhiteSpace(layoutName)) { return string.Empty; }
-                using (var cs = new CsModel(cp.core)) {
-                    cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout");
-                    if (cs.ok()) { return cs.getText("layout"); }
-                }
-            } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
-            }
-            return string.Empty;
-        }
+        public override string getLayout(string layoutName)
+            => cp.Layout.GetLayoutByName(layoutName);
         //
         //====================================================================================================
         //
         [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)]
-        public override string getLayout(string layoutName, string defaultLayout) {
-            try {
-                if (string.IsNullOrWhiteSpace(layoutName)) { return string.Empty; }
-                using (var cs = new CsModel(cp.core)) {
-                    cs.open("layouts", "name=" + DbController.encodeSQLText(layoutName), "id", false, cp.core.session.user.id, "layout");
-                    if (cs.ok()) { return cs.getText("layout"); }
-                }
-                //
-                // -- create default layout record
-                if (string.IsNullOrWhiteSpace(defaultLayout)) { return string.Empty; }
-                LayoutModel layout = DbBaseModel.addDefault<LayoutModel>(cp);
-                layout.layout.content = defaultLayout;
-                layout.save(cp);
-                return defaultLayout;
-            } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
-                return string.Empty;
-            }
-        }
+        public override string getLayout(string layoutName, string defaultLayout) 
+            => cp.Layout.GetLayoutByName(layoutName, defaultLayout);
         //
         //====================================================================================================
         /// <summary>
@@ -382,43 +355,38 @@ namespace Contensive.Processor {
         /// <param name="layoutid"></param>
         /// <returns></returns>
         [Obsolete("Deprecated. Use CP.Layout.GetLayout", false)]
-        public override string GetLayout(int layoutid) {
-            return cp.Layout.GetLayout(layoutid);
-        }
+        public override string GetLayout(int layoutid) 
+            => cp.Layout.GetLayout(layoutid);
         //
         //====================================================================================================
         //
         public override int AddRecord(string contentName, string recordName) {
-            int recordId = 0;
             try {
-                CsModel cs = new CsModel(cp.core);
+                using CsModel cs = new(cp.core);
                 if (cs.insert(contentName)) {
                     cs.set("name", recordName);
-                    recordId = cs.getInteger("id");
+                    return cs.getInteger("id");
                 }
-                cs.close();
+                return 0;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
                 throw;
             }
-            return recordId;
         }
         //
         //====================================================================================================
         //
         public override int AddRecord(string contentName) {
-            int result = 0;
             try {
-                CsModel cs = new CsModel(cp.core);
+                using CsModel cs = new(cp.core);
                 if (cs.insert(contentName)) {
-                    result = cs.getInteger("id");
+                    return cs.getInteger("id");
                 }
-                cs.close();
+                return 0;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
                 throw;
             }
-            return result;
         }
         //
         //====================================================================================================
@@ -477,18 +445,18 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        public override int GetID(string ContentName) {
-            var content = DbBaseModel.createByUniqueName<ContentModel>(cp, ContentName);
-            if (content != null) { return content.id; }
+        public override int GetID(string contentName) {
+            var contentNameDict = cp.core.cacheStore.ContentNameDict;
+            if (contentNameDict.ContainsKey(contentName.ToLowerInvariant())) { return contentNameDict[contentName.ToLowerInvariant()].id; }
             return 0;
         }
         //
         //====================================================================================================
         //
-        public override string GetName(int contentId) {
-            var content = DbBaseModel.create<ContentModel>(cp, contentId);
-            if (content != null) { return content.name; }
-            return string.Empty;
+        public override string GetName(int contentId ) {
+            Dictionary<int,ContentModel> contentIdDict = cp.core.cacheStore.ContentIdDict;
+            if (contentIdDict.ContainsKey(contentId)) { return contentIdDict[contentId].name; }
+            return "";
         }
         //
         //====================================================================================================

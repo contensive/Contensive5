@@ -213,8 +213,36 @@ namespace Tests {
             a.name = "test addon";
             a.copyText = testString;
             a.save(cp);
-            Assert.IsTrue(cp.core.addon.execute(a.ccguid, new CPUtilsBaseClass.addonExecuteContext { }).Contains(testString));
+            string result = cp.core.addon.execute(a.ccguid, new CPUtilsBaseClass.addonExecuteContext { });
+            Assert.AreEqual(testString, result);
             DbBaseModel.delete<AddonModel>(cp, a.id);
+        }
+        /// <summary>
+        /// execute addon by guid,twice to check cache invalidation
+        /// </summary>
+        [TestMethod()]
+        public void executeTest_byGuid_Twice() {
+            using CPClass cp = new(testAppName);
+            {
+                var addon1 = DbBaseModel.addDefault<AddonModel>(cp);
+                string addon1_content = cp.Utils.CreateGuid();
+                addon1.name = "test addon";
+                addon1.copyText = addon1_content;
+                addon1.save(cp);
+                string addon1_result = cp.core.addon.execute(addon1.ccguid, new CPUtilsBaseClass.addonExecuteContext { });
+                Assert.AreEqual(addon1_content, addon1_result);
+                DbBaseModel.delete<AddonModel>(cp, addon1.id);
+            }
+            {
+                var addon2 = DbBaseModel.addDefault<AddonModel>(cp);
+                string addon2_content = cp.Utils.CreateGuid();
+                addon2.name = "test addon";
+                addon2.copyText = addon2_content;
+                addon2.save(cp);
+                string addon2_result = cp.core.addon.execute(addon2.ccguid, new CPUtilsBaseClass.addonExecuteContext { });
+                Assert.AreEqual(addon2_content, addon2_result);
+                DbBaseModel.delete<AddonModel>(cp, addon2.id);
+            }
         }
         /// <summary>
         /// execute addon with a model argument

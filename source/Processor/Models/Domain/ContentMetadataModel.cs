@@ -601,9 +601,9 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="forceDbLoad"></param>
         /// <returns></returns>
         public static ContentMetadataModel create(CoreController core, string contentGuid, bool loadInvalidFields, bool forceDbLoad) {
-            var content = ContentModel.create<ContentModel>(core.cpParent, contentGuid);
-            if (content == null) { return null; }
-            return create(core, content, loadInvalidFields, forceDbLoad);
+            var ContentGuidDict = core.cacheStore.ContentGuidDict;
+            if (!ContentGuidDict.ContainsKey(contentGuid)) { return null; }
+            return create(core, ContentGuidDict[contentGuid], loadInvalidFields, forceDbLoad);
         }
         //
         public static ContentMetadataModel create(CoreController core, string contentGuid, bool loadInvalidFields) => create(core, contentGuid, loadInvalidFields, false);
@@ -620,9 +620,14 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="forceDbLoad"></param>
         /// <returns></returns>
         public static ContentMetadataModel create(CoreController core, int contentId, bool loadInvalidFields, bool forceDbLoad) {
-            var content = ContentModel.create<ContentModel>(core.cpParent, contentId);
-            if (content == null) { return null; }
-            return create(core, content, loadInvalidFields, forceDbLoad);
+            var ContentIdDict = core.cacheStore.ContentIdDict;
+
+
+
+            //ifyouaddcontentthisfails
+
+            if (!ContentIdDict.ContainsKey(contentId)) { return null; }
+            return create(core, ContentIdDict[contentId], loadInvalidFields, forceDbLoad);
         }
         //
         public static ContentMetadataModel create(CoreController core, int contentId, bool loadInvalidFields) => create(core, contentId, loadInvalidFields, false);
@@ -636,9 +641,9 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="contentName"></param>
         /// <returns></returns>
         public static ContentMetadataModel createByUniqueName(CoreController core, string contentName, bool loadInvalidFields, bool forceDbLoad) {
-            var content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
-            if (content == null) { return null; }
-            return create(core, content, loadInvalidFields, forceDbLoad);
+            var ContentNameDict = core.cacheStore.ContentNameDict;
+            if (!ContentNameDict.ContainsKey(contentName.ToLowerInvariant())) { return null; }
+            return create(core, ContentNameDict[contentName.ToLowerInvariant()], loadInvalidFields, forceDbLoad);
         }
         //
         public static ContentMetadataModel createByUniqueName(CoreController core, string contentName, bool loadInvalidFields) => createByUniqueName(core, contentName, loadInvalidFields, false);
@@ -786,15 +791,12 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="contentId"></param>
         /// <returns></returns>
         public static ContentMetadataModel getCache(CoreController core, int contentId) {
-            ContentMetadataModel result = null;
             try {
-                try {
-                    result = core.cache.getObject<Models.Domain.ContentMetadataModel>(createKeyHash(core, contentId));
-                } catch (Exception ex) {
-                    LogController.logError(core, ex);
-                }
-            } catch (Exception) { }
-            return result;
+                return core.cache.getObject<ContentMetadataModel>(createKeyHash(core, contentId));
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
         }
         //
         //====================================================================================================
@@ -804,18 +806,9 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="contentName"></param>
         /// <returns></returns>
         public static int getContentId(CoreController core, string contentName) {
-            try {
-                if (string.IsNullOrWhiteSpace(contentName)) { return 0; }
-                var nameLower = contentName.Trim().ToLowerInvariant();
-                if (core.cacheStore.contentNameIdDictionary.ContainsKey(nameLower)) { return core.cacheStore.contentNameIdDictionary[nameLower]; }
-                ContentModel content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
-                if (content == null) { return 0; }
-                core.cacheStore.contentNameIdDictionary.Add(nameLower, content.id);
-                return content.id;
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
+            var contentNameDict = core.cacheStore.ContentNameDict;
+            if (contentNameDict.ContainsKey(contentName.ToLowerInvariant())) { return contentNameDict[contentName.ToLowerInvariant()].id; }
+            return 0;
         }
         //
         //====================================================================================================
@@ -1592,7 +1585,7 @@ namespace Contensive.Processor.Models.Domain {
             //
             // -- if content includes a parentId field (like page content), update all child records to this meta.id
             if (fields.ContainsKey("parentid")) {
-                using var dt = core.db.executeQuery("select id from " + tableName + " where parentid=" + recordId); 
+                using var dt = core.db.executeQuery("select id from " + tableName + " where parentid=" + recordId);
                 foreach (DataRow dr in dt.Rows) {
                     setContentControlId(core, DbController.getDataRowFieldInteger(dr, "id"), newContentControlID, UsedIDString);
                 }

@@ -12,7 +12,7 @@ namespace Contensive.Processor.Models.Domain {
     /// provides fast access to addon lists.
     /// </summary>
     //
-    public class AddonCacheModel {
+    public class CacheStore_AddonModel {
         public bool isEmpty { 
             get {
                 return dictIdAddon.Count == 0;
@@ -39,14 +39,14 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// return an new empty object. Required for cache read
         /// </summary>
-        public AddonCacheModel()  { }
+        public CacheStore_AddonModel()  { }
         //
         //====================================================================================================
         /// <summary>
         /// construct an instance of the class, populating all lists from the DbModels during the load
         /// </summary>
         /// <param name="core"></param>
-        public AddonCacheModel(CoreController core) {
+        public CacheStore_AddonModel(CoreController core) {
             foreach (AddonModel addon in DbBaseModel.createList<AddonModel>(core.cpParent, "")) {
                 add(core, addon);
             }

@@ -163,17 +163,19 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
-        /// get an object of type TData from cache. If the cache misses or is invalidated, null object is returned
+        /// attempt cache getter, return true if hit, else miss, cachedocument valid if hit
         /// </summary>
         /// <typeparam name="TData"></typeparam>
-        /// <param name="keyHash">The hashed key. Turn a Key (text name) to a has with createKeyHash().</param>
+        /// <param name="keyHash"></param>
+        /// <param name="cacheDocument"></param>
         /// <returns></returns>
-        public TData getObject<TData>(CacheKeyHashClass keyHash) {
+        public bool tryGetCacheDocument<TData>(CacheKeyHashClass keyHash, out CacheDocumentClass cacheDocument) {
+            cacheDocument = null;
             try {
                 //
                 // -- read cacheDocument (the object that holds the data object plus control fields)
-                CacheDocumentClass cacheDocument = getCacheDocument(keyHash);
-                if (cacheDocument == null) { return default; }
+                cacheDocument = getCacheDocument(keyHash);
+                if (cacheDocument == null) { return false; }
                 //
                 // -- test for global invalidation
                 int dateCompare = globalInvalidationDate.CompareTo(cacheDocument.saveDate);
@@ -181,11 +183,11 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- global invalidation
                     logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because cacheObject saveDate [" + cacheDocument.saveDate + "] is before the globalInvalidationDate [" + globalInvalidationDate + "]", false));
-                    return default;
+                    return false;
                 }
                 //
                 // -- test all dependent objects for invalidation (if they have changed since this object changed, it is invalid)
-                bool cacheMiss = false;
+                bool cacheHit = true;
                 foreach (CacheKeyHashClass dependentKeyHash in cacheDocument.dependentKeyHashList) {
                     CacheDocumentClass dependantCacheDocument = getCacheDocument(dependentKeyHash);
                     if (dependantCacheDocument == null) {
@@ -200,46 +202,61 @@ namespace Contensive.Processor.Controllers {
                         if (dateCompare >= 0) {
                             //
                             // -- invalidate because a dependent document was changed after the cacheDocument was saved
-                            cacheMiss = true;
+                            cacheHit = false;
                             logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because the dependentKeyHash [" + dependentKeyHash + "] was modified [" + dependantCacheDocument.saveDate + "] after the cacheDocument's saveDate [" + cacheDocument.saveDate + "]", false));
                             break;
                         }
                     }
                 }
-                TData result = default;
-                if (!cacheMiss) {
-                    if ((cacheDocument.keyPtrHash != null) && !string.IsNullOrEmpty(cacheDocument.keyPtrHash.hash)) {
-                        //
-                        // -- this is a pointer key, load the primary
-                        result = getObject<TData>(cacheDocument.keyPtrHash);
-                    } else if (cacheDocument.content is Newtonsoft.Json.Linq.JObject dataJObject) {
-                        //
-                        // -- newtonsoft types
-                        result = dataJObject.ToObject<TData>();
-                    } else if (cacheDocument.content is Newtonsoft.Json.Linq.JArray dataJArray) {
-                        //
-                        // -- newtonsoft types
-                        result = dataJArray.ToObject<TData>();
-                    } else if (cacheDocument.content == null) {
-                        //
-                        // -- if cache data was left as a string (might be empty), and return object is not string, there was an error
-                        result = default;
-                    } else {
-                        //
-                        // -- all worked, but if the class is unavailable let it return default like a miss
-                        try {
-                            result = (TData)cacheDocument.content;
-                        } catch (Exception ex) {
-                            //
-                            // -- object value did not match. return as miss
-                            logger.Warn(LogController.processLogMessage(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]",true));
-                            result = default;
-                        }
-                    }
-                }
-                return result;
+                return cacheHit;
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                return true;
+            }
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// get an object of type TData from cache. If the cache misses or is invalidated, null object is returned
+        /// </summary>
+        /// <typeparam name="TData"></typeparam>
+        /// <param name="keyHash">The hashed key. Turn a Key (text name) to a has with createKeyHash().</param>
+        /// <returns></returns>
+        public TData getObject<TData>(CacheKeyHashClass keyHash) {
+            try {
+                if (!tryGetCacheDocument<TData>(keyHash, out CacheDocumentClass cacheDocument)) { return default; }
+                if ((cacheDocument.keyPtrHash != null) && !string.IsNullOrEmpty(cacheDocument.keyPtrHash.hash)) {
+                    //
+                    // -- this is a pointer key, load the primary
+                    return getObject<TData>(cacheDocument.keyPtrHash);
+                }
+                if (cacheDocument.content is Newtonsoft.Json.Linq.JObject dataJObject) {
+                    //
+                    // -- newtonsoft types
+                    return dataJObject.ToObject<TData>();
+                }
+                if (cacheDocument.content is Newtonsoft.Json.Linq.JArray dataJArray) {
+                    //
+                    // -- newtonsoft types
+                    return dataJArray.ToObject<TData>();
+                }
+                if (cacheDocument.content == null) {
+                    //
+                    // -- if cache data was left as a string (might be empty), and return object is not string, there was an error
+                    return default;
+                }
+                //
+                // -- all worked, but if the class is unavailable let it return default like a miss
+                try {
+                    return (TData)cacheDocument.content;
+                } catch (Exception ex) {
+                    //
+                    // -- object value did not match. return as miss
+                    logger.Warn(LogController.processLogMessage(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]", true));
+                    return default;
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                 return default;
             }
         }
@@ -306,7 +323,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //result = cacheClientMemCacheD.Get<CacheDocumentClass>(keyHash.hash);
                     } catch (Exception ex) {
-                        logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                        logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                         throw;
                     }
                 }
@@ -355,7 +372,7 @@ namespace Contensive.Processor.Controllers {
                 }
 
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                 throw;
             }
             return result;
@@ -572,7 +589,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 storeCacheDocument(keyPtrHash, cacheDocument);
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
             }
         }
         //
@@ -600,7 +617,7 @@ namespace Contensive.Processor.Controllers {
                 storeCacheDocument(keyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = core.dateTimeNowMockable });
                 _globalInvalidationDate = null;
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                 throw;
             }
         }
@@ -644,7 +661,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                 throw;
             }
         }
@@ -671,7 +688,7 @@ namespace Contensive.Processor.Controllers {
                     invalidate(key);
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                 throw;
             }
         }
@@ -900,7 +917,7 @@ namespace Contensive.Processor.Controllers {
                 logger.Trace(LogController.processLogMessage(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to [" + string.Join(",", cacheDocument.keyPtrHash) + "]", false));
                 //
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true ));
+                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                 throw;
             }
         }
