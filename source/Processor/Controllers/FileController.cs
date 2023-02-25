@@ -1517,7 +1517,7 @@ namespace Contensive.Processor.Controllers {
                     var docProperty = core.docProperties.getProperty(key);
                     if ((docProperty.propertyType == DocPropertyModel.DocPropertyTypesEnum.file) && (docProperty.name.ToLowerInvariant() == key)) {
                         string dstDosPath = FileController.normalizeDosPath(path);
-                        returnFilename = encodeDosFilename(docProperty.value);
+                        returnFilename = encodeDosPathFilename(docProperty.value);
                         string dstDosPathFilename = dstDosPath + returnFilename;
                         deleteFile(dstDosPathFilename, isLocal);
                         if (docProperty.windowsTempfilename != "") {
@@ -1525,7 +1525,7 @@ namespace Contensive.Processor.Controllers {
                             // copy tmp private files to the appropriate folder in the destination file system
                             //
                             var WindowsTempFiles = new FileController(core, System.IO.Path.GetTempPath());
-                            WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dstDosPathFilename, this); 
+                            WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dstDosPathFilename, this);
                             //
                             if (!isLocal) {
                                 copyFileLocalToRemote(dstDosPathFilename);
@@ -1916,9 +1916,16 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="filename">Filename in the form "MyFile.txt"</param>
         /// <returns></returns>
-        public static string encodeDosFilename(string filename) {
-            const string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^&'@{}[],$-#()%.+~_";
-            return encodeFilename(filename, allowed);
+        public static string encodeDosPathFilename(string filename) {
+            if (string.IsNullOrEmpty(filename)) { return filename; }
+            // -- convert to correct slash and split segments
+            filename = filename.Replace("\\", "/");
+            var segments = filename.Split('/');
+            // -- convert bad char to _
+            string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^&'@{}[],$-#()%.+~_";
+            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], allowed);
+            // -- return path with correct slash 
+            return string.Join("/", segments);
         }
         //
         //====================================================================================================
@@ -1927,9 +1934,16 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="filename">Filename in the form "MyFile.txt"</param>
         /// <returns></returns>
-        public static string encodeUnixFilename(string filename) {
+        public static string encodeUnixPathFilename(string filename) {
+            if (string.IsNullOrEmpty(filename)) { return filename; }
+            // -- convert to correct slash and split segments
+            filename = filename.Replace("/", "\\");
+            string[] segments = filename.Split('\\');
+            // -- convert bad char to _
             const string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._";
-            return encodeFilename(filename, allowed);
+            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], allowed);
+            // -- return path with correct slash 
+            return string.Join("\\", segments);
         }
         //
         //====================================================================================================
@@ -1945,7 +1959,7 @@ namespace Contensive.Processor.Controllers {
             if (Cnt > 254) Cnt = 254;
             for (int Ptr = 1; Ptr <= Cnt; Ptr++) {
                 string chr = filename.Substring(Ptr - 1, 1);
-                if (allowedCharacters.IndexOf(chr) + 1 >= 0) {
+                if (allowedCharacters.IndexOf(chr) >= 0) {
                     result += chr;
                 } else {
                     result += "_";
@@ -1981,7 +1995,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 // Create new FileInfo object and get the Length.
-                string dosPathFilename = encodeDosFilename(pathFilename);
+                string dosPathFilename = convertToDosSlash(pathFilename);
                 string absDosPathFilename = convertRelativeToLocalAbsPath(dosPathFilename);
                 FileInfo fileInfo = new FileInfo(absDosPathFilename);
                 if (!fileInfo.Exists) { return null; }
@@ -2064,7 +2078,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="filename">Returns filename in the form "MyFile.txt"</param>
         public void splitDosPathFilename(string pathFilename, ref string path, ref string filename) {
             try {
-                string dosPathFilename = encodeDosFilename(pathFilename);
+                string dosPathFilename = convertToDosSlash(pathFilename);
                 filename = Path.GetFileName(dosPathFilename);
                 path = getPath(dosPathFilename);
             } catch (Exception ex) {
@@ -2081,7 +2095,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="path">Returns path and filename in the form "myfolder\subfolder"</param>
         /// <param name="filename">Returns filename in the form "MyFile.txt"</param>
         public void splitUnixPathFilename(string pathFilename, ref string path, ref string filename) {
-            string unixPathFilename = encodeDosFilename(pathFilename);
+            string unixPathFilename = convertToUnixSlash(pathFilename);
             filename = Path.GetFileName(unixPathFilename);
             path = getPath(unixPathFilename);
         }

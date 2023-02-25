@@ -20,6 +20,9 @@ namespace Contensive.Models.Db {
         public bool allowDelete { get; set; }
         public bool allowTopicRules { get; set; }
         public bool allowWorkflowAuthoring { get; set; }
+        /// <summary>
+        /// deprecated
+        /// </summary>
         public int authoringTableId { get; set; }
         public int contentTableId { get; set; }
         public int defaultSortMethodId { get; set; }

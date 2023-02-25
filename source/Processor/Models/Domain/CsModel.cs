@@ -190,7 +190,7 @@ namespace Contensive.Processor {
                             default: {
                                     //
                                     // ----- value
-                                    destination.set(field.nameLc, getRawData(field.nameLc));
+                                    destination.set(field.nameLc, getValueStoredInDbField(field.nameLc));
                                     break;
                                 }
                         }
@@ -226,7 +226,7 @@ namespace Contensive.Processor {
                             case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                     //
                                     // cdn file
-                                    string Filename = getRawData(field.nameLc);
+                                    string Filename = getValueStoredInDbField(field.nameLc);
                                     if (!string.IsNullOrEmpty(Filename)) { core.cdnFiles.deleteFile(Filename); }
                                     break;
                                 }
@@ -235,7 +235,7 @@ namespace Contensive.Processor {
                             case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
                                     //
                                     // private file
-                                    string Filename = getRawData(field.nameLc);
+                                    string Filename = getValueStoredInDbField(field.nameLc);
                                     if (!string.IsNullOrEmpty(Filename)) { core.privateFiles.deleteFile(Filename); }
                                     break;
                                 }
@@ -394,7 +394,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public bool getBoolean(string fieldName) {
-            return encodeBoolean(getRawData(fieldName));
+            return encodeBoolean(getValueStoredInDbField(fieldName));
         }
         //
         //====================================================================================================
@@ -404,7 +404,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public int getInteger(string fieldName) {
-            return encodeInteger(getRawData(fieldName));
+            return encodeInteger(getValueStoredInDbField(fieldName));
         }
         //
         //====================================================================================================
@@ -414,7 +414,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public double getNumber(string fieldName) {
-            return encodeNumber(getRawData(fieldName));
+            return encodeNumber(getValueStoredInDbField(fieldName));
         }
         //
         //====================================================================================================
@@ -424,7 +424,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public DateTime getDate(string fieldName) {
-            return encodeDate(getRawData(fieldName));
+            return encodeDate(getValueStoredInDbField(fieldName));
         }
         //
         //========================================================================
@@ -511,7 +511,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="fieldName"></param>
         /// <returns></returns>
-        public string getRawData(string fieldName) {
+        public string getValueStoredInDbField(string fieldName) {
             string returnValue = "";
             try {
                 string fieldNameTrim = fieldName.Trim();
@@ -691,7 +691,7 @@ namespace Contensive.Processor {
                     throw new ArgumentException("Fieldname Is blank");
                 } else {
                     fieldNameUpper = GenericController.toUCase(fieldName.Trim(' '));
-                    returnFilename = getRawData(fieldNameUpper);
+                    returnFilename = getValueStoredInDbField(fieldNameUpper);
                     if (!string.IsNullOrEmpty(returnFilename)) {
                         //
                         // ----- A filename came from the record
@@ -921,15 +921,15 @@ namespace Contensive.Processor {
             try {
                 if (!ok()) { throw new ArgumentException("Cannot read field because the dataset is not valid or end-of-file."); }
                 if (string.IsNullOrEmpty(fieldName.Trim())) { throw new ArgumentException("Cannot read field because the fieldname cannot be blank."); }
-                if (!this.createdWithMetaData) { return getRawData(fieldName); }
-                if (!this.contentMeta.fields.ContainsKey(fieldName.ToLowerInvariant())) { return getRawData(fieldName); }
+                if (!this.createdWithMetaData) { return getValueStoredInDbField(fieldName); }
+                if (!this.contentMeta.fields.ContainsKey(fieldName.ToLowerInvariant())) { return getValueStoredInDbField(fieldName); }
                 var field = this.contentMeta.fields[fieldName.ToLowerInvariant()];
                 //
                 // -- many-to-many field, special case, return record id list
                 if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany) {
                     var result = new StringBuilder();
                     if (this.contentMeta.fields.ContainsKey("id")) {
-                        int RecordId = encodeInteger(getRawData("id"));
+                        int RecordId = encodeInteger(getValueStoredInDbField("id"));
                         string ContentName = MetadataController.getContentNameByID(core, field.manyToManyRuleContentId);
                         string DbTable = MetadataController.getContentTablename(core, ContentName);
                         string sql = "Select " + field.manyToManyRuleSecondaryField + " from " + DbTable + " where " + field.manyToManyRulePrimaryField + "=" + RecordId;
@@ -947,7 +947,7 @@ namespace Contensive.Processor {
                 //
                 // -- redirect field, special case, no data
                 if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) { return string.Empty; }
-                string rawData = getRawData(fieldName);
+                string rawData = getValueStoredInDbField(fieldName);
                 if (isNull(rawData)) { return string.Empty; }
                 switch (field.fieldTypeId) {
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
@@ -1070,7 +1070,7 @@ namespace Contensive.Processor {
                 string FieldNameLc = fieldName.Trim(' ').ToLowerInvariant();
                 if (!this.contentMeta.fields.ContainsKey(FieldNameLc)) { throw new ArgumentException("The field [" + FieldNameLc + "] could not be found In content [" + this.contentMeta.name + "]"); }
                 ContentFieldMetadataModel field = this.contentMeta.fields[FieldNameLc];
-                string rawValueForDb = fieldValue ?? string.Empty;
+                string contentToBeSaved = fieldValue ?? string.Empty;
                 bool SetNeeded = false;
                 switch (field.fieldTypeId) {
                     case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
@@ -1095,76 +1095,15 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
-                            //
-                            // public files - save as FieldTypeTextFile except if only white space, consider it blank
-                            //
-                            string PathFilename = null;
-                            string FileExt = null;
-                            int FilenameRev = 0;
-                            string path = null;
-                            int Pos = 0;
-                            string pathFilenameOriginal = getRawData(field.nameLc);
-                            PathFilename = pathFilenameOriginal;
-                            string BlankTest = null;
-                            BlankTest = rawValueForDb;
-                            BlankTest = GenericController.strReplace(BlankTest, " ", "");
-                            BlankTest = GenericController.strReplace(BlankTest, "\r", "");
-                            BlankTest = GenericController.strReplace(BlankTest, "\n", "");
-                            BlankTest = GenericController.strReplace(BlankTest, "\t", "");
-                            if (string.IsNullOrEmpty(BlankTest)) {
-                                if (!string.IsNullOrEmpty(PathFilename)) {
-                                    core.cdnFiles.deleteFile(PathFilename);
-                                    PathFilename = "";
-                                }
-                            } else {
-                                if (string.IsNullOrEmpty(PathFilename)) {
-                                    PathFilename = getFilename(field.nameLc, "", this.contentName, field.fieldTypeId);
-                                }
-                                if (PathFilename.left(1) == "/") {
-                                    //
-                                    // root file, do not include revision
-                                    //
-                                } else {
-                                    //
-                                    // content file, add a revision to the filename
-                                    //
-                                    Pos = PathFilename.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
-                                    if (Pos > 0) {
-                                        FileExt = PathFilename.Substring(Pos);
-                                        string fileNameNoExt = PathFilename.left(Pos - 1);
-                                        Pos = fileNameNoExt.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
-                                        if (Pos > 0) {
-                                            fileNameNoExt = fileNameNoExt.Substring(Pos);
-                                            path = PathFilename.left(Pos);
-                                            FilenameRev = 1;
-                                            if (!fileNameNoExt.isNumeric()) {
-                                                Pos = GenericController.strInstr(1, fileNameNoExt, ".r", 1);
-                                                if (Pos > 0) {
-                                                    FilenameRev = GenericController.encodeInteger(fileNameNoExt.Substring(Pos + 1));
-                                                    FilenameRev += 1;
-                                                    fileNameNoExt = fileNameNoExt.left(Pos - 1);
-                                                }
-                                            }
-                                            string fileName = fileNameNoExt + ".r" + FilenameRev + "." + FileExt;
-                                            path = GenericController.convertCdnUrlToCdnPathFilename(path);
-                                            PathFilename = path + fileName;
-                                        }
-                                    }
-                                }
-                                if ((!string.IsNullOrEmpty(pathFilenameOriginal)) && (pathFilenameOriginal != PathFilename)) {
-                                    pathFilenameOriginal = GenericController.convertCdnUrlToCdnPathFilename(pathFilenameOriginal);
-                                    core.cdnFiles.deleteFile(pathFilenameOriginal);
-                                }
-                                core.cdnFiles.saveFile(PathFilename, rawValueForDb);
-                            }
-                            rawValueForDb = PathFilename;
+                            string pathFilename_valueInDbField = getValueStoredInDbField(field.nameLc);
+                            set_saveContentFile(core.cdnFiles, contentName, field.nameLc, field.fieldTypeId, ref contentToBeSaved, pathFilename_valueInDbField);
                             SetNeeded = true;
                             break;
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                             //
                             // Boolean - sepcial case, block on typed GetAlways set
-                            if (GenericController.encodeBoolean(rawValueForDb) != getBoolean(field.nameLc)) {
+                            if (GenericController.encodeBoolean(contentToBeSaved) != getBoolean(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1173,7 +1112,7 @@ namespace Contensive.Processor {
                             //
                             // Set if text of value changes
                             //
-                            if (GenericController.encodeText(rawValueForDb) != getText(field.nameLc)) {
+                            if (GenericController.encodeText(contentToBeSaved) != getText(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1184,7 +1123,7 @@ namespace Contensive.Processor {
                             //
                             // Set if text of value changes
                             //
-                            if (GenericController.encodeText(rawValueForDb) != getText(field.nameLc)) {
+                            if (GenericController.encodeText(contentToBeSaved) != getText(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1192,7 +1131,7 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
                             //
                             // -- Lookup, compare the integer value read with the getInteger from the read cache.
-                            if (GenericController.encodeInteger(rawValueForDb) != getInteger(field.nameLc)) {
+                            if (GenericController.encodeInteger(contentToBeSaved) != getInteger(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1201,7 +1140,7 @@ namespace Contensive.Processor {
                             //
                             // Set if text of value changes
                             //
-                            if (GenericController.encodeText(rawValueForDb) != getText(field.nameLc)) {
+                            if (GenericController.encodeText(contentToBeSaved) != getText(field.nameLc)) {
                                 SetNeeded = true;
                             }
                             break;
@@ -1211,9 +1150,9 @@ namespace Contensive.Processor {
                     //
                     // ----- set the new value into the row buffer
                     if (this.writeCache.ContainsKey(field.nameLc)) {
-                        this.writeCache[field.nameLc] = rawValueForDb;
+                        this.writeCache[field.nameLc] = contentToBeSaved;
                     } else {
-                        this.writeCache.Add(field.nameLc, rawValueForDb);
+                        this.writeCache.Add(field.nameLc, contentToBeSaved);
                     }
                 }
             } catch (Exception ex) {
@@ -1221,6 +1160,78 @@ namespace Contensive.Processor {
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// for set() method. Save the value for a content file field, like textfile, jsfile,etc
+        /// </summary>
+        /// <param name="field"></param>
+        /// <param name="valueToBeSaved"></param>
+        /// <returns></returns>
+        private void set_saveContentFile(FileController fileSystem, string contentName, string fieldName, CPContentBaseClass.FieldTypeIdEnum fieldTypeId, ref string valueToBeSaved, string valueInDbField_pathFilename) {
+            //
+            // -- rawData is the pathfilename, content is stored in the file
+            string PathFilename = valueInDbField_pathFilename;
+            if (string.IsNullOrWhiteSpace(valueToBeSaved)) {
+                //
+                // -- data to be saved in empty
+                if (!string.IsNullOrEmpty(PathFilename)) {
+                    //
+                    // -- filename is not null so the file should be deleted
+                    fileSystem.deleteFile(PathFilename);
+                    PathFilename = "";
+                }
+            } else {
+                //
+                // -- data is not empty, prepare to save it
+                if (string.IsNullOrEmpty(PathFilename)) {
+                    //
+                    // -- current pathFilename is empty (value in cs)
+                    PathFilename = getFilename(fieldName, "", contentName, fieldTypeId);
+                }
+                if (PathFilename.left(1) == "/") {
+                    //
+                    // -- root file, do not include revision
+                    //
+                } else {
+                    //
+                    // -- content file, add a revision to the filename
+                    int Pos = PathFilename.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
+                    if (Pos > 0) {
+                        string FileExt = PathFilename.Substring(Pos);
+                        string fileNameNoExt = PathFilename.left(Pos - 1);
+                        Pos = fileNameNoExt.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
+                        if (Pos > 0) {
+                            fileNameNoExt = fileNameNoExt.Substring(Pos);
+                            string path = PathFilename.left(Pos);
+                            //
+                            // public files - save as FieldTypeTextFile except if only white space, consider it blank
+                            //
+                            int FilenameRev = 1;
+                            if (!fileNameNoExt.isNumeric()) {
+                                Pos = GenericController.strInstr(1, fileNameNoExt, ".r", 1);
+                                if (Pos > 0) {
+                                    FilenameRev = GenericController.encodeInteger(fileNameNoExt.Substring(Pos + 1));
+                                    FilenameRev += 1;
+                                    fileNameNoExt = fileNameNoExt.left(Pos - 1);
+                                }
+                            }
+                            string fileName = fileNameNoExt + ".r" + FilenameRev + "." + FileExt;
+                            path = GenericController.convertCdnUrlToCdnPathFilename(path);
+                            PathFilename = path + fileName;
+                        }
+                    }
+                }
+                if ((!string.IsNullOrEmpty(valueInDbField_pathFilename)) && (valueInDbField_pathFilename != PathFilename)) {
+                    valueInDbField_pathFilename = GenericController.convertCdnUrlToCdnPathFilename(valueInDbField_pathFilename);
+                    fileSystem.deleteFile(valueInDbField_pathFilename);
+                }
+                fileSystem.saveFile(PathFilename, valueToBeSaved);
+            }
+            valueToBeSaved = PathFilename;
+        }
+
         /// <summary>
         /// Saves the value for the field. If the field uses a file, the content is saved to the file using the fields filename. To set a file-based field's filename, use setFieldFilename
         /// </summary>
@@ -1755,8 +1766,8 @@ namespace Contensive.Processor {
                         if (string.IsNullOrEmpty(filename) || filename.ToLowerInvariant() == "null") { return; }
                         //
                         // -- make filename compatible with dos and unix
-                        filename = FileController.encodeDosFilename(filename);
-                        filename = FileController.encodeUnixFilename(filename);
+                        filename = FileController.encodeDosPathFilename(filename);
+                        filename = FileController.encodeUnixPathFilename(filename);
                         //
                         string unixPathFilename = getFilename(fieldName, filename);
                         string dosPathFilename = FileController.convertToDosSlash(unixPathFilename);

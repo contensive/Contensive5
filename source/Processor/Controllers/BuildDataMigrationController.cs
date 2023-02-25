@@ -369,16 +369,21 @@ namespace Contensive.Processor.Controllers {
                         core.privateFiles.renameFile("Config\\SMTPBlockList.txt", "Legacy_SMTPBlockList.txt");
                         core.cdnFiles.renameFile("Config\\SMTPBlockList_" + core.appConfig.name + ".txt", "Legacy_SMTPBlockList_" + core.appConfig.name + ".txt");
                     }
-                    if (GenericController.versionIsOlder(DataBuildVersion, "22.11.27.5")) { 
+                    if (GenericController.versionIsOlder(DataBuildVersion, "22.11.27.5")) {
                         //
                         // -- minify addon styles and javascript
-                        foreach ( var addon in DbBaseModel.createList<AddonModel>(cp)) {
+                        foreach (var addon in DbBaseModel.createList<AddonModel>(cp)) {
                             try {
                                 MinifyController.minifyAddon(core, addon);
                             } catch (Exception ex) {
                                 LogController.logWarn(core, ex, "Warning during upgrade, data migration, build addon css and js minification, addon [" + addon.id + ", " + addon.name + "]");
                             }
                         }
+                    }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "23.2.25.1")) {
+                        //
+                        // -- default content populated 
+                        core.db.executeNonQuery("update ccPageContent set customblockmessage=null where customblockmessage like '%<%'");
                     }
                 }
                 // -- Reload

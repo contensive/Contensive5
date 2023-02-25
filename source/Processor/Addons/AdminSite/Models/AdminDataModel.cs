@@ -762,6 +762,22 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                                     break;
                                 }
+                            case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
+                                    //
+                                    // todo -- convert to internal storage for filename and content, like modes
+                                    //
+                                    // create filename and save file, put filename in raw data
+                                    string pathFilename = FileController.getVirtualRecordUnixPathFilename(adminContent.tableName, field.nameLc, editRecord.id, field.fieldTypeId);
+                                    core.cdnFiles.saveFile(pathFilename, defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value = pathFilename;
+                                    //editRecord.fieldsLc[field.nameLc].value = GenericController.encodeText(defaultValue);
+                                    break;
+                                }
                             default: {
                                     //
                                     editRecord.fieldsLc[field.nameLc].value = GenericController.encodeText(defaultValue);
@@ -866,7 +882,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             try {
                 //
                 //
-                object DBValueVariant = null;
+                object valueStoredInDb = null;
                 //
                 // ----- test for content problem
                 //
@@ -949,7 +965,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             switch (adminContentcontent.fieldTypeId) {
                                 case CPContentBaseClass.FieldTypeIdEnum.Redirect:
                                 case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
-                                        DBValueVariant = "";
+                                        valueStoredInDb = "";
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.FileText:
@@ -958,18 +974,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
-                                        DBValueVariant = csData.getText(adminContentcontent.nameLc);
+                                        valueStoredInDb = csData.getText(adminContentcontent.nameLc);
                                         break;
                                     }
                                 default: {
-                                        DBValueVariant = csData.getRawData(adminContentcontent.nameLc);
+                                        valueStoredInDb = csData.getValueStoredInDbField(adminContentcontent.nameLc);
                                         break;
                                     }
                             }
                             //
                             // Check for required and null case loading error
                             //
-                            if (CheckUserErrors && adminContentcontent.required && (GenericController.isNull(DBValueVariant))) {
+                            if (CheckUserErrors && adminContentcontent.required && (GenericController.isNull(valueStoredInDb))) {
                                 //
                                 // if required and null
                                 //
@@ -986,7 +1002,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // if required and null, set value to the default
                                     //
-                                    DBValueVariant = adminContentcontent.defaultValue;
+                                    valueStoredInDb = adminContentcontent.defaultValue;
                                     if (adminContentcontent.editTabName == "") {
                                         Processor.Controllers.ErrorController.addUserError(core, "The value for [" + adminContentcontent.caption + "] was null but is required. The default value Is shown, And will be saved if you save this record.");
                                     } else {
@@ -1064,8 +1080,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                             }
                             //
-                            editRecordField.dbValue = DBValueVariant;
-                            editRecordField.value = DBValueVariant;
+                            editRecordField.dbValue = valueStoredInDb;
+                            editRecordField.value = valueStoredInDb;
                         }
                     }
                 }

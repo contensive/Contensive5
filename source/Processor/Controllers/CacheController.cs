@@ -323,7 +323,7 @@ namespace Contensive.Processor.Controllers {
                     string serializedDataObject = null;
                     using (System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash)) {
                         mutex.WaitOne();
-                        serializedDataObject = core.privateFiles.readFileText("appCache\\" + FileController.encodeDosFilename(keyHash.hash + ".txt"));
+                        serializedDataObject = core.privateFiles.readFileText("appCache\\" + FileController.encodeDosPathFilename(keyHash.hash + ".txt"));
                         mutex.ReleaseMutex();
                     }
                     if (!string.IsNullOrEmpty(serializedDataObject)) {
@@ -881,7 +881,7 @@ namespace Contensive.Processor.Controllers {
                     typeMessage = "local-file";
                     string serializedData = SerializeObject(cacheDocument);
                     using System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash); mutex.WaitOne();
-                    core.privateFiles.saveFile("appCache\\" + FileController.encodeDosFilename(keyHash + ".txt"), serializedData);
+                    core.privateFiles.saveFile("appCache\\" + FileController.encodeDosPathFilename(keyHash + ".txt"), serializedData);
                     mutex.ReleaseMutex();
                 }
                 if (core.serverConfig.enableRemoteCache) {
