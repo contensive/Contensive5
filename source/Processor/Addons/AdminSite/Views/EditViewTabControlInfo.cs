@@ -70,7 +70,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 {
                     string guidSetHtmlId = "guidSet" + GenericController.getRandomInteger(core).ToString();
                     string guidInputHtmlId = "guidInput" + GenericController.getRandomInteger(core).ToString();
-                    string fieldValue = GenericController.encodeText(adminData.editRecord.fieldsLc["ccguid"].value);
+                    string fieldValue = GenericController.encodeText(adminData.editRecord.fieldsLc["ccguid"].value_content);
                     string fieldEditor = "";
                     if (adminData.editRecord.userReadOnly) {
                         //

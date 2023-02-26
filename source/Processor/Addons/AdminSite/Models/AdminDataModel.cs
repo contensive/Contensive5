@@ -240,78 +240,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         private bool? AllowAdminFieldCheck_Local = null;
         //
-        //====================================================================================================
-        /// <summary>
-        /// Read in Whats New values if present, Field values must be loaded
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="adminInfo"></param>
-        public void loadContentTrackingDataBase(CoreController core) {
-            try {
-                int ContentID = 0;
-                //
-                // ----- check if admin record is present
-                //
-                if ((editRecord.id != 0) && (adminContent.allowContentTracking)) {
-                    //
-                    // ----- Open the content watch record for this content record
-                    //
-                    ContentID = ((editRecord.contentControlId.Equals(0)) ? adminContent.id : editRecord.contentControlId);
-                    using var csData = new CsModel(core); csData.open("Content Watch", "(ContentID=" + DbController.encodeSQLNumber(ContentID) + ")AND(RecordID=" + DbController.encodeSQLNumber(editRecord.id) + ")");
-                    if (csData.ok()) {
-                        contentWatchLoaded = true;
-                        contentWatchRecordID = (csData.getInteger("ID"));
-                        contentWatchLink = (csData.getText("Link"));
-                        contentWatchClicks = (csData.getInteger("Clicks"));
-                        contentWatchLinkLabel = (csData.getText("LinkLabel"));
-                        contentWatchExpires = (csData.getDate("WhatsNewDateExpires"));
-                        csData.close();
-                    }
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-        }
-        //========================================================================
-        /// <summary>
-        /// Read in Whats New values if present
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="adminContext"></param>
-        public void loadContentTrackingResponse(CoreController core) {
-            try {
-                int RecordId = 0;
-                contentWatchListIDCount = 0;
-                if ((core.docProperties.getText("WhatsNewResponse") != "") && (adminContent.allowContentTracking)) {
-                    //
-                    // ----- set single fields
-                    //
-                    contentWatchLinkLabel = core.docProperties.getText("ContentWatchLinkLabel");
-                    contentWatchExpires = core.docProperties.getDate("ContentWatchExpires");
-                    //
-                    // ----- Update ContentWatchListRules for all checked boxes
-                    //
-                    using var csData = new CsModel(core); csData.open("Content Watch Lists");
-                    while (csData.ok()) {
-                        RecordId = (csData.getInteger("ID"));
-                        if (core.docProperties.getBoolean("ContentWatchList." + RecordId)) {
-                            if (contentWatchListIDCount >= contentWatchListIDSize) {
-                                contentWatchListIDSize += 50;
-                                Array.Resize(ref _ContentWatchListID, contentWatchListIDSize);
-                            }
-                            contentWatchListID[contentWatchListIDCount] = RecordId;
-                            contentWatchListIDCount += 1;
-                        }
-                        csData.goNext();
-                    }
-                    csData.close();
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-            }
-        }
-        //
         // ====================================================================================================
         /// <summary>
         /// 
@@ -605,23 +533,23 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                     editRecord.menuHeadline = "";
                     if (editRecord.fieldsLc.ContainsKey("menuheadline")) {
-                        editRecord.menuHeadline = GenericController.encodeText(editRecord.fieldsLc["menuheadline"].value);
+                        editRecord.menuHeadline = GenericController.encodeText(editRecord.fieldsLc["menuheadline"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("name")) {
-                        editRecord.nameLc = GenericController.encodeText(editRecord.fieldsLc["name"].value);
+                        editRecord.nameLc = GenericController.encodeText(editRecord.fieldsLc["name"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("active")) {
-                        editRecord.active = GenericController.encodeBoolean(editRecord.fieldsLc["active"].value);
+                        editRecord.active = GenericController.encodeBoolean(editRecord.fieldsLc["active"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("contentcontrolid")) {
-                        editRecord.contentControlId = GenericController.encodeInteger(editRecord.fieldsLc["contentcontrolid"].value);
+                        editRecord.contentControlId = GenericController.encodeInteger(editRecord.fieldsLc["contentcontrolid"].value_content);
                     }
                     //
                     if (editRecord.fieldsLc.ContainsKey("parentid")) {
-                        editRecord.parentId = GenericController.encodeInteger(editRecord.fieldsLc["parentid"].value);
+                        editRecord.parentId = GenericController.encodeInteger(editRecord.fieldsLc["parentid"].value_content);
                     }
                     //
                     // ----- Set the local global copy of Edit Record Locks
@@ -655,7 +583,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (GenericController.toUCase(adminContent.tableName) == GenericController.toUCase("ccMembers")) {
                         if (!core.session.isAuthenticatedDeveloper()) {
                             if (editRecord.fieldsLc.ContainsKey("developer")) {
-                                if (GenericController.encodeBoolean(editRecord.fieldsLc["developer"].value)) {
+                                if (GenericController.encodeBoolean(editRecord.fieldsLc["developer"].value_content)) {
                                     editRecord.userReadOnly = true;
                                     Processor.Controllers.ErrorController.addUserError(core, "You do not have access rights To edit this record.");
                                     blockEditForm = true;
@@ -718,42 +646,42 @@ namespace Contensive.Processor.Addons.AdminSite {
                             case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
                             case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value = encodeInteger(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = encodeInteger(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Currency:
                             case CPContentBaseClass.FieldTypeIdEnum.Float: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value = encodeNumber(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = encodeNumber(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value = encodeBoolean(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = encodeBoolean(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Date: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value = encodeDate(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = encodeDate(defaultValue);
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
                                     DefaultValueText = encodeText(field.defaultValue);
                                     if (!string.IsNullOrEmpty(DefaultValueText)) {
                                         if (DefaultValueText.isNumeric()) {
-                                            editRecord.fieldsLc[field.nameLc].value = DefaultValueText;
+                                            editRecord.fieldsLc[field.nameLc].value_content = DefaultValueText;
                                         } else {
                                             if (field.lookupContentId != 0) {
                                                 LookupContentName = MetadataController.getContentNameByID(core, field.lookupContentId);
                                                 if (!string.IsNullOrEmpty(LookupContentName)) {
-                                                    editRecord.fieldsLc[field.nameLc].value = MetadataController.getRecordIdByUniqueName(core, LookupContentName, DefaultValueText);
+                                                    editRecord.fieldsLc[field.nameLc].value_content = MetadataController.getRecordIdByUniqueName(core, LookupContentName, DefaultValueText);
                                                 }
                                             } else if (field.lookupList != "") {
                                                 UCaseDefaultValueText = toUCase(DefaultValueText);
                                                 lookups = field.lookupList.Split(',');
                                                 for (Ptr = 0; Ptr <= lookups.GetUpperBound(0); Ptr++) {
                                                     if (UCaseDefaultValueText == toUCase(lookups[Ptr])) {
-                                                        editRecord.fieldsLc[field.nameLc].value = Ptr + 1;
+                                                        editRecord.fieldsLc[field.nameLc].value_content = Ptr + 1;
                                                         break;
                                                     }
                                                 }
@@ -772,15 +700,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     // todo -- convert to internal storage for filename and content, like modes
                                     //
                                     // create filename and save file, put filename in raw data
-                                    string pathFilename = FileController.getVirtualRecordUnixPathFilename(adminContent.tableName, field.nameLc, editRecord.id, field.fieldTypeId);
-                                    core.cdnFiles.saveFile(pathFilename, defaultValue);
-                                    editRecord.fieldsLc[field.nameLc].value = pathFilename;
-                                    //editRecord.fieldsLc[field.nameLc].value = GenericController.encodeText(defaultValue);
+                                    //string pathFilename = FileController.getVirtualRecordUnixPathFilename(adminContent.tableName, field.nameLc, editRecord.id, field.fieldTypeId);
+                                    //core.cdnFiles.saveFile(pathFilename, defaultValue);
+                                    //editRecord.fieldsLc[field.nameLc].value = pathFilename;
+                                    editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeText(defaultValue);
                                     break;
                                 }
                             default: {
                                     //
-                                    editRecord.fieldsLc[field.nameLc].value = GenericController.encodeText(defaultValue);
+                                    editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeText(defaultValue);
                                     break;
                                 }
                         }
@@ -791,15 +719,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                     switch (GenericController.toUCase(field.nameLc)) {
                         case "MODIFIEDBY": {
-                                editRecord.fieldsLc[field.nameLc].value = core.session.user.id;
+                                editRecord.fieldsLc[field.nameLc].value_content = core.session.user.id;
                                 break;
                             }
                         case "CREATEDBY": {
-                                editRecord.fieldsLc[field.nameLc].value = core.session.user.id;
+                                editRecord.fieldsLc[field.nameLc].value_content = core.session.user.id;
                                 break;
                             }
                         case "CONTENTCONTROLID": {
-                                editRecord.fieldsLc[field.nameLc].value = adminContent.id;
+                                editRecord.fieldsLc[field.nameLc].value_content = adminContent.id;
                                 break;
                             }
                         default: {
@@ -807,7 +735,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 break;
                             }
                     }
-                    editRecord.fieldsLc[field.nameLc].dbValue = editRecord.fieldsLc[field.nameLc].value;
+                    editRecord.fieldsLc[field.nameLc].value_storedInDb = editRecord.fieldsLc[field.nameLc].value_content;
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -832,35 +760,35 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 case CPContentBaseClass.FieldTypeIdEnum.Lookup:
                                 case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value = GenericController.encodeInteger(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeInteger(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Currency:
                                 case CPContentBaseClass.FieldTypeIdEnum.Float: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value = GenericController.encodeNumber(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeNumber(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value = GenericController.encodeBoolean(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeBoolean(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Date: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value = GenericController.encodeDate(wherePair[field.nameLc]);
+                                        editRecord.fieldsLc[field.nameLc].value_content = GenericController.encodeDate(wherePair[field.nameLc]);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
                                         //
                                         // Many to Many can capture a list of ID values representing the 'secondary' values in the Many-To-Many Rules table
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value = wherePair[field.nameLc];
+                                        editRecord.fieldsLc[field.nameLc].value_content = wherePair[field.nameLc];
                                         break;
                                     }
                                 default: {
                                         //
-                                        editRecord.fieldsLc[field.nameLc].value = wherePair[field.nameLc];
+                                        editRecord.fieldsLc[field.nameLc].value_content = wherePair[field.nameLc];
                                         break;
                                     }
                             }
@@ -1080,8 +1008,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                             }
                             //
-                            editRecordField.dbValue = valueStoredInDb;
-                            editRecordField.value = valueStoredInDb;
+                            editRecordField.value_storedInDb = valueStoredInDb;
+                            editRecordField.value_content = valueStoredInDb;
                         }
                     }
                 }
@@ -1213,10 +1141,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 throw (new GenericException("Unexpected exception"));
                             }
                         }
-                        if (GenericController.encodeInteger(ResponseFieldValueText) != GenericController.encodeInteger(editRecord.fieldsLc[field.nameLc].value)) {
+                        if (GenericController.encodeInteger(ResponseFieldValueText) != GenericController.encodeInteger(editRecord.fieldsLc[field.nameLc].value_content)) {
                             //
                             // new value
-                            editRecord.fieldsLc[field.nameLc].value = ResponseFieldValueText;
+                            editRecord.fieldsLc[field.nameLc].value_content = ResponseFieldValueText;
                             ResponseFieldIsEmpty = false;
                         }
                         break;
@@ -1228,10 +1156,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                             return;
                         }
                         bool responseValue = core.docProperties.getBoolean(field.nameLc);
-                        if (!responseValue.Equals(encodeBoolean(editRecord.fieldsLc[field.nameLc].value))) {
+                        if (!responseValue.Equals(encodeBoolean(editRecord.fieldsLc[field.nameLc].value_content))) {
                             //
                             // new value
-                            editRecord.fieldsLc[field.nameLc].value = responseValue;
+                            editRecord.fieldsLc[field.nameLc].value_content = responseValue;
                             ResponseFieldIsEmpty = false;
                         }
                         break;
@@ -1246,10 +1174,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 return;
                             }
                         }
-                        if (ResponseFieldValueText != encodeText(editRecord.fieldsLc[field.nameLc].value)) {
+                        if (ResponseFieldValueText != encodeText(editRecord.fieldsLc[field.nameLc].value_content)) {
                             //
                             // new value
-                            editRecord.fieldsLc[field.nameLc].value = ResponseFieldValueText;
+                            editRecord.fieldsLc[field.nameLc].value_content = ResponseFieldValueText;
                             ResponseFieldIsEmpty = false;
                         }
                         break;
@@ -1548,7 +1476,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Save response if it is valid
                 //
                 if (ResponseFieldValueIsOKToSave) {
-                    editRecord.fieldsLc[field.nameLc].value = ResponseFieldValueText;
+                    editRecord.fieldsLc[field.nameLc].value_content = ResponseFieldValueText;
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);

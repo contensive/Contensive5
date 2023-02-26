@@ -25,7 +25,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     return "<!-- no editor row available because field not found -->";
                 }
                 //
-                object fieldValueObject = editRecord.fieldsLc[field.nameLc].value;
+                object fieldValueObject = editRecord.fieldsLc[field.nameLc].value_content;
                 string fieldValue_text = encodeText(fieldValueObject);
                 hint = 10;
                 //
