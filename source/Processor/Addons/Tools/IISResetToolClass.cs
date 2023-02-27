@@ -39,7 +39,7 @@ namespace Contensive.Processor.Addons.Tools {
                     var cmdDetail = new TaskModel.CmdDetailClass {
                         addonId = 0,
                         addonName = "GetForm_IISReset",
-                        args = new Dictionary<string, string>()
+                        args = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
                     };
                     TaskSchedulerController.addTaskToQueue(core, cmdDetail, false);
                 }

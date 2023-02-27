@@ -2417,7 +2417,7 @@ namespace Contensive.Processor.Controllers {
                             SQL = "update ccfields set caption=" + DbController.encodeSQLText(HelpCaption) + ",HelpMessage=" + DbController.encodeSQLText(HelpMessage) + " where id=" + RecordID;
                             core.db.executeNonQuery(SQL);
                             core.cache.invalidateAll();
-                            core.cacheStore.clearMetaData();
+                            core.cacheStore.clear();
                         }
                     }
                     break;

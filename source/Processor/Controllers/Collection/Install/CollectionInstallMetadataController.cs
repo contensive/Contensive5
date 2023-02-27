@@ -447,7 +447,7 @@ namespace Contensive.Processor.Controllers {
                             core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId);
                         }
                     }
-                    core.cacheStore.clearMetaData();
+                    core.cacheStore.clear();
                     core.cache.invalidateAll();
                 }
                 //
@@ -480,7 +480,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
@@ -489,7 +489,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 BuildController.verifySortMethods(core);
                 BuildController.verifyContentFieldTypes(core);
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
@@ -502,7 +502,7 @@ namespace Contensive.Processor.Controllers {
                         break;
                     }
                 }
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
@@ -522,7 +522,7 @@ namespace Contensive.Processor.Controllers {
                         installMetaDataMiniCollection_buildDb_saveMetaDataToDb(core, workingMetaData, logMsgContext);
                     }
                 }
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
@@ -561,7 +561,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
@@ -576,7 +576,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------

@@ -172,7 +172,7 @@ namespace Contensive.Processor.Addons.Tools {
                                 }
                             }
                             core.cache.invalidateAll();
-                            core.cacheStore.clearMetaData();
+                            core.cacheStore.clear();
                         }
                         if (ToolButton == ButtonAdd) {
                             //
@@ -189,7 +189,7 @@ namespace Contensive.Processor.Addons.Tools {
                         // ----- Button Reload CDef
                         if (ToolButton == ButtonSaveandInvalidateCache) {
                             core.cache.invalidateAll();
-                            core.cacheStore.clearMetaData();
+                            core.cacheStore.clear();
                         }
                         //
                         // ----- Restore Content Autoload site property

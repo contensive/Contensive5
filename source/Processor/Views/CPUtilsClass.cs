@@ -363,7 +363,7 @@ namespace Contensive.Processor {
                     var cmdDetail = new TaskModel.CmdDetailClass {
                         addonId = ExportCSVAddon.id,
                         addonName = ExportCSVAddon.name,
-                        args = new Dictionary<string, string> {
+                        args = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
                             { "sql", sql },
                             { "ExportName", exportName },
                             { "filename", filename }

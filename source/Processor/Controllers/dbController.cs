@@ -597,7 +597,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (clearMetadataCache) {
                         core.cache.invalidateAll();
-                        core.cacheStore.clearMetaData();
+                        core.cacheStore.clear();
                     }
                 }
             } catch (Exception ex) {
@@ -615,7 +615,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 executeNonQuery("DROP TABLE " + tableName);
                 core.cache.invalidateAll();
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -705,7 +705,7 @@ namespace Contensive.Processor.Controllers {
                 // -- clear cache
                 if (!clearMetaCache) { return; }
                 core.cache.invalidateAll();
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -820,7 +820,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
                 core.cache.invalidateAll();
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

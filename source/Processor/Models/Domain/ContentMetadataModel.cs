@@ -208,7 +208,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// fields for this content
         /// </summary>
-        public Dictionary<string, Models.Domain.ContentFieldMetadataModel> fields { get; set; } = new Dictionary<string, Models.Domain.ContentFieldMetadataModel>();
+        public Dictionary<string, Models.Domain.ContentFieldMetadataModel> fields { get; set; } = new Dictionary<string, Models.Domain.ContentFieldMetadataModel>(StringComparer.InvariantCultureIgnoreCase);
         //
         /// <summary>
         /// metadata for admin site editing columns
@@ -785,7 +785,8 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
-        /// get a cache version of a metadata model
+        /// get a cache version of a metadata model.
+        /// if not found, returns null
         /// </summary>
         /// <param name="core"></param>
         /// <param name="contentId"></param>
@@ -801,11 +802,14 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
-        /// get content id from content name. In model not controller because controller calls model, not the other wau (see constants)
+        /// get content id from content name. 
+        /// if contentname not found return 0.
+        /// In model not controller because controller calls model, not the other wau (see constants)
         /// </summary>
         /// <param name="contentName"></param>
         /// <returns></returns>
         public static int getContentId(CoreController core, string contentName) {
+            if (string.IsNullOrEmpty(contentName)) { return 0; }
             var contentNameDict = core.cacheStore.ContentNameDict;
             if (contentNameDict.ContainsKey(contentName.ToLowerInvariant())) { return contentNameDict[contentName.ToLowerInvariant()].id; }
             return 0;
@@ -813,7 +817,8 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
-        /// return the meta field object specified in the fieldname. If it does not exist, return null
+        /// return the meta field object specified in the fieldname. 
+        /// If it does not exist, return null
         /// </summary>
         /// <param name="core"></param>
         /// <param name="meta"></param>
@@ -1006,7 +1011,7 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     if (!blockCacheClear) {
                         core.cache.invalidateAll();
-                        core.cacheStore.clearMetaData();
+                        core.cacheStore.clear();
                     }
                 }
                 if (fieldMetadata.id == 0) {
@@ -1312,7 +1317,7 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 ContentModel.invalidateCacheOfTable<ContentModel>(core.cpParent);
                 ContentFieldModel.invalidateCacheOfTable<ContentFieldModel>(core.cpParent);
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 core.cache.invalidateAll();
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1365,7 +1370,7 @@ namespace Contensive.Processor.Models.Domain {
                             // todo - verifyContent needs to return the model
                             contentMetadata = create(core, contentMetadata.id);
                             core.cache.invalidateAll();
-                            core.cacheStore.clearMetaData();
+                            core.cacheStore.clear();
                         }
                         //
                         // -- Create the ccFields records for the new table, locate the field in the content field table
@@ -1400,7 +1405,7 @@ namespace Contensive.Processor.Models.Domain {
                         //
                         // ----- Load metadata, Load only if the previous state of autoload was true, Leave Autoload false during load so more do not trigger
                         core.cache.invalidateAll();
-                        core.cacheStore.clearMetaData();
+                        core.cacheStore.clear();
                     }
                 }
                 return contentMetadata;
@@ -1557,7 +1562,7 @@ namespace Contensive.Processor.Models.Domain {
                 // ----- Load metadata
                 //
                 core.cache.invalidateAll();
-                core.cacheStore.clearMetaData();
+                core.cacheStore.clear();
                 //
                 return create(core, childContent);
             } catch (Exception ex) {

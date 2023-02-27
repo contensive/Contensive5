@@ -59,7 +59,7 @@ namespace Contensive.Processor.Addons.Tools {
                         var cmdDetail = new TaskModel.CmdDetailClass {
                             addonId = 0,
                             addonName = "GetForm_FindAndReplace",
-                            args = new System.Collections.Generic.Dictionary<string, string> {
+                            args = new System.Collections.Generic.Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
                                 { "app", core.appConfig.name },
                                 { "FindText", FindText },
                                 { "ReplaceText", ReplaceText }, 

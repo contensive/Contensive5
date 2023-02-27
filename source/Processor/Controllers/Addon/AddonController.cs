@@ -1455,8 +1455,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- has addon been found before
                 string assemblyFileDictKey = (addonCollection.ccguid + addon.dotNetClass).ToLower(CultureInfo.InvariantCulture);
-                if (core.cacheStore.assemblyList_AddonsFound.ContainsKey(assemblyFileDictKey)) {
-                    return execute_dotNetClass_assembly(addon, core.cacheStore.assemblyList_AddonsFound[assemblyFileDictKey].pathFilename);
+                if (core.cacheStore.assemblyFileDict.ContainsKey(assemblyFileDictKey)) {
+                    return execute_dotNetClass_assembly(addon, core.cacheStore.assemblyFileDict[assemblyFileDictKey].pathFilename);
                 }
                 //
                 // -- try to find addon in current executing path (built in addons)
@@ -1520,12 +1520,12 @@ namespace Contensive.Processor.Controllers {
                         // -- lock to prevent change between containsKey and add
                         object lockObj = new object();
                         lock (lockObj) {
-                            if (!core.cacheStore.assemblyList_AddonsFound.ContainsKey(assemblyFileDictKey)) {
-                                core.cacheStore.assemblyList_AddonsFound.Add(assemblyFileDictKey, new AssemblyFileDetails {
+                            if (!core.cacheStore.assemblyFileDict.ContainsKey(assemblyFileDictKey)) {
+                                core.cacheStore.assemblyFileDict.Add(assemblyFileDictKey, new AssemblyFileDetails {
                                     pathFilename = testDosAbsPathFilename,
                                     path = ""
                                 });
-                                core.cacheStore.assemblyList_AddonsFound_save();
+                                core.cacheStore.assemblyFileDict_save();
                             }
                         }
                         return returnValue;

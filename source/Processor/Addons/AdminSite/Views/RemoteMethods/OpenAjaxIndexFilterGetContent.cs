@@ -35,7 +35,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         recordsPerPage = 100,
                         recordTop = 0,
                         titleExtension = "",
-                        wherePairDict = new Dictionary<string, string>()
+                        wherePairDict = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
                     }));
                 }
             } catch (Exception ex) {

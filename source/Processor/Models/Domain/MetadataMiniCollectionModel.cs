@@ -27,7 +27,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// Name dictionary of content definitions in the collection
         /// </summary>
-        public Dictionary<string, Models.Domain.ContentMetadataModel> metaData { get; set; } = new Dictionary<string, Models.Domain.ContentMetadataModel>();
+        public Dictionary<string, ContentMetadataModel> metaData { get; set; } = new Dictionary<string, ContentMetadataModel>(StringComparer.InvariantCultureIgnoreCase);
         //
         //====================================================================================================
         /// <summary>
@@ -51,7 +51,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// Name dictionary for admin navigator menus in the minicollection
         /// </summary>
-        public Dictionary<string, MiniCollectionMenuModel> menus = new Dictionary<string, MiniCollectionMenuModel> { };
+        public Dictionary<string, MiniCollectionMenuModel> menus = new Dictionary<string, MiniCollectionMenuModel>(StringComparer.InvariantCultureIgnoreCase) { };
         //
         //====================================================================================================
         /// <summary>

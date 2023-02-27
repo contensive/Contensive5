@@ -716,7 +716,7 @@ namespace Contensive.Processor.Controllers {
             _routeMap = null;
             //
             // -- no idea why we added the addon clear
-            cacheStore.addonCacheClear();
+            cacheStore.clear();
             //
             // -- rebuild the map
             _ = routeMap;

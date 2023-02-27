@@ -46,7 +46,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="adminData"></param>
         /// <returns></returns>
         public static IndexConfigClass get(CoreController core, AdminDataModel adminData) {
-            IndexConfigClass returnIndexConfig = new IndexConfigClass {
+            IndexConfigClass returnIndexConfig = new() {
                 contentID = adminData.adminContent.id,
                 activeOnly = false,
                 lastEditedByMe = false,
@@ -61,8 +61,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 groupList = new string[groupListCntMax],
                 groupListCnt = 0,
                 columns = new List<IndexConfigColumnClass>(),
-                sorts = new Dictionary<string, IndexConfigSortClass>(),
-                findWords = new Dictionary<string, IndexConfigFindWordClass>(),
+                sorts = new Dictionary<string, IndexConfigSortClass>(StringComparer.InvariantCultureIgnoreCase),
+                findWords = new Dictionary<string, IndexConfigFindWordClass>(StringComparer.InvariantCultureIgnoreCase),
                 allowDelete = true,
                 allowFind = true,
                 allowAddRow = false,

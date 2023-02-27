@@ -332,7 +332,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         cp.core.cache.invalidateAll();
-                                        cp.core.cacheStore.clearMetaData();
+                                        cp.core.cacheStore.clear();
                                     }
                                     // convert so action can be used in as a refresh
                                     adminData.admin_Action = Constants.AdminActionNop;

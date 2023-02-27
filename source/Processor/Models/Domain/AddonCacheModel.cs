@@ -81,18 +81,18 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 if (!string.IsNullOrEmpty(addon.aliasList)) {
                     foreach (var aliasName in addon.aliasList.Split(',')) {
-                        if(!dictNameId.ContainsKey(aliasName)) {
+                        if(!dictNameId.ContainsKey(aliasName.ToLowerInvariant())) {
                             dictNameId.Add(aliasName.ToLowerInvariant(), addon.id);
                         }
                     }
                 }
             }
-            if ((addon.onBodyEnd) && (!onBodyEndIdList.Contains(addon.id))) onBodyEndIdList.Add(addon.id);
-            if ((addon.onBodyStart) && (!onBodyStartIdList.Contains(addon.id))) onBodyStartIdList.Add(addon.id);
-            if ((addon.onNewVisitEvent) && (!onNewVisitIdList.Contains(addon.id)))onNewVisitIdList.Add(addon.id);
-            if ((addon.onPageEndEvent) && (!OnPageEndIdList.Contains(addon.id))) OnPageEndIdList.Add(addon.id);
-            if ((addon.onPageStartEvent) && (!OnPageStartIdList.Contains(addon.id))) OnPageStartIdList.Add(addon.id);
-            if ((addon.remoteMethod) && (!remoteMethodIdList.Contains(addon.id))) remoteMethodIdList.Add(addon.id);
+            if (addon.onBodyEnd && (!onBodyEndIdList.Contains(addon.id))) onBodyEndIdList.Add(addon.id);
+            if (addon.onBodyStart && (!onBodyStartIdList.Contains(addon.id))) onBodyStartIdList.Add(addon.id);
+            if (addon.onNewVisitEvent && (!onNewVisitIdList.Contains(addon.id)))onNewVisitIdList.Add(addon.id);
+            if (addon.onPageEndEvent && (!OnPageEndIdList.Contains(addon.id))) OnPageEndIdList.Add(addon.id);
+            if (addon.onPageStartEvent && (!OnPageStartIdList.Contains(addon.id))) OnPageStartIdList.Add(addon.id);
+            if (addon.remoteMethod && (!remoteMethodIdList.Contains(addon.id))) remoteMethodIdList.Add(addon.id);
             if (!string.IsNullOrWhiteSpace(addon.robotsTxt)) robotsTxt += Environment.NewLine + addon.robotsTxt;
         }
         //

@@ -12,7 +12,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
     /// 
     /// </summary>
     public class EditRecordModel {
-        public Dictionary<string, EditRecordFieldModel> fieldsLc = new Dictionary<string, EditRecordFieldModel>();
+        public Dictionary<string, EditRecordFieldModel> fieldsLc = new(StringComparer.InvariantCultureIgnoreCase);
         /// <summary>
         /// ID field of edit record (Record to be edited)
         /// </summary>

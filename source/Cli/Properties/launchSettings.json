@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a menucrm0210 --execute \"housekeep\"",
+      "commandLineArgs": "-a menucrm0210 -u",
       "jsWebView2Debugging": false
     }
   }

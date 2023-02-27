@@ -717,7 +717,7 @@ namespace Contensive.Processor.Controllers {
                     recordsPerPage = 100,
                     recordTop = 0,
                     titleExtension = "",
-                    wherePairDict = new Dictionary<string, string>()
+                    wherePairDict = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
                 });
                 IndexConfigClass indexConfig = IndexConfigClass.get(core, gridData);
                 var userContentPermissions = PermissionController.getUserContentPermissions(core, ContentMetadataModel.create(core, field.redirectContentId));

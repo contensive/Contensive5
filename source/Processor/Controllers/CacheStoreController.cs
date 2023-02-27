@@ -1,5 +1,6 @@
 ﻿using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using System;
 using System.Collections.Generic;
 
 namespace Contensive.Processor.Controllers {
@@ -13,6 +14,29 @@ namespace Contensive.Processor.Controllers {
             this.core = core;
         }
         private readonly CoreController core;
+
+
+
+
+
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Clear all data from the metaData current instance. Next request will load from cache.
+        /// </summary>
+        public void clear() {
+            if (_dataSourceDictionary != null) { _dataSourceDictionary=null; }
+            addonCache_Clear();
+            metaDataDictionary.Clear();
+            tableSchemaDictionary.Clear();
+            contentNameIdDictionary_Clear();
+            assemblyFileDict.Clear();
+            domainDictionary = new();
+            layout_Clear();
+            linkAlias_Clear();
+            content_Clear();
+            assemblyFileDict_Clear();
+        }
         //
         //===================================================================================================
         /// <summary>
@@ -20,13 +44,13 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public Dictionary<string, DataSourceModel> dataSourceDictionary {
             get {
-                if (_dataSources == null) {
-                    _dataSources = DataSourceModel.getNameDict(core.cpParent);
+                if (_dataSourceDictionary == null) {
+                    _dataSourceDictionary = DataSourceModel.getNameDict(core.cpParent);
                 }
-                return _dataSources;
+                return _dataSourceDictionary;
             }
         }
-        private Dictionary<string, DataSourceModel> _dataSources;
+        private Dictionary<string, DataSourceModel> _dataSourceDictionary;
         //
         //===================================================================================================
         /// <summary>
@@ -35,29 +59,29 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public CacheStore_AddonModel addonCache {
             get {
-                CacheKeyHashClass keyHash = core.cache.createKeyHash(cacheName_addonCache);
-                if (core.cache.tryGetCacheDocument<CacheStore_AddonModel>(keyHash, out CacheDocumentClass cacheDocument)) {
-                    // -- cache miss
+                //CacheKeyHashClass keyHash = core.cache.createKeyHash(cacheName_addonCache);
+                //if (core.cache.tryGetCacheDocument<CacheStore_AddonModel>(keyHash, out CacheDocumentClass cacheDocument)) {
+                //    // -- cache miss
+                //    _addonCache = new CacheStore_AddonModel(core);
+                //    List<CacheKeyHashClass> dependencyList = new List<CacheKeyHashClass> {
+                //        core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
+                //        core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
+                //    };
+                //    core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
+                //    return _addonCache;
+                //}
+                if (_addonCache != null) { return _addonCache;  }
+                //
+                // -- populate local version from cache
+                _addonCache = core.cache.getObject<CacheStore_AddonModel>(cacheName_addonCache);
+                if (_addonCache == null || _addonCache.isEmpty) {
+                    // -- cache empty (should not be possible since cache miss was covered)
                     _addonCache = new CacheStore_AddonModel(core);
                     List<CacheKeyHashClass> dependencyList = new List<CacheKeyHashClass> {
-                        core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
-                        core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
-                    };
-                    core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
-                    return _addonCache;
-                }
-                if (_addonCache == null) {
-                    // -- populate local version from cache
-                    _addonCache = core.cache.getObject<CacheStore_AddonModel>(cacheName_addonCache);
-                    if (_addonCache == null || _addonCache.isEmpty) {
-                        // -- cache empty (should not be possible since cache miss was covered)
-                        _addonCache = new CacheStore_AddonModel(core);
-                        List<CacheKeyHashClass> dependencyList = new List<CacheKeyHashClass> {
                             core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
                             core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
                         };
-                        core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
-                    }
+                    core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
                 }
                 return _addonCache;
             }
@@ -68,7 +92,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// method to clear the core instance of routeMap. Explained in routeMap.
         /// </summary>
-        public void addonCacheClear() {
+        private void addonCache_Clear() {
             core.cache.invalidate(cacheName_addonCache);
             _addonCache = null;
         }
@@ -99,30 +123,15 @@ namespace Contensive.Processor.Controllers {
         }
         internal Dictionary<string, int> _contentNameIdDictionary;
         //
-        //====================================================================================================
-        /// <summary>
-        /// Clear all data from the metaData current instance. Next request will load from cache.
-        /// </summary>
-        public void clearMetaData() {
-            if (metaDataDictionary != null) {
-                metaDataDictionary.Clear();
-            }
-            tableSchemaDictionary.Clear();
-            contentNameIdDictionaryClear();
-        }
-        //
-        //====================================================================================================
-        //
-        internal void contentNameIdDictionaryClear() {
+        private void contentNameIdDictionary_Clear() {
             _contentNameIdDictionary = null;
         }
         //
         //===================================================================================================
-        // todo move to class
         /// <summary>
         /// A dictionary of addon collection.namespace.class and the file assembly where it was found. Built during execution, stored in cache
         /// </summary>
-        public Dictionary<string, AssemblyFileDetails> assemblyList_AddonsFound {
+        public Dictionary<string, AssemblyFileDetails> assemblyFileDict {
             get {
                 if (_assemblyFileDict != null) { return _assemblyFileDict; }
                 //
@@ -137,19 +146,24 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
-        //===================================================================================================
+        private Dictionary<string, AssemblyFileDetails> _assemblyFileDict;
+        private const string AssemblyFileDictCacheName = "assemblyFileDict";
+        //
+        private void assemblyFileDict_Clear() {
+            _assemblyFileDict = null;
+            core.cache.invalidate(AssemblyFileDictCacheName);
+        }
+        //
         /// <summary>
-        /// list of assemblies found to be addons. used to speed up execution
+        /// update cache for assemblyList_AddonsFound
         /// </summary>
-        public void assemblyList_AddonsFound_save() {
+        public void assemblyFileDict_save() {
             var dependentKeyList = new List<CacheKeyHashClass> {
                 core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
                 core.cache.createTableDependencyKeyHash(AddonCollectionModel.tableMetadata.tableNameLower)
             };
             core.cache.storeObject(AssemblyFileDictCacheName, _assemblyFileDict, dependentKeyList);
         }
-        private Dictionary<string, AssemblyFileDetails> _assemblyFileDict;
-        private const string AssemblyFileDictCacheName = "assemblyFileDict";
         //
         //===================================================================================================
         /// <summary>
@@ -157,10 +171,24 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public Dictionary<string, DomainModel> domainDictionary { get; set; }
         //
+        //
+        //===================================================================================================
+        /// <summary>
+        /// layoutsfor this app. keys are lowercase
+        /// </summary>
         public class LayoutDict {
             public Dictionary<int, LayoutModel> layoutIdDict { get; set; } = new();
-            public Dictionary<string, LayoutModel> layoutGuidDict { get; set; } = new();
-            public Dictionary<string, LayoutModel> layoutNameDict { get; set; } = new();
+            public Dictionary<string, LayoutModel> layoutGuidDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+            public Dictionary<string, LayoutModel> layoutNameDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+        }
+        //
+        /// <summary>
+        /// clear layouts
+        /// </summary>
+        private void layout_Clear() {
+            layoutIdDict_Local = null;
+            layoutGuidDict_Local = null;
+            layoutNameDict_Local = null;
         }
         //
         /// <summary>
@@ -241,9 +269,19 @@ namespace Contensive.Processor.Controllers {
         //
         public class LinkAliasStoreModel {
             public Dictionary<int, LinkAliasModel> linkAliasIdDict { get; set; } = new();
-            public Dictionary<string, LinkAliasModel> linkAliasGuidDict { get; set; } = new();
-            public Dictionary<string, LinkAliasModel> linkAliasNameDict { get; set; } = new();
-            public Dictionary<string, LinkAliasModel> linkAliasKeyDict { get; set; } = new();
+            public Dictionary<string, LinkAliasModel> linkAliasGuidDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+            public Dictionary<string, LinkAliasModel> linkAliasNameDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+            public Dictionary<string, LinkAliasModel> linkAliasKeyDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+        }
+        //
+        /// <summary>
+        /// clear store
+        /// </summary>
+        private void linkAlias_Clear() {
+            linkAliasIdDict_Local = null;
+            linkAliasGuidDict_Local = null;
+            linkAliasNameDict_Local = null;
+            linkAliasKeyDict_Local = null;
         }
         //
         /// <summary>
@@ -343,9 +381,18 @@ namespace Contensive.Processor.Controllers {
         //
         public class ContentStoreModel {
             public Dictionary<int, ContentModel> ContentIdDict { get; set; } = new();
-            public Dictionary<string, ContentModel> ContentGuidDict { get; set; } = new();
-            public Dictionary<string, ContentModel> ContentNameDict { get; set; } = new();
-            public Dictionary<string, ContentModel> ContentKeyDict { get; set; } = new();
+            public Dictionary<string, ContentModel> ContentGuidDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+            public Dictionary<string, ContentModel> ContentNameDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+            public Dictionary<string, ContentModel> ContentKeyDict { get; set; } = new(StringComparer.InvariantCultureIgnoreCase);
+        }
+        //
+        /// <summary>
+        /// clear store
+        /// </summary>
+        private void content_Clear() {
+            ContentIdDict_Local = null;
+            ContentGuidDict_Local = null;
+            ContentNameDict_Local = null;
         }
         //
         /// <summary>
@@ -384,13 +431,11 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public Dictionary<int, ContentModel> ContentIdDict {
             get {
-
-               if( core.cache.tryGetCacheDocument<ContentStoreModel>(core.cache.createKeyHash("ContentStoreModel"), out CacheDocumentClass _)) {
-                    if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
-                }
-
-
-                //if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
+                //if (core.cache.tryGetCacheDocument<ContentStoreModel>(core.cache.createKeyHash("ContentStoreModel"), out CacheDocumentClass _)) {
+                //    if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
+                //}
+                if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
+                //
                 ContentStoreModel Content = getContentStore();
                 ContentIdDict_Local = Content.ContentIdDict;
                 ContentGuidDict_Local = Content.ContentGuidDict;
@@ -429,29 +474,5 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Dictionary<string, ContentModel> ContentGuidDict_Local;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 }

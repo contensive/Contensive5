@@ -278,7 +278,7 @@ namespace Contensive.Processor.Addons.Tools {
                     }
                     if (Button == ButtonSaveandInvalidateCache) {
                         core.cache.invalidateAll();
-                        core.cacheStore.clearMetaData();
+                        core.cacheStore.clear();
                         return core.webServer.redirect("?af=" + AdminFormToolConfigureListing + "&ContentID=" + ContentId, "Tools-ConfigureListing, Save and Invalidate Cache, Go to back ConfigureListing tools");
                     }
                     //

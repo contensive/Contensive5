@@ -64,11 +64,11 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public HttpContextRequest() {
             Url = new HttpContentRequestUrl();
-            Cookies = new Dictionary<string, HttpContextRequestCookie>();
-            Form = new Dictionary<string, string>();
-            QueryString = new Dictionary<string, string>();
-            Headers = new Dictionary<string, string>();
-            ServerVariables = new Dictionary<string, string>();
+            Cookies = new Dictionary<string, HttpContextRequestCookie>(StringComparer.InvariantCultureIgnoreCase);
+            Form = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            QueryString = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            Headers = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            ServerVariables = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
             Files = new List<DocPropertyModel>();
         }
         //
@@ -182,7 +182,7 @@ namespace Contensive.Processor.Models.Domain {
         /// construct
         /// </summary>
         public HttpContextResponse() {
-            cookies = new Dictionary<string, HttpContextResponseCookie>();
+            cookies = new Dictionary<string, HttpContextResponseCookie>(StringComparer.InvariantCultureIgnoreCase);
             headers = new List<HttpContextResponseHeader>();
             cacheControl = "no-cache";
             expires = -1;
