@@ -86,8 +86,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="adminInfo"></param>
-        public static void loadContentTrackingDataBase(CoreController core, EditRecordModel editRecord, AdminDataModel adminData) {
+        public static void loadContentTrackingDataBase(CoreController core, AdminDataModel adminData) {
             try {
+                EditRecordModel editRecord = adminData.editRecord;
                 int ContentID = 0;
                 //
                 // ----- check if admin record is present

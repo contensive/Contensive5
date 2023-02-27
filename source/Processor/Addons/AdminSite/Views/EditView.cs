@@ -50,7 +50,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 } else {
                     //
                     // otherwise, load the record, even if it was loaded during a previous form process
-                    adminData.loadEditRecord(core, true);
+                    EditRecordModel.loadEditRecord(core, true,  adminData);
                 }
                 if (!AdminDataModel.userHasContentAccess(core, ((adminData.editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : adminData.editRecord.contentControlId))) {
                     Processor.Controllers.ErrorController.addUserError(core, "Your account on this system does not have access rights to edit this content.");
@@ -230,7 +230,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     recordLockExpiresDate = encodeDate(adminData.editRecord.editLock.editLockExpiresDate),
                     recordName = adminData.editRecord.nameLc
                 };
-                string titleBarDetails = AdminUIController.getEditForm_TitleBarDetails(core, headerInfo, adminData.editRecord);
+                string titleBarDetails = AdminUIController.getEditForm_TitleBarDetails(core, adminData, headerInfo);
                 Stream.add(AdminUIController.getSectionHeader(core, "", titleBarDetails));
                 {
                     var editTabs = new EditTabModel();

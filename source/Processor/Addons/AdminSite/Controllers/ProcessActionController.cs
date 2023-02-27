@@ -36,8 +36,10 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         /// <param name="cp"></param>
         /// <param name="adminData"></param>
         /// <param name="useContentWatchLink"></param>
-        public static void processActions(CPClass cp, AdminDataModel adminData, bool useContentWatchLink, EditRecordModel editRecord) {
+        public static void processActions(CPClass cp, AdminDataModel adminData, bool useContentWatchLink, bool CheckUserErrors) {
             try {
+                EditRecordModel editRecord = adminData.editRecord;
+                ContentMetadataModel adminContent = adminData.adminContent;
                 //
                 if (adminData.admin_Action != Constants.AdminActionNop) {
                     if (!adminData.userAllowContentEdit) {
@@ -51,8 +53,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                 case Constants.AdminActionEditRefresh:
                                     //
                                     // Load the record as if it will be saved, but skip the save
-                                    adminData.loadEditRecord(cp.core);
-                                    adminData.loadEditRecord_Request(cp.core);
+                                    EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                    EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                     break;
                                 case Constants.AdminActionMarkReviewed:
                                     //
@@ -63,7 +65,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     if (adminData.editRecord.userReadOnly) {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
                                         db.delete(adminData.editRecord.id, adminData.adminContent.tableName);
                                         ContentController.processAfterSave(cp.core, true, adminData.editRecord.contentControlId_Name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                     }
@@ -75,9 +77,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                     }
                                     adminData.admin_Action = Constants.AdminActionNop;
@@ -88,9 +90,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         adminData.editRecord.id = 0;
                                         adminData.editRecord.loaded = false;
@@ -109,9 +111,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     if (adminData.editRecord.userReadOnly) {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             using var csData = new CsModel(cp.core); csData.openRecord("Group Email", adminData.editRecord.id);
@@ -139,9 +141,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
                                         //
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         //
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
@@ -172,9 +174,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
                                         //
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         //
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
@@ -220,9 +222,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     if (adminData.editRecord.userReadOnly) {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             GroupTextMessageModel.setSubmitted(cp, adminData.editRecord.id);
@@ -241,14 +243,14 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
                                         // no save, page was read only - Call ProcessActionSave
-                                        adminData.loadEditRecord(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             using (var csData = new CsModel(cp.core)) {
                                                 if (csData.openRecord("Conditional Email", adminData.editRecord.id)) { csData.set("submitted", false); }
                                                 csData.close();
                                             }
-                                            adminData.loadEditRecord(cp.core);
-                                            adminData.loadEditRecord_Request(cp.core);
+                                            EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         }
                                     }
                                     adminData.admin_Action = Constants.AdminActionNop; // convert so action can be used in as a refresh
@@ -259,9 +261,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             using (var csData = new CsModel(cp.core)) {
@@ -276,8 +278,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                     }
                                                 }
                                             }
-                                            adminData.loadEditRecord(cp.core);
-                                            adminData.loadEditRecord_Request(cp.core);
+                                            EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         }
                                     }
                                     //
@@ -326,9 +328,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified Is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
-                                        processActionSave(cp, adminData, useContentWatchLink, editRecord);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
+                                        processActionSave(cp, adminData, useContentWatchLink);
                                         cp.core.cache.invalidateAll();
                                         cp.core.clearMetaData();
                                     }
@@ -367,8 +369,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             // --- preload array with values that may not come back in response
                             //
-                            adminData.loadEditRecord(cp.core);
-                            adminData.loadEditRecord_Request(cp.core);
+                            EditRecordModel.loadEditRecord(cp.core, true,  adminData);
+                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                             //
                             if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                 //
@@ -391,8 +393,8 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                         default:
                             //
                             // --- preload array with values that may not come back in response
-                            adminData.loadEditRecord(cp.core);
-                            adminData.loadEditRecord_Request(cp.core);
+                            EditRecordModel.loadEditRecord(cp.core, true,  adminData);
+                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                             //
                             if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                 //
@@ -445,8 +447,9 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         //
         //=============================================================================================
         //
-        private static void processActionSave(CPClass cp, AdminDataModel adminData, bool UseContentWatchLink, EditRecordModel editRecord) {
+        private static void processActionSave(CPClass cp, AdminDataModel adminData, bool UseContentWatchLink) {
             try {
+                EditRecordModel editRecord = adminData.editRecord;
                 {
                     if (cp.core.doc.userErrorList.Count.Equals(0)) {
                         if (GenericController.toUCase(adminData.adminContent.tableName) == GenericController.toUCase("ccMembers")) {
@@ -462,12 +465,12 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            LoadAndSaveGroupRules(cp, adminData.editRecord);
+                            LoadAndSaveGroupRules(cp, adminData);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCPAGECONTENT") {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, editRecord, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             SaveLinkAlias(cp, adminData);
                             ContentTrackingController.SaveContentTracking(cp, adminData);
@@ -475,7 +478,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, editRecord, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             cp.core.html.processCheckList("LibraryFolderRules", adminData.adminContent.name, GenericController.encodeText(adminData.editRecord.id), "Groups", "Library Folder Rules", "FolderID", "GroupID");
                             ContentTrackingController.SaveContentTracking(cp, adminData);
@@ -492,7 +495,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, editRecord, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             LoadAndSaveContentGroupRules(cp, adminData.editRecord.id);
                             ContentTrackingController.SaveContentTracking(cp, adminData);
@@ -500,7 +503,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             // save and clear editorstylerules for this template
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, editRecord, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             ContentTrackingController.SaveContentTracking(cp, adminData);
                             string EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", adminData.editRecord.id.ToString(), 1, 99, 1);
@@ -509,7 +512,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             // -- Addons. save and auto minify
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, editRecord, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             ContentTrackingController.SaveContentTracking(cp, adminData);
                             {
@@ -520,7 +523,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            ContentTrackingController.loadContentTrackingDataBase(cp.core, editRecord, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             ContentTrackingController.SaveContentTracking(cp, adminData);
                         }
@@ -614,10 +617,10 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="editRecord"></param>
-        private static void LoadAndSaveGroupRules(CPClass cp, EditRecordModel editRecord) {
+        private static void LoadAndSaveGroupRules(CPClass cp, AdminDataModel adminData) {
             try {
-                if (editRecord.id != 0) {
-                    LoadAndSaveGroupRules_ForContentAndChildren(cp, editRecord.id, "");
+                if (adminData.editRecord.id != 0) {
+                    LoadAndSaveGroupRules_ForContentAndChildren(cp, adminData.editRecord.id, "");
                 }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);

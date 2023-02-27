@@ -268,13 +268,14 @@ namespace Contensive.Processor {
             try {
                 if (isOpen) { close(); }
                 if (string.IsNullOrEmpty(contentName.Trim())) { throw new ArgumentException("Cannot insert new record because Content name is blank."); }
-                var meta = ContentMetadataModel.createByUniqueName(core, contentName);
-                if (meta == null) { throw new GenericException("Cannot insert new record because Content meta data cannot be found."); }
-                if (meta.id <= 0) { throw new GenericException("Cannot insert new record because Content meta data is not valid."); }
+                var metaData = ContentMetadataModel.createByUniqueName(core, contentName);
+                if (metaData == null) { throw new GenericException("Cannot insert new record because Content meta data cannot be found."); }
+                if (metaData.id <= 0) { throw new GenericException("Cannot insert new record because Content meta data is not valid."); }
                 //
                 // create default record in Live table
+                bool renameContentFields = false;
                 var sqlList = new NameValueCollection();
-                foreach (KeyValuePair<string, Models.Domain.ContentFieldMetadataModel> keyValuePair in meta.fields) {
+                foreach (KeyValuePair<string, Models.Domain.ContentFieldMetadataModel> keyValuePair in metaData.fields) {
                     ContentFieldMetadataModel field = keyValuePair.Value;
                     if (!string.IsNullOrEmpty(field.nameLc)) {
                         switch (field.nameLc) {
@@ -286,8 +287,8 @@ namespace Contensive.Processor {
                                     break;
                                 }
                             case "contentcontrolid": {
-                                    if (meta.parentId > 0) {
-                                        sqlList.Add(field.nameLc, meta.id.ToString());
+                                    if (metaData.parentId > 0) {
+                                        sqlList.Add(field.nameLc, metaData.id.ToString());
                                     }
                                     break;
                                 }
@@ -355,6 +356,21 @@ namespace Contensive.Processor {
                                                     sqlList.Add(field.nameLc, DefaultValueText);
                                                     break;
                                                 }
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
+                                                    //
+                                                    // -- content file types
+
+                                                    string pathfilename = FileController.getVirtualTableFieldUnixPath(metaData.tableName, field.nameLc) + GenericController.getGUIDNaked() + ".bin";
+                                                    core.cdnFiles.saveFile(pathfilename, field.defaultValue);
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLText(pathfilename));
+                                                    renameContentFields = true;
+                                                    break;
+                                                }
                                             default: {
                                                     //
                                                     // else text
@@ -370,15 +386,47 @@ namespace Contensive.Processor {
                     }
                 }
                 //
-                using (var db = new DbController(core, meta.dataSourceName)) {
+                using (var db = new DbController(core, metaData.dataSourceName)) {
                     init();
-                    dt = db.insert(meta.tableName, sqlList, userId);
+                    dt = db.insert(metaData.tableName, sqlList, userId);
                     this.readable = true;
                     this.createdWithMetaData = true;
                     this.contentName = contentName;
-                    this.sqlSource = "select * from " + meta.tableName + " where id=" + ((int)dt.Rows[0]["id"]).ToString();
-                    this.contentMeta = meta;
+                    this.sqlSource = "select * from " + metaData.tableName + " where id=" + ((int)dt.Rows[0]["id"]).ToString();
+                    this.contentMeta = metaData;
                     initAfterOpen();
+                    //
+                    if (renameContentFields) {
+                        foreach (KeyValuePair<string, ContentFieldMetadataModel> keyValuePair in metaData.fields) {
+                            ContentFieldMetadataModel field = keyValuePair.Value;
+                            if (!string.IsNullOrEmpty(field.nameLc)) {
+                                if (!string.IsNullOrEmpty(field.defaultValue)) {
+                                    switch (field.fieldTypeId) {
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
+                                                //
+                                                // -- create a new file with correct path (including recordid) and move file
+                                                int recordId = GenericController.encodeInteger(dt.Rows[0]["id"]);
+                                                string originalPathFilename = GenericController.encodeText( dt.Rows[0][field.nameLc]);
+                                                string pathfilename = FileController.getVirtualRecordUnixPathFilename(metaData.tableName, field.nameLc, recordId, field.fieldTypeId);
+                                                core.cdnFiles.copyFile(originalPathFilename, pathfilename);
+                                                core.cdnFiles.deleteFile(originalPathFilename);
+                                                dt.Rows[0][field.nameLc] = pathfilename;
+                                                db.executeNonQuery($"update {metaData.tableName} set {field.nameLc}='{pathfilename}' where id={recordId}");
+                                                break;
+                                            }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+
                 }
                 return ok();
             } catch (Exception ex) {

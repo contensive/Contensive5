@@ -22,19 +22,19 @@ namespace Tests {
                 {
                     {
                         // -- simple path name
-                        string okSrc = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
+                        string okSrc = "tests\\test" + cp.Utils.GetRandomInteger() + ".txt";
                         string okDst = FileController.encodeDosPathFilename(okSrc);
                         Assert.AreEqual(okSrc, okDst);
                     }
                     {
                         // -- mulitple path name
-                        string okSrc = "0/1/2/3/4/5/test" + cp.Utils.GetRandomInteger() + ".txt";
+                        string okSrc = "0\\1\\2\\3\\4\\5\\test" + cp.Utils.GetRandomInteger() + ".txt";
                         string okDst = FileController.encodeDosPathFilename(okSrc);
                         Assert.AreEqual(okSrc, okDst);
                     }
                     {
                         // -- wrong slash
-                        string srcBad = "tests\\test" + cp.Utils.GetRandomInteger() + ".txt";
+                        string srcBad = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                         string dstBad = FileController.encodeDosPathFilename(srcBad);
                         Assert.AreNotEqual(srcBad, dstBad);
                     }
@@ -58,19 +58,19 @@ namespace Tests {
                 {
                     {
                         // -- simple path name
-                        string okSrc = "tests\\test" + cp.Utils.GetRandomInteger() + ".txt";
+                        string okSrc = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
                         string okDst = FileController.encodeUnixPathFilename(okSrc);
                         Assert.AreEqual(okSrc, okDst);
                     }
                     {
                         // -- mulitple path name
-                        string okSrc = "0\\1\\2\\3\\4\\5\\test" + cp.Utils.GetRandomInteger() + ".txt";
+                        string okSrc = "0/1/2/3/4/5/test" + cp.Utils.GetRandomInteger() + ".txt";
                         string okDst = FileController.encodeUnixPathFilename(okSrc);
                         Assert.AreEqual(okSrc, okDst);
                     }
                     {
                         // -- wrong slash
-                        string srcBad = "tests/test" + cp.Utils.GetRandomInteger() + ".txt";
+                        string srcBad = "tests\\test" + cp.Utils.GetRandomInteger() + ".txt";
                         string dstBad = FileController.encodeUnixPathFilename(srcBad);
                         Assert.AreNotEqual(srcBad, dstBad);
                     }

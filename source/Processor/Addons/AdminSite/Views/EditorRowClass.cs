@@ -203,7 +203,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // ----- Default Editor, Redirect fields (the same for normal/readonly/spelling)
 
-                        EditorString = AdminUIEditorController.getRedirectEditor(core, field, adminData, editRecord, fieldValue_text, editorReadOnly, fieldHtmlId, field.required);
+                        EditorString = AdminUIEditorController.getRedirectEditor(core, field, adminData, fieldValue_text, editorReadOnly, fieldHtmlId, field.required);
                     } else if (editorReadOnly) {
                         hint = 530;
                         //

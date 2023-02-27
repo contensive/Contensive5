@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using Contensive.Processor.Addons.AdminSite;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -696,8 +697,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="headerInfo"></param>
         /// <returns></returns>
-        public static string getEditForm_TitleBarDetails(CoreController core, RecordEditHeaderInfoClass headerInfo, EditRecordModel editRecord) {
+        public static string getEditForm_TitleBarDetails(CoreController core, AdminDataModel adminData, RecordEditHeaderInfoClass headerInfo) {
             string result = "";
+            EditRecordModel editRecord = adminData.editRecord;
             if (editRecord.id == 0) {
                 result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name) + ":&nbsp;New record", "col-sm-12");
             } else {
