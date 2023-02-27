@@ -593,7 +593,7 @@ namespace Contensive.Processor {
         /// <param name="fieldName"></param>
         /// <returns></returns>
         public override string GetValue(string fieldName) {
-            return cs.getRawData(fieldName);
+            return cs.getValueStoredInDbField(fieldName);
         }
         //
         //====================================================================================================

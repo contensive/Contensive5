@@ -695,8 +695,9 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         //
-        public static string getRedirectEditor(CoreController core, ContentFieldMetadataModel field, AdminDataModel adminData, EditRecordModel editRecord, string fieldValue, bool readOnly, string htmlId, bool required) {
+        public static string getRedirectEditor(CoreController core, ContentFieldMetadataModel field, AdminDataModel adminData, string fieldValue, bool readOnly, string htmlId, bool required) {
             try {
+                EditRecordModel editRecord = adminData.editRecord;
                 if (!string.IsNullOrEmpty(field.redirectPath)) {
                     //
                     // -- if hardcoded redirect link, create open-in-new-windows

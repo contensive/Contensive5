@@ -3,7 +3,7 @@
     /// Storage for current EditRecord, loaded in LoadEditRecord
     /// </summary>
     public class EditRecordFieldModel {
-        public object dbValue { get; set; }
-        public object value { get; set; }
+        public object value_storedInDb { get; set; }
+        public object value_content { get; set; }
     }
 }

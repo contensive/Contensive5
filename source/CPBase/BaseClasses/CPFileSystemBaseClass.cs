@@ -315,6 +315,17 @@ namespace Contensive.BaseClasses {
         public abstract void SaveHttpPost(string url, string pathFilename, string entity);
         //
         //==========================================================================================
+        /// <summary>
+        /// returns true if filename is valid. Simple filenames for compatibility with DOS paths and files, Unix and AWS S3 buckets and keys
+        /// 0-9, a-z, A-Z, and "-._"
+        /// paths separated by / or \
+        /// 
+        /// </summary>
+        /// <param name="pathFilename"></param>
+        /// <returns></returns>
+        public abstract bool isValidPathFilename( string pathFilename );
+        //
+        //==========================================================================================
         // deprecated
         //
     }

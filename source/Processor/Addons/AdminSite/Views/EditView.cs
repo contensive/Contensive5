@@ -44,13 +44,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                     foreach (var keyValuePair in adminData.adminContent.fields) {
                         ContentFieldMetadataModel field = keyValuePair.Value;
                         if ((keyValuePair.Value.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.File) || (keyValuePair.Value.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileImage)) {
-                            adminData.editRecord.fieldsLc[field.nameLc].value = adminData.editRecord.fieldsLc[field.nameLc].dbValue;
+                            adminData.editRecord.fieldsLc[field.nameLc].value_content = adminData.editRecord.fieldsLc[field.nameLc].value_storedInDb;
                         }
                     }
                 } else {
                     //
                     // otherwise, load the record, even if it was loaded during a previous form process
-                    adminData.loadEditRecord(core, true);
+                    EditRecordModel.loadEditRecord(core, true,  adminData);
                 }
                 if (!AdminDataModel.userHasContentAccess(core, ((adminData.editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : adminData.editRecord.contentControlId))) {
                     Processor.Controllers.ErrorController.addUserError(core, "Your account on this system does not have access rights to edit this content.");
@@ -124,8 +124,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                             bool submitted = false;
                             bool sent = false;
                             if (adminData.editRecord.id != 0) {
-                                if (encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value) == 0) {
-                                    adminData.editRecord.fieldsLc["testmemberid"].value = core.session.user.id;
+                                if (encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content) == 0) {
+                                    adminData.editRecord.fieldsLc["testmemberid"].value_content = core.session.user.id;
                                 }
                             }
                             editButtonBarInfo.allowSave = userContentPermissions.allowSave && adminData.editRecord.allowUserSave && (!submitted) && (!sent);
@@ -140,9 +140,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                             DateTime LastSendTestDate = DateTime.MinValue;
                             bool allowSendWithoutTest = core.siteProperties.getBoolean("AllowEmailSendWithoutTest", false);
                             if (adminData.editRecord.id != 0) {
-                                submitted = encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value);
-                                sent = encodeBoolean(adminData.editRecord.fieldsLc["sent"].value);
-                                LastSendTestDate = encodeDate(adminData.editRecord.fieldsLc["lastsendtestdate"].value);
+                                submitted = encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value_content);
+                                sent = encodeBoolean(adminData.editRecord.fieldsLc["sent"].value_content);
+                                LastSendTestDate = encodeDate(adminData.editRecord.fieldsLc["lastsendtestdate"].value_content);
                             }
                             editButtonBarInfo.allowSave = !submitted && (userContentPermissions.allowSave && adminData.editRecord.allowUserSave);
                             editButtonBarInfo.allowSend = !submitted && ((LastSendTestDate != DateTime.MinValue) || allowSendWithoutTest);
@@ -158,7 +158,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             DateTime LastSendTestDate = DateTime.MinValue;
                             bool AllowEmailSendWithoutTest = (core.siteProperties.getBoolean("AllowEmailSendWithoutTest", false));
                             if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
-                                LastSendTestDate = GenericController.encodeDate(adminData.editRecord.fieldsLc["lastsendtestdate"].value);
+                                LastSendTestDate = GenericController.encodeDate(adminData.editRecord.fieldsLc["lastsendtestdate"].value_content);
                             }
                             if (adminData.adminContent.id.Equals(ContentMetadataModel.getContentId(core, "System Email"))) {
                                 //
@@ -166,8 +166,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 emailSubmitted = false;
                                 if (adminData.editRecord.id != 0) {
                                     if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
-                                        if (encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value) == 0) {
-                                            adminData.editRecord.fieldsLc["testmemberid"].value = core.session.user.id;
+                                        if (encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content) == 0) {
+                                            adminData.editRecord.fieldsLc["testmemberid"].value_content = core.session.user.id;
                                         }
                                     }
                                 }
@@ -179,7 +179,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 emailSubmitted = false;
                                 editorEnv.record_readOnly = adminData.editRecord.userReadOnly || emailSubmitted;
                                 if (adminData.editRecord.id != 0) {
-                                    if (adminData.editRecord.fieldsLc.ContainsKey("submitted")) { emailSubmitted = GenericController.encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value); }
+                                    if (adminData.editRecord.fieldsLc.ContainsKey("submitted")) { emailSubmitted = GenericController.encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value_content); }
                                 }
                                 editButtonBarInfo.allowActivate = !emailSubmitted && ((LastSendTestDate != DateTime.MinValue) || AllowEmailSendWithoutTest);
                                 editButtonBarInfo.allowDeactivate = emailSubmitted;
@@ -189,8 +189,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // Group Email
                                 if (adminData.editRecord.id != 0) {
-                                    emailSubmitted = encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value);
-                                    emailSent = encodeBoolean(adminData.editRecord.fieldsLc["sent"].value);
+                                    emailSubmitted = encodeBoolean(adminData.editRecord.fieldsLc["submitted"].value_content);
+                                    emailSent = encodeBoolean(adminData.editRecord.fieldsLc["sent"].value_content);
                                 }
                                 editButtonBarInfo.allowSave = !emailSubmitted && (userContentPermissions.allowSave && adminData.editRecord.allowUserSave);
                                 editButtonBarInfo.allowSend = !emailSubmitted && ((LastSendTestDate != DateTime.MinValue) || AllowEmailSendWithoutTest);
@@ -230,7 +230,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     recordLockExpiresDate = encodeDate(adminData.editRecord.editLock.editLockExpiresDate),
                     recordName = adminData.editRecord.nameLc
                 };
-                string titleBarDetails = AdminUIController.getEditForm_TitleBarDetails(core, headerInfo, adminData.editRecord);
+                string titleBarDetails = AdminUIController.getEditForm_TitleBarDetails(core, adminData, headerInfo);
                 Stream.add(AdminUIController.getSectionHeader(core, "", titleBarDetails));
                 {
                     var editTabs = new EditTabModel();

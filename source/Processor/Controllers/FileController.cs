@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using static Contensive.BaseClasses.CPFileSystemBaseClass;
 using static Contensive.Processor.Controllers.GenericController;
@@ -455,13 +457,17 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isLocalFileSystem"></param>
         public void deleteFile(string pathFilename, bool isLocalFileSystem) {
             try {
-                if (!string.IsNullOrEmpty(pathFilename)) {
-                    if (isLocalFileSystem) {
-                        deleteFile_local(pathFilename);
-                    } else {
-                        deleteFile_remote(pathFilename);
-                        deleteFile_local(pathFilename);
-                    }
+                if (string.IsNullOrEmpty(pathFilename)) { return; }
+                if (!isValidPathFilename(pathFilename)) {
+                    // -- invalid filename, log and continue to not blowup
+                    LogController.logError(core, new GenericException($"attempt to delete file with invalid name [{pathFilename}]"));
+                    return;
+                }
+                if (isLocalFileSystem) {
+                    deleteFile_local(pathFilename);
+                } else {
+                    deleteFile_remote(pathFilename);
+                    deleteFile_local(pathFilename);
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1517,7 +1523,7 @@ namespace Contensive.Processor.Controllers {
                     var docProperty = core.docProperties.getProperty(key);
                     if ((docProperty.propertyType == DocPropertyModel.DocPropertyTypesEnum.file) && (docProperty.name.ToLowerInvariant() == key)) {
                         string dstDosPath = FileController.normalizeDosPath(path);
-                        returnFilename = encodeDosFilename(docProperty.value);
+                        returnFilename = encodeDosPathFilename(docProperty.value);
                         string dstDosPathFilename = dstDosPath + returnFilename;
                         deleteFile(dstDosPathFilename, isLocal);
                         if (docProperty.windowsTempfilename != "") {
@@ -1525,7 +1531,7 @@ namespace Contensive.Processor.Controllers {
                             // copy tmp private files to the appropriate folder in the destination file system
                             //
                             var WindowsTempFiles = new FileController(core, System.IO.Path.GetTempPath());
-                            WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dstDosPathFilename, this); 
+                            WindowsTempFiles.copyFile(docProperty.windowsTempfilename, dstDosPathFilename, this);
                             //
                             if (!isLocal) {
                                 copyFileLocalToRemote(dstDosPathFilename);
@@ -1912,24 +1918,54 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// convert a string a valid Dos filename. Replace all non-allowed characters with underscore.
+        /// Check pathFilenames before saving files. Checks are NOT made before saves, reads, deletes
+        /// return true if this pathfile is valid. Allowed characters 0-9, a-z, A-Z, and "-._"
+        /// characters / and \ are used to parse paths from filenames
         /// </summary>
-        /// <param name="filename">Filename in the form "MyFile.txt"</param>
+        /// <param name="pathFilename"></param>
         /// <returns></returns>
-        public static string encodeDosFilename(string filename) {
-            const string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^&'@{}[],$-#()%.+~_";
-            return encodeFilename(filename, allowed);
+        public static bool isValidPathFilename(string pathFilename) {
+            if (string.IsNullOrEmpty(pathFilename)) { return false; }
+            // -- convert to correct slash and split segments
+            pathFilename = pathFilename.Replace("/", "").Replace("\\", "");
+            return pathFilename.Equals(encodeFilename(pathFilename, Constants.allowedPathFilenameCharacters));
         }
         //
         //====================================================================================================
         /// <summary>
-        /// convert a string a valid Unix filename. Replace all non-allowed characters with underscore.
+        /// convert a string a valid Dos path filename. Replace all non-allowed characters with underscore.
         /// </summary>
-        /// <param name="filename">Filename in the form "MyFile.txt"</param>
+        /// <param name="pathFilename">Filename in the form "folder1/folder2/MyFile.txt"</param>
         /// <returns></returns>
-        public static string encodeUnixFilename(string filename) {
-            const string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._";
-            return encodeFilename(filename, allowed);
+        public static string encodeDosPathFilename(string pathFilename) {
+            if (string.IsNullOrEmpty(pathFilename)) { return pathFilename; }
+            // -- convert to correct slash and split segments
+            pathFilename = convertToDosSlash(pathFilename);
+            var segments = pathFilename.Split('\\');
+            // -- convert bad char to _
+            //string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^&'@{}[],$-#()%.+~_";
+            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], Constants.allowedPathFilenameCharacters);
+            // -- return path with correct slash 
+            return string.Join("\\", segments);
+        }
+
+        //
+        //====================================================================================================
+        /// <summary>
+        /// convert a string a valid Unix path filename. Replace all non-allowed characters with underscore.
+        /// </summary>
+        /// <param name="pathFilename">Filename in the form "folder1\folder2\MyFile.txt"</param>
+        /// <returns></returns>
+        public static string encodeUnixPathFilename(string pathFilename) {
+            if (string.IsNullOrEmpty(pathFilename)) { return pathFilename; }
+            // -- convert to correct slash and split segments
+            pathFilename = convertToUnixSlash(pathFilename);
+            string[] segments = pathFilename.Split('/');
+            // -- convert bad char to _
+            //const string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._";
+            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], Constants.allowedPathFilenameCharacters);
+            // -- return path with correct slash 
+            return string.Join("/", segments);
         }
         //
         //====================================================================================================
@@ -1940,18 +1976,19 @@ namespace Contensive.Processor.Controllers {
         /// <param name="allowedCharacters"></param>
         /// <returns></returns>
         private static string encodeFilename(string filename, string allowedCharacters) {
-            string result = "";
+            StringBuilder test = new();
+            //string result = "";
             int Cnt = filename.Length;
             if (Cnt > 254) Cnt = 254;
             for (int Ptr = 1; Ptr <= Cnt; Ptr++) {
                 string chr = filename.Substring(Ptr - 1, 1);
-                if (allowedCharacters.IndexOf(chr) + 1 >= 0) {
-                    result += chr;
-                } else {
-                    result += "_";
+                if (allowedCharacters.IndexOf(chr) != -1) {
+                    test.Append(chr);
+                    continue;
                 }
+                test.Append("_");
             }
-            return result;
+            return test.ToString();
         }
         //
         //==============================================================================================================
@@ -1981,7 +2018,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 // Create new FileInfo object and get the Length.
-                string dosPathFilename = encodeDosFilename(pathFilename);
+                string dosPathFilename = convertToDosSlash(pathFilename);
                 string absDosPathFilename = convertRelativeToLocalAbsPath(dosPathFilename);
                 FileInfo fileInfo = new FileInfo(absDosPathFilename);
                 if (!fileInfo.Exists) { return null; }
@@ -2064,7 +2101,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="filename">Returns filename in the form "MyFile.txt"</param>
         public void splitDosPathFilename(string pathFilename, ref string path, ref string filename) {
             try {
-                string dosPathFilename = encodeDosFilename(pathFilename);
+                string dosPathFilename = convertToDosSlash(pathFilename);
                 filename = Path.GetFileName(dosPathFilename);
                 path = getPath(dosPathFilename);
             } catch (Exception ex) {
@@ -2081,7 +2118,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="path">Returns path and filename in the form "myfolder\subfolder"</param>
         /// <param name="filename">Returns filename in the form "MyFile.txt"</param>
         public void splitUnixPathFilename(string pathFilename, ref string path, ref string filename) {
-            string unixPathFilename = encodeDosFilename(pathFilename);
+            string unixPathFilename = convertToUnixSlash(pathFilename);
             filename = Path.GetFileName(unixPathFilename);
             path = getPath(unixPathFilename);
         }

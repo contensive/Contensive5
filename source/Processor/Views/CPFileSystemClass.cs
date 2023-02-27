@@ -315,6 +315,12 @@ namespace Contensive.Processor {
         //
         //==========================================================================================
         //
+        public override bool isValidPathFilename(string pathFilename) {
+            return FileController.isValidPathFilename(pathFilename);
+        }
+        //
+        //==========================================================================================
+        //
         #region  IDisposable Support 
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
@@ -342,7 +348,6 @@ namespace Contensive.Processor {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
         ~CPFileSystemClass() {
             Dispose(false);
         }

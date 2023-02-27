@@ -56,6 +56,9 @@ namespace Contensive.Processor {
         /// </summary>
         internal const double invalidationDaysDefault = 365;
         //
+        // -- valid file characters
+        public const string allowedPathFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._";
+        //
         //=======================================================================
         //   sitepropertyNames
         //=======================================================================

@@ -61,6 +61,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 VisitorClass.executeDailyTasks(env);
                 ViewingsClass.executeDailyTasks(env);
                 //
+                // -- verify filenames are valid, a bad filename can block the edit screen
+                FilenameTestClass.executeDailyTasks(env);
+                //
                 // -- logs
                 ActivityLogClass.executeDailyTasks(env);
                 //

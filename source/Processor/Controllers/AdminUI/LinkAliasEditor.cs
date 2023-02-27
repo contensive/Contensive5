@@ -27,7 +27,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                     string linkAlias = "";
                     if (adminData.adminContent.fields.ContainsKey("linkalias")) {
-                        linkAlias = GenericController.encodeText(adminData.editRecord.fieldsLc["linkalias"].value);
+                        linkAlias = GenericController.encodeText(adminData.editRecord.fieldsLc["linkalias"].value_content);
                     }
                     StringBuilderLegacyController form = new StringBuilderLegacyController();
                     form.add("<tr><td class=\"ccAdminEditCaption\">" + SpanClassAdminSmall + "Link Alias</td>");

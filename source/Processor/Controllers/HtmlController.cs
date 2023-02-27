@@ -1310,7 +1310,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // main_Get the current value if the record was found
                     //
-                    if (cs.ok()) { FieldValueVariant = cs.getRawData(fieldName); }
+                    if (cs.ok()) { FieldValueVariant = cs.getValueStoredInDbField(fieldName); }
                     string FieldValueText = null;
                     //
                     if (FieldPassword) {

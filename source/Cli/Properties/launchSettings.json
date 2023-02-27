@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a c5test --execute \"AWS SES Email Bounce Process\"",
+      "commandLineArgs": "-a menucrm0210 --execute \"housekeep\"",
       "jsWebView2Debugging": false
     }
   }

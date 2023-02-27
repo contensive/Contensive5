@@ -12,7 +12,7 @@ using Contensive.Processor.Models.Domain;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 //
-namespace Contensive.Processor.Addons.AdminSite {
+namespace Contensive.Processor.Addons.AdminSite.Controllers {
     public static class ProcessActionController {
         //
         //========================================================================
@@ -36,8 +36,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="cp"></param>
         /// <param name="adminData"></param>
         /// <param name="useContentWatchLink"></param>
-        public static void processActions(CPClass cp, AdminDataModel adminData, bool useContentWatchLink) {
+        public static void processActions(CPClass cp, AdminDataModel adminData, bool useContentWatchLink, bool CheckUserErrors) {
             try {
+                EditRecordModel editRecord = adminData.editRecord;
+                ContentMetadataModel adminContent = adminData.adminContent;
                 //
                 if (adminData.admin_Action != Constants.AdminActionNop) {
                     if (!adminData.userAllowContentEdit) {
@@ -51,8 +53,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 case Constants.AdminActionEditRefresh:
                                     //
                                     // Load the record as if it will be saved, but skip the save
-                                    adminData.loadEditRecord(cp.core);
-                                    adminData.loadEditRecord_Request(cp.core);
+                                    EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                    EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                     break;
                                 case Constants.AdminActionMarkReviewed:
                                     //
@@ -63,7 +65,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (adminData.editRecord.userReadOnly) {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
                                         db.delete(adminData.editRecord.id, adminData.adminContent.tableName);
                                         ContentController.processAfterSave(cp.core, true, adminData.editRecord.contentControlId_Name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                     }
@@ -75,8 +77,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                     }
@@ -88,8 +90,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         adminData.editRecord.id = 0;
@@ -100,7 +102,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 case Constants.AdminActionDuplicate:
                                     //
                                     // ----- Save Record
-                                    ProcessActionDuplicate(cp, adminData);
+                                    processActionDuplicate(cp, adminData);
                                     adminData.admin_Action = Constants.AdminActionNop;
                                     break;
                                 case Constants.AdminActionSendEmail:
@@ -109,8 +111,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (adminData.editRecord.userReadOnly) {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
@@ -139,8 +141,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
                                         //
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         //
@@ -148,13 +150,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             //
                                             int EmailToConfirmationMemberId = 0;
                                             if (adminData.editRecord.fieldsLc.ContainsKey("testmemberid")) {
-                                                EmailToConfirmationMemberId = GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value);
+                                                EmailToConfirmationMemberId = GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content);
                                                 EmailController.sendConfirmationTestEmail(cp.core, adminData.editRecord.id, EmailToConfirmationMemberId);
                                                 //
                                                 if (adminData.editRecord.fieldsLc.ContainsKey("lastsendtestdate")) {
                                                     //
                                                     // -- if there were no errors, and the table supports lastsendtestdate, update it
-                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
+                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
                                                     db.executeQuery("update ccemail Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
                                                     //
                                                     // -- force a sent task process
@@ -172,18 +174,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
                                         //
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         //
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             //
-                                            PersonModel recipient = DbBaseModel.create<PersonModel>(cp, GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value));
+                                            PersonModel recipient = DbBaseModel.create<PersonModel>(cp, GenericController.encodeInteger(adminData.editRecord.fieldsLc["testmemberid"].value_content));
                                             if (recipient == null) {
                                                 ErrorController.addUserError(cp.core, "The test text message could not be sent because the 'Send Confirmation To' selection is not valid.");
                                             } else {
-                                                string textBody = encodeText(adminData.editRecord.fieldsLc["body"].value);
+                                                string textBody = encodeText(adminData.editRecord.fieldsLc["body"].value_content);
                                                 int textMessageId = adminData.editRecord.id;
                                                 string userErrorMessage = "";
                                                 TextMessageSendRequest request = new() {
@@ -202,7 +204,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                 } else {
                                                     //
                                                     // -- if there were no errors, and the table supports lastsendtestdate, update it
-                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value = cp.core.doc.profileStartTime;
+                                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
                                                     db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
                                                     //
                                                     // -- force a send task process (doc environment not necessary)
@@ -220,8 +222,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (adminData.editRecord.userReadOnly) {
                                         ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
@@ -241,14 +243,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
                                         // no save, page was read only - Call ProcessActionSave
-                                        adminData.loadEditRecord(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                             using (var csData = new CsModel(cp.core)) {
                                                 if (csData.openRecord("Conditional Email", adminData.editRecord.id)) { csData.set("submitted", false); }
                                                 csData.close();
                                             }
-                                            adminData.loadEditRecord(cp.core);
-                                            adminData.loadEditRecord_Request(cp.core);
+                                            EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         }
                                     }
                                     adminData.admin_Action = Constants.AdminActionNop; // convert so action can be used in as a refresh
@@ -259,8 +261,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         ContentController.processAfterSave(cp.core, false, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                         if (cp.core.doc.userErrorList.Count.Equals(0)) {
@@ -276,8 +278,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                     }
                                                 }
                                             }
-                                            adminData.loadEditRecord(cp.core);
-                                            adminData.loadEditRecord_Request(cp.core);
+                                            EditRecordModel.loadEditRecord(cp.core, CheckUserErrors,  adminData);
+                                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         }
                                     }
                                     //
@@ -326,8 +328,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (adminData.editRecord.userReadOnly) {
                                         Processor.Controllers.ErrorController.addUserError(cp.core, "Your request was blocked because the record you specified Is now locked by another authcontext.user.");
                                     } else {
-                                        adminData.loadEditRecord(cp.core);
-                                        adminData.loadEditRecord_Request(cp.core);
+                                        EditRecordModel.loadEditRecord(cp.core, CheckUserErrors, adminData);
+                                        EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                                         processActionSave(cp, adminData, useContentWatchLink);
                                         cp.core.cache.invalidateAll();
                                         cp.core.cacheStore.clearMetaData();
@@ -359,7 +361,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="adminData"></param>
-        private static void ProcessActionDuplicate(CPClass cp, AdminDataModel adminData) {
+        private static void processActionDuplicate(CPClass cp, AdminDataModel adminData) {
             try {
                 if (cp.core.doc.userErrorList.Count.Equals(0)) {
                     switch (adminData.adminContent.tableName.ToLower(CultureInfo.InvariantCulture)) {
@@ -367,21 +369,21 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // --- preload array with values that may not come back in response
                             //
-                            adminData.loadEditRecord(cp.core);
-                            adminData.loadEditRecord_Request(cp.core);
+                            EditRecordModel.loadEditRecord(cp.core, true,  adminData);
+                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                             //
                             if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                 //
                                 // ----- Convert this to the Duplicate
                                 //
                                 if (adminData.adminContent.fields.ContainsKey("submitted")) {
-                                    adminData.editRecord.fieldsLc["submitted"].value = false;
+                                    adminData.editRecord.fieldsLc["submitted"].value_content = false;
                                 }
                                 if (adminData.adminContent.fields.ContainsKey("sent")) {
-                                    adminData.editRecord.fieldsLc["sent"].value = false;
+                                    adminData.editRecord.fieldsLc["sent"].value_content = false;
                                 }
                                 if (adminData.adminContent.fields.ContainsKey("lastsendtestdate")) {
-                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value = "";
+                                    adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = "";
                                 }
                                 //
                                 adminData.editRecord.id = 0;
@@ -391,8 +393,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         default:
                             //
                             // --- preload array with values that may not come back in response
-                            adminData.loadEditRecord(cp.core);
-                            adminData.loadEditRecord_Request(cp.core);
+                            EditRecordModel.loadEditRecord(cp.core, true,  adminData);
+                            EditRecordModel.loadEditRecord_Request(cp.core, adminData);
                             //
                             if (cp.core.doc.userErrorList.Count.Equals(0)) {
                                 //
@@ -401,19 +403,19 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // block fields that should not duplicate
                                 if (adminData.editRecord.fieldsLc.ContainsKey("ccguid")) {
-                                    adminData.editRecord.fieldsLc["ccguid"].value = "";
+                                    adminData.editRecord.fieldsLc["ccguid"].value_content = "";
                                 }
                                 //
                                 if (adminData.editRecord.fieldsLc.ContainsKey("dateadded")) {
-                                    adminData.editRecord.fieldsLc["dateadded"].value = DateTime.MinValue;
+                                    adminData.editRecord.fieldsLc["dateadded"].value_content = DateTime.MinValue;
                                 }
                                 //
                                 if (adminData.editRecord.fieldsLc.ContainsKey("modifieddate")) {
-                                    adminData.editRecord.fieldsLc["modifieddate"].value = DateTime.MinValue;
+                                    adminData.editRecord.fieldsLc["modifieddate"].value_content = DateTime.MinValue;
                                 }
                                 //
                                 if (adminData.editRecord.fieldsLc.ContainsKey("modifiedby")) {
-                                    adminData.editRecord.fieldsLc["modifiedby"].value = 0;
+                                    adminData.editRecord.fieldsLc["modifiedby"].value_content = 0;
                                 }
                                 //
                                 // block fields that must be unique
@@ -421,11 +423,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     ContentFieldMetadataModel field = keyValuePair.Value;
                                     if (GenericController.toLCase(field.nameLc) == "email") {
                                         if ((adminData.adminContent.tableName.ToLowerInvariant() == "ccmembers") && (GenericController.encodeBoolean(cp.core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false)))) {
-                                            adminData.editRecord.fieldsLc[field.nameLc].value = "";
+                                            adminData.editRecord.fieldsLc[field.nameLc].value_content = "";
                                         }
                                     }
                                     if (field.uniqueName) {
-                                        adminData.editRecord.fieldsLc[field.nameLc].value = "";
+                                        adminData.editRecord.fieldsLc[field.nameLc].value_content = "";
                                     }
                                 }
                                 //
@@ -447,42 +449,43 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         private static void processActionSave(CPClass cp, AdminDataModel adminData, bool UseContentWatchLink) {
             try {
+                EditRecordModel editRecord = adminData.editRecord;
                 {
                     if (cp.core.doc.userErrorList.Count.Equals(0)) {
                         if (GenericController.toUCase(adminData.adminContent.tableName) == GenericController.toUCase("ccMembers")) {
                             //
                             //
-                            SaveEditRecord(cp, adminData);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
                             SaveMemberRules(cp, adminData.editRecord.id);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCEMAIL") {
                             //
                             //
-                            SaveEditRecord(cp, adminData);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCCONTENT") {
                             //
                             //
-                            SaveEditRecord(cp, adminData);
-                            LoadAndSaveGroupRules(cp, adminData.editRecord);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
+                            LoadAndSaveGroupRules(cp, adminData);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCPAGECONTENT") {
                             //
                             //
-                            SaveEditRecord(cp, adminData);
-                            adminData.loadContentTrackingDataBase(cp.core);
-                            adminData.loadContentTrackingResponse(cp.core);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             SaveLinkAlias(cp, adminData);
-                            SaveContentTracking(cp, adminData);
+                            ContentTrackingController.SaveContentTracking(cp, adminData);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCLIBRARYFOLDERS") {
                             //
                             //
-                            SaveEditRecord(cp, adminData);
-                            adminData.loadContentTrackingDataBase(cp.core);
-                            adminData.loadContentTrackingResponse(cp.core);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
+                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             cp.core.html.processCheckList("LibraryFolderRules", adminData.adminContent.name, GenericController.encodeText(adminData.editRecord.id), "Groups", "Library Folder Rules", "FolderID", "GroupID");
-                            SaveContentTracking(cp, adminData);
+                            ContentTrackingController.SaveContentTracking(cp, adminData);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCSETUP") {
                             //
                             // Site Properties
-                            SaveEditRecord(cp, adminData);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
                             if (adminData.editRecord.nameLc.ToLowerInvariant() == "allowlinkalias") {
                                 if (cp.core.siteProperties.getBoolean("AllowLinkAlias", true)) {
                                     TurnOnLinkAlias(cp, UseContentWatchLink);
@@ -491,27 +494,27 @@ namespace Contensive.Processor.Addons.AdminSite {
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCGROUPS") {
                             //
                             //
-                            SaveEditRecord(cp, adminData);
-                            adminData.loadContentTrackingDataBase(cp.core);
-                            adminData.loadContentTrackingResponse(cp.core);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
+                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
                             LoadAndSaveContentGroupRules(cp, adminData.editRecord.id);
-                            SaveContentTracking(cp, adminData);
+                            ContentTrackingController.SaveContentTracking(cp, adminData);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCTEMPLATES") {
                             //
                             // save and clear editorstylerules for this template
-                            SaveEditRecord(cp, adminData);
-                            adminData.loadContentTrackingDataBase(cp.core);
-                            adminData.loadContentTrackingResponse(cp.core);
-                            SaveContentTracking(cp, adminData);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
+                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            ContentTrackingController.SaveContentTracking(cp, adminData);
                             string EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", adminData.editRecord.id.ToString(), 1, 99, 1);
                             cp.core.privateFiles.deleteFile(EditorStyleRulesFilename);
                         } else if (GenericController.toUCase(adminData.adminContent.tableName) == "CCAGGREGATEFUNCTIONS") {
                             //
                             // -- Addons. save and auto minify
-                            SaveEditRecord(cp, adminData);
-                            adminData.loadContentTrackingDataBase(cp.core);
-                            adminData.loadContentTrackingResponse(cp.core);
-                            SaveContentTracking(cp, adminData);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
+                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            ContentTrackingController.SaveContentTracking(cp, adminData);
                             {
                                 var addon = cp.core.cacheStore.addonCache.create(adminData.editRecord.id);
                                 MinifyController.minifyAddon(cp.core, addon);
@@ -519,10 +522,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                         } else {
                             //
                             //
-                            SaveEditRecord(cp, adminData);
-                            adminData.loadContentTrackingDataBase(cp.core);
-                            adminData.loadContentTrackingResponse(cp.core);
-                            SaveContentTracking(cp, adminData);
+                            EditRecordModel.SaveEditRecord(cp, adminData);
+                            ContentTrackingController.loadContentTrackingDataBase(cp.core,  adminData);
+                            ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
+                            ContentTrackingController.SaveContentTracking(cp, adminData);
                         }
                     }
                 }
@@ -533,283 +536,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     adminData.dstFormId = adminData.srcFormId;
                 }
                 adminData.admin_Action = Constants.AdminActionNop;
-            } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
-            }
-        }
-        //
-        //========================================================================
-        //
-        private static void SaveEditRecord(CPClass cp, AdminDataModel adminData) {
-            try {
-                int SaveCCIDValue = 0;
-                if (!cp.core.doc.userErrorList.Count.Equals(0)) {
-                    //
-                    // -- If There is an error, block the save
-                    adminData.admin_Action = Constants.AdminActionNop;
-                } else if (!cp.core.session.isAuthenticatedContentManager(adminData.adminContent.name)) {
-                    //
-                    // -- must be content manager
-                } else if (adminData.editRecord.userReadOnly) {
-                    //
-                    // -- read only block
-                } else {
-                    //
-                    // -- Record will be saved, create a new one if this is an add
-                    bool NewRecord = false;
-                    bool recordChanged = false;
-                    using (var csData = new CsModel(cp.core)) {
-                        if (adminData.editRecord.id == 0) {
-                            NewRecord = true;
-                            recordChanged = true;
-                            csData.insert(adminData.adminContent.name);
-                        } else {
-                            NewRecord = false;
-                            csData.openRecord(adminData.adminContent.name, adminData.editRecord.id);
-                        }
-                        if (!csData.ok()) {
-                            //
-                            // ----- Error: new record could not be created
-                            //
-                            if (NewRecord) {
-                                //
-                                // Could not insert record
-                                //
-                                LogController.logError(cp.core, new GenericException("A new record could not be inserted for content [" + adminData.adminContent.name + "]. Verify the Database table and field DateAdded, CreateKey, and ID."));
-                            } else {
-                                //
-                                // Could not locate record you requested
-                                //
-                                LogController.logError(cp.core, new GenericException("The record you requested (ID=" + adminData.editRecord.id + ") could not be found for content [" + adminData.adminContent.name + "]"));
-                            }
-                        } else {
-                            //
-                            // ----- Get the ID of the current record
-                            //
-                            adminData.editRecord.id = csData.getInteger("ID");
-                            //
-                            // ----- Create the update sql
-                            //
-                            foreach (var keyValuePair in adminData.adminContent.fields) {
-                                ContentFieldMetadataModel field = keyValuePair.Value;
-                                EditRecordFieldModel editRecordField = adminData.editRecord.fieldsLc[field.nameLc];
-                                object fieldValueObject = editRecordField.value;
-                                string FieldValueText = GenericController.encodeText(fieldValueObject);
-                                string fieldName = field.nameLc;
-                                string UcaseFieldName = GenericController.toUCase(fieldName);
-                                //
-                                // ----- Handle special case fields
-                                //
-                                switch (UcaseFieldName) {
-                                    case "NAME": {
-                                            //
-                                            adminData.editRecord.nameLc = GenericController.encodeText(fieldValueObject);
-                                            break;
-                                        }
-                                    case "CCGUID": {
-                                            if (NewRecord && string.IsNullOrEmpty(FieldValueText)) {
-                                                //
-                                                // if new record and edit form returns empty, preserve the guid used to create the record.
-                                            } else {
-                                                //
-                                                // save the value in the request
-                                                if (csData.getText(fieldName) != FieldValueText) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, FieldValueText);
-                                                }
-                                            }
-                                            break;
-                                        }
-                                    case "CONTENTCONTROLID": {
-                                            if (csData.getInteger(fieldName) != encodeInteger(fieldValueObject)) {
-                                                SaveCCIDValue = encodeInteger(fieldValueObject);
-                                                recordChanged = true;
-                                            }
-                                            break;
-                                        }
-                                    case "ACTIVE": {
-                                            if (csData.getBoolean(fieldName) != encodeBoolean(fieldValueObject)) {
-                                                recordChanged = true;
-                                                csData.set(fieldName, encodeBoolean(fieldValueObject));
-                                            }
-                                            break;
-                                        }
-                                    case "DATEEXPIRES": {
-                                            //
-                                            // ----- make sure content watch expires before content expires
-                                            //
-                                            if (!isNull(fieldValueObject) && isDate(fieldValueObject)) {
-                                                DateTime saveValue = encodeDate(fieldValueObject);
-                                                if (adminData.contentWatchExpires <= DateTime.MinValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                } else if (adminData.contentWatchExpires > saveValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                }
-                                            }
-                                            //
-                                            break;
-                                        }
-                                    case "DATEARCHIVE": {
-                                            //
-                                            // ----- make sure content watch expires before content archives
-                                            //
-                                            if (!isNull(fieldValueObject) && isDate(fieldValueObject)) {
-                                                DateTime saveValue = GenericController.encodeDate(fieldValueObject);
-                                                if ((adminData.contentWatchExpires) <= DateTime.MinValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                } else if (adminData.contentWatchExpires > saveValue) {
-                                                    adminData.contentWatchExpires = saveValue;
-                                                }
-                                            }
-                                            break;
-                                        }
-                                    default: {
-                                            // do nothing
-                                            break;
-                                        }
-                                }
-                                //
-                                // ----- Put the field in the SQL to be saved
-                                //
-                                if (AdminDataModel.isVisibleUserField(cp.core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, adminData.adminContent.tableName) && (NewRecord || (!field.readOnly)) && (NewRecord || (!field.notEditable))) {
-                                    //
-                                    // ----- save the value by field type
-                                    //
-                                    switch (field.fieldTypeId) {
-                                        case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
-                                        case CPContentBaseClass.FieldTypeIdEnum.Redirect: {
-                                                //
-                                                // do nothing with these
-                                                //
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.File:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileImage: {
-                                                //
-                                                // filenames, upload to cdnFiles
-                                                //
-                                                if (cp.core.docProperties.getBoolean(fieldName + ".DeleteFlag")) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, "");
-                                                }
-                                                //
-                                                // -- find the uploaded file in the request.files 
-                                                csData.setFormInput(cp.core, fieldName, fieldName);
-                                                recordChanged = true;
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                                                //
-                                                // boolean
-                                                //
-                                                bool saveValue = GenericController.encodeBoolean(fieldValueObject);
-                                                if (csData.getBoolean(fieldName) != saveValue) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, saveValue);
-                                                }
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Currency:
-                                        case CPContentBaseClass.FieldTypeIdEnum.Float: {
-                                                //
-                                                // Floating pointer numbers, allow nullable
-                                                if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, null);
-                                                } else if (encodeText(fieldValueObject) != csData.getText(fieldName)) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, encodeNumber(fieldValueObject));
-                                                }
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                                                //
-                                                // Date
-                                                //
-                                                if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, null);
-                                                } else if (encodeDate(fieldValueObject) != csData.getDate(fieldName)) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, encodeDate(fieldValueObject));
-                                                }
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.Integer:
-                                        case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
-                                                //
-                                                // Integers, allow nullable
-                                                if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, null);
-                                                } else if (encodeInteger(fieldValueObject) != csData.getInteger(fieldName)) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, encodeInteger(fieldValueObject));
-                                                }
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.LongText:
-                                        case CPContentBaseClass.FieldTypeIdEnum.Text:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileText:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
-                                        case CPContentBaseClass.FieldTypeIdEnum.HTML:
-                                        case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
-                                                //
-                                                // Text
-                                                //
-                                                string saveValue = GenericController.encodeText(fieldValueObject);
-                                                if (csData.getText(fieldName) != saveValue) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, saveValue);
-                                                }
-                                                break;
-                                            }
-                                        case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
-                                                //
-                                                // Many to Many checklist
-                                                cp.core.html.processCheckList("field" + field.id, MetadataController.getContentNameByID(cp.core, field.contentId), encodeText(adminData.editRecord.id), MetadataController.getContentNameByID(cp.core, field.manyToManyContentId), MetadataController.getContentNameByID(cp.core, field.manyToManyRuleContentId), field.manyToManyRulePrimaryField, field.manyToManyRuleSecondaryField);
-                                                break;
-                                            }
-                                        default: {
-                                                //
-                                                // Unknown other types
-                                                string saveValue = GenericController.encodeText(fieldValueObject);
-                                                recordChanged = true;
-                                                csData.set(UcaseFieldName, saveValue);
-                                                break;
-                                            }
-                                    }
-                                }
-                                //
-                                // -- put any changes back in array for the next page to display
-                                editRecordField.value = fieldValueObject;
-                            }
-                            if (recordChanged) {
-                                //
-                                // -- clear cache
-                                cp.core.cache.invalidateRecordKey(adminData.editRecord.id, adminData.adminContent.tableName);
-                            }
-                            //
-                            // ----- clear/set authoring controls
-                            var contentTable = DbBaseModel.createByUniqueName<TableModel>(cp, adminData.adminContent.tableName);
-                            if (contentTable != null) WorkflowController.clearEditLock(cp.core, contentTable.id, adminData.editRecord.id);
-                            //
-                            // ----- if admin content is changed, reload the adminContext.content data in case this is a save, and not an OK
-                            if (recordChanged && SaveCCIDValue != 0) {
-                                adminData.adminContent.setContentControlId(cp.core, adminData.editRecord.id, SaveCCIDValue);
-                                adminData.editRecord.contentControlId_Name = MetadataController.getContentNameByID(cp.core, SaveCCIDValue);
-                                adminData.adminContent = ContentMetadataModel.createByUniqueName(cp.core, adminData.editRecord.contentControlId_Name);
-                                adminData.adminContent.id = adminData.adminContent.id;
-                                adminData.adminContent.name = adminData.adminContent.name;
-                            }
-                        }
-                    }
-                    adminData.editRecord.saved = true;
-                }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
             }
@@ -891,10 +617,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="editRecord"></param>
-        private static void LoadAndSaveGroupRules(CPClass cp, EditRecordModel editRecord) {
+        private static void LoadAndSaveGroupRules(CPClass cp, AdminDataModel adminData) {
             try {
-                if (editRecord.id != 0) {
-                    LoadAndSaveGroupRules_ForContentAndChildren(cp, editRecord.id, "");
+                if (adminData.editRecord.id != 0) {
+                    LoadAndSaveGroupRules_ForContentAndChildren(cp, adminData.editRecord.id, "");
                 }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -1068,76 +794,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // -- no, routemap is cleared in addLinkAlias
                             // -- clear the routemap, rebuilt on exit
                             // cp.core.routeMapCacheClear();
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
-            }
-        }
-        //
-        //========================================================================
-        //
-        private static void SaveContentTracking(CPClass cp, AdminDataModel adminData) {
-            try {
-                EditRecordModel editRecord = adminData.editRecord;
-                if (adminData.adminContent.allowContentTracking && (!editRecord.userReadOnly)) {
-                    //
-                    // ----- Set default content watch link label
-                    if ((adminData.contentWatchListIDCount > 0) && (string.IsNullOrWhiteSpace(adminData.contentWatchLinkLabel))) {
-                        if (!string.IsNullOrWhiteSpace(editRecord.menuHeadline)) {
-                            adminData.contentWatchLinkLabel = editRecord.menuHeadline;
-                        } else if (!string.IsNullOrWhiteSpace(editRecord.nameLc)) {
-                            adminData.contentWatchLinkLabel = editRecord.nameLc;
-                        } else {
-                            adminData.contentWatchLinkLabel = "Click Here";
-                        }
-                    }
-                    //
-                    // ----- update/create the content watch record for this content record
-                    int ContentId = (editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : editRecord.contentControlId;
-                    using (var csData = new CsModel(cp.core)) {
-                        csData.open("Content Watch", "(ContentID=" + DbController.encodeSQLNumber(ContentId) + ")And(RecordID=" + DbController.encodeSQLNumber(editRecord.id) + ")");
-                        if (!csData.ok()) {
-                            csData.insert("Content Watch");
-                            csData.set("contentid", ContentId);
-                            csData.set("recordid", editRecord.id);
-                            csData.set("ContentRecordKey", ContentId + "." + editRecord.id);
-                            csData.set("clicks", 0);
-                        }
-                        if (!csData.ok()) {
-                            LogController.logError(cp.core, new GenericException("SaveContentTracking, can Not create New record"));
-                        } else {
-                            int ContentWatchId = csData.getInteger("ID");
-                            csData.set("LinkLabel", adminData.contentWatchLinkLabel);
-                            csData.set("WhatsNewDateExpires", adminData.contentWatchExpires);
-                            csData.set("Link", adminData.contentWatchLink);
-                            //
-                            // ----- delete all rules for this ContentWatch record
-                            //
-                            using (var CSPointer = new CsModel(cp.core)) {
-                                CSPointer.open("Content Watch List Rules", "(ContentWatchID=" + ContentWatchId + ")");
-                                while (CSPointer.ok()) {
-                                    CSPointer.deleteRecord();
-                                    CSPointer.goNext();
-                                }
-                                CSPointer.close();
-                            }
-                            //
-                            // ----- Update ContentWatchListRules for all entries in ContentWatchListID( ContentWatchListIDCount )
-                            //
-                            int ListPointer = 0;
-                            if (adminData.contentWatchListIDCount > 0) {
-                                for (ListPointer = 0; ListPointer < adminData.contentWatchListIDCount; ListPointer++) {
-                                    using (var CSRules = new CsModel(cp.core)) {
-                                        CSRules.insert("Content Watch List Rules");
-                                        if (CSRules.ok()) {
-                                            CSRules.set("ContentWatchID", ContentWatchId);
-                                            CSRules.set("ContentWatchListID", adminData.contentWatchListID[ListPointer]);
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                 }
