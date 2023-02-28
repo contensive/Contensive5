@@ -143,8 +143,11 @@ namespace Contensive.Processor.Controllers {
                     // -- create default layout record
                     if (string.IsNullOrWhiteSpace(defaultLayout)) { return string.Empty; }
                     LayoutModel layout = DbBaseModel.addDefault<LayoutModel>(cp);
+                    layout.name = layoutName;
                     layout.layout.content = defaultLayout;
                     layout.save(cp);
+                    cp.core.cacheStore.clear();
+                    DbBaseModel.invalidateCacheOfTable<LayoutModel>(cp);
                     return defaultLayout;
                 }
             } catch (Exception ex) {

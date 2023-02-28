@@ -17,6 +17,35 @@ namespace Tests {
         /// <summary>
         /// </summary>
         [TestMethod()]
+        public void isValidPathFilename_Test() {
+            using (CPClass cp = new(testAppName)) {
+                {
+                    //
+                    {
+                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename(""));
+                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename(null));
+                        //
+                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename("a.html"));
+                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename("a/b/c/d.html"));
+                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename("a\\b\\c\\d.html"));
+                        //
+                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename(cp.CdnFiles.PhysicalFilePath + "a/b/c/d.html"));
+                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename(cp.CdnFiles.PhysicalFilePath + "a\\b\\c\\d.html"));
+                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("c:\\tmp\\" + "a/b/c/d.html"));
+                        //
+                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("a*.html"));
+                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("a!.html"));
+                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("a@.html"));
+                    }
+                    //
+                }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// </summary>
+        [TestMethod()]
         public void encodeDosFilename_Test() {
             using (CPClass cp = new(testAppName)) {
                 {

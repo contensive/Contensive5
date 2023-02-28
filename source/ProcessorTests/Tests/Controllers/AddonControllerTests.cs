@@ -222,8 +222,8 @@ namespace Tests {
         /// </summary>
         [TestMethod()]
         public void executeTest_byGuid_Twice() {
-            using CPClass cp = new(testAppName);
             {
+                using CPClass cp = new(testAppName);
                 var addon1 = DbBaseModel.addDefault<AddonModel>(cp);
                 string addon1_content = cp.Utils.CreateGuid();
                 addon1.name = "test addon";
@@ -234,6 +234,7 @@ namespace Tests {
                 DbBaseModel.delete<AddonModel>(cp, addon1.id);
             }
             {
+                using CPClass cp = new(testAppName);
                 var addon2 = DbBaseModel.addDefault<AddonModel>(cp);
                 string addon2_content = cp.Utils.CreateGuid();
                 addon2.name = "test addon";

@@ -316,7 +316,7 @@ namespace Contensive.Processor {
         //==========================================================================================
         //
         public override bool isValidPathFilename(string pathFilename) {
-            return FileController.isValidPathFilename(pathFilename);
+            return fileSystemController.isValidPathFilename(pathFilename);
         }
         //
         //==========================================================================================

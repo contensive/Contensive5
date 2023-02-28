@@ -1449,7 +1449,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- convert to dos slash and lowercase()
             // no, should not lowercase the filenames, just the path. An uploaded image to S3 must match the link saved for it so any case change must happen before call to fileController.
-            string returnPathFilename = pathFilename.Replace("/", "\\");
+            string returnPathFilename = convertToDosSlash(pathFilename);
             //
             // -- remove accidental double slashes
             while (returnPathFilename.IndexOf("\\\\") >= 0) {
@@ -1924,9 +1924,10 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="pathFilename"></param>
         /// <returns></returns>
-        public static bool isValidPathFilename(string pathFilename) {
+        public bool isValidPathFilename(string pathFilename) {
             if (string.IsNullOrEmpty(pathFilename)) { return false; }
-            // -- convert to correct slash and split segments
+            // -- create string with only path segment and filename characters
+            pathFilename = convertLocalAbsToRelativePath(pathFilename);
             pathFilename = pathFilename.Replace("/", "").Replace("\\", "");
             return pathFilename.Equals(encodeFilename(pathFilename, Constants.allowedPathFilenameCharacters));
         }

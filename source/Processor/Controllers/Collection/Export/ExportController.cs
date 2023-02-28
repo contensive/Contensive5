@@ -134,7 +134,7 @@ namespace Contensive.Processor.Controllers {
                         if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
                             //
                             // -- it is a local file, convert to filename (remove querystring, convert unix to dos slash, remove leading slash) and add it to file list
-                            string dosPathFilename = addon.stylesLinkHref.Replace("/", "\\");
+                            string dosPathFilename = FileController.convertToDosSlash(addon.stylesLinkHref);
                             int pos = dosPathFilename.IndexOf("?");
                             if (pos == 0) { continue; }
                             if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
@@ -144,7 +144,7 @@ namespace Contensive.Processor.Controllers {
                             if (!cp.WwwFiles.FileExists(dosPathFilename)) {
                                 cp.WwwFiles.Save(dosPathFilename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
                             }
-                            string unixPathFilename = dosPathFilename.Replace("\\", "/");
+                            string unixPathFilename = FileController.convertToUnixSlash(dosPathFilename);
                             if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
                                 wwwUnixPathFilenameList.Add(unixPathFilename);
                             }
@@ -157,7 +157,7 @@ namespace Contensive.Processor.Controllers {
                         if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
                             //
                             // -- it is a local file, convert to filename (remove querystring, convert unix to dos slash, remove leading slash) and add it to file list
-                            string dosPathFilename = addon.jsHeadScriptSrc.Replace("/", "\\");
+                            string dosPathFilename = FileController.convertToDosSlash(addon.jsHeadScriptSrc);
                             int pos = dosPathFilename.IndexOf("?");
                             if (pos == 0) { continue; }
                             if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
@@ -166,7 +166,7 @@ namespace Contensive.Processor.Controllers {
                             if (!cp.WwwFiles.FileExists(dosPathFilename)) {
                                 cp.WwwFiles.Save(dosPathFilename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
                             }
-                            string unixPathFilename = dosPathFilename.Replace("\\", "/");
+                            string unixPathFilename = FileController.convertToUnixSlash(dosPathFilename);
                             if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
                                 wwwUnixPathFilenameList.Add(unixPathFilename);
                             }

@@ -1150,7 +1150,8 @@ namespace Contensive.Processor.Models.Domain {
                         { "isBaseContent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) }
                     };
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
-                    ContentModel.invalidateCacheOfRecord<ContentModel>(core.cpParent, contentMetadata.id);
+                    DbBaseModel.invalidateCacheOfRecord<ContentModel>(core.cpParent, contentMetadata.id);
+                    core.cacheStore.clear();
                     //
                     // -- reload metadata
                     contentMetadata = create(core, contentMetadata.id, false, true);

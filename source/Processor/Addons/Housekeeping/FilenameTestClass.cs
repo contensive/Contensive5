@@ -47,12 +47,12 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         string pathFilename = GenericController.encodeText(drFilename[0]);
                         if (string.IsNullOrEmpty(pathFilename)) { continue; }
                         // -- unix test
-                        pathFilename = pathFilename.Replace("/", "\\");
+                        pathFilename = FileController.convertToUnixSlash(pathFilename);
                         if (pathFilename != FileController.encodeUnixPathFilename(pathFilename)) {
                             LogController.logAlarm(env.core, $"Housekeep File Unix compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
                         }
                         // -- dos test
-                        pathFilename = pathFilename.Replace("\\", "/");
+                        pathFilename = FileController.convertToDosSlash(pathFilename);
                         if (pathFilename != FileController.encodeDosPathFilename(pathFilename)) {
                             LogController.logAlarm(env.core, $"Housekeep File DOS compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
                         }

@@ -14,11 +14,6 @@ namespace Contensive.Processor.Controllers {
             this.core = core;
         }
         private readonly CoreController core;
-
-
-
-
-
         //
         //====================================================================================================
         /// <summary>
@@ -202,15 +197,15 @@ namespace Contensive.Processor.Controllers {
             //
             // -- load from db
             layoutDict = new LayoutDict();
-            foreach (LayoutModel linkAlias in DbBaseModel.createList<LayoutModel>(core.cpParent)) {
-                if (!layoutDict.layoutIdDict.ContainsKey(linkAlias.id)) {
-                    layoutDict.layoutIdDict.Add(linkAlias.id, linkAlias);
+            foreach (LayoutModel record in DbBaseModel.createList<LayoutModel>(core.cpParent)) {
+                if (!layoutDict.layoutIdDict.ContainsKey(record.id)) {
+                    layoutDict.layoutIdDict.Add(record.id, record);
                 }
-                if (!string.IsNullOrEmpty(linkAlias.ccguid) && !layoutDict.layoutGuidDict.ContainsKey(linkAlias.ccguid)) {
-                    layoutDict.layoutGuidDict.Add(linkAlias.ccguid, linkAlias);
+                if (!string.IsNullOrEmpty(record.ccguid) && !layoutDict.layoutGuidDict.ContainsKey(record.ccguid)) {
+                    layoutDict.layoutGuidDict.Add(record.ccguid, record);
                 }
-                if (!string.IsNullOrEmpty(linkAlias.name) && !layoutDict.layoutNameDict.ContainsKey(linkAlias.name)) {
-                    layoutDict.layoutNameDict.Add(linkAlias.name, linkAlias);
+                if (!string.IsNullOrEmpty(record.name) && !layoutDict.layoutNameDict.ContainsKey(record.name)) {
+                    layoutDict.layoutNameDict.Add(record.name, record);
                 }
             }
             //

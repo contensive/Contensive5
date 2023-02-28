@@ -178,18 +178,29 @@ namespace Tests {
         [TestMethod]
         public void views_cpContent_AddContentFieldTest() {
             // arrange
-            using (CPClass cp = new(testAppName)) { 
+            string contentName1;
+            string contentFieldBooleanName;
+            string contentFieldTextName;
+            string contentFieldDateName;
+            string contentFieldIntegerName;
+            string testText;
+            int testInt;
+            Random rnd;
+            DateTime testDate;
+
+
+            int recordId=0;
+            using (CPClass cp = new(testAppName)) {
                 using (CPCSBaseClass cs = cp.CSNew()) {
-                    int recordId = 0;
-                    string contentName1 = "testContent" + cp.Utils.GetRandomInteger().ToString();
-                    string contentFieldBooleanName = "testFieldBoolean" + cp.Utils.GetRandomInteger().ToString();
-                    string contentFieldTextName = "testFieldText" + cp.Utils.GetRandomInteger().ToString();
-                    string contentFieldDateName = "testFieldDate" + cp.Utils.GetRandomInteger().ToString();
-                    string contentFieldIntegerName = "testFieldInteger" + cp.Utils.GetRandomInteger().ToString();
-                    string testText = "testText" + cp.Utils.GetRandomInteger().ToString();
-                    int testInt = cp.Utils.GetRandomInteger();
-                    Random rnd = new Random(cp.Utils.GetRandomInteger());
-                    DateTime testDate = new DateTime(rnd.Next(1900, 2000), rnd.Next(1, 13), rnd.Next(1, 28));
+                     contentName1 = "testContent" + cp.Utils.GetRandomInteger().ToString();
+                     contentFieldBooleanName = "testFieldBoolean" + cp.Utils.GetRandomInteger().ToString();
+                     contentFieldTextName = "testFieldText" + cp.Utils.GetRandomInteger().ToString();
+                     contentFieldDateName = "testFieldDate" + cp.Utils.GetRandomInteger().ToString();
+                     contentFieldIntegerName = "testFieldInteger" + cp.Utils.GetRandomInteger().ToString();
+                     testText = "testText" + cp.Utils.GetRandomInteger().ToString();
+                     testInt = cp.Utils.GetRandomInteger();
+                     rnd = new Random(cp.Utils.GetRandomInteger());
+                     testDate = new DateTime(rnd.Next(1900, 2000), rnd.Next(1, 13), rnd.Next(1, 28));
                     //
                     // act
                     // assert
@@ -200,6 +211,11 @@ namespace Tests {
                     Assert.AreNotEqual(0, cp.Content.AddContentField(contentName1, contentFieldDateName, CPContentBaseClass.FieldTypeIdEnum.Date));
                     Assert.AreNotEqual(0, cp.Content.AddContentField(contentName1, contentFieldIntegerName, CPContentBaseClass.FieldTypeIdEnum.Integer));
                     //
+
+                }
+            }
+            using (CPClass cp = new(testAppName)) {
+                using (CPCSBaseClass cs = cp.CSNew()) {
                     if (cs.Insert(contentName1)) {
                         recordId = cs.GetInteger("id");
                         Assert.AreNotEqual(0, recordId);
