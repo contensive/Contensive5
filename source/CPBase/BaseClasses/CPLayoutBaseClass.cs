@@ -74,6 +74,20 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Transform the input html using the data attribute based html transformations. These transformations 
         /// are typically used to convert a static html design
+        /// 
+        /// data-mustache-section
+        /// data-mustache-inverted-section
+        /// data-body
+        /// data-layout
+        /// data-href
+        /// data-value
+        /// data-src
+        /// data-alt
+        /// data-addon
+        /// data-innertext
+        /// data-delete
+        /// data-mustache-value
+        /// data-mustache-variable
         /// </summary>
         /// <param name="sourceHtml"></param>
         /// <returns></returns>

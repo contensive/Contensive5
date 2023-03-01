@@ -59,6 +59,11 @@ namespace Contensive.Processor.Controllers {
                 layout.layout.content = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
                 layout.layoutPlatform5.content = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
                 layout.save(cp);
+                //
+                // -- flush caches aftre insert
+                cp.core.cacheStore.clearLayout();
+                DbBaseModel.invalidateCacheOfTable<LayoutModel>(cp);
+                //
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -146,8 +151,11 @@ namespace Contensive.Processor.Controllers {
                     layout.name = layoutName;
                     layout.layout.content = defaultLayout;
                     layout.save(cp);
-                    cp.core.cacheStore.clear();
+                    //
+                    // -- flush caches aftre insert
+                    cp.core.cacheStore.clearLayout();
                     DbBaseModel.invalidateCacheOfTable<LayoutModel>(cp);
+                    //
                     return defaultLayout;
                 }
             } catch (Exception ex) {

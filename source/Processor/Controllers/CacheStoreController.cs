@@ -20,15 +20,16 @@ namespace Contensive.Processor.Controllers {
         /// Clear all data from the metaData current instance. Next request will load from cache.
         /// </summary>
         public void clear() {
-            if (_dataSourceDictionary != null) { _dataSourceDictionary=null; }
-            addonCache_Clear();
+            clearLinkAlias();
+            clearLayout();
+            clearAddon();
+            //
+            if (_dataSourceDictionary != null) { _dataSourceDictionary = null; }
             metaDataDictionary.Clear();
             tableSchemaDictionary.Clear();
             contentNameIdDictionary_Clear();
             assemblyFileDict.Clear();
             domainDictionary = new();
-            layout_Clear();
-            linkAlias_Clear();
             content_Clear();
             assemblyFileDict_Clear();
         }
@@ -87,7 +88,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// method to clear the core instance of routeMap. Explained in routeMap.
         /// </summary>
-        private void addonCache_Clear() {
+        public void clearAddon() {
             core.cache.invalidate(cacheName_addonCache);
             _addonCache = null;
         }
@@ -180,7 +181,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// clear layouts
         /// </summary>
-        private void layout_Clear() {
+        public void clearLayout() {
             layoutIdDict_Local = null;
             layoutGuidDict_Local = null;
             layoutNameDict_Local = null;
@@ -272,7 +273,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// clear store
         /// </summary>
-        private void linkAlias_Clear() {
+        public void clearLinkAlias() {
             linkAliasIdDict_Local = null;
             linkAliasGuidDict_Local = null;
             linkAliasNameDict_Local = null;
