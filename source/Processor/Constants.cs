@@ -57,7 +57,10 @@ namespace Contensive.Processor {
         internal const double invalidationDaysDefault = 365;
         //
         // -- valid file characters
-        public const string allowedPathFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._";
+        // -- dos valid "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ^&'@{}[],$-#()%.+~_"
+        // -- unix valid "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+"
+        // -- 230301, added space
+        public const string allowedPathFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+";
         //
         //=======================================================================
         //   sitepropertyNames

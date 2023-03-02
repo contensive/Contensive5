@@ -198,5 +198,100 @@ namespace Tests {
             Assert.AreEqual(expect1, result1);
             Assert.AreEqual(expect2, result2);
         }
+
+        [TestMethod()]
+        public void GetLayout_Transform_href() {
+            // -- arrange
+            // -- act
+            using CPClass cp = new(testAppName);
+            string href = cp.Utils.CreateGuid();
+            string source = $"<div><a href=\"old\" data-href=\"{href}\"><div>headline</div></a></div>";
+            string expect1 = $"<div><a href=\"{href}\"><div>headline</div></a></div>";
+            string result1 = cp.Layout.Transform(source);
+            // -- assert
+            Assert.AreEqual(expect1, result1);
+        }
+
+        [TestMethod()]
+        public void GetLayout_Transform_value() {
+            // -- arrange
+            // -- act
+            using CPClass cp = new(testAppName);
+            string value = cp.Utils.CreateGuid();
+            string source = $"<div><input name=\"asdfadsf\" value=\"sdfgsdfg\" data-value=\"{value}\"><div>headline</div></div>";
+            string expect1 = $"<div><input name=\"asdfadsf\" value=\"{value}\"><div>headline</div></div>";
+            string result1 = cp.Layout.Transform(source);
+            // -- assert
+            Assert.AreEqual(expect1, result1);
+        }
+
+        [TestMethod()]
+        public void GetLayout_Transform_src() {
+            // -- arrange
+            // -- act
+            using CPClass cp = new(testAppName);
+            string value = cp.Utils.CreateGuid();
+            string source = $"<div><img src=\"asdfadsf\" data-src=\"{value}\"><div>headline</div></div>";
+            string expect1 = $"<div><img src=\"{value}\"><div>headline</div></div>";
+            string result1 = cp.Layout.Transform(source);
+            // -- assert
+            Assert.AreEqual(expect1, result1);
+        }
+
+        [TestMethod()]
+        public void GetLayout_Transform_alt() {
+            // -- arrange
+            // -- act
+            using CPClass cp = new(testAppName);
+            string value = cp.Utils.CreateGuid();
+            string source = $"<div><img alt=\"asdfadsf\" data-alt=\"{value}\"><div>headline</div></div>";
+            string expect1 = $"<div><img alt=\"{value}\"><div>headline</div></div>";
+            string result1 = cp.Layout.Transform(source);
+            // -- assert
+            Assert.AreEqual(expect1, result1);
+        }
+
+        [TestMethod()]
+        public void GetLayout_Transform_addon() {
+            using CPClass cp = new(testAppName);
+            string value = cp.Utils.CreateGuid();
+            string source = $"<div data-addon=\"{value}\"><h1>headline</h1></div>";
+            string expect1 = "<div>{% \"" + value + "\" %}</div>";
+            string result1 = cp.Layout.Transform(source);
+            // -- assert
+            Assert.AreEqual(expect1, result1);
+        }
+
+        [TestMethod()]
+        public void GetLayout_Transform_innertext() {
+            using CPClass cp = new(testAppName);
+            string value = cp.Utils.CreateGuid();
+            string source = $"<div data-innertext=\"{value}\"><h1>headline</h1></div>";
+            string expect1 = $"<div>{value}</div>";
+            string result1 = cp.Layout.Transform(source);
+            // -- assert
+            Assert.AreEqual(expect1, result1);
+        }
+
+        [TestMethod()]
+        public void GetLayout_Transform_delete() {
+            using CPClass cp = new(testAppName);
+            // -- arrange
+            string value = cp.Utils.CreateGuid();
+            string source1 = $" <p>1<span data-delete>headline</span>2</p>";
+            string expect1 = $" <p>12</p>";
+            string source2 = $" <p>1<span data-delete>23</span>4</p>";
+            string expect2 = $" <p>14</p>";
+            string source3 = $" <p>This is in the layout.<span data-delete>This is not.</span></p>";
+            string expect3 = $" <p>This is in the layout.</p>";
+            // -- act
+            string result1 = cp.Layout.Transform(source1);
+            string result2 = cp.Layout.Transform(source2);
+            string result3 = cp.Layout.Transform(source3);
+            // -- assert
+            Assert.AreEqual(expect3, result3);
+            Assert.AreEqual(expect2, result2);
+            Assert.AreEqual(expect1, result1);
+        }
     }
 }

@@ -460,7 +460,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(pathFilename)) { return; }
                 if (!isValidPathFilename(pathFilename)) {
                     // -- invalid filename, log and continue to not blowup
-                    LogController.logError(core, new GenericException($"attempt to delete file with invalid name [{pathFilename}]"));
+                    LogController.logError(core, new GenericException($"attempt to delete file with invalid name [{pathFilename}] in fileSystem [{localAbsRootPath}]"));
                     return;
                 }
                 if (isLocalFileSystem) {
