@@ -113,6 +113,14 @@ namespace Contensive.Processor.Controllers {
         /// true if cacheClient initialized correctly
         /// </summary>
         private readonly bool remoteCacheInitialized;
+        private bool allowCache {
+            get {
+                if (_allowCache != null) { return (bool)_allowCache; }
+                _allowCache = core.siteProperties.allowCache_notCached;
+                return (bool)_allowCache;
+            }
+        }
+        private bool? _allowCache = null;
         //
         //====================================================================================================
         /// <summary>
@@ -125,16 +133,16 @@ namespace Contensive.Processor.Controllers {
                 //
                 _globalInvalidationDate = null;
                 remoteCacheInitialized = false;
-                if (core.serverConfig.enableRemoteCache) {
-                    //
-                    // -- Redis implementation
-                    string cacheEndpoint = core.serverConfig.awsElastiCacheConfigurationEndpoint;
-                    if (!string.IsNullOrEmpty(cacheEndpoint)) {
-                        redisConnectionGroup = ConnectionMultiplexer.Connect(cacheEndpoint);
-                        if (redisConnectionGroup != null) {
-                            redisDb = redisConnectionGroup.GetDatabase();
-                            remoteCacheInitialized = true;
-                        }
+                if (!allowCache) { return; }
+                if (!core.serverConfig.enableRemoteCache) { return; }
+                //
+                // -- Redis implementation
+                string cacheEndpoint = core.serverConfig.awsElastiCacheConfigurationEndpoint;
+                if (!string.IsNullOrEmpty(cacheEndpoint)) {
+                    redisConnectionGroup = ConnectionMultiplexer.Connect(cacheEndpoint);
+                    if (redisConnectionGroup != null) {
+                        redisDb = redisConnectionGroup.GetDatabase();
+                        remoteCacheInitialized = true;
                     }
                 }
             } catch (RedisConnectionException ex) {
@@ -156,6 +164,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="key">The text name for the cache entry</param>
         /// <returns></returns>
         public TData getObject<TData>(string key) {
+            if (!allowCache) { return default; }
             if (string.IsNullOrEmpty(key)) { return default; }
             CacheKeyHashClass keyHash = createKeyHash(key);
             return getObject<TData>(keyHash);
@@ -172,6 +181,7 @@ namespace Contensive.Processor.Controllers {
         public bool tryGetCacheDocument<TData>(CacheKeyHashClass keyHash, out CacheDocumentClass cacheDocument) {
             cacheDocument = null;
             try {
+                if (!allowCache) { return default; }
                 //
                 // -- read cacheDocument (the object that holds the data object plus control fields)
                 cacheDocument = getCacheDocument(keyHash);
@@ -224,6 +234,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public TData getObject<TData>(CacheKeyHashClass keyHash) {
             try {
+                if (!allowCache) { return default; }
                 if (!tryGetCacheDocument<TData>(keyHash, out CacheDocumentClass cacheDocument)) { return default; }
                 if ((cacheDocument.keyPtrHash != null) && !string.IsNullOrEmpty(cacheDocument.keyPtrHash.hash)) {
                     //
@@ -308,8 +319,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="keyHash">The hashed key. Turn a Key (text name) to a has with createKeyHash().</param>
         /// <returns></returns>
         private CacheDocumentClass getCacheDocument(CacheKeyHashClass keyHash) {
-            CacheDocumentClass result = null;
             try {
+                if (!allowCache) { return default; }
+                CacheDocumentClass result = null;
                 string typeMessage = "";
                 if (remoteCacheInitialized) {
                     //
@@ -370,12 +382,11 @@ namespace Contensive.Processor.Controllers {
                         result.dependentKeyHashList = new List<CacheKeyHashClass>();
                     }
                 }
-
+                return result;
             } catch (Exception ex) {
                 logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
                 throw;
             }
-            return result;
         }
         //
         //====================================================================================================
@@ -388,6 +399,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dependentKeyHashList">A list of hashed keys (text keys that have been hashed with createhashKey). If any of these keys are invalidated or updated, this object will be automatically invalidated.</param>
         /// <remarks></remarks>
         public void storeObject(string key, object content, DateTime invalidationDate, List<CacheKeyHashClass> dependentKeyHashList) {
+            if (!allowCache) { return; }
             CacheKeyHashClass keyHash = createKeyHash(key);
             storeObject(keyHash, content, invalidationDate, dependentKeyHashList);
         }
@@ -405,6 +417,7 @@ namespace Contensive.Processor.Controllers {
         /// To make this object invalidate when any record in a table is updated in the admin site, add a tableDependencyKey for that table
         /// </param>
         public void storeObject(string key, object content, DateTime invalidationDate, List<string> dependentKeyList) {
+            if (!allowCache) { return; }
             CacheKeyHashClass keyHash = createKeyHash(key);
             List<CacheKeyHashClass> dependentKeyHashList = createKeyHashList(dependentKeyList);
             storeObject(keyHash, content, invalidationDate, dependentKeyHashList);
@@ -424,6 +437,7 @@ namespace Contensive.Processor.Controllers {
         /// </param>
         public void storeObject(CacheKeyHashClass keyHash, object content, DateTime invalidationDate, List<CacheKeyHashClass> dependentKeyHashList) {
             try {
+                if (!allowCache) { return; }
                 var cacheDocument = new CacheDocumentClass(core.dateTimeNowMockable) {
                     content = content,
                     saveDate = core.dateTimeNowMockable,
@@ -443,6 +457,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="keyList">A list of keys that need to be converted to a list of KeyHash</param>
         /// <returns></returns>
         public List<CacheKeyHashClass> createKeyHashList(List<string> keyList) {
+            if (!allowCache) { return default; }
             var result = new List<CacheKeyHashClass>();
             foreach (var key in keyList) {
                 result.Add(createKeyHash(key));
@@ -537,6 +552,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="datasourceName"></param>
         /// <param name="content"></param>
         public void storeRecord(string guid, int recordId, string tableName, string datasourceName, object content) {
+            if (!allowCache) { return; }
             CacheKeyHashClass keyHash = createRecordKeyHash(recordId, tableName, datasourceName);
             storeObject(keyHash, content);
             CacheKeyHashClass keyPtrHash = createRecordGuidPtrKeyHash(guid, tableName, datasourceName);
@@ -552,6 +568,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recordId"></param>
         /// <param name="content"></param>
         public void storeRecord<T>(string guid, int recordId, object content) where T : DbBaseModel {
+            if (!allowCache) { return; }
             Type derivedType = this.GetType();
             FieldInfo fieldInfoTable = derivedType.GetField("tableNameLower");
             if (fieldInfoTable == null) {
@@ -582,6 +599,7 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         public void storePtr(CacheKeyHashClass keyPtrHash, CacheKeyHashClass keyHash) {
             try {
+                if (!allowCache) { return; }
                 CacheDocumentClass cacheDocument = new CacheDocumentClass(core.dateTimeNowMockable) {
                     saveDate = core.dateTimeNowMockable,
                     invalidationDate = core.dateTimeNowMockable.AddDays(invalidationDaysDefault),
@@ -601,6 +619,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="keyPtr"></param>
         /// <param name="key">The text name for the cache entry.</param>
         public void storePtr(string keyPtr, string key) {
+            if (!allowCache) { return; }
             CacheKeyHashClass keyPtrHash = createKeyHash(keyPtr);
             CacheKeyHashClass keyHash = createKeyHash(key);
             storePtr(keyPtrHash, keyHash);
@@ -613,6 +632,7 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         public void invalidateAll() {
             try {
+                if (!allowCache) { return; }
                 CacheKeyHashClass keyHash = createKeyHash(cacheNameGlobalInvalidationDate);
                 storeCacheDocument(keyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = core.dateTimeNowMockable });
                 _globalInvalidationDate = null;
@@ -639,6 +659,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recursionLimit"></param>
         public void invalidate(CacheKeyHashClass keyHash, int recursionLimit = 5) {
             try {
+                if (!allowCache) { return; }
                 logger.Trace(LogController.processLogMessage(core, "invalidate, keyHash [key:" + keyHash.key + "], recursionLimit [" + recursionLimit + "]", false));
                 if ((recursionLimit > 0) && (keyHash != null)) {
                     //
@@ -684,6 +705,7 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         public void invalidate(List<string> keyList) {
             try {
+                if (!allowCache) { return; }
                 foreach (var key in keyList) {
                     invalidate(key);
                 }
@@ -844,6 +866,7 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         private DateTime globalInvalidationDate {
             get {
+                if (!allowCache) { return default; }
                 bool setDefault = false;
                 CacheKeyHashClass globalInvalidationDateKeyHash = createKeyHash(cacheNameGlobalInvalidationDate);
                 if (_globalInvalidationDate == null) {
@@ -881,6 +904,7 @@ namespace Contensive.Processor.Controllers {
         /// <remarks></remarks>
         private void storeCacheDocument(CacheKeyHashClass keyHash, CacheDocumentClass cacheDocument) {
             try {
+                if (!allowCache) { return; }
                 //
                 if (keyHash == null) {
                     throw new ArgumentException("cache key cannot be blank");
@@ -929,6 +953,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="keyHash">key converted to serverKey with app name and code version</param>
         /// <param name="cacheDocument"></param>
         private void storeCacheDocument_MemoryCache(CacheKeyHashClass keyHash, CacheDocumentClass cacheDocument) {
+            if (!allowCache) { return; }
             ObjectCache cache = MemoryCache.Default;
             CacheItemPolicy policy = new CacheItemPolicy {
                 AbsoluteExpiration = cacheDocument.invalidationDate
@@ -942,6 +967,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         public void invalidateTableDependencyKey(string tableName) {
+            if (!allowCache) { return; }
             storeObject(createTableDependencyKeyHash(tableName), core.dateTimeNowMockable);
         }
         //
