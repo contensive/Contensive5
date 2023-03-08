@@ -440,7 +440,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 if (AllowOnNewVisitEvent) {
                     LogController.logTrace(core, "execute NewVisit Event");
-                    foreach (var addon in core.cacheStore.addonCache.getOnNewVisitAddonList()) {
+                    foreach (var addon in core.cacheRuntime.addonCache.getOnNewVisitAddonList()) {
                         CPUtilsBaseClass.addonExecuteContext executeContext = new() {
                             addonType = CPUtilsBaseClass.addonContext.ContextOnNewVisit,
                             errorContextMessage = "new visit event running addon  [" + addon.name + "]"

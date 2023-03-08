@@ -106,7 +106,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 //
                 // -- add remote methods
-                foreach (var remoteMethod in core.cacheStore.addonCache.getRemoteMethodAddonList()) {
+                foreach (var remoteMethod in core.cacheRuntime.addonCache.getRemoteMethodAddonList()) {
                     string localRoute = GenericController.normalizeRoute(remoteMethod.name);
                     if (!string.IsNullOrWhiteSpace(localRoute)) {
                         if (result.routeDictionary.ContainsKey(localRoute)) {
@@ -151,7 +151,7 @@ namespace Contensive.Processor.Models.Domain {
                 // -- add link aliases
                 // 221119 - each destination (pageid+qsSuffix) may have mulitple urls (name). if not primary (highest id) link alias for this page/qs, forward to the first
                 Dictionary<string, string> usedPages = new();
-                foreach (KeyValuePair<string,LinkAliasModel> kvp in core.cacheStore.linkAliasNameDict ) {
+                foreach (KeyValuePair<string,LinkAliasModel> kvp in core.cacheRuntime.linkAliasNameDict ) {
                     LinkAliasModel linkAlias = kvp.Value;   
                     //foreach (var linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent, "name Is Not null", "pageid,queryStringSuffix,id desc")) {
                     string localRoute = GenericController.normalizeRoute(linkAlias.name);

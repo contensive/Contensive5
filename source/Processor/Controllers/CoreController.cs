@@ -511,15 +511,15 @@ namespace Contensive.Processor.Controllers {
         /// cache store controller
         /// store frequently accessed records.
         /// </summary>
-        public CacheStoreController cacheStore {
+        public CacheRuntimeController cacheRuntime {
             get {
                 if (_cacheStore == null) {
-                    _cacheStore = new CacheStoreController(this);
+                    _cacheStore = new CacheRuntimeController(this);
                 }
                 return _cacheStore;
             }
         }
-        private CacheStoreController _cacheStore;
+        private CacheRuntimeController _cacheStore;
         //
         //===================================================================================================
         /// <summary>
@@ -572,8 +572,8 @@ namespace Contensive.Processor.Controllers {
         public CoreController(CPClass cp) {
             cpParent = cp;
             cpParent.core = this;
-            cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
             coreController_Initialize(null, null, false);
         }
@@ -589,8 +589,8 @@ namespace Contensive.Processor.Controllers {
         public CoreController(CPClass cp, string appName) {
             cpParent = cp;
             cpParent.core = this;
-            cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
             coreController_Initialize(appName, null, false);
         }
@@ -607,8 +607,8 @@ namespace Contensive.Processor.Controllers {
         public CoreController(CPClass cp, string appName, bool allowSession) {
             cpParent = cp;
             cpParent.core = this;
-            cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+            cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+            cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
             //
             coreController_Initialize(appName, null, allowSession);
         }
@@ -621,8 +621,8 @@ namespace Contensive.Processor.Controllers {
             try {
                 cpParent = cp;
                 cpParent.core = this;
-                cacheStore.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-                cacheStore.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
+                cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
+                cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
                 //
                 coreController_Initialize(appName, httpContext, true);
             } catch (Exception ex) {
@@ -716,7 +716,7 @@ namespace Contensive.Processor.Controllers {
             _routeMap = null;
             //
             // -- no idea why we added the addon clear
-            cacheStore.clear();
+            cacheRuntime.clear();
             //
             // -- rebuild the map
             _ = routeMap;

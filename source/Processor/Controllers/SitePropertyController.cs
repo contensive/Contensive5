@@ -25,8 +25,18 @@ namespace Contensive.Processor.Controllers {
         public SitePropertiesController(CoreController core) {
             this.core = core;
         }
-        //AnonymousUserResponseCopy
-
+        //
+        /// <summary>
+        /// temp property, test if this will work. if true, include a page settings button
+        /// </summary>
+        public bool allowPageSettingsEdit {
+            get {
+                if (_allowPageSettingsEdit!=null) { return (bool)_allowPageSettingsEdit;  }
+                _allowPageSettingsEdit = getBoolean("allow page settings edit", true);
+                return (bool)_allowPageSettingsEdit;
+            }
+        }
+        private bool _allowPageSettingsEdit;
         //
         /// <summary>
         /// if site property anonymousUserResponseID is set to 3 (redirect), this is the redirect destination

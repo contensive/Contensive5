@@ -40,10 +40,10 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- load the layout from the catalog settings selection
                 LayoutModel layout;
-                if (cp.core.cacheStore.layoutGuidDict.ContainsKey(layoutGuid)) {
+                if (cp.core.cacheRuntime.layoutGuidDict.ContainsKey(layoutGuid)) {
                     //
                     // --most common cases
-                    layout = cp.core.cacheStore.layoutGuidDict[layoutGuid];
+                    layout = cp.core.cacheRuntime.layoutGuidDict[layoutGuid];
                     if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) { return layout.layoutPlatform5.content; }
                     return layout.layout.content;
                 }
@@ -61,7 +61,7 @@ namespace Contensive.Processor.Controllers {
                 layout.save(cp);
                 //
                 // -- flush caches aftre insert
-                cp.core.cacheStore.clearLayout();
+                cp.core.cacheRuntime.clearLayout();
                 DbBaseModel.invalidateCacheOfTable<LayoutModel>(cp);
                 //
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
@@ -81,8 +81,8 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getLayout(CPClass cp, int layoutId) {
             try {
-                if (!cp.core.cacheStore.layoutIdDict.ContainsKey(layoutId)) { return ""; }
-                var layout = cp.core.cacheStore.layoutIdDict[layoutId];
+                if (!cp.core.cacheRuntime.layoutIdDict.ContainsKey(layoutId)) { return ""; }
+                var layout = cp.core.cacheRuntime.layoutIdDict[layoutId];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -100,8 +100,8 @@ namespace Contensive.Processor.Controllers {
         public static string getLayout(CPClass cp, string layoutGuid) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutGuid)) { return ""; }
-                if (!cp.core.cacheStore.layoutGuidDict.ContainsKey(layoutGuid)) { return ""; }
-                var layout = cp.core.cacheStore.layoutGuidDict[layoutGuid];
+                if (!cp.core.cacheRuntime.layoutGuidDict.ContainsKey(layoutGuid)) { return ""; }
+                var layout = cp.core.cacheRuntime.layoutGuidDict[layoutGuid];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -119,8 +119,8 @@ namespace Contensive.Processor.Controllers {
         public static string getLayoutByName(CPClass cp, string layoutName) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return ""; }
-                if (!cp.core.cacheStore.layoutNameDict.ContainsKey(layoutName)) { return ""; }
-                var layout = cp.core.cacheStore.layoutNameDict[layoutName];
+                if (!cp.core.cacheRuntime.layoutNameDict.ContainsKey(layoutName)) { return ""; }
+                var layout = cp.core.cacheRuntime.layoutNameDict[layoutName];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -139,8 +139,8 @@ namespace Contensive.Processor.Controllers {
         public static string getLayoutByName(CPClass cp, string layoutName, string defaultLayout) {
             try {
                 if (string.IsNullOrWhiteSpace(layoutName)) { return defaultLayout; }
-                if (cp.core.cacheStore.layoutNameDict.ContainsKey(layoutName)) {
-                    var layout = cp.core.cacheStore.layoutNameDict[layoutName];
+                if (cp.core.cacheRuntime.layoutNameDict.ContainsKey(layoutName)) {
+                    var layout = cp.core.cacheRuntime.layoutNameDict[layoutName];
                     return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
                 }
                 {
@@ -153,7 +153,7 @@ namespace Contensive.Processor.Controllers {
                     layout.save(cp);
                     //
                     // -- flush caches aftre insert
-                    cp.core.cacheStore.clearLayout();
+                    cp.core.cacheRuntime.clearLayout();
                     DbBaseModel.invalidateCacheOfTable<LayoutModel>(cp);
                     //
                     return defaultLayout;

@@ -80,7 +80,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string ExecuteByUniqueName(string addonName) {
-            AddonModel addon = cp.core.cacheStore.addonCache.createByUniqueName(addonName);
+            AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
                 LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
@@ -91,7 +91,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string ExecuteByUniqueName(string addonName, Dictionary<string, string> argumentKeyValuePairs) {
-            AddonModel addon = cp.core.cacheStore.addonCache.createByUniqueName(addonName);
+            AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
                 LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
@@ -104,7 +104,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string ExecuteByUniqueName(string addonName, CPUtilsBaseClass.addonExecuteContext executeContext) {
-            AddonModel addon = cp.core.cacheStore.addonCache.createByUniqueName(addonName);
+            AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
                 LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "], executeContext [" + executeContext.errorContextMessage + "].");
                 return "";
@@ -120,7 +120,7 @@ namespace Contensive.Processor {
         /// <param name="keyValuePairs"></param>
         public override void ExecuteAsProcess(int Addonid, Dictionary<string, string> keyValuePairs) {
             if (Addonid <= 0) { throw new ArgumentException("ExecuteAsync called with invalid AddonId [" + Addonid + "]"); }
-            var addon = cp.core.cacheStore.addonCache.create(Addonid);
+            var addon = cp.core.cacheRuntime.addonCache.create(Addonid);
             if (addon == null) { throw new ArgumentException("ExecuteAsync cannot find AddonId [" + Addonid + "]"); }
             cp.core.addon.executeAsProcess(addon, keyValuePairs);
         }
@@ -140,7 +140,7 @@ namespace Contensive.Processor {
         /// <param name="keyValuePairs"></param>
         public override void ExecuteAsProcess(string guid, Dictionary<string, string> keyValuePairs) {
             if (string.IsNullOrEmpty(guid)) { throw new ArgumentException("ExecuteAsync called with invalid guid [" + guid + "]"); }
-            var addon = cp.core.cacheStore.addonCache.create(guid);
+            var addon = cp.core.cacheRuntime.addonCache.create(guid);
             if (addon == null) { throw new ArgumentException("ExecuteAsync cannot find Addon for guid [" + guid + "]"); }
             cp.core.addon.executeAsProcess(addon, keyValuePairs);
         }
@@ -160,7 +160,7 @@ namespace Contensive.Processor {
         /// <param name="keyValuePairs"></param>
         public override void ExecuteAsProcessByUniqueName(string name, Dictionary<string, string> keyValuePairs) {
             if (string.IsNullOrEmpty(name)) { throw new ArgumentException("ExecuteAsyncByUniqueName called with invalid name [" + name + "]"); }
-            var addon = cp.core.cacheStore.addonCache.createByUniqueName( name);
+            var addon = cp.core.cacheRuntime.addonCache.createByUniqueName( name);
             if (addon == null) { throw new ArgumentException("ExecuteAsyncByUniqueName cannot find Addon for name [" + name + "]"); }
             cp.core.addon.executeAsProcess(addon, keyValuePairs);
         }

@@ -41,7 +41,7 @@ namespace Contensive.Processor.Models.Domain {
                 } else {
                     if (!string.IsNullOrEmpty(TableName)) {
                         string lowerTablename = TableName.ToLowerInvariant();
-                        bool isInCache = core.cacheStore.tableSchemaDictionary.TryGetValue(lowerTablename, out tableSchema);
+                        bool isInCache = core.cacheRuntime.tableSchemaDictionary.TryGetValue(lowerTablename, out tableSchema);
                         bool buildCache = !isInCache;
                         if (isInCache) {
                             buildCache = tableSchema.dirty;
@@ -93,18 +93,18 @@ namespace Contensive.Processor.Models.Domain {
                             if (!isInDb && isInCache) {
                                 //
                                 // -- not in db but in cache -- remove from cache
-                                core.cacheStore.tableSchemaDictionary.Remove(lowerTablename);
+                                core.cacheRuntime.tableSchemaDictionary.Remove(lowerTablename);
                             } else if (!isInDb && !isInCache) {
                                 //
                                 // -- not in Db, not in cache -- do nothing
                             } else if (isInDb && !isInCache) {
                                 //
                                 // -- in Db but not in cache -- add it to cache
-                                core.cacheStore.tableSchemaDictionary.Add(lowerTablename, tableSchema);
+                                core.cacheRuntime.tableSchemaDictionary.Add(lowerTablename, tableSchema);
                             } else {
                                 //
                                 // -- in Db and in cache -- update cache because this was a .dirty cache problem
-                                core.cacheStore.tableSchemaDictionary[lowerTablename] = tableSchema;
+                                core.cacheRuntime.tableSchemaDictionary[lowerTablename] = tableSchema;
                             }
                         }
                     }
@@ -118,7 +118,7 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         public static void tableSchemaListClear(CoreController core) {
-            core.cacheStore.tableSchemaDictionary.Clear();
+            core.cacheRuntime.tableSchemaDictionary.Clear();
         }
     }
 

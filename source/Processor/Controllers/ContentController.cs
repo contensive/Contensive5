@@ -248,7 +248,7 @@ namespace Contensive.Processor.Controllers {
                             + Environment.NewLine + "recordid=" + recordId + "";
                     }
                     while (csData.ok()) {
-                        var addon = core.cacheStore.addonCache.create(csData.getInteger("Addonid"));
+                        var addon = core.cacheRuntime.addonCache.create(csData.getInteger("Addonid"));
                         if (addon != null) {
                             if (onChangeAddonsAsync) {
                                 //

@@ -113,14 +113,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!string.IsNullOrEmpty(field.editorAddonGuid)) {
                     //
                     // -- set editor from field
-                    editorAddon = core.cacheStore.addonCache.create(field.editorAddonGuid);
+                    editorAddon = core.cacheRuntime.addonCache.create(field.editorAddonGuid);
                 }
                 var fieldEditor = adminData.fieldTypeEditors.Find(x => (x.fieldTypeId == (int)field.fieldTypeId));
                 if (fieldEditor != null) {
                     //
                     // -- set editor from field type
                     int fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
-                    editorAddon = core.cacheStore.addonCache.create(fieldTypeDefaultEditorAddonId);
+                    editorAddon = core.cacheRuntime.addonCache.create(fieldTypeDefaultEditorAddonId);
                 }
                 //
                 // -- create editor: custom, read-only, editable

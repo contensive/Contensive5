@@ -56,7 +56,7 @@ namespace Contensive.Processor.Addons.Tools {
                         //
                         Stream.add("<br>Reloading Content Definitions...");
                         core.cache.invalidateAll();
-                        core.cacheStore.clear();
+                        core.cacheRuntime.clear();
                         Stream.add("<br>Finished</P>");
                     }
                     Stream.add("</SPAN>");

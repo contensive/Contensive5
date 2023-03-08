@@ -367,7 +367,7 @@ namespace Contensive.Processor.Controllers {
                             // -- find link alias and inject into request (doc) the linkAlias.querystring elements
                             //
                             if (!string.IsNullOrEmpty(linkAliasTest1) && !string.IsNullOrEmpty(linkAliasTest2)) {
-                                Dictionary<string,LinkAliasModel> linkAliasNameDict = core.cacheStore.linkAliasNameDict;
+                                Dictionary<string,LinkAliasModel> linkAliasNameDict = core.cacheRuntime.linkAliasNameDict;
                                 LinkAliasModel linkAlias  = null;
                                 if(linkAliasNameDict.ContainsKey(linkAliasTest1)) { linkAlias  = linkAliasNameDict[linkAliasTest1];  }
                                 if(linkAlias ==null && linkAliasNameDict.ContainsKey(linkAliasTest2)) { linkAlias  = linkAliasNameDict[linkAliasTest2]; }
@@ -726,7 +726,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // -- either not authenticated or not authorized
                                     blockForm = ""
-                                        + core.addon.execute(core.cacheStore.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
+                                        + core.addon.execute(core.cacheRuntime.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked and user not authenticated"
                                         });
@@ -734,7 +734,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // -- not authorized, login form can detect isAuthenticated and determine authorization
                                     blockForm = ""
-                                        + core.addon.execute(core.cacheStore.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
+                                        + core.addon.execute(core.cacheRuntime.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked and user does not have access to content"
                                         });
@@ -760,7 +760,7 @@ namespace Contensive.Processor.Controllers {
                                     BlockForm = ""
                                         + "<p>This content has limited access. If you have an account, please login using this form.</p>"
                                         + "<p>If you do not have an account, <a href=\"?" + core.doc.refreshQueryString + "&subform=0\">click here to register</a>.</p>"
-                                        + core.addon.execute(core.cacheStore.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
+                                        + core.addon.execute(core.cacheRuntime.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked for registration"
                                         });
@@ -821,7 +821,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- OnPageStart Event
                     Dictionary<string, string> instanceArguments = new Dictionary<string, string> { { "CSPage", "-1" } };
-                    foreach (var addon in core.cacheStore.addonCache.getOnPageStartAddonList()) {
+                    foreach (var addon in core.cacheRuntime.addonCache.getOnPageStartAddonList()) {
                         CPUtilsBaseClass.addonExecuteContext pageStartContext = new CPUtilsBaseClass.addonExecuteContext {
                             instanceGuid = "-1",
                             argumentKeyValuePairs = instanceArguments,
@@ -963,7 +963,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- OnPageEndEvent
                     core.doc.bodyContent = result;
-                    foreach (AddonModel addon in core.cacheStore.addonCache.getOnPageEndAddonList()) {
+                    foreach (AddonModel addon in core.cacheRuntime.addonCache.getOnPageEndAddonList()) {
                         CPUtilsBaseClass.addonExecuteContext pageEndContext = new CPUtilsBaseClass.addonExecuteContext {
                             instanceGuid = "-1",
                             argumentKeyValuePairs = instanceArguments,
@@ -977,8 +977,9 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- edit wrapper
-                bool allowCut = core.doc.pageController.pageToRootList.Count != 1;
-                if (core.session.isEditing()) {
+                bool allowEdit = core.siteProperties.allowPageSettingsEdit;
+                if (allowEdit && core.session.isEditing()) {
+                    bool allowCut = core.doc.pageController.pageToRootList.Count != 1;
                     result = AdminUIController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, allowCut, core.doc.pageController.page.name, "Edit Page Settings") + result;
                     result = AdminUIController.getEditWrapper(core, result);
                 }

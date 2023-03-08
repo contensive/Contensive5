@@ -121,7 +121,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // ----- Child pages
                 //
-                AddonModel addon = core.cacheStore.addonCache.create(addonGuidChildList);
+                AddonModel addon = core.cacheRuntime.addonCache.create(addonGuidChildList);
                 CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
                     addonType = CPUtilsBaseClass.addonContext.ContextPage,
                     hostRecord = new CPUtilsBaseClass.addonExecuteHostRecordContext {

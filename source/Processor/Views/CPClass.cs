@@ -137,7 +137,7 @@ namespace Contensive.Processor {
                 if (GenericController.isGuid(addonNameOrGuid)) {
                     //
                     // -- call by guid
-                    AddonModel addonByGuid = core.cacheStore.addonCache.create(addonNameOrGuid);
+                    AddonModel addonByGuid = core.cacheRuntime.addonCache.create(addonNameOrGuid);
                     if (addonByGuid == null) {
                         throw new GenericException("Addon [" + addonNameOrGuid + "] could not be found.");
                     } else {
@@ -147,7 +147,7 @@ namespace Contensive.Processor {
                         });
                     }
                 }
-                AddonModel addonByName = core.cacheStore.addonCache.createByUniqueName(addonNameOrGuid);
+                AddonModel addonByName = core.cacheRuntime.addonCache.createByUniqueName(addonNameOrGuid);
                 if (addonByName != null) {
                     //
                     // -- call by name
@@ -183,7 +183,7 @@ namespace Contensive.Processor {
                     LogController.logDebug(core, "cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
-                AddonModel addon = core.cacheStore.addonCache.create(addonId);
+                AddonModel addon = core.cacheRuntime.addonCache.create(addonId);
                 if (addon == null) {
                     throw new GenericException("Addon [#" + addonId.ToString() + "] could not be found.");
                 } else {

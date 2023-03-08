@@ -239,7 +239,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             //
             var customReport = DbBaseModel.create<CustomReportModel>(core.cpParent, customReportId);
             if ( customReport != null) {
-                var ExportCSVAddon = core.cacheStore.addonCache.create(addonGuidExportCSV);
+                var ExportCSVAddon = core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
                     LogController.logError(core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
                 } else {

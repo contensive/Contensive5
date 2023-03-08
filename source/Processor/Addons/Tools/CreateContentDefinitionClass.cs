@@ -60,7 +60,7 @@ namespace Contensive.Processor.Addons.Tools {
                         }
                         ContentMetadataModel.createFromSQLTable(core, datasource, TableName, ContentName);
                         core.cache.invalidateAll();
-                        core.cacheStore.clear();
+                        core.cacheRuntime.clear();
                         ContentId = Processor.Models.Domain.ContentMetadataModel.getContentId(core, ContentName);
                         ParentNavId = MetadataController.getRecordIdByUniqueName(core, NavigatorEntryModel.tableMetadata.contentName, "Manage Site Content");
                         if (ParentNavId != 0) {

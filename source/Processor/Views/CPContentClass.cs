@@ -446,7 +446,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override int GetID(string contentName) {
-            var contentNameDict = cp.core.cacheStore.ContentNameDict;
+            var contentNameDict = cp.core.cacheRuntime.ContentNameDict;
             if (contentNameDict.ContainsKey(contentName.ToLowerInvariant())) { return contentNameDict[contentName.ToLowerInvariant()].id; }
             return 0;
         }
@@ -454,7 +454,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetName(int contentId ) {
-            Dictionary<int,ContentModel> contentIdDict = cp.core.cacheStore.ContentIdDict;
+            Dictionary<int,ContentModel> contentIdDict = cp.core.cacheRuntime.ContentIdDict;
             if (contentIdDict.ContainsKey(contentId)) { return contentIdDict[contentId].name; }
             return "";
         }

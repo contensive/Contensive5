@@ -28,10 +28,10 @@ namespace Contensive.Processor.Controllers {
             //
             // -- get link alias from cacheStore
             string linkAliasKey = $"{pageId}.{queryStringSuffix}";
-            if (core.cacheStore.linkAliasKeyDict.ContainsKey(linkAliasKey)) {
+            if (core.cacheRuntime.linkAliasKeyDict.ContainsKey(linkAliasKey)) {
                 //
                 // -- get link alias from cache created for routemap
-                result = core.cacheStore.linkAliasKeyDict[linkAliasKey].name;
+                result = core.cacheRuntime.linkAliasKeyDict[linkAliasKey].name;
                 if (result.left(1) != "/") {
                     result = "/" + result;
                 }

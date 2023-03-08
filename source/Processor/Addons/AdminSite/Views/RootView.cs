@@ -60,7 +60,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         addonId = GenericController.encodeInteger(AddonIDText);
                         //
                         // Verify it so there is no error when it runs
-                        if (core.cacheStore.addonCache.create(addonId) == null) {
+                        if (core.cacheRuntime.addonCache.create(addonId) == null) {
                             addonId = -1;
                             core.siteProperties.setProperty("AdminRootAddonID", "");
                         }
@@ -68,7 +68,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (addonId == -1) {
                         //
                         // This has never been set, try to get the dashboard ID
-                        var addon = core.cacheStore.addonCache.create(addonGuidDashboard);
+                        var addon = core.cacheRuntime.addonCache.create(addonGuidDashboard);
                         if (addon != null) {
                             addonId = addon.id;
                             core.siteProperties.setProperty("AdminRootAddonID", addonId);
@@ -83,7 +83,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         returnHtml = returnHtml + "<div style=\"clear:both;margin-top:20px;\">&nbsp;</div>"
                         + "<div style=\"clear:both;margin-top:20px;\">" + Processor.Controllers.ErrorController.getUserError(core) + "</div>";
                     }
-                    returnHtml += core.addon.execute(core.cacheStore.addonCache.create(addonId), new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                    returnHtml += core.addon.execute(core.cacheRuntime.addonCache.create(addonId), new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
                         addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
                         errorContextMessage = "executing addon id:" + addonId + " set as Admin Root addon"
                     });

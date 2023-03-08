@@ -356,7 +356,7 @@ namespace Contensive.Processor {
         //
         public override void ExportCsv(string sql, string exportName, string filename) {
             try {
-                var ExportCSVAddon = cp.core.cacheStore.addonCache.create(addonGuidExportCSV);
+                var ExportCSVAddon = cp.core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
                     LogController.logError(cp.core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
                 } else {
@@ -479,11 +479,11 @@ namespace Contensive.Processor {
             try {
                 AddonModel addon = null;
                 if (addonIDGuidOrName.isNumeric()) {
-                    addon = cp.core.cacheStore.addonCache.create(EncodeInteger(addonIDGuidOrName));
+                    addon = cp.core.cacheRuntime.addonCache.create(EncodeInteger(addonIDGuidOrName));
                 } else if (GenericController.isGuid(addonIDGuidOrName)) {
-                    addon = cp.core.cacheStore.addonCache.create(addonIDGuidOrName);
+                    addon = cp.core.cacheRuntime.addonCache.create(addonIDGuidOrName);
                 } else {
-                    addon = cp.core.cacheStore.addonCache.createByUniqueName(addonIDGuidOrName);
+                    addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonIDGuidOrName);
                 }
                 if (addon != null) {
                     cp.core.addon.executeAsProcess(addon);

@@ -134,7 +134,7 @@ namespace Contensive.Processor.Addons.Tools {
                             ButtonList = ButtonCancel;
                             BlockForm = true;
                         }
-                        cp.core.cacheStore.clear();
+                        cp.core.cacheRuntime.clear();
                         cp.core.cache.invalidateAll();
                     }
                     //

@@ -34,7 +34,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- Custom Login
-                AddonModel addon = core.cacheStore.addonCache.create(core.siteProperties.loginPageAddonId);
+                AddonModel addon = core.cacheRuntime.addonCache.create(core.siteProperties.loginPageAddonId);
                 if (addon == null) {
                     //
                     // -- custom login not valid, use default login

@@ -387,6 +387,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 //
                                 // -- clear cache
                                 cp.core.cache.invalidateRecordKey(adminData.editRecord.id, adminData.adminContent.tableName);
+                                cp.core.cache.invalidateTableDependencyKey( adminData.adminContent.tableName);
                             }
                             //
                             // ----- clear/set authoring controls

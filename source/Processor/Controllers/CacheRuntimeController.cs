@@ -8,9 +8,9 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// object to organize all the in-memory non-persistent cache in one place
     /// </summary>
-    public class CacheStoreController {
+    public class CacheRuntimeController {
         // 
-        public CacheStoreController(CoreController core) {
+        public CacheRuntimeController(CoreController core) {
             this.core = core;
         }
         private readonly CoreController core;

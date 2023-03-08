@@ -213,7 +213,7 @@ namespace Contensive.Processor.Controllers {
                                                                                 instanceGuid = ACInstanceId,
                                                                                 errorContextMessage = "rendering addon found in active content within an email"
                                                                             };
-                                                                            AddonModel addon = core.cacheStore.addonCache.createByUniqueName(ACName);
+                                                                            AddonModel addon = core.cacheRuntime.addonCache.createByUniqueName(ACName);
                                                                             Copy = core.addon.execute(addon, executeContext);
                                                                             break;
                                                                         }
@@ -542,9 +542,9 @@ namespace Contensive.Processor.Controllers {
                                         };
                                         hint = "57, AddonGuid [" + AddonGuid + "], AddonName [" + AddonName + "]";
                                         if (!string.IsNullOrEmpty(AddonGuid)) {
-                                            Copy = core.addon.execute(core.cacheStore.addonCache.create(AddonGuid), executeContext);
+                                            Copy = core.addon.execute(core.cacheRuntime.addonCache.create(AddonGuid), executeContext);
                                         } else {
-                                            Copy = core.addon.execute(core.cacheStore.addonCache.createByUniqueName( AddonName), executeContext);
+                                            Copy = core.addon.execute(core.cacheRuntime.addonCache.createByUniqueName( AddonName), executeContext);
                                         }
                                     }
                                 }

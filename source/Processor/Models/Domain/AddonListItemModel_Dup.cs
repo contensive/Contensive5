@@ -62,7 +62,7 @@ namespace Contensive.Processor.Models.Domain {
         public static string render(CoreController core, string addonList) {
             try {
                 if (string.IsNullOrWhiteSpace(core.doc.pageController.page.addonList)) { return ""; }
-                AddonModel addonListRender = core.cacheStore.addonCache.create(Constants.addonGuidRenderAddonList);
+                AddonModel addonListRender = core.cacheRuntime.addonCache.create(Constants.addonGuidRenderAddonList);
                 if (addonListRender == null) {
                     //
                     // -- not installed

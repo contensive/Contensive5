@@ -390,15 +390,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                         if (addonId != 0) {
                             executeContextErrorCaption = " addon id:" + addonId + " for Admin";
                             cp.core.doc.addRefreshQueryString("addonid", addonId.ToString());
-                            addon = cp.core.cacheStore.addonCache.create(addonId);
+                            addon = cp.core.cacheRuntime.addonCache.create(addonId);
                         } else if (!string.IsNullOrEmpty(addonGuid)) {
                             executeContextErrorCaption = "addon guid:" + addonGuid + " for Admin";
                             cp.core.doc.addRefreshQueryString("addonguid", addonGuid);
-                            addon = cp.core.cacheStore.addonCache.create(addonGuid);
+                            addon = cp.core.cacheRuntime.addonCache.create(addonGuid);
                         } else if (!string.IsNullOrEmpty(addonName)) {
                             executeContextErrorCaption = "addon name:" + addonName + " for Admin";
                             cp.core.doc.addRefreshQueryString("addonname", addonName);
-                            addon = cp.core.cacheStore.addonCache.createByUniqueName(addonName);
+                            addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
                             //addon = AddonModel.createByUniqueName(cp, AddonName);
                         }
                         if (addon != null) {
@@ -489,7 +489,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // Included Addons
                         //
                         var IncludeHelp = new StringBuilder();
-                        foreach (var addonon in cp.core.cacheStore.addonCache.getDependsOnList(HelpAddonID)) {
+                        foreach (var addonon in cp.core.cacheRuntime.addonCache.getDependsOnList(HelpAddonID)) {
                             IncludeHelp.Append(GetAddonHelp(cp, addonon.id, HelpAddonID + "," + addonon.id.ToString()));
                         }
                         if (!string.IsNullOrEmpty(helpLink)) {
