@@ -316,14 +316,29 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// returns true if filename is valid. Simple filenames for compatibility with DOS paths and files, Unix and AWS S3 buckets and keys
-        /// 0-9, a-z, A-Z, and "-._"
-        /// paths separated by / or \
-        /// 
+        /// Returns true if filename is valid. 
+        /// Paths separated by / or \.
+        /// Simple pathFilenames for compatibility with DOS paths and files, Unix and AWS S3 buckets and keys.
+        /// Allows 0-9, a-z, A-Z, and "-._"
         /// </summary>
-        /// <param name="pathFilename"></param>
+        /// <param name="pathFilename">
+        /// pathFilename is the path and filename that are used for all methods, and are relative to the filesystems (cdn,private,temp,www)
+        /// Path arguments start with a slash, ends with no slash
+        /// Paths are created with UNIX slash, but accept both slash, / or \
+        /// </param>
         /// <returns></returns>
-        public abstract bool isValidPathFilename( string pathFilename );
+        public abstract bool IsValidPathFilename(string pathFilename);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Change a pathFilename by converting invalid characters to "_". Returns Unix path, but all methods use both Unix and Dos slash.
+        /// Simple pathFilenames for compatibility with DOS paths and files, Unix and AWS S3 buckets and keys.
+        /// See isValidPathFilename for description of invalid characters
+        /// </summary>
+        /// <param name="pathFilename">See IsValidPathFilename for details.
+        /// </param>
+        /// <returns></returns>
+        public abstract string EncodePathFilename(string pathFilename);
         //
         //==========================================================================================
         // deprecated

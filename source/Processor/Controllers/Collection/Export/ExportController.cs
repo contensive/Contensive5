@@ -63,7 +63,7 @@ namespace Contensive.Processor.Controllers {
                 collectionXml.Append(" blockNavigatorNode=\"" + GenericController.getYesNo(cs.GetBoolean("blockNavigatorNode")) + "\"");
                 collectionXml.Append(" onInstallAddonGuid=\"" + onInstallAddonGuid + "\"");
                 collectionXml.Append(">");
-                cdnExportZip_Filename = encodeFilename(cp, CollectionName + ".zip");
+                cdnExportZip_Filename = FileController.encodeDosPathFilename(CollectionName + ".zip");
                 List<string> tempPathFileList = new List<string>();
                 string tempExportPath = "CollectionExport" + Guid.NewGuid().ToString() + @"\";
                 // 
@@ -95,7 +95,7 @@ namespace Contensive.Processor.Controllers {
 
                         string CollectionPath = "";
                         DateTime LastChangeDate = default;
-                        GetLocalCollectionArgs(cp, CollectionGuid, ref CollectionPath, ref LastChangeDate);
+                        getLocalCollectionArgs(cp, CollectionGuid, ref CollectionPath, ref LastChangeDate);
                         if (!CollectionPath.Length.Equals(0)) { CollectionPath += @"\"; }
                         string AddonPath = @"addons\";
                         if (!cp.PrivateFiles.FileExists(AddonPath + CollectionPath + filename)) {
@@ -367,7 +367,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 collectionXml.Append(System.Environment.NewLine + "</Collection>");
                 cs.Close();
-                string tempExportXml_Filename = encodeFilename(cp, CollectionName + ".xml");
+                string tempExportXml_Filename = FileController.encodeDosPathFilename(CollectionName + ".xml");
                 // 
                 // Save the installation file and add it to the archive
                 // 
@@ -375,7 +375,7 @@ namespace Contensive.Processor.Controllers {
                 if (!tempPathFileList.Contains(tempExportPath + tempExportXml_Filename)) {
                     tempPathFileList.Add(tempExportPath + tempExportXml_Filename);
                 }
-                string tempExportZip_Filename = encodeFilename(cp, CollectionName + ".zip");
+                string tempExportZip_Filename = FileController.encodeDosPathFilename(CollectionName + ".zip");
                 // 
                 // -- zip up the folder to make the collection zip file in temp filesystem
                 zipTempCdnFile(cp, tempExportPath + tempExportZip_Filename, tempPathFileList);
@@ -445,27 +445,8 @@ namespace Contensive.Processor.Controllers {
         }
         // 
         // ====================================================================================================
-        public static string encodeFilename(CPBaseClass cp, string Filename) {
-            try {
-                string[] Source;
-                string[] Replacement;
-                // 
-                Source = new[] { "\"", "*", "/", ":", "<", ">", "?", @"\", "|" };
-                Replacement = new[] { "_", "_", "_", "_", "_", "_", "_", "_", "_" };
-                // 
-                string result = replaceMany(cp, Filename, Source, Replacement);
-                if (Strings.Len(result) > 254)
-                    result = Strings.Left(result, 254);
-                return result;
-            } catch (Exception ex) {
-                cp.Site.ErrorReport(ex, "encodeFilename");
-                return string.Empty;
-            }
-        }
         // 
-        // ====================================================================================================
-        // 
-        public static void GetLocalCollectionArgs(CPBaseClass cp, string CollectionGuid, ref string Return_CollectionPath, ref DateTime Return_LastChangeDate) {
+        public static void getLocalCollectionArgs(CPBaseClass cp, string CollectionGuid, ref string Return_CollectionPath, ref DateTime Return_LastChangeDate) {
             try {
                 const string CollectionListRootNode = "collectionlist";
                 Return_CollectionPath = "";

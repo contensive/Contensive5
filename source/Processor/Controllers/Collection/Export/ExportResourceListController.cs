@@ -61,7 +61,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         string CollectionPath = "";
                         DateTime LastChangeDate = default;
-                        ExportController.GetLocalCollectionArgs(cp, CollectionGuid, ref CollectionPath, ref LastChangeDate);
+                        ExportController.getLocalCollectionArgs(cp, CollectionGuid, ref CollectionPath, ref LastChangeDate);
                         if (!CollectionPath.Length.Equals(0)) {
                             CollectionPath += @"\";
                         }
@@ -95,7 +95,7 @@ namespace Contensive.Processor.Controllers {
                     // and file will be sourced right from addon path
                     // 
                     string CollectionPath = "";
-                    ExportController.GetLocalCollectionArgs(cp, CollectionGuid, ref CollectionPath, ref LastChangeDate);
+                    ExportController.getLocalCollectionArgs(cp, CollectionGuid, ref CollectionPath, ref LastChangeDate);
                     if (!CollectionPath.Length.Equals(0)) {
                         CollectionPath += @"\";
                     }

@@ -1958,7 +1958,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="pathFilename">Filename in the form "folder1\folder2\MyFile.txt"</param>
         /// <returns></returns>
         public static string encodeUnixPathFilename(string pathFilename) {
-            if (string.IsNullOrEmpty(pathFilename)) { return pathFilename; }
+            if (string.IsNullOrEmpty(pathFilename)) { return ""; }
             // -- convert to correct slash and split segments
             pathFilename = convertToUnixSlash(pathFilename);
             string[] segments = pathFilename.Split('/');

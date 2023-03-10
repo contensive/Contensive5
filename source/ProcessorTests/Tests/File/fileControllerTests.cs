@@ -17,25 +17,50 @@ namespace Tests {
         /// <summary>
         /// </summary>
         [TestMethod()]
+        public void encodePathFilename_Test() {
+            using (CPClass cp = new(testAppName)) {
+                {
+                    //
+                    {
+                        Assert.AreEqual("",cp.CdnFiles.EncodePathFilename(""));
+                        Assert.AreEqual("",cp.CdnFiles.EncodePathFilename(null));
+                        //
+                        Assert.AreEqual("a.html", cp.CdnFiles.EncodePathFilename("a.html"));
+                        Assert.AreEqual("a/b/c/d.html", cp.CdnFiles.EncodePathFilename("a/b/c/d.html"));
+                        Assert.AreEqual("a/b/c/d.html", cp.CdnFiles.EncodePathFilename("a\\b\\c\\d.html"));
+                        //
+                        Assert.AreNotEqual("a_.html", cp.CdnFiles.EncodePathFilename("a*.html"));
+                        Assert.AreNotEqual("a_.html", cp.CdnFiles.EncodePathFilename("a!.html"));
+                        Assert.AreNotEqual("a_.html", cp.CdnFiles.EncodePathFilename("a@.html"));
+                    }
+                    //
+                }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// </summary>
+        [TestMethod()]
         public void isValidPathFilename_Test() {
             using (CPClass cp = new(testAppName)) {
                 {
                     //
                     {
-                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename(""));
-                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename(null));
+                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename(""));
+                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename(null));
                         //
-                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename("a.html"));
-                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename("a/b/c/d.html"));
-                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename("a\\b\\c\\d.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a/b/c/d.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a\\b\\c\\d.html"));
                         //
-                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename(cp.CdnFiles.PhysicalFilePath + "a/b/c/d.html"));
-                        Assert.IsTrue(cp.CdnFiles.isValidPathFilename(cp.CdnFiles.PhysicalFilePath + "a\\b\\c\\d.html"));
-                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("c:\\tmp\\" + "a/b/c/d.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename(cp.CdnFiles.PhysicalFilePath + "a/b/c/d.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename(cp.CdnFiles.PhysicalFilePath + "a\\b\\c\\d.html"));
+                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("c:\\tmp\\" + "a/b/c/d.html"));
                         //
-                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("a*.html"));
-                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("a!.html"));
-                        Assert.IsFalse(cp.CdnFiles.isValidPathFilename("a@.html"));
+                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("a*.html"));
+                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("a!.html"));
+                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("a@.html"));
                     }
                     //
                 }
