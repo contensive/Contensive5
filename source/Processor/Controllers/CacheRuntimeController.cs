@@ -17,6 +17,28 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// clear the runtime cache for this table
+        /// </summary>
+        /// <param name="tableName"></param>
+        public void clearTable(string tableName) {
+            switch (tableName.ToLowerInvariant()) {
+                case "ccaggregatefunctions": {
+                        clearAddon();
+                        break;
+                    }
+                case "cclinkaliases": {
+                        clearLinkAlias();
+                        break;
+                    }
+                case "cclayouts": {
+                        clearLayout();
+                        break;
+                    }
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Clear all data from the metaData current instance. Next request will load from cache.
         /// </summary>
         public void clear() {
@@ -66,7 +88,7 @@ namespace Contensive.Processor.Controllers {
                 //    core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
                 //    return _addonCache;
                 //}
-                if (_addonCache != null) { return _addonCache;  }
+                if (_addonCache != null) { return _addonCache; }
                 //
                 // -- populate local version from cache
                 _addonCache = core.cache.getObject<CacheStore_AddonModel>(cacheName_addonCache);

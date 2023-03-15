@@ -1556,6 +1556,9 @@ namespace Contensive.Processor {
                             //
                             // -- save the table_LastModified key so objects like admin-nav can depend on this key and invalidate
                             core.cache.invalidateTableDependencyKey(this.contentMeta.tableName);
+                            //
+                            // -- clear runtime cache if it exists
+                            core.cacheRuntime.clearTable(this.contentMeta.tableName);
                         }
                     }
                 }
