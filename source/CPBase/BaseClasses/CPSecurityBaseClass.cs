@@ -8,7 +8,9 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// return an encrypted string. One-way encryption cannot be reversed. This is a hash.
+        /// return an encrypted string. This is a hash.
+        /// One-way encryption cannot be reversed. 
+        /// This encrypted string is repeatable, so run the same encryption twice and the encryption will match
         /// </summary>
         /// <param name="unencryptedString"></param>
         /// <returns></returns>
@@ -16,7 +18,9 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// return an encrypted string. One-way encryption cannot be reversed. This is a hash.
+        /// return an encrypted string. This is a hash.
+        /// One-way encryption cannot be reversed. 
+        /// This encrypted string is repeatable, so run the same encryption twice and the encryption will match
         /// </summary>
         /// <param name="unencryptedString"></param>
         /// <param name="salt"></param>
@@ -35,7 +39,9 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// Return an AES encrypted string.  This is a two way so use it for little sister security, not foreign government security
+        /// Return an AES encrypted string. This is a symetric encryption.
+        /// A value encrypted, can be decrypted back to the same string
+        /// The result is not repeatable. If you encrypt the same source twice, the result may not be the same each time.
         /// </summary>
         /// <param name="unencryptedString"></param>
         /// <returns></returns>
@@ -43,7 +49,9 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// Decrypt an AES encrypted string. This is a two way so use it for little sister security, not foreign government security
+        /// Return an AES decrypted string. This is a symetric encryption.
+        /// A value encrypted, can be decrypted back to the same string
+        /// The result is not repeatable. If you encrypt the same source twice, the result may not be the same each time.
         /// </summary>
         /// <param name="encryptedString"></param>
         /// <returns></returns>

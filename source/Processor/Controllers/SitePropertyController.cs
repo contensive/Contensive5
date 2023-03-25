@@ -481,7 +481,7 @@ namespace Contensive.Processor.Controllers {
                             core.db.executeNonQuery(SQL, ref recordsAffected);
                             if (recordsAffected == 0) {
                                 SQL = "INSERT INTO ccSetup (ACTIVE,CONTENTCONTROLID,NAME,FIELDVALUE,ModifiedDate,DateAdded)VALUES("
-                            + DbController.SQLTrue + "," + DbController.encodeSQLNumber(ContentMetadataModel.getContentId(core, "site properties")) + "," + DbController.encodeSQLText(propertyName.ToUpper()) + "," + DbController.encodeSQLText(Value) + "," + SQLNow + "," + SQLNow + ");";
+                            + "1,0," + DbController.encodeSQLText(propertyName.ToUpper()) + "," + DbController.encodeSQLText(Value) + "," + SQLNow + "," + SQLNow + ");";
                                 core.db.executeNonQuery(SQL);
                             }
                             //
@@ -700,7 +700,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool allowCache_notCached {
             get {
-                if (dbNotReady) {
+                    if (dbNotReady) {
                     return false;
                 } else {
                     if (_allowCache_notCached == null) {

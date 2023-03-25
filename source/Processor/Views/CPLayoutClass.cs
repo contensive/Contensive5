@@ -11,7 +11,7 @@ namespace Contensive.Processor {
     /// </summary>
     public class CPLayoutClass : BaseClasses.CPLayoutBaseClass {
         //
-        private CPClass cp;
+        private  CPClass cp { get; }
         //
         //====================================================================================================
         /// <summary>

@@ -427,28 +427,27 @@ namespace Contensive.Processor.Controllers {
         //
         public FileController programFiles {
             get {
-                if (_programFiles == null) {
-                    if (String.IsNullOrEmpty(serverConfig.programFilesPath)) {
-                        //
-                        // -- dev environment, setup programfiles path 
-                        string executePath = System.IO.Path.GetDirectoryName(this.GetType().Assembly.Location);
-                        if (!executePath.ToLowerInvariant().IndexOf("\\git\\").Equals(-1)) {
-                            //
-                            //  -- save if not in developer execution path
-                            serverConfig.programFilesPath = executePath;
-                            LogController.logWarn(this, "serverConfig.ProgramFilesPath is blank. Current executable path includes \\git\\ so development environment set.");
-                        } else {
-                            //
-                            //  -- developer, fake a path
-                            serverConfig.programFilesPath = "c:\\Program Files (x86)\\Contensive\\";
-                            LogController.logWarn(this, "serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
-                        }
-                        serverConfig.save(this);
-                    }
+                if (_programFiles != null) { return _programFiles; }
+                string executePath = System.IO.Path.GetDirectoryName(this.GetType().Assembly.Location);
+                if (executePath.ToLowerInvariant().IndexOf("\\git\\") > -1) {
                     //
-                    // -- always local
-                    _programFiles = new FileController(this, serverConfig.programFilesPath);
+                    //  -- developer execution, do not use saved path, use the git path but do not save
+                    LogController.logWarn(this, "Execution path includes GIT, use it and do not update serverConfig.ProgramFilesPath.");
+                    _programFiles = new FileController(this, executePath);
+                    return _programFiles;
                 }
+                if (!String.IsNullOrEmpty(serverConfig.programFilesPath)) {
+                    //
+                    // -- use saved path
+                    _programFiles = new FileController(this, serverConfig.programFilesPath);
+                    return _programFiles;
+                }
+                //
+                //  -- developer, fake a path
+                LogController.logWarn(this, "serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
+                serverConfig.programFilesPath = "c:\\Program Files (x86)\\Contensive\\";
+                serverConfig.save(this);
+                _programFiles = new FileController(this, serverConfig.programFilesPath);
                 return _programFiles;
             }
         }

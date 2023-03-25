@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a menucrm0210 --install ecommerce",
+      "commandLineArgs": "-n test2303251237",
       "jsWebView2Debugging": false
     }
   }

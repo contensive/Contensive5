@@ -114,7 +114,9 @@ dotnet clean contensivecommon.sln
 
 dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber%
 
-dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber%
+rem asssembly product version was set 20.0.0.0, properties, package, packageid was
+dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber%
+rem dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber%
 
 dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber%
 

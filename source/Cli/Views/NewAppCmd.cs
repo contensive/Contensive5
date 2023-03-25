@@ -288,16 +288,26 @@ namespace Contensive.CLI {
                         cp.TempFiles.CopyPath(srcPath, @"", cp.WwwFiles);
                         cp.TempFiles.DeleteFile(@"\defaultaspxsite.zip");
                         cp.TempFiles.DeleteFolder(@"content");
-                        //
-                        // -- if WebAppSettings.config does not exist, copy WebAppSettings-Sample.config
-                        if (!cp.WwwFiles.FileExists("WebAppSettings.config")) {
-                            cp.WwwFiles.Copy("WebAppSettings-Sample.config", "WebAppSettings.config");
-                        }
-                        //
-                        // -- if WebRewrite.config does not exist, copy WebRewrite-Sample.config
-                        if (!cp.WwwFiles.FileExists("WebRewrite.config")) {
-                            cp.WwwFiles.Copy("WebRewrite-Sample.config", "WebRewrite.config");
-                        }
+                        ////
+                        //// -- if WebAppSettings.config does not exist, copy WebAppSettings-Sample.config
+                        //if (!cp.WwwFiles.FileExists("WebAppSettings.config")) {
+                        //    cp.WwwFiles.Copy("WebAppSettings-Sample.config", "WebAppSettings.config");
+                        //}
+                        ////
+                        //// -- if WebRewrite.config does not exist, copy WebRewrite-Sample.config
+                        //if (!cp.WwwFiles.FileExists("WebRewrite.config")) {
+                        //    cp.WwwFiles.Copy("WebRewrite-Sample.config", "WebRewrite.config");
+                        //}
+                    }
+                    // -- 
+                    // -- if WebAppSettings.config does not exist, copy WebAppSettings-Sample.config
+                    if (!cp.WwwFiles.FileExists("WebAppSettings.config")) {
+                        cp.WwwFiles.Copy("WebAppSettings-Sample.config", "WebAppSettings.config");
+                    }
+                    //
+                    // -- if WebRewrite.config does not exist, copy WebRewrite-Sample.config
+                    if (!cp.WwwFiles.FileExists("WebRewrite.config")) {
+                        cp.WwwFiles.Copy("WebRewrite-Sample.config", "WebRewrite.config");
                     }
                     //
                     Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Run db upgrade.");

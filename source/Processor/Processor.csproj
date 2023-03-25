@@ -138,6 +138,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
+    <ProjectReference Include="..\HtmlImport\HtmlImport.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>
 
@@ -150,9 +151,8 @@
     <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.209" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.4.9" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.2.106" />
-    <PackageReference Include="Contensive.HtmlImport" Version="22.12.29.4" />
     <PackageReference Include="Handlebars.Net" Version="2.0.9" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.38" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="M2Mqtt" Version="4.3.0" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.1.7" />
     <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
