@@ -148,9 +148,9 @@ namespace Contensive.Processor.Controllers {
                                     targetMetaData.editorGroupName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "EditorGroupName", DefaultMetaData.editorGroupName);
                                     targetMetaData.fields = new Dictionary<string, Models.Domain.ContentFieldMetadataModel>();
                                     targetMetaData.iconLink = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "IconLink", DefaultMetaData.iconLink);
-                                    targetMetaData.iconHeight = XmlController.getXMLAttributeInteger(core,  metaData_NodeWithinLoop, "IconHeight", DefaultMetaData.iconHeight);
-                                    targetMetaData.iconWidth = XmlController.getXMLAttributeInteger(core,  metaData_NodeWithinLoop, "IconWidth", DefaultMetaData.iconWidth);
-                                    targetMetaData.iconSprites = XmlController.getXMLAttributeInteger(core,  metaData_NodeWithinLoop, "IconSprites", DefaultMetaData.iconSprites);
+                                    targetMetaData.iconHeight = XmlController.getXMLAttributeInteger(core, metaData_NodeWithinLoop, "IconHeight", DefaultMetaData.iconHeight);
+                                    targetMetaData.iconWidth = XmlController.getXMLAttributeInteger(core, metaData_NodeWithinLoop, "IconWidth", DefaultMetaData.iconWidth);
+                                    targetMetaData.iconSprites = XmlController.getXMLAttributeInteger(core, metaData_NodeWithinLoop, "IconSprites", DefaultMetaData.iconSprites);
                                     targetMetaData.includesAFieldChange = false;
                                     targetMetaData.installedByCollectionGuid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "installedByCollection", DefaultMetaData.installedByCollectionGuid);
                                     targetMetaData.isBaseContent = isBaseCollection || XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "IsBaseContent", false);
@@ -193,14 +193,14 @@ namespace Contensive.Processor.Controllers {
                                             string defaultFieldTypeName = ContentFieldMetadataModel.getFieldTypeNameFromFieldTypeId(core, DefaultMetaDataField.fieldTypeId);
                                             string fieldTypeName = XmlController.getXMLAttribute(core, MetaDataChildNode, "FieldType", defaultFieldTypeName);
                                             metaDataField.fieldTypeId = core.db.getFieldTypeIdFromFieldTypeName(fieldTypeName);
-                                            metaDataField.editSortPriority = XmlController.getXMLAttributeInteger(core,  MetaDataChildNode, "EditSortPriority", DefaultMetaDataField.editSortPriority);
+                                            metaDataField.editSortPriority = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "EditSortPriority", DefaultMetaDataField.editSortPriority);
                                             metaDataField.authorable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Authorable", DefaultMetaDataField.authorable);
                                             metaDataField.caption = XmlController.getXMLAttribute(core, MetaDataChildNode, "Caption", DefaultMetaDataField.caption);
                                             metaDataField.defaultValue = XmlController.getXMLAttribute(core, MetaDataChildNode, "DefaultValue", DefaultMetaDataField.defaultValue);
                                             metaDataField.notEditable = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "NotEditable", DefaultMetaDataField.notEditable);
-                                            metaDataField.indexColumn = XmlController.getXMLAttributeInteger(core,  MetaDataChildNode, "IndexColumn", DefaultMetaDataField.indexColumn);
+                                            metaDataField.indexColumn = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "IndexColumn", DefaultMetaDataField.indexColumn);
                                             metaDataField.indexWidth = XmlController.getXMLAttribute(core, MetaDataChildNode, "IndexWidth", DefaultMetaDataField.indexWidth);
-                                            metaDataField.indexSortOrder = XmlController.getXMLAttributeInteger(core,  MetaDataChildNode, "IndexSortOrder", DefaultMetaDataField.indexSortOrder);
+                                            metaDataField.indexSortOrder = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "IndexSortOrder", DefaultMetaDataField.indexSortOrder);
                                             metaDataField.redirectId = XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectID", DefaultMetaDataField.redirectId);
                                             metaDataField.redirectPath = XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectPath", DefaultMetaDataField.redirectPath);
                                             metaDataField.htmlContent = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "HTMLContent", DefaultMetaDataField.htmlContent);
@@ -218,7 +218,7 @@ namespace Contensive.Processor.Controllers {
                                             } else {
                                                 // -- allow typo where "memberselectgroupid" is set to the name
                                                 memberSelectGroup = XmlController.getXMLAttribute(core, MetaDataChildNode, "MemberSelectGroupId", "");
-                                                if (!string.IsNullOrEmpty(memberSelectGroup) && (memberSelectGroup!="0") && encodeInteger(memberSelectGroup)==0) {
+                                                if (!string.IsNullOrEmpty(memberSelectGroup) && (memberSelectGroup != "0") && encodeInteger(memberSelectGroup) == 0) {
                                                     LogController.logWarn(core, new GenericException("CollectionInstallMetadataController.loadXML, error in collection file [" + collectionName + "], the content field [" + targetMetaData.name + "." + DefaultMetaDataField.nameLc + "], attribute name 'MemberSelectGroupId' should be 'MemberSelectGroup'"));
                                                     metaDataField.memberSelectGroupName_set(core, memberSelectGroup);
                                                 }
@@ -569,11 +569,9 @@ namespace Contensive.Processor.Controllers {
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 foreach (MetadataMiniCollectionModel.MiniCollectionSQLIndexModel index in Collection.sqlIndexes) {
-                    if (index.dataChanged) {
-                        using (var db = new DbController(core, index.dataSourceName)) {
-                            LogController.logInfo(core, "creating index [" + index.indexName + "], fields [" + index.fieldNameList + "], on table [" + index.tableName + "]");
-                            db.createSQLIndex(index.tableName, index.indexName, index.fieldNameList);
-                        }
+                    using (var db = new DbController(core, index.dataSourceName)) {
+                        LogController.logInfo(core, "creating index [" + index.indexName + "], fields [" + index.fieldNameList + "], on table [" + index.tableName + "]");
+                        db.createSQLIndex(index.tableName, index.indexName, index.fieldNameList);
                     }
                 }
                 core.cacheRuntime.clear();
