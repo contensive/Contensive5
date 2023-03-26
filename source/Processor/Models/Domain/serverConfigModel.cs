@@ -135,11 +135,6 @@ namespace Contensive.Processor.Models.Domain {
         public override bool productionEnvironment { get; set; }
         //
         /// <summary>
-        /// List of all apps on this server
-        /// </summary>
-        public Dictionary<string, AppConfigModel> apps { get; set; }
-        //
-        /// <summary>
         /// if true, the connection will be forced secure by appending "Encrypt=yes" to the connection string
         /// </summary>
         public override bool defaultDataSourceSecure { get; set; }
@@ -194,6 +189,11 @@ namespace Contensive.Processor.Models.Domain {
         /// deprecated, default is always sql server. Will never support multiple types
         /// </summary>
         public override DataSourceTypeEnum defaultDataSourceType { get; set; }
+        //
+        /// <summary>
+        /// List of all apps on this server
+        /// </summary>
+        public Dictionary<string, AppConfigModel> apps { get; set; }
 
         //
         //====================================================================================================
