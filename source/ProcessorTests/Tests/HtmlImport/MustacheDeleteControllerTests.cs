@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using Contensive.Processor.Controllers;
+using HtmlAgilityPack;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests {
@@ -11,7 +12,7 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            Contensive.HtmlImport.Controllers.DataDeleteController.process(htmlDoc);
+            DataDeleteController.process(htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //
             Assert.AreEqual(test1Expect, test1Result);

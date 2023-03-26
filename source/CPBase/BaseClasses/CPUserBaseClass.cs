@@ -116,6 +116,13 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// true if the current user is authenticated and their identity is content manager role
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool IsContentManager();
+        //
+        //====================================================================================================
+        /// <summary>
         /// true if the current user is authenticated and their identity is content manager role (in a content manager group)
         /// </summary>
         /// <param name="contentName"></param>
@@ -516,9 +523,6 @@ namespace Contensive.BaseClasses {
         //
         [Obsolete("Use the Get method with the correct type.", false)]
         public abstract string GetProperty(string key);
-        //
-        [Obsolete("Use isContentManager( Page Content ). This method returned true if the user isContentManager( Page Content )", false)]
-        public abstract bool IsContentManager();
     }
 }
 

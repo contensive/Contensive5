@@ -71,6 +71,8 @@ namespace Contensive.BaseClasses {
         /// <param name="platform5LayoutCdnPathFilename"></param>
         /// <returns></returns>
         public abstract string GetLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
+        //
+        //====================================================================================================
         /// <summary>
         /// Transform the input html using the data attribute based html transformations. These transformations 
         /// are typically used to convert a static html design
@@ -92,5 +94,32 @@ namespace Contensive.BaseClasses {
         /// <param name="sourceHtml"></param>
         /// <returns></returns>
         public abstract string Transform(string sourceHtml);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Import a file and process the html. Save the result.
+        /// </summary>
+        /// <param name="htmlSourceTempPathFilename"></param>
+        /// <param name="importTypeId"></param>
+        /// <param name="layoutId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="pageTemplateId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="emailTemplateId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="emailId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="userMessageList">If there were any processing errors caused by the data, return them here. These can be presented to the user.</param>
+        /// <returns></returns>
+        public abstract bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList);
+        //
+        //====================================================================================================
+        //
+        // -- import types
+        public enum ImporttypeEnum {
+            NetSelected = 0,
+            SetInMetadata = 1,
+            LayoutForAddon = 2,
+            PageTemplate = 3,
+            EmailTemplate = 4,
+            Eamil = 5
+        }
+
     }
 }

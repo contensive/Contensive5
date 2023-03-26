@@ -1,6 +1,6 @@
 ﻿using HtmlAgilityPack;
 
-namespace Contensive.HtmlImport {
+namespace Contensive.Processor {
     namespace Controllers {
         // 
         // ====================================================================================================

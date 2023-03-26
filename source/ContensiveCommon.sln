@@ -24,8 +24,6 @@ Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "CLI.Installer", "Cli.Instal
 		{68A05E48-0798-451C-B6C9-5DDF1DEEFDF9} = {68A05E48-0798-451C-B6C9-5DDF1DEEFDF9}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HtmlImport", "HtmlImport\HtmlImport.csproj", "{94441801-CE36-4E81-92F5-61F7530AB660}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,18 +111,6 @@ Global
 		{68E66BCF-A2F7-4F33-A8F9-E0F22AC941BF}.Release|x64.ActiveCfg = Release|x86
 		{68E66BCF-A2F7-4F33-A8F9-E0F22AC941BF}.Release|x86.ActiveCfg = Release|x86
 		{68E66BCF-A2F7-4F33-A8F9-E0F22AC941BF}.Release|x86.Build.0 = Release|x86
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Debug|x64.Build.0 = Debug|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Debug|x86.Build.0 = Debug|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Release|Any CPU.Build.0 = Release|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Release|x64.ActiveCfg = Release|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Release|x64.Build.0 = Release|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Release|x86.ActiveCfg = Release|Any CPU
-		{94441801-CE36-4E81-92F5-61F7530AB660}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,7 +1,7 @@
 ﻿
 using System;
 
-namespace Contensive.HtmlImport {
+namespace Contensive.Processor {
     namespace Controllers {
         public static class genericController {
             //

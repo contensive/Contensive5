@@ -28,10 +28,19 @@ namespace Tests {
                         Assert.AreEqual("a.html", cp.CdnFiles.EncodePathFilename("a.html"));
                         Assert.AreEqual("a/b/c/d.html", cp.CdnFiles.EncodePathFilename("a/b/c/d.html"));
                         Assert.AreEqual("a/b/c/d.html", cp.CdnFiles.EncodePathFilename("a\\b\\c\\d.html"));
-                        //
-                        Assert.AreNotEqual("a_.html", cp.CdnFiles.EncodePathFilename("a*.html"));
-                        Assert.AreNotEqual("a_.html", cp.CdnFiles.EncodePathFilename("a!.html"));
-                        Assert.AreNotEqual("a_.html", cp.CdnFiles.EncodePathFilename("a@.html"));
+                        // allowed  -._&@,$()+
+                        Assert.AreEqual("a_.html", cp.CdnFiles.EncodePathFilename("a*.html"));
+                        Assert.AreEqual("a_.html", cp.CdnFiles.EncodePathFilename("a!.html"));
+                        Assert.AreEqual("a .html", cp.CdnFiles.EncodePathFilename("a .html"));
+                        Assert.AreEqual("a-.html", cp.CdnFiles.EncodePathFilename("a-.html"));
+                        Assert.AreEqual("a_.html", cp.CdnFiles.EncodePathFilename("a_.html"));
+                        Assert.AreEqual("a&.html", cp.CdnFiles.EncodePathFilename("a&.html"));
+                        Assert.AreEqual("a@.html", cp.CdnFiles.EncodePathFilename("a@.html"));
+                        Assert.AreEqual("a,.html", cp.CdnFiles.EncodePathFilename("a,.html"));
+                        Assert.AreEqual("a$.html", cp.CdnFiles.EncodePathFilename("a$.html"));
+                        Assert.AreEqual("a(.html", cp.CdnFiles.EncodePathFilename("a(.html"));
+                        Assert.AreEqual("a).html", cp.CdnFiles.EncodePathFilename("a).html"));
+                        Assert.AreEqual("a+.html", cp.CdnFiles.EncodePathFilename("a+.html"));
                     }
                     //
                 }
@@ -60,7 +69,19 @@ namespace Tests {
                         //
                         Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("a*.html"));
                         Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("a!.html"));
-                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("a@.html"));
+                        //
+                        Assert.IsFalse(cp.CdnFiles.IsValidPathFilename("a*.html"));
+                        Assert.IsFalse( cp.CdnFiles.IsValidPathFilename("a!.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a .html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a-.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a_.html"));
+                        Assert.IsTrue( cp.CdnFiles.IsValidPathFilename("a&.html"));
+                        Assert.IsTrue( cp.CdnFiles.IsValidPathFilename("a@.html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a,.html"));
+                        Assert.IsTrue( cp.CdnFiles.IsValidPathFilename("a$.html"));
+                        Assert.IsTrue( cp.CdnFiles.IsValidPathFilename("a(.html"));
+                        Assert.IsTrue( cp.CdnFiles.IsValidPathFilename("a).html"));
+                        Assert.IsTrue(cp.CdnFiles.IsValidPathFilename("a+.html"));
                     }
                     //
                 }

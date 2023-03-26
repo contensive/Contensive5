@@ -1,4 +1,5 @@
-﻿using Contensive.Models.Db;
+﻿using Contensive.BaseClasses;
+using Contensive.Models.Db;
 using System;
 using System.Collections.Generic;
 
@@ -56,8 +57,8 @@ namespace Contensive.Processor.Controllers {
                 layout = DbBaseModel.addDefault<LayoutModel>(cp);
                 layout.name = defaultLayoutName;
                 layout.ccguid = layoutGuid;
-                layout.layout.content = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
-                layout.layoutPlatform5.content = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : HtmlImport.Controllers.ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), HtmlImport.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+                layout.layout.content = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+                layout.layoutPlatform5.content = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
                 layout.save(cp);
                 //
                 // -- flush caches aftre insert

@@ -138,7 +138,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
-    <ProjectReference Include="..\HtmlImport\HtmlImport.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
   </ItemGroup>
 

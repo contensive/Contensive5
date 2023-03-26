@@ -2,7 +2,7 @@
 using HtmlAgilityPack;
 using System.Collections.Generic;
 
-namespace Contensive.HtmlImport.Controllers {
+namespace Contensive.Processor.Controllers {
     public class DataValueController {
         //
         public static void process(HtmlDocument htmlDoc) {

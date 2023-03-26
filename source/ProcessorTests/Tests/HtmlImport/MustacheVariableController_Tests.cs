@@ -1,11 +1,11 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Contensive.Addons.HtmlImport.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HtmlAgilityPack;
+using Contensive.Processor.Controllers;
 
 namespace Tests {
     [TestClass()]
@@ -17,7 +17,7 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            Contensive.HtmlImport.Controllers.MustacheVariableController.process(htmlDoc);
+            MustacheVariableController.process(htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //
             Assert.AreEqual(test1Expect, test1Result);
@@ -31,7 +31,7 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            Contensive.HtmlImport.Controllers.MustacheVariableController.process(htmlDoc);
+            MustacheVariableController.process(htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //
             Assert.AreEqual(test1Expect, test1Result);

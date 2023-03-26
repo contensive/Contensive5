@@ -15,4 +15,7 @@
     <PackageReference Include="Contensive.DbModels" Version="23.3.25.4" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
 </Project>

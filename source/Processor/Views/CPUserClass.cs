@@ -106,6 +106,13 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
+        //
+        public override bool IsContentManager() {
+            if (cp?.core?.session == null) { return false; }
+            return cp.core.session.isAuthenticatedContentManager();
+        }
+        //
+        //====================================================================================================
         /// <summary>
         /// Is the current user authenticated and a content manager for the specified content.
         /// </summary>
@@ -496,9 +503,6 @@ namespace Contensive.Processor {
         //
         [Obsolete("Use IsEditing", true)]
         public override bool IsAuthoring(string contentName) => cp.core.session.isEditing(contentName);
-        //
-        [Obsolete("Use IsContentManager( Page Content )", false)]
-        public override bool IsContentManager() => IsContentManager("Page Content");
         //
         [Obsolete("Use LoginById(integer) instead", false)]
         public override bool LoginByID(string RecordID, bool SetAutoLogin = false) {

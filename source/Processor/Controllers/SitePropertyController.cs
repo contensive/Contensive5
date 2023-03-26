@@ -36,7 +36,7 @@ namespace Contensive.Processor.Controllers {
                 return (bool)_allowPageSettingsEdit;
             }
         }
-        private bool _allowPageSettingsEdit;
+        private bool? _allowPageSettingsEdit;
         //
         /// <summary>
         /// if site property anonymousUserResponseID is set to 3 (redirect), this is the redirect destination

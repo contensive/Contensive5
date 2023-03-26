@@ -118,7 +118,7 @@ namespace Tests {
                 int duration = 1;
                 PersonModel staffUser = DbBaseModel.addDefault<PersonModel>(cp);
                 // act
-                int activityId = cp.Site.AddActivity(subject, details, testUser.id, scheduledDate, duration, staffUser.id);
+                int activityId = cp.Site.AddActivity(subject, details, testUser.id,5, scheduledDate, duration, staffUser.id);
                 // assert
                 List<ActivityLogModel> logList = DbBaseModel.createList<ActivityLogModel>(cp);
                 //

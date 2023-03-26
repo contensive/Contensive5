@@ -7,8 +7,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static Contensive.BaseClasses.CPLayoutBaseClass;
 
-namespace Contensive.HtmlImport {
+namespace Contensive.Processor {
     namespace Controllers {
         public static class ImportController {
             //
@@ -25,7 +26,7 @@ namespace Contensive.HtmlImport {
             /// <param name="emailId">If not 0, the imported html will be saved to the record in this table.</param>
             /// <param name="userMessageList">If there were any processing errors caused by the data, return them here. These can be presented to the user.</param>
             /// <returns></returns>
-            public static bool processImportFile(CPBaseClass cp, string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList) {
+            public static bool processImportFile(CPBaseClass cp, string htmlSourceTempPathFilename, CPLayoutBaseClass.ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList) {
                 try {
                     if (System.IO.Path.GetExtension(htmlSourceTempPathFilename).Equals(".zip")) {
                         //

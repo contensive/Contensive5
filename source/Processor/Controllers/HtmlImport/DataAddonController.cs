@@ -2,7 +2,7 @@
 using HtmlAgilityPack;
 using System.Collections.Generic;
 
-namespace Contensive.HtmlImport.Controllers {
+namespace Contensive.Processor.Controllers {
     public static class DataAddonController {
         //
         public static void process(CPBaseClass cp, HtmlDocument htmlDoc) {

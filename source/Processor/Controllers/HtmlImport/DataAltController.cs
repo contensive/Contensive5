@@ -1,7 +1,7 @@
 ﻿using Contensive.BaseClasses;
 using HtmlAgilityPack;
 
-namespace Contensive.HtmlImport.Controllers {
+namespace Contensive.Processor.Controllers {
     public static class DataAltController {
         //
         public static void process(HtmlDocument htmlDoc) {

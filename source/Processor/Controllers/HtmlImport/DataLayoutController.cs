@@ -3,7 +3,7 @@ using Contensive.Models.Db;
 using HtmlAgilityPack;
 using System.Collections.Generic;
 
-namespace Contensive.HtmlImport {
+namespace Contensive.Processor {
     namespace Controllers {
         // 
         // ====================================================================================================
