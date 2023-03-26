@@ -13,6 +13,9 @@ namespace Contensive.Processor.Controllers.Aws {
         /// <returns></returns>
         public static void setSecret(CoreController core, Amazon.RegionEndpoint region, string secretName, string secretValue) {
             try {
+                //
+                LogController.logDebug(core, "AwsSecretManagerController.setSecret()");
+                //
                 CreateSecretRequest secretRequest = new() {
                     Name = secretName,
                     SecretString = secretValue
@@ -34,6 +37,9 @@ namespace Contensive.Processor.Controllers.Aws {
         /// <returns></returns>
         public static string getSecret(CoreController core, Amazon.RegionEndpoint region, string secretName) {
             try {
+                //
+                LogController.logDebug(core, $"AwsSecretManagerController.getSecret( region [{region}], secretName [{secretName}])");
+                //
                 GetSecretValueRequest secretRequest = new() {
                     SecretId = secretName
                 };

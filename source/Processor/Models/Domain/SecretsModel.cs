@@ -21,7 +21,10 @@ namespace Contensive.Processor.Models.Domain {
         }
         //
         public  string awsAccessKey {
-            get { 
+            get {
+                //
+                LogController.logDebug(core, $"SecretsModel.awsAccessKey get");
+                //
                 return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "awsAccessKey") : core.serverConfig.awsAccessKey;
             }
             set {
@@ -35,6 +38,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         public  string awsSecretAccessKey {
             get {
+                //
+                LogController.logDebug(core, $"SecretsModel.awsSecretAccessKey get");
+                //
                 return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "awsSecretAccessKey") : core.serverConfig.awsSecretAccessKey;
             }
             set {
@@ -48,6 +54,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         public  string defaultDataSourceAddress {
             get {
+                //
+                LogController.logDebug(core, $"SecretsModel.defaultDataSourceAddress get");
+                //
                 return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourceAddress") : core.serverConfig.defaultDataSourceAddress;
             }
             set {
@@ -61,6 +70,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         public  string defaultDataSourceUsername {
             get {
+                //
+                LogController.logDebug(core, $"SecretsModel.defaultDataSourceUsername get");
+                //
                 return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourceUsername") : core.serverConfig.defaultDataSourceUsername;
             }
             set {
@@ -74,6 +86,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         public  string defaultDataSourcePassword {
             get {
+                //
+                LogController.logDebug(core, $"SecretsModel.defaultDataSourcePassword get");
+                //
                 return core.serverConfig.useSecretManager ? AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), "defaultDataSourcePassword") : core.serverConfig.defaultDataSourcePassword;
             }
             set {
@@ -86,6 +101,9 @@ namespace Contensive.Processor.Models.Domain {
         }
         //
         public string getSecret(string secretName) {
+            //
+            LogController.logDebug(core, $"SecretsModel.getSecret( secretName [{secretName}] )");
+            //
             if (core.serverConfig.useSecretManager) {
                 return AwsSecretManagerController.getSecret(core, core.serverConfig.getAwsRegion(), secretName);
             }
