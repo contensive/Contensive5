@@ -644,7 +644,7 @@ namespace Contensive.Models.Db {
                 if ((dt?.Rows == null) || (dt.Rows.Count == 0)) { throw new GenericException("Cannot addEmpty to table " + tableName); }
                 List<string> callersCacheNameList = new();
                 cp.Cache.Invalidate(cp.Cache.CreateTableDependencyKey(tableName, derivedDataSourceName(typeof(T))));
-                return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
+                return create<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
@@ -684,7 +684,7 @@ namespace Contensive.Models.Db {
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(id=" + recordId + ")", "id"));
                 if (dt?.Rows == null) { return default; }
                 if (dt.Rows.Count == 0) { return default; }
-                return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
+                return create<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "create by id");
                 throw;
@@ -725,7 +725,7 @@ namespace Contensive.Models.Db {
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(ccGuid=" + cp.Db.EncodeSQLText(recordGuid) + ")", "id"));
                 if (dt?.Rows == null) { return default; }
                 if (dt.Rows.Count == 0) { return default; }
-                return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
+                return create<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "create by guid");
                 throw;
@@ -767,7 +767,7 @@ namespace Contensive.Models.Db {
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(name=" + cp.Db.EncodeSQLText(recordName) + ")", "id"));
                 if (dt?.Rows == null) { return null; }
                 if (dt.Rows.Count == 0) { return null; }
-                return loadRecord<T>(cp, dt.Rows[0], ref callersCacheNameList);
+                return create<T>(cp, dt.Rows[0], ref callersCacheNameList);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "create by name");
                 throw;
@@ -776,22 +776,68 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// open an existing object
+        /// reload a provided model
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
+        /// <param name="instance"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public void reload(CPBaseClass cp) {
+            Type instanceType = this.GetType();
+            string tableName = derivedTableName(instanceType);
+            string datasourceName = derivedDataSourceName(instanceType);
+            using (DataTable dt = cp.Db.ExecuteQuery($"select top 1 * from {tableName} where id={id}")) {
+                //
+                // -- get derived class tablename and data ssource
+
+                if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
+                var callersCacheKeyList = new List<string>();
+                load(cp, dt.Rows[0], ref callersCacheKeyList);
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// load a provided model from a db row matching the table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cp"></param>
+        /// <param name="instance"></param>
+        /// <param name="row"></param>
+        /// <returns></returns>
+        public void load<T>(CPBaseClass cp, DataRow row) {
+            if (row == null) { return; }
+            var callersCacheKeyList = new List<string>();
+            load(cp, row, ref callersCacheKeyList);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// reload a provided model from a db row matching the table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cp"></param>
+        /// <param name="instance"></param>
         /// <param name="row"></param>
         /// <param name="callersCacheKeyList"></param>
-        private static T loadRecord<T>(CPBaseClass cp, DataRow row, ref List<string> callersCacheKeyList) where T : DbBaseModel {
+        /// <returns></returns>
+        public void load(CPBaseClass cp, DataRow row, ref List<string> callersCacheKeyList) {
             try {
-                if (row == null) { return null; }
-                Type instanceType = typeof(T);
-                T instance = (T)Activator.CreateInstance(instanceType);
-                foreach (PropertyInfo instanceProperty in instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
+                if (row == null) { return; }
+
+                //
+                // -- get derived class tablename and data ssource
+                Type instanceType = this.GetType();
+                string tableName = derivedTableName(instanceType);
+                string datasourceName = derivedDataSourceName(instanceType);
+
+                foreach (PropertyInfo instanceProperty in GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                     string propertyName = instanceProperty.Name;
                     if (!row.Table.Columns.Contains(propertyName)) {
                         //
                         // -- if field is missing from table, log error, leave property default and skip to next field. Error, but not fatal. Do not let a missing field stop the site.
-                        cp.Site.ErrorReport("Database missing field [" + propertyName + "] in table [" + derivedTableName(instanceType) + "] for content [" + derivedContentName(instanceType) + "]. Field skipped.");
+                        cp.Site.ErrorReport("Database missing field [" + propertyName + "] in table [" + tableName + "] for content [" + derivedContentName(instanceType) + "]. Field skipped.");
                         continue;
                     }
                     string propertyValue = row[propertyName].ToString();
@@ -806,28 +852,28 @@ namespace Contensive.Models.Db {
                                 if (targetNullable && (string.IsNullOrWhiteSpace(propertyValue))) {
                                     // property is nullable and the db value is empty
                                     // set the property null
-                                    instanceProperty.SetValue(instance, null, null);
+                                    instanceProperty.SetValue(this, null, null);
                                 } else {
-                                    Type targetType = (targetNullable) ? Nullable.GetUnderlyingType(instanceProperty.PropertyType) : instanceProperty.PropertyType;
+                                    Type targetType = targetNullable ? Nullable.GetUnderlyingType(instanceProperty.PropertyType) : instanceProperty.PropertyType;
                                     switch (targetType.Name) {
                                         case "Int32": {
-                                                instanceProperty.SetValue(instance, cp.Utils.EncodeInteger(propertyValue), null);
+                                                instanceProperty.SetValue(this, cp.Utils.EncodeInteger(propertyValue), null);
                                                 break;
                                             }
                                         case "Boolean": {
-                                                instanceProperty.SetValue(instance, cp.Utils.EncodeBoolean(propertyValue), null);
+                                                instanceProperty.SetValue(this, cp.Utils.EncodeBoolean(propertyValue), null);
                                                 break;
                                             }
                                         case "DateTime": {
-                                                instanceProperty.SetValue(instance, cp.Utils.EncodeDate(propertyValue), null);
+                                                instanceProperty.SetValue(this, cp.Utils.EncodeDate(propertyValue), null);
                                                 break;
                                             }
                                         case "Double": {
-                                                instanceProperty.SetValue(instance, cp.Utils.EncodeNumber(propertyValue), null);
+                                                instanceProperty.SetValue(this, cp.Utils.EncodeNumber(propertyValue), null);
                                                 break;
                                             }
                                         case "String": {
-                                                instanceProperty.SetValue(instance, propertyValue, null);
+                                                instanceProperty.SetValue(this, propertyValue, null);
                                                 break;
                                             }
                                         case "FieldTypeTextFile": {
@@ -837,7 +883,7 @@ namespace Contensive.Models.Db {
                                                     filename = propertyValue,
                                                     cpInternal = cp
                                                 };
-                                                instanceProperty.SetValue(instance, instanceFileType);
+                                                instanceProperty.SetValue(this, instanceFileType);
                                                 break;
                                             }
                                         case "FieldTypeJavascriptFile": {
@@ -847,7 +893,7 @@ namespace Contensive.Models.Db {
                                                     filename = propertyValue,
                                                     cpInternal = cp
                                                 };
-                                                instanceProperty.SetValue(instance, instanceFileType);
+                                                instanceProperty.SetValue(this, instanceFileType);
                                                 break;
                                             }
                                         case "FieldTypeCSSFile": {
@@ -857,7 +903,7 @@ namespace Contensive.Models.Db {
                                                     filename = propertyValue,
                                                     cpInternal = cp
                                                 };
-                                                instanceProperty.SetValue(instance, instanceFileType);
+                                                instanceProperty.SetValue(this, instanceFileType);
                                                 break;
                                             }
                                         case "FieldTypeHTMLFile": {
@@ -867,7 +913,7 @@ namespace Contensive.Models.Db {
                                                     filename = propertyValue,
                                                     cpInternal = cp
                                                 };
-                                                instanceProperty.SetValue(instance, instanceFileType);
+                                                instanceProperty.SetValue(this, instanceFileType);
                                                 break;
                                             }
                                         case "FieldTypeFile": {
@@ -877,11 +923,11 @@ namespace Contensive.Models.Db {
                                                     filename = propertyValue,
                                                     cpInternal = cp
                                                 };
-                                                instanceProperty.SetValue(instance, instanceFileType);
+                                                instanceProperty.SetValue(this, instanceFileType);
                                                 break;
                                             }
                                         default: {
-                                                instanceProperty.SetValue(instance, propertyValue, null);
+                                                instanceProperty.SetValue(this, propertyValue, null);
                                                 break;
                                             }
                                     }
@@ -890,28 +936,45 @@ namespace Contensive.Models.Db {
                             }
                     }
                 }
-
-                if (allowRecordCaching(instanceType) && (instance != null)) {
+                if (allowRecordCaching(instanceType) && (this != null)) {
                     //
                     // -- set primary cache to the object created
                     // -- set secondary caches to the primary cache
                     // -- add all cachenames to the injected cachenamelist
-                    if (instance is DbBaseModel) {
-                        string datasourceName = derivedDataSourceName(instanceType);
-                        string tableName = derivedTableName(instanceType);
-                        string cacheKey = cp.Cache.CreateRecordKey(instance.id, tableName, datasourceName);
+                    if (this is DbBaseModel) {
+                        string cacheKey = cp.Cache.CreateRecordKey(id, tableName, datasourceName);
                         callersCacheKeyList.Add(cacheKey);
-                        cp.Cache.Store(cacheKey, instance);
+                        cp.Cache.Store(cacheKey, this);
                         //
-                        string cachePtr = cp.Cache.CreatePtrKeyforDbRecordGuid(instance.ccguid, tableName, datasourceName);
+                        string cachePtr = cp.Cache.CreatePtrKeyforDbRecordGuid(ccguid, tableName, datasourceName);
                         cp.Cache.StorePtr(cachePtr, cacheKey);
                         //
                         if (derivedNameFieldIsUnique(instanceType)) {
-                            cachePtr = cp.Cache.CreatePtrKeyforDbRecordUniqueName(instance.name, tableName, datasourceName);
+                            cachePtr = cp.Cache.CreatePtrKeyforDbRecordUniqueName(name, tableName, datasourceName);
                             cp.Cache.StorePtr(cachePtr, cacheKey);
                         }
                     }
                 }
+                return;
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// open an existing object
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="row"></param>
+        /// <param name="callersCacheKeyList"></param>
+        private static T create<T>(CPBaseClass cp, DataRow row, ref List<string> callersCacheKeyList) where T : DbBaseModel {
+            try {
+                if (row == null) { return null; }
+                Type instanceType = typeof(T);
+                T instance = (T)Activator.CreateInstance(instanceType);
+                instance.load(cp, row, ref callersCacheKeyList);
                 return instance;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -1080,7 +1143,7 @@ namespace Contensive.Models.Db {
                                             }
                                             PropertyInfo fileFieldContentProperty = instanceProperty.PropertyType.GetProperty("content");
                                             string fileFieldContent = (string)fileFieldContentProperty.GetValue(textFileProperty);
-                                            if (string.IsNullOrEmpty(fileFieldContent) ) {
+                                            if (string.IsNullOrEmpty(fileFieldContent)) {
                                                 //
                                                 //-- empty content
                                                 if (!string.IsNullOrEmpty(fileFieldFilename)) {
@@ -1211,7 +1274,7 @@ namespace Contensive.Models.Db {
                 int maxRecords = pageSize;
                 using (var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, sqlCriteria, sqlOrderBy), startRecord, maxRecords)) {
                     foreach (DataRow row in dt.Rows) {
-                        T instance = loadRecord<T>(cp, row, ref callersCacheNameList);
+                        T instance = create<T>(cp, row, ref callersCacheNameList);
                         if (instance != null) { result.Add(instance); }
                     }
                 }

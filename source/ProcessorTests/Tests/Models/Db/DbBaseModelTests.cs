@@ -11,6 +11,43 @@ namespace Tests {
     [TestClass()]
     public class DbBaseModelTests {
         [TestMethod()]
+        public void reload_Test() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                AddonModel addon = DbBaseModel.addDefault<AddonModel>(cp);
+                addon.name = "test1";
+                addon.save(cp);
+                //
+                cp.Db.ExecuteNonQuery($"update {AddonModel.tableMetadata.tableNameLower} set name='test2' where id={addon.id}");
+                Assert.AreNotEqual("test2", addon.name);
+                //
+                addon.reload(cp);
+                using (var dt = cp.Db.ExecuteQuery($"select * from {AddonModel.tableMetadata.tableNameLower} where id={addon.id}")) {
+                    Assert.IsNotNull(dt);
+                    Assert.IsTrue(dt.Rows.Count == 1);
+                    addon.load<AddonModel>(cp, dt.Rows[0]);
+                }
+                Assert.AreEqual("test2", addon.name);
+            }
+        }
+        [TestMethod()]
+        public void load_Test() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                AddonModel addon = DbBaseModel.addDefault<AddonModel>(cp);
+                addon.name = "test1";
+                addon.save(cp);
+                cp.Db.ExecuteNonQuery($"update {AddonModel.tableMetadata.tableNameLower} set name='test2' where id={addon.id}");
+                Assert.AreNotEqual("test2", addon.name);
+                using (var dt = cp.Db.ExecuteQuery($"select * from {AddonModel.tableMetadata.tableNameLower} where id={addon.id}")) {
+                    Assert.IsNotNull(dt);
+                    Assert.IsTrue(dt.Rows.Count == 1);
+                    addon.load<AddonModel>(cp, dt.Rows[0]);
+                }
+                Assert.AreEqual("test2", addon.name);
+            }
+        }
+        [TestMethod()]
         public void derivedTableNameTest() {
             Assert.AreEqual("ccaddoncollections", DbBaseModel.derivedTableName(typeof(AddonCollectionModel)).ToLower(CultureInfo.InvariantCulture));
         }
