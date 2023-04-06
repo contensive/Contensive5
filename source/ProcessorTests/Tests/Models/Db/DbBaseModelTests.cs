@@ -8,8 +8,38 @@ using System.Globalization;
 using static Tests.TestConstants;
 
 namespace Tests {
+    //
+    //
     [TestClass()]
     public class DbBaseModelTests {
+        //
+        //
+        [TestMethod()]
+        public void addDefault_Test1() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- set default value for person name to random test
+                List<ContentFieldModel> testField = DbBaseModel.createList<ContentFieldModel>(cp, $"(name='name')and(contentid={cp.Content.GetID("people")})");
+                Assert.AreEqual(1, testField.Count);
+                ContentFieldModel field = testField[0];
+                string oldValue = field.defaultValue;
+                string testValue = cp.Utils.GetRandomString(255);
+                //
+                // -- act
+                field.defaultValue = testValue;
+                field.save(cp);
+                PersonModel testRecord = DbBaseModel.addDefault<PersonModel>(cp);
+                //
+                // -- assert
+                Assert.AreEqual(testValue, testRecord.name);
+                //
+                // -- repair
+                field.defaultValue = oldValue;
+                field.save(cp);
+            }
+        }
+        //
+        //
         [TestMethod()]
         public void reload_Test() {
             using (CPClass cp = new(testAppName)) {
@@ -30,6 +60,68 @@ namespace Tests {
                 Assert.AreEqual("test2", addon.name);
             }
         }
+        //
+        //
+        [TestMethod()]
+        public void getDefaultValues_Test1() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- set default value for person name to random test
+                List<ContentFieldModel> testField = DbBaseModel.createList<ContentFieldModel>(cp, $"(name='name')and(contentid={cp.Content.GetID("people")})");
+                Assert.AreEqual(1, testField.Count);
+                ContentFieldModel field = testField[0];
+                string oldValue = field.defaultValue;
+                string testValue = cp.Utils.GetRandomString(255);
+                //
+                // -- act
+                field.defaultValue = testValue;
+                field.save(cp);
+                //
+                // -- assert
+                var defaultValues = DbBaseModel.getDefaultValues<PersonModel>(cp, 0);
+                Assert.AreEqual(testValue, defaultValues["name"]);
+                //
+                // -- repair
+                field.defaultValue = oldValue;
+                field.save(cp);
+                //
+                // -- assert
+                var defaultValues2 = DbBaseModel.getDefaultValues<PersonModel>(cp, 0);
+                Assert.AreEqual(oldValue, defaultValues2["name"]);
+            }
+        }
+        //
+        //
+        [TestMethod()]
+        public void getDefaultValues_Test2() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- set default value for person name to random test
+                List<ContentFieldModel> testField = DbBaseModel.createList<ContentFieldModel>(cp, $"(name='name')and(contentid={cp.Content.GetID("people")})");
+                Assert.AreEqual(1, testField.Count);
+                ContentFieldModel field = testField[0];
+                string oldValue = field.defaultValue;
+                string testValue = cp.Utils.GetRandomString(255);
+                //
+                // -- act
+                field.defaultValue = testValue;
+                field.save(cp);
+                //
+                // -- assert
+                var defaultValues = DbBaseModel.getDefaultValues<PersonModel>(cp);
+                Assert.AreEqual(testValue, defaultValues["name"]);
+                //
+                // -- repair
+                field.defaultValue = oldValue;
+                field.save(cp);
+                //
+                // -- assert
+                var defaultValues2 = DbBaseModel.getDefaultValues<PersonModel>(cp);
+                Assert.AreEqual(oldValue, defaultValues2["name"]);
+            }
+        }
+        //
+        //
         [TestMethod()]
         public void load_Test() {
             using (CPClass cp = new(testAppName)) {
@@ -47,6 +139,11 @@ namespace Tests {
                 Assert.AreEqual("test2", addon.name);
             }
         }
+        [TestMethod()]
+        public void derivedContentNameTest() {
+            Assert.AreEqual("Add-on Collections", DbBaseModel.derivedContentName(typeof(AddonCollectionModel)).ToLower(CultureInfo.InvariantCulture));
+        }
+
         [TestMethod()]
         public void derivedTableNameTest() {
             Assert.AreEqual("ccaddoncollections", DbBaseModel.derivedTableName(typeof(AddonCollectionModel)).ToLower(CultureInfo.InvariantCulture));
@@ -144,7 +241,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 string defaultRootUserGuid = "{4445cd14-904f-480f-a7b7-29d70d0c22ca}";
                 var root = Contensive.Models.Db.DbBaseModel.create<Contensive.Models.Db.PersonModel>(cp, defaultRootUserGuid);
-                if(root == null ) {
+                if (root == null) {
                     root = DbBaseModel.addDefault<PersonModel>(cp);
                     root.ccguid = defaultRootUserGuid;
                     root.name = "root";

@@ -345,7 +345,7 @@ namespace Contensive.Models.Db {
         /// <param name="contentSqlSelect">An sql to find the content id and parentid for a record (ex, select id,parentid from cccontent where id=1, or select id,parentid from cccontent where ccguid='{1234-1234-1234-1234}')</param>
         /// <param name="childIdList">List of content child ids. used to exit recursive call</param>
         /// <param name="defaultValues">Empty if child not included. If default value is found, it is ignored if the key is already in this list</param>
-        public static void getDefaultValues<T>(CPBaseClass cp, int createdModifiedById, string contentSqlSelect, List<int> childIdList, Dictionary<string, string> defaultValues) where T : DbBaseModel {
+        private static void getDefaultValues<T>(CPBaseClass cp, int createdModifiedById, string contentSqlSelect, List<int> childIdList, Dictionary<string, string> defaultValues) where T : DbBaseModel {
             //
             // -- determine contentid and parentid
             int contentId = 0;
