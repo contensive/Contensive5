@@ -1274,48 +1274,48 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static double? encodeNumberNullable(object expression) {
             if (expression == null) { return null; }
-            if ((expression is string) && (string.IsNullOrWhiteSpace((string)expression))) { return null; }
+            if ((expression is string stringExpression) && string.IsNullOrWhiteSpace(stringExpression)) { return null; }
             return encodeNumber(expression);
         }
         //
         //====================================================================================================
         //
-        public static string encodeText(object Expression) {
-            if ((Expression is DBNull) || (Expression == null)) { return string.Empty; }
-            return Expression.ToString();
+        public static string encodeText(object expression) {
+            if ((expression is DBNull) || (expression == null)) { return string.Empty; }
+            return expression.ToString();
         }
         //
         //====================================================================================================
         //
-        public static bool encodeBoolean(object Expression) {
-            if (Expression == null) { return false; }
-            if (Expression is bool) { return (bool)Expression; }
-            if (Expression.isNumeric()) { return (encodeText(Expression) != "0"); }
-            if (Expression is string) { return (new string[] { "on", "yes", "true" }).Any(((string)Expression).ToLowerInvariant().Equals); }
+        public static bool encodeBoolean(object expression) {
+            if (expression == null) { return false; }
+            if (expression is bool booleanExpression) { return booleanExpression; }
+            if (expression.isNumeric()) { return encodeText(expression) != "0"; }
+            if (expression is string stringExpression) { return (new string[] { "on", "yes", "true" }).Any(stringExpression.ToLowerInvariant().Equals); }
             return false;
         }
         //
         //====================================================================================================
         //
-        public static DateTime encodeDate(object Expression) {
-            if (Expression is string) {
+        public static DateTime encodeDate(object expression) {
+            if (expression is string stringExpression) {
                 // visual basic - when converting a date to a string, it converts minDate to "12:00:00 AM". 
                 // however, Convert.ToDateTime() converts "12:00:00 AM" to the current date.
                 // this is a terrible hack, but to be compatible with current software, "#12:00:00 AM#" must return mindate 
-                if ((String)Expression == "12:00:00 AM") { return DateTime.MinValue; }
+                if (stringExpression == "12:00:00 AM") { return DateTime.MinValue; }
             }
-            if (isDate(Expression)) { return Convert.ToDateTime(Expression); }
+            if (isDate(expression)) { return Convert.ToDateTime(expression); }
             return DateTime.MinValue;
         }
         //
         //========================================================================
         //   Gets the next line from a string, and removes the line
         //
-        public static string getLine(ref string Body) {
-            string returnFirstLine = Body;
+        public static string getLine(ref string body) {
+            string returnFirstLine = body;
             try {
-                int nextCR = strInstr(1, Body, "\r");
-                int nextLF = strInstr(1, Body, "\n");
+                int nextCR = strInstr(1, body, "\r");
+                int nextLF = strInstr(1, body, "\n");
                 if ((nextCR != 0) || (nextLF != 0)) {
                     int eol = 0;
                     int bol = 0;
@@ -1341,11 +1341,11 @@ namespace Contensive.Processor.Controllers {
                         eol = nextLF - 1;
                         bol = nextLF + 1;
                     }
-                    returnFirstLine = Body.left(eol);
-                    Body = Body.Substring(bol - 1);
+                    returnFirstLine = body.left(eol);
+                    body = body.Substring(bol - 1);
                 } else {
-                    returnFirstLine = Body;
-                    Body = "";
+                    returnFirstLine = body;
+                    body = "";
                 }
             } catch (Exception) { }
             return returnFirstLine;

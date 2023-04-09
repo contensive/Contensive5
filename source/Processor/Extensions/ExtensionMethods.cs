@@ -77,7 +77,7 @@ public static class ExtensionMethods {
         } else if (source.Length <= maxLength) {
             return source;
         } else {
-            return source.Substring(source.Length-maxLength,maxLength);
+            return source.Substring(source.Length - maxLength, maxLength);
         }
     }
     //
@@ -89,17 +89,12 @@ public static class ExtensionMethods {
     /// <returns></returns>
     public static bool isNumeric(this object expression) {
         try {
-            if (expression == null) {
-                return false;
-            } else if (expression is DateTime) {
-                return false;
-            } else if ((expression is int) || (expression is Int16) || (expression is Int32) || (expression is Int64) || (expression is decimal) || (expression is float) || (expression is double) || (expression is bool)) {
-                return true;
-            } else if (expression is string) {
-                return double.TryParse((string)expression, out double output);
-            } else {
-                return false;
-            }
+            if (expression == null) { return false; }
+            if (expression is DateTime) { return false; }
+            if ((expression is int) || (expression is short) || (expression is long) || (expression is decimal) || (expression is float) || (expression is double)) { return true; }
+            //if ((expression is int) || (expression is short) || (expression is long) || (expression is decimal) || (expression is float) || (expression is double) || (expression is bool)) { return true; }
+            if (expression is string stringExpression) { return double.TryParse(stringExpression, out double output); }
+            return false;
         } catch {
             return false;
         }
@@ -107,7 +102,7 @@ public static class ExtensionMethods {
     //
     //====================================================================================================
     //
-    public static bool isOld( this DateTime srcDate) {
+    public static bool isOld(this DateTime srcDate) {
         return (srcDate < new DateTime(1900, 1, 1));
     }
     //
@@ -136,7 +131,7 @@ public static class ExtensionMethods {
     /// <returns></returns>
     public static string replace(this string s, string oldValue, string newValue, StringComparison comparisonType) {
         if (s == null) { return null; }
-        if (String.IsNullOrEmpty(oldValue))  return s;
+        if (String.IsNullOrEmpty(oldValue)) return s;
         StringBuilder result = new(Math.Min(4096, s.Length));
         int pos = 0;
         while (true) {
@@ -255,7 +250,7 @@ public static class ExtensionMethods {
     public static string getNameList(this NameValueCollection sqlList) {
         string returnPairs = "";
         string delim = "";
-        foreach ( string key in sqlList.AllKeys) {
+        foreach (string key in sqlList.AllKeys) {
             if (!string.IsNullOrWhiteSpace(key)) {
                 returnPairs += delim + key;
                 delim = ",";

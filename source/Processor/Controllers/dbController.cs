@@ -44,11 +44,6 @@ namespace Contensive.Processor.Controllers {
         internal const string SQLFalse = "0";
         //
         /// <summary>
-        /// set true when configured and tested - else db calls are skipped
-        /// </summary>
-        private bool dbVerified { get; set; } = false;
-        //
-        /// <summary>
         /// set true when configured and tested - else db calls are skipped, simple lazy cached values
         /// </summary>
         private bool dbEnabled { get; set; } = true;
@@ -111,16 +106,16 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- simple local cache so it does not have to be recreated each time
                 string key = "catalog:" + catalogName + "/datasource:" + dataSourceName;
-                if (connectionStringDict.ContainsKey(key)) {
-                    return connectionStringDict[key];
-                }
+                if (connectionStringDict.ContainsKey(key)) { return connectionStringDict[key]; }
                 //
                 // -- lookup dataSource
                 string normalizedDataSourceName = DataSourceModel.normalizeDataSourceName(dataSourceName);
-                if ((string.IsNullOrEmpty(normalizedDataSourceName)) || (normalizedDataSourceName == "default")) {
+                if (string.IsNullOrEmpty(normalizedDataSourceName) || (normalizedDataSourceName == "default")) {
                     //
                     // -- default datasource
-                    return core.dbServer.getConnectionStringADONET() + "Database=" + catalogName + ";";
+                    string defaultConnString = core.dbServer.getConnectionStringADONET() + "Database=" + catalogName + ";";
+                    connectionStringDict.Add(key, defaultConnString);
+                    return defaultConnString;
                 }
                 //
                 // -- custom datasource from Db in primary datasource
@@ -241,7 +236,6 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                dbVerified = true;
                 try {
                     string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -289,7 +283,6 @@ namespace Contensive.Processor.Controllers {
                         recordsAffected = cmdSQL.ExecuteNonQuery();
                     }
                 }
-                dbVerified = true;
                 try {
                     string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -326,7 +319,6 @@ namespace Contensive.Processor.Controllers {
                         result = await cmdSQL.ExecuteNonQueryAsync();
                     }
                 }
-                dbVerified = true;
                 try {
                     string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [n/a], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
@@ -1050,9 +1042,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string encodeSqlTextLike(string expression) {
             if (expression == null) { return ""; }
-            string working = expression.replace("[", "[[]",StringComparison.InvariantCultureIgnoreCase);
-             working = working.replace("%", "[%]", StringComparison.InvariantCultureIgnoreCase);
-             working = working.replace("_", "[_]", StringComparison.InvariantCultureIgnoreCase);
+            string working = expression.replace("[", "[[]", StringComparison.InvariantCultureIgnoreCase);
+            working = working.replace("%", "[%]", StringComparison.InvariantCultureIgnoreCase);
+            working = working.replace("_", "[_]", StringComparison.InvariantCultureIgnoreCase);
             return encodeSQLText("%" + working + "%");
         }
         //

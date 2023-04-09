@@ -31,7 +31,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public bool allowPageSettingsEdit {
             get {
-                if (_allowPageSettingsEdit!=null) { return (bool)_allowPageSettingsEdit;  }
+                if (_allowPageSettingsEdit != null) { return (bool)_allowPageSettingsEdit; }
                 _allowPageSettingsEdit = getBoolean("allow page settings edit", true);
                 return (bool)_allowPageSettingsEdit;
             }
@@ -700,15 +700,15 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool allowCache_notCached {
             get {
-                    if (dbNotReady) {
-                    return false;
-                } else {
-                    if (_allowCache_notCached == null) {
-                        bool propertyFound = false;
-                        _allowCache_notCached = GenericController.encodeBoolean(getTextFromDb("AllowBake", "0", ref propertyFound));
-                    }
-                    return encodeBoolean(_allowCache_notCached);
+                if (_allowCache_notCached != null) { return (bool)_allowCache_notCached; }
+                // -- special case, allowCache referenced in nameValueDict load
+                if (_nameValueDict != null) {
+                    return getPropertyBase("AllowBake",false, ref _allowCache_notCached);
                 }
+                if (dbNotReady) { return false; }
+                bool propertyFound = false;
+                _allowCache_notCached = GenericController.encodeBoolean(getTextFromDb("AllowBake", "0", ref propertyFound));
+                return (bool)_allowCache_notCached;
             }
         }
         private bool? _allowCache_notCached = null;

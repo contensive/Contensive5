@@ -29,11 +29,9 @@ namespace Contensive.Models.Db {
         /// <remarks></remarks>
         public static string getValue(CPBaseClass cp, string PropertyName, ref bool return_propertyFound) {
             try {
-                using (DataTable dt = cp.Db.ExecuteQuery("select FieldValue from ccSetup where (active>0)and(name=" + cp.Db.EncodeSQLText(PropertyName) + ") order by id")) {
-                    if (dt.Rows.Count > 0) {
-                        return_propertyFound = true;
-                        return cp.Utils.EncodeText(dt.Rows[0]["FieldValue"]);
-                    }
+                using (DataTable dt = cp.Db.ExecuteQuery($"select top 1 FieldValue from ccSetup where (active>0)and(name={cp.Db.EncodeSQLText(PropertyName)}) order by id")) {
+                    return_propertyFound = true;
+                    if (dt?.Rows is not null && dt.Rows.Count > 0) { return cp.Utils.EncodeText(dt.Rows[0][0]); }
                     return_propertyFound = false;
                     return "";
                 }

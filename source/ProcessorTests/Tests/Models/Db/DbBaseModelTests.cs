@@ -141,7 +141,7 @@ namespace Tests {
         }
         [TestMethod()]
         public void derivedContentNameTest() {
-            Assert.AreEqual("Add-on Collections", DbBaseModel.derivedContentName(typeof(AddonCollectionModel)).ToLower(CultureInfo.InvariantCulture));
+            Assert.AreEqual("Add-on Collections".ToLower(CultureInfo.InvariantCulture), DbBaseModel.derivedContentName(typeof(AddonCollectionModel)).ToLower(CultureInfo.InvariantCulture));
         }
 
         [TestMethod()]

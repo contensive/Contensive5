@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Linq;
 
 namespace Tests {
@@ -26,6 +27,25 @@ namespace Tests {
             Assert.AreEqual(300, test300.substringSafe(0, 300).Length);
             //
             Assert.AreEqual(300, test300.substringSafe(0, 301).Length);
+            //
+        }
+        //
+        [TestMethod]
+        public void Object_isNumeric() {
+            //
+            Assert.IsTrue(123456789.isNumeric());
+            Assert.IsTrue(0.isNumeric());
+            Assert.IsTrue((-1).isNumeric());
+            Assert.IsTrue("123456789".isNumeric());
+            Assert.IsTrue("0.01".isNumeric());
+            //
+            Assert.IsFalse("".isNumeric());
+            Assert.IsFalse("1/1/2099".isNumeric());
+            Assert.IsFalse("a".isNumeric());
+            Assert.IsFalse(true.isNumeric());
+            object test = null;
+            Assert.IsFalse(test.isNumeric());
+            Assert.IsFalse(DateTime.Now.isNumeric());
             //
         }
     }
