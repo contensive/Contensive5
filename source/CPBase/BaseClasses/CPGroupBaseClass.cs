@@ -136,7 +136,31 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="userId"></param>
-        public abstract void RemoveUser(int  groupId, int userId);
+        public abstract void RemoveUser(int groupId, int userId);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Verify a group exists, create it if it does not
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <param name="groupName"></param>
+        public abstract void verifyGroup(string groupGuid, string groupName);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Verify a group exists, create it if it does not
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <param name="groupName"></param>
+        /// <param name="groupCaption"></param>
+        public abstract void verifyGroup(string groupGuid, string groupName, string groupCaption);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Verify a group exists, create it if it does not
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        public abstract bool exists(string groupGuid);
         //
         //====================================================================================================
         // deprecated

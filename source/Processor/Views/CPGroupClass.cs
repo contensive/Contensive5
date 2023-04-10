@@ -208,6 +208,50 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// if group does not exists by guid, create group with caption matching name
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <param name="groupName"></param>
+        public override void verifyGroup(string groupGuid, string groupName) {
+            if (string.IsNullOrEmpty(groupGuid)) return;
+            if (exists(groupGuid)) { return; }
+            if (string.IsNullOrEmpty(groupName)) return;
+            verifyGroup(groupGuid, groupName, groupName);
+            return;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// if group does not exists by guid, create group
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <param name="groupName"></param>
+        /// <param name="groupCaption"></param>
+        public override void verifyGroup(string groupGuid, string groupName, string groupCaption) {
+            if (string.IsNullOrEmpty(groupGuid)) return;
+            if (exists(groupGuid)) { return; }
+            if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(groupName)) return;
+            var group = DbBaseModel.addDefault<GroupModel>(cp);
+            group.ccguid = groupGuid;
+            group.name = groupName;
+            group.caption = groupCaption;
+            group.save(cp);
+            return;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// if group exists by guid, return true, else false
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <returns></returns>
+        public override bool exists(string groupGuid) {
+            if (string.IsNullOrEmpty(groupGuid)) return false;
+            return DbBaseModel.getCount<GroupModel>(cp, $"ccguid={groupGuid}") > 0;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// nlog class instance
         /// </summary>
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
