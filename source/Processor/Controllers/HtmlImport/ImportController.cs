@@ -168,8 +168,6 @@ namespace Contensive.Processor {
                                     // -- try to resolve the various relative urls possible into the primary url, then to a reoot relative url
                                     //string urlProtocolDomainSlash = "https://" + cp.Site.DomainPrimary + "/";
                                     string bodyhtml = htmlDoc.DocumentNode.OuterHtml;
-                                    //bodyhtml = genericController.convertLinksToAbsolute(bodyhtml, urlProtocolDomainSlash);
-                                    //bodyhtml = bodyhtml.Replace(urlProtocolDomainSlash, "/");
                                     //
                                     pageTemplate.bodyHTML = bodyhtml;
                                     pageTemplate.save(cp);

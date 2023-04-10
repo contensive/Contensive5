@@ -399,7 +399,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                             executeContextErrorCaption = "addon name:" + addonName + " for Admin";
                             cp.core.doc.addRefreshQueryString("addonname", addonName);
                             addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
-                            //addon = AddonModel.createByUniqueName(cp, AddonName);
                         }
                         if (addon != null) {
                             addonId = addon.id;

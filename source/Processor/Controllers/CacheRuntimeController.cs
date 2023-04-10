@@ -77,17 +77,6 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public CacheStore_AddonModel addonCache {
             get {
-                //CacheKeyHashClass keyHash = core.cache.createKeyHash(cacheName_addonCache);
-                //if (core.cache.tryGetCacheDocument<CacheStore_AddonModel>(keyHash, out CacheDocumentClass cacheDocument)) {
-                //    // -- cache miss
-                //    _addonCache = new CacheStore_AddonModel(core);
-                //    List<CacheKeyHashClass> dependencyList = new List<CacheKeyHashClass> {
-                //        core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
-                //        core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
-                //    };
-                //    core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
-                //    return _addonCache;
-                //}
                 if (_addonCache != null) { return _addonCache; }
                 //
                 // -- populate local version from cache
@@ -449,9 +438,6 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public Dictionary<int, ContentModel> ContentIdDict {
             get {
-                //if (core.cache.tryGetCacheDocument<ContentStoreModel>(core.cache.createKeyHash("ContentStoreModel"), out CacheDocumentClass _)) {
-                //    if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
-                //}
                 if (ContentIdDict_Local != null) { return ContentIdDict_Local; }
                 //
                 ContentStoreModel Content = getContentStore();

@@ -81,7 +81,6 @@ namespace Contensive.Processor {
             }
             ~ApplicationController() {
                 dispose(false);
-                //base.Finalize();
             }
         }
         // 

@@ -621,11 +621,6 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public static ContentMetadataModel create(CoreController core, int contentId, bool loadInvalidFields, bool forceDbLoad) {
             var ContentIdDict = core.cacheRuntime.ContentIdDict;
-
-
-
-            //ifyouaddcontentthisfails
-
             if (!ContentIdDict.ContainsKey(contentId)) { return null; }
             return create(core, ContentIdDict[contentId], loadInvalidFields, forceDbLoad);
         }

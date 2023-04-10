@@ -92,7 +92,6 @@ public static class ExtensionMethods {
             if (expression == null) { return false; }
             if (expression is DateTime) { return false; }
             if ((expression is int) || (expression is short) || (expression is long) || (expression is decimal) || (expression is float) || (expression is double)) { return true; }
-            //if ((expression is int) || (expression is short) || (expression is long) || (expression is decimal) || (expression is float) || (expression is double) || (expression is bool)) { return true; }
             if (expression is string stringExpression) { return double.TryParse(stringExpression, out double output); }
             return false;
         } catch {

@@ -1130,7 +1130,6 @@ namespace Contensive.Processor.Controllers {
                                                                             { "FieldValue", core.siteProperties.getText(fieldName, FieldDefaultValue) }
                                                                         };
                                                                         AddonModel addon = core.cacheRuntime.addonCache.createByUniqueName(FieldAddon);
-                                                                        //if (addon == null) { addon = AddonModel.createByUniqueName(core.cpParent, FieldAddon); };
                                                                         Copy = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
                                                                             addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
                                                                             argumentKeyValuePairs = arguments,

@@ -384,24 +384,6 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                 }
-
-
-                                //string sqlLinkAliasCriteria = "(name=" + DbController.encodeSQLText(linkAliasTest1) + ")or(name=" + DbController.encodeSQLText(linkAliasTest2) + ")";
-                                //List<LinkAliasModel> linkAliasList = DbBaseModel.createList<LinkAliasModel>(core.cpParent, sqlLinkAliasCriteria, "id desc");
-                                //if (linkAliasList.Count > 0) {
-                                //    LinkAliasModel linkAlias = linkAliasList.First(); 
-                                //    string LinkQueryString = rnPageId + "=" + linkAlias.pageId + "&" + linkAlias.queryStringSuffix;
-                                //    core.docProperties.setProperty(rnPageId, linkAlias.pageId, DocPropertyModel.DocPropertyTypesEnum.userDefined);
-                                //    string[] nameValuePairs = linkAlias.queryStringSuffix.Split('&');
-                                //    foreach (string nameValuePair in nameValuePairs) {
-                                //        string[] nameValueThing = nameValuePair.Split('=');
-                                //        if (nameValueThing.GetUpperBound(0) == 0) {
-                                //            core.docProperties.setProperty(nameValueThing[0], "", DocPropertyModel.DocPropertyTypesEnum.userDefined);
-                                //        } else {
-                                //            core.docProperties.setProperty(nameValueThing[0], nameValueThing[1], DocPropertyModel.DocPropertyTypesEnum.userDefined);
-                                //        }
-                                //    }
-                                //}
                             }
                             //
                             // No Link Forward, no Link Alias, no RemoteMethodFromPage, not Robots.txt
