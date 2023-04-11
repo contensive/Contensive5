@@ -12,6 +12,7 @@ namespace Contensive.BaseClasses {
         /// Add a new group
         /// </summary>
         /// <param name="groupName"></param>
+        [Obsolete("Use verifyGroup to search by guid, and create with guid and name", false )]
         public abstract void Add(string groupName);
         //
         //==========================================================================================
@@ -20,11 +21,12 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="groupName"></param>
         /// <param name="groupCaption"></param>
+        [Obsolete("Use verifyGroup to search by guid, and create with guid and name", false)]
         public abstract void Add(string groupName, string groupCaption);
         //
         //==========================================================================================
         /// <summary>
-        /// Add the current user to a group.
+        /// Add the current user to a group. Use verifyGroup(guid,name) to get groupid
         /// </summary>
         /// <param name="groupId"></param>
         public abstract void AddUser(int groupId);
@@ -140,27 +142,37 @@ namespace Contensive.BaseClasses {
         //
         //==========================================================================================
         /// <summary>
-        /// Verify a group exists, create it if it does not
+        /// Verify a group exists, create it if it does not. Return the id of the group.
         /// </summary>
         /// <param name="groupGuid"></param>
         /// <param name="groupName"></param>
-        public abstract void verifyGroup(string groupGuid, string groupName);
+        /// <returns>The id of the verified group</returns>
+        public abstract int verifyGroup(string groupGuid, string groupName);
         //
         //==========================================================================================
         /// <summary>
-        /// Verify a group exists, create it if it does not
+        /// Verify a group exists, create it if it does not. Return the id of the group.
         /// </summary>
         /// <param name="groupGuid"></param>
         /// <param name="groupName"></param>
         /// <param name="groupCaption"></param>
-        public abstract void verifyGroup(string groupGuid, string groupName, string groupCaption);
+        /// <returns>The id of the verified group</returns>
+        public abstract int verifyGroup(string groupGuid, string groupName, string groupCaption);
         //
         //==========================================================================================
         /// <summary>
         /// Verify a group exists, create it if it does not
         /// </summary>
-        /// <param name="groupGuid"></param>
+        /// <param name="groupGuid">The guid of the group to be found.</param>
         public abstract bool exists(string groupGuid);
+        //
+        //==========================================================================================
+        /// <summary>
+        /// Verify a group exists, create it if it does not
+        /// </summary>
+        /// <param name="groupGuid">The guid of the group to be found.</param>
+        /// <param name="groupId">If the group exists, the id is returned. if not found, 0 is returned,</param>
+        public abstract bool exists(string groupGuid, out int groupId);
         //
         //====================================================================================================
         // deprecated

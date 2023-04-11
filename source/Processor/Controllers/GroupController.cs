@@ -402,6 +402,61 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// if group does not exists by guid, create group with caption matching name
+        /// </summary>
+        /// <param name="groupGuid">The guid of the group. Must be a non-empty, globally unique string.</param>
+        /// <param name="groupName">The name of the group. Must be a non-empty</param>
+        /// <returns>The id of the verified group. 0 if the group</returns>
+        public static int verifyGroup(CoreController core, string groupGuid, string groupName) {
+            if (string.IsNullOrEmpty(groupGuid)) throw new ApplicationException("verifyGroup requires a non-empty groupGuid");
+            if (exists(core, groupGuid, out int groupId)) { return groupId; }
+            if (string.IsNullOrEmpty(groupName)) throw new ApplicationException("verifyGroup requires a non-empty groupName");
+            return verifyGroup(core, groupGuid, groupName, groupName);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// if group does not exists by guid, create group
+        /// </summary>
+        /// <param name="groupGuid">The guid of the group. Must be a non-empty, globally unique string.</param>
+        /// <param name="groupName">The name of the group. Must be a non-empty</param>
+        /// <param name="groupCaption">The caption of the group. Must be a non-empty</param>
+        public static int verifyGroup(CoreController core, string groupGuid, string groupName, string groupCaption) {
+            if (string.IsNullOrEmpty(groupGuid)) throw new ApplicationException("verifyGroup requires a non-empty groupGuid");
+            if (exists(core, groupGuid, out int groupId)) { return groupId; }
+            if (string.IsNullOrEmpty(groupName)) throw new ApplicationException("verifyGroup requires a non-empty groupName");
+            if (string.IsNullOrEmpty(groupCaption)) throw new ApplicationException("verifyGroup requires a non-empty groupName");
+            var group = DbBaseModel.addDefault<GroupModel>(core.cpParent);
+            group.ccguid = groupGuid;
+            group.name = groupName;
+            group.caption = groupCaption;
+            group.save(core.cpParent);
+            return group.id;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// if group exists by guid, return true, else false
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <returns></returns>
+        public static bool exists(CoreController core, string groupGuid) {
+            return exists(core, groupGuid, out _);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// if group exists by guid, return true, else false
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <returns></returns>
+        public static bool exists(CoreController core, string groupGuid, out int groupid) {
+            groupid = string.IsNullOrEmpty(groupGuid) ? 0 : DbBaseModel.getRecordId<GroupModel>(core.cpParent, groupGuid);
+            return groupid > 0;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// nlog class instance
         /// </summary>
         private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();

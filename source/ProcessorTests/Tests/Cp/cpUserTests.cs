@@ -157,9 +157,10 @@ namespace Tests {
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
                 core.session.verifyUser();
+                string groupGuid = cp.Utils.CreateGuid();
                 string groupName = "Group-" + cp.Utils.GetRandomInteger().ToString();
                 //
-                cp.Group.Add(groupName);
+                cp.Group.verifyGroup(groupGuid, groupName);
                 bool inGroupBeforeAddTest = cp.User.IsInGroup(groupName);
                 // act
                 cp.Group.AddUser(groupName);
@@ -188,9 +189,10 @@ namespace Tests {
                 CoreController core = ((CPClass)cp).core;
                 core.cache.invalidateAll();
                 core.session.verifyUser();
+                string groupGuid = cp.Utils.CreateGuid();
                 string groupName = "Group-" + cp.Utils.GetRandomInteger().ToString();
                 //
-                cp.Group.Add(groupName);
+                cp.Group.verifyGroup(groupGuid, groupName);
                 bool inGroupBeforeAddTest = cp.User.IsInGroup(groupName);
                 // act
                 cp.Group.AddUser(groupName);

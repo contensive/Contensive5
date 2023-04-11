@@ -169,6 +169,5 @@ namespace Tests {
                 Assert.AreEqual(1, ruleList.Count);
             }
         }
-
     }
 }

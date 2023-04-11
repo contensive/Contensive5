@@ -210,33 +210,22 @@ namespace Contensive.Processor {
         /// <summary>
         /// if group does not exists by guid, create group with caption matching name
         /// </summary>
-        /// <param name="groupGuid"></param>
-        /// <param name="groupName"></param>
-        public override void verifyGroup(string groupGuid, string groupName) {
-            if (string.IsNullOrEmpty(groupGuid)) return;
-            if (exists(groupGuid)) { return; }
-            if (string.IsNullOrEmpty(groupName)) return;
-            verifyGroup(groupGuid, groupName, groupName);
-            return;
+        /// <param name="groupGuid">The guid of the group. Must be a non-empty, globally unique string.</param>
+        /// <param name="groupName">The name of the group. Must be a non-empty</param>
+        /// <returns>The id of the verified group. 0 if the group</returns>
+        public override int verifyGroup(string groupGuid, string groupName) {
+            return GroupController.verifyGroup(core, groupGuid, groupName);
         }
         //
         //====================================================================================================
         /// <summary>
         /// if group does not exists by guid, create group
         /// </summary>
-        /// <param name="groupGuid"></param>
-        /// <param name="groupName"></param>
-        /// <param name="groupCaption"></param>
-        public override void verifyGroup(string groupGuid, string groupName, string groupCaption) {
-            if (string.IsNullOrEmpty(groupGuid)) return;
-            if (exists(groupGuid)) { return; }
-            if (string.IsNullOrEmpty(groupName) || string.IsNullOrEmpty(groupName)) return;
-            var group = DbBaseModel.addDefault<GroupModel>(cp);
-            group.ccguid = groupGuid;
-            group.name = groupName;
-            group.caption = groupCaption;
-            group.save(cp);
-            return;
+        /// <param name="groupGuid">The guid of the group. Must be a non-empty, globally unique string.</param>
+        /// <param name="groupName">The name of the group. Must be a non-empty</param>
+        /// <param name="groupCaption">The caption of the group. Must be a non-empty</param>
+        public override int verifyGroup(string groupGuid, string groupName, string groupCaption) {
+            return GroupController.verifyGroup(core, groupGuid, groupName, groupCaption);
         }
         //
         //====================================================================================================
@@ -246,8 +235,17 @@ namespace Contensive.Processor {
         /// <param name="groupGuid"></param>
         /// <returns></returns>
         public override bool exists(string groupGuid) {
-            if (string.IsNullOrEmpty(groupGuid)) return false;
-            return DbBaseModel.getCount<GroupModel>(cp, $"ccguid={groupGuid}") > 0;
+            return GroupController.exists(core, groupGuid, out _);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// if group exists by guid, return true, else false
+        /// </summary>
+        /// <param name="groupGuid"></param>
+        /// <returns></returns>
+        public override bool exists(string groupGuid, out int groupid) {
+            return GroupController.exists(core, groupGuid, out groupid);
         }
         //
         //====================================================================================================

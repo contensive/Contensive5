@@ -778,7 +778,6 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// reload a provided model
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
         /// <param name="instance"></param>
         /// <param name="row"></param>
@@ -816,7 +815,6 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// reload a provided model from a db row matching the table
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
         /// <param name="instance"></param>
         /// <param name="row"></param>
@@ -1263,12 +1261,14 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <param name="sqlCriteria"></param>
         /// <param name="sqlOrderBy"></param>
-        /// <param name="pageSize"></param>
-        /// <param name="pageNumber"></param>
+        /// <param name="pageSize">Records per page, must be > 0.</param>
+        /// <param name="pageNumber">1-based, must be > 0.</param>
         /// <param name="callersCacheNameList"></param>
         /// <returns></returns>
         public static List<T> createList<T>(CPBaseClass cp, string sqlCriteria, string sqlOrderBy, int pageSize, int pageNumber, List<string> callersCacheNameList) where T : DbBaseModel {
             try {
+                if (pageSize <= 0) { throw new GenericException($"pageSize must be > 0, value ({pageSize})."); }
+                if (pageNumber <= 0) { throw new GenericException($"pageNumber must be > 0, value ({pageNumber})."); }
                 List<T> result = new();
                 int startRecord = pageSize * (pageNumber - 1);
                 int maxRecords = pageSize;
