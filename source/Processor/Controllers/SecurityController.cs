@@ -85,6 +85,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// return true if an encrypted string matches an unencrypted string.
+        /// The result is repeatable (encode the same value twice and it will be the same)
         /// </summary>
         /// <param name="sourceToTest"></param>
         /// <returns></returns>
@@ -101,7 +102,8 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// return an encrypted string. This is a two way so use it for little sister security, not foreign government security
+        /// return an encrypted string. This is a two wayso token can be decrypted.
+        /// The result is not repeatable (encode the same value twice and it will not be the same)
         /// </summary>
         /// <param name="core"></param>
         /// <param name="sourceToEncrypt"></param>

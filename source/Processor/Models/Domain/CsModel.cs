@@ -97,8 +97,8 @@ namespace Contensive.Processor {
         public CsModel(CoreController core) {
             this.core = core;
             //
-            // -- capture userId at the time data opened
-            userId = core.session.user.id;
+            // -- capture userId at the time data opened, or 0
+            userId = core.session?.user?.id ?? 0;
         }
         //
         //====================================================================================================
@@ -484,7 +484,7 @@ namespace Contensive.Processor {
         public string getTextEncoded(string FieldName) {
             if (!isOpen) { throw new ArgumentException("source dataset is not valid"); }
             if (contentMeta == null) { throw new ArgumentException("Cannot return rendered html because dataset was created with a sql query."); }
-            return ContentRenderController.renderHtmlForWeb(core, getText(FieldName), contentMeta.name, getInteger("id"), core.session.user.id, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
+            return ContentRenderController.renderHtmlForWeb(core, getText(FieldName), contentMeta.name, getInteger("id"), userId, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
         }
         //
         //========================================================================
@@ -499,7 +499,7 @@ namespace Contensive.Processor {
             dt = null;
             fieldNames = null;
             fieldPointer = 0;
-            userId = core.session.user.id;
+            userId = core.session?.user?.id ?? 0;
             readCache = null;
             readCacheRowCnt = 0;
             readCacheRowPtr = 0;
@@ -1977,7 +1977,7 @@ namespace Contensive.Processor {
         /// <param name="selectFieldList"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, int recordId, string selectFieldList) {
-            return open(contentName, "(ID=" + DbController.encodeSQLNumber(recordId) + ")", "", false, core.session.user.id, selectFieldList);
+            return open(contentName, "(ID=" + DbController.encodeSQLNumber(recordId) + ")", "", false, userId, selectFieldList);
         }
         /// <summary>
         /// Open dataset for the record specified
@@ -1986,7 +1986,7 @@ namespace Contensive.Processor {
         /// <param name="recordId"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, int recordId) {
-            return open(contentName, "(ID=" + DbController.encodeSQLNumber(recordId) + ")", "", false, core.session.user.id);
+            return open(contentName, "(ID=" + DbController.encodeSQLNumber(recordId) + ")", "", false, userId);
         }
         //
         //========================================================================
@@ -1998,7 +1998,7 @@ namespace Contensive.Processor {
         /// <param name="selectFieldList"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, string recordGuid, string selectFieldList) {
-            return open(contentName, "(ccguid=" + DbController.encodeSQLText(recordGuid) + ")", "", false, core.session.user.id, selectFieldList);
+            return open(contentName, "(ccguid=" + DbController.encodeSQLText(recordGuid) + ")", "", false, userId, selectFieldList);
         }
         /// <summary>
         /// Open dataset for the record specified
@@ -2007,7 +2007,7 @@ namespace Contensive.Processor {
         /// <param name="recordGuid"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, string recordGuid) {
-            return open(contentName, "(ID=" + DbController.encodeSQLText(recordGuid) + ")", "", false, core.session.user.id);
+            return open(contentName, "(ID=" + DbController.encodeSQLText(recordGuid) + ")", "", false, userId);
         }
         //
         //========================================================================
