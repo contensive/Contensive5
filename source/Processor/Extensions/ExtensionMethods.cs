@@ -121,6 +121,24 @@ public static class ExtensionMethods {
     //
     //====================================================================================================
     /// <summary>
+    /// true if darte is null or mindate
+    /// </summary>
+    /// <param name="srcDate"></param>
+    /// <returns></returns>
+    public static bool isNullOrMinDate(this DateTime? srcDate) {
+        if (srcDate == null) { return true; }
+        return srcDate.Equals(DateTime.MinValue);
+    }
+    /// </summary>
+    /// <param name="srcDate"></param>
+    /// <returns></returns>
+    public static bool isNullOrMinDate(this DateTime srcDate) {
+        if (srcDate == null) { return true; }
+        return srcDate.Equals(DateTime.MinValue);
+    }
+    //
+    //====================================================================================================
+    /// <summary>
     /// Case insensitive version of String.Replace().
     /// </summary>
     /// <param name="s">String that contains patterns to replace</param>
@@ -234,6 +252,12 @@ public static class ExtensionMethods {
         return startDate.AddDays(totalDays * direction);
     }
     //
+    //====================================================================================================
+    /// <summary>
+    /// create comma delimited list of name=values from  name value collection
+    /// </summary>
+    /// <param name="sqlList"></param>
+    /// <returns></returns>
     public static string getNameValueList(this NameValueCollection sqlList) {
         string returnPairs = "";
         string delim = "";
@@ -246,6 +270,12 @@ public static class ExtensionMethods {
         return returnPairs;
     }
     //
+    //====================================================================================================
+    /// <summary>
+    /// create comma delimited list of names from  name value collection
+    /// </summary>
+    /// <param name="sqlList"></param>
+    /// <returns></returns>
     public static string getNameList(this NameValueCollection sqlList) {
         string returnPairs = "";
         string delim = "";
@@ -258,6 +288,12 @@ public static class ExtensionMethods {
         return returnPairs;
     }
     //
+    //====================================================================================================
+    /// <summary>
+    /// create comma delimited list of values from name value collection
+    /// </summary>
+    /// <param name="sqlList"></param>
+    /// <returns></returns>
     public static string getValueList(this NameValueCollection sqlList) {
         string returnPairs = "";
         string delim = "";
@@ -270,6 +306,14 @@ public static class ExtensionMethods {
         return returnPairs;
     }
     //
+    //====================================================================================================
+    /// <summary>
+    /// substring. returns the length if available
+    /// </summary>
+    /// <param name="value"></param>
+    /// <param name="startIndex"></param>
+    /// <param name="length"></param>
+    /// <returns></returns>
     public static string substringSafe(this string value, int startIndex, int length) {
         return new string((value ?? string.Empty).Skip(startIndex).Take(length).ToArray());
     }
