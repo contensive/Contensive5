@@ -133,7 +133,6 @@ public static class ExtensionMethods {
     /// <param name="srcDate"></param>
     /// <returns></returns>
     public static bool isNullOrMinDate(this DateTime srcDate) {
-        if (srcDate == null) { return true; }
         return srcDate.Equals(DateTime.MinValue);
     }
     //
