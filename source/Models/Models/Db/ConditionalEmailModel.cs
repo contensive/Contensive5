@@ -16,79 +16,81 @@ namespace Contensive.Models.Db {
         //====================================================================================================
         //
         /// <summary>
-        /// 
+        /// Lookup 1-based, 
+        /// 1=Condition period (days) before expiration from Condition Groups,
+        /// 2=Condition period (days) after joining Condition Groups
         /// </summary>
         public int conditionId { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public string subject { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public bool submitted { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public int testMemberId { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public bool toAll { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public int conditionPeriod { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public DbBaseModel.FieldTypeTextFile copyFilename { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public bool addLinkEId { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public bool allowSpamFooter { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public bool blockSiteStyles { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public DateTime? conditionExpireDate { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public int emailTemplateId { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public int emailWizardId { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public string fromAddress { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public string inlineStyles { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public DateTime? lastSendTestDate { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public DateTime? scheduleDate { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public bool sent { get; set; }
         /// <summary>
-        /// 
+        /// Conditional Email
         /// </summary>
         public DbBaseModel.FieldTypeCSSFile stylesFilename { get; set; }
         /// <summary>

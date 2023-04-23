@@ -300,48 +300,47 @@ namespace Contensive.Processor.Controllers {
         //   admins are always returned true
         //===============================================================================================================================
         //
-        public static bool isInGroupList(CoreController core, int MemberID, bool isAuthenticated, string GroupIDList) {
-            return isInGroupList(core, MemberID, isAuthenticated, GroupIDList, true);
+        public static bool isInGroupList(CoreController core, int memberId, bool isAuthenticated, string groupIdList) {
+            return isInGroupList(core, memberId, isAuthenticated, groupIdList, true);
         }
         //
         //===============================================================================================================================
         //   Is Group Member of a GroupIDList
         //===============================================================================================================================
         //
-        public static bool isInGroupList(CoreController core, int MemberID, bool isAuthenticated, string GroupIDList, bool adminReturnsTrue) {
-            bool returnREsult = false;
+        public static bool isInGroupList(CoreController core, int memberID, bool isAuthenticated, string groupIDList, bool adminReturnsTrue) {
             try {
                 //
                 string sql = null;
-                string Criteria = null;
-                string WorkingIDList = null;
+                string criteria = null;
+                string WorkingIdList = null;
                 //
-                returnREsult = false;
+                bool returnResult = false;
                 if (isAuthenticated) {
-                    WorkingIDList = GroupIDList;
-                    WorkingIDList = GenericController.strReplace(WorkingIDList, " ", "");
-                    while (GenericController.strInstr(1, WorkingIDList, ",,") != 0) {
-                        WorkingIDList = GenericController.strReplace(WorkingIDList, ",,", ",");
+                    WorkingIdList = groupIDList;
+                    WorkingIdList = GenericController.strReplace(WorkingIdList, " ", "");
+                    while (GenericController.strInstr(1, WorkingIdList, ",,") != 0) {
+                        WorkingIdList = GenericController.strReplace(WorkingIdList, ",,", ",");
                     }
-                    if (!string.IsNullOrEmpty(WorkingIDList)) {
-                        if (strMid(WorkingIDList, 1) == ",") {
-                            if (strLen(WorkingIDList) <= 1) {
-                                WorkingIDList = "";
+                    if (!string.IsNullOrEmpty(WorkingIdList)) {
+                        if (strMid(WorkingIdList, 1) == ",") {
+                            if (strLen(WorkingIdList) <= 1) {
+                                WorkingIdList = "";
                             } else {
-                                WorkingIDList = strMid(WorkingIDList, 2);
+                                WorkingIdList = strMid(WorkingIdList, 2);
                             }
                         }
                     }
-                    if (!string.IsNullOrEmpty(WorkingIDList)) {
-                        if (WorkingIDList.right(1) == ",") {
-                            if (strLen(WorkingIDList) <= 1) {
-                                WorkingIDList = "";
+                    if (!string.IsNullOrEmpty(WorkingIdList)) {
+                        if (WorkingIdList.right(1) == ",") {
+                            if (strLen(WorkingIdList) <= 1) {
+                                WorkingIdList = "";
                             } else {
-                                WorkingIDList = GenericController.strMid(WorkingIDList, 1, strLen(WorkingIDList) - 1);
+                                WorkingIdList = GenericController.strMid(WorkingIdList, 1, strLen(WorkingIdList) - 1);
                             }
                         }
                     }
-                    if (string.IsNullOrEmpty(WorkingIDList)) {
+                    if (string.IsNullOrEmpty(WorkingIdList)) {
                         if (adminReturnsTrue) {
                             //
                             // check if memberid is admin
@@ -349,7 +348,7 @@ namespace Contensive.Processor.Controllers {
                             sql = "select top 1 m.id"
                                 + " from ccmembers m"
                                 + " where"
-                                + " (m.id=" + MemberID + ")"
+                                + " (m.id=" + memberID + ")"
                                 + " and(m.active<>0)"
                                 + " and("
                                 + " (m.admin<>0)"
@@ -357,47 +356,47 @@ namespace Contensive.Processor.Controllers {
                                 + " )"
                                 + " ";
                             using (var csData = new CsModel(core)) {
-                                returnREsult = csData.openSql(sql);
+                                returnResult = csData.openSql(sql);
                             }
                         }
                     } else {
                         //
                         // check if they are admin or in the group list
                         //
-                        if (GenericController.strInstr(1, WorkingIDList, ",") != 0) {
-                            Criteria = "r.GroupID in (" + WorkingIDList + ")";
+                        if (GenericController.strInstr(1, WorkingIdList, ",") != 0) {
+                            criteria = "r.GroupID in (" + WorkingIdList + ")";
                         } else {
-                            Criteria = "r.GroupID=" + WorkingIDList;
+                            criteria = "r.GroupID=" + WorkingIdList;
                         }
-                        Criteria = ""
-                            + "(" + Criteria + ")"
+                        criteria = ""
+                            + "(" + criteria + ")"
                             + " and(r.id is not null)"
                             + " and((r.DateExpires is null)or(r.DateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))"
                             + " ";
                         if (adminReturnsTrue) {
-                            Criteria = "(" + Criteria + ")or(m.admin<>0)or(m.developer<>0)";
+                            criteria = "(" + criteria + ")or(m.admin<>0)or(m.developer<>0)";
                         }
-                        Criteria = ""
-                            + "(" + Criteria + ")"
+                        criteria = ""
+                            + "(" + criteria + ")"
                             + " and(m.active<>0)"
-                            + " and(m.id=" + MemberID + ")";
+                            + " and(m.id=" + memberID + ")";
                         //
                         sql = "select top 1 m.id"
                             + " from ccmembers m"
                             + " left join ccMemberRules r on r.Memberid=m.id"
-                            + " where" + Criteria;
+                            + " where" + criteria;
                         using (var csData = new CsModel(core)) {
                             csData.openSql(sql);
-                            returnREsult = csData.ok();
+                            returnResult = csData.ok();
                         }
                     }
                 }
 
+                return returnResult;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-            return returnREsult;
         }
         //
         //====================================================================================================
@@ -408,9 +407,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="groupName">The name of the group. Must be a non-empty</param>
         /// <returns>The id of the verified group. 0 if the group</returns>
         public static int verifyGroup(CoreController core, string groupGuid, string groupName) {
-            if (string.IsNullOrEmpty(groupGuid)) throw new ApplicationException("verifyGroup requires a non-empty groupGuid");
+            if (string.IsNullOrEmpty(groupGuid)) { throw new ApplicationException("verifyGroup requires a non-empty groupGuid"); }
             if (exists(core, groupGuid, out int groupId)) { return groupId; }
-            if (string.IsNullOrEmpty(groupName)) throw new ApplicationException("verifyGroup requires a non-empty groupName");
+            if (string.IsNullOrEmpty(groupName)) { throw new ApplicationException("verifyGroup requires a non-empty groupName"); }
             return verifyGroup(core, groupGuid, groupName, groupName);
         }
         //
@@ -422,10 +421,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="groupName">The name of the group. Must be a non-empty</param>
         /// <param name="groupCaption">The caption of the group. Must be a non-empty</param>
         public static int verifyGroup(CoreController core, string groupGuid, string groupName, string groupCaption) {
-            if (string.IsNullOrEmpty(groupGuid)) throw new ApplicationException("verifyGroup requires a non-empty groupGuid");
+            if (string.IsNullOrEmpty(groupGuid)) { throw new ApplicationException("verifyGroup requires a non-empty groupGuid"); }
             if (exists(core, groupGuid, out int groupId)) { return groupId; }
-            if (string.IsNullOrEmpty(groupName)) throw new ApplicationException("verifyGroup requires a non-empty groupName");
-            if (string.IsNullOrEmpty(groupCaption)) throw new ApplicationException("verifyGroup requires a non-empty groupName");
+            if (string.IsNullOrEmpty(groupName)) { throw new ApplicationException("verifyGroup requires a non-empty groupName"); }
+            if (string.IsNullOrEmpty(groupCaption)) { throw new ApplicationException("verifyGroup requires a non-empty groupName"); }
             var group = DbBaseModel.addDefault<GroupModel>(core.cpParent);
             group.ccguid = groupGuid;
             group.name = groupName;
