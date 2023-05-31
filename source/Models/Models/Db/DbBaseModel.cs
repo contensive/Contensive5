@@ -668,7 +668,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// return a new model with the data selected. All cacheNames related to the object will be added to the cacheNameList.
+        /// return a new model with active records selected. All cacheNames related to the object will be added to the cacheNameList.
         /// Models from this namespace are cached. 
         /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
         /// To prevent caching and lose the performance advantage, create and use a subclass.
@@ -709,7 +709,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// create an object from a record with a matching ccguid, add an object cache name to the argument list
+        /// create an object from an active record with matching ccguid, add an object cache name to the argument list.
         /// Models from this namespace are cached. 
         /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
         /// To prevent caching and lose the performance advantage, create and use a subclass.
@@ -751,7 +751,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// create an object from the first record found from a list created with matching name records, ordered by id, add an object cache name to the argument list
+        /// create an object from the first record active found from a list created with matching name records, ordered by id, add an object cache name to the argument list
         /// Models from this namespace are cached. 
         /// If you update the Db outside of models, use invalidateCacheOfRecord<>() or invalidateCacheOfTable<>() for future model create calls.
         /// To prevent caching and lose the performance advantage, create and use a subclass.
@@ -1255,7 +1255,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// Create a list of objects based on the sql criteria and sort order, and add a cache object to an argument.
+        /// Create a list of objects from active records based on the sql criteria and sort order, and add a cache object to an argument.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
@@ -1488,7 +1488,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// Create an sql select for this model
+        /// Create an sql select for this model. active onlye
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
@@ -1499,7 +1499,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// Create an sql select for this model
+        /// Create an sql select for this model. Active only
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
@@ -1509,7 +1509,7 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// Create an sql select for this model
+        /// Create an sql select for this model. Active only.
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="cp"></param>
