@@ -207,7 +207,15 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to &lt;div style=&quot;width:100%;padding:50px 0&quot;&gt;
+        ///    &lt;div class=&quot;ccCon bg-light pt-2 pb-4&quot; style=&quot;width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;&quot;&gt;
+        ///        &lt;div class=&quot;my-4 container-fluid&quot;&gt;
+        ///            &lt;div class=&quot;ccLoginFormCon&quot;&gt;
+        ///                &lt;h4&gt;Impersonate&lt;/h4&gt;
+        ///                {{userError}}
+        ///                &lt;p&gt;
+        ///                    Administrators and developers can impersonate users for the purpose of support. An impersonation attempt only requires the user&apos;s username or id.
+        ///   [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Layout_Impersonate {
             get {
@@ -419,6 +427,22 @@ namespace Contensive.Processor.Properties {
                 return ResourceManager.GetString("sqlConditionalEmail_DaysAfterJoin", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to                 
+        ///                
+        ///SELECT DISTINCT 
+        ///ccEmail.TestMemberID AS TestMemberID,
+        ///ccEmail.ID AS EmailID, 
+        ///ccMembers.ID AS MemberID, 
+        ///ccMemberRules.DateExpires AS DateExpires,
+        ///ccEmail.BlockSiteStyles,ccEmail.stylesFilename
+        ///
+        ///FROM ((((ccEmail
+        ///LEFT JOIN ccEmailGroups ON ccEmail.Id = ccEmailGroups.EmailID)
+        ///LEFT JOIN ccGroups ON ccEmailGroups.GroupId = ccGroups.ID)
+        ///LEFT JOIN ccMemberRules ON ccGroups.Id = ccMemberRules.GroupID)
+        ///LEFT JOIN ccMembers ON ccMemberRules.memberId = ccMembers.ID)
         ///
         ///W [rest of string was truncated]&quot;;.
         /// </summary>
@@ -427,6 +451,30 @@ namespace Contensive.Processor.Properties {
                 return ResourceManager.GetString("sqlConditionalEmail_DaysBeforeExpiration", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to select a.name,a.ccguid,c.name as categoryName from ccaggregatefunctions a left join ccaddoncategories c on c.id=a.addonCategoryId where (a.navTypeId={navTypeId})and(a.admin&gt;0)and(a.name is not null)and(a.ccguid is not null) order by c.name,a.name.
+        /// </summary>
+        public static string sqlGetNavItemByType {
+            get {
+                return ResourceManager.GetString("sqlGetNavItemByType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IF EXISTS (SELECT * FROM sys.objects WHERE [name] = N&apos;ccManyManyRuleDelete_{ruleTable}_{ruleField}&apos; AND [type] = &apos;TR&apos;)
+        ///BEGIN
+        ///      DROP TRIGGER [dbo].[ccManyManyRuleDelete_{ruleTable}_{ruleField}];
+        ///END
+        ///GO
+        ///DROP TRIGGER IF EXISTS ccManyManyRuleDelete_{ruleTable}_{ruleField}
+        ///CREATE TRIGGER ccManyManyRuleDelete_{ruleTable}_{ruleField}
+        ///ON {joinTable}
+        ///AFTER UPDATE,DELETE
+        ///AS
+        ///delete from {ruleTable} 
+        ///from {ruleTable} r 
+        ///left join {joinTable} a on a.{joinField}=r.{ruleField} where a.id is null
         ///
         ///--sampl [rest of string was truncated]&quot;;.
         /// </summary>

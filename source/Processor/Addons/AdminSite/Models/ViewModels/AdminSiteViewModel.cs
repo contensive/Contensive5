@@ -80,35 +80,35 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         public List<NavItem> navSettingsList {
             get {
-                if (navSettingsList_local != null) { return navSettingsList_local; }
+                if (_navSettingsList != null) { return _navSettingsList; }
                 if (cp.User.Id == 0) { return new List<NavItem>(); }
                 if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
                 //
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey("admin-nav-settings-list");
-                navSettingsList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-                if (navSettingsList_local != null) { return navSettingsList_local; }
-                navSettingsList_local = new List<NavItem>();
+                _navSettingsList = cp.Cache.GetObject<List<NavItem>>(cacheKey);
+                if (_navSettingsList != null) { return _navSettingsList; }
+                _navSettingsList = new List<NavItem>();
                 //
                 //
                 using (DataTable dt = cp.Db.ExecuteQuery("select name,ccguid from ccaggregatefunctions where (navTypeId=3)and(admin>0)and(name is not null)and(ccguid is not null) order by name")) {
                     if (dt?.Rows != null) {
                         foreach (DataRow dr in dt.Rows) {
-                            navSettingsList_local.Add(new NavItem {
+                            _navSettingsList.Add(new NavItem {
                                 navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])),
                                 navItemName = cp.Utils.EncodeText(dr["name"])
                             });
                         }
                     }
                 }
-                navSettingsList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
+                _navSettingsList.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
-                cp.Cache.Store(cacheKey, navSettingsList_local, depKey);
-                return navSettingsList_local;
+                cp.Cache.Store(cacheKey, _navSettingsList, depKey);
+                return _navSettingsList;
             }
         }
-        private List<NavItem> navSettingsList_local;
+        private List<NavItem> _navSettingsList;
         //
         //====================================================================================================
         /// <summary>
@@ -116,10 +116,10 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         public List<NavItem> navToolsList {
             get {
-                return getNavItemsByType(4, ref navToolsList_local);
+                return getNavItemsByType(4, ref _navToolsList);
             }
         }
-        private List<NavItem> navToolsList_local;
+        private List<NavItem> _navToolsList;
         //
         //====================================================================================================
         /// <summary>
@@ -141,7 +141,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 localListCache = new List<NavItem>();
                 //
                 //
-                using (DataTable dt = cp.Db.ExecuteQuery($"select a.name,a.ccguid,c.name as categoryName from ccaggregatefunctions a left join ccaddoncategories c on c.id=a.addonCategoryId where (a.navTypeId={navTypeId})and(a.admin>0)and(a.name is not null)and(a.ccguid is not null) order by c.name,a.name")) {
+                using (DataTable dt = cp.Db.ExecuteQuery(Properties.Resources.sqlGetNavItemByType.replace("{navTypeId}", navTypeId.ToString(),System.StringComparison.CurrentCultureIgnoreCase ))) {
                     if (dt?.Rows != null) {
                         string categoryNameLast = "";
                         foreach (DataRow dr in dt.Rows) {
@@ -153,25 +153,36 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 localListCache.Add(new NavItem {
                                     navDivider = true
                                 });
-                                localListCache.Add(new NavItem {
-                                    navItemName = categoryName.replace(".", " > ",System.StringComparison.InvariantCultureIgnoreCase),
-                                    isCategory = true
-                                });
+                                    localListCache.Add(new NavItem {
+                                        navItemName = categoryName.replace(".", " > ", System.StringComparison.InvariantCultureIgnoreCase),
+                                        isCategory = true
+                                    });
                                 categoryNameLast = categoryName;
                             }
                             //
                             // -- create entry
                             string entryName = cp.Utils.EncodeText(dr["name"]);
                             entryName = string.IsNullOrEmpty(entryName) ? "" : entryName;
+                            //
+                            string navItemHref = "";
+                            int contentId = cp.Utils.EncodeInteger(dr["contentid"]);
+                            if (contentId == 0) {
+                                //
+                                // -- addon
+                                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"]));
+                            } else {
+                                //
+                                // -- data
+                                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + contentId;
+                            }
                             localListCache.Add(new NavItem {
-                                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])),
+                                navItemHref = navItemHref,
                                 navItemName = entryName,
                                 isCategory = false
                             });
                         }
                     }
                 }
-                //localListCache.Sort((a, b) => a.sortOrder.CompareTo(b.sortOrder));
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
                 cp.Cache.Store(cacheKey, localListCache, depKey);

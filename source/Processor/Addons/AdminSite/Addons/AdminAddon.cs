@@ -76,7 +76,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (string.IsNullOrEmpty(layout)) { layout = Processor.Properties.Resources.AdminSiteLayoutBackup; }
                 //
                 // -- get static data
-                // todo -- move this to the dataViewModel to create content during render
                 AdminSiteViewModel viewModel = new(cp);
                 return cp.Mustache.Render(layout, viewModel);
             } catch (Exception) {

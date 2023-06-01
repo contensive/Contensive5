@@ -184,4 +184,7 @@
   <data name="Layout_Impersonate" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\layout_impersonate.html;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
   </data>
+  <data name="sqlGetNavItemByType" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\sqlgetnavitembytype.txt;System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;utf-8</value>
+  </data>
 </root>
