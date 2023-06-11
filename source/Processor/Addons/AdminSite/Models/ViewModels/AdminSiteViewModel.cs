@@ -35,6 +35,42 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
         }
         //
+        public List<NavItemList> navList { 
+            get {
+                if (_navList != null ) { return _navList;  }
+                //
+                _navList = new() {
+                    new NavItemList {
+                        listName = "Design",
+                        listIcon = "fas fa-paint-brush fa-lg",
+                        listItemList = navDesignList
+                    },
+                    new NavItemList {
+                        listName = "Comm",
+                        listIcon = "fas fa-comment-alt fa-lg",
+                        listItemList = navCommList
+                    },
+                    new NavItemList {
+                        listName = "Tools",
+                        listIcon = "fas fa-wrench fa-lg",
+                        listItemList = navToolsList
+                    },
+                    new NavItemList {
+                        listName = "Settings",
+                        listIcon = "fas fa-cog fa-lg",
+                        listItemList = navSettingsList
+                    },
+                    new NavItemList {
+                        listName = "User",
+                        listIcon = "fas fa-user fa-lg",
+                        listItemList = navProfileList
+                    }
+                };
+                return _navList;
+            }
+        }
+        private List<NavItemList> _navList = null;
+        //
         public List<NavItem> navProfileList {
             get {
                 string orgName = DbBaseModel.getRecordName<OrganizationModel>(cp, cp.User.OrganizationID);
@@ -512,6 +548,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// if true, this navItemName is a category, boldeed and without link
         /// </summary>
         public bool isCategory { get; set; }
+    }
+    //
+    public class NavItemList {
+        public string listName { get; set; }
+        public string listIcon { get; set; }
+        public List<NavItem> listItemList { get; set; }
     }
 }
 

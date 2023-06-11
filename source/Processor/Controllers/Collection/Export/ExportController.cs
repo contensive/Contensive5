@@ -126,7 +126,7 @@ namespace Contensive.Processor.Controllers {
                 // -- Addons
                 string IncludeSharedStyleGuidList = "";
                 string IncludeModuleGuidList = "";
-                foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "collectionid=" + collection.id)) {
+                foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "collectionid=" + collection.id,"id")) {
                     //
                     // -- style sheet link
                     if (!string.IsNullOrEmpty(addon.stylesLinkHref)) {
@@ -214,7 +214,7 @@ namespace Contensive.Processor.Controllers {
 
                 foreach (var field in new List<string> { "collectionId", "installedbycollectionid" }) {
                     using var csTable = cp.CSNew();
-                    if (csTable.OpenSQL("select c.name as contentName, c.id as contentId, t.name as tableName from cccontent c left join cctables t on t.id=c.ContentTableID left join ccfields f on f.ContentID=c.id  where (c.name<>'add-ons')and(f.name=" + cp.Db.EncodeSQLText(field) + ")")) {
+                    if (csTable.OpenSQL("select c.name as contentName, c.id as contentId, t.name as tableName from cccontent c left join cctables t on t.id=c.ContentTableID left join ccfields f on f.ContentID=c.id  where (c.name<>'add-ons')and(f.name=" + cp.Db.EncodeSQLText(field) + ") order by c.id")) {
                         do {
                             using var csRecord = cp.CSNew();
                             if (csRecord.OpenSQL("select ccguid from " + csTable.GetText("tableName") + " where (" + field + "=" + collection.id + ")and((contentcontrolid=" + csTable.GetInteger("contentid") + ")or(contentcontrolid=0))")) {

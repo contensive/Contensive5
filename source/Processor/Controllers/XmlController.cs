@@ -140,7 +140,8 @@ namespace Contensive.Processor.Controllers {
                     + ",allowtopicrules,AllowWorkflowAuthoring,AuthoringTableID"
                     + ",ContentTableID,DefaultSortMethodID,DeveloperOnly,DropDownFieldList"
                     + ",EditorGroupID,ParentID,ccGuid,IsBaseContent"
-                    + ",IconLink,IconHeight,IconWidth,IconSprites";
+                    + ",IconLink,IconHeight,IconWidth,IconSprites"
+                    + ",NavTypeID,AddonCategoryId";
 
                 const string FieldSelectList = ""
                     + "f.ID,f.Name,f.contentid,f.Active,f.AdminOnly,f.Authorable,f.Caption,f.DeveloperOnly,f.EditSortPriority,f.Type,f.HTMLContent"
@@ -273,7 +274,11 @@ namespace Contensive.Processor.Controllers {
                                 sb.Append(" AllowDelete=\"" + GetRSXMLAttribute(contentCs, "AllowDelete") + "\"");
                                 sb.Append(" AllowMetaContent=\"" + GetRSXMLAttribute(contentCs, "AllowMetaContent") + "\"");
                                 sb.Append(" AllowTopicRules=\"" + GetRSXMLAttribute(contentCs, "AllowTopicRules") + "\"");
-                                sb.Append(" AllowWorkflowAuthoring=\"" + GetRSXMLAttribute(contentCs, "AllowWorkflowAuthoring") + "\"");
+                                //
+                                sb.Append(" NavTypeID=\"" + GetRSXMLAttribute(contentCs, "NavTypeID") + "\"");
+                                sb.Append(" AddonCategoryId=\"" + GetRSXMLAttribute(contentCs, "AddonCategoryId") + "\"");
+                                //
+                                //sb.Append(" AllowWorkflowAuthoring=\"" + GetRSXMLAttribute(contentCs, "AllowWorkflowAuthoring") + "\"");
                                 // 
                                 AuthoringTableID = (contentCs.GetInteger("AuthoringTableID"));
                                 TableName = "";
@@ -370,15 +375,15 @@ namespace Contensive.Processor.Controllers {
                                                 sb.Append(" Authorable=\"" + fieldsCs.GetBoolean("Authorable") + "\"");
                                                 sb.Append(" EditSortPriority=\"" + fieldsCs.GetText("EditSortPriority") + "\"");
                                                 sb.Append(" DefaultValue=\"" + fieldsCs.GetText("DefaultValue") + "\"");
-                                                sb.Append(" active=\"" + fieldsCs.GetBoolean("Active") + "\"");
+                                                sb.Append(" Active=\"" + fieldsCs.GetBoolean("Active") + "\"");
                                                 sb.Append(" AdminOnly=\"" + fieldsCs.GetBoolean("AdminOnly") + "\"");
                                                 sb.Append(" DeveloperOnly=\"" + fieldsCs.GetBoolean("DeveloperOnly") + "\"");
                                                 sb.Append(" HTMLContent=\"" + fieldsCs.GetBoolean("HTMLContent") + "\"");
                                                 sb.Append(" Required=\"" + fieldsCs.GetBoolean("Required") + "\"");
                                                 sb.Append(" TextBuffered=\"" + fieldsCs.GetBoolean("TextBuffered") + "\"");
                                                 sb.Append(" UniqueName=\"" + fieldsCs.GetBoolean("UniqueName") + "\"");
-                                                sb.Append(" RSSTitle=\"" + fieldsCs.GetBoolean("RSSTitleField") + "\"");
-                                                sb.Append(" RSSDescription=\"" + fieldsCs.GetBoolean("RSSDescriptionField") + "\"");
+                                                //sb.Append(" RSSTitle=\"" + fieldsCs.GetBoolean("RSSTitleField") + "\"");
+                                                //sb.Append(" RSSDescription=\"" + fieldsCs.GetBoolean("RSSDescriptionField") + "\"");
                                                 sb.Append(" MemberSelectGroup=\"" + memberSelectGroup + "\"");
                                                 sb.Append(" Scramble=\"" + fieldsCs.GetBoolean("Scramble") + "\"");
                                                 sb.Append(" LookupList=\"" + fieldsCs.GetText("LookupList") + "\"");

@@ -13,7 +13,7 @@ select
 	a.name,a.ccguid,c.name as categoryName , a.id as contentid
 from 
 	cccontent a 
-	left join ccaddoncategories c on c.id=a.addonCategoryId 
+	left join ccaddoncategories c on c.id=a.AddonCategoryId 
 where 
 	(a.navTypeId={navTypeId})
 	and(a.name is not null)
