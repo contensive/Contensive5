@@ -1404,16 +1404,38 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// get the id of the record by it's guid 
+        /// Get the id of the record by it's guid. Return 0 if no match.
         /// </summary>
         /// <param name="cp"></param>
-        /// <param name="guid"></param>record
+        /// <param name="guid"></param>
         /// <returns></returns>
         public static int getRecordId<T>(CPBaseClass cp, string guid) where T : DbBaseModel {
             try {
-                var record = create<T>(cp, guid);
-                if (record != null) { return record.id; }
-                return 0;
+                if (string.IsNullOrEmpty(guid.Trim())) { return 0; }
+                string tableName = derivedTableName(typeof(T));
+                using DataTable dt = cp.Db.ExecuteQuery($"select top 1 id from {tableName} where ccguid={cp.Db.EncodeSQLText(guid)} order by id");
+                if (dt == null || dt.Rows.Count == 0) { return 0; }
+                return cp.Utils.EncodeInteger(dt.Rows[0][0]);
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Get the id of the first record found. Return 0 if no match.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="recordName"></param>
+        /// <returns></returns>
+        public static int getRecordIdByUniqueName<T>(CPBaseClass cp, string recordName) where T : DbBaseModel {
+            try {
+                if(string.IsNullOrEmpty(recordName.Trim())) { return 0; }
+                string tableName = derivedTableName(typeof(T));
+                using DataTable dt = cp.Db.ExecuteQuery($"select top 1 id from {tableName} where name={cp.Db.EncodeSQLText(recordName)} order by id");
+                if (dt == null || dt.Rows.Count == 0) { return 0; }
+                return cp.Utils.EncodeInteger(dt.Rows[0][0]);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

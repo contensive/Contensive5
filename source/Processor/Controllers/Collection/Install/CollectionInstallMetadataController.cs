@@ -159,6 +159,17 @@ namespace Contensive.Processor.Controllers {
                                     targetMetaData.parentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Parent", DefaultMetaData.parentName);
                                     targetMetaData.whereClause = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "WhereClause", DefaultMetaData.whereClause);
                                     //
+                                    // -- navtypeid, a mirror of addon-category
+                                    string[] navTypelookupList = "Misc,Report,Setting,Tool".Split(',');
+                                    string defaultNavType = DbBaseModel.getRecordName<AddonCategoryModel>(core.cpParent, DefaultMetaData.addonCategoryId);
+                                    string navType = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NavTypeId", defaultNavType);
+                                    targetMetaData.navTypeID = Array.FindIndex(navTypelookupList, row => row == navType);
+                                    //
+                                    // -- addoncategoryid, a mirror of addon-category
+                                    string defaultAddonCategory = DbBaseModel.getRecordName<AddonCategoryModel>(core.cpParent, DefaultMetaData.addonCategoryId);
+                                    string addonCategory = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonCategoryId", defaultAddonCategory);
+                                    targetMetaData.addonCategoryId = DbBaseModel.getRecordIdByUniqueName<AddonCategoryModel>(core.cpParent, addonCategory);
+                                    //
                                     // -- determine id
                                     targetMetaData.id = DbController.getContentId(core, contentName);
                                     //

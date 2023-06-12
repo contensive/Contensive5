@@ -231,6 +231,16 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public string selectCommaList { get; set; }
         //
+        /// <summary>
+        /// used to create admin nav icons. A mirror of the addon navTypeId, Tool, Setting, Report, or misc
+        /// </summary>
+        public int navTypeID { get; set; }
+        //
+        /// <summary>
+        /// used to create admin nav icons. A mirror of the addon category. foreign key to AddonCategories.
+        /// </summary>
+        public int addonCategoryId { get; set;  }
+        //
         //====================================================================================================
         /// <summary>
         /// consider deprecating - list of child content definitions. Not needed if we deprecate parentid

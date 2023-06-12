@@ -195,9 +195,10 @@ namespace Contensive.Processor.Controllers {
                 List<string> assembliesInZip = new();
                 foreach (FileDetail file in srcFileInfoArray) {
                     if (file.Extension.ToLowerInvariant() == ".dll") {
-                        if (!assembliesInZip.Contains(file.Name.ToLowerInvariant())) {
+                        // -- add files to a list to be included in execfiles. Maintain filename case for unix remove mode
+                        if (!assembliesInZip.Contains(file.Name)) {
                             LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], adding DLL from folder[" + file.Name.ToLowerInvariant() + "].");
-                            assembliesInZip.Add(file.Name.ToLowerInvariant());
+                            assembliesInZip.Add(file.Name);
                         }
                     }
                 }
@@ -379,8 +380,8 @@ namespace Contensive.Processor.Controllers {
                                                             break;
                                                         }
                                                     default: {
-                                                            if (assembliesInZip.Contains(filename.ToLowerInvariant())) {
-                                                                assembliesInZip.Remove(filename.ToLowerInvariant());
+                                                            if (assembliesInZip.Contains(filename)) {
+                                                                assembliesInZip.Remove(filename);
                                                             }
                                                             ExecFileList = ExecFileList + Environment.NewLine + filename;
                                                             break;

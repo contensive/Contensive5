@@ -1706,6 +1706,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- Make service call and get back the response.
                 PutObjectResponse response = s3Client.PutObjectAsync(request).waitSynchronously();
+                //
+                // -- on remote systems, the remote file is authoritative. Update local file's modified date to match the uploaded file.
+                // -- would be better to set the remote file to the local file modified-date, but not possible
+                FileDetail remoteFileDetail = getFileDetails_remote(pathFilename);
+                if(!remoteFileDetail.DateLastModified.isNullOrMinDate()) {
+                    File.SetLastWriteTime(convertRelativeToLocalAbsPath(pathFilename), remoteFileDetail.DateLastModified ?? DateTime.Now);
+                }
+                //
                 result = true;
                 //
                 LogController.logTrace(core, $"copyFileLocalToRemote, exit [{result}]");

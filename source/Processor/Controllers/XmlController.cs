@@ -130,7 +130,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="ContentName"></param>
         /// <returns></returns>
-        public string getXMLContentDefinition3(string ContentName) {
+        public string getXMLContentDefinition(string ContentName) {
             try {
                 bool IncludeBaseFields = false;
                 // 

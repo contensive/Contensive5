@@ -108,7 +108,7 @@ namespace Contensive.Processor.Controllers {
                         result += CS.FieldOK("Diagnostic") ? ExportController.getNode("Diagnostic", CS.GetBoolean("Diagnostic")) : "";
                         //
                         // -- Presentation
-                        result += ExportController.getNode("category", CS.GetText("addoncategoryid"));
+                        result += ExportController.getNode("Category", CS.GetText("addoncategoryid"));
                         // 
                         // -- Process
                         result += ExportController.getNode("ProcessRunOnce", processRunOnce);
