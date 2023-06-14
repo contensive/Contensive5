@@ -241,7 +241,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 bool CollectionSystem = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "system", "false"));
                                 string collectionOninstalladdonGuid = XmlController.getXMLAttribute(core, Doc.DocumentElement, "onInstallAddonGuid", "");
-                                string dataRecordList = XmlController.getXMLAttribute(core, Doc.DocumentElement, "DataRecordList", "");
+                                //string dataRecordList = XmlController.getXMLAttribute(core, Doc.DocumentElement, "DataRecordList", "");
                                 int Parent_NavId = BuildController.verifyNavigatorEntry(core, new MetadataMiniCollectionModel.MiniCollectionMenuModel {
                                     guid = addonGuidManageAddon,
                                     name = "Manage Add-ons",
@@ -602,6 +602,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     {
                                         if (!skipCdefInstall) {
+                                            //List<string> dataRecordList = new();
                                             foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
                                                 switch (GenericController.toLCase(metaDataSection.Name)) {
                                                     case "data": {
@@ -668,6 +669,12 @@ namespace Contensive.Processor.Controllers {
                                                                                         csData.set("ccguid", ContentRecordGuid);
                                                                                         csData.set("name", ContentRecordName);
                                                                                     }
+                                                                                    ////
+                                                                                    //// -- append collection.data RecordList
+                                                                                    //string dataRow = $"{ContentName},{csData.getText("ccguid")}";
+                                                                                    //if (!dataRecordList.Contains(dataRow)) {
+                                                                                    //    dataRecordList.Add(dataRow);
+                                                                                    //}
                                                                                 }
                                                                             }
                                                                         }
@@ -682,6 +689,10 @@ namespace Contensive.Processor.Controllers {
                                                         }
                                                 }
                                             }
+                                            //if (dataRecordList.Count > 0) {
+                                            //    collection.dataRecordList = string.Join(Environment.NewLine, dataRecordList);
+                                            //    collection.save(core.cpParent);
+                                            //}
                                         }
                                     }
                                     //
@@ -818,7 +829,7 @@ namespace Contensive.Processor.Controllers {
                                     if (!skipCdefInstall) {
                                         foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
                                             if (metaDataSection.Name.ToLower().Equals("data")) {
-                                                installDataNode(core, metaDataSection, ref return_ErrorMessage);
+                                                installDataNode(core, collection, metaDataSection, ref return_ErrorMessage);
                                             }
                                         }
                                     }
@@ -846,8 +857,6 @@ namespace Contensive.Processor.Controllers {
                                         collection.save(core.cpParent);
                                     }
                                 }
-                                collection.dataRecordList = dataRecordList;
-                                collection.save(core.cpParent);
                                 //
                                 // -- test for diagnostic addon, warn if missing
                                 if (!collectionIncludesDiagnosticAddon) {
@@ -904,7 +913,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="dataNode"></param>
         /// <param name="return_ErrorMessage"></param>
-        public static void installDataNode(CoreController core, XmlNode dataNode, ref string return_ErrorMessage) {
+        public static void installDataNode(CoreController core, AddonCollectionModel collection, XmlNode dataNode, ref string return_ErrorMessage) {
+
+            List<string> dataRecordList = new();
+
             foreach (XmlNode ContentNode in dataNode.ChildNodes) {
                 if (ContentNode.Name.ToLowerInvariant() == "record") {
                     string ContentName = XmlController.getXMLAttribute(core, ContentNode, "content", "");
@@ -931,12 +943,17 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // Update the record
                                     recordId = csData.getInteger("id");
+                                    bool addToDataRecordList = true;
                                     foreach (XmlNode FieldNode in ContentNode.ChildNodes) {
                                         if (FieldNode.Name.ToLowerInvariant() == "field") {
                                             //
                                             // todo optimize 
                                             bool IsFieldFound = false;
                                             string FieldNameLc = XmlController.getXMLAttribute(core, FieldNode, "name", "").ToLowerInvariant();
+                                            //
+                                            // -- check if this record includes collectionid or installedbycollectionid. if not, add contentname,guid to collection.datarecordlist
+                                            if (FieldNameLc=="collectionid" || FieldNameLc=="installedbycollectionid") { addToDataRecordList = false; }
+                                            //
                                             CPContentBaseClass.FieldTypeIdEnum fieldTypeId = 0;
                                             int FieldLookupContentId = -1;
                                             ContentFieldMetadataModel fieldMetadata = null;
@@ -1025,6 +1042,14 @@ namespace Contensive.Processor.Controllers {
                                             }
                                         }
                                     }
+                                    if (addToDataRecordList) {
+                                        //
+                                        // -- append collection.data RecordList
+                                        string dataRow = $"{ContentName},{ContentRecordGuid}";
+                                        if (!dataRecordList.Contains(dataRow)) {
+                                            dataRecordList.Add(dataRow);
+                                        }
+                                    }
                                 }
                             }
                             if (isPageContent && pageCopyFilenameNotNull && !pageAddonListNotNull) {
@@ -1034,6 +1059,13 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
+            }
+            //
+            //
+            //
+            if (dataRecordList.Count > 0) {
+                collection.dataRecordList = string.Join(Environment.NewLine, dataRecordList);
+                collection.save(core.cpParent);
             }
         }
         //

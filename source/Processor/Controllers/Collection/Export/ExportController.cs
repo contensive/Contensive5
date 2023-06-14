@@ -126,7 +126,7 @@ namespace Contensive.Processor.Controllers {
                 // -- Addons
                 string IncludeSharedStyleGuidList = "";
                 string IncludeModuleGuidList = "";
-                foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "collectionid=" + collection.id,"id")) {
+                foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "collectionid=" + collection.id, "id")) {
                     //
                     // -- style sheet link
                     if (!string.IsNullOrEmpty(addon.stylesLinkHref)) {
@@ -176,51 +176,19 @@ namespace Contensive.Processor.Controllers {
                 }
                 // 
                 // -- Data Records
-                List<CollectionDataExportModel> dataRecordObjList = new List<CollectionDataExportModel>();
-                string dataRecordCrlfList = cs.GetText("DataRecordList");
-                if (!string.IsNullOrEmpty(dataRecordCrlfList)) {
-                    //
-                    // -- save collection record datarecord list to collection xml
-                    collectionXml.Append(System.Environment.NewLine + "\t" + "<DataRecordList>" + encodeCData(dataRecordCrlfList) + "</DataRecordList>");
-                    //
-                    // -- first, create dataRecordList of records in the Collection's DataRecord tab
-                    foreach (var dataRecord in Strings.Split(dataRecordCrlfList, Environment.NewLine).ToList()) {
-                        if (string.IsNullOrEmpty(dataRecord)) {
-                            //
-                            // -- row is empty, skit pit
-                            continue;
-                        }
-                        string[] dataSplit = Strings.Split(dataRecord, ",");
-                        CollectionDataExportModel dataRecordObj = new CollectionDataExportModel { contentName = dataSplit[0] };
-                        dataRecordObjList.Add(dataRecordObj);
-                        if (dataSplit.Length.Equals(1)) {
-                            //
-                            // -- row is just contentName, exports the entire table
-                            continue;
-                        }
-                        if (GenericController.isGuid(dataSplit[1])) {
-                            //
-                            // -- row is contentNae,Guid
-                            dataRecordObj.recordGuid = dataSplit[1];
-                            continue;
-                        }
-                        //
-                        // -- row is contentName, recordName
-                        dataRecordObj.recordName = dataSplit[1];
-                    }
-                }
-                //
-                // -- add records from any content that supports the field 'collectionid' or 'installedbycollectionid'
-
+                // first gather all the data records from tables with installedByCollection set to this collection
+                // then add dedupped records from collection.dataRecordList field
+                List<CollectionDataRecordModel> dataRecordList = new List<CollectionDataRecordModel>();
                 foreach (var field in new List<string> { "collectionId", "installedbycollectionid" }) {
                     using var csTable = cp.CSNew();
                     if (csTable.OpenSQL("select c.name as contentName, c.id as contentId, t.name as tableName from cccontent c left join cctables t on t.id=c.ContentTableID left join ccfields f on f.ContentID=c.id  where (c.name<>'add-ons')and(f.name=" + cp.Db.EncodeSQLText(field) + ") order by c.id")) {
                         do {
                             using var csRecord = cp.CSNew();
-                            if (csRecord.OpenSQL("select ccguid from " + csTable.GetText("tableName") + " where (" + field + "=" + collection.id + ")and((contentcontrolid=" + csTable.GetInteger("contentid") + ")or(contentcontrolid=0))")) {
+                            if (csRecord.OpenSQL("select ccguid,name from " + csTable.GetText("tableName") + " where (" + field + "=" + collection.id + ")and((contentcontrolid=" + csTable.GetInteger("contentid") + ")or(contentcontrolid=0))")) {
                                 do {
-                                    dataRecordObjList.Add(new CollectionDataExportModel {
+                                    dataRecordList.Add(new CollectionDataRecordModel {
                                         contentName = csTable.GetText("contentName"),
+                                        recordName = csRecord.GetText("name"),
                                         recordGuid = csRecord.GetText("ccguid")
                                     });
                                     csRecord.GoNext();
@@ -230,9 +198,48 @@ namespace Contensive.Processor.Controllers {
                         } while (csTable.OK());
                     }
                 }
+                // 
+                // -- add dedupped records from collection.dataRecordList field
+                string dataRecordCrlfList = cs.GetText("DataRecordList");
+                if (!string.IsNullOrEmpty(dataRecordCrlfList)) {
+                    ////
+                    //// -- save collection record datarecord list to collection xml
+                    //collectionXml.Append(System.Environment.NewLine + "\t" + "<DataRecordList>" + encodeCData(dataRecordCrlfList) + "</DataRecordList>");
+                    //
+                    // -- first, create dataRecordList of records in the Collection's DataRecord tab
+                    foreach (var dataRecordCommaRow in Strings.Split(dataRecordCrlfList, Environment.NewLine).ToList()) {
+                        if (string.IsNullOrEmpty(dataRecordCommaRow)) {
+                            //
+                            // -- row is empty, skip it
+                            continue;
+                        }
+                        string[] dataRecordCommaRowSplit = Strings.Split(dataRecordCommaRow, ",");
+                        CollectionDataRecordModel dataRecordObj = new() { contentName = dataRecordCommaRowSplit[0] };
+                        if (dataRecordCommaRowSplit.Length.Equals(1)) {
+                            //
+                            // -- row is just contentName, exports the entire table
+                            continue;
+                        }
+                        if (GenericController.isGuid(dataRecordCommaRowSplit[1])) {
+                            //
+                            // -- row is contentName,Guid
+                            if (dataRecordList.Find(x => x.contentName.Equals(dataRecordCommaRowSplit[0], StringComparison.CurrentCultureIgnoreCase) && x.recordGuid.Equals(dataRecordCommaRowSplit[1], StringComparison.CurrentCultureIgnoreCase)) != null) {
+                                dataRecordObj.recordGuid = dataRecordCommaRowSplit[1];
+                                dataRecordList.Add(dataRecordObj);
+                            }
+                            continue;
+                        }
+                        //
+                        // -- row is contentName, recordName
+                        if (dataRecordList.Find(x => x.contentName.Equals(dataRecordCommaRowSplit[0], StringComparison.CurrentCultureIgnoreCase) && x.recordName.Equals(dataRecordCommaRowSplit[1], StringComparison.CurrentCultureIgnoreCase)) != null) {
+                            dataRecordObj.recordName = dataRecordCommaRowSplit[1];
+                            dataRecordList.Add(dataRecordObj);
+                        }
+                    }
+                }
                 //
                 // -- add all datarecords to the xml export
-                collectionXml.Append(ExportDataRecordController.getNodeList(cp, dataRecordObjList, tempPathFileList, tempExportPath));
+                collectionXml.Append(ExportDataRecordController.getNodeList(cp, dataRecordList, tempPathFileList, tempExportPath));
                 // 
                 // CDef
                 foreach (Contensive.Models.Db.ContentModel content in createListFromCollection(cp, collection.id)) {

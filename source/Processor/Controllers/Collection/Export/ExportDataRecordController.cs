@@ -21,14 +21,14 @@ namespace Contensive.Processor.Controllers {
         /// <param name="tempPathFileList"></param>
         /// <param name="tempExportPath"></param>
         /// <returns></returns>
-        public static string getNodeList(CPBaseClass cp, List<CollectionDataExportModel> dataExportList, List<string> tempPathFileList, string tempExportPath) {
+        public static string getNodeList(CPBaseClass cp, List<CollectionDataRecordModel> dataExportList, List<string> tempPathFileList, string tempExportPath) {
             try {
                 var nodeList = new StringBuilder();
                 if (true) {
                     var RecordNodes = new StringBuilder();
                     //
                     // -- dataExportList -- enumerate the list of data to be exported. Each dataExport can have a list of records, each record will have a list of fields
-                    foreach (CollectionDataExportModel dataExport in dataExportList) {
+                    foreach (CollectionDataRecordModel dataExport in dataExportList) {
                         //
                         // -- export one line from the data-record
                         string FieldNodes = "";
