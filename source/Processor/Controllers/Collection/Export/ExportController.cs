@@ -183,16 +183,19 @@ namespace Contensive.Processor.Controllers {
                     using var csTable = cp.CSNew();
                     if (csTable.OpenSQL("select c.name as contentName, c.id as contentId, t.name as tableName from cccontent c left join cctables t on t.id=c.ContentTableID left join ccfields f on f.ContentID=c.id  where (c.name<>'add-ons')and(f.name=" + cp.Db.EncodeSQLText(field) + ") order by c.id")) {
                         do {
-                            using var csRecord = cp.CSNew();
-                            if (csRecord.OpenSQL("select ccguid,name from " + csTable.GetText("tableName") + " where (" + field + "=" + collection.id + ")and((contentcontrolid=" + csTable.GetInteger("contentid") + ")or(contentcontrolid=0))")) {
-                                do {
-                                    dataRecordList.Add(new CollectionDataRecordModel {
-                                        contentName = csTable.GetText("contentName"),
-                                        recordName = csRecord.GetText("name"),
-                                        recordGuid = csRecord.GetText("ccguid")
-                                    });
-                                    csRecord.GoNext();
-                                } while (csRecord.OK());
+                            string tableName = csTable.GetText("tableName").ToLowerInvariant();
+                            if (tableName != "ccaddoncollectioncdefrules" && tableName != "ccaggregatefunctions") {
+                                using var csRecord = cp.CSNew();
+                                if (csRecord.OpenSQL("select ccguid,name from " + csTable.GetText("tableName") + " where (" + field + "=" + collection.id + ")and((contentcontrolid=" + csTable.GetInteger("contentid") + ")or(contentcontrolid=0))")) {
+                                    do {
+                                        dataRecordList.Add(new CollectionDataRecordModel {
+                                            contentName = csTable.GetText("contentName"),
+                                            recordName = csRecord.GetText("name"),
+                                            recordGuid = csRecord.GetText("ccguid")
+                                        });
+                                        csRecord.GoNext();
+                                    } while (csRecord.OK());
+                                }
                             }
                             csTable.GoNext();
                         } while (csTable.OK());
@@ -223,7 +226,7 @@ namespace Contensive.Processor.Controllers {
                         if (GenericController.isGuid(dataRecordCommaRowSplit[1])) {
                             //
                             // -- row is contentName,Guid
-                            if (dataRecordList.Find(x => x.contentName.Equals(dataRecordCommaRowSplit[0], StringComparison.CurrentCultureIgnoreCase) && x.recordGuid.Equals(dataRecordCommaRowSplit[1], StringComparison.CurrentCultureIgnoreCase)) != null) {
+                            if (dataRecordList.Find(x => x.contentName.Equals(dataRecordCommaRowSplit[0], StringComparison.CurrentCultureIgnoreCase) && x.recordGuid.Equals(dataRecordCommaRowSplit[1], StringComparison.CurrentCultureIgnoreCase)) == null) {
                                 dataRecordObj.recordGuid = dataRecordCommaRowSplit[1];
                                 dataRecordList.Add(dataRecordObj);
                             }
@@ -231,7 +234,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // -- row is contentName, recordName
-                        if (dataRecordList.Find(x => x.contentName.Equals(dataRecordCommaRowSplit[0], StringComparison.CurrentCultureIgnoreCase) && x.recordName.Equals(dataRecordCommaRowSplit[1], StringComparison.CurrentCultureIgnoreCase)) != null) {
+                        if (dataRecordList.Find(x => x.contentName.Equals(dataRecordCommaRowSplit[0], StringComparison.CurrentCultureIgnoreCase) && x.recordName.Equals(dataRecordCommaRowSplit[1], StringComparison.CurrentCultureIgnoreCase)) == null) {
                             dataRecordObj.recordName = dataRecordCommaRowSplit[1];
                             dataRecordList.Add(dataRecordObj);
                         }

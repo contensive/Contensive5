@@ -614,71 +614,40 @@ namespace Contensive.Processor.Controllers {
                                                                 if (GenericController.toLCase(ContentNode.Name) == "record") {
                                                                     //
                                                                     // Data.Record node
-                                                                    //
                                                                     string ContentName = XmlController.getXMLAttribute(core, ContentNode, "content", "");
                                                                     if (string.IsNullOrEmpty(ContentName)) {
+                                                                        //
+                                                                        // -- bad content name, skip the record
                                                                         LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data.record node with a blank content attribute.");
                                                                         result = false;
-                                                                        return_ErrorMessage += " Collection file [" + CollectionName + "] contains a data.record node with a blank content attribute.";
-                                                                        return false;
-                                                                    } else {
-                                                                        string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
-                                                                        string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
-                                                                        if ((string.IsNullOrEmpty(ContentRecordGuid)) && (string.IsNullOrEmpty(ContentRecordName))) {
-                                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
-                                                                            result = false;
-                                                                            return_ErrorMessage += " The collection [" + CollectionName + "] was not installed because the Collection file contains a data record node with neither name nor guid. This is not allowed. The content is [" + ContentName + "].";
-                                                                            return false;
-                                                                        } else {
-                                                                            //
-                                                                            // create or update the record
-                                                                            //
-                                                                            ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
-                                                                            using (var csData = new CsModel(core)) {
-                                                                                if (!string.IsNullOrEmpty(ContentRecordGuid)) {
-                                                                                    csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid));
-                                                                                } else {
-                                                                                    csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName));
-                                                                                }
-                                                                                bool recordfound = true;
-                                                                                if (!csData.ok()) {
-                                                                                    //
-                                                                                    // Insert the new record
-                                                                                    //
-                                                                                    recordfound = false;
-                                                                                    csData.close();
-                                                                                    csData.insert(ContentName);
-                                                                                }
-                                                                                if (csData.ok()) {
-                                                                                    //
-                                                                                    // Update the record
-                                                                                    //
-                                                                                    if (recordfound && (!string.IsNullOrEmpty(ContentRecordGuid))) {
-                                                                                        //
-                                                                                        // found by guid, use guid in list and save name
-                                                                                        //
-                                                                                        csData.set("name", ContentRecordName);
-                                                                                    } else if (recordfound) {
-                                                                                        //
-                                                                                        // record found by name, use name is list but do not add guid
-                                                                                        //
-                                                                                    } else {
-                                                                                        //
-                                                                                        // record was created
-                                                                                        //
-                                                                                        csData.set("ccguid", ContentRecordGuid);
-                                                                                        csData.set("name", ContentRecordName);
-                                                                                    }
-                                                                                    ////
-                                                                                    //// -- append collection.data RecordList
-                                                                                    //string dataRow = $"{ContentName},{csData.getText("ccguid")}";
-                                                                                    //if (!dataRecordList.Contains(dataRow)) {
-                                                                                    //    dataRecordList.Add(dataRow);
-                                                                                    //}
-                                                                                }
-                                                                            }
-                                                                        }
+                                                                        return_ErrorMessage += " Collection file [" + CollectionName + "]  was not fully installed because it contains a data.record node with a blank content attribute. This data was skipped.";
+                                                                        continue;
                                                                     }
+                                                                    string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
+                                                                    string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
+                                                                    if (string.IsNullOrEmpty(ContentRecordGuid) && string.IsNullOrEmpty(ContentRecordName)) {
+                                                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
+                                                                        result = false;
+                                                                        return_ErrorMessage += " The collection [" + CollectionName + "] was not fully installed because it contains a data record in [" + ContentName + "] with neither name nor guid. This data was skipped.";
+                                                                        continue;
+                                                                    }
+                                                                    //
+                                                                    // create or update the record
+                                                                    ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
+                                                                    using var csData = new CsModel(core);
+                                                                    if (metaData.fields["name"].uniqueName) {
+                                                                        //
+                                                                        // -- content's name field requires unique. Insert and update based on name and update guid
+                                                                        csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName));
+                                                                    } else {
+                                                                        //
+                                                                        // -- insert and update based on guid, and update name
+                                                                        csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid));
+                                                                    }
+                                                                    if (!csData.ok()) { csData.insert(ContentName); }
+                                                                    csData.set("name", string.IsNullOrEmpty(ContentRecordName) ? $"{ContentName} {csData.getInteger("id")}" : ContentRecordName);
+                                                                    csData.set("ccguid", string.IsNullOrEmpty(ContentRecordGuid) ? ContentRecordName : ContentRecordGuid);
+                                                                    csData.save();
                                                                 }
                                                             }
                                                             break;
@@ -914,138 +883,146 @@ namespace Contensive.Processor.Controllers {
         /// <param name="dataNode"></param>
         /// <param name="return_ErrorMessage"></param>
         public static void installDataNode(CoreController core, AddonCollectionModel collection, XmlNode dataNode, ref string return_ErrorMessage) {
-
-            List<string> dataRecordList = new();
-
-            foreach (XmlNode ContentNode in dataNode.ChildNodes) {
-                if (ContentNode.Name.ToLowerInvariant() == "record") {
-                    string ContentName = XmlController.getXMLAttribute(core, ContentNode, "content", "");
-                    if (string.IsNullOrEmpty(ContentName)) {
-                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder, install collection file contains a data.record node with a blank content attribute.");
-                        return_ErrorMessage += "<P>Collection file contains a data.record node with a blank content attribute.</P>";
-                        break;
-                    } else {
-                        string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
-                        string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
-                        if ((!string.IsNullOrEmpty(ContentRecordGuid)) || (!string.IsNullOrEmpty(ContentRecordName))) {
-                            ContentMetadataModel metaData = Models.Domain.ContentMetadataModel.createByUniqueName(core, ContentName);
+            try {
+                List<string> dataRecordList = new();
+                foreach (XmlNode contentNode in dataNode.ChildNodes) {
+                    if (contentNode.Name.ToLowerInvariant() == "record") {
+                        //
+                        // -- process record node
+                        string contentName = XmlController.getXMLAttribute(core, contentNode, "content", "");
+                        if (string.IsNullOrEmpty(contentName)) {
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder, install collection file contains a data.record node with a blank content attribute.");
+                            return_ErrorMessage += "<P>Collection file contains a data.record node with a blank content attribute.</P>";
+                            break;
+                        }
+                        string contentRecordGuid = XmlController.getXMLAttribute(core, contentNode, "guid", "");
+                        string contentRecordName = XmlController.getXMLAttribute(core, contentNode, "name", "");
+                        if ((!string.IsNullOrEmpty(contentRecordGuid)) || (!string.IsNullOrEmpty(contentRecordName))) {
+                            ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, contentName);
                             bool isPageContent = metaData.name.ToLower().Equals("page content");
                             bool pageCopyFilenameNotNull = false;
                             bool pageAddonListNotNull = false;
                             int recordId = 0;
                             using (var csData = new CsModel(core)) {
-                                if (!string.IsNullOrEmpty(ContentRecordGuid)) {
-                                    csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid));
+                                if (!string.IsNullOrEmpty(contentRecordGuid)) {
+                                    csData.open(contentName, "ccguid=" + DbController.encodeSQLText(contentRecordGuid));
                                 } else {
-                                    csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName));
+                                    csData.open(contentName, "name=" + DbController.encodeSQLText(contentRecordName));
                                 }
                                 if (csData.ok()) {
                                     //
-                                    // Update the record
-                                    recordId = csData.getInteger("id");
+                                    // -- if content include collectionId or installedByCollectionId, force to this collection's id
                                     bool addToDataRecordList = true;
-                                    foreach (XmlNode FieldNode in ContentNode.ChildNodes) {
-                                        if (FieldNode.Name.ToLowerInvariant() == "field") {
+                                    foreach (var keyValuePair in metaData.fields) {
+                                        if (keyValuePair.Value.nameLc == "collectionid" || keyValuePair.Value.nameLc == "installedbycollectionid") {
+                                            addToDataRecordList = false;
+                                            csData.set(keyValuePair.Value.nameLc, collection.id);
+                                        }
+                                    }
+                                    //
+                                    // -- save all the fields to the db record
+                                    recordId = csData.getInteger("id");
+                                    foreach (XmlNode fieldNode in contentNode.ChildNodes) {
+                                        if (fieldNode.Name.ToLowerInvariant() == "field") {
                                             //
-                                            // todo optimize 
+                                            // -- verify field is found in the content
+                                            string fieldNameLc = XmlController.getXMLAttribute(core, fieldNode, "name", "").ToLowerInvariant();
                                             bool IsFieldFound = false;
-                                            string FieldNameLc = XmlController.getXMLAttribute(core, FieldNode, "name", "").ToLowerInvariant();
-                                            //
-                                            // -- check if this record includes collectionid or installedbycollectionid. if not, add contentname,guid to collection.datarecordlist
-                                            if (FieldNameLc=="collectionid" || FieldNameLc=="installedbycollectionid") { addToDataRecordList = false; }
-                                            //
                                             CPContentBaseClass.FieldTypeIdEnum fieldTypeId = 0;
                                             int FieldLookupContentId = -1;
                                             ContentFieldMetadataModel fieldMetadata = null;
                                             foreach (var keyValuePair in metaData.fields) {
                                                 fieldMetadata = keyValuePair.Value;
-                                                if (fieldMetadata.nameLc == FieldNameLc) {
+                                                if (fieldMetadata.nameLc == fieldNameLc) {
                                                     fieldTypeId = fieldMetadata.fieldTypeId;
                                                     FieldLookupContentId = fieldMetadata.lookupContentId;
                                                     IsFieldFound = true;
                                                     break;
                                                 }
                                             }
-                                            if (IsFieldFound) {
-                                                string fieldValue = FieldNode.InnerText;
-                                                pageCopyFilenameNotNull |= isPageContent && FieldNameLc.Equals("copyfilename") && !string.IsNullOrWhiteSpace(fieldValue);
-                                                pageAddonListNotNull |= isPageContent && FieldNameLc.Equals("addonlist") && !string.IsNullOrWhiteSpace(fieldValue);
-                                                switch (fieldTypeId) {
-                                                    case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
-                                                    case CPContentBaseClass.FieldTypeIdEnum.Redirect: {
+                                            if (!IsFieldFound) { continue; }
+                                            //
+                                            // -- skip collectionid or installedbycollectionid. it was set above
+                                            if (fieldNameLc == "collectionid" || fieldNameLc == "installedbycollectionid") { continue; }
+                                            //
+                                            string fieldValue = fieldNode.InnerText;
+                                            pageCopyFilenameNotNull |= isPageContent && fieldNameLc.Equals("copyfilename") && !string.IsNullOrWhiteSpace(fieldValue);
+                                            pageAddonListNotNull |= isPageContent && fieldNameLc.Equals("addonlist") && !string.IsNullOrWhiteSpace(fieldValue);
+                                            switch (fieldTypeId) {
+                                                case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
+                                                case CPContentBaseClass.FieldTypeIdEnum.Redirect: {
+                                                        //
+                                                        // not supported
+                                                        break;
+                                                    }
+                                                case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
+                                                        //
+                                                        // lookup
+                                                        if (FieldLookupContentId != 0) {
                                                             //
-                                                            // not supported
-                                                            break;
-                                                        }
-                                                    case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
-                                                            //
-                                                            // lookup
-                                                            if ((FieldLookupContentId != 0)) {
+                                                            // content lookup
+                                                            var lookupContentMetadata = ContentMetadataModel.create(core, FieldLookupContentId);
+                                                            if (lookupContentMetadata == null) {
                                                                 //
-                                                                // content lookup
-                                                                var lookupContentMetadata = ContentMetadataModel.create(core, FieldLookupContentId);
-                                                                if (lookupContentMetadata == null) {
-                                                                    //
-                                                                    // lookup not configured
-                                                                    csData.set(FieldNameLc, 0);
-                                                                    break;
-                                                                }
-                                                                csData.set(FieldNameLc, lookupContentMetadata.getRecordId(core, fieldValue));
+                                                                // lookup not configured
+                                                                csData.set(fieldNameLc, 0);
                                                                 break;
                                                             }
-                                                            if (!string.IsNullOrEmpty(fieldMetadata.lookupList)) {
-                                                                //
-                                                                // Lookup list
-                                                                csData.set(FieldNameLc, fieldValue);
-                                                                break;
-                                                            }
-                                                            csData.set(FieldNameLc, 0);
+                                                            csData.set(fieldNameLc, lookupContentMetadata.getRecordId(core, fieldValue));
                                                             break;
                                                         }
-                                                    case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
+                                                        if (!string.IsNullOrEmpty(fieldMetadata.lookupList)) {
                                                             //
-                                                            // -- many-to-many
-                                                            if (string.IsNullOrEmpty(fieldValue)) {
+                                                            // Lookup list
+                                                            csData.set(fieldNameLc, fieldValue);
+                                                            break;
+                                                        }
+                                                        csData.set(fieldNameLc, 0);
+                                                        break;
+                                                    }
+                                                case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
+                                                        //
+                                                        // -- many-to-many
+                                                        if (string.IsNullOrEmpty(fieldValue)) {
+                                                            //
+                                                            // -- no value,no record
+                                                            continue;
+                                                        }
+                                                        //
+                                                        // -- find secondary content (record in secondary content with matching guid
+                                                        using (var cs = core.cpParent.CSNew()) {
+                                                            string secondaryContentName = core.cpParent.Content.GetName(fieldMetadata.manyToManyContentId);
+                                                            if (cs.Open(secondaryContentName, "ccGuid=" + core.cpParent.Db.EncodeSQLText(fieldValue))) {
                                                                 //
-                                                                // -- no value,no record
-                                                                continue;
-                                                            }
-                                                            //
-                                                            // -- find secondary content (record in secondary content with matching guid
-                                                            using (var cs = core.cpParent.CSNew()) {
-                                                                string secondaryContentName = core.cpParent.Content.GetName(fieldMetadata.manyToManyContentId);
-                                                                if (cs.Open(secondaryContentName, "ccGuid=" + core.cpParent.Db.EncodeSQLText(fieldValue))) {
-                                                                    //
-                                                                    // -- find rule record
-                                                                    using (var csRule = core.cpParent.CSNew()) {
-                                                                        string ruleContent = core.cpParent.Content.GetName(fieldMetadata.manyToManyRuleContentId);
-                                                                        int secondaryRecordId = cs.GetInteger("id");
-                                                                        if (!csRule.Open(ruleContent, "(" + fieldMetadata.manyToManyRulePrimaryField + "=" + recordId + ")and(" + fieldMetadata.manyToManyRuleSecondaryField + "=" + secondaryRecordId + ")")) {
-                                                                            //
-                                                                            // -- rule record is missing, check the box
-                                                                            csRule.Close();
-                                                                            csRule.Insert(ruleContent);
-                                                                            csRule.SetField(fieldMetadata.manyToManyRulePrimaryField, recordId);
-                                                                            csRule.SetField(fieldMetadata.manyToManyRuleSecondaryField, secondaryRecordId);
-                                                                            csRule.Save();
-                                                                        }
+                                                                // -- find rule record
+                                                                using (var csRule = core.cpParent.CSNew()) {
+                                                                    string ruleContent = core.cpParent.Content.GetName(fieldMetadata.manyToManyRuleContentId);
+                                                                    int secondaryRecordId = cs.GetInteger("id");
+                                                                    if (!csRule.Open(ruleContent, "(" + fieldMetadata.manyToManyRulePrimaryField + "=" + recordId + ")and(" + fieldMetadata.manyToManyRuleSecondaryField + "=" + secondaryRecordId + ")")) {
+                                                                        //
+                                                                        // -- rule record is missing, check the box
+                                                                        csRule.Close();
+                                                                        csRule.Insert(ruleContent);
+                                                                        csRule.SetField(fieldMetadata.manyToManyRulePrimaryField, recordId);
+                                                                        csRule.SetField(fieldMetadata.manyToManyRuleSecondaryField, secondaryRecordId);
+                                                                        csRule.Save();
                                                                     }
                                                                 }
                                                             }
-                                                            break;
                                                         }
-                                                    default: {
-                                                            csData.set(FieldNameLc, fieldValue);
-                                                            break;
-                                                        }
-                                                }
+                                                        break;
+                                                    }
+                                                default: {
+                                                        csData.set(fieldNameLc, fieldValue);
+                                                        break;
+                                                    }
                                             }
                                         }
                                     }
                                     if (addToDataRecordList) {
                                         //
                                         // -- append collection.data RecordList
-                                        string dataRow = $"{ContentName},{ContentRecordGuid}";
+                                        string dataRow = $"{contentName},{contentRecordGuid}";
                                         if (!dataRecordList.Contains(dataRow)) {
                                             dataRecordList.Add(dataRow);
                                         }
@@ -1059,13 +1036,16 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-            }
-            //
-            //
-            //
-            if (dataRecordList.Count > 0) {
-                collection.dataRecordList = string.Join(Environment.NewLine, dataRecordList);
-                collection.save(core.cpParent);
+                //
+                //
+                //
+                if (dataRecordList.Count > 0) {
+                    collection.dataRecordList = string.Join(Environment.NewLine, dataRecordList);
+                    collection.save(core.cpParent);
+                }
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
             }
         }
         //

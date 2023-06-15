@@ -4,6 +4,7 @@ using Contensive.Processor.Models.Domain;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Contensive.Processor.Controllers {
@@ -26,6 +27,9 @@ namespace Contensive.Processor.Controllers {
                 var nodeList = new StringBuilder();
                 if (true) {
                     var RecordNodes = new StringBuilder();
+                    //
+                    // -- sort data by contentname, then recordname, then recordGuid
+                    dataExportList=dataExportList.OrderBy(x=>x.contentName).ThenBy(x=>x.recordName).ThenBy(x=>x.recordGuid).ToList();
                     //
                     // -- dataExportList -- enumerate the list of data to be exported. Each dataExport can have a list of records, each record will have a list of fields
                     foreach (CollectionDataRecordModel dataExport in dataExportList) {
@@ -79,7 +83,7 @@ namespace Contensive.Processor.Controllers {
                                     // 
                                     // -- get output 'columns', the inner loop enumeration, the fields within each record that will be exported
                                     var contentFieldExportList = new List<ContentFieldModel>();
-                                    List<string> ignoreFields = new List<string> { "id", "contentcontrolid", "editsourceid", "editarchive", "editblank", "contentcategoryid" };
+                                    List<string> ignoreFields = new List<string> { "id", "contentcontrolid", "editsourceid", "editarchive", "editblank", "contentcategoryid", "createdby", "modifiedby", "dateadded", "modifieddate" };
                                     List<int> ignoreTypes = new List<int> { (int)CPContentBaseClass.FieldTypeIdEnum.Redirect, (int)CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement };
                                     foreach (var metaField in DbBaseModel.createList<ContentFieldModel>(cp, "contentid=" + dataExportContentId)) {
                                         if (!string.IsNullOrEmpty(metaField.name)) {
