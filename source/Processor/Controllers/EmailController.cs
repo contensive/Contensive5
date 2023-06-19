@@ -302,7 +302,7 @@ namespace Contensive.Processor.Controllers {
                 string subjectRendered = encodeEmailSubjectText(core, subject, null, bodyRenderData);
                 string htmlBody = encodeEmailBodyHtml(core, isHTML, body, "", null, "", false, bodyRenderData);
                 string textBody = HtmlController.convertHtmlToText(core, htmlBody);
-                EmailSendRequest sendRequest = new EmailSendRequest {
+                EmailSendRequest sendRequest = new() {
                     attempts = 0,
                     bounceAddress = bounceAddress,
                     fromAddress = fromAddress,
@@ -317,7 +317,6 @@ namespace Contensive.Processor.Controllers {
                     toMemberId = 0,
                 };
                 if (isImmediate) {
-                    using var sesClient = new AmazonSimpleEmailServiceClient();
                     return trySendImmediate(core,  sendRequest, ref userErrorMessage);
                 }
                 queueEmail(core, false, sendRequest);

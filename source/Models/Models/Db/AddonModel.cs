@@ -61,7 +61,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// The src used for html platform 5
         /// </summary>
-        public string JSHeadScriptPlatform5Src { get; set; }
+        public string jSHeadScriptPlatform5Src { get; set; }
         /// <summary>
         /// The javascript added to end-of-body or head for any platform. 
         /// </summary>
@@ -74,11 +74,13 @@ namespace Contensive.Models.Db {
         public string metaDescription { get; set; }
         public string metaKeywordList { get; set; }
         /// <summary>
-        /// The catgegory of addon
-        /// 1 = Add-on
+        /// The catgegory of addon. see navTypeIdEnum
+        /// 1 = Add-on (misc, other, etc)
         /// 2 = Report
         /// 3 = Setting
         /// 4 = Tool
+        /// 5 = Comm
+        /// 6 = Design
         /// </summary>
         public int navTypeId { get; set; }
         public string objectProgramId { get; set; }
@@ -246,6 +248,18 @@ namespace Contensive.Models.Db {
             string cssUrl = (cp.Site.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(platform5Asset)) ? platform5Asset : defaultAsset;
             return cssUrl.Trim();
         }
+    }
+    //
+    /// <summary>
+    /// values for addon.navTypeId and content.navTypeId
+    /// </summary>
+    public enum NavTypeIdEnum {
+        addon = 1,
+        report = 2,
+        setting = 3,
+        tool=4,
+        comm=5,
+        design=6
     }
     //
     /// <summary>

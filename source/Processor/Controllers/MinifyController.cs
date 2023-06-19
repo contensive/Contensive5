@@ -47,7 +47,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- js Url
-                    string jsUrl = AddonModel.getPlatformAsset(core.cpParent, addon.JSHeadScriptPlatform5Src, addon.jsHeadScriptSrc); // (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
+                    string jsUrl = AddonModel.getPlatformAsset(core.cpParent, addon.jSHeadScriptPlatform5Src, addon.jsHeadScriptSrc); // (core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
                     jsUrl = jsUrl.Trim();
                     if (AddonModel.isAssetUrlLocal(core.cpParent, jsUrl)) {
                         if (jsUrl.IndexOf(core.appConfig.cdnFileUrl) == 0) {

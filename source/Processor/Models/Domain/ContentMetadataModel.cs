@@ -239,7 +239,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// used to create admin nav icons. A mirror of the addon category. foreign key to AddonCategories.
         /// </summary>
-        public int addonCategoryId { get; set;  }
+        public int addonCategoryId { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -1127,32 +1127,33 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     var sqlList = new NameValueCollection {
                         { "name", DbController.encodeSQLText(contentMetadata.name) },
-                        { "CREATEKEY", "0" },
                         { "active", DbController.encodeSQLBoolean(contentMetadata.active) },
                         { "contentControlId", DbController.encodeSQLNumber(ContentIDofContent) },
-                        { "AllowAdd", DbController.encodeSQLBoolean(contentMetadata.allowAdd) },
-                        { "AllowDelete", DbController.encodeSQLBoolean(contentMetadata.allowDelete) },
-                        { "AllowWorkflowAuthoring", DbController.encodeSQLBoolean(false) },
-                        { "DeveloperOnly", DbController.encodeSQLBoolean(contentMetadata.developerOnly) },
-                        { "AdminOnly", DbController.encodeSQLBoolean(contentMetadata.adminOnly) },
-                        { "ParentID", DbController.encodeSQLNumber(parentId) },
-                        { "DefaultSortMethodID", DbController.encodeSQLNumber(defaultSortMethodId) },
-                        { "DropDownFieldList", DbController.encodeSQLText(encodeEmpty(contentMetadata.dropDownFieldList, "Name")) },
-                        { "ContentTableID", DbController.encodeSQLNumber(table.id) },
-                        { "AuthoringTableID", DbController.encodeSQLNumber(table.id) },
-                        { "ModifiedDate", DbController.encodeSQLDate(core.dateTimeNowMockable) },
-                        { "CreatedBy", DbController.encodeSQLNumber(SystemMemberId) },
-                        { "ModifiedBy", DbController.encodeSQLNumber(SystemMemberId) },
-                        { "AllowCalendarEvents", DbController.encodeSQLBoolean(contentMetadata.allowCalendarEvents) },
-                        { "AllowContentTracking", DbController.encodeSQLBoolean(contentMetadata.allowContentTracking) },
-                        { "AllowTopicRules", DbController.encodeSQLBoolean(contentMetadata.allowTopicRules) },
-                        { "AllowContentChildTool", DbController.encodeSQLBoolean(contentMetadata.allowContentChildTool) },
-                        { "IconLink", DbController.encodeSQLText(encodeEmpty(contentMetadata.iconLink, "")) },
-                        { "IconHeight", DbController.encodeSQLNumber(contentMetadata.iconHeight) },
-                        { "IconWidth", DbController.encodeSQLNumber(contentMetadata.iconWidth) },
-                        { "IconSprites", DbController.encodeSQLNumber(contentMetadata.iconSprites) },
-                        { "installedByCollectionid", DbController.encodeSQLNumber(InstalledByCollectionId) },
-                        { "isBaseContent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) }
+                        { "allowadd", DbController.encodeSQLBoolean(contentMetadata.allowAdd) },
+                        { "allowdelete", DbController.encodeSQLBoolean(contentMetadata.allowDelete) },
+                        { "allowworkflowauthoring", DbController.encodeSQLBoolean(false) },
+                        { "developeronly", DbController.encodeSQLBoolean(contentMetadata.developerOnly) },
+                        { "adminonly", DbController.encodeSQLBoolean(contentMetadata.adminOnly) },
+                        { "parentid", DbController.encodeSQLNumber(parentId) },
+                        { "defaultsortmethodid", DbController.encodeSQLNumber(defaultSortMethodId) },
+                        { "dropdownfieldlist", DbController.encodeSQLText(encodeEmpty(contentMetadata.dropDownFieldList, "Name")) },
+                        { "contenttableid", DbController.encodeSQLNumber(table.id) },
+                        { "authoringtableid", DbController.encodeSQLNumber(table.id) },
+                        { "modifieddate", DbController.encodeSQLDate(core.dateTimeNowMockable) },
+                        { "createdby", DbController.encodeSQLNumber(SystemMemberId) },
+                        { "modifiedby", DbController.encodeSQLNumber(SystemMemberId) },
+                        { "allowcalendarevents", DbController.encodeSQLBoolean(contentMetadata.allowCalendarEvents) },
+                        { "allowcontenttracking", DbController.encodeSQLBoolean(contentMetadata.allowContentTracking) },
+                        { "allowtopicrules", DbController.encodeSQLBoolean(contentMetadata.allowTopicRules) },
+                        { "allowcontentchildtool", DbController.encodeSQLBoolean(contentMetadata.allowContentChildTool) },
+                        { "iconlink", DbController.encodeSQLText(encodeEmpty(contentMetadata.iconLink, "")) },
+                        { "iconheight", DbController.encodeSQLNumber(contentMetadata.iconHeight) },
+                        { "iconwidth", DbController.encodeSQLNumber(contentMetadata.iconWidth) },
+                        { "iconsprites", DbController.encodeSQLNumber(contentMetadata.iconSprites) },
+                        { "installedbycollectionid", DbController.encodeSQLNumber(InstalledByCollectionId) },
+                        { "isbasecontent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) },
+                        { "navtypeid",  DbController.encodeSQLNumber(  contentMetadata.navTypeID) },
+                        { "addoncategoryid", DbController.encodeSQLNumber(  contentMetadata.addonCategoryId ) }
                     };
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
                     DbBaseModel.invalidateCacheOfRecord<ContentModel>(core.cpParent, contentMetadata.id);

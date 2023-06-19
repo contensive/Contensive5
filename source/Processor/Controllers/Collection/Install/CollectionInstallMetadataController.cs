@@ -160,15 +160,16 @@ namespace Contensive.Processor.Controllers {
                                     targetMetaData.whereClause = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "WhereClause", DefaultMetaData.whereClause);
                                     //
                                     // -- navtypeid, a mirror of addon-category
-                                    string[] navTypelookupList = "Misc,Report,Setting,Tool".Split(',');
-                                    string defaultNavType = DbBaseModel.getRecordName<AddonCategoryModel>(core.cpParent, DefaultMetaData.addonCategoryId);
-                                    string navType = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NavTypeId", defaultNavType);
-                                    targetMetaData.navTypeID = Array.FindIndex(navTypelookupList, row => row == navType);
+                                    string defaultNavTypeText = DbBaseModel.getRecordName<AddonCategoryModel>(core.cpParent, DefaultMetaData.navTypeID);
+                                    string navTypeText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NavTypeId", defaultNavTypeText);
+                                    if (Enum.TryParse<NavTypeIdEnum>(navTypeText, true, out NavTypeIdEnum navType)) {
+                                        targetMetaData.navTypeID = (int)navType;
+                                    }
                                     //
                                     // -- addoncategoryid, a mirror of addon-category
-                                    string defaultAddonCategory = DbBaseModel.getRecordName<AddonCategoryModel>(core.cpParent, DefaultMetaData.addonCategoryId);
-                                    string addonCategory = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonCategoryId", defaultAddonCategory);
-                                    targetMetaData.addonCategoryId = DbBaseModel.getRecordIdByUniqueName<AddonCategoryModel>(core.cpParent, addonCategory);
+                                    string defaultAddonCategoryText = DbBaseModel.getRecordName<AddonCategoryModel>(core.cpParent, DefaultMetaData.addonCategoryId);
+                                    string addonCategoryText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonCategoryId", defaultAddonCategoryText);
+                                    targetMetaData.addonCategoryId = DbBaseModel.getRecordIdByUniqueName<AddonCategoryModel>(core.cpParent, addonCategoryText);
                                     //
                                     // -- determine id
                                     targetMetaData.id = DbController.getContentId(core, contentName);

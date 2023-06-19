@@ -434,7 +434,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     //
                     // -- js Url
-                    string scriptUrl = AddonModel.getPlatformAsset(core.cpParent, addon.JSHeadScriptPlatform5Src, addon.jsHeadScriptSrc); //(core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
+                    string scriptUrl = AddonModel.getPlatformAsset(core.cpParent, addon.jSHeadScriptPlatform5Src, addon.jsHeadScriptSrc); //(core.siteProperties.htmlPlatformVersion == 5 && !string.IsNullOrEmpty(addon.JSHeadScriptPlatform5Src)) ? addon.JSHeadScriptPlatform5Src : addon.jsHeadScriptSrc;
                     if (!string.IsNullOrEmpty(scriptUrl)) {
                         if (validMinJs && AddonModel.isAssetUrlLocal(core.cpParent, scriptUrl)) {
                             // -- local js, was included in minified
