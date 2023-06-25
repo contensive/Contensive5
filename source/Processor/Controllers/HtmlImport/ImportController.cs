@@ -13,6 +13,11 @@ namespace Contensive.Processor {
     namespace Controllers {
         public static class ImportController {
             //
+            public static bool processImportFile(CPBaseClass cp, string htmlSourceTempPathFilename, CPLayoutBaseClass.ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList) {
+                int layoutFrameworkId = cp.Site.GetInteger("html platform version");
+                return processImportFile(cp, htmlSourceTempPathFilename, importTypeId, layoutId, pageTemplateId, emailTemplateId, emailId, ref userMessageList, layoutFrameworkId);
+            }
+            //
             //====================================================================================================
             /// <summary>
             /// Import a file and process the html. Save the result.
@@ -26,7 +31,7 @@ namespace Contensive.Processor {
             /// <param name="emailId">If not 0, the imported html will be saved to the record in this table.</param>
             /// <param name="userMessageList">If there were any processing errors caused by the data, return them here. These can be presented to the user.</param>
             /// <returns></returns>
-            public static bool processImportFile(CPBaseClass cp, string htmlSourceTempPathFilename, CPLayoutBaseClass.ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList) {
+            public static bool processImportFile(CPBaseClass cp, string htmlSourceTempPathFilename, CPLayoutBaseClass.ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList, int layoutFrameworkId) {
                 try {
                     if (System.IO.Path.GetExtension(htmlSourceTempPathFilename).Equals(".zip")) {
                         //
@@ -128,7 +133,7 @@ namespace Contensive.Processor {
                                     }
                                     //
                                     // -- check site property, not cp.site.htmlPlatformVersion because this tool runs in the admin site, which may overwrite the public property
-                                    if (cp.Site.GetInteger("html platform version") == 5) {
+                                    if (layoutFrameworkId == 5) {
                                         layout.layoutPlatform5.content = htmlDoc.DocumentNode.OuterHtml;
                                     } else {
                                         layout.layout.content = htmlDoc.DocumentNode.OuterHtml;
@@ -259,9 +264,9 @@ namespace Contensive.Processor {
             /// <param name="importTypeId"></param>
             /// <param name="userMessageList"></param>
             /// <returns></returns>
-            public static string  processHtml(CPBaseClass cp, string html, ImporttypeEnum importTypeId, ref List<string> userMessageList) {
+            public static string processHtml(CPBaseClass cp, string html, ImporttypeEnum importTypeId, ref List<string> userMessageList) {
                 HtmlDocument htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml( html );
+                htmlDoc.LoadHtml(html);
                 if (htmlDoc == null) {
                     //
                     // -- body tag not found, import the whole document

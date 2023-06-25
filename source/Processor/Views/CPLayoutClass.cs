@@ -105,5 +105,11 @@ namespace Contensive.Processor {
         public override bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList) {
             return ImportController.processImportFile(cp, htmlSourceTempPathFilename, importTypeId, layoutId, pageTemplateId, emailTemplateId, emailId, ref userMessageList);
         }
+        //
+        //====================================================================================================
+        //
+        public override bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList, int layoutFrameworkId) {
+            return ImportController.processImportFile(cp, htmlSourceTempPathFilename, importTypeId, layoutId, pageTemplateId, emailTemplateId, emailId, ref userMessageList, layoutFrameworkId);
+        }
     }
 }

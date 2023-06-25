@@ -110,6 +110,21 @@ namespace Contensive.BaseClasses {
         public abstract bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList);
         //
         //====================================================================================================
+        /// <summary>
+        /// Import a file and process the html. Save the result.
+        /// </summary>
+        /// <param name="htmlSourceTempPathFilename"></param>
+        /// <param name="importTypeId"></param>
+        /// <param name="layoutId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="layoutFrameworkId">if 5, import layout as framework 5, else default</param>
+        /// <param name="pageTemplateId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="emailTemplateId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="emailId">If not 0, the imported html will be saved to the record in this table.</param>
+        /// <param name="userMessageList">If there were any processing errors caused by the data, return them here. These can be presented to the user.</param>
+        /// <returns></returns>
+        public abstract bool processImportFile(string htmlSourceTempPathFilename, ImporttypeEnum importTypeId, int layoutId, int pageTemplateId, int emailTemplateId, int emailId, ref List<string> userMessageList, int layoutFrameworkId);
+        //
+        //====================================================================================================
         //
         // -- import types
         public enum ImporttypeEnum {
