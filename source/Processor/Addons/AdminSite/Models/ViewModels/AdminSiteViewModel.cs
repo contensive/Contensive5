@@ -41,7 +41,64 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <summary>
         /// create the hardcoded list of 6 icons that appear at the top-right of the admin page
         /// </summary>
-        public List<NavItemList> navList { 
+        public List<NavCategoryList> categoryList {
+            get {
+                if (_categoryList != null) { return _categoryList; }
+                if (cp.User.Id == 0) { return new List<NavCategoryList>(); }
+                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavCategoryList>(); }
+                //
+                // -- read from cache, invidate if an admin click isnt found in recent table
+                string cacheKey = cp.Cache.CreateKey($"admin-categoryList");
+                _categoryList = cp.Cache.GetObject<List<NavCategoryList>>(cacheKey);
+                if (_categoryList != null) { return _categoryList; }
+                //
+                _categoryList = new() {
+                    new NavCategoryList {
+                        listName = "Design",
+                        listIcon = "fas fa-paint-brush fa-lg",
+                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.design)
+                    },
+                    new NavCategoryList {
+                        listName = "Comm",
+                        listIcon = "fas fa-comment-alt fa-lg",
+                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.comm)
+                    },
+                    new NavCategoryList {
+                        listName = "Reports",
+                        listIcon = "fas fa-chart-pie fa-lg",
+                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.report)
+                    },
+                    new NavCategoryList {
+                        listName = "Tools",
+                        listIcon = "fas fa-wrench fa-lg",
+                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.tool)
+                    },
+                    new NavCategoryList {
+                        listName = "Settings",
+                        listIcon = "fas fa-cog fa-lg",
+                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.setting)
+                    },
+                    new NavCategoryList {
+                        listName = "User",
+                        listIcon = "fas fa-user fa-lg",
+                        listCategoryList = new List<NavCategory>() { navProfileCategoryList }
+                    }
+                };
+
+                //
+                string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
+                cp.Cache.Store(cacheKey, _categoryList, depKey);
+                return _categoryList;
+            }
+        }
+        private List<NavCategoryList> _categoryList = null;
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// create the hardcoded list of 6 icons that appear at the top-right of the admin page
+        /// </summary>
+        public List<NavItemList> navList {
             get {
                 if (_navList != null) { return _navList; }
                 if (cp.User.Id == 0) { return new List<NavItemList>(); }
@@ -81,7 +138,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     new NavItemList {
                         listName = "User",
                         listIcon = "fas fa-user fa-lg",
-                        listItemList = navProfileList
+                        listItemList = navProfileItemList
                     }
                 };
 
@@ -96,15 +153,72 @@ namespace Contensive.Processor.Addons.AdminSite {
         //====================================================================================================
         //
         /// <summary>
-        /// get nav list for addons for one addon TypeId (include both addons and content)
+        /// build navCategoryList
         /// </summary>
         /// <param name="navTypeId"></param>
         /// <param name="localListCache"></param>
         /// <returns></returns>
+        public List<NavCategory> getNavCategoriesByType(NavTypeIdEnum navTypeId) {
+            try {
+                List<NavCategory> result = new();
+                using (DataTable dt = cp.Db.ExecuteQuery(Properties.Resources.sqlGetNavItemByType.replace("{navTypeId}", ((int)navTypeId).ToString(), System.StringComparison.CurrentCultureIgnoreCase))) {
+                    if (dt?.Rows != null) {
+                        string categoryNameLast = "";
+                        NavCategory category = null;
+                        foreach (DataRow dr in dt.Rows) {
+                            string categoryName = cp.Utils.EncodeText(dr["categoryName"]);
+                            categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName.replace(".", " > ", System.StringComparison.InvariantCultureIgnoreCase);
+                            if (result.Count == 0 || categoryName != categoryNameLast) {
+                                //
+                                // -- new category
+                                category = new() {
+                                    navCategoryName = categoryName,
+                                    navCategoryItems = new List<NavCategoryItem>()
+                                };
+                                result.Add(category);
+                                categoryNameLast = categoryName;
+                            }
+                            //
+                            // -- create entry
+                            string entryName = cp.Utils.EncodeText(dr["name"]);
+                            entryName = string.IsNullOrEmpty(entryName) ? "" : entryName;
+                            //
+                            string navItemHref = "";
+                            int contentId = cp.Utils.EncodeInteger(dr["contentid"]);
+                            if (contentId == 0) {
+                                //
+                                // -- addon
+                                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"]));
+                            } else {
+                                //
+                                // -- data
+                                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + contentId;
+                            }
+                            category.navCategoryItems.Add(new NavCategoryItem {
+                                navItemHref = navItemHref,
+                                navItemName = entryName
+                            });
+                        }
+                    }
+                }
+                return result;
+            } catch (System.Exception ex) {
+                cp.Site.ErrorReport(ex, "getNavCategoriesByType");
+                return new();
+            }
+        }
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// guild navItemList
+        /// </summary>
+        /// <param name="navTypeId"></param>
+        /// <returns></returns>
         public List<NavItem> getNavItemsByType(NavTypeIdEnum navTypeId) {
             try {
                 List<NavItem> localListCache = new();
-                using (DataTable dt = cp.Db.ExecuteQuery(Properties.Resources.sqlGetNavItemByType.replace("{navTypeId}", ((int)navTypeId).ToString(),System.StringComparison.CurrentCultureIgnoreCase ))) {
+                using (DataTable dt = cp.Db.ExecuteQuery(Properties.Resources.sqlGetNavItemByType.replace("{navTypeId}", ((int)navTypeId).ToString(), System.StringComparison.CurrentCultureIgnoreCase))) {
                     if (dt?.Rows != null) {
                         string categoryNameLast = "";
                         foreach (DataRow dr in dt.Rows) {
@@ -116,10 +230,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 localListCache.Add(new NavItem {
                                     navDivider = true
                                 });
-                                    localListCache.Add(new NavItem {
-                                        navItemName = categoryName.replace(".", " > ", System.StringComparison.InvariantCultureIgnoreCase),
-                                        isCategory = true
-                                    });
+                                localListCache.Add(new NavItem {
+                                    navItemName = categoryName.replace(".", " > ", System.StringComparison.InvariantCultureIgnoreCase),
+                                    isCategory = true
+                                });
                                 categoryNameLast = categoryName;
                             }
                             //
@@ -158,9 +272,61 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <summary>
         /// hardcoded profile nav item in admin site top-right
         /// </summary>
-        public List<NavItem> navProfileList {
+        public NavCategory navProfileCategoryList {
             get {
-                if (_navProfileList !=null) { return _navProfileList; }
+                if (_navProfileCategoryList != null) { return _navProfileCategoryList; }
+                //
+                string cacheKey = cp.Cache.CreateKey($"admin-nav-category-profileList-user{cp.User.Id}");
+                _navProfileCategoryList = cp.Cache.GetObject<NavCategory>(cacheKey);
+                if (_navProfileCategoryList != null) { return _navProfileCategoryList; }
+                //
+                string orgName = DbBaseModel.getRecordName<OrganizationModel>(cp, cp.User.OrganizationID);
+                _navProfileCategoryList = new NavCategory {
+                    navCategoryName = "",
+                    navCategoryItems = new List<NavCategoryItem> {
+                        new NavCategoryItem {
+                            navItemName = cp.User.Name,
+                            navItemHref = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
+                        },
+                        new NavCategoryItem {
+                            navItemName = "Logout",
+                            navItemHref = "?method=logout"
+                        },
+                        new NavCategoryItem {
+                            navItemName = "Impersonate",
+                            navItemHref = "/impersonate"
+                        },
+                        new NavCategoryItem {
+                            navItemName = "Groups",
+                            navItemHref = "?cid=" + cp.Content.GetID("groups")
+                        },
+                        new NavCategoryItem {
+                            navItemName = "Organizations",
+                            navItemHref = "?cid=" + cp.Content.GetID("organizations")
+                        },
+                        new NavCategoryItem {
+                            navItemName = "People",
+                            navItemHref = "?cid=" + cp.Content.GetID("people")
+                        }
+                     }
+                };
+                List<string> cacheKeyList = new List<string> {
+                    cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower)
+                };
+                cp.Cache.Store(cacheKey, _navProfileCategoryList, DateTime.Now, cacheKeyList);
+                return _navProfileCategoryList;
+            }
+        }
+        private NavCategory _navProfileCategoryList = null;
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// hardcoded profile nav item in admin site top-right
+        /// </summary>
+        public List<NavItem> navProfileItemList {
+            get {
+                if (_navProfileList != null) { return _navProfileList; }
                 //
                 string cacheKey = cp.Cache.CreateKey($"admin-nav-profileList-user{cp.User.Id}");
                 _navProfileList = cp.Cache.GetObject<List<NavItem>>(cacheKey);
@@ -209,122 +375,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 return navList;
             }
         }
-        private List<NavItem> _navProfileList=null;
-        ////
-        ////====================================================================================================
-        ////
-        ////
-        //public List<NavItem> navCommList {
-        //    get {
-        //        if (navCommList_local != null) { return navCommList_local; }
-        //        if (cp.User.Id == 0) { return new List<NavItem>(); }
-        //        if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
-        //        //
-        //        // -- read from cache, invidate if an admin click isnt found in recent table
-        //        string cacheKey = cp.Cache.CreateKey("admin-nav-comm-list");
-        //        navCommList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-        //        if (navCommList_local != null) { return navCommList_local; }
-        //        //
-        //        navCommList_local = new List<NavItem> {
-        //            //
-        //            // -- consider selecting with navagator entry content
-        //            //
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Group Email"),
-        //                navItemName = "Group Email"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("System Email"),
-        //                navItemName = "System Email"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Conditional Email"),
-        //                navItemName = "Conditional Email"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Bounce List"),
-        //                navItemName = "Email Bounce List"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Log"),
-        //                navItemName = "Email Log"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Email Templates"),
-        //                navItemName = "Email Templates"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(addonGuidEmailDropReport),
-        //                navItemName = cp.Utils.EncodeText("Email Drop Report")
-        //            },
-        //            //
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Group Text Messages"),
-        //                navItemName = "Group Text Messages"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("System Text Messages"),
-        //                navItemName = "System Text Messages"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Text Message Log"),
-        //                navItemName = "Text Message Log"
-        //            }
-        //        };
-        //        //
-        //        // -- add the addons and content marked
-        //        navCommList_local.AddRange(getNavItemsByType(NavTypeIdEnum.comm, ref _navToolsList));
-        //        //
-        //        // -- alpha sort
-        //        navCommList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
-        //        //
-        //        string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
-        //        cp.Cache.Store(cacheKey, navCommList_local, depKey);
-        //        return navCommList_local;
-        //    }
-        //}
-        //private List<NavItem> navCommList_local;
-        ////
-        //public List<NavItem> navDesignList {
-        //    get {
-        //        if (navDesignList_local != null) { return navDesignList_local; }
-        //        if (cp.User.Id == 0) { return new List<NavItem>(); }
-        //        if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
-        //        //
-        //        // -- read from cache, invidate if an admin click isnt found in recent table
-        //        string cacheKey = cp.Cache.CreateKey("admin-nav-design-list");
-        //        navDesignList_local = cp.Cache.GetObject<List<NavItem>>(cacheKey);
-        //        if (navDesignList_local != null) { return navDesignList_local; }
-        //        navDesignList_local = new List<NavItem> {
-        //            //
-        //            // -- consider selecting with navagator entry content
-        //            //
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Layouts"),
-        //                navItemName = "Layouts"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Menus"),
-        //                navItemName = "Menus"
-        //            },
-        //            new NavItem {
-        //                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + cp.Content.GetID("Page Templates"),
-        //                navItemName = "Templates"
-        //            }
-        //        };
-        //        //
-        //        // -- add the addons and content marked
-        //        navDesignList_local.AddRange(getNavItemsByType(NavTypeIdEnum.design, ref _navToolsList));
-        //        //
-        //        // -- alpha sort
-        //        navDesignList_local.Sort((a, b) => a.navItemName.CompareTo(b.navItemName));
-        //        //
-        //        string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
-        //        cp.Cache.Store(cacheKey, navDesignList_local, depKey);
-        //        return navDesignList_local;
-        //    }
-        //}
-        //private List<NavItem> navDesignList_local;
+        private List<NavItem> _navProfileList = null;
+
         //
         public List<NavItem> navDomainList {
             get {
@@ -533,6 +585,31 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
     }
     //
+    /// <summary>
+    /// admin top-right nav icons construction
+    /// alternative-2
+    /// Create a list of categories that each contain a name and a list of items
+    /// </summary>
+    public class NavCategory {
+        public string navCategoryName { get; set; }
+        public List<NavCategoryItem> navCategoryItems { get; set; }
+    }
+    public class NavCategoryItem {
+        public string navItemHref { get; set; }
+        public string navItemName { get; set; }
+    }
+    //
+    public class NavCategoryList {
+        public string listName { get; set; }
+        public string listIcon { get; set; }
+        public List<NavCategory> listCategoryList { get; set; }
+    }
+    //
+    /// <summary>
+    ///  admin top-right nav icons construction.
+    ///  Alternative-1
+    ///  Create a list of items that might be items and might be category entries
+    /// </summary>
     public class NavItem {
         public string navItemHref { get; set; }
         public string navItemName { get; set; }

@@ -9,19 +9,19 @@
             <!-- public links -->
             <ul class="navbar-nav">
                 <li class="nav-item text-center my-0">
-                  <a class="nav-link dropdown-toggle" href="#" id="navbarCommDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-globe fa-lg m-0 mb-1"></i>
-                    <br><small>Public</small>
-                      </a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarCommDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-globe fa-lg m-0 mb-1"></i>
+                        <br><small>Public</small>
+                    </a>
                     <div class="dropdown-menu dropdown-menu" aria-labelledby="navbarCommDropdown">
-                      {{#navDomainList}}
-                      {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                      {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
-                      {{/navDomainList}}
+                        {{#navDomainList}}
+                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
+                        {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
+                        {{/navDomainList}}
                     </div>
-                
+
                 </li>
-            </ul>      
+            </ul>
             <!-- addon/table search -->
             <form class="form-inline ml-2 my-2 my-lg-0">
                 <input id="cmdSearch" class="form-control" type="search" placeholder="Search">
@@ -29,16 +29,57 @@
             <!-- recent list -->
             {{#hasRecentList}}
             <ul class="ml-2 navbar-nav">
-                <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-expanded="false">Recent</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"> 
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-expanded="false">Recent</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         {{#recentList}}
                         <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
                         {{/recentList}}
                     </div>
                 </li>
-            </ul>    
-            {{/hasRecentList}}        
-
+            </ul>
+            {{/hasRecentList}}
+            <ul class="navbar-nav ml-auto">
+                {{#categoryList}}
+                <li class="nav-item dropdown text-center my-0">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDesignDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                        <i class="{{listIcon}} m-0 mb-1"></i>
+                        <br><small>{{listName}}</small>
+                    </a>
+                    <div class="d-md-flex align-items-start justify-content-start">
+                        {{#listCategoryList}}
+                        <div>
+                            {{#navCategoryName}}<div class="dropdown-header">{{navCategoryName}}</div>{{/navCategoryName}}
+                            {{#navCategoryItems}}
+                            <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
+                            {{/navCategoryItems}}
+                        </div>
+                        {{/listCategoryList}}
+                    </div>
+                </li>
+                {{/categoryList}}
+            </ul>
+            <!--
+            <ul class="navbar-nav ml-auto">
+                {{#categoryList}}
+                <li class="nav-item dropdown text-center my-0">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDesignDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                        <i class="{{listIcon}} m-0 mb-1"></i>
+                        <br><small>{{listName}}</small>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDesignDropdown">
+                        {{#listCategoryList}}
+                        {{#navCategoryName}}<div class="dropdown-header">{{navCategoryName}}</div>{{/navCategoryName}}
+                        {{#navCategoryItems}}
+                        <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
+                        {{/navCategoryItems}}
+                        {{/listCategoryList}}
+                    </div>
+                </li>
+                {{/categoryList}}
+            </ul>
+            -->
+            <!--
             <ul class="navbar-nav ml-auto">
                 {{#navList}}
                 <li class="nav-item dropdown text-center my-0">
@@ -48,18 +89,19 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDesignDropdown">
                         {{#listItemList}}
-                            {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                            {{^navDivider}}
-                                {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
-                                {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}                        
-                            {{/navDivider}}
+                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
+                        {{^navDivider}}
+                        {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
+                        {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}
+                        {{/navDivider}}
                         {{/listItemList}}
                     </div>
-              	</li>
-                {{/navList}}                
+                </li>
+                {{/navList}}
             </ul>
+            -->
         </div>
-    </nav> 
+    </nav>
     <table border="0" cellpadding="0" cellspacing="0">
         <tr>
             <td class="ccToolsCon" valign="top">{{{adminNav}}}</td>
@@ -68,20 +110,19 @@
     </table>
 </div>
 <style>
-@media (min-width: 768px) {
-.navbar-brand.abs
-    {
-        position: absolute;
-        width: auto;
-        left: 50%;
-        transform: translateX(-50%);
-        text-align: center;
+    @media (min-width: 768px) {
+        .navbar-brand.abs {
+            position: absolute;
+            width: auto;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+        }
     }
-}
-div.dropdown-header 
-{    
-    font-weight: 700;
-    font-size: 1rem;
-    text-transform: uppercase;
-}
+
+    div.dropdown-header {
+        font-weight: 700;
+        font-size: 1rem;
+        text-transform: uppercase;
+    }
 </style>

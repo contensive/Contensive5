@@ -116,7 +116,7 @@ namespace Contensive.Processor {
                                         userMessageList.Add("The layout selected could not be found.");
                                         return false;
                                     }
-                                    if (cp.Site.GetInteger("html platform version") == 5) {
+                                    if (layoutFrameworkId == 5) {
                                         layout.layoutPlatform5.content = htmlDoc.DocumentNode.OuterHtml;
                                     } else {
                                         layout.layout.content = htmlDoc.DocumentNode.OuterHtml;
