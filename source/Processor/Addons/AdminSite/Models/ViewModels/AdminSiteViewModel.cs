@@ -54,6 +54,16 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 _categoryList = new() {
                     new NavCategoryList {
+                        listName = "Content",
+                        listIcon = "fas fa-edit fa-lg",
+                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.content)
+                    },
+                    new NavCategoryList {
+                        listName = "System",
+                        listIcon = "fas fa-desktop fa-lg",
+                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.system)
+                    },
+                    new NavCategoryList {
                         listName = "Design",
                         listIcon = "fas fa-paint-brush fa-lg",
                         listCategoryList = getNavCategoriesByType(NavTypeIdEnum.design)

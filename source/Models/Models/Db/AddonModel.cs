@@ -259,7 +259,9 @@ namespace Contensive.Models.Db {
         setting = 3,
         tool=4,
         comm=5,
-        design=6
+        design=6,
+        content=7,
+        system=8
     }
     //
     /// <summary>

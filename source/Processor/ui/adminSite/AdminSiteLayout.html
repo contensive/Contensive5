@@ -42,64 +42,26 @@
             <ul class="navbar-nav ml-auto">
                 {{#categoryList}}
                 <li class="nav-item dropdown text-center my-0">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDesignDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-{{listName}}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="{{listIcon}} m-0 mb-1"></i>
                         <br><small>{{listName}}</small>
                     </a>
-                    <div class="d-md-flex align-items-start justify-content-start">
-                        {{#listCategoryList}}
-                        <div>
-                            {{#navCategoryName}}<div class="dropdown-header">{{navCategoryName}}</div>{{/navCategoryName}}
-                            {{#navCategoryItems}}
-                            <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
-                            {{/navCategoryItems}}
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown-{{listName}}"">
+                        <div class="d-md-flex align-items-start justify-content-start">
+                            {{#listCategoryList}}
+                            <div class="">
+                                {{#navCategoryName}}
+                                <div class="dropdown-header">{{navCategoryName}}</div>
+                                {{/navCategoryName}}{{#navCategoryItems}}
+                                <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
+                                {{/navCategoryItems}}
+                            </div>
+                            {{/listCategoryList}}
                         </div>
-                        {{/listCategoryList}}
                     </div>
                 </li>
                 {{/categoryList}}
             </ul>
-            <!--
-            <ul class="navbar-nav ml-auto">
-                {{#categoryList}}
-                <li class="nav-item dropdown text-center my-0">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDesignDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
-                        <i class="{{listIcon}} m-0 mb-1"></i>
-                        <br><small>{{listName}}</small>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDesignDropdown">
-                        {{#listCategoryList}}
-                        {{#navCategoryName}}<div class="dropdown-header">{{navCategoryName}}</div>{{/navCategoryName}}
-                        {{#navCategoryItems}}
-                        <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
-                        {{/navCategoryItems}}
-                        {{/listCategoryList}}
-                    </div>
-                </li>
-                {{/categoryList}}
-            </ul>
-            -->
-            <!--
-            <ul class="navbar-nav ml-auto">
-                {{#navList}}
-                <li class="nav-item dropdown text-center my-0">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDesignDropdown" role="button" data-toggle="dropdown" aria-expanded="false">
-                        <i class="{{listIcon}} m-0 mb-1"></i>
-                        <br><small>{{listName}}</small>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDesignDropdown">
-                        {{#listItemList}}
-                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                        {{^navDivider}}
-                        {{#isCategory}}<div class="dropdown-header">{{navItemName}}</div>{{/isCategory}}
-                        {{^isCategory}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/isCategory}}
-                        {{/navDivider}}
-                        {{/listItemList}}
-                    </div>
-                </li>
-                {{/navList}}
-            </ul>
-            -->
         </div>
     </nav>
     <table border="0" cellpadding="0" cellspacing="0">
