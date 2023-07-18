@@ -979,11 +979,11 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                 if (editRecord.allowAdminFieldCheck(core) && (FormFieldLcListToBeLoaded.Count == 0)) {
                     //
                     // The field list was not returned
-                    Processor.Controllers.ErrorController.addUserError(core, "There has been an error reading the response from your browser. Please try your change again. If this error occurs again, please report this problem To your site administrator. The Error Is [no field list].");
+                    Processor.Controllers.ErrorController.addUserError(core, "There has been an error reading the response from your browser. Please try your change again. If this error occurs again, please report this problem To your site administrator. The error is [no field list].");
                 } else if (editRecord.allowAdminFieldCheck(core) && (FormEmptyFieldLcList.Count == 0)) {
                     //
                     // The field list was not returned
-                    Processor.Controllers.ErrorController.addUserError(core, "There has been an error reading the response from your browser. Please try your change again. If this error occurs again, please report this problem To your site administrator. The Error Is [no empty field list].");
+                    Processor.Controllers.ErrorController.addUserError(core, "There has been an error reading the response from your browser. Please try your change again. If this error occurs again, please report this problem To your site administrator. The error is [no empty field list].");
                 } else {
                     //
                     // fixup the string so it can be reduced by each field found, leaving and empty string if all correct
@@ -1085,7 +1085,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                         InResponse = core.docProperties.containsKey(field.nameLc);
                         if (editRecord.allowAdminFieldCheck(core)) {
                             if ((!InResponse) && (!InEmptyFieldList)) {
-                                Processor.Controllers.ErrorController.addUserError(core, "There has been an error reading the response from your browser. Please try your change again. If this error occurs again, please report this problem To your site administrator. The Error Is [" + field.nameLc + " not found].");
+                                Processor.Controllers.ErrorController.addUserError(core, "There has been an error reading the response from your browser. Please try your change again. If this error occurs again, please report this problem To your site administrator. The error is [" + field.nameLc + " not found].");
                                 return;
                             }
                         }

@@ -177,7 +177,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         NavCategory category = null;
                         foreach (DataRow dr in dt.Rows) {
                             string categoryName = cp.Utils.EncodeText(dr["categoryName"]);
-                            categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName.replace(".", " > ", System.StringComparison.InvariantCultureIgnoreCase);
+                            categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName.replace(".", "-", System.StringComparison.InvariantCultureIgnoreCase);
                             if (result.Count == 0 || categoryName != categoryNameLast) {
                                 //
                                 // -- new category
@@ -208,6 +208,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 navItemHref = navItemHref,
                                 navItemName = entryName
                             });
+                        }
+                    }
+                }
+                //
+                // -- if there are mulitple columns, and one has a blank categoryname, change the name to General
+                if (result.Count > 1) {
+                    for (var i = 0; i < result.Count; i++) {
+                        var item = result[i];
+                        if (string.IsNullOrEmpty(item.navCategoryName)) {
+                            item.navCategoryName = "General";
+                            break;
                         }
                     }
                 }
