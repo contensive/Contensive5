@@ -162,7 +162,7 @@ namespace Contensive.Processor.Controllers {
                                     // -- navtypeid, a mirror of addon-category
                                     string defaultNavTypeText = "";
                                     string navTypeText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "NavTypeId", defaultNavTypeText);
-                                    if (Enum.TryParse<NavTypeIdEnum>(navTypeText, true, out NavTypeIdEnum navType)) {
+                                    if (Enum.TryParse(navTypeText.ToLowerInvariant(), true, out NavTypeIdEnum navType)) {
                                         targetMetaData.navTypeID = (int)navType;
                                     }
                                     //

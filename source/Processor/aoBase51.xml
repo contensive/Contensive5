@@ -34,7 +34,7 @@
     </Field>
   </CDef>
   <CDef Name="Content" navtypeid="system" addoncategoryid="" ActiveOnly="1" AdminOnly="1" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccContent" ContentDataSourceName="DEFAULT" ContentTableName="ccContent" DefaultSortMethod="By Name" DeveloperOnly="1" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites=""  guid="{2013A05A-3995-4125-B8DF-9651B8F93D3E}">
-    <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="1" IndexSortOrder="0" IndexWidth="30" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="1" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+    <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="1" IndexSortOrder="0" IndexWidth="30" LookupContent="" NotEditable="1" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="1" TextBuffered="0" UniqueName="1" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
     <Field Name="ContentTableID" active="1" AdminOnly="0" Authorable="1" Caption="Table" DeveloperOnly="0" EditSortPriority="1000" FieldType="Lookup" HTMLContent="0" IndexColumn="1" IndexSortDirection="0" IndexSortOrder="1" IndexWidth="30" LookupContent="Tables" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
@@ -527,7 +527,7 @@
       <HelpDefault>The addon collection that installed this record.</HelpDefault>
     </Field>
   </CDef>
-  <CDef Name="Site Properties" NavTypeID="Setting" AddonCategoryId="Advanced"  ActiveOnly="1" AdminOnly="1" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccSetup" ContentDataSourceName="DEFAULT" ContentTableName="ccSetup" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{134FAE4D-8AF5-466B-8963-F1BBF8D61311}">
+  <CDef Name="Site Properties" NavTypeID="Settings" AddonCategoryId="Advanced"  ActiveOnly="1" AdminOnly="1" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccSetup" ContentDataSourceName="DEFAULT" ContentTableName="ccSetup" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{134FAE4D-8AF5-466B-8963-F1BBF8D61311}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="1" IndexSortOrder="1" IndexWidth="30" LookupContent="" NotEditable="1" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -1703,7 +1703,7 @@
       <HelpDefault><![CDATA[If included, this text will appear as a normal paragraph after linked headline.]]></HelpDefault>
     </Field>
   </CDef>
-  <CDef Name="States" NavTypeID="Setting" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccStates" ContentDataSourceName="DEFAULT" ContentTableName="ccStates" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{C59B45E7-901F-45B0-B659-2ABFBC7911C6}">
+  <CDef Name="States" NavTypeID="Settings" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccStates" ContentDataSourceName="DEFAULT" ContentTableName="ccStates" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{C59B45E7-901F-45B0-B659-2ABFBC7911C6}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="20" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="1" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -1720,7 +1720,7 @@
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
   </CDef>
-  <CDef Name="Countries" NavTypeID="Setting" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccCountries" ContentDataSourceName="DEFAULT" ContentTableName="ccCountries" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{8C045DB2-DFFD-43B4-824B-9FBD88E74FDB}">
+  <CDef Name="Countries" NavTypeID="Settings" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccCountries" ContentDataSourceName="DEFAULT" ContentTableName="ccCountries" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{8C045DB2-DFFD-43B4-824B-9FBD88E74FDB}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="40" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[The name of the country.]]></HelpDefault>
     </Field>
@@ -1790,7 +1790,7 @@
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
   </CDef>
-  <CDef Name="Properties" NavTypeID="Setting" addoncategoryid="Advanced" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccProperties" ContentDataSourceName="DEFAULT" ContentTableName="ccProperties" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{13AB6A04-D2E0-41F9-BABA-ED7D8FF1299F}">
+  <CDef Name="Properties" NavTypeID="Settings" addoncategoryid="Advanced" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccProperties" ContentDataSourceName="DEFAULT" ContentTableName="ccProperties" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{13AB6A04-D2E0-41F9-BABA-ED7D8FF1299F}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="40" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[The name of this property.]]></HelpDefault>
     </Field>
@@ -2308,7 +2308,7 @@
     <Field Name="MemberID" active="1" AdminOnly="0" Authorable="1" Caption="Person" DeveloperOnly="0" EditSortPriority="1030" FieldType="Lookup" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="People" NotEditable="0" Password="0" ReadOnly="1" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroupID="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" />
     <Field Name="fromUrl" active="1" AdminOnly="0" Authorable="1" Caption="From Url" DeveloperOnly="0" EditSortPriority="1040" FieldType="Text" HTMLContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroupID="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" />
   </CDef>
-  <CDef Name="Link Forwards" NavTypeID="Setting" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccLinkForwards" ContentDataSourceName="DEFAULT" ContentTableName="ccLinkForwards" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{8AB870AF-F707-46FD-98C2-E1FCA050F44A}">
+  <CDef Name="Link Forwards" NavTypeID="Settings" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccLinkForwards" ContentDataSourceName="DEFAULT" ContentTableName="ccLinkForwards" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{8AB870AF-F707-46FD-98C2-E1FCA050F44A}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="40" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="true" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -2325,7 +2325,7 @@
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
   </CDef>
-  <CDef Name="Link Aliases" NavTypeID="Setting" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccLinkAliases" ContentDataSourceName="DEFAULT" ContentTableName="ccLinkAliases" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{F2236BCF-B87F-4BAD-97D3-3C49F59F5125}">
+  <CDef Name="Link Aliases" NavTypeID="Settings" addoncategoryid="" ActiveOnly="1" AdminOnly="0" AliasID="ID" AliasName="NAME" AllowAdd="1"  AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccLinkAliases" ContentDataSourceName="DEFAULT" ContentTableName="ccLinkAliases" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" guid="{F2236BCF-B87F-4BAD-97D3-3C49F59F5125}">
     <Field Name="Name" active="1" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="1000" FieldType="Text" HTMLContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="30" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectID="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="true" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -3053,14 +3053,14 @@
 		<Admin>Yes</Admin>
 	</Addon>
   <!-- returns an object with default personlization -->
-  <Addon name="Personalization Default" guid="{FF864BEF-8021-4742-AFF0-4AB7D3CB4E9A}" type="Add-on">
+  <Addon name="Personalization Default" guid="{FF864BEF-8021-4742-AFF0-4AB7D3CB4E9A}" type="Widget">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PersonalizeDefaultAddon]]></DotNetClass>
   </Addon>
-	<Addon name="People Email Block Editor" guid="{a0c2cde5-074e-4124-a0e6-58d540c08ce6}" type="Add-on">
+	<Addon name="People Email Block Editor" guid="{a0c2cde5-074e-4124-a0e6-58d540c08ce6}" type="Widget">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.PeopleEmailBlockEditor]]></DotNetClass>
 		<ProcessInterval></ProcessInterval>
 	</Addon>
-	<Addon name="AWS SES Email Bounce Process" guid="{279DEE1C-1FC9-46E9-99C3-A6CA05954352}" type="Add-on">
+	<Addon name="AWS SES Email Bounce Process" guid="{279DEE1C-1FC9-46E9-99C3-A6CA05954352}" type="Task">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.AwsSesProcessClass]]></DotNetClass>
 		<ProcessInterval>60</ProcessInterval>
 	</Addon>
@@ -3082,19 +3082,19 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.HouseKeepingControlClass]]></DotNetClass>
     <Admin>Yes</Admin>
   </Addon>
-  <Addon name="Text Message Process Task" guid="{62F33A3B-A958-4EB6-942E-ACBA5FC2C914}" type="Add-on">
+  <Addon name="Text Message Process Task" guid="{62F33A3B-A958-4EB6-942E-ACBA5FC2C914}" type="Task">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.TextMessage.TextMessageProcessTask]]></DotNetClass>
     <ProcessInterval>1</ProcessInterval>
   </Addon>
-  <Addon name="Text Message Send Task" guid="{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}" type="Add-on">
+  <Addon name="Text Message Send Task" guid="{23599EF9-7908-4F0C-85E2-BB1C4D920EB3}" type="Task">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.TextMessage.TextMessageSendTask]]></DotNetClass>
     <ProcessInterval></ProcessInterval>
   </Addon>
-  <Addon name="Email process Task" guid="{E6E82D55-003F-4ED0-B183-5F9D756582FE}" type="Add-on">
+  <Addon name="Email process Task" guid="{E6E82D55-003F-4ED0-B183-5F9D756582FE}" type="Task">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailProcessTask]]></DotNetClass>
     <ProcessInterval>15</ProcessInterval>
   </Addon>
-  <Addon name="Email Send Task" guid="{E6C14E81-EFC9-4BC0-ADB2-BDFF043A0800}" type="Add-on">
+  <Addon name="Email Send Task" guid="{E6C14E81-EFC9-4BC0-ADB2-BDFF043A0800}" type="Task">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailSendTask]]></DotNetClass>
     <ProcessInterval></ProcessInterval>
   </Addon>
@@ -3129,7 +3129,7 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.setAdminSiteFieldHelpClass]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
   </Addon>
-  <Addon name="Child Page List" guid="{D291F133-AB50-4640-9A9A-18DB68FF363B}" type="Add-on">
+  <Addon name="Child Page List" guid="{D291F133-AB50-4640-9A9A-18DB68FF363B}" type="Widget">
     <Category>Extras.Navigation</Category>
     <Admin>No</Admin>
     <Content>Yes</Content>
@@ -3225,7 +3225,7 @@ $(function () {
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.PageManagerClass]]></DotNetClass>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
     <htmlDocument>Yes</htmlDocument>
-	  <ActiveXProgramID></ActiveXProgramID>
+	  
   </Addon>
   <Addon name="savePageManagerChildListSort" guid="{8429641A-03C9-4CD1-9369-5B9F2FA509E9}" type="Add-on">
     <Category></Category>
@@ -3235,10 +3235,9 @@ $(function () {
     <Email>No</Email>
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.saveChildPageListDraggableClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.saveChildPageListDraggableClass]]></DotNetClass>	
   </Addon>
-  <Addon name="Login Page" guid="{288a7ee1-9d93-4058-bcd9-c9cd29d25ec8}" type="Add-on">
+  <Addon name="Login Page" guid="{288a7ee1-9d93-4058-bcd9-c9cd29d25ec8}" type="Widget">
     <Category></Category>
     <Admin>No</Admin>
     <Content>No</Content>
@@ -3248,10 +3247,9 @@ $(function () {
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Login.getLoginPageClass]]></DotNetClass>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
-    <IncludeAddon name="Bootstrap" guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
-	<ActiveXProgramID></ActiveXProgramID>
+    <IncludeAddon name="Bootstrap" guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>	
   </Addon>
-  <Addon name="Login Form" guid="{E23C5941-19C2-4164-BCFD-83D6DD42F651}" type="Add-on">
+  <Addon name="Login Form" guid="{E23C5941-19C2-4164-BCFD-83D6DD42F651}" type="Widget">
     <Category></Category>
     <Admin>No</Admin>
     <Content>No</Content>
@@ -3262,10 +3260,9 @@ $(function () {
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Login.getLoginFormClass]]></DotNetClass>
     <ArgumentList>Force Default Login=false</ArgumentList>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
-    <IncludeAddon name="Bootstrap" guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
-	<ActiveXProgramID></ActiveXProgramID>
+    <IncludeAddon name="Bootstrap" guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>	
   </Addon>
-  <Addon name="Login Button Form" guid="{04aeaacb-4322-4ad2-9817-17439681f8ee}" type="Add-on">
+  <Addon name="Login Button Form" guid="{04aeaacb-4322-4ad2-9817-17439681f8ee}" type="Widget">
     <Category>Applications.Basic Forms</Category>
     <Admin>No</Admin>
     <Content>Yes</Content>
@@ -3274,8 +3271,7 @@ $(function () {
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Login.GetLoginButtonFormClass]]></DotNetClass>
-    <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
-	<ActiveXProgramID></ActiveXProgramID>
+    <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>	
   </Addon>
   <Addon name="Authenticate" guid="{C560E9CB-24F3-4746-8C08-C960554D4F0F}" type="Add-on">
     <Category></Category>
@@ -3285,8 +3281,7 @@ $(function () {
     <Email>No</Email>
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.AuthenticateClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.AuthenticateClass]]></DotNetClass>	
   </Addon>
   <Addon name="Housekeep" guid="{7208D069-8FE3-4BD1-AB76-B25C40C89A45}" type="Add-on">
     <Category></Category>
@@ -3297,8 +3292,7 @@ $(function () {
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Housekeeping.HousekeepTask]]></DotNetClass>
-    <ProcessInterval>60</ProcessInterval>
-	<ActiveXProgramID></ActiveXProgramID>
+    <ProcessInterval>60</ProcessInterval>	
   </Addon>
   <Addon name="Export SQL To Csv" guid="{5C25F35D-A2A8-4791-B510-B1FFE0645004}" type="Add-on">
     <Category></Category>
@@ -3308,8 +3302,7 @@ $(function () {
     <Email>No</Email>
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.ExportSql.exportCsvClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.ExportSql.exportCsvClass]]></DotNetClass>	
   </Addon>
   <Addon name="Export SQL To Xml" guid="{DC7EF1EE-20EE-4468-BEB1-0DC30AC8DAD6}" type="Add-on">
     <Category></Category>
@@ -3319,8 +3312,7 @@ $(function () {
     <Email>No</Email>
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.ExportSql.exportXmlClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.ExportSql.exportXmlClass]]></DotNetClass>	
   </Addon>
   <Addon name="robots.txt" guid="{717B61FD-4E51-46EC-A95A-1575D1D74963}" type="Add-on">
     <Category></Category>
@@ -3331,8 +3323,7 @@ $(function () {
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.RobotsTxt.RobotsTxtClass]]></DotNetClass>
-    <BlockEditTools>Yes</BlockEditTools>
-	<ActiveXProgramID></ActiveXProgramID>
+    <BlockEditTools>Yes</BlockEditTools>	
   </Addon>
   <Addon name="favicon Meta Tag Template Dependency" guid="{37FA12EE-89C8-4D42-A05D-1C4CA6B0EC2C}" type="Add-on">
     <Category></Category>
@@ -3342,8 +3333,7 @@ $(function () {
     <Email>No</Email>
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.FaviconIco.FaviconIcoClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.FaviconIco.FaviconIcoClass]]></DotNetClass>	
   </Addon>
   <Addon name="downloadLibraryFile" guid="{C95A019A-70FD-4B03-9080-7106B27ED2D7}" type="Add-on">
     <Category></Category>
@@ -3353,8 +3343,7 @@ $(function () {
     <Email>No</Email>
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.DownloadClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.DownloadClass]]></DotNetClass>	
   </Addon>
   <Addon name="Status" guid="{6444B5C9-36DD-43FF-978C-26650EB2333F}" type="Add-on">
     <Category></Category>
@@ -3365,8 +3354,7 @@ $(function () {
     <RemoteMethod>Yes</RemoteMethod>
     <IsInline>Yes</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass>Contensive.Processor.Addons.Diagnostics.StatusClass</DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass>Contensive.Processor.Addons.Diagnostics.StatusClass</DotNetClass>	
   </Addon>
   <Addon name="AuthStatus" guid="{AF37902B-BCC2-45E4-AF36-E322346731BD}" type="Add-on">
     <Category></Category>
@@ -3377,8 +3365,7 @@ $(function () {
     <RemoteMethod>Yes</RemoteMethod>
     <IsInline>Yes</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass>Contensive.Processor.Addons.Diagnostics.AuthStatusClass</DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass>Contensive.Processor.Addons.Diagnostics.AuthStatusClass</DotNetClass>	
   </Addon>
   <Addon name="Server Diagnostic" guid="{58239C18-1B40-4401-9E6F-25E057327393}" type="Add-on">
     <Category></Category>
@@ -3390,8 +3377,7 @@ $(function () {
     <IsInline>No</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>Yes</Diagnostic>
-    <DotNetClass>Contensive.Processor.Addons.Diagnostics.ServerDiagnosticClass</DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass>Contensive.Processor.Addons.Diagnostics.ServerDiagnosticClass</DotNetClass>	
   </Addon>
   <Addon name="OnInstallBase" guid="{86739518-9D46-470F-8C76-195D1A19CEDD}" type="Add-on">
     <Category></Category>
@@ -3403,8 +3389,7 @@ $(function () {
     <IsInline>No</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
-    <DotNetClass>Contensive.Processor.Addons.Base.OnInstallClass</DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass>Contensive.Processor.Addons.Base.OnInstallClass</DotNetClass>	
   </Addon>
   <Addon name="NewApp" guid="{DFE6FD4B-B361-4F9C-BA52-18F6DCFABF56}" type="Add-on">
     <Category></Category>
@@ -3416,10 +3401,9 @@ $(function () {
     <IsInline>No</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
-    <DotNetClass>Contensive.Processor.Addons.NewApp.NewAppClass</DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass>Contensive.Processor.Addons.NewApp.NewAppClass</DotNetClass>	
   </Addon>
-  <Addon name="See Also" guid="{C4198871-A848-4B0F-95D4-ADDE08A5620D}" type="Add-on">
+  <Addon name="See Also" guid="{C4198871-A848-4B0F-95D4-ADDE08A5620D}" type="Widget">
     <Category>Extras.Navigation</Category>
     <Admin>No</Admin>
     <Content>Yes</Content>
@@ -3429,10 +3413,9 @@ $(function () {
     <IsInline>No</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.SeeAlsoClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.SeeAlsoClass]]></DotNetClass>	
   </Addon>
-  <Addon name="Whats Related" guid="{42B8FE19-051B-4E83-8F9A-6BE01AB9A650}" type="Add-on">
+  <Addon name="Whats Related" guid="{42B8FE19-051B-4E83-8F9A-6BE01AB9A650}" type="Widget">
     <Category>Extras.Navigation</Category>
     <Admin>No</Admin>
     <Content>Yes</Content>
@@ -3442,10 +3425,9 @@ $(function () {
     <IsInline>No</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.WhatsRelatedClass]]></DotNetClass>
-	<ActiveXProgramID></ActiveXProgramID>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.WhatsRelatedClass]]></DotNetClass>	
   </Addon>
-  <Addon name="Content Box" guid="{E341695F-C444-4E10-9295-9BEEC41874D8}" type="Add-on">
+  <Addon name="Content Box" guid="{E341695F-C444-4E10-9295-9BEEC41874D8}" type="Widget">
     <Category>Content.Content Box</Category>
     <Admin>No</Admin>
     <Content>No</Content>
@@ -3455,8 +3437,19 @@ $(function () {
     <IsInline>No</IsInline>
     <BlockEditTools>Yes</BlockEditTools>
     <Diagnostic>No</Diagnostic>
-    <CopyText><![CDATA[<AC type="Content" Name="Content" QueryString=""> ]]></CopyText>
-	<ActiveXProgramID></ActiveXProgramID>
+    <CopyText><![CDATA[<AC type="Content" Name="Content" QueryString=""> ]]></CopyText>	
+  </Addon>
+  <Addon name="Update Db from Metadata" guid="{AD53578B-ED10-4410-BE9C-860DB1A7337C}" type="System">
+    <Category></Category>
+    <Admin>yes</Admin>
+    <Content>No</Content>
+    <Template>no</Template>
+    <Email>no</Email>
+    <RemoteMethod>No</RemoteMethod>
+    <IsInline>No</IsInline>
+    <BlockEditTools>Yes</BlockEditTools>
+    <Diagnostic>No</Diagnostic>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.SyncTablesClass]]></DotNetClass>	
   </Addon>
 
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID"  />

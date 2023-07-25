@@ -385,6 +385,12 @@ namespace Contensive.Processor.Controllers {
                         // -- default content populated 
                         core.db.executeNonQuery("update ccPageContent set customblockmessage=null where customblockmessage like '%<%'");
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "23.7.21.1")) {
+                        //
+                        // -- remove all addons with active-x components
+                        core.db.executeNonQuery("delete from ccaggregatefunctions where (objectprogramid is not null)or(objectprogramid='')");
+                        core.db.executeNonQuery($"delete from ccfields where name='objectprogramid' and contentcontrolid={cp.Content.GetID("Content fields")}");
+                    }
                 }
                 // -- Reload
                 core.cache.invalidateAll();
