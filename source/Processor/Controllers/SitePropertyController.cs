@@ -32,7 +32,7 @@ namespace Contensive.Processor.Controllers {
         public bool allowPageSettingsEdit {
             get {
                 if (_allowPageSettingsEdit != null) { return (bool)_allowPageSettingsEdit; }
-                _allowPageSettingsEdit = getBoolean("allow page settings edit", true);
+                _allowPageSettingsEdit = getBoolean("allow page settings edit", false);
                 return (bool)_allowPageSettingsEdit;
             }
         }

@@ -43,16 +43,25 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         public List<NavCategoryList> categoryList {
             get {
-                if (_categoryList != null) { return _categoryList; }
+                if (_categoryList != null) { return _categoryList;  }
                 if (cp.User.Id == 0) { return new List<NavCategoryList>(); }
                 if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavCategoryList>(); }
                 //
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey($"admin-categoryList");
-                _categoryList = cp.Cache.GetObject<List<NavCategoryList>>(cacheKey);
-                if (_categoryList != null) { return _categoryList; }
+                var cacheData = cp.Cache.GetObject<List<NavCategoryList>>(cacheKey);
+                if (cacheData != null) {
+                    _categoryList = new();
+                    _categoryList.AddRange(cacheData);
+                    _categoryList.Add(new NavCategoryList {
+                        listName = "User",
+                        listIcon = "fas fa-user fa-lg",
+                        listCategoryList = new List<NavCategory>() { navProfileCategoryList }
+                    });
+                    return _categoryList; 
+                }
                 //
-                _categoryList = new() {
+                cacheData = new() {
                     new NavCategoryList {
                         listName = "Content",
                         listIcon = "fas fa-edit fa-lg",
@@ -87,78 +96,87 @@ namespace Contensive.Processor.Addons.AdminSite {
                         listName = "Settings",
                         listIcon = "fas fa-cog fa-lg",
                         listCategoryList = getNavCategoriesByType(NavTypeIdEnum.setting)
-                    },
-                    new NavCategoryList {
-                        listName = "User",
-                        listIcon = "fas fa-user fa-lg",
-                        listCategoryList = new List<NavCategory>() { navProfileCategoryList }
                     }
                 };
-
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
-                cp.Cache.Store(cacheKey, _categoryList, depKey);
+                cp.Cache.Store(cacheKey, cacheData, depKey);
+                //
+                _categoryList = new();
+                _categoryList.AddRange(cacheData);
+                _categoryList.Add(new NavCategoryList {
+                    listName = "User",
+                    listIcon = "fas fa-user fa-lg",
+                    listCategoryList = new List<NavCategory>() { navProfileCategoryList }
+                });
                 return _categoryList;
             }
         }
         private List<NavCategoryList> _categoryList = null;
-        //
-        //====================================================================================================
-        //
-        /// <summary>
-        /// create the hardcoded list of 6 icons that appear at the top-right of the admin page
-        /// </summary>
-        public List<NavItemList> navList {
-            get {
-                if (_navList != null) { return _navList; }
-                if (cp.User.Id == 0) { return new List<NavItemList>(); }
-                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItemList>(); }
-                //
-                // -- read from cache, invidate if an admin click isnt found in recent table
-                string cacheKey = cp.Cache.CreateKey($"admin-navlist");
-                _navList = cp.Cache.GetObject<List<NavItemList>>(cacheKey);
-                if (_navList != null) { return _navList; }
-                //
-                _navList = new() {
-                    new NavItemList {
-                        listName = "Design",
-                        listIcon = "fas fa-paint-brush fa-lg",
-                        listItemList = getNavItemsByType(NavTypeIdEnum.design)
-                    },
-                    new NavItemList {
-                        listName = "Comm",
-                        listIcon = "fas fa-comment-alt fa-lg",
-                        listItemList = getNavItemsByType(NavTypeIdEnum.comm)
-                    },
-                    new NavItemList {
-                        listName = "Reports",
-                        listIcon = "fas fa-chart-pie fa-lg",
-                        listItemList = getNavItemsByType(NavTypeIdEnum.report)
-                    },
-                    new NavItemList {
-                        listName = "Tools",
-                        listIcon = "fas fa-wrench fa-lg",
-                        listItemList = getNavItemsByType(NavTypeIdEnum.tool)
-                    },
-                    new NavItemList {
-                        listName = "Settings",
-                        listIcon = "fas fa-cog fa-lg",
-                        listItemList = getNavItemsByType(NavTypeIdEnum.setting)
-                    },
-                    new NavItemList {
-                        listName = "User",
-                        listIcon = "fas fa-user fa-lg",
-                        listItemList = navProfileItemList
-                    }
-                };
+        ////
+        ////====================================================================================================
+        ////
+        ///// <summary>
+        ///// create the hardcoded list of 6 icons that appear at the top-right of the admin page
+        ///// </summary>
+        //public List<NavItemList> navList {
+        //    get {
+        //        if (_navList != null) {
+        //            _navList.Add(new NavItemList {
+        //                listName = "User",
+        //                listIcon = "fas fa-user fa-lg",
+        //                listItemList = navProfileItemList
+        //            });
+        //            return _navList; 
+        //        }
+        //        if (cp.User.Id == 0) { return new List<NavItemList>(); }
+        //        if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItemList>(); }
+        //        //
+        //        // -- read from cache, invidate if an admin click isnt found in recent table
+        //        string cacheKey = cp.Cache.CreateKey($"admin-navlist");
+        //        _navList = cp.Cache.GetObject<List<NavItemList>>(cacheKey);
+        //        if (_navList != null) { return _navList; }
+        //        //
+        //        _navList = new() {
+        //            new NavItemList {
+        //                listName = "Design",
+        //                listIcon = "fas fa-paint-brush fa-lg",
+        //                listItemList = getNavItemsByType(NavTypeIdEnum.design)
+        //            },
+        //            new NavItemList {
+        //                listName = "Comm",
+        //                listIcon = "fas fa-comment-alt fa-lg",
+        //                listItemList = getNavItemsByType(NavTypeIdEnum.comm)
+        //            },
+        //            new NavItemList {
+        //                listName = "Reports",
+        //                listIcon = "fas fa-chart-pie fa-lg",
+        //                listItemList = getNavItemsByType(NavTypeIdEnum.report)
+        //            },
+        //            new NavItemList {
+        //                listName = "Tools",
+        //                listIcon = "fas fa-wrench fa-lg",
+        //                listItemList = getNavItemsByType(NavTypeIdEnum.tool)
+        //            },
+        //            new NavItemList {
+        //                listName = "Settings",
+        //                listIcon = "fas fa-cog fa-lg",
+        //                listItemList = getNavItemsByType(NavTypeIdEnum.setting)
+        //            }                    
+        //        };
 
-                //
-                string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
-                cp.Cache.Store(cacheKey, _navList, depKey);
-                return _navList;
-            }
-        }
-        private List<NavItemList> _navList = null;
+        //        //
+        //        string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
+        //        cp.Cache.Store(cacheKey, _navList, depKey);
+        //        _navList.Add(new NavItemList {
+        //            listName = "User",
+        //            listIcon = "fas fa-user fa-lg",
+        //            listItemList = navProfileItemList
+        //        });
+        //        return _navList;
+        //    }
+        //}
+        //private List<NavItemList> _navList = null;
         //
         //====================================================================================================
         //

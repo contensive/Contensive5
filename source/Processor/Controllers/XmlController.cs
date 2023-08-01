@@ -686,7 +686,6 @@ namespace Contensive.Processor.Controllers {
                     do {
                         sb.Append("<Addon Name=\"" + GetRSXMLAttribute(rs, "Name") + "\"");
                         sb.Append(" Link=\"" + GetRSXMLAttribute(rs, "Link") + "\"");
-                        sb.Append(" ObjectProgramID=\"" + GetRSXMLAttribute(rs, "ObjectProgramID") + "\"");
                         sb.Append(" ArgumentList=\"" + GetRSXMLAttribute(rs, "ArgumentList") + "\"");
                         sb.Append(" SortOrder=\"" + GetRSXMLAttribute(rs, "SortOrder") + "\"");
                         sb.Append(" >");

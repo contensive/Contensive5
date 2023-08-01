@@ -443,17 +443,6 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract string GetLinkAliasByPageID(int PageID, string QueryStringSuffix, string DefaultLink);
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Return the appropriate link for a page.
-        /// </summary>
-        /// <param name="PageID"></param>
-        /// <param name="QueryStringSuffix">If a link alias exists, this is used to lookup the correct alias. See GetLinkAliasByPageID for details. In other cases, this is added to the querystring.</param>
-        /// <param name="AllowLinkAlias"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public abstract string GetPageLink(int PageID, string QueryStringSuffix, bool AllowLinkAlias);
         /// <summary>
         /// Return the appropriate link for a page.
         /// </summary>
@@ -626,6 +615,15 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         // deprecated
+        /// <summary>
+        /// Return the appropriate link for a page.
+        /// </summary>
+        /// <param name="PageID"></param>
+        /// <param name="QueryStringSuffix">If a link alias exists, this is used to lookup the correct alias. See GetLinkAliasByPageID for details. In other cases, this is added to the querystring.</param>
+        /// <param name="AllowLinkAlias"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        [Obsolete("Deprecated. Use the method without AllowLinkAlias", false)] public abstract string GetPageLink(int PageID, string QueryStringSuffix, bool AllowLinkAlias);
         //
         /// <summary>
         /// Deprecated, use CP.Layout.GetLayoutByName()

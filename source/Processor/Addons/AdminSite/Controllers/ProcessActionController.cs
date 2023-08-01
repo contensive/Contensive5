@@ -492,7 +492,12 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            SaveLinkAlias(cp, adminData);
+                            bool overrideDuplicate = cp.core.docProperties.getBoolean("OverRideDuplicate");
+                            string linkAlias = cp.core.docProperties.getText("linkalias");
+                            string normalizedLinkAlias = PageContentModel.savePageContentLinkAlias(cp, linkAlias, adminData.editRecord.id, adminData.editRecord.nameLc, overrideDuplicate);
+                            bool dupCausesWarning = true; // this came from complexities in savePageContentLinkAlias
+                            LinkAliasController.addLinkAlias(cp.core, normalizedLinkAlias, adminData.editRecord.id, "", overrideDuplicate, dupCausesWarning);
+
                             // -- legacy
                             ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
@@ -512,7 +517,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             // -- legacy
                             if (adminData.editRecord.nameLc.ToLowerInvariant() == "allowlinkalias") {
-                                if (cp.core.siteProperties.getBoolean("AllowLinkAlias", true)) {
+                                if (cp.core.siteProperties.allowLinkAlias) {
                                     TurnOnLinkAlias(cp, UseContentWatchLink);
                                 }
                             }
@@ -778,67 +783,6 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                 }
                 if (recordChanged) {
                     GroupRuleModel.invalidateCacheOfTable<GroupRuleModel>(cp);
-                }
-            } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
-            }
-        }
-        //
-        //========================================================================
-        /// <summary>
-        /// Save Link Alias field if it supported, and is non-authoring. if it is authoring, it will be saved by the userfield routines. if not, it appears in the LinkAlias tab, and must be saved here
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="adminData"></param>
-        private static void SaveLinkAlias(CPClass cp, AdminDataModel adminData) {
-            try {
-                //
-                EditRecordModel editRecord = adminData.editRecord;
-                //
-                // --use field ptr to test if the field is supported yet
-                if (cp.core.siteProperties.allowLinkAlias) {
-                    bool isDupError = false;
-                    string linkAlias = cp.core.docProperties.getText("linkalias");
-                    bool OverRideDuplicate = cp.core.docProperties.getBoolean("OverRideDuplicate");
-                    bool DupCausesWarning = false;
-                    if (string.IsNullOrEmpty(linkAlias)) {
-                        //
-                        // Link Alias is blank, use the record name
-                        //
-                        linkAlias = editRecord.nameLc;
-                        DupCausesWarning = true;
-                    }
-                    if (!string.IsNullOrEmpty(linkAlias)) {
-                        if (OverRideDuplicate) {
-                            cp.core.db.executeQuery("update " + adminData.adminContent.tableName + " set linkalias=null where ( linkalias=" + DbController.encodeSQLText(linkAlias) + ") and (id<>" + editRecord.id + ")");
-                        } else {
-                            using (var csData = new CsModel(cp.core)) {
-                                csData.open(adminData.adminContent.name, "( linkalias=" + DbController.encodeSQLText(linkAlias) + ")and(id<>" + editRecord.id + ")");
-                                if (csData.ok()) {
-                                    isDupError = true;
-                                    ErrorController.addUserError(cp.core, "The Link Alias you entered can not be used because another record uses this value [" + linkAlias + "]. Enter a different Link Alias, or check the Override Duplicates checkbox in the Link Alias tab.");
-                                }
-                                csData.close();
-                            }
-                        }
-                        if (!isDupError) {
-                            DupCausesWarning = true;
-                            using (var csData = new CsModel(cp.core)) {
-                                csData.openRecord(adminData.adminContent.name, editRecord.id);
-                                if (csData.ok()) {
-                                    csData.set("linkalias", linkAlias);
-                                }
-                            }
-                            //
-                            // Update the Link Aliases
-                            //
-                            LinkAliasController.addLinkAlias(cp.core, linkAlias, editRecord.id, "", OverRideDuplicate, DupCausesWarning);
-                            //
-                            // -- no, routemap is cleared in addLinkAlias
-                            // -- clear the routemap, rebuilt on exit
-                            // cp.core.routeMapCacheClear();
-                        }
-                    }
                 }
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);

@@ -1628,52 +1628,45 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     string AddonContentName = AddonModel.tableMetadata.contentName;
-                    string SelectList = "Name,Link,ID,ArgumentList,ObjectProgramID,IconFilename,IconWidth,IconHeight,IconSprites,IsInline,ccguid";
+                    string SelectList = "Name,Link,ID,ArgumentList,IconFilename,IconWidth,IconHeight,IconSprites,IsInline,ccguid";
                     using (var csData = new CsModel(core)) {
                         if (csData.open(AddonContentName, Criteria, "Name,ID", false, 0, SelectList)) {
                             string LastAddonName = "";
                             while (csData.ok()) {
                                 string addonGuid = csData.getText("ccguid");
-                                string ObjectProgramID2 = csData.getText("ObjectProgramID");
-                                if ((contentType == CPHtml5BaseClass.EditorContentType.contentTypeEmail) && (!string.IsNullOrEmpty(ObjectProgramID2))) {
+                                string addonName = encodeText(csData.getText("name")).Trim(' ');
+                                if (!string.IsNullOrEmpty(addonName) && (addonName != LastAddonName)) {
                                     //
-                                    // Block activex addons from email
+                                    // Icon (fieldtyperesourcelink)
                                     //
-                                } else {
-                                    string addonName = encodeText(csData.getText("name")).Trim(' ');
-                                    if (!string.IsNullOrEmpty(addonName) && (addonName != LastAddonName)) {
-                                        //
-                                        // Icon (fieldtyperesourcelink)
-                                        //
-                                        bool IsInline = csData.getBoolean("IsInline");
-                                        string IconFilename = csData.getText("Iconfilename");
-                                        int IconWidth = 0;
-                                        int IconHeight = 0;
-                                        int IconSprites = 0;
-                                        if (!string.IsNullOrEmpty(IconFilename)) {
-                                            IconWidth = csData.getInteger("IconWidth");
-                                            IconHeight = csData.getInteger("IconHeight");
-                                            IconSprites = csData.getInteger("IconSprites");
-                                        }
-                                        //
-                                        // Calculate DefaultAddonOption_String
-                                        //
-                                        string ArgumentList = csData.getText("ArgumentList").Trim(' ');
-                                        string jsonCommand = "";
-                                        string defaultAddonOptions = AddonController.getDefaultAddonOptions(core, ArgumentList, addonGuid, IsInline, addonName, ref jsonCommand);
-                                        defaultAddonOptions = encodeHtml(defaultAddonOptions);
-                                        LastAddonName = addonName;
-                                        IconIDControlString = "AC,AGGREGATEFUNCTION,0," + addonName + "," + defaultAddonOptions + "," + addonGuid;
-                                        IconImg = AddonController.getAddonIconImg("/" + core.appConfig.adminRoute, IconWidth, IconHeight, IconSprites, IsInline, IconIDControlString, IconFilename, core.appConfig.cdnFileUrl, addonName, "Rendered as the Add-on [" + addonName + "]", "", 0);
-                                        ItemsHtmlId[ItemsCnt] = "['" + encodeJavascriptStringSingleQuote(addonName) + "','" + encodeJavascriptStringSingleQuote(IconImg) + "']";
-                                        ItemsJson[ItemsCnt] = "['" + encodeJavascriptStringSingleQuote(addonName) + "','" + encodeJavascriptStringSingleQuote(jsonCommand) + "']";
-                                        Index.setPtr(addonName, ItemsCnt);
-                                        ItemsCnt += 1;
-                                        if (ItemsCnt >= ItemsSize) {
-                                            ItemsSize = ItemsSize + 100;
-                                            Array.Resize(ref ItemsHtmlId, ItemsSize + 1);
-                                            Array.Resize(ref ItemsJson, ItemsSize + 1);
-                                        }
+                                    bool IsInline = csData.getBoolean("IsInline");
+                                    string IconFilename = csData.getText("Iconfilename");
+                                    int IconWidth = 0;
+                                    int IconHeight = 0;
+                                    int IconSprites = 0;
+                                    if (!string.IsNullOrEmpty(IconFilename)) {
+                                        IconWidth = csData.getInteger("IconWidth");
+                                        IconHeight = csData.getInteger("IconHeight");
+                                        IconSprites = csData.getInteger("IconSprites");
+                                    }
+                                    //
+                                    // Calculate DefaultAddonOption_String
+                                    //
+                                    string ArgumentList = csData.getText("ArgumentList").Trim(' ');
+                                    string jsonCommand = "";
+                                    string defaultAddonOptions = AddonController.getDefaultAddonOptions(core, ArgumentList, addonGuid, IsInline, addonName, ref jsonCommand);
+                                    defaultAddonOptions = encodeHtml(defaultAddonOptions);
+                                    LastAddonName = addonName;
+                                    IconIDControlString = "AC,AGGREGATEFUNCTION,0," + addonName + "," + defaultAddonOptions + "," + addonGuid;
+                                    IconImg = AddonController.getAddonIconImg("/" + core.appConfig.adminRoute, IconWidth, IconHeight, IconSprites, IsInline, IconIDControlString, IconFilename, core.appConfig.cdnFileUrl, addonName, "Rendered as the Add-on [" + addonName + "]", "", 0);
+                                    ItemsHtmlId[ItemsCnt] = "['" + encodeJavascriptStringSingleQuote(addonName) + "','" + encodeJavascriptStringSingleQuote(IconImg) + "']";
+                                    ItemsJson[ItemsCnt] = "['" + encodeJavascriptStringSingleQuote(addonName) + "','" + encodeJavascriptStringSingleQuote(jsonCommand) + "']";
+                                    Index.setPtr(addonName, ItemsCnt);
+                                    ItemsCnt += 1;
+                                    if (ItemsCnt >= ItemsSize) {
+                                        ItemsSize = ItemsSize + 100;
+                                        Array.Resize(ref ItemsHtmlId, ItemsSize + 1);
+                                        Array.Resize(ref ItemsJson, ItemsSize + 1);
                                     }
                                 }
                                 csData.goNext();

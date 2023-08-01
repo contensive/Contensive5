@@ -24,6 +24,8 @@ namespace Contensive.Processor.Addons.Base {
                 //
                 // -- delete layouts updated in this install
                 cp.Db.Delete(Contensive.Models.Db.LayoutModel.tableMetadata.tableNameLower, Contensive.Processor.Addons.AdminSite.Constants.guidLayoutAdminSite);
+                //
+                // -- 
                 return "ok";
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

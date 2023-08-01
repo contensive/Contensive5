@@ -314,14 +314,6 @@ namespace Contensive.Processor.Controllers {
                     isDependencyThatAlreadyRan = executeContext.isDependency;
                 }
                 //
-                if (!string.IsNullOrEmpty(addon.objectProgramId)) {
-                    //
-                    // -- addons with activeX components are deprecated
-                    string addonDescription = getAddonDescription(core, addon);
-                    throw new GenericException("Addon is no longer supported because it contains an active-X component, add-on " + addonDescription + ".");
-                }
-
-                //
                 // -- if root level addon, and the addon is an html document, create the html document around it and uglify if not debugging
                 if (executeContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
                     //
@@ -1097,6 +1089,9 @@ namespace Contensive.Processor.Controllers {
                                                     string FieldDescription = null;
                                                     string FieldDefaultValue = null;
                                                     string FieldCaption = null;
+                                                    fieldName = xml_GetAttribute(IsFound, TabNode, "name", "");
+                                                    string fieldHtmlId = $"setting{fieldName.replace(" ","",StringComparison.InvariantCultureIgnoreCase)}";
+
                                                     switch (GenericController.toLCase(TabNode.Name)) {
                                                         case "heading": {
                                                                 //
@@ -1226,7 +1221,7 @@ namespace Contensive.Processor.Controllers {
                                                                                 }
                                                                         }
                                                                     }
-                                                                    TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, ""));
+                                                                    TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
                                                                 }
                                                                 break;
                                                             }
@@ -1264,7 +1259,7 @@ namespace Contensive.Processor.Controllers {
                                                                     } else {
                                                                         Copy = AdminUIEditorController.getTextEditor(core, fieldName, fieldValue, fieldReadOnly);
                                                                     }
-                                                                    TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, ""));
+                                                                    TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
                                                                 }
                                                                 break;
                                                             }
@@ -1290,7 +1285,7 @@ namespace Contensive.Processor.Controllers {
                                                                 } else {
                                                                     Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
                                                                 }
-                                                                TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, ""));
+                                                                TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
                                                                 break;
                                                             }
                                                         case "dbquery":
@@ -1397,7 +1392,7 @@ namespace Contensive.Processor.Controllers {
                                                                         }
                                                                     }
                                                                 }
-                                                                TabCell.add(AdminUIController.getEditRow(core, Copy, FieldCaption, FieldDescription, false, false, ""));
+                                                                TabCell.add(AdminUIController.getEditRow(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
                                                                 break;
                                                             }
                                                         default: {

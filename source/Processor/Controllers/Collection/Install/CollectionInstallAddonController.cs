@@ -226,14 +226,6 @@ namespace Contensive.Processor.Controllers {
                                                     cs.set("ScriptingCode", ScriptingCode);
                                                     break;
                                                 }
-                                            case "activexprogramid": {
-                                                    //
-                                                    // save program id
-                                                    //
-                                                    FieldValue = Addonfield.InnerText;
-                                                    cs.set("ObjectProgramID", FieldValue);
-                                                    break;
-                                                }
                                             case "navigator": {
                                                     //
                                                     // create a navigator entry with a parent set to this

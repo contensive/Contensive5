@@ -302,7 +302,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- load from db
             linkAliasStore = new LinkAliasStoreModel();
-            foreach (LinkAliasModel linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent)) {
+            foreach (LinkAliasModel linkAlias in DbBaseModel.createList<LinkAliasModel>(core.cpParent,"","id desc")) {
                 if (!linkAliasStore.linkAliasIdDict.ContainsKey(linkAlias.id)) {
                     linkAliasStore.linkAliasIdDict.Add(linkAlias.id, linkAlias);
                 }

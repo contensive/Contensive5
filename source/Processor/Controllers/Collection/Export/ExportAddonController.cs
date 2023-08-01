@@ -33,7 +33,6 @@ namespace Contensive.Processor.Controllers {
                         result += ExportController.getNode("CopyText", CS.GetText("CopyText"));
                         // 
                         // DLL
-                        //result += ExportController.getNode( "ActiveXProgramID", CS.GetText("objectprogramid"), true);
                         result += ExportController.getNode("DotNetClass", CS.GetText("DotNetClass"));
                         // 
                         // Features

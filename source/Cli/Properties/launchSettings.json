@@ -2,8 +2,8 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a ecommercetest --installfile \"design blocks.zip\"",
-      "workingDirectory": "C:\\Deployments\\aoDesignBlocks\\Dev\\23.7.13.4",
+      "commandLineArgs": "-a ecommercetest --execute \"housekeep task\"",
+      "workingDirectory": "C:\\Program Files (x86)\\Contensive",
       "jsWebView2Debugging": false
     }
   }

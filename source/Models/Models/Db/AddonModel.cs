@@ -83,7 +83,10 @@ namespace Contensive.Models.Db {
         /// 6 = Design
         /// </summary>
         public int navTypeId { get; set; }
-        public string objectProgramId { get; set; }
+        /// <summary>
+        /// deprecated
+        /// </summary>
+        [Obsolete("Deprecated",false)] public string objectProgramId { get; set; }
         public bool onBodyEnd { get; set; }
         public bool onBodyStart { get; set; }
         public bool onNewVisitEvent { get; set; }

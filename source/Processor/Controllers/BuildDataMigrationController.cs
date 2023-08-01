@@ -121,15 +121,7 @@ namespace Contensive.Processor.Controllers {
                         collectionsInstalledList = new List<string>();
                         CollectionLibraryController.installCollectionFromLibrary(core, false, context, Constants.redactorCollectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
                         //
-                        // -- addons with active-x -- remove programid and add script code that logs error
-                        string newCode = ""
-                            + "function m"
-                            + " ' + CHAR(13)+CHAR(10) + ' \ncp.Site.ErrorReport(\"deprecated active-X add-on executed [#\" & cp.addon.id & \", \" & cp.addon.name & \"]\")"
-                            + " ' + CHAR(13)+CHAR(10) + ' \nend function"
-                            + "";
-                        string sql = "update ccaggregatefunctions set help='Legacy activeX: ' + objectprogramId, objectprogramId=null, ScriptingCode='" + newCode + "' where (ObjectProgramID is not null)";
-                        LogController.logInfo(core, "MigrateData, removing activex addons, adding exception logging, sql [" + sql + "]");
-                        core.db.executeNonQuery(sql);
+                        string sql = "";
                         //
                         // -- create page menus from section menus
                         using (var cs = new CsModel(core)) {
@@ -389,7 +381,13 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- remove all addons with active-x components
                         core.db.executeNonQuery("delete from ccaggregatefunctions where (objectprogramid is not null)or(objectprogramid='')");
-                        core.db.executeNonQuery($"delete from ccfields where name='objectprogramid' and contentcontrolid={cp.Content.GetID("Content fields")}");
+                        // -- no, cannot remove field because it fails old collection installs (and it must be removed from model also)
+                        //core.db.executeNonQuery($"delete from ccfields where name='objectprogramid' and contentcontrolid={cp.Content.GetID("Content fields")}");
+                    }
+                    if(GenericController.versionIsOlder(DataBuildVersion, "23.7.28.6")) {
+                        //
+                        // -- remove page edit tag
+                        core.siteProperties.setProperty("allow page settings edit", false);
                     }
                 }
                 // -- Reload

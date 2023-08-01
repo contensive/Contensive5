@@ -96,5 +96,42 @@ namespace Contensive.Models.Db {
                 cp.Site.ErrorReport(ex);
             }
         }
+        //
+        //========================================================================
+        /// <summary>
+        /// Save Link Alias field, managing duplicates and creating the linkalias field.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="adminData"></param>
+        /// <returns>The normalized link alias saved</returns>
+        public static string savePageContentLinkAlias(CPBaseClass cp, string linkAlias, int recordId, string recordName, bool overrideDuplicates) {
+            try {
+                if (string.IsNullOrEmpty(linkAlias)) { linkAlias = recordName.ToLowerInvariant(); }
+                if (string.IsNullOrEmpty(linkAlias)) { linkAlias = $"page{recordId}"; }
+                //
+                string linkAliasNormalized = LinkAliasModel.normalizeLinkAlias(cp, linkAlias);
+                if (getCount<PageContentModel>(cp, $"(linkalias={cp.Db.EncodeSQLText(linkAlias)})and(id<>{recordId})") > 0) {
+                    //
+                    // -- there is another page record with the same alias
+                    if (overrideDuplicates) {
+                        cp.Db.ExecuteQuery($"update ccpagecontent set linkalias=null where ( linkalias={cp.Db.EncodeSQLText(linkAlias)}) and (id<>{recordId})");
+                    } else {
+                        cp.Site.ErrorReport("The Link Alias you entered can not be used because another record uses this value [" + linkAlias + "]. Enter a different Link Alias, or check the Override Duplicates checkbox in the Link Alias tab.");
+                        return linkAliasNormalized;
+                    }
+                }
+                int recordsAffected = 0;
+                cp.Db.ExecuteNonQuery($"update ccpagecontent set linkalias={cp.Db.EncodeSQLText(linkAlias)} where id={recordId}", ref recordsAffected);
+                if (recordsAffected == 0) {
+                    var link = DbBaseModel.addDefault<LinkAliasModel>(cp);
+                }
+                //
+                return linkAliasNormalized;
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+
     }
 }
