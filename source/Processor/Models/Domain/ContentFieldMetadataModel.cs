@@ -45,6 +45,7 @@ namespace Contensive.Processor.Models.Domain {
                 editorAddonGuid = "",
                 isBaseField = false,
                 lookupContentId = 0,
+                LookupContentSqlFilter = "",
                 lookupList = "",
                 manyToManyContentId = 0,
                 manyToManyRuleContentId = 0,
@@ -394,6 +395,7 @@ namespace Contensive.Processor.Models.Domain {
         /// For lookup types, this is the contentid for the connected table. This represents a foreignKey in this content
         /// </summary>
         public int lookupContentId { get; set; }
+        public string LookupContentSqlFilter { get; set; }
         public string get_lookupContentName(CoreController core) {
             if ((_lookupContentName == null) && (lookupContentId > 0)) {
                 _lookupContentName = "";

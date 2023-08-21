@@ -340,6 +340,7 @@ namespace Contensive.Processor {
                 DataAltController.process(htmlDoc);
                 DataValueController.process(htmlDoc);
                 DataInnerTextController.process(htmlDoc);
+                DataCdnController.process(cp,htmlDoc);
                 //
                 // -- legacy, not advertized
                 MustacheValueController.process(htmlDoc);

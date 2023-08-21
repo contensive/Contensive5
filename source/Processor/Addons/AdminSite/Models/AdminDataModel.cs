@@ -370,7 +370,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // -- if this record is within a sub-content, reload adminContent
                             int recordContentId = csData.getInteger("contentControlId");
                             if ((recordContentId > 0) && (recordContentId != adminContent.id)) {
-                                adminContent = ContentMetadataModel.create(core, recordContentId);
+                                // -- protect from use-case where cdef is deleted after records created. Record's cdef is invalid
+                                var testContent = ContentMetadataModel.create(core, recordContentId);
+                                if (testContent != null) { adminContent = testContent;  }
                             }
                         }
                         csData.close();

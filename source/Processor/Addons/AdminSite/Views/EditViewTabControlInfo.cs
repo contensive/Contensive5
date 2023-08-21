@@ -18,11 +18,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="adminData"></param>
         /// <returns></returns>
         public static string get(CoreController core, AdminDataModel adminData, EditorEnvironmentModel editorEnv) {
-            string result = null;
+            // -- used in expection handling
+            string result;
+            var tabPanel = new StringBuilderLegacyController();
             try {
                 bool disabled = false;
                 //
-                var tabPanel = new StringBuilderLegacyController();
                 if (string.IsNullOrEmpty(adminData.adminContent.name)) {
                     //
                     // Content not found or not loaded
@@ -279,11 +280,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                 result = AdminUIController.getEditPanel(core, true, "Control Information", "", s);
                 adminData.editSectionPanelCount += 1;
                 tabPanel = null;
+                return result;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                string s = AdminUIController.editTable(tabPanel.text);
+                result = AdminUIController.getEditPanel(core, true, "Control Information", "", $"<div>There was an error reading the data for this page. [{ex}]</div>{s}");
+                adminData.editSectionPanelCount += 1;
+                return result;
             }
-            return result;
         }
-
     }
 }

@@ -268,7 +268,7 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         //
-        public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, ContentMetadataModel lookupContentMetacontent, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string sqlFilter) {
+        public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, ContentMetadataModel lookupContentMetacontent, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string lookupContentSqlFilter) {
             string result = "";
             if (lookupContentMetacontent == null) {
                 LogController.logWarn(core, "Lookup content not set, field [" + fieldName + "]");
@@ -297,7 +297,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- not readonly
                 string nonLabel = (fieldRequired) ? "" : "None";
-                result += core.html.selectFromContent(fieldName, fieldValue, lookupContentMetacontent.name, sqlFilter, nonLabel, "", ref IsEmptyList, "select form-control");
+                result += core.html.selectFromContent(fieldName, fieldValue, lookupContentMetacontent.name, lookupContentSqlFilter, nonLabel, "", ref IsEmptyList, "select form-control");
                 if (fieldValue != 0) {
                     using (var csData = new CsModel(core)) {
                         if (csData.openRecord(lookupContentMetacontent.name, fieldValue, "ID")) {
@@ -326,22 +326,22 @@ namespace Contensive.Processor.Controllers {
         /// <param name="fieldRequired"></param>
         /// <param name="IsEmptyList"></param>
         /// <returns></returns>
-        public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, int lookupContentId, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string sqlFilter) {
+        public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, int lookupContentId, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string lookupContentSqlFilter) {
             ContentMetadataModel lookupContentMetacontent = ContentMetadataModel.create(core, lookupContentId);
             if (lookupContentMetacontent == null) {
                 LogController.logWarn(core, "Lookup content not set, field [" + fieldName + "], lookupContentId [" + lookupContentId + "]");
                 return string.Empty;
             }
-            return getLookupContentEditor(core, fieldName, fieldValue, lookupContentMetacontent, ref IsEmptyList, readOnly, htmlId, WhyReadOnlyMsg, fieldRequired, sqlFilter);
+            return getLookupContentEditor(core, fieldName, fieldValue, lookupContentMetacontent, ref IsEmptyList, readOnly, htmlId, WhyReadOnlyMsg, fieldRequired, lookupContentSqlFilter);
         }
         //
-        public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, string lookupContentName, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string sqlFilter) {
+        public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, string lookupContentName, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string lookupContentSqlFilter) {
             ContentMetadataModel lookupContentMetacontent = ContentMetadataModel.createByUniqueName(core, lookupContentName);
             if (lookupContentMetacontent == null) {
                 LogController.logWarn(core, "Lookup content not set, field [" + fieldName + "], lookupContentName [" + lookupContentName + "]");
                 return string.Empty;
             }
-            return getLookupContentEditor(core, fieldName, fieldValue, lookupContentMetacontent, ref IsEmptyList, readOnly, htmlId, WhyReadOnlyMsg, fieldRequired, sqlFilter);
+            return getLookupContentEditor(core, fieldName, fieldValue, lookupContentMetacontent, ref IsEmptyList, readOnly, htmlId, WhyReadOnlyMsg, fieldRequired, lookupContentSqlFilter);
         }
         //
         // ====================================================================================================

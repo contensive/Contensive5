@@ -764,6 +764,7 @@ namespace Contensive.Processor.Controllers {
                     core.db.createSQLTableField("ccFields", "ReadOnly", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "NotEditable", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "LookupContentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "LookupContentSqlFilter", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "RedirectContentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccFields", "RedirectPath", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "RedirectID", CPContentBaseClass.FieldTypeIdEnum.Text);

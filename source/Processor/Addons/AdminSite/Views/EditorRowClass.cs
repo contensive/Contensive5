@@ -196,7 +196,23 @@ namespace Contensive.Processor.Addons.AdminSite {
                     hint = 510;
                     bool IsEmptyList = false;
                     //
-                    // if custom editor not used or if it failed
+                    // -- if custom editor not used or if it failed
+                    string field_LookupContentSqlFilter = field.LookupContentSqlFilter;
+                    if (!string.IsNullOrEmpty(field_LookupContentSqlFilter)) {
+                        int pos0 = field_LookupContentSqlFilter.IndexOf('{');
+                        int pos1 = field_LookupContentSqlFilter.IndexOf('}');
+                        if (pos0 >= 0 && pos1 > (pos0 + 1)) {
+                            string contentLookupFieldName = field_LookupContentSqlFilter.Substring(pos0 + 1, pos1 - pos0 - 1).ToLower();
+                            if (adminData.editRecord.fieldsLc.ContainsKey(contentLookupFieldName)) {
+                                // -- replace field name with field value
+                                field_LookupContentSqlFilter.replace($"{{{contentLookupFieldName}}}", encodeText(adminData.editRecord.fieldsLc[contentLookupFieldName].value_content), StringComparison.CurrentCultureIgnoreCase);
+                            } else {
+                                // -- field not found, remove entire filter
+                                LogController.logWarn(core, $"Admin Edit View, LookupContentSqlFilter contains mustache replacement but field was not found, content [{adminData.adminContent.name}], field [{field.nameLc}], LookupContentSqlFilter [{field.LookupContentSqlFilter}]");
+                                field_LookupContentSqlFilter = "";
+                            }
+                        }
+                    }
                     //
                     if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
                         hint = 520;
@@ -236,7 +252,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Lookup, readonly
                                     if (field.lookupContentId != 0) {
-                                        EditorString = AdminUIEditorController.getLookupContentEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), field.lookupContentId, ref IsEmptyList, editorReadOnly, fieldHtmlId, whyReadOnlyMsg, field.required, "");
+                                        EditorString = AdminUIEditorController.getLookupContentEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), field.lookupContentId, ref IsEmptyList, editorReadOnly, fieldHtmlId, whyReadOnlyMsg, field.required, field_LookupContentSqlFilter);
                                         editorEnv.formFieldList += "," + field.nameLc;
                                         editorWrapperSyle = "max-width:400px";
                                     } else if (!string.IsNullOrEmpty(field.lookupList)) {
@@ -417,7 +433,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Lookup
                                     if (!field.lookupContentId.Equals(0)) {
-                                        EditorString = AdminUIEditorController.getLookupContentEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.lookupContentId, ref IsEmptyList, field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required, "");
+                                        EditorString = AdminUIEditorController.getLookupContentEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.lookupContentId, ref IsEmptyList, field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required, field_LookupContentSqlFilter);
                                         editorEnv.formFieldList += "," + field.nameLc;
                                         editorWrapperSyle = "max-width:400px";
                                     } else if (!string.IsNullOrEmpty(field.lookupList)) {
@@ -444,7 +460,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Member Select
                                     editorEnv.formFieldList += "," + field.nameLc;
-                                    EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.memberSelectGroupId_get(core,adminData.adminContent.name, field.nameLc), field.memberSelectGroupName_get(core), field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
+                                    EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, encodeInteger(fieldValueObject), field.memberSelectGroupId_get(core, adminData.adminContent.name, field.nameLc), field.memberSelectGroupName_get(core), field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
                                     editorWrapperSyle = "max-width:400px";
                                     break;
                                 }
@@ -469,7 +485,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     string resizedImageUrl = ImageController.getBestFit(core, fieldValue_text, 80, 80, new System.Collections.Generic.List<string>());
                                     EditorString = AdminUIEditorController.getImageEditor(core, field.nameLc, fieldValue_text, resizedImageUrl, field.readOnly, fieldHtmlId);
                                     break;
-                               }
+                                }
                             case CPContentBaseClass.FieldTypeIdEnum.Currency: {
                                     //
                                     // ----- currency

@@ -440,6 +440,7 @@ namespace Contensive.Processor.Models.Domain {
                                 + ",h.helpCustom"
                                 + ",a.id as editorAddonId"
                                 + ",a.ccguid as editorAddonGuid"
+                                + ",f.LookupContentSqlFilter as LookupContentSqlFilter"
                                 + ""
                                 + " from (((ccFields f"
                                 + " left join ccContent c ON f.ContentId = c.ID)"
@@ -542,6 +543,7 @@ namespace Contensive.Processor.Models.Domain {
                                             field.isBaseField = GenericController.encodeBoolean(fieldRow[38]);
                                             field.isModifiedSinceInstalled = false;
                                             field.lookupContentId = GenericController.encodeInteger(fieldRow[18]);
+                                            field.LookupContentSqlFilter = GenericController.encodeText(fieldRow[44]);
                                             field.lookupList = GenericController.encodeText(fieldRow[37]);
                                             field.manyToManyContentId = GenericController.encodeInteger(fieldRow[28]);
                                             field.manyToManyRuleContentId = GenericController.encodeInteger(fieldRow[29]);
@@ -911,38 +913,39 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 // create or update the field
                 var sqlList = new NameValueCollection {
-                            { "ACTIVE", DbController.encodeSQLBoolean(fieldMetadata.active) },
-                            { "MODIFIEDBY", DbController.encodeSQLNumber(SystemMemberId) },
-                            { "MODIFIEDDATE", DbController.encodeSQLDate(core.dateTimeNowMockable) },
-                            { "TYPE", DbController.encodeSQLNumber((int)fieldMetadata.fieldTypeId) },
-                            { "CAPTION", DbController.encodeSQLText(fieldMetadata.caption) },
-                            { "ReadOnly", DbController.encodeSQLBoolean(fieldMetadata.readOnly) },
-                            { "REQUIRED", DbController.encodeSQLBoolean(fieldMetadata.required) },
-                            { "TEXTBUFFERED", DbController.SQLFalse },
-                            { "PASSWORD", DbController.encodeSQLBoolean(fieldMetadata.password) },
-                            { "EDITSORTPRIORITY", DbController.encodeSQLNumber(fieldMetadata.editSortPriority) },
-                            { "ADMINONLY", DbController.encodeSQLBoolean(fieldMetadata.adminOnly) },
-                            { "DEVELOPERONLY", DbController.encodeSQLBoolean(fieldMetadata.developerOnly) },
-                            { "CONTENTCONTROLID", DbController.encodeSQLNumber(ContentMetadataModel.getContentId(core, "Content Fields")) },
-                            { "DefaultValue", DbController.encodeSQLText(fieldMetadata.defaultValue) },
-                            { "HTMLCONTENT", DbController.encodeSQLBoolean(fieldMetadata.htmlContent) },
-                            { "NOTEDITABLE", DbController.encodeSQLBoolean(fieldMetadata.notEditable) },
-                            { "AUTHORABLE", DbController.encodeSQLBoolean(fieldMetadata.authorable) },
-                            { "INDEXCOLUMN", DbController.encodeSQLNumber(fieldMetadata.indexColumn) },
-                            { "INDEXWIDTH", DbController.encodeSQLText(fieldMetadata.indexWidth) },
-                            { "INDEXSORTPRIORITY", DbController.encodeSQLNumber(fieldMetadata.indexSortOrder) },
-                            { "REDIRECTID", DbController.encodeSQLText(fieldMetadata.redirectId) },
-                            { "REDIRECTPATH", DbController.encodeSQLText(fieldMetadata.redirectPath) },
-                            { "UNIQUENAME", DbController.encodeSQLBoolean(fieldMetadata.uniqueName) },
-                            { "RSSTITLEFIELD", DbController.encodeSQLBoolean(fieldMetadata.rssTitleField) },
-                            { "RSSDESCRIPTIONFIELD", DbController.encodeSQLBoolean(fieldMetadata.rssDescriptionField) },
-                            { "MEMBERSELECTGROUPID", DbController.encodeSQLNumber(fieldMetadata.memberSelectGroupId_get(core, name, fieldMetadata.nameLc)) },
-                            { "installedByCollectionId", DbController.encodeSQLNumber(InstalledByCollectionId) },
-                            { "editorAddonId", DbController.encodeSQLNumber(editorAddonId) },
-                            { "EDITTAB", DbController.encodeSQLText(fieldMetadata.editTabName) },
-                            { "SCRAMBLE", DbController.encodeSQLBoolean(false) },
-                            { "ISBASEFIELD", DbController.encodeSQLBoolean(fieldMetadata.isBaseField) },
-                            { "LOOKUPLIST", DbController.encodeSQLText(fieldMetadata.lookupList) }
+                            { "active", DbController.encodeSQLBoolean(fieldMetadata.active) },
+                            { "modifiedby", DbController.encodeSQLNumber(SystemMemberId) },
+                            { "modifieddate", DbController.encodeSQLDate(core.dateTimeNowMockable) },
+                            { "type", DbController.encodeSQLNumber((int)fieldMetadata.fieldTypeId) },
+                            { "caption", DbController.encodeSQLText(fieldMetadata.caption) },
+                            { "readonly", DbController.encodeSQLBoolean(fieldMetadata.readOnly) },
+                            { "required", DbController.encodeSQLBoolean(fieldMetadata.required) },
+                            { "textbuffered", DbController.SQLFalse },
+                            { "password", DbController.encodeSQLBoolean(fieldMetadata.password) },
+                            { "editsortpriority", DbController.encodeSQLNumber(fieldMetadata.editSortPriority) },
+                            { "adminonly", DbController.encodeSQLBoolean(fieldMetadata.adminOnly) },
+                            { "developeronly", DbController.encodeSQLBoolean(fieldMetadata.developerOnly) },
+                            { "contentcontrolid", DbController.encodeSQLNumber(ContentMetadataModel.getContentId(core, "Content Fields")) },
+                            { "defaultvalue", DbController.encodeSQLText(fieldMetadata.defaultValue) },
+                            { "htmlcontent", DbController.encodeSQLBoolean(fieldMetadata.htmlContent) },
+                            { "noteditable", DbController.encodeSQLBoolean(fieldMetadata.notEditable) },
+                            { "authorable", DbController.encodeSQLBoolean(fieldMetadata.authorable) },
+                            { "indexcolumn", DbController.encodeSQLNumber(fieldMetadata.indexColumn) },
+                            { "indexwidth", DbController.encodeSQLText(fieldMetadata.indexWidth) },
+                            { "indexsortpriority", DbController.encodeSQLNumber(fieldMetadata.indexSortOrder) },
+                            { "redirectid", DbController.encodeSQLText(fieldMetadata.redirectId) },
+                            { "redirectpath", DbController.encodeSQLText(fieldMetadata.redirectPath) },
+                            { "uniquename", DbController.encodeSQLBoolean(fieldMetadata.uniqueName) },
+                            { "rsstitlefield", DbController.encodeSQLBoolean(fieldMetadata.rssTitleField) },
+                            { "rssdescriptionfield", DbController.encodeSQLBoolean(fieldMetadata.rssDescriptionField) },
+                            { "memberselectgroupid", DbController.encodeSQLNumber(fieldMetadata.memberSelectGroupId_get(core, name, fieldMetadata.nameLc)) },
+                            { "installedbycollectionid", DbController.encodeSQLNumber(InstalledByCollectionId) },
+                            { "editoraddonid", DbController.encodeSQLNumber(editorAddonId) },
+                            { "edittab", DbController.encodeSQLText(fieldMetadata.editTabName) },
+                            { "scramble", DbController.encodeSQLBoolean(false) },
+                            { "isbasefield", DbController.encodeSQLBoolean(fieldMetadata.isBaseField) },
+                            { "lookuplist", DbController.encodeSQLText(fieldMetadata.lookupList) },
+                            { "lookupcontentsqlfilter", DbController.encodeSQLText(fieldMetadata.LookupContentSqlFilter) }
                         };
                 //
                 // -- conditional fields

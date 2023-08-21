@@ -240,18 +240,18 @@ namespace Contensive.Processor.Controllers {
         /// <param name="MenuName"></param>
         /// <param name="CurrentValue"></param>
         /// <param name="ContentName"></param>
-        /// <param name="Criteria"></param>
+        /// <param name="lookupContentEditor"></param>
         /// <param name="NoneCaption"></param>
         /// <param name="htmlId"></param>
         /// <param name="return_IsEmptyList"></param>
         /// <param name="HtmlClass"></param>
         /// <returns></returns>
-        public string selectFromContent(string MenuName, int CurrentValue, string ContentName, string Criteria, string NoneCaption, string htmlId, ref bool return_IsEmptyList, string HtmlClass = "") {
+        public string selectFromContent(string MenuName, int CurrentValue, string ContentName, string lookupContentEditor, string NoneCaption, string htmlId, ref bool return_IsEmptyList, string HtmlClass = "") {
             string result = "";
             try {
                 const string MenuNameFPO = "<MenuName>";
                 const string NoneCaptionFPO = "<NoneCaption>";
-                string LcaseCriteria = toLCase(Criteria);
+                string LcaseCriteria = toLCase(lookupContentEditor);
                 return_IsEmptyList = true;
                 //
                 string CurrentValueText = CurrentValue.ToString();
@@ -390,7 +390,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // ----- select values
                             using (var csData = new CsModel(core)) {
-                                if (csData.open(ContentName, Criteria, SortFieldList, false, 0, SelectFields)) {
+                                if (csData.open(ContentName, lookupContentEditor, SortFieldList, false, 0, SelectFields)) {
                                     string[,] RowsArray = csData.getRows();
                                     string[] RowFieldArray = csData.getSelectFieldList().Split(',');
                                     int ColumnMax = RowsArray.GetUpperBound(0);
@@ -448,11 +448,11 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     if (!SelectedFound && (CurrentValue != 0)) {
                                         csData.close();
-                                        if (!string.IsNullOrEmpty(Criteria)) {
-                                            Criteria = Criteria + "and";
+                                        if (!string.IsNullOrEmpty(lookupContentEditor)) {
+                                            lookupContentEditor = lookupContentEditor + "and";
                                         }
-                                        Criteria = Criteria + "(id=" + GenericController.encodeInteger(CurrentValue) + ")";
-                                        if (csData.open(ContentName, Criteria, SortFieldList, false, 0, SelectFields)) {
+                                        lookupContentEditor = lookupContentEditor + "(id=" + GenericController.encodeInteger(CurrentValue) + ")";
+                                        if (csData.open(ContentName, lookupContentEditor, SortFieldList, false, 0, SelectFields)) {
                                             RowsArray = csData.getRows();
                                             RowFieldArray = csData.getSelectFieldList().Split(',');
                                             RowMax = RowsArray.GetUpperBound(1);
@@ -487,7 +487,7 @@ namespace Contensive.Processor.Controllers {
                     if (!return_IsEmptyList) {
                         core.doc.inputSelectCache.Add(new CacheInputSelectClass {
                             contentName = ContentName,
-                            criteria = Criteria,
+                            criteria = lookupContentEditor,
                             currentValue = CurrentValue.ToString(),
                             selectRaw = SelectRaw
                         });
