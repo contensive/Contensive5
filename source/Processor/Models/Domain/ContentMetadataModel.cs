@@ -235,11 +235,28 @@ namespace Contensive.Processor.Models.Domain {
         /// used to create admin nav icons. A mirror of the addon navTypeId, Tool, Setting, Report, or misc
         /// </summary>
         public int navTypeID { get; set; }
-        //
         /// <summary>
-        /// used to create admin nav icons. A mirror of the addon category. foreign key to AddonCategories.
+        /// return the addonCategoryid that corresponds to the addonCategoryText read from an xml install file
+        /// Do not reference this unless all tables have been verified
         /// </summary>
-        public int addonCategoryId { get; set; }
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public int getAddonCategoryId(CPBaseClass cp) {
+            if (_addonCategoryId != null) { return (int)_addonCategoryId; }
+            if (string.IsNullOrEmpty(addonCategoryText)) { return 0; }
+            _addonCategoryId = DbBaseModel.getRecordIdByUniqueName<AddonCategoryModel>(cp, addonCategoryText);
+            if (_addonCategoryId > 0) { return (int)_addonCategoryId; }
+            var addonCategory = DbBaseModel.addDefault<AddonCategoryModel>(cp);
+            addonCategory.name = addonCategoryText;
+            addonCategory.save(cp);
+            _addonCategoryId = addonCategory.id;
+            return addonCategory.id;
+        }
+        private int? _addonCategoryId = null;
+        /// <summary>
+        /// addonCategory as read from xml file, stored in Db as integer foreign key
+        /// </summary>
+        public string addonCategoryText { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -1156,7 +1173,7 @@ namespace Contensive.Processor.Models.Domain {
                         { "installedbycollectionid", DbController.encodeSQLNumber(InstalledByCollectionId) },
                         { "isbasecontent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) },
                         { "navtypeid",  DbController.encodeSQLNumber(  contentMetadata.navTypeID) },
-                        { "addoncategoryid", DbController.encodeSQLNumber(  contentMetadata.addonCategoryId ) }
+                        { "addoncategoryid", DbController.encodeSQLNumber(  contentMetadata.getAddonCategoryId(core.cpParent) ) }
                     };
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
                     DbBaseModel.invalidateCacheOfRecord<ContentModel>(core.cpParent, contentMetadata.id);

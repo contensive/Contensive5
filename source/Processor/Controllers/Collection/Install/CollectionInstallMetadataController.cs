@@ -34,6 +34,7 @@ namespace Contensive.Processor.Controllers {
         //======================================================================================================
         /// <summary>
         /// create a collection class from a collection xml file, metadata are added to the metadatas in the application collection
+        /// Must load before any other Db tables are gauranteed (Model load and CS will fail)
         /// </summary>
         public static MetadataMiniCollectionModel loadXML(CoreController core, string srcCollecionXml, bool isBaseCollection, bool setAllDataChanged, bool IsNewBuild, string logPrefix) {
             try {
@@ -167,18 +168,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     // -- addoncategoryid, a mirror of addon-category
-                                    targetMetaData.addonCategoryId = 0;
-                                    string defaultAddonCategoryText = DbBaseModel.getRecordName<AddonCategoryModel>(core.cpParent, DefaultMetaData.addonCategoryId);
-                                    string addonCategoryText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonCategoryId", defaultAddonCategoryText);
-                                    if (!string.IsNullOrEmpty(addonCategoryText)) {
-                                        AddonCategoryModel addonCategory = DbBaseModel.createByUniqueName<AddonCategoryModel>(core.cpParent, addonCategoryText);
-                                        if (addonCategory == null) {
-                                            addonCategory = DbBaseModel.addDefault<AddonCategoryModel>(core.cpParent);
-                                            addonCategory.name = addonCategoryText;
-                                            addonCategory.save(core.cpParent);
-                                        }
-                                        targetMetaData.addonCategoryId = addonCategory.id;
-                                    }                                    
+                                    targetMetaData.addonCategoryText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonCategoryId", DefaultMetaData.addonCategoryText);
                                     //
                                     // -- determine id
                                     targetMetaData.id = DbController.getContentId(core, contentName);
