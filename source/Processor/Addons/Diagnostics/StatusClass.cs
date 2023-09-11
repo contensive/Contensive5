@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                     if (testResult.left(2).ToLower(CultureInfo.InvariantCulture) != "ok") { return "ERROR, diagnostic [" + addon.name + "] failed, it returned [" + testResult + "]" + pauseHint; }
                     resultList.AppendLine(testResult);
                 }
-                return "ok, all tests passes." + Environment.NewLine + resultList.ToString();
+                return "ok, all tests passed." + Environment.NewLine + resultList.ToString();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 return "ERROR, unexpected exception during diagnostics";
