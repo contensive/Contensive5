@@ -172,7 +172,7 @@ namespace Contensive.Processor.Controllers {
                     case RouteMapModel.RouteTypeEnum.admin: {
                             //
                             // -- admin site, force platform to 4 until layouts upgraded
-                            core.siteProperties.htmlPlatformOverride = 4;
+                            core.siteProperties.htmlPlatformOverride = 5;
                             //
                             AddonModel addon = core.cacheRuntime.addonCache.create(addonGuidAdminSite);
                             if (addon == null) {

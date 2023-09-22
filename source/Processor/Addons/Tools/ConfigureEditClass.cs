@@ -214,9 +214,9 @@ namespace Contensive.Processor.Addons.Tools {
                     + HtmlController.p( "Use this tool to add or modify content definition fields and the underlying sql table fields.")
                     + ((ContentId.Equals(0)) ? "" : ""
                         + HtmlController.ul(""
-                            + HtmlController.li(HtmlController.a("Edit Content", "?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4", "nav-link btn btn-primary"), "nav-item mr-1")
-                            + HtmlController.li(HtmlController.a("Edit Records", "?cid=" + ContentId, "nav-link btn btn-primary"), "nav-item mr-1")
-                            + HtmlController.li(HtmlController.a("Select Different Fields", "?af=105", "nav-link btn btn-primary"), "nav-item mr-1")
+                            + HtmlController.li(HtmlController.a("Edit Content", "?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                            + HtmlController.li(HtmlController.a("Edit Records", "?cid=" + ContentId, "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                            + HtmlController.li(HtmlController.a("Select Different Fields", "?af=105", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
                             , "nav")
                     );
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();

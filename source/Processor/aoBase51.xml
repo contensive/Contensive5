@@ -2933,7 +2933,7 @@
 			<HelpLink>http://www.contensive.com</HelpLink>
 			<Tab name="Admin" heading="Administration Site Settings" description="Settings that affect the layout and design of the Administration site">
 				<SiteProperty caption="Header" name="ADMINHEADERHTML" ReadOnly="0" Type="Text" Selector="" Description="This caption appears in the upper left corner of the banner over the administration page">Contensive Administration</SiteProperty>
-				<SiteProperty caption="Root Page Function" name="ADMINROOTADDONID" ReadOnly="0" Type="Integer" Selector="[None:0|listid(Add-ons)]" Description="Select an addon to run in the Admin site when no other function is selected"/>
+				<SiteProperty caption="Dashboard" name="ADMINROOTADDONID" ReadOnly="0" Type="Integer" Selector="[None:0|listid(Add-ons)]" Description="Select an addon to run in the Admin site when no other function is selected"/>
 				<SiteProperty caption="Missing Field Check" name="ALLOWADMINFIELDCHECK" ReadOnly="0" Type="Boolean" Description="This feature tests all form responses for missing fields. Clear this checkbox if a 'missing field error' prevents you from submitting a form."/>
 				<SiteProperty caption="HTML Editor Height (px)" name="DefaultFormInputHTMLHeight" ReadOnly="0" Type="Integer" Description="The height of the HTML editor">250</SiteProperty>
 				<SiteProperty caption="Text Editor Height (lines)" name="DefaultFormInputTextHeight" ReadOnly="0" Type="Integer" Description="The height of a text block editor">1</SiteProperty>

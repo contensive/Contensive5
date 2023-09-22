@@ -2897,7 +2897,7 @@ namespace Contensive.Processor.Controllers {
                                 + cr2 + "<LABEL for=\"" + TagID + "\">" + Tag + "&nbsp;Debug</LABEL>" + helpLink + "\r</div>";
                             OptionsPanel = OptionsPanel + ""
                                 + "\r<div class=\"border bg-white p-2\">"
-                                + cr2 + inputSubmit(ButtonApply, "mb", "", "", false, "btn btn-primary mr-1 btn-sm")
+                                + cr2 + inputSubmit(ButtonApply, "mb", "", "", false, "btn btn-primary mr-1 me-1 btn-sm")
                                 + "\r</div>"
                                 + "";
                         }

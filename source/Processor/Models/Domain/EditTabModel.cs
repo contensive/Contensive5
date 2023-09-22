@@ -80,8 +80,8 @@ namespace Contensive.Processor.Models.Domain {
                         string containerHtmlId = "container" + GenericController.getRandomInteger(core).ToString();
                         //
                         // -- tab
-                        string item = HtmlController.a(tab.caption, "#" + containerHtmlId, tabHtmlClass).Replace(">", " data-toggle=\"tab\">");
-                        tabList.Add(HtmlController.li(item, "nav-item"));
+                        string item = HtmlController.a(tab.caption, "#" + containerHtmlId, tabHtmlClass).Replace(">", " data-toggle=\"tab\" data-bs-toggle=\"tab\">");
+                        tabList.Add(HtmlController.li(item, "nav-item m-0"));
                         //
                         // -- container
                         string wrappedLiveBody = HtmlController.div(tab.LiveBody, tab.ContainerClass + "Body");
