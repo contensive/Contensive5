@@ -821,22 +821,22 @@ namespace Contensive.Processor.Controllers {
                                 string sql = "insert into ccviewings ("
                                     + "Name,VisitId,MemberID,Host,Path,Page,QueryString,Form,Referer,DateAdded,StateOK,pagetime,Active,RecordID,ExcludeFromAnalytics,pagetitle,ccguid"
                                     + ")values("
-                                    + " " + DbController.encodeSQLText(ViewingName.substringSafe(0, 255))
+                                    + " " + DbController.encodeSQLText(ViewingName.substringSafe(0, 240))
                                     + "," + session.visit.id.ToString()
                                     + "," + session.user.id.ToString()
-                                    + "," + DbController.encodeSQLText(webServer.requestDomain.substringSafe(0,255))
-                                    + "," + DbController.encodeSQLText(webServer.requestPath.substringSafe(0, 255))
-                                    + "," + DbController.encodeSQLText(webServer.requestPage.substringSafe(0, 255))
-                                    + "," + DbController.encodeSQLText(webServer.requestQueryString.substringSafe(0, 255))
-                                    + "," + DbController.encodeSQLText(requestFormSerialized.substringSafe(0, 255))
-                                    + "," + DbController.encodeSQLText(webServer.requestReferrer.substringSafe(0, 255))
+                                    + "," + DbController.encodeSQLText(webServer.requestDomain.substringSafe(0, 240))
+                                    + "," + DbController.encodeSQLText(webServer.requestPath.substringSafe(0, 240))
+                                    + "," + DbController.encodeSQLText(webServer.requestPage.substringSafe(0, 240))
+                                    + "," + DbController.encodeSQLText(webServer.requestQueryString.substringSafe(0, 240))
+                                    + "," + DbController.encodeSQLText(requestFormSerialized.substringSafe(0, 240))
+                                    + "," + DbController.encodeSQLText(webServer.requestReferrer.substringSafe(0, 240))
                                     + "," + DbController.encodeSQLDate(doc.profileStartTime)
                                     + "," + DbController.encodeSQLBoolean(session.visitStateOk)
                                     + "," + doc.appStopWatch.ElapsedMilliseconds.ToString()
                                     + ",1"
                                     + "," + PageId.ToString()
                                     + "," + DbController.encodeSQLBoolean(webServer.pageExcludeFromAnalytics)
-                                    + "," + DbController.encodeSQLText(pagetitle.substringSafe(0, 255))
+                                    + "," + DbController.encodeSQLText(pagetitle.substringSafe(0, 240))
                                     + "," + DbController.encodeSQLText(doc.docGuid);
                                 sql += ");";
                                 hint = "54";

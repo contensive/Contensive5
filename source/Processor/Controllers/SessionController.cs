@@ -381,7 +381,7 @@ namespace Contensive.Processor.Controllers {
                                 resultSessionContext.visit.refererPathPage = WorkingReferer.Substring(SlashPosition - 1);
                                 resultSessionContext.visit.http_referer = WorkingReferer.left(SlashPosition - 1);
                             }
-                            resultSessionContext.visit.refererPathPage = resultSessionContext.visit.refererPathPage.substringSafe(0, 255);
+                            resultSessionContext.visit.refererPathPage = resultSessionContext.visit.refererPathPage.substringSafe(0, 240);
                         }
                         //
                         // -- setup browser
