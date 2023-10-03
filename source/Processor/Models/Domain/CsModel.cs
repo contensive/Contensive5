@@ -1060,7 +1060,13 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
                             //
-                            // -- cdn file
+                            // -- file-content type
+                            // -- this code treates the rawData is a filename. If not valid file log error and continue
+                            if (string.IsNullOrWhiteSpace(rawData)) { return string.Empty; }
+                            if (!core.cdnFiles.isValidPathFilename(rawData)) {
+                                LogController.logError(core, new ArgumentException($"cs.getText error, file-content type but data not valid filename [{rawData}]"));
+                                return string.Empty;
+                            }
                             return core.cdnFiles.readFileText(GenericController.encodeText(rawData));
                         }
                     case CPContentBaseClass.FieldTypeIdEnum.Text:

@@ -571,38 +571,39 @@ namespace Contensive.Models.Db {
                                             case "FieldTypeTextFile": {
                                                     //
                                                     // -- cdn files
-                                                    FieldTypeTextFile instanceFileType = new() { filename = propertyValue };
+                                                    FieldTypeTextFile instanceFileType = new() { content = propertyValue };
                                                     instanceProperty.SetValue(instance, instanceFileType);
                                                     break;
                                                 }
                                             case "FieldTypeJavascriptFile": {
                                                     //
                                                     // -- cdn files
-                                                    FieldTypeJavascriptFile instanceFileType = new() { filename = propertyValue };
+                                                    FieldTypeJavascriptFile instanceFileType = new() { content = propertyValue };
                                                     instanceProperty.SetValue(instance, instanceFileType);
                                                     break;
                                                 }
                                             case "FieldTypeCSSFile": {
                                                     //
                                                     // -- cdn files
-                                                    FieldTypeCSSFile instanceFileType = new() { filename = propertyValue };
+                                                    FieldTypeCSSFile instanceFileType = new() { content = propertyValue };
                                                     instanceProperty.SetValue(instance, instanceFileType);
                                                     break;
                                                 }
                                             case "FieldTypeHTMLFile": {
                                                     //
                                                     // -- private files
-                                                    FieldTypeHTMLFile instanceFileType = new() { filename = propertyValue };
+                                                    FieldTypeHTMLFile instanceFileType = new() { content = propertyValue };
                                                     instanceProperty.SetValue(instance, instanceFileType);
                                                     break;
                                                 }
-                                            case "FieldTypeFile": {
-                                                    //
-                                                    // -- cdn file
-                                                    FieldTypeFile instanceFileType = new() { filename = propertyValue };
-                                                    instanceProperty.SetValue(instance, instanceFileType);
-                                                    break;
-                                                }
+                                            // can't initalize a file
+                                            //case "FieldTypeFile": {
+                                            //        //
+                                            //        // -- cdn file
+                                            //        FieldTypeFile instanceFileType = new() { content = propertyValue };
+                                            //        instanceProperty.SetValue(instance, instanceFileType);
+                                            //        break;
+                                            //    }
                                             default: {
                                                     instanceProperty.SetValue(instance, propertyValue, null);
                                                     break;

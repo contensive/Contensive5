@@ -118,7 +118,7 @@ namespace Contensive.Processor.Controllers {
                 string dosPathFilename = normalizeDosPathFilename(pathFilename);
                 return Path.Combine(dosPath, dosPathFilename);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogController.logError(core, ex, $"path [{path}], pathFilename [{pathFilename}]");
                 throw;
             }
         }
@@ -948,7 +948,7 @@ namespace Contensive.Processor.Controllers {
                 string absDosPathFilename = convertRelativeToLocalAbsPath(pathFilename);
                 return File.Exists(absDosPathFilename);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogController.logError(core, ex, $"pathFilename [{pathFilename}]");
                 throw;
             }
         }
@@ -1710,7 +1710,7 @@ namespace Contensive.Processor.Controllers {
                 // -- on remote systems, the remote file is authoritative. Update local file's modified date to match the uploaded file.
                 // -- would be better to set the remote file to the local file modified-date, but not possible
                 FileDetail remoteFileDetail = getFileDetails_remote(pathFilename);
-                if(!remoteFileDetail.DateLastModified.isNullOrMinDate()) {
+                if (!remoteFileDetail.DateLastModified.isNullOrMinDate()) {
                     File.SetLastWriteTime(convertRelativeToLocalAbsPath(pathFilename), remoteFileDetail.DateLastModified ?? DateTime.Now);
                 }
                 //
@@ -1934,6 +1934,8 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isValidPathFilename(string pathFilename) {
             if (string.IsNullOrEmpty(pathFilename)) { return false; }
+            // path cannot contain .., but a file might
+            //if (pathFilename.Contains("..")) { return false; }
             // -- create string with only path segment and filename characters
             pathFilename = convertLocalAbsToRelativePath(pathFilename);
             pathFilename = pathFilename.Replace("/", "").Replace("\\", "");

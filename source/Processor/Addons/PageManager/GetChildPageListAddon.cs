@@ -196,8 +196,8 @@ namespace Contensive.Processor.Addons.PageManager {
                             // include overview
                             // if AllowBrief is false, BriefFilename is not loaded
                             //
-                            if ((childPage.briefFilename != "") && (childPage.allowBrief)) {
-                                string Brief = encodeText(core.cdnFiles.readFileText(childPage.briefFilename)).Trim(' ');
+                            if ((childPage.briefFilename.filename != "") && (childPage.allowBrief)) {
+                                string Brief = encodeText(core.cdnFiles.readFileText(childPage.briefFilename.filename)).Trim(' ');
                                 if (!string.IsNullOrEmpty(Brief)) {
                                     activeList.Append("<div class=\"ccListCopy\">" + Brief + "</div>");
                                 }

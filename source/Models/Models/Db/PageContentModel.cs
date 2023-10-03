@@ -31,7 +31,7 @@ namespace Contensive.Models.Db {
         public bool blockContent { get; set; }
         public bool blockPage { get; set; }
         public int blockSourceId { get; set; }
-        public string briefFilename { get; set; }
+        public FieldTypeHTMLFile briefFilename { get; set; }
         public string childListInstanceOptions { get; set; }
         public int childListSortMethodId { get; set; }
         public bool childPagesFound { get; set; }
@@ -39,19 +39,19 @@ namespace Contensive.Models.Db {
         public int contactMemberId { get; set; }
         public int contentPadding { get; set; }
         public FieldTypeHTMLFile copyfilename { get; set; } = new FieldTypeHTMLFile();
-        public string customBlockMessage { get; set; }
+        public FieldTypeHTMLFile customBlockMessage { get; set; }
         public DateTime? dateArchive { get; set; }
         public DateTime? dateExpires { get; set; }
         public DateTime? dateReviewed { get; set; }
         public string headline { get; set; }
-        public string imageFilename { get; set; }
+        public FieldTypeFile imageFilename { get; set; }
         /// <summary>
         /// deprecated. https vs http should be controlled by the webserver software.
         /// </summary>
         [Obsolete("Deprecated. https vs http should be controlled by the webserver software.", false)]
         public bool isSecure { get; set; }
         public string jSEndBody { get; set; }
-        public string jSFilename { get; set; }
+        public FieldTypeJavascriptFile jSFilename { get; set; }
         public string jSHead { get; set; }
         public string jSOnLoad { get; set; }
         public string linkAlias { get; set; }

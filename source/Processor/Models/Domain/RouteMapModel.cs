@@ -180,7 +180,7 @@ namespace Contensive.Processor.Models.Domain {
                             virtualRoute = mapRoute,
                             routeType = RouteTypeEnum.linkAlias,
                             linkAliasId = linkAlias.id,
-                            linkAliasRedirect = usedPages[pageKey]
+                            linkAliasRedirect = "/" + usedPages[pageKey]
                         });
                         continue;
                     }
