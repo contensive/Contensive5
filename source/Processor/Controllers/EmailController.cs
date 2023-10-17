@@ -351,29 +351,29 @@ namespace Contensive.Processor.Controllers {
             try {
                 // -- validate arguments
                 if (recipient == null) {
-                    userErrorMessage = "The email was not sent because the recipient is not valid [empty]";
+                    userErrorMessage = "The email was not sent because the recipient is not valid [empty], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "]";
                     LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [null], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailSubject(core, subject)) {
-                    userErrorMessage = "Email not sent because the subject is not valid.";
+                    userErrorMessage = "Email not sent because the subject is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                     LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, recipient.email)) {
-                    userErrorMessage = "Email not sent because the to-address is not valid.";
+                    userErrorMessage = "Email not sent because the to-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                     LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, fromAddress)) {
                     //
-                    userErrorMessage = "Email not sent because the from-address is not valid.";
+                    userErrorMessage = "Email not sent because the from-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                     LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (isOnBlockedList(core, recipient.email)) {
                     //
-                    userErrorMessage = "Email not sent because the to-address requested email block. See the Email Bounce List.";
+                    userErrorMessage = "Email not sent because the to-address requested email block. See the Email Bounce List, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                     LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }

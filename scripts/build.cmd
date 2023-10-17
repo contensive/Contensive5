@@ -251,7 +251,7 @@ nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %Nu
 nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
-pause
+rem pause
 
 rem ==============================================================
 rem
