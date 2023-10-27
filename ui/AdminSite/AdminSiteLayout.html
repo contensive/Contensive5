@@ -27,18 +27,31 @@
                 <input id="cmdSearch" class="form-control" type="search" placeholder="Search">
             </form>
             <!-- recent list -->
-            {{#hasRecentList}}
             <ul class="ml-2 ms-2 navbar-nav">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false">Recent</a>
+				{{#hasRecentList}}
+                <li class="nav-item text-center my-0 dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="fa-solid fa-clock-rotate-left"></i>
+						<br><small>Recent</small>
+					</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         {{#recentList}}
                         <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
                         {{/recentList}}
                     </div>
                 </li>
+				{{/hasRecentList}}
+				{{#siteWarningCount}}
+				<li class="nav-item dropdown text-center my-0">
+					<div class="">
+						<a href="{{siteWarningLink}}" class="warn-icon nav-link ">
+							<i class="fas fa-bell warn-icon-badge"></i>
+							<br><small>Warnings</small>
+						</a>
+					</div>
+				</li>
+				{{/siteWarningCount}}
             </ul>
-            {{/hasRecentList}}
             <ul class="navbar-nav ms-auto ml-auto">
                 {{#categoryList}}
                 <li class="nav-item dropdown text-center my-0">
@@ -61,7 +74,7 @@
                     </div>
                 </li>
                 {{/categoryList}}
-            </ul>
+            </ul>		
         </div>
     </nav>
     <table border="0" cellpadding="0" cellspacing="0">
@@ -81,7 +94,6 @@
             text-align: center;
         }
     }
-
     div.dropdown-header {
         font-weight: 700;
         font-size: 1rem;
@@ -96,4 +108,35 @@
         overflow:hidden;
         text-overflow: ellipsis;
     }
+	.warn-icon {
+		/* color:inherit; */
+	}
+	.warn-icon i {
+		width: 2em;
+		text-align: center;
+		vertical-align: middle;
+		position: relative;
+	}
+	.warn-icon-badge {
+		font-size: 1.5em;
+		/*
+		line-height: 1.5em;
+		color: white;
+		*/
+	}
+	.warn-icon-badge:after {
+		{{#siteWarningCount}}content:"{{siteWarningCount}}";{{/siteWarningCount}}
+		position: absolute;
+		height: 1.7em;
+		width: 1.7em;
+		top: 0em;
+		right: 0em;
+		background: rgba(255,0,0,1);
+		border-radius: 50%;
+		font-size: .5em;
+		font-family: monospace;
+		color: white;
+		text-align: center;
+		line-height: 1.7em;
+	}
 </style>

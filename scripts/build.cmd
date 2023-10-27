@@ -99,6 +99,25 @@ rd /s /q  "..\source\taskservice\obj"
 
 del /q "..\WebDeploymentPackage\*.*"
 
+rem ==============================================================
+rem
+rem zip ui files, copy to the placeholders in the folder, move to the bin folder
+rem
+
+c:
+cd "C:\Git\Contensive5\ui\BaseAssets\"
+del BaseAssets.zip /Q
+"c:\program files\7-zip\7z.exe" a "BaseAssets.zip"
+move /y "BaseAssets.zip"  "C:\Git\Contensive5\source\Processor\"
+
+c:
+cd "C:\Git\Contensive5\ui\AdminSite\"
+del AdminSite.zip /Q
+"c:\program files\7-zip\7z.exe" a "AdminSite.zip"
+move /y "AdminSite.zip"  "C:\Git\Contensive5\source\Processor\"
+
+cd "C:\Git\Contensive5\scripts"
+
 rem pause
 
 rem ==============================================================
@@ -138,8 +157,6 @@ if errorlevel 1 (
 
 cd ..\scripts
 
-rem pause
-
 rem ==============================================================
 rem
 rem move packages to deplyment, and to local package folder
@@ -159,43 +176,6 @@ rem copy this package to the local package source so the next project builds all
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
 cd ..\scripts
-
-rem pause
-
-rem ==============================================================
-rem
-rem update cli, taskservice nuget packages 
-rem
-rem 
-rem cd ..\source\cli
-rem dotnet add package Contensive.CPBaseClass -s %NuGetLocalPackagesFolder%
-rem dotnet add package Contensive.DbModels -s %NuGetLocalPackagesFolder%
-rem dotnet add package Contensive.Processor -s %NuGetLocalPackagesFolder%
-rem 
-rem cd ..\taskservice
-rem dotnet add package Contensive.CPBaseClass -s %NuGetLocalPackagesFolder%
-rem dotnet add package Contensive.DbModels -s %NuGetLocalPackagesFolder%
-rem dotnet add package Contensive.Processor -s %NuGetLocalPackagesFolder%
-rem cd ..\..\scripts
-
-rem ==============================================================
-rem
-rem build cli and task server
-rem
-rem cd ..\source
-rem 
-rem dotnet clean ContensiveCli.sln
-rem 
-rem dotnet build cli/cli.csproj --no-dependencies /property:FileVersion=%versionNumber%
-rem 
-rem pause
-rem 
-rem dotnet build taskservice/taskservice.csproj --no-dependencies /property:FileVersion=%versionNumber%
-rem 
-rem pause
-rem 
-rem cd ..\scripts
-rem 
 
 rem ==============================================================
 rem

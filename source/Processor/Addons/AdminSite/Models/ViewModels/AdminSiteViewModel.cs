@@ -37,6 +37,29 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// the count of site warnings
+        /// </summary>
+        public string siteWarningCount {
+            get {
+                int count = DbBaseModel.getCount<SiteWarningModel>(cp, "");
+                if (count == 0) { return ""; }
+                return count.ToString();
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// the link to site warnings
+        /// </summary>
+        public string siteWarningLink {
+            get {
+                if(string.IsNullOrEmpty(siteWarningCount)) { return ""; }
+                return $"{cp.GetAppConfig().adminRoute}?cid={cp.Content.GetID("site warnings")}";
+            }
+        }
+        //
+        //====================================================================================================
         //
         /// <summary>
         /// create the hardcoded list of 6 icons that appear at the top-right of the admin page

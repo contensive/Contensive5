@@ -751,7 +751,8 @@ namespace Contensive.Processor.Controllers {
         //
         //===========================================================================================
         /// <summary>
-        /// redirect
+        /// redirect, and return a message explain redirection to admins
+        /// if redirection cannot happen, return empty string as flag to not abort page
         /// </summary>
         /// <param name="nonEncodedLink"></param>
         /// <param name="redirectReason"></param>

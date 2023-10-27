@@ -3691,6 +3691,9 @@ $(function () {
   <ImportCollection name="File Manager">{0A080FBC-2814-407F-8F8C-CD06F422789D}</ImportCollection>
   <ImportCollection name="Site Explorer">{5426E6D5-05A8-4A87-B535-CD0FABA04F29}</ImportCollection>
   -->
+	<Resource name="baseassets.zip" type="file" path="baseAssets" />
+	<Resource name="adminsite.zip" type="file" path="adminsite" />
+	<!-- 
 	<Resource name="helloworld.txt" type="file" path="base" />
 	<Resource name="AdminSiteLayout.html" type="file" path="adminsite" />
 	<Resource name="adminUI.css" type="www" path="adminsite" />
@@ -3698,4 +3701,5 @@ $(function () {
 	<Resource name="baseAssets.css" type="www" path="baseAssets" />
 	<Resource name="baseAssets.js" type="www" path="baseAssets" />
 	<Resource name="avatarDefault.jpg" type="file" path="baseAssets" />
+  -->
 </Collection>
