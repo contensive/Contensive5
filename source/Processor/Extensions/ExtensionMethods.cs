@@ -316,4 +316,14 @@ public static class ExtensionMethods {
     public static string substringSafe(this string value, int startIndex, int length) {
         return new string((value ?? string.Empty).Skip(startIndex).Take(length).ToArray());
     }
+    /// <summary>
+    /// Contains, with caseinsensative
+    /// </summary>
+    /// <param name="source"></param>
+    /// <param name="toCheck"></param>
+    /// <param name="comp"></param>
+    /// <returns></returns>
+    public static bool containsCaseInsensative(this string source, string toCheck) {
+        return source?.IndexOf(toCheck, StringComparison.InvariantCultureIgnoreCase) >= 0;
+    }
 }

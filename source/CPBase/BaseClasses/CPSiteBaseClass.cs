@@ -258,13 +258,11 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log a message to the site-warning log.The site warning log lets admins know there are issues they need to resolve. This is not code bugs, but content or setting relalted issues.
+        /// Log a message to the site-warning log, which displays a Warning indicator in the admin site. This should only be for issues related to content and settings that an admin user can addres. To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
         /// </summary>
         /// <param name="name"></param>
         /// <param name="description"></param>
-        /// <param name="typeOfWarningKey"></param>
-        /// <param name="instanceKey"></param>
-        public abstract void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey);
+        public abstract void addAdminWarning(string name, string description);
         //
         //====================================================================================================
         /// <summary>
@@ -423,5 +421,15 @@ namespace Contensive.BaseClasses {
         /// <param name="link"></param>
         /// <returns></returns>
         [Obsolete("Use CP.Utils.EncodeAppRootPath()", false)]        public abstract string EncodeAppRootPath(string link);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Log a message to the site-warning log.The site warning log lets admins know there are issues they need to resolve. This is not code bugs, but content or setting relalted issues.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="typeOfWarningKey"></param>
+        /// <param name="instanceKey"></param>
+        [Obsolete("Use CP.Utils.addAdminWarning()", false)] public abstract void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey);
     }
 }

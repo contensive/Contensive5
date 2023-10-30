@@ -61,7 +61,7 @@ namespace Contensive.Processor.Addons {
                 //
                 // -- wrap in form
                 result += HtmlController.form(core, layout);
-                result = HtmlController.div(result, "ccLoginFormCon");
+                result = HtmlController.div(result, "ccLoginFormCon pt-4");
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

@@ -64,6 +64,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // -- verify filenames are valid, a bad filename can block the edit screen
                 FilenameTestClass.executeDailyTasks(env);
                 //
+                // -- site warnings
+                //
                 // -- logs
                 ActivityLogClass.executeDailyTasks(env);
                 //

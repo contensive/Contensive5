@@ -385,9 +385,11 @@ namespace Contensive.Processor {
         /// <param name="description"></param>
         /// <param name="typeOfWarningKey"></param>
         /// <param name="instanceKey"></param>
-        public override void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey) {
-            LogController.addSiteWarning(cp.core, name, description, "", 0, description, typeOfWarningKey, instanceKey);
+        public override void addAdminWarning(string name, string description) {
+            LogController.addAdminWarning(cp.core, name, description);
         }
+
+
         //
         //====================================================================================================
         /// <summary>
@@ -607,6 +609,10 @@ namespace Contensive.Processor {
                 return cp.core.appConfig.cdnFileUrl;
             }
         }
+        [Obsolete("Use CP.Site.AddAdminWarning", false)]
+        public override void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey) {
+            LogController.addAdminWarning(cp.core, name, description);
+        }
         //
         //
         #region  IDisposable Support 
@@ -632,7 +638,6 @@ namespace Contensive.Processor {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
         ~CPSiteClass() {
             Dispose(false);
         }

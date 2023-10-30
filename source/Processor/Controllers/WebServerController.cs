@@ -802,7 +802,7 @@ namespace Contensive.Processor.Controllers {
                 if (isPageNotFound) {
                     //
                     // -- Do a PageNotFound then redirect
-                    LogController.addSiteWarning(core, "Page Not Found Redirect", "Page Not Found Redirect", "", 0, "Page Not Found Redirect [" + requestUrlSource + "]", "Page Not Found Redirect", "Page Not Found Redirect");
+                    LogController.addAdminWarning(core, "Page Not Found Redirect", "Page Not Found Redirect [" + requestUrlSource + "]");
                     if (!string.IsNullOrEmpty(shortLink)) {
                         string sql = "Update ccContentWatch set link=null where link=" + DbController.encodeSQLText(shortLink);
                         core.db.executeNonQuery(sql);

@@ -208,7 +208,7 @@ namespace Contensive.Processor.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;div style=&quot;width:100%;padding:50px 0&quot;&gt;
-        ///    &lt;div class=&quot;ccCon bg-light pt-2 pb-4&quot; style=&quot;width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;&quot;&gt;
+        ///    &lt;div class=&quot;ccCon bg-light pt-0 pb-2&quot; style=&quot;width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;&quot;&gt;
         ///        &lt;div class=&quot;my-4 container-fluid&quot;&gt;
         ///            &lt;div class=&quot;ccLoginFormCon&quot;&gt;
         ///                &lt;h4&gt;Impersonate&lt;/h4&gt;
