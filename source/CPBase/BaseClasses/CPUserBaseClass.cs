@@ -246,9 +246,15 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// If autheticated, the current user's id
+        /// The user's id. If session tracking is disable, requesting the id will create a new guest user.
         /// </summary>
         public abstract int Id { get; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// The user's id. If session tracking is disable, requesting the id will return 0.
+        /// </summary>
+        public abstract int IdInSession { get; }
         //
         //====================================================================================================
         /// <summary>

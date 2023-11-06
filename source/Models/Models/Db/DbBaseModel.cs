@@ -427,7 +427,7 @@ namespace Contensive.Models.Db {
         /// <param name="cp"></param>
         /// <returns></returns>
         public static Dictionary<string, string> getDefaultValues<T>(CPBaseClass cp) where T : DbBaseModel
-            => getDefaultValues<T>(cp, cp.User.Id);
+            => getDefaultValues<T>(cp, cp.User.IdInSession);
         //
         //====================================================================================================
         /// <summary>
@@ -440,7 +440,7 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static T addDefault<T>(CPBaseClass cp) where T : DbBaseModel {
             Dictionary<string, string> defaultValues = getDefaultValues<T>(cp);
-            return addDefault<T>(cp, defaultValues, cp.User.Id);
+            return addDefault<T>(cp, defaultValues, cp.User.IdInSession);
         }
         //
         //====================================================================================================
@@ -466,7 +466,7 @@ namespace Contensive.Models.Db {
         /// <param name="DefaultValues"></param>
         /// <returns></returns>
         public static T addDefault<T>(CPBaseClass cp, Dictionary<string, string> DefaultValues) where T : DbBaseModel {
-            return addDefault<T>(cp, DefaultValues, cp.User.Id);
+            return addDefault<T>(cp, DefaultValues, cp.User.IdInSession);
         }
         //====================================================================================================
         /// <summary>

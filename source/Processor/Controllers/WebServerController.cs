@@ -799,10 +799,10 @@ namespace Contensive.Processor.Controllers {
                     LogController.logError(core, new GenericException("Redirect was called to the same URL, requestUrl is [" + requestUrl + "], requestUrlSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
                     return result;
                 }
+                LogController.setSiteWarning(core, "Page Not Found Redirect", "Page Not Found Redirect [" + requestUrlSource + "]", isPageNotFound);
                 if (isPageNotFound) {
                     //
                     // -- Do a PageNotFound then redirect
-                    LogController.addAdminWarning(core, "Page Not Found Redirect", "Page Not Found Redirect [" + requestUrlSource + "]");
                     if (!string.IsNullOrEmpty(shortLink)) {
                         string sql = "Update ccContentWatch set link=null where link=" + DbController.encodeSQLText(shortLink);
                         core.db.executeNonQuery(sql);

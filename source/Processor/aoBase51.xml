@@ -3035,9 +3035,7 @@
 				<SiteProperty caption="Twillio Number" name="Twillio Number" ReadOnly="0" Type="text" Selector="" Description="If Twillio is selected as the SMS provider, set your Twillio credentials here."></SiteProperty>
 			</Tab>
 			<Tab name="Tracking" heading="Activity Tracking" description="Settings that affect how the site tracks user and visitor activity">
-				<SiteProperty caption="Track Visits" name="AllowVisitTracking" ReadOnly="0" Type="boolean" Selector="" Description="When a visitor hits a page on the site, a great deal of information is saved about the visit, the viewing, and the visitor. When this option is disabled, only authenticated visits are tracked.">true</SiteProperty>
-				<SiteProperty caption="Track Guests" name="track guests" ReadOnly="0" Type="boolean" Selector="" Description="When true, a new user record is created in People each time a new visitor comes to the site. Track Visits is required. (v4.1.182+)">true</SiteProperty>
-				<SiteProperty caption="Track Guests Without Cookies" name="track guests without cookies" ReadOnly="0" Type="boolean" Selector="" Description="When true, Track Guests applies to all guests. When false, it applies to just guests using a browser that supports cookies. (v4.1.182+)">true</SiteProperty>
+				<SiteProperty caption="Track Visits" name="AllowVisitTracking" ReadOnly="0" Type="boolean" Selector="" Description="When enabled, the user and user sessioin visit information is automatically tracked. When disabled only authenticated visits are automatically tracked. Non-authenticated visits are tracked if any installed application references the user during execution.">true</SiteProperty>
 				<SiteProperty caption="How many days to keep visit archives" name="ArchiveRecordAgeDays" ReadOnly="0" Type="Integer" Selector="" Description="Set the number of days you wish to keep old visit records. These records are used in reporting to detail the activity of every page hit. The default is 90.">90</SiteProperty>
 				<SiteProperty caption="How many days to keep guest archives" name="ArchivePeopleAgeDays" ReadOnly="0" Type="Integer" Selector="" Description="Set the number of days you wish to keep old guest records. Guests are people records that were created on the site, have no email address, have no username, and have only visited once. These records are used to recognize returning guests, but they can contribute to poor site performance by filling your 'people' content with unnecessary records. The default is 2.">2</SiteProperty>
 				<SiteProperty caption="Delete visit records that do not support cookies" name="ArchiveDeleteNoCookie" ReadOnly="0" Type="Boolean" Selector="" Description="Internet cookies are short text strings that your browser uses to recognize websites. Very few legitimate visitors do not support cookies. Search engine robots/spiders, however, typically do not support cookies. Deleting visit information for visitors that do not support cookies is an effective way of removing search engine robot information from your reports">1</SiteProperty>
@@ -3095,7 +3093,7 @@
   </Addon>
   <Addon name="Email process Task" guid="{E6E82D55-003F-4ED0-B183-5F9D756582FE}" type="Task">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailProcessTask]]></DotNetClass>
-    <ProcessInterval>15</ProcessInterval>
+    <ProcessInterval>1</ProcessInterval>
   </Addon>
   <Addon name="Email Send Task" guid="{E6C14E81-EFC9-4BC0-ADB2-BDFF043A0800}" type="Task">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Email.EmailSendTask]]></DotNetClass>

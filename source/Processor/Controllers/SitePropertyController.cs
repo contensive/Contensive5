@@ -277,15 +277,6 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        internal bool trackGuestsWithoutCookies {
-            get {
-                return getPropertyBase("track guests without cookies", false, ref _trackGuestsWithoutCookies);
-            }
-        }
-        private bool? _trackGuestsWithoutCookies = null;
-        //
-        //====================================================================================================
-        //
         internal bool allowAutoLogin {
             get {
                 return getPropertyBase("allowautologin", false, ref _AllowAutoLogin);
@@ -321,7 +312,9 @@ namespace Contensive.Processor.Controllers {
         private string _LoginIconFilename = null;
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// If disabled, do not automatically track user visits. Initialize user tracking if cp.user.id is referenced.
+        /// </summary>
         public bool allowVisitTracking {
             get {
                 return getPropertyBase("allowVisitTracking", true, ref _allowVisitTracking);

@@ -385,8 +385,21 @@ namespace Contensive.Processor {
         /// <param name="description"></param>
         /// <param name="typeOfWarningKey"></param>
         /// <param name="instanceKey"></param>
-        public override void addAdminWarning(string name, string description) {
-            LogController.addAdminWarning(cp.core, name, description);
+        public override void SetSiteWarning(string name, string description) {
+            LogController.setSiteWarning(cp.core, name, description, true);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="typeOfWarningKey"></param>
+        /// <param name="instanceKey"></param>
+        /// <param name="addRemove">if true add the warning, else remove it</param>
+        public override void SetSiteWarning(string name, string description, bool addRemove) {
+            LogController.setSiteWarning(cp.core, name, description, addRemove);
         }
 
 
@@ -611,7 +624,7 @@ namespace Contensive.Processor {
         }
         [Obsolete("Use CP.Site.AddAdminWarning", false)]
         public override void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey) {
-            LogController.addAdminWarning(cp.core, name, description);
+            LogController.setSiteWarning(cp.core, name, description, true);
         }
         //
         //

@@ -70,11 +70,24 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// Returns the id of the user in the current session context. If 0, does NOT create a user for the session
+        /// </summary>
+        public override int IdInSession {
+            get {
+                if (cp?.core?.session?.user == null) { return 0; }
+                //if (cp.core.session.user.id > 0) { return cp.core.session.user.id; }
+                //if (!cp.core.siteProperties.allowVisitTracking) { return 0; }
+                return cp.core.session.user.id;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Checks if the current user is authenticated and has the admin role.
         /// </summary>
         public override bool IsAdmin {
             get {
-                if (cp?.core?.session  == null) { return false; }
+                if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isAuthenticatedAdmin();
             }
         }
@@ -214,7 +227,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override bool IsInGroup(string groupName) {
             if (!IsAuthenticated) { return false; }
-            return IsInGroup(groupName, Id);
+            return IsInGroup(groupName, IdInSession);
         }
         //
         //====================================================================================================
@@ -236,7 +249,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override bool IsInGroupList(string groupIDList) {
             if (!IsAuthenticated) { return false; }
-            return IsInGroupList(groupIDList, Id);
+            return IsInGroupList(groupIDList, IdInSession);
         }
         //
         //====================================================================================================
@@ -454,13 +467,13 @@ namespace Contensive.Processor {
         //=======================================================================================================
         //
         public override bool SetPassword(string password, ref string userErrorMessage) {
-            return Contensive.Models.Db.PersonModel.setPassword(cp, password, ref  userErrorMessage);
+            return Contensive.Models.Db.PersonModel.setPassword(cp, password, ref userErrorMessage);
         }
         //
         //=======================================================================================================
         //
         public override bool SetPassword(string password, int userId, ref string userErrorMessage) {
-            return Contensive.Models.Db.PersonModel.setPassword(cp, password, userId, ref  userErrorMessage);
+            return Contensive.Models.Db.PersonModel.setPassword(cp, password, userId, ref userErrorMessage);
         }
         //
         //=======================================================================================================

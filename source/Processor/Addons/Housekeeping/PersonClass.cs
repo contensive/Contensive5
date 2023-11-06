@@ -49,7 +49,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 string DeleteBeforeDateSQL = DbController.encodeSQLDate(ArchiveDate);
                 {
                     //
-                    // name repair
+                    env.log("Housekeep, People-Daily, name repair");
                     //
                     env.core.db.executeNonQuery("update ccmembers set name=SUBSTRING(firstname+' '+lastname, 1, 100)  where ((name is null)or(name='guest'))and(firstname<>'Guest')and((firstname is not null)or(lastname is not null))");
                     env.core.db.executeNonQuery("update ccmembers set name=SUBSTRING(email, 1, 100)  where ((name is null)or(name='guest'))and(email is not null)");
@@ -58,33 +58,15 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 {
                     //
-                    env.log("Housekeep, set createdByVisit 0 where null");
+                    env.log("Housekeep, People-Daily, set createdByVisit 0 where null");
                     //
                     env.core.db.executeNonQuery("update ccmembers set CreatedByVisit=0 where createdbyvisit is null");
                 }
                 {
                     //
-                    env.log("Housekeep, People-Daily, delete people from bot visits");
-                    //
-                    string sql = "delete from ccmembers from ccmembers m left join ccvisits v on v.memberid=m.id where (m.createdbyvisit=1)and(m.username is null)and(m.email is null)and(v.lastvisittime<DATEADD(hour, -" + localGuestArchiveDays + ", GETDATE()))and(v.bot>0)" + accountIdSuffix;
-                    env.core.db.sqlCommandTimeout = 1800;
-                    env.core.db.executeNonQuery(sql);
-                }
-                //
-                {
-                    //
-                    env.log("Housekeep, People-Daily, delete guests -- people with createdByVisit=1, null username and a null email address.");
-                    //
-                    string sql = "delete from ccmembers from ccmembers m where (m.createdbyvisit=1) and(m.username is null) and(m.email is null)and(m.lastvisit<DATEADD(day, -" + localGuestArchiveDays + ", GETDATE()))" + accountIdSuffix;
-                    env.core.db.sqlCommandTimeout = 1800;
-                    env.core.db.executeNonQuery(sql);
-
-                }
-                {
-                    //
                     env.log("Housekeep, delete people created by bots (visitor)");
                     // 
-                    string sql = "delete from ccmembers from ccmembers u left join ccvisitors v on v.MemberID=u.id where v.bot=1";
+                    string sql = "delete from ccmembers from ccmembers u left join ccvisitors v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)";
                     env.core.db.sqlCommandTimeout = 1800;
                     env.core.cpParent.Db.ExecuteNonQuery(sql);
                     //
@@ -93,27 +75,23 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     env.log("Housekeep, delete people created by bots (visits)");
                     // 
-                    int recordsAffected = 0;
-                    int cnt = 0;
-                    do {
-                        env.core.db.sqlCommandTimeout = 180;
-                        env.core.db.executeNonQuery("delete top (1000) from ccmembers from ccmembers m left join ccvisits v on v.memberid=m.id where (v.bot=1)");
-                        cnt++;
-                    } while ((recordsAffected != 0) && (cnt < 100));
+                    string sql = "delete from ccmembers from ccmembers u left join ccvisits v on v.MemberID=u.id where (u.createdbyvisit=1)and(v.bot=1)";
+                    env.core.db.sqlCommandTimeout = 1800;
+                    env.core.cpParent.Db.ExecuteNonQuery(sql);
+                    //
                 }
                 {
                     //
-                    env.log("Housekeep, delete people created by bots (visits)");
+                    env.log($"Housekeep, People-Daily, delete guests -- createdByVisit=1, username=null, email=null, name='Guest', firstname='Guest', lastvisit< {localGuestArchiveDays} days ago, and ecommerce-criteria [{accountIdSuffix}].");
                     // 
                     int recordsAffected = 0;
                     int cnt = 0;
                     do {
                         env.core.db.sqlCommandTimeout = 180;
-                        env.core.db.executeNonQuery("delete top (10000) from ccmembers from ccmembers m where (m.createdbyvisit=1) and(m.username is null) and(m.email is null) and (m.name='Guest') and (m.firstname='Guest') and(m.dateadded<DATEADD(hour, -2, GETDATE()))");
+                        env.core.db.executeNonQuery($"delete top (10000) from ccmembers from ccmembers m where (m.createdbyvisit=1) and(m.username is null) and(m.email is null) and (m.name='Guest') and (m.firstname='Guest') and(m.lastvisit<DATEADD(day, -{localGuestArchiveDays}, GETDATE())){accountIdSuffix}");
                         cnt++;
                     } while ((recordsAffected != 0) && (cnt < 100));
                 }
-
                 //
             } catch (Exception ex) {
                 LogController.logError(env.core, ex);

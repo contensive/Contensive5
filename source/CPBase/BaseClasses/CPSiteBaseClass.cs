@@ -258,11 +258,20 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Log a message to the site-warning log, which displays a Warning indicator in the admin site. This should only be for issues related to content and settings that an admin user can addres. To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
+        /// Add a site warning that must be removed manually. Log a message to the site-warning log, which displays a Warning indicator in the admin site. This should only be for issues related to content and settings that an admin user can addres. To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
         /// </summary>
         /// <param name="name"></param>
         /// <param name="description"></param>
-        public abstract void addAdminWarning(string name, string description);
+        public abstract void SetSiteWarning(string name, string description);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Add or remove a site warning based on the boolean argument. Log a message to the site-warning log, which displays a Warning indicator in the admin site. This should only be for issues related to content and settings that an admin user can addres. To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="description"></param>
+        /// <param name="addRemove">if true, the warning is added, else the warning is removed</param>
+        public abstract void SetSiteWarning(string name, string description, bool addRemove);
         //
         //====================================================================================================
         /// <summary>
@@ -430,6 +439,6 @@ namespace Contensive.BaseClasses {
         /// <param name="description"></param>
         /// <param name="typeOfWarningKey"></param>
         /// <param name="instanceKey"></param>
-        [Obsolete("Use CP.Utils.addAdminWarning()", false)] public abstract void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey);
+        [Obsolete("Use CP.Site.SetSiteWarning()", false)] public abstract void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey);
     }
 }

@@ -15,54 +15,46 @@ namespace Contensive.Processor.Addons.Housekeeping {
         /// </summary>
         /// <param name="core"></param>
         /// <returns></returns>
-        public static bool testWarningCases(HouseKeepEnvironmentModel env) {
+        public static void setWarnings(HouseKeepEnvironmentModel env) {
             try {
                 var cp = env.core.cpParent;
-                bool loadOK = true;
                 //
-                env.log("Housekeep, SiteWarningsClass and install");
+                env.log("Housekeep, SiteWarningsClass");
                 //
                 // -- if setup for bs4/bs5, check templates and layouts
-                if (env.core.siteProperties.htmlPlatformVersion == 5) {
-                    //
-                    // -- check for templates with bs4 properties
-                    foreach (var template in Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PageTemplateModel>(cp)) {
-                        string testLayout = template.bodyHTML;
-                        string errorMsg = testBootstrap4(cp, testLayout);
+                bool isSiteBootrap5 = env.core.siteProperties.htmlPlatformVersion == 5;
+                //
+                // -- check for templates with bs4 properties
+                foreach (var template in Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PageTemplateModel>(cp)) {
+                    string testLayout = template.bodyHTML;
+                    if (isSiteBootrap5) {
+                        string errorMsg = includesBootstrap4(cp, testLayout);
                         if (!string.IsNullOrEmpty(errorMsg)) {
-                            cp.Site.addAdminWarning($"Bootstrap-4 styles found in Page Template for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, layout [{template.id}, {template.name}], found bootstrap-4 style selectes [{errorMsg}]");
+                            cp.Site.SetSiteWarning($"Bootstrap-4 styles found in Page Template for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, template [{template.id}, {template.name}], found bootstrap-4 style selectes [{errorMsg}]");
                         }
                     }
                     //
-                    // -- check for layouts with bs4 properties
-                    foreach (var layout in Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.LayoutModel>(cp)) {
-                        string testLayout = layout.layoutPlatform5.content;
-                        if (string.IsNullOrEmpty(testLayout)) { testLayout = layout.layout.content; }
-                        string errorMsg = testBootstrap4(cp, testLayout);
-                        if (!string.IsNullOrEmpty(errorMsg)) {
-                            cp.Site.addAdminWarning($"Bootstrap-4 styles found in Layout for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, layout [{layout.id}, {layout.name}], found bootstrap-4 style selectes [{errorMsg}]");
-                        }
-                        //
-                        if(cp.Site.Name.ToLower() != "kmaintranet") {
-                            string testFor = "https://www.facebook.com/Contensive";
-                            if (testLayout.containsCaseInsensative(testFor)) {
-                                cp.Site.addAdminWarning($"default content found in layout", $"Default content [{testFor}] found, layout [{layout.id}, {layout.name}]");
-                            }
-                            testFor = "https://twitter.com/Contensive";
-                            if (testLayout.containsCaseInsensative(testFor)) {
-                                cp.Site.addAdminWarning($"default content found in layout", $"Default content [{testFor}] found, layout [{layout.id}, {layout.name}]");
-                            }
-                            testFor = "https://www.youtube.com/Contensive";
-                            if (testLayout.containsCaseInsensative(testFor)) {
-                                cp.Site.addAdminWarning($"default content found in layout", $"Default content [{testFor}] found, layout [{layout.id}, {layout.name}]");
-                            }
-                        }
-                    }
+                    // -- check for default contensive content (facebook, etc) 
+                    //
+                    setWarnings_defaultContent(cp, testLayout, $"template [{template.id}, {template.name}]");
                 }
                 //
-                // -- check for default contensive content (facebook, etc) 
-                //
-                return loadOK;
+                // -- check for layouts with bs4 properties
+                foreach (var layout in Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.LayoutModel>(cp)) {
+                    string testLayout = isSiteBootrap5 ? layout.layoutPlatform5.content : "";
+                    testLayout = string.IsNullOrEmpty(testLayout) ? layout.layout.content : testLayout;
+                    if (isSiteBootrap5) {
+                        string errorMsg = includesBootstrap4(cp, testLayout);
+                        if (!string.IsNullOrEmpty(errorMsg)) {
+                            cp.Site.SetSiteWarning($"Bootstrap-4 styles found in Layout for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, layout [{layout.id}, {layout.name}], found bootstrap-4 style selectes [{errorMsg}]");
+                        }
+                    }
+                    //
+                    // -- check for default contensive content (facebook, etc) 
+                    //
+                    setWarnings_defaultContent(cp, testLayout, $"layout [{layout.id}, {layout.name}]");
+                }
+                return;
             } catch (Exception ex) {
                 LogController.logError(env.core, ex);
                 LogController.logAlarm(env.core, "Housekeep, SiteWarningsClass, ex [" + ex + "]");
@@ -71,8 +63,32 @@ namespace Contensive.Processor.Addons.Housekeeping {
             //
 
         }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// test an html code block for issues
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="sourceMsg"></param>
+        /// <param name="testLayout"></param>
+        private static void setWarnings_defaultContent(CPClass cp, string testLayout, string sourceMsg) {
+            if (cp.Site.Name.ToLower() != "kmaintranet") {
+                string testFor = "https://www.facebook.com/Contensive";
+                if (testLayout.containsCaseInsensative(testFor)) {
+                    cp.Site.SetSiteWarning($"default content found in layout", $"Default content [{testFor}] found, {sourceMsg}");
+                }
+                testFor = "https://twitter.com/Contensive";
+                if (testLayout.containsCaseInsensative(testFor)) {
+                    cp.Site.SetSiteWarning($"default content found in layout", $"Default content [{testFor}] found, {sourceMsg}");
+                }
+                testFor = "https://www.youtube.com/Contensive";
+                if (testLayout.containsCaseInsensative(testFor)) {
+                    cp.Site.SetSiteWarning($"default content found in layout", $"Default content [{testFor}] found, {sourceMsg}");
+                }
+            }
+        }
 
-        private static string testBootstrap4(CPClass cp,  string testLayout) {
+        private static string includesBootstrap4(CPClass cp, string testLayout) {
             string errorMsg = "";
             if (string.IsNullOrWhiteSpace(testLayout)) { return errorMsg; }
             //

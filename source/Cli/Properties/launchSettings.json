@@ -2,8 +2,8 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a ecommercetest --installfile ecommerce.zip",
-      "workingDirectory": "C:\\Git\\aoEcommerce\\collections\\Ecommerce",
+      "commandLineArgs": "-a ecommercetest --installfile Ecommerce.zip",
+      "workingDirectory": "C:\\Git\\aoEcommerce\\collections\\Ecommerce-install-test",
       "jsWebView2Debugging": false
     }
   }

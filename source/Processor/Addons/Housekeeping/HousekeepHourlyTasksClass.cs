@@ -66,7 +66,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 ActivityLogClass.executeHourlyTasks(env);
                 //
                 // -- site warnings
-                SiteWarningsClass.testWarningCases(env);
+                SiteWarningsClass.setWarnings(env);
                 //
                 env.log("executeHourlyTasks, done");
             } catch (Exception ex) {

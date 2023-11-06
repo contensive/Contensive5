@@ -159,10 +159,15 @@ namespace Tests {
             Assert.AreEqual(true, DbBaseModel.derivedNameFieldIsUnique(typeof(AddonModel)));
             Assert.AreEqual(false, DbBaseModel.derivedNameFieldIsUnique(typeof(AddonContentFieldTypeRulesModel)));
         }
-
+        /// <summary>
+        /// If not current session (a process, or trackvisit disabled), test that a default value is created by teh argument-user, or 0
+        /// </summary>
         [TestMethod()]
-        public void addDefaultTest() {
+        public void addDefaultTest_noSession() {
             using (CPClass cp = new(testAppName)) {
+                //
+                // -- verify this is a non-tracked session (a process not a webhit)
+                Assert.AreEqual(0, cp.User.IdInSession);
                 //
                 AddonModel test_withoutUser = DbBaseModel.addDefault<AddonModel>(cp);
                 AddonModel test_withUser = DbBaseModel.addDefault<AddonModel>(cp, 99);
@@ -176,6 +181,82 @@ namespace Tests {
                 Assert.AreEqual(99, test_withUser.createdBy);
                 Assert.AreEqual(99, test_withUser.modifiedBy);
                 Assert.AreNotEqual(0, test_withUser.contentControlId);
+            }
+        }
+
+        [TestMethod()]
+        public void addDefaultTest_withSession() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- initialize visit tracking
+                cp.User.Track();
+                //
+                // -- establish the visit
+                //
+                AddonModel test_withoutUser = DbBaseModel.addDefault<AddonModel>(cp);
+                AddonModel test_withUser = DbBaseModel.addDefault<AddonModel>(cp, 99);
+                //
+                Assert.AreEqual(true, test_withoutUser.active);
+                Assert.AreEqual(cp.User.Id, test_withoutUser.createdBy);
+                Assert.AreEqual(cp.User.Id, test_withoutUser.modifiedBy);
+                Assert.AreNotEqual(0, test_withoutUser.contentControlId);
+                //
+                Assert.AreEqual(true, test_withUser.active);
+                Assert.AreEqual(99, test_withUser.createdBy);
+                Assert.AreEqual(99, test_withUser.modifiedBy);
+                Assert.AreNotEqual(0, test_withUser.contentControlId);
+            }
+        }
+
+        [TestMethod()]
+        public void addDefaultTest_withSessionById() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- initialize visit tracking
+                int userId = cp.User.Id;
+                //
+                // -- establish the visit
+                //
+                AddonModel test_withoutUser = DbBaseModel.addDefault<AddonModel>(cp);
+                AddonModel test_withUser = DbBaseModel.addDefault<AddonModel>(cp, 99);
+                //
+                Assert.AreEqual(true, test_withoutUser.active);
+                Assert.AreEqual(userId, test_withoutUser.createdBy);
+                Assert.AreEqual(userId, test_withoutUser.modifiedBy);
+                Assert.AreNotEqual(0, test_withoutUser.contentControlId);
+                //
+                Assert.AreEqual(true, test_withUser.active);
+                Assert.AreEqual(99, test_withUser.createdBy);
+                Assert.AreEqual(99, test_withUser.modifiedBy);
+                Assert.AreNotEqual(0, test_withUser.contentControlId);
+            }
+        }
+
+        [TestMethod()]
+        public void visitTracking_IdInSession_DoesNotCreate() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- initialize visit tracking
+                Assert.AreEqual(0, cp.User.IdInSession);
+            }
+        }
+
+        [TestMethod()]
+        public void visitTracking_Id_DoesCreate() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- initialize visit tracking
+                Assert.AreNotEqual(0, cp.User.Id);
+            }
+        }
+
+        [TestMethod()]
+        public void visitTracking_track_DoesCreate() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- initialize visit tracking
+                cp.User.Track();
+                Assert.AreNotEqual(0, cp.User.IdInSession);
             }
         }
         //

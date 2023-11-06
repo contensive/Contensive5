@@ -385,21 +385,31 @@ namespace Contensive.Processor.Controllers {
         /// <param name="name">A generic description of the warning that describes the problem, but if the issue occurs again the name will match, like Page Not Found on /Home</param>
         /// <param name="description">Any detail the use will need to debug the problem.</param>
         //
-        public static void addAdminWarning(CoreController core, string name, string description) {
-            string SQL = "select top 1 ID from ccSiteWarnings"
+        public static void setSiteWarning(CoreController core, string name, string description, bool addRemove) {
+            if (!addRemove) {
+                //
+                // -- delete the warning
+                string sqlDelete = "delete from ccSiteWarnings"
+                    + " where (name=" + DbController.encodeSQLText(name) + ")"
+                    + " and(description=" + DbController.encodeSQLText(description) + ")"
+                    + "";
+                core.db.executeNonQuery(sqlDelete);
+                return;
+            }
+            string sql = "select top 1 ID from ccSiteWarnings"
                 + " where (name=" + DbController.encodeSQLText(name) + ")"
                 + " and(description=" + DbController.encodeSQLText(description) + ")"
                 + "";
-            using (DataTable dt = core.db.executeQuery(SQL)) {
+            using (DataTable dt = core.db.executeQuery(sql)) {
                 if (dt.Rows.Count > 0) {
                     //
                     // -- increment count for matching warning
                     int warningId = GenericController.encodeInteger(dt.Rows[0]["id"]);
-                    SQL = "update ccsitewarnings "
+                    sql = "update ccsitewarnings "
                         + " set count=count+1,"
                         + " dateLastReported=" + DbController.encodeSQLDate(core.dateTimeNowMockable) + " "
                         + " where id=" + warningId;
-                    core.db.executeNonQuery(SQL);
+                    core.db.executeNonQuery(sql);
                     return;
                 }
             }

@@ -1090,7 +1090,7 @@ namespace Contensive.Processor.Controllers {
                                                     string FieldDefaultValue = null;
                                                     string FieldCaption = null;
                                                     fieldName = xml_GetAttribute(IsFound, TabNode, "name", "");
-                                                    string fieldHtmlId = $"setting{fieldName.replace(" ","",StringComparison.InvariantCultureIgnoreCase)}";
+                                                    string fieldHtmlId = $"setting{fieldName.replace(" ", "", StringComparison.InvariantCultureIgnoreCase)}";
 
                                                     switch (GenericController.toLCase(TabNode.Name)) {
                                                         case "heading": {
@@ -1941,28 +1941,29 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         // main_Get an XML nodes attribute based on its name
         //
-        public string xml_GetAttribute(bool Found, XmlNode Node, string Name, string DefaultIfNotFound) {
-            string result = DefaultIfNotFound;
+        public string xml_GetAttribute(bool found, XmlNode Node, string Name, string defaultIfNotFound) {
             try {
-                Found = false;
-                XmlNode ResultNode = Node.Attributes.GetNamedItem(Name);
-                if (ResultNode == null) {
-                    string UcaseName = GenericController.toUCase(Name);
-                    foreach (XmlAttribute NodeAttribute in Node.Attributes) {
-                        if (GenericController.toUCase(NodeAttribute.Name) == UcaseName) {
-                            result = NodeAttribute.Value;
-                            Found = true;
-                            break;
-                        }
-                    }
-                } else {
-                    result = ResultNode.Value;
-                    Found = true;
+                found = false;
+                if (Node == null) {
+                    return defaultIfNotFound;
                 }
+                XmlNode ResultNode = Node.Attributes.GetNamedItem(Name);
+                if (ResultNode != null) {
+                    found = true;
+                    return ResultNode.Value;
+                }
+                string nameLC = Name.ToLower();
+                foreach (XmlAttribute NodeAttribute in Node.Attributes) {
+                    if (NodeAttribute.Name.ToLowerInvariant() == nameLC) {
+                        found = true;
+                        return NodeAttribute.Value;
+                    }
+                }
+                return defaultIfNotFound;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+                return defaultIfNotFound;
             }
-            return result;
         }
         //
         //====================================================================================================
