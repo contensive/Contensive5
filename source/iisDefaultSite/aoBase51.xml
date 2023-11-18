@@ -3111,6 +3111,7 @@
     <IncludeAddon name="JQuery" guid="{9C882078-0DAC-48E3-AD4B-CF2AA230DF80}"/>
     <IncludeAddon name="Bootstrap" guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
     <IncludeAddon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
+    <IncludeAddon name="Font Awesome" guid="{1e2f82ae-6722-4564-a461-5b2e7c5e32b3}"/>
     <jsheadscriptsrc>/adminsite/adminUI.js</jsheadscriptsrc>
     <styleslinkhref>/adminsite/adminUI.css</styleslinkhref>
     <htmlDocument>Yes</htmlDocument>

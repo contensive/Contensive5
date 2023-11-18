@@ -54,6 +54,11 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     //
                     setWarnings_defaultContent(cp, testLayout, $"layout [{layout.id}, {layout.name}]");
                 }
+                //
+                // -- set warning of doctype is not <!DOCTYPE HTML>
+                if( cp.Site.GetText("").ToLowerInvariant() != "<!doctype html>") {
+                    cp.Site.SetSiteWarning($"html doctype is not html5 doctype html", $"html doctype is not html5 doctype html. This effects how browsers display html and styles. To fix this, make sure all templates are html5 compatible, then set DocType Declaration to '<!DOCTYPE HTML>' in the Templates tab of Site Settings, available from the Settings icon in the admin site.");
+                }
                 return;
             } catch (Exception ex) {
                 LogController.logError(env.core, ex);

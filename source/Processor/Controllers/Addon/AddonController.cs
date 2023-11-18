@@ -1082,6 +1082,8 @@ namespace Contensive.Processor.Controllers {
                                                 TabHeading = xml_GetAttribute(IsFound, SettingNode, "heading", "");
                                                 TabCell = new StringBuilderLegacyController();
                                                 foreach (XmlNode TabNode in SettingNode.ChildNodes) {
+                                                    if(TabNode.NodeType==XmlNodeType.Comment) { continue; }
+                                                    //
                                                     int SQLPageSize = 0;
                                                     int ErrorNumber = 0;
                                                     string FieldDataSource = null;
@@ -1944,15 +1946,14 @@ namespace Contensive.Processor.Controllers {
         public string xml_GetAttribute(bool found, XmlNode Node, string Name, string defaultIfNotFound) {
             try {
                 found = false;
-                if (Node == null) {
-                    return defaultIfNotFound;
-                }
+                if (Node?.Attributes == null) {  return defaultIfNotFound; }
+                //
                 XmlNode ResultNode = Node.Attributes.GetNamedItem(Name);
                 if (ResultNode != null) {
                     found = true;
                     return ResultNode.Value;
                 }
-                string nameLC = Name.ToLower();
+                string nameLC = Name.ToLowerInvariant();
                 foreach (XmlAttribute NodeAttribute in Node.Attributes) {
                     if (NodeAttribute.Name.ToLowerInvariant() == nameLC) {
                         found = true;

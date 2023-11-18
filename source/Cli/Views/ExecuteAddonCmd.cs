@@ -31,7 +31,7 @@ namespace Contensive.CLI {
                 } else {
                     Console.WriteLine("executing addon [" + addonNameOrGuid + "], app  [" + appName + "]");
                     using (var cp = new CPClass(appName)) {
-                        cp.executeAddon(addonNameOrGuid);
+                        Console.WriteLine(cp.executeAddon(addonNameOrGuid));
                     }
                 }
             } catch (Exception ex) {

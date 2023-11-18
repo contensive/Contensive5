@@ -183,7 +183,6 @@ namespace Contensive.Processor.Addons.Housekeeping {
         public HouseKeepEnvironmentModel(CoreController core) {
             try {
                 this.core = core;
-                core.siteProperties.setProperty("housekeep, last check", core.dateTimeNowMockable);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }

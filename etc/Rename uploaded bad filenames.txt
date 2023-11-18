@@ -1,58 +1,75 @@
+'[library files], field [filename]
+'[ccMembers], field [imagefilename]
+'[pcAccreditorDirectoryInstitutions], field [logofilename]
+'[pcDegreeRuleDocuments], field [documentFileName]
+'[pcDocuments], field [documentFileName]
+'[pcEvidenceVersions], field [documentFileName]
 function m
-m = "enter"
-dim cs
-
-cs = cp.csNew()
-if ( cs.open("library files", "filename<>''")) then
-	dim ptr
-	ptr = 0
-	dim ptrMax
-	ptrMax = 9999
-	do
-		m = m & "<br>"
-		m = m & " ptr:[" & ptr & "]"
-		m = m & " id:[" & cs.gettext("id") & "]"
-		m = m & " name:[" & cs.gettext("name") & "]"
-		dim pathFilename
-		pathFilename = cs.gettext("filename")
-		m = m & " pathFilename:[" & pathFilename & "]"
-		if(pathFilename<>"") then
-          	pathFilename = replace( pathFilename, "\", "/" )
-          	dim segments
-          	segments = split( pathFilename, "/" )
-          	dim maxSegment
-          	maxSegment = UBound(segments)
-			m = m & " maxSegment[" & maxSegment & "]"
-			dim filename
-			filename = segments(maxSegment)
-			m = m & " filename[" & filename & "]"
-			dim encodedFilename
-			encodedFilename = encodeFilename(m, filename)
-			if (filename = encodedFilename) then
-				m = m & " ok"
+	dim contentName, fieldName
+	contentName = "people
+	fieldName = "imagefilename"
+	'
+	dim exitAfterFirstFound,fixFilenames,maxFiles
+	fixFilenames = true
+	exitAfterFirstFound = true
+	maxFiles=10
+	'
+	m = "enter"
+	dim cs
+	cs = cp.csNew()
+	if ( cs.open(contentName, fieldName & "<>''")) then
+		dim ptr
+		ptr = 0
+		do
+			m = m & "<br>"
+			m = m & " ptr:[" & ptr & "]"
+			m = m & " id:[" & cs.gettext("id") & "]"
+			m = m & " name:[" & cs.gettext("name") & "]"
+			dim pathFilename
+			pathFilename = cs.gettext(fieldName)
+			m = m & " pathFilename:[" & pathFilename & "]"
+			if(pathFilename<>"") then
+				pathFilename = replace( pathFilename, "\", "/" )
+				dim segments
+				segments = split( pathFilename, "/" )
+				dim maxSegment
+				maxSegment = UBound(segments)
+				m = m & " maxSegment[" & maxSegment & "]"
+				dim filename
+				filename = segments(maxSegment)
+				m = m & " " & fieldName & "[" & filename & "]"
+				dim encodedFilename
+				encodedFilename = encodeFilename(m, filename)
+				if (filename = encodedFilename) then
+					m = m & " ok"
+				else
+					m = m & " bad [" & encodedFilename & "]"
+					if(fixFilenames) then
+						dim path
+						path = left(pathFilename, len(pathfilename) - len(filename))
+						dim newPathFilename
+						newPathFilename = path & encodedFilename
+						m = m & " newPathFilename [" & newPathFilename & "]"
+						call cp.cdnFiles.copy( pathFilename, newPathFilename )
+						call cs.setField(fieldName, newPathFilename )
+						cs.save()
+					end if
+					if(exitAfterFirstFound) then
+						m = m & "Exit after first file found"
+						exit function
+					end if
+				end if
 			else
-				m = m & " bad [" & encodedFilename & "]"
-				dim path
-				path = left(pathFilename, len(pathfilename) - len(filename))
-				dim newPathFilename
-				newPathFilename = path & encodedFilename
-				m = m & " newPathFilename [" & newPathFilename & "]"
-				call cp.cdnFiles.copy( pathFilename, newPathFilename )
-				call cs.setField("filename", newPathFilename )
-				cs.save()
-				'exit function
+				m = m & " (empty)"
 			end if
-		else
-			m = m & " (empty)"
-		end if
-		ptr = ptr + 1
-		cs.goNext()
-	loop while cs.ok() and (ptr < ptrMax)
-	m = m & "<br>" & "filesDone"
-end if
-cs.close()
+			ptr = ptr + 1
+			cs.goNext()
+		loop while cs.ok() and (ptr < maxFiles)
+		m = m & "<br>" & "filesDone"
+	end if
+	cs.close()
 
-m = m & "<br>" & "ok"
+	m = m & "<br>" & "ok"
 end function
 '
 function encodeFilename(m, strFileName)

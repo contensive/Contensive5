@@ -1,0 +1,79 @@
+function 
+m  m = "enter"  
+dim contentName  
+'contentName = "library files"  
+'contentName = "organizations"  
+contentName = "ASA Membership Application Survey Responses"  
+dim fieldName  
+fieldName = "filename"  
+fieldName = "imagefilename"  
+'fieldName = "imagefilename"  
+dim ptrMax  
+ptrMax = 111111  
+'  dim cs  
+cs = cp.csNew()  
+if ( cs.open(contentName, fieldName & "<>''","id",false)) then   
+dim ptr   
+ptr = 0   
+do    
+m = m & "<br>"    
+m = m & " ptr:[" & ptr & "]"    
+m = m & " id:[" & cs.gettext("id") & "]"    
+m = m & " name:[" & cs.gettext("name") & "]"    
+dim pathFilename    
+pathFilename = cs.gettext(fieldName)    
+m = m & " pathFilename:[" & pathFilename & "]"    
+if(pathFilename<>"") then             
+pathFilename = replace( pathFilename, "\", "/" )             
+dim segments             
+segments = split( pathFilename, "/" )             
+dim maxSegment             
+maxSegment = UBound(segments)     
+m = m & " maxSegment[" & maxSegment & "]"     
+dim filename     
+filename = segments(maxSegment)     
+m = m & " filename[" & filename & "]"     
+dim encodedFilename     
+encodedFilename = encodeFilename(m, filename)     
+if (filename = encodedFilename) then      
+m = m & " ok"     
+else      
+m = m & " bad [" & encodedFilename & "]"      
+dim path      
+path = left(pathFilename, len(pathfilename) - len(filename))      
+dim newPathFilename      
+newPathFilename = path & encodedFilename      
+m = m & " newPathFilename [" & newPathFilename & "]"      
+call cp.cdnFiles.copy( pathFilename, newPathFilename )      
+call cs.setField(fieldName, newPathFilename )      
+cs.save()      
+'exit function     
+end if    
+else     
+m = m & " (empty)"    
+end if    
+ptr = ptr + 1    
+cs.goNext()   
+loop while cs.ok() and (ptr < ptrMax)   
+m = m & "<br>" & "filesDone"  
+end if  
+cs.close()    
+m = m & "<br>" & "ok"  
+end function  
+'  function encodeFilename(m, strFileName)   
+dim allowedPathFilenameCharacters   
+allowedPathFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+"      
+'Get file name   
+isFilenameok = False   
+encodeFilename = ""      
+'Parse characters of name into individual strings   
+For intChar = 1 To Len(strFileName)       
+'Make all letters lower case - This is not changing the actual file names just the strings in memory for analysis    
+strChar = Mid(strFileName, intChar, 1)          
+If InStr(allowedPathFilenameCharacters, LCase(strChar)) = 0 Then           
+encodeFilename = encodeFilename & "_"    
+Else           
+encodeFilename = encodeFilename & strChar          
+End If   
+Next    
+end function
