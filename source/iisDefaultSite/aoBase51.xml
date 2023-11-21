@@ -3670,6 +3670,7 @@ $(function () {
   <ImportCollection name="Email Bounce Process">{321eb147-d85f-4537-8768-a16067c5ad17}</ImportCollection>
   <ImportCollection name="Fancy Box">{B59F4D89-ADD9-4FEA-9D3F-B5A44DFD8F39}</ImportCollection>
   <ImportCollection name="Font Awesome">{3db6a433-59ca-43d1-9fb6-a539b6b947f2}</ImportCollection>
+  <ImportCollection name="Help Pages">{88a67652-dd4d-446c-826e-c987de276df9}</ImportCollection>
   <ImportCollection name="Import Wizard">{339B9171-5B57-4F42-914C-DCEF4F52F388}</ImportCollection>
   <ImportCollection name="JQuery">{A435BF70-041B-43D1-8A8D-5D9D59A7FCD0}</ImportCollection>
   <ImportCollection name="Menu Pages">{237805fb-fcc4-42e5-a1b5-5383850085d5}</ImportCollection>
