@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // --- must be authenticated to continue. Force a local login
                     return LoginController.getLoginPage(((CPClass)cp).core, true, true);
                 }
-                if (!cp.core.session.isAuthenticatedContentManager()) {
+                if (!cp.core.session.isAuthenticatedAdmin()) {
                     //
                     // --- member must have proper access to continue
                     string result = ""
@@ -69,6 +69,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <returns></returns>
         public string getAdminSite(CPClass cp) {
             try {
+                //
+                // -- disable tool panel for /help pages
+                cp.Doc.SetProperty("AllowToolPanel", false);
+                //
+                // -- block search engines. This should be blocked anyway.
+                cp.Doc.AddHeadTag("<meta name=\"robots\" content=\"noindex,nofollow\">");
                 //
                 // -- get layout - first layout record, then layout-file, then layout-resource
                 // todo -- plan is to include layout-files with base51.zip file, instead of base51.xml file -- need to review the build process to better understand first

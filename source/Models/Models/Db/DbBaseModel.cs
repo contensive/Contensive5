@@ -313,26 +313,53 @@ namespace Contensive.Models.Db {
         /// </summary>
         /// <param name="sourceType"></param>
         /// <returns></returns>
-        private static bool allowRecordCaching(Type sourceType) {
-            //
-            var stackTrace = new StackTrace();
-            //
-            // -- return false if the type is a subsclass outside of this project.
-            bool isModelLocal = sourceType.Namespace.ToLower().Equals("contensive.models.db");
-            if (!isModelLocal) { return false; }
-            for (int stackPtr = 2; stackPtr <= stackTrace.FrameCount - 1; stackPtr++) {
-                MethodBase stackMethod = stackTrace.GetFrame(stackPtr).GetMethod();
-                Type stackClass = stackMethod.ReflectedType;
-                string stackNamespace = stackClass.Namespace.ToLowerInvariant();
+        private static bool allowRecordCaching(CPBaseClass cp, Type sourceType) {
+            int hint = 0;
+            try {
+                if (sourceType == null) { return false; }
+                hint = 2;
                 //
-                // -- return false if calling method is outside of dbmodels and processor or tests
-                bool namespaceWithinTests = (stackNamespace.Length >= 5) && stackNamespace.Substring(0, 5).Equals("tests");
-                bool namespaceWithinDbModels = (stackNamespace.Length >= 20) && stackNamespace.Substring(0, 20).Equals("contensive.models.db");
-                bool namespaceWithinProcessor = (stackNamespace.Length >= 20) && stackNamespace.Substring(0, 20).Equals("contensive.processor");
-                if (namespaceWithinProcessor || namespaceWithinTests) { return true; }
-                if (!namespaceWithinTests && !namespaceWithinProcessor && !namespaceWithinDbModels) { return false; }
+                var stackTrace = new StackTrace();
+                if (stackTrace == null) { return false; }
+                hint = 4;
+                //
+                // -- return false if the type is a subsclass outside of this project.
+                bool isModelLocal = sourceType.Namespace.ToLower().Equals("contensive.models.db");
+                hint = 10;
+                if (!isModelLocal) { return false; }
+                for (int stackPtr = 2; stackPtr <= stackTrace.FrameCount - 1; stackPtr++) {
+                    hint = 20;
+                    MethodBase stackMethod = stackTrace.GetFrame(stackPtr).GetMethod();
+                    hint = 30;
+                    Type stackClass = stackMethod.ReflectedType;
+                    hint = 40;
+                    string stackNamespace = stackClass.Namespace.ToLowerInvariant();
+                    hint = 50;
+                    //
+                    // -- return false if calling method is outside of dbmodels and processor or tests
+                    bool namespaceWithinTests = (stackNamespace.Length >= 5) && stackNamespace.Substring(0, 5).Equals("tests");
+                    hint = 60;
+                    bool namespaceWithinDbModels = (stackNamespace.Length >= 20) && stackNamespace.Substring(0, 20).Equals("contensive.models.db");
+                    hint = 70;
+                    bool namespaceWithinProcessor = (stackNamespace.Length >= 20) && stackNamespace.Substring(0, 20).Equals("contensive.processor");
+                    hint = 80;
+                    if (namespaceWithinProcessor || namespaceWithinTests) { return true; }
+                    hint = 90;
+                    if (!namespaceWithinTests && !namespaceWithinProcessor && !namespaceWithinDbModels) { return false; }
+                    hint = 100;
+                }
+                return true;
+            } catch (Exception ex) {
+                //
+                // catch null-ref and report position, swallow exception and just disable cache
+                //
+                cp.Site.ErrorReport(ex, $"hint [{hint}]");
+                //
+                // -- short-term alarm to catch
+                //
+                cp.Site.LogAlarm($"Contensive.Models.Db.allowRecordCaching exception, sourceType.Name [{sourceType.Name}], sourceType.Namespace [{sourceType.Namespace}], hint [{hint}]");
+                return false;
             }
-            return true;
         }
         //
         //====================================================================================================
@@ -680,7 +707,7 @@ namespace Contensive.Models.Db {
         public static T create<T>(CPBaseClass cp, int recordId, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 if (recordId <= 0) { return default; }
-                T result = allowRecordCaching(typeof(T)) ? readRecordCache<T>(cp, recordId) : null;
+                T result = allowRecordCaching(cp, typeof(T)) ? readRecordCache<T>(cp, recordId) : null;
                 if (result != null) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(id=" + recordId + ")", "id"));
                 if (dt?.Rows == null) { return default; }
@@ -721,7 +748,7 @@ namespace Contensive.Models.Db {
         public static T create<T>(CPBaseClass cp, string recordGuid, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 if (string.IsNullOrEmpty(recordGuid)) { return default; }
-                T result = allowRecordCaching(typeof(T)) ? readRecordCacheByGuidPtr<T>(cp, recordGuid) : null;
+                T result = allowRecordCaching(cp, typeof(T)) ? readRecordCacheByGuidPtr<T>(cp, recordGuid) : null;
                 if (result != null) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(ccGuid=" + cp.Db.EncodeSQLText(recordGuid) + ")", "id"));
                 if (dt?.Rows == null) { return default; }
@@ -763,7 +790,7 @@ namespace Contensive.Models.Db {
         public static T createByUniqueName<T>(CPBaseClass cp, string recordName, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 if (string.IsNullOrEmpty(recordName)) { return null; }
-                T result = (allowRecordCaching(typeof(T)) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
+                T result = (allowRecordCaching(cp, typeof(T)) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
                 if (result != null) { return result; }
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(name=" + cp.Db.EncodeSQLText(recordName) + ")", "id"));
                 if (dt?.Rows == null) { return null; }
@@ -935,7 +962,7 @@ namespace Contensive.Models.Db {
                             }
                     }
                 }
-                if (allowRecordCaching(instanceType) && (this != null)) {
+                if (allowRecordCaching(cp, instanceType) && (this != null)) {
                     //
                     // -- set primary cache to the object created
                     // -- set secondary caches to the primary cache
@@ -1186,7 +1213,7 @@ namespace Contensive.Models.Db {
                     }
                 }
                 string cacheKey = cp.Cache.CreateRecordKey(id, tableName, datasourceName);
-                if (!allowRecordCaching(this.GetType())) {
+                if (!allowRecordCaching(cp, this.GetType())) {
                     //
                     // -- the object being saved is a derived type and cannot be saved to the base object's cache. Clear the cache
                     cp.Cache.Invalidate(cacheKey);
@@ -1726,7 +1753,7 @@ namespace Contensive.Models.Db {
         /// <param name="recordId"></param>
         /// <returns></returns>
         private static T readRecordCache<T>(CPBaseClass cp, int recordId) where T : DbBaseModel {
-            if (!allowRecordCaching(typeof(T))) { return null; }
+            if (!allowRecordCaching(cp, typeof(T))) { return null; }
             T result = cp.Cache.GetObject<T>(cp.Cache.CreateRecordKey(recordId, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -1741,7 +1768,7 @@ namespace Contensive.Models.Db {
         /// <param name="ccGuid"></param>
         /// <returns></returns>
         private static T readRecordCacheByGuidPtr<T>(CPBaseClass cp, string ccGuid) where T : DbBaseModel {
-            if (!allowRecordCaching(typeof(T))) { return null; }
+            if (!allowRecordCaching(cp, typeof(T))) { return null; }
             T result = cp.Cache.GetObject<T>(cp.Cache.CreatePtrKeyforDbRecordGuid(ccGuid, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -1756,7 +1783,7 @@ namespace Contensive.Models.Db {
         /// <param name="uniqueName"></param>
         /// <returns></returns>
         private static T readRecordCacheByUniqueNamePtr<T>(CPBaseClass cp, string uniqueName) where T : DbBaseModel {
-            if (!allowRecordCaching(typeof(T))) { return null; }
+            if (!allowRecordCaching(cp, typeof(T))) { return null; }
             T result = cp.Cache.GetObject<T>(cp.Cache.CreatePtrKeyforDbRecordUniqueName(uniqueName, derivedTableName(typeof(T)), derivedDataSourceName(typeof(T))));
             restoreCacheDataObjects(cp, result);
             return result;
@@ -1768,7 +1795,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         private static void restoreCacheDataObjects<T>(CPBaseClass cp, T restoredInstance) {
             if (restoredInstance == null) { return; }
-            if (!allowRecordCaching(typeof(T))) { return; }
+            if (!allowRecordCaching(cp, typeof(T))) { return; }
             foreach (PropertyInfo instanceProperty in restoredInstance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
                 // todo change test to is-subsclass-of-fieldCdnFile
                 switch (instanceProperty.PropertyType.Name) {

@@ -30,7 +30,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     if (isSiteBootrap5) {
                         string errorMsg = includesBootstrap4(cp, testLayout);
                         if (!string.IsNullOrEmpty(errorMsg)) {
-                            cp.Site.SetSiteWarning($"Bootstrap-4 styles found in Page Template for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, template [{template.id}, {template.name}], found bootstrap-4 style selectes [{errorMsg}]");
+                            cp.Site.SetSiteWarning($"Bootstrap-4 styles found in Page Template for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, template [{template.id}, {template.name}], found bootstrap-4 style selectors [{errorMsg}]");
                         }
                     }
                     //
@@ -46,7 +46,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     if (isSiteBootrap5) {
                         string errorMsg = includesBootstrap4(cp, testLayout);
                         if (!string.IsNullOrEmpty(errorMsg)) {
-                            cp.Site.SetSiteWarning($"Bootstrap-4 styles found in Layout for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, layout [{layout.id}, {layout.name}], found bootstrap-4 style selectes [{errorMsg}]");
+                            cp.Site.SetSiteWarning($"Bootstrap-4 styles found in Layout for Bootstrap-5 site", $"Bootstrap-4 styles found on site set using Bootstrap-5, layout [{layout.id}, {layout.name}], found bootstrap-4 style selectors [{errorMsg}]");
                         }
                     }
                     //
@@ -56,7 +56,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 }
                 //
                 // -- set warning of doctype is not <!DOCTYPE HTML>
-                if( cp.Site.GetText("").ToLowerInvariant() != "<!doctype html>") {
+                string docType = cp.Site.GetText("DOCTYPEDECLARATION");
+                if (!string.IsNullOrEmpty(docType) && docType.ToLowerInvariant() != "<!doctype html>") {
                     cp.Site.SetSiteWarning($"html doctype is not html5 doctype html", $"html doctype is not html5 doctype html. This effects how browsers display html and styles. To fix this, make sure all templates are html5 compatible, then set DocType Declaration to '<!DOCTYPE HTML>' in the Templates tab of Site Settings, available from the Settings icon in the admin site.");
                 }
                 return;
