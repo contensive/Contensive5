@@ -3691,4 +3691,6 @@ $(function () {
   -->
 	<Resource name="baseassets.zip" type="file" path="baseAssets" />
 	<Resource name="adminsite.zip" type="file" path="adminsite" />
+	<!-- zip of help files for this collection, plus the default.md file that describes the help system -->
+	<Resource name="HelpFiles.zip" type="privatefiles" path="helpfiles/Base5" />
 </Collection>

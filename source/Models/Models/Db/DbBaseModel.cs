@@ -316,7 +316,7 @@ namespace Contensive.Models.Db {
         private static bool allowRecordCaching(CPBaseClass cp, Type sourceType) {
             int hint = 0;
             try {
-                if (sourceType == null) { return false; }
+                if (sourceType?.Namespace == null) { return false; }
                 hint = 2;
                 //
                 var stackTrace = new StackTrace();
@@ -329,11 +329,17 @@ namespace Contensive.Models.Db {
                 if (!isModelLocal) { return false; }
                 for (int stackPtr = 2; stackPtr <= stackTrace.FrameCount - 1; stackPtr++) {
                     hint = 20;
-                    MethodBase stackMethod = stackTrace.GetFrame(stackPtr).GetMethod();
+                    var stackFrame = stackTrace.GetFrame(stackPtr);
+                    if (stackFrame == null) { return false; }
+                    //
+                    MethodBase stackMethod = stackFrame.GetMethod();
+                    if(stackMethod == null) { return false; }
                     hint = 30;
                     Type stackClass = stackMethod.ReflectedType;
+                    if(stackClass?.Namespace == null) { return false; }
                     hint = 40;
                     string stackNamespace = stackClass.Namespace.ToLowerInvariant();
+                    if(stackNamespace == null) { return false; }
                     hint = 50;
                     //
                     // -- return false if calling method is outside of dbmodels and processor or tests
