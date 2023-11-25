@@ -436,16 +436,20 @@ namespace Contensive.Processor.Controllers {
                     _programFiles = new FileController(this, executePath);
                     return _programFiles;
                 }
-                if (!String.IsNullOrEmpty(serverConfig.programFilesPath)) {
+                if (!string.IsNullOrEmpty(serverConfig.programFilesPath) && System.IO.File.Exists(serverConfig.programFilesPath + "Processor.dll")) {
                     //
-                    // -- use saved path
+                    // -- use saved path if it exists
                     _programFiles = new FileController(this, serverConfig.programFilesPath);
                     return _programFiles;
                 }
                 //
                 //  -- developer, fake a path
                 LogController.logWarn(this, "serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
-                serverConfig.programFilesPath = "c:\\Program Files (x86)\\Contensive\\";
+                if (System.IO.File.Exists("c:\\Program Files\\Contensive\\Processor.dll")) {
+                    serverConfig.programFilesPath = "c:\\Program Files\\Contensive\\";
+                } else {
+                    serverConfig.programFilesPath = "c:\\Program Files (x86)\\Contensive\\";
+                } 
                 serverConfig.save(this);
                 _programFiles = new FileController(this, serverConfig.programFilesPath);
                 return _programFiles;

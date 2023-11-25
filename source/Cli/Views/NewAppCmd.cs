@@ -273,7 +273,7 @@ namespace Contensive.CLI {
                     if (!cp.core.programFiles.fileExists(@"\defaultaspxsite.zip")) {
                         //
                         // -- message to install defaultsite manually
-                        Console.WriteLine("File [defaultaspxsite.zip] was not found in the folder [\\Program Files (x86)\\Contensive]. To setup an IIS website, import this file using IIS Manager from the deployment folder. To automatically install during this process, copy the file into the program files folder.");
+                        Console.WriteLine($"File [defaultaspxsite.zip] was not found in the folder [{cp.core.programFiles.localAbsRootPath}\\Contensive]. To setup an IIS website, import this file using IIS Manager from the deployment folder. To automatically install during this process, copy the file into the program files folder.");
                     } else {
                         //
                         // -- install defaultaspxsite
