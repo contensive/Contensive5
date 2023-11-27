@@ -389,6 +389,20 @@ namespace Contensive.Processor.Controllers {
                         // -- remove page edit tag
                         core.siteProperties.setProperty("allow page settings edit", false);
                     }
+                    if(GenericController.versionIsOlder(DataBuildVersion, "23.11.26.1")) {
+                        //
+                        // -- change sitewarnings field from text to varchar
+                        core.db.executeNonQuery("ALTER TABLE ccsitewarnings ALTER COLUMN description VARCHAR(4000)");
+                        //
+                        // -- convert all text to varchar(nmax)
+                        foreach ( var table in DbBaseModel.createList<TableModel>(cp,"(active>0)and(name is not null)and(name<>'')")) {
+                            DataTable dt = core.db.executeQuery($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table.name}' and data_type='text'");
+                            if (dt?.Rows == null && dt.Rows.Count == 0) { continue; }
+                            foreach( DataRow dr in dt.Rows) {
+                                core.db.executeNonQuery($"ALTER TABLE {table.name} ALTER COLUMN {cp.Utils.EncodeText(dr[0])} VARCHAR(max)");
+                            }
+                        }
+                    }
                 }
                 // -- Reload
                 core.cache.invalidateAll();

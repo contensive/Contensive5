@@ -49,7 +49,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // Request the Download file for this collection
                 XmlDocument Doc = new XmlDocument();
-                string URL = "http://support.contensive.com/GetCollection?iv=" + CoreController.codeVersion() + "&guid=" + collectionGuid;
+                string URL = "https://support.contensive.com/GetCollection?iv=" + CoreController.codeVersion() + "&guid=" + collectionGuid;
                 string errorPrefix = "DownloadCollectionFiles, Error reading the collection library status file from the server for Collection [" + collectionGuid + "], download URL [" + URL + "]. ";
                 int downloadRetry = 0;
                 int downloadDelay = 2000;
@@ -74,9 +74,9 @@ namespace Contensive.Processor.Controllers {
                         //
                         // this error could be data related, and may not be critical. log issue and continue
                         downloadDelay += 2000;
-                        return_ErrorMessage = "There was an error while requesting the download details for collection [" + collectionGuid + "]";
-                        result = false;
-                        LogController.logInfo(core, errorPrefix + "There was a parse error reading the response [" + ex + "]");
+                        //return_ErrorMessage = "There was an error while requesting the download details for collection [" + collectionGuid + "]";
+                        LogController.logInfo(core, errorPrefix + "There was a parse error for collection [" + collectionGuid + "] reading the response [" + ex + "]");
+                        result = true;
                     }
                     downloadRetry += 1;
                 } while (downloadRetry < downloadRetryMax);
@@ -84,16 +84,18 @@ namespace Contensive.Processor.Controllers {
                     //
                     // continue if no errors
                     if (Doc.DocumentElement.Name.ToLowerInvariant() != GenericController.toLCase(DownloadFileRootNode)) {
-                        return_ErrorMessage = "The collection file from the server was not valid for collection [" + collectionGuid + "]";
-                        result = false;
+                        // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
+                        //return_ErrorMessage = "The collection file from the server was not valid for collection [" + collectionGuid + "]";
                         LogController.logInfo(core, errorPrefix + "The response has a basename [" + Doc.DocumentElement.Name + "] but [" + DownloadFileRootNode + "] was expected.");
+                        result = true;
                     } else {
                         //
                         // Parse the Download File and download each file into the working folder
                         if (Doc.DocumentElement.ChildNodes.Count == 0) {
-                            return_ErrorMessage = "The collection library status file from the server has a valid basename, but no childnodes.";
-                            LogController.logInfo(core, errorPrefix + "The collection library status file from the server has a valid basename, but no childnodes. The collection was probably Not found");
-                            result = false;
+                            // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
+                            //return_ErrorMessage = $"The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].";
+                            LogController.logInfo(core, errorPrefix + $"The collection library status file from the server has a valid basename, but no childnodes. The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
+                            result = true;
                         } else {
                             //
                             int CollectionFileCnt = 0;
