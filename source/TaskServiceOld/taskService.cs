@@ -5,8 +5,8 @@ using Contensive.Processor.Controllers;
 using Contensive.Processor;
 
 namespace Contensive.Services {
-    public partial class TaskService : ServiceBase {
-        public TaskService() {
+    public partial class taskService : ServiceBase {
+        public taskService() {
             InitializeComponent();
         }
         private TaskSchedulerController taskScheduler = null;

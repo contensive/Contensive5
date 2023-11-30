@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Contensive.Services {
-    internal static class Program {
+    static class Program {
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -14,7 +10,7 @@ namespace Contensive.Services {
             ServiceBase[] ServicesToRun;
             ServicesToRun = new ServiceBase[]
             {
-                new TaskService()
+                new taskService()
             };
             ServiceBase.Run(ServicesToRun);
         }

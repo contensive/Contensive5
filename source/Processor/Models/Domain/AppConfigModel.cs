@@ -107,7 +107,7 @@ namespace Contensive.Processor.Models.Domain {
         /// if false, app secrets are stored here.
         /// values stored in secrets override properties in server and app config.
         /// </summary>
-        public override List<NameValueBaseModel> secrets { get; set; }
+        public override List<NameValueBaseModel> secrets { get; set; } = new();
         //
         //====================================================================================================
         /// <summary>

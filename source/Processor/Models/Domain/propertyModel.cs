@@ -356,22 +356,24 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 propertyCache_nameIndex = new KeyPtrController();
                 localCacheCnt = 0;
-                //
-                using (DataTable dt = core.db.executeQuery("select Name,FieldValue,ID from ccProperties where (active<>0)and(TypeID=" + (int)propertyType + ")and(KeyID=" + keyId + ")")) {
-                    if (dt.Rows.Count > 0) {
-                        localCache = new string[3, dt.Rows.Count];
-                        foreach (DataRow dr in dt.Rows) {
-                            string Name = GenericController.encodeText(dr[0]);
-                            localCache[0, localCacheCnt] = Name;
-                            localCache[1, localCacheCnt] = GenericController.encodeText(dr[1]);
-                            localCache[2, localCacheCnt] = GenericController.encodeInteger(dr[2]).ToString();
-                            propertyCache_nameIndex.setPtr(Name.ToLowerInvariant(), localCacheCnt);
-                            localCacheCnt += 1;
-                        }
-                        localCacheCnt = dt.Rows.Count;
-                    }
-                }
+                localCache = new string[3, 1];
                 localCacheLoaded = true;
+                //
+                // -- invalid key, key represents db id field.
+                if (keyId == 0) { return; }
+                //
+                using DataTable dt = core.db.executeQuery($"select Name,FieldValue,ID from ccProperties where (active<>0)and(TypeID={(int)propertyType})and(KeyID={keyId})");
+                if (dt?.Rows == null || dt.Rows.Count == 0) { return; }
+                localCache = new string[3, dt.Rows.Count];
+                foreach (DataRow dr in dt.Rows) {
+                    string Name = GenericController.encodeText(dr[0]);
+                    localCache[0, localCacheCnt] = Name;
+                    localCache[1, localCacheCnt] = encodeText(dr[1]);
+                    localCache[2, localCacheCnt] = encodeInteger(dr[2]).ToString();
+                    propertyCache_nameIndex.setPtr(Name.ToLowerInvariant(), localCacheCnt);
+                    localCacheCnt += 1;
+                }
+                localCacheCnt = dt.Rows.Count;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

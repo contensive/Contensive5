@@ -20,12 +20,15 @@ namespace Tests {
         public void test_NoSession() {
             using (CPClass cp = new(testAppName)) {
                 // arrange
+                cp.Site.SetProperty("allowVisitTracking", true);
                 string propText = cp.Utils.GetRandomInteger().ToString();
                 int propInt = cp.Utils.GetRandomInteger();
                 double propDouble = (double)cp.Utils.GetRandomInteger() / (double)cp.Utils.GetRandomInteger();
                 bool propBoolTrue = true;
                 bool propBoolFalse = false;
                 DateTime propDate = DateTime.MinValue.AddMinutes(cp.Utils.GetRandomInteger());
+                //
+                int visitorId = cp.Visitor.Id;
                 //
                 cp.Visitor.SetProperty("propInt", propInt);
                 cp.Visitor.SetProperty("propDouble", propDouble);
@@ -48,27 +51,27 @@ namespace Tests {
                 Assert.AreEqual(propDate, cp.Visitor.GetDate("propDate"));
                 Assert.AreEqual(propDate, cp.Visitor.GetDate("propDate", propDate.AddDays(1)));
                 //
-                var properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propInt')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                var properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propInt')and(keyid={visitorId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propInt, cp.Utils.EncodeInteger(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propDouble')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDouble')and(keyid={visitorId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propDouble, cp.Utils.EncodeNumber(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propBoolTrue')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolTrue')and(keyid={visitorId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propBoolTrue, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propBoolFalse')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={visitorId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propBoolFalse')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={visitorId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propDate')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDate')and(keyid={visitorId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propDate, cp.Utils.EncodeDate(properyList[0].fieldValue));
             }

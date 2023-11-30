@@ -134,7 +134,9 @@ namespace Contensive.Processor.Models.Domain {
                     string localRoute = GenericController.normalizeRoute(linkForward.sourceLink);
                     if (!string.IsNullOrEmpty(localRoute)) {
                         if (result.routeDictionary.ContainsKey(localRoute)) {
-                            LogController.logError(core, new GenericException("Link Forward Route [" + localRoute + "] cannot be added because it matches the Admin Route, a Remote Method or another Link Forward."));
+                            string warnName = $"Link Forward Route [{localRoute}] cannot be added";
+                            string warnDesc = $"Link Forward Route [{localRoute}] cannot be added because it matches the Admin Route [{core.appConfig.adminRoute}], a Remote Method or another Link Forward.";
+                            LogController.setSiteWarning(core, warnName, warnDesc,true);
                         } else {
                             //
                             // -- link alias does not modify the route 
@@ -160,7 +162,9 @@ namespace Contensive.Processor.Models.Domain {
                     if (result.routeDictionary.ContainsKey(localRoute)) {
                         //
                         // -- duplicate route. map must be unique. fail route
-                        LogController.logError(core, new GenericException("Link Alias route [" + localRoute + "] cannot be added because it matches the Admin Route, a Remote Method, a Link Forward o another Link Alias."));
+                        string warnName = $"Link Alias route [{localRoute}] cannot be added";
+                        string warnDesc = $"Link Alias route [{localRoute}] cannot be added because it matches the Admin Route, a Remote Method, a Link Forward o another Link Alias.";
+                        LogController.setSiteWarning(core, warnName, warnDesc, true);
                         continue;
                     }
                     //

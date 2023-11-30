@@ -1,5 +1,5 @@
 ﻿namespace Contensive.Services {
-    partial class TaskService {
+    partial class taskService {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
@@ -23,11 +23,8 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            // 
-            // Service1
-            // 
-            this.ServiceName = "TaskService";
-
+            components = new System.ComponentModel.Container();
+            this.ServiceName = "Service1";
         }
 
         #endregion

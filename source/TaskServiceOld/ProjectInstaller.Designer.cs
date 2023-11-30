@@ -1,4 +1,4 @@
-﻿namespace Contensive.Services {
+﻿namespace Contensive.WindowsServices {
     partial class ProjectInstaller {
         /// <summary>
         /// Required designer variable.
@@ -28,14 +28,17 @@
             // 
             // serviceProcessInstaller1
             // 
+            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalSystem;
             this.serviceProcessInstaller1.Password = null;
             this.serviceProcessInstaller1.Username = null;
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "serviceInstaller1 description";
-            this.serviceInstaller1.DisplayName = "serviceInstaller1 displayname";
+            this.serviceInstaller1.Description = "Contensive Task Scheduler and Task Runner handles the background execution of add" +
+    "ons for this application";
+            this.serviceInstaller1.DisplayName = "Contensive Task Service";
             this.serviceInstaller1.ServiceName = "TaskService";
+            this.serviceInstaller1.StartType = System.ServiceProcess.ServiceStartMode.Automatic;
             // 
             // ProjectInstaller
             // 

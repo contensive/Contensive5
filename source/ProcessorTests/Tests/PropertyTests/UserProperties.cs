@@ -28,6 +28,8 @@ namespace Tests {
                 bool propBoolFalse = false;
                 DateTime propDate = DateTime.MinValue.AddMinutes(cp.Utils.GetRandomInteger());
                 //
+                int userId = cp.User.Id;
+                //
                 cp.User.SetProperty("propInt", propInt);
                 cp.User.SetProperty("propDouble", propDouble);
                 cp.User.SetProperty("propBoolTrue", propBoolTrue);
@@ -40,27 +42,27 @@ namespace Tests {
                 Assert.AreEqual(propBoolFalse, cp.User.GetBoolean("propBoolFalse"));
                 Assert.AreEqual(propDate, cp.User.GetDate("propDate"));
                 //
-                var properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propInt')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                var properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propInt')and(keyid={userId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propInt, cp.Utils.EncodeInteger(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propDouble')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDouble')and(keyid={userId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propDouble, cp.Utils.EncodeNumber(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propBoolTrue')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolTrue')and(keyid={userId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propBoolTrue, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propBoolFalse')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={userId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propBoolFalse')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propBoolFalse')and(keyid={userId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propBoolFalse, cp.Utils.EncodeBoolean(properyList[0].fieldValue));
                 //
-                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, "(name='propDate')and(keyid=0)and(TypeId=" + propertyTypeId + ")");
+                properyList = Contensive.Models.Db.DbBaseModel.createList<Contensive.Models.Db.PropertyModel>((CPBaseClass)cp, $"(name='propDate')and(keyid={userId})and(TypeId={propertyTypeId})");
                 Assert.AreEqual(1, properyList.Count);
                 Assert.AreEqual(propDate, cp.Utils.EncodeDate(properyList[0].fieldValue));
             }
