@@ -85,7 +85,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// when exeecuting iis, this is the default page.
         /// </summary>
-        public override string defaultPage { get; set; } 
+        public override string defaultPage { get; set; }
         /// <summary>
         /// if true, the command line delete cannot delete this app
         /// </summary>
@@ -107,14 +107,24 @@ namespace Contensive.Processor.Models.Domain {
         /// if false, app secrets are stored here.
         /// values stored in secrets override properties in server and app config.
         /// </summary>
-        public override List<NameValueBaseModel> secrets { get; set; } = new();
+        public override List<NameValueBaseModel> secrets {
+            get {
+                if (_secrets is not null) { return _secrets; }
+                _secrets = [];
+                return _secrets;
+            }
+            set {
+                _secrets = value;
+            }
+        }
+        private List<NameValueBaseModel> _secrets;
         //
         //====================================================================================================
         /// <summary>
         /// Create an empty object. needed for deserialization. Use newModel() method as constructor, includes cache
         /// </summary>
-        public AppConfigModel()  {
-            domainList = new List<string>();
+        public AppConfigModel() {
+            domainList = [];
             deleteProtection = true;
         }
         //
@@ -140,7 +150,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logFatal( core,ex, "exception in serverConfigModel.getObject");
+                LogController.logFatal(core, ex, "exception in serverConfigModel.getObject");
                 throw;
             }
             return returnModel;
@@ -163,7 +173,7 @@ namespace Contensive.Processor.Models.Domain {
                     core.serverConfig.save(core);
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                LogController.logError(core, ex);
             }
         }
     }

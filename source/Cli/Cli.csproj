@@ -40,7 +40,7 @@
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
     <ProjectReference Include="..\Processor\Processor.csproj" />
-    <ProjectReference Include="..\TaskService\TaskServiceOld.csproj" />
+    <ProjectReference Include="..\TaskService\TaskService.csproj" />
   </ItemGroup>
 
   <ItemGroup>

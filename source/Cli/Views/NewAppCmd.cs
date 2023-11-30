@@ -214,19 +214,27 @@ namespace Contensive.CLI {
                         };
                         GetBucketPolicyResponse getResponse = await s3client.GetBucketPolicyAsync(getRequest);
                         string policyString = getResponse.Policy;
-                        AwsBucketPolicy policy = cp.JSON.Deserialize<AwsBucketPolicy>(policyString);
-                        policy.Statement.Add(new AwsBucketPolicyStatement {
-                            Action = "s3:GetObject",
-                            Effect = "Allow",
-                            Principal = "*",
-                            Resource = "arn:aws:s3:::" + cp.core.serverConfig.awsBucketName + appConfig.remoteFilePath + "*",
-                            Sid = "AllowPublicRead"
-                        });
-                        PutBucketPolicyRequest putRequest = new PutBucketPolicyRequest {
-                            BucketName = cp.core.serverConfig.awsBucketName,
-                            Policy = cp.JSON.Serialize( policy )
-                        };
-                        PutBucketPolicyResponse putResponse = await s3client.PutBucketPolicyAsync(putRequest);
+                        if(string.IsNullOrEmpty(policyString)) {
+                            //
+                            // -- debugging new app issue
+                            cp.Log.Error($"NewAppCmd error, GetBucketPolicyAsync returned no bucket policy for user awsAccessKey [{cp.core.secrets.awsAccessKey}], bucket [{cp.core.serverConfig.awsBucketName}]");
+                        } else {
+                            //
+                            // -- polciy found
+                            AwsBucketPolicy policy = cp.JSON.Deserialize<AwsBucketPolicy>(policyString);
+                            policy.Statement.Add(new AwsBucketPolicyStatement {
+                                Action = "s3:GetObject",
+                                Effect = "Allow",
+                                Principal = "*",
+                                Resource = "arn:aws:s3:::" + cp.core.serverConfig.awsBucketName + appConfig.remoteFilePath + "*",
+                                Sid = "AllowPublicRead"
+                            });
+                            PutBucketPolicyRequest putRequest = new PutBucketPolicyRequest {
+                                BucketName = cp.core.serverConfig.awsBucketName,
+                                Policy = cp.JSON.Serialize(policy)
+                            };
+                            PutBucketPolicyResponse putResponse = await s3client.PutBucketPolicyAsync(putRequest);
+                        }
                     }
                     //
                     // -- save the app configuration and reload the server using this app

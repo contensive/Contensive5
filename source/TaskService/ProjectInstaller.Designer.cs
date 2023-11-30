@@ -28,13 +28,14 @@
             // 
             // serviceProcessInstaller1
             // 
+            this.serviceProcessInstaller1.Account = System.ServiceProcess.ServiceAccount.LocalService;
             this.serviceProcessInstaller1.Password = null;
             this.serviceProcessInstaller1.Username = null;
             // 
             // serviceInstaller1
             // 
-            this.serviceInstaller1.Description = "serviceInstaller1 description";
-            this.serviceInstaller1.DisplayName = "serviceInstaller1 displayname";
+            this.serviceInstaller1.Description = "Manages Task Scheduler and Task Runner activities";
+            this.serviceInstaller1.DisplayName = "Contensive Task Service";
             this.serviceInstaller1.ServiceName = "TaskService";
             // 
             // ProjectInstaller

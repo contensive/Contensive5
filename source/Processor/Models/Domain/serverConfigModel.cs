@@ -200,7 +200,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// Create an empty object. needed for deserialization. Use crete() method as constructor, includes cache
         /// </summary>
-        private ServerConfigModel() {
+        public ServerConfigModel() {
             //
             // -- local-only properties
             name = "";

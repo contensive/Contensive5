@@ -76,8 +76,10 @@ namespace Contensive.CLI {
                 //
                 // -- aws credentials
                 {
-                    string awsAccessKey = core.secrets.getSecret("awsAccessKey");
-                    string awsSecretAccessKey = core.secrets.getSecret("awsSecretAccessKey");
+                    string awsAccessKey = core.serverConfig.awsAccessKey;
+                    //string awsAccessKey = core.secrets.getSecret("awsAccessKey");
+                    string awsSecretAccessKey = core.serverConfig.awsSecretAccessKey;
+                    //string awsSecretAccessKey = core.secrets.getSecret("awsSecretAccessKey");
                     Console.WriteLine("\n\nAWS Credentials.");
                     Console.WriteLine("Configure the AWS credentials for this server. Use AWS IAM to create a user with programmatic credentials. This user will require policies for each of the services used by this server, such as S3 bucket access for remote files and logging for cloudwatch.");
                     do {
@@ -87,8 +89,10 @@ namespace Contensive.CLI {
                     do {
                         awsSecretAccessKey = GenericController.promptForReply("Enter the AWS Access Secret", awsSecretAccessKey);
                     } while (string.IsNullOrWhiteSpace(awsSecretAccessKey));
-                    core.secrets.setSecret("awsAccessKey", awsAccessKey);
-                    core.secrets.setSecret("awsSecretAccessKey", awsSecretAccessKey);
+                    core.serverConfig.awsAccessKey = awsAccessKey;
+                    core.serverConfig.awsSecretAccessKey = awsSecretAccessKey;
+                    //core.secrets.setSecret("awsAccessKey", awsAccessKey);
+                    //core.secrets.setSecret("awsSecretAccessKey", awsSecretAccessKey);
                 }
                 //
                 // -- aws region

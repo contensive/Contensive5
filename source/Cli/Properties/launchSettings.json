@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a ecommercetest -u",
+      "commandLineArgs": "-n",
       "workingDirectory": "C:\\Program Files (x86)\\Contensive",
       "jsWebView2Debugging": false
     }
