@@ -206,22 +206,27 @@ namespace Contensive.CLI {
                     if (!cp.core.serverConfig.isLocalFileSystem) {
                         //
                         // -- update the server's bucket policy to make the remoteFilesPath public
-                        AmazonS3Client s3client = new AmazonS3Client(cp.core.secrets.awsAccessKey, cp.core.secrets.awsSecretAccessKey);
-                        //
-                        // -- get current policy for this bucket
-                        GetBucketPolicyRequest getRequest = new GetBucketPolicyRequest {
-                            BucketName = cp.core.serverConfig.awsBucketName
-                        };
-                        GetBucketPolicyResponse getResponse = await s3client.GetBucketPolicyAsync(getRequest);
-                        string policyString = getResponse.Policy;
-                        if(string.IsNullOrEmpty(policyString)) {
+                        try {
+                            AmazonS3Client s3client = new(cp.core.secrets.awsAccessKey, cp.core.secrets.awsSecretAccessKey);
                             //
-                            // -- debugging new app issue
-                            cp.Log.Error($"NewAppCmd error, GetBucketPolicyAsync returned no bucket policy for user awsAccessKey [{cp.core.secrets.awsAccessKey}], bucket [{cp.core.serverConfig.awsBucketName}]");
-                        } else {
-                            //
-                            // -- polciy found
-                            AwsBucketPolicy policy = cp.JSON.Deserialize<AwsBucketPolicy>(policyString);
+                            // -- get current policy for this bucket
+                            GetBucketPolicyRequest getRequest = new() {
+                                BucketName = cp.core.serverConfig.awsBucketName
+                            };
+                            GetBucketPolicyResponse getResponse = await s3client.GetBucketPolicyAsync(getRequest);
+                            string policyString = getResponse.Policy;
+                            AwsBucketPolicy policy;
+                            if (string.IsNullOrEmpty(policyString)) {
+                                //
+                                // -- no current policy, create base policy
+                                policy = new() {
+                                    Version = "2012-10-17"
+                                };
+                            } else {
+                                //
+                                // -- add to current policy
+                                policy = cp.JSON.Deserialize<AwsBucketPolicy>(policyString);
+                            }
                             policy.Statement.Add(new AwsBucketPolicyStatement {
                                 Action = "s3:GetObject",
                                 Effect = "Allow",
@@ -229,11 +234,13 @@ namespace Contensive.CLI {
                                 Resource = "arn:aws:s3:::" + cp.core.serverConfig.awsBucketName + appConfig.remoteFilePath + "*",
                                 Sid = "AllowPublicRead"
                             });
-                            PutBucketPolicyRequest putRequest = new PutBucketPolicyRequest {
+                            PutBucketPolicyRequest putRequest = new() {
                                 BucketName = cp.core.serverConfig.awsBucketName,
                                 Policy = cp.JSON.Serialize(policy)
                             };
                             PutBucketPolicyResponse putResponse = await s3client.PutBucketPolicyAsync(putRequest);
+                        } catch (Exception ex) {
+                            cp.Log.Error(ex, "NewAppCmd, error creating S3 policy, continue.");
                         }
                     }
                     //

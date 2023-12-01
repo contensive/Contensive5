@@ -3689,8 +3689,8 @@ $(function () {
   <ImportCollection name="File Manager">{0A080FBC-2814-407F-8F8C-CD06F422789D}</ImportCollection>
   <ImportCollection name="Site Explorer">{5426E6D5-05A8-4A87-B535-CD0FABA04F29}</ImportCollection>
   -->
-	<Resource name="baseassets.zip" type="file" path="baseAssets" />
-	<Resource name="adminsite.zip" type="file" path="adminsite" />
+	<Resource name="baseassets.zip" type="www" path="baseAssets" />
+	<Resource name="adminsite.zip" type="www" path="adminsite" />
 	<!-- zip of help files for this collection, plus the default.md file that describes the help system -->
 	<Resource name="HelpFiles.zip" type="privatefiles" path="helpfiles/Base5" />
 </Collection>
