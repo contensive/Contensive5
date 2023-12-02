@@ -696,11 +696,11 @@ namespace Contensive.Processor.Controllers {
                 if (_allowCache_notCached != null) { return (bool)_allowCache_notCached; }
                 // -- special case, allowCache referenced in nameValueDict load
                 if (_nameValueDict != null) {
-                    return getPropertyBase("AllowBake",false, ref _allowCache_notCached);
+                    return getPropertyBase("AllowBake",true, ref _allowCache_notCached);
                 }
                 if (dbNotReady) { return false; }
                 bool propertyFound = false;
-                _allowCache_notCached = GenericController.encodeBoolean(getTextFromDb("AllowBake", "0", ref propertyFound));
+                _allowCache_notCached = GenericController.encodeBoolean(getTextFromDb("AllowBake", "true", ref propertyFound));
                 return (bool)_allowCache_notCached;
             }
         }

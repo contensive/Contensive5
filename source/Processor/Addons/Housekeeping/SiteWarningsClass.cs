@@ -60,6 +60,13 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 if (!string.IsNullOrEmpty(docType) && docType.ToLowerInvariant() != "<!doctype html>") {
                     cp.Site.SetSiteWarning($"html doctype is not html5 doctype html", $"html doctype is not html5 doctype html. This effects how browsers display html and styles. To fix this, make sure all templates are html5 compatible, then set DocType Declaration to '<!DOCTYPE HTML>' in the Templates tab of Site Settings, available from the Settings icon in the admin site.");
                 }
+                //
+                // -- set warning of allowbake is off
+                if (!cp.Site.GetBoolean("allowbake", true)) {
+                    string warn = $"Cache is disabled.";
+                    string desc = $"Cache is disabled. This affects performance. To fix this, set Allow Cache in Site Settings.";
+                    cp.Site.SetSiteWarning(warn, desc);
+                }
                 return;
             } catch (Exception ex) {
                 LogController.logError(env.core, ex);
