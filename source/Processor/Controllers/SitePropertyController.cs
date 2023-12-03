@@ -143,7 +143,7 @@ namespace Contensive.Processor.Controllers {
         public int htmlPlatformVersion {
             get {
                 if (_htmlPlatformVersion != null) { return (int)_htmlPlatformVersion; }
-                _htmlPlatformVersion = getInteger("html platform version", 4);
+                _htmlPlatformVersion = getInteger("html platform version", 5);
                 return (int)_htmlPlatformVersion;
             }
         }
@@ -317,7 +317,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public bool allowVisitTracking {
             get {
-                return getPropertyBase("allowVisitTracking", true, ref _allowVisitTracking);
+                return getPropertyBase("allowVisitTracking", false, ref _allowVisitTracking);
             }
         }
         private bool? _allowVisitTracking;

@@ -184,7 +184,7 @@ namespace Contensive.Processor.Controllers {
                     core.siteProperties.getText("AllowTrapEmail", "True");
                     core.siteProperties.getText("AllowWorkflowAuthoring", "False");
                     core.siteProperties.getText("ArchiveAllowFileClean", "False");
-                    core.siteProperties.getText("ArchiveRecordAgeDays", "90");
+                    core.siteProperties.getText("ArchiveRecordAgeDays", "2");
                     core.siteProperties.getText("ArchiveTimeOfDay", "2:00:00 AM");
                     core.siteProperties.getText("BreadCrumbDelimiter", "&nbsp;&gt;&nbsp;");
                     core.siteProperties.getText("CalendarYearLimit", "1");
