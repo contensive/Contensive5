@@ -192,7 +192,7 @@ namespace Contensive.Processor.Controllers {
                 if (dateCompare >= 0) {
                     //
                     // -- global invalidation
-                    logger.Trace("keyHash [{0}], invalidated because cacheObject saveDate [{1}] is before the globalInvalidationDate [{2}]", keyHash, cacheDocument.saveDate, globalInvalidationDate);
+                    logger.Trace("keyHash [{0}], invalidated because cacheObject saveDate [{1}] is before the globalInvalidationDate [{2}]", keyHash.key, cacheDocument.saveDate, globalInvalidationDate);
                     //logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because cacheObject saveDate [" + cacheDocument.saveDate + "] is before the globalInvalidationDate [" + globalInvalidationDate + "]", false));
                     return false;
                 }
@@ -214,7 +214,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- invalidate because a dependent document was changed after the cacheDocument was saved
                             cacheHit = false;
-                            logger.Trace("keyHash [{0}], invalidated because the dependentKeyHash [{1}] was modified [{2}] after the cacheDocument's saveDate [{3}]", keyHash, dependentKeyHash, dependantCacheDocument.saveDate, cacheDocument.saveDate);
+                            logger.Trace("keyHash [{0}], invalidated because the dependentKeyHash [{1}] was modified [{2}] after the cacheDocument's saveDate [{3}]", keyHash.key, dependentKeyHash.key, dependantCacheDocument.saveDate, cacheDocument.saveDate);
                             //logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because the dependentKeyHash [" + dependentKeyHash + "] was modified [" + dependantCacheDocument.saveDate + "] after the cacheDocument's saveDate [" + cacheDocument.saveDate + "]", false));
                             //break;
                         }

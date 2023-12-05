@@ -1939,7 +1939,7 @@ namespace Contensive.Processor.Controllers {
             // -- create string with only path segment and filename characters
             pathFilename = convertLocalAbsToRelativePath(pathFilename);
             pathFilename = pathFilename.Replace("/", "").Replace("\\", "");
-            return pathFilename.Equals(encodeFilename(pathFilename, Constants.allowedPathFilenameCharacters));
+            return pathFilename.Equals(encodeFilename(pathFilename, Constants.allowedFilenameCharacters));
         }
         //
         //====================================================================================================
@@ -1955,7 +1955,7 @@ namespace Contensive.Processor.Controllers {
             var segments = pathFilename.Split('\\');
             // -- convert bad char to _
             //string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ^&'@{}[],$-#()%.+~_";
-            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], Constants.allowedPathFilenameCharacters);
+            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], Constants.allowedFilenameCharacters);
             // -- return path with correct slash 
             return string.Join("\\", segments);
         }
@@ -1974,7 +1974,7 @@ namespace Contensive.Processor.Controllers {
             string[] segments = pathFilename.Split('/');
             // -- convert bad char to _
             //const string allowed = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-._";
-            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], Constants.allowedPathFilenameCharacters);
+            segments[segments.Length - 1] = encodeFilename(segments[segments.Length - 1], Constants.allowedFilenameCharacters);
             // -- return path with correct slash 
             return string.Join("/", segments);
         }

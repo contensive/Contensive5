@@ -1,18 +1,32 @@
-'[library files], field [filename]
-'[ccMembers], field [imagefilename]
+' -- saved in \gei\contensive\etc
+' -- others
 '[pcAccreditorDirectoryInstitutions], field [logofilename]
 '[pcDegreeRuleDocuments], field [documentFileName]
 '[pcDocuments], field [documentFileName]
 '[pcEvidenceVersions], field [documentFileName]
+'[blogimages], field [filename]
+
+
 function m
-	dim contentName, fieldName
-	contentName = "people
-	fieldName = "imagefilename"
+m = ""
+m = m & renameFiles( "library files", "filename" )
+m = m & renameFiles( "people", "imagefilename" )
+m = m & renameFiles( "blog images", "filename" )
+m = m & "<br>" & "ok"
+end function
+
+
+
+function renameFiles( contentName, fieldName )
+	if( not cp.content.IsField( ContentName, FieldName) ) then
+		m = m & "Exit because contentname, field does not exist"
+		exit function
+	end if
 	'
-	dim exitAfterFirstFound,fixFilenames,maxFiles
+	dim exitAfterFirstFound,fixFilenames,maxFiles,m
 	fixFilenames = true
-	exitAfterFirstFound = true
-	maxFiles=10
+	exitAfterFirstFound = false
+	maxFiles = 999999
 	'
 	m = "enter"
 	dim cs
@@ -69,7 +83,7 @@ function m
 	end if
 	cs.close()
 
-	m = m & "<br>" & "ok"
+	renameFiles = m
 end function
 '
 function encodeFilename(m, strFileName)

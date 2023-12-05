@@ -40,6 +40,10 @@ namespace Contensive.Processor.Controllers {
                 }
                 LogController.log(core, "CoreController executeRoute, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
+                // -- debug defaults on, so if not on, set it off and clear what was collected
+                core.doc.visitPropertyAllowDebugging = core.visitProperty.getBoolean("AllowDebugging");
+                if (!core.doc.visitPropertyAllowDebugging) { core.doc.testPointMessage = ""; }
+                //
                 // -- test fix for 404 response during routing - could it be a response left over from processing before we are called
                 core.webServer.setResponseStatus(WebServerController.httpResponseStatus200_Success);
                 //

@@ -676,7 +676,7 @@ namespace Contensive.Processor.Controllers {
                 doc.docGuid = GenericController.getGUID();
                 doc.allowDebugLog = true;
                 doc.profileStartTime = dateTimeNowMockable;
-                doc.visitPropertyAllowDebugging = true;
+                doc.visitPropertyAllowDebugging = false;
                 //
                 // -- allow exception reporing
                 doc.blockExceptionReporting = false;
@@ -695,12 +695,6 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- initialize session
                     session = SessionController.create(this, allowVisit && siteProperties.allowVisitTracking);
-                    //
-                    // -- debug defaults on, so if not on, set it off and clear what was collected
-                    doc.visitPropertyAllowDebugging = visitProperty.getBoolean("AllowDebugging");
-                    if (!doc.visitPropertyAllowDebugging) {
-                        doc.testPointMessage = "";
-                    }
                 }
             } catch (Exception ex) {
                 LogController.logShortLine("CoreController coreController_Initialize, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);

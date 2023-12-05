@@ -155,6 +155,12 @@ namespace Tests {
                         string dstBad = FileController.encodeUnixPathFilename(srcBad);
                         Assert.AreNotEqual(srcBad, dstBad);
                     }
+                    {
+                        // -- allow comma
+                        string srcBad = "," + cp.Utils.GetRandomInteger() + ".txt";
+                        string dstBad = FileController.encodeUnixPathFilename(srcBad);
+                        Assert.AreEqual(srcBad, dstBad);
+                    }
                 }
             }
         }

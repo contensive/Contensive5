@@ -138,6 +138,11 @@ namespace Contensive.Processor.Addons.Diagnostics {
                         return "ERROR, the following field(s) are configured as many-to-many, but the field's many-to-many metadata is not set [" + badFieldList.Substring(1) + "].";
                     }
                 }
+                // -- verify site warnings with alarm set
+                var warningList = DbBaseModel.createList<SiteWarningModel>(cp, "((alarm>0)and(active>0))");
+                if (warningList.Count > 0) {
+                    return $"ERROR, [{warningList.Count}] Site Warning(s) with set alarm true.";
+                }
                 return "ok, all server diagnostics passed" + Environment.NewLine + result.ToString();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

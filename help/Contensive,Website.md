@@ -1,6 +1,4 @@
 
-## Overview
-
 Favicon is the term used to describe the image used to represent the website by services like Google, Slack, Facebook, etc. 
 In the simplest case, favicon refers to a file uploaded to the site named favicon.ico. A more complete implementation of Favicon can include many other files and settings.
 

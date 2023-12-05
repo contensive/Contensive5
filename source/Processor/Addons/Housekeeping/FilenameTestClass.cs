@@ -37,24 +37,27 @@ namespace Contensive.Processor.Addons.Housekeeping {
         public static void executeDailyTasks(HouseKeepEnvironmentModel env) {
             try {
                 //
-                env.log("Housekeep, FilenameTestClass");
+                env.log("Housekeep, executeDailyTasks");
                 //
-                foreach (TableFieldFilesModel file in ContentFieldModel.getTextFilenames(env.core)) {
-                    string sql = $"select {file.field} from {file.table} where {file.field} is not null";
-                    using DataTable dtFileNames = env.core.db.executeQuery(sql);
-                    if (dtFileNames?.Rows == null || dtFileNames.Rows.Count <= 0) { continue; }
-                    foreach (DataRow drFilename in dtFileNames.Rows) {
-                        string pathFilename = GenericController.encodeText(drFilename[0]);
-                        if (string.IsNullOrEmpty(pathFilename)) { continue; }
-                        // -- unix test
-                        pathFilename = FileController.convertToUnixSlash(pathFilename);
-                        if (pathFilename != FileController.encodeUnixPathFilename(pathFilename)) {
-                            LogController.logAlarm(env.core, $"Housekeep File Unix compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
-                        }
-                        // -- dos test
-                        pathFilename = FileController.convertToDosSlash(pathFilename);
-                        if (pathFilename != FileController.encodeDosPathFilename(pathFilename)) {
-                            LogController.logAlarm(env.core, $"Housekeep File DOS compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
+                // -- test all files for valid characters
+                if (env.core.siteProperties.getBoolean("allow housekeep filename test", false)) {
+                    foreach (TableFieldFilesModel file in ContentFieldModel.getTextFilenames(env.core)) {
+                        string sql = $"select {file.field} from {file.table} where {file.field} is not null";
+                        using DataTable dtFileNames = env.core.db.executeQuery(sql);
+                        if (dtFileNames?.Rows == null || dtFileNames.Rows.Count <= 0) { continue; }
+                        foreach (DataRow drFilename in dtFileNames.Rows) {
+                            string pathFilename = GenericController.encodeText(drFilename[0]);
+                            if (string.IsNullOrEmpty(pathFilename)) { continue; }
+                            // -- unix test
+                            pathFilename = FileController.convertToUnixSlash(pathFilename);
+                            if (pathFilename != FileController.encodeUnixPathFilename(pathFilename)) {
+                                LogController.logAlarm(env.core, $"Housekeep File Unix compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
+                            }
+                            // -- dos test
+                            pathFilename = FileController.convertToDosSlash(pathFilename);
+                            if (pathFilename != FileController.encodeDosPathFilename(pathFilename)) {
+                                LogController.logAlarm(env.core, $"Housekeep File DOS compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
+                            }
                         }
                     }
                 }

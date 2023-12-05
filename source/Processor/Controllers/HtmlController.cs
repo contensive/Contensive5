@@ -3075,7 +3075,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         public string getHtmlHead() {
-            List<string> headList = new List<string>();
+            List<string> headList = [];
             try {
                 //
                 // -- meta content

@@ -3690,7 +3690,10 @@ $(function () {
   <ImportCollection name="Site Explorer">{5426E6D5-05A8-4A87-B535-CD0FABA04F29}</ImportCollection>
   -->
 	<Resource name="baseassets.zip" type="www" path="baseAssets" />
+	<Resource name="baseassets.zip" type="files" path="baseAssets" />
+  <!---->
 	<Resource name="adminsite.zip" type="www" path="adminsite" />
+	<Resource name="adminsite.zip" type="files" path="adminsite" />
 	<!-- zip of help files for this collection, plus the default.md file that describes the help system -->
 	<Resource name="HelpFiles.zip" type="privatefiles" path="helpfiles/Base5" />
 </Collection>

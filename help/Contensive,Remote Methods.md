@@ -1,11 +1,10 @@
 
-## Overview
 
 A remote method is an executable endpoint, created and controlled by record in Add-ons. The execution of the remote method on an applicaton typically invokes dotnet code to generate a response, often formated json.
 
 In a simpler case, the remote method might just return content stored in the Add-on record. This is a typical method used to mock a response for the UI during development, then use the final mocked response to model the code.
 
-## Example
+### Example
 
 To create a simple mock remote
 - Create a new Add-on record. (nav: Design > Add-ons)
@@ -20,7 +19,7 @@ The response is Hello World
 
 Change the content to {"success":true, "result":"Hello World"} and you have mocked a simple remote method
 
-## Adding the Remote Method to a Collection
+### Adding the Remote Method to a Collection
 
 A Collection groups many remote methods together into one deployment. To create a collection, add a record to Add-on Collections (nav: Design > Add-on Collections) with the name MyDeployment and save.
 
@@ -32,7 +31,7 @@ This zip file includes everything needed to install the add-ons, including an xm
 
 You can install a collection by uploading to the Add-on Manager, but you might typically install using the cc.exe command line tool on the destination server. This could part of a deployment automation.
 
-## Creating a Remote Method that calls a Dotnet Class Library
+### Creating a Remote Method that calls a Dotnet Class Library
 
 To continue with the previous example. Create a dotnet framework Class library solution with a single project called MyDotNetCode
 
@@ -78,15 +77,12 @@ Now in the url, go to http://applicationName/sampleDotNet returns
 
 DotNet code execution result
 
-## Routing
+### Routing
 
 The addon name becomes the endpoint. Any path that begins with with the addon name will execute this remopte method.
 
 To create a REST api, you could choise to have every REST method go to its own remote method, or just make a method for each object and have it handle all the routes within the object
 
-## Developers
-
-## References
 
 
 

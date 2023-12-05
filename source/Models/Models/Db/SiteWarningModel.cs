@@ -21,5 +21,9 @@ namespace Contensive.Models.Db {
         public int pageId { get; set; }
         public string shortDescription { get; set; }
         public string specificKey { get; set; }
+        /// <summary>
+        /// if true, turn on alarm
+        /// </summary>
+        public bool alarm { get; set; }
     }
 }

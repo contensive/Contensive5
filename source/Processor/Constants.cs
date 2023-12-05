@@ -59,8 +59,10 @@ namespace Contensive.Processor {
         // -- valid file characters
         // -- dos valid "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ^&'@{}[],$-#()%.+~_"
         // -- unix valid "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+"
-        // -- 230301, added space
-        public const string allowedPathFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+";
+        // -- windows valid characters 
+        // -- url valid characters 
+        // -- 230301, added space - no, not allowed in url
+        public const string allowedFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+";
         //
         //=======================================================================
         //   sitepropertyNames
