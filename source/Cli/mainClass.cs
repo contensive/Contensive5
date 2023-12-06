@@ -91,6 +91,25 @@ namespace Contensive.CLI {
                                 }
                                 Console.WriteLine("Set application to [" + appName + "].");
                                 break;
+                            case "--addfile": {
+                                    //
+                                    // -- add a file to the collection folder
+                                    string collectionName = getNextCmdArg(args, ref argPtr);
+                                    if (string.IsNullOrWhiteSpace(collectionName)) {
+                                        Console.WriteLine("The addfile requires 2 arguments, the collection name and the filename argument. Use quotes if either contains a space.");
+                                        return;
+                                    }
+                                    string currentPathfilename = getNextCmdArg(args, ref argPtr);
+                                    if (string.IsNullOrWhiteSpace(currentPathfilename)) {
+                                        Console.WriteLine("The addfile requires 2 arguments, the collection name and the filename argument. Use quotes if either contains a space.");
+                                        return;
+                                    }
+                                    if (!System.IO.File.Exists(currentPathfilename)) {
+                                        Console.WriteLine("The file could not be found [" + currentPathfilename + "].");
+                                    }
+                                    AddFileCmd.execute(cpServer, appName, collectionName, currentPathfilename, false);
+                                    break;
+                                }
                             case "--flushcache": {
                                     FlushCacheCmd.execute(cpServer, appName);
                                     break;

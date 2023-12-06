@@ -1465,14 +1465,7 @@ namespace Contensive.Processor.Controllers {
                 if (AddonFound) { return result; }
                 //
                 // -- try addon folder
-                var collectionFolderConfig = CollectionFolderModel.getCollectionFolderConfig(core, addonCollection.ccguid);
-                if (collectionFolderConfig == null) {
-                    throw new GenericException(warningMessage + ", not found in application path [" + appPath + "]. The collection path was not checked because the collection [" + addonCollection.name + "] was not found in the \\private\\addons\\Collections.xml file. Try re-installing the collection");
-                };
-                if (string.IsNullOrEmpty(collectionFolderConfig.path)) {
-                    throw new GenericException(warningMessage + ", not found in application path [" + appPath + "]. The collection path was not checked because the path for collection [" + addonCollection.name + "] was not valid in the \\private\\addons\\Collections.xml file. Try re-installing the collection");
-                };
-                string AddonPath = core.privateFiles.joinPath(getPrivateFilesAddonPath(), collectionFolderConfig.path);
+                string AddonPath = getPrivateFilesCollectionExecutionPath(core, addonCollection, warningMessage, appPath);
                 if (!core.privateFiles.pathExists_local(AddonPath)) { core.privateFiles.copyPathRemoteToLocal(AddonPath); }
                 string appAddonPath = core.privateFiles.joinPath(core.privateFiles.localAbsRootPath, AddonPath);
                 result = execute_dotNetClass_byPath(addon, assemblyFileDictKey, appAddonPath, ref AddonFound);
@@ -1487,6 +1480,28 @@ namespace Contensive.Processor.Controllers {
             }
             return result;
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// return the collection execution folder, the physical folder in privateFiles where the Assemblies are stored
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="addonCollection"></param>
+        /// <param name="warningMessage"></param>
+        /// <param name="appPath"></param>
+        /// <returns></returns>
+        /// <exception cref="GenericException"></exception>
+        public static string getPrivateFilesCollectionExecutionPath(CoreController core, AddonCollectionModel addonCollection, string warningMessage, string appPath) {
+            var collectionFolderConfig = CollectionFolderModel.getCollectionFolderConfig(core, addonCollection.ccguid);
+            if (collectionFolderConfig == null) {
+                throw new GenericException(warningMessage + ", not found in application path [" + appPath + "]. The collection path was not checked because the collection [" + addonCollection.name + "] was not found in the \\private\\addons\\Collections.xml file. Try re-installing the collection");
+            };
+            if (string.IsNullOrEmpty(collectionFolderConfig.path)) {
+                throw new GenericException(warningMessage + ", not found in application path [" + appPath + "]. The collection path was not checked because the path for collection [" + addonCollection.name + "] was not valid in the \\private\\addons\\Collections.xml file. Try re-installing the collection");
+            };
+            return core.privateFiles.joinPath(getPrivateFilesAddonPath(), collectionFolderConfig.path);
+        }
+
         //
         //====================================================================================================
         /// <summary>

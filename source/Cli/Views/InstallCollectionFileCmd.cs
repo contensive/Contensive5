@@ -17,7 +17,7 @@ namespace Contensive.CLI {
             + Environment.NewLine + "    installs the addon collection file"
             + Environment.NewLine
             + Environment.NewLine + "--installFileQuick (-iq) CollectionFileName.zip"
-            + Environment.NewLine + "    installs the addon collection file, skipping database metadata (cdef,data,menu"
+            + Environment.NewLine + "    installs the addon collection file, skipping database metadata (cdef,data,menu,etc)"
             + "";
         //
         // ====================================================================================================
@@ -64,7 +64,7 @@ namespace Contensive.CLI {
                 //
                 // todo - this interface should all be tempFiles not private files (to avoid all the remote file system copies
                 //
-                // -- copy the file to private files
+                // -- copy the file to local private files
                 string tempPath = "install" + Contensive.Processor.Controllers.GenericController.getGUIDNaked() + "\\";
                 string tempPathFilename = tempPath + System.IO.Path.GetFileName(collectionPhysicalPathFilename);
                 string tempPhysicalPathFilename = cpApp.TempFiles.PhysicalFilePath + tempPathFilename;

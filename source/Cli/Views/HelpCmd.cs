@@ -13,6 +13,7 @@ namespace Contensive.CLI {
             Console.Write(helpText);
             Console.Write(AddAdminCmd.helpText);
             Console.Write(AddRootCmd.helpText);
+            Console.Write(AddFileCmd.helpText);
             Console.Write(ConfigureCmd.helpText);
             Console.Write(NewAppCmd.helpText);
             Console.Write(DeleteAppCmd.helpText);
