@@ -128,6 +128,21 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// test the sql server connection. If no errors, return blank, else return the open error.
+        /// </summary>
+        /// <returns></returns>
+        public string getSqlOpenErrors() {
+            try {
+                using SqlConnection connSQL = new SqlConnection(getConnectionStringADONET());
+                connSQL.Open();
+                return "";
+            } catch (Exception ex) {
+                return ex.Message;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Execute a command or sql statemwent and return a dataTable
         /// </summary>
         /// <param name="sql"></param>

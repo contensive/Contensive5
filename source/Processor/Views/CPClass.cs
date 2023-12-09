@@ -257,6 +257,7 @@ namespace Contensive.Processor {
         public override CPUserBaseClass User {
             get {
                 if (_userObj == null) {
+                    core.session.verifyUser();
                     _userObj = new CPUserClass(this);
                 }
                 return _userObj;

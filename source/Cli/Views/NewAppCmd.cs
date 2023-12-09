@@ -48,8 +48,15 @@ namespace Contensive.CLI {
                         return;
                     }
                     //
+                    // -- verify defaultaspxsite.zip
+                    if (!cp.core.programFiles.fileExists("defaultaspxsite.zip")) {
+                        Console.WriteLine($"To build a new site, the DefaultAspxSite.zip must be downloaded from contensive.io/downloads to the program files folder, {cp.core.programFiles.localAbsRootPath}");
+                        Console.ReadLine();
+                        return;
+                    }
+                    //
                     // -- make sure this app does not already exist
-                    if (cp.GetAppNameList().Contains(appName, StringComparer.OrdinalIgnoreCase)){
+                    if (cp.GetAppNameList().Contains(appName, StringComparer.OrdinalIgnoreCase)) {
                         Console.WriteLine("The application name you seleted is in use [" + appName + "]");
                         return;
                     }

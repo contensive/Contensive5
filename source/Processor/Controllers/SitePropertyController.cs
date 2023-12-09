@@ -217,6 +217,7 @@ namespace Contensive.Processor.Controllers {
         //
         private bool dbNotReady {
             get {
+                if(core?.appConfig is null ) { return true;  }
                 return (core.appConfig.appStatus != AppConfigModel.AppStatusEnum.ok);
             }
         }
@@ -317,7 +318,8 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public bool allowVisitTracking {
             get {
-                return getPropertyBase("allowVisitTracking", false, ref _allowVisitTracking);
+                // todo, new site with visit tracking false blocked sessions. when fixed, make default false
+                return getPropertyBase("allowVisitTracking", true, ref _allowVisitTracking);
             }
         }
         private bool? _allowVisitTracking;

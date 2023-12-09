@@ -1202,9 +1202,10 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- create each of the folder segments in the virtualFolder
                             List<string> appVirtualFolderSegments = virtualFolder.Split('/').ToList();
+                            string newDirectoryPath = "";
                             foreach (string appVirtualFolderSegment in appVirtualFolderSegments) {
                                 if (!string.IsNullOrEmpty(appVirtualFolderSegment)) {
-                                    string newDirectoryPath = "/" + appVirtualFolderSegment;
+                                    newDirectoryPath += "/" + appVirtualFolderSegment;
                                     bool directoryFound = false;
                                     foreach (VirtualDirectory currentDirectory in iisApp.VirtualDirectories) {
                                         if (currentDirectory.Path.ToLowerInvariant() == newDirectoryPath.ToLowerInvariant()) {

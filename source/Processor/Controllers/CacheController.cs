@@ -112,7 +112,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// true if cacheClient initialized correctly
         /// </summary>
-        private readonly bool remoteCacheInitialized;
+        public readonly bool remoteCacheInitialized;
         private bool allowCache {
             get {
                 if (_allowCache != null) { return (bool)_allowCache; }
@@ -121,6 +121,25 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private bool? _allowCache = null;
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// return true if the current config cache server is valid
+        /// </summary>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static bool testConnection(CoreController core) {
+            try {
+                string cacheEndpoint = core.serverConfig.awsElastiCacheConfigurationEndpoint;
+                if (string.IsNullOrEmpty(cacheEndpoint)) { return false; }
+                ConnectionMultiplexer redisConnectionGroup = ConnectionMultiplexer.Connect(cacheEndpoint);
+                if (redisConnectionGroup == null) { return false; }
+                IDatabase redisDb = redisConnectionGroup.GetDatabase();
+                return true;
+            } catch (Exception) {
+                return false;
+            }
+        }
         //
         //====================================================================================================
         /// <summary>
@@ -151,7 +170,7 @@ namespace Contensive.Processor.Controllers {
                 logger.Error(ex, LogController.processLogMessage(core, "Exception initializing Redis connection, will continue with cache disabled.", true));
             } catch (Exception ex) {
                 //
-                // -- mystery except, buyt cannot let a connection error take down the application
+                // -- mystery except, but cannot let a connection error take down the application
                 logger.Error(ex, LogController.processLogMessage(core, "Exception initializing remote cache, will continue with cache disabled.", true));
             }
         }
@@ -265,7 +284,7 @@ namespace Contensive.Processor.Controllers {
                 } catch (Exception ex) {
                     //
                     // -- object value did not match. return as miss
-                    logger.Warn( "cache getObject failed to cast value as type, keyHash [{0}], type requested [{1}], ex [{2}]", keyHash, typeof(TData).FullName, ex.ToString());
+                    logger.Warn("cache getObject failed to cast value as type, keyHash [{0}], type requested [{1}], ex [{2}]", keyHash, typeof(TData).FullName, ex.ToString());
                     //logger.Warn(LogController.processLogMessage(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]", true));
                     return default;
                 }
@@ -916,24 +935,24 @@ namespace Contensive.Processor.Controllers {
                 if (keyHash == null) {
                     throw new ArgumentException("cache key cannot be blank");
                 }
-                string typeMessage = "";
+                string cacheTypeMsg = "";
                 if (core.serverConfig.enableLocalMemoryCache) {
                     //
                     // -- save local memory cache
-                    typeMessage = "local-memory";
+                    cacheTypeMsg = "local-memory";
                     storeCacheDocument_MemoryCache(keyHash, cacheDocument);
                 }
                 if (core.serverConfig.enableLocalFileCache) {
                     //
                     // -- save local file cache
-                    typeMessage = "local-file";
+                    cacheTypeMsg = "local-file";
                     string serializedData = SerializeObject(cacheDocument);
                     using System.Threading.Mutex mutex = new System.Threading.Mutex(false, keyHash.hash); mutex.WaitOne();
                     core.privateFiles.saveFile("appCache\\" + FileController.encodeDosPathFilename(keyHash + ".txt"), serializedData);
                     mutex.ReleaseMutex();
                 }
                 if (core.serverConfig.enableRemoteCache) {
-                    typeMessage = "remote";
+                    cacheTypeMsg = "remote";
                     if (remoteCacheInitialized) {
                         //
                         // -- save remote cache
@@ -941,7 +960,7 @@ namespace Contensive.Processor.Controllers {
                         string jsonCacheDocument = SerializeObject(cacheDocument);
                         var redisValue = new RedisValue(jsonCacheDocument);
                         TimeSpan? redisTimeSpan = cacheDocument.invalidationDate.Subtract(DateTime.Now);
-                        if(redisTimeSpan is null || redisTimeSpan.Value==TimeSpan.Zero ) {
+                        if (redisTimeSpan is null || redisTimeSpan.Value == TimeSpan.Zero) {
                             redisDb.StringSet(redisKey, redisValue);
                         } else {
                             redisDb.StringSet(redisKey, redisValue, redisTimeSpan);
@@ -949,9 +968,17 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
+                //if(keyHash is null ) {
+                //    logger.Trace("storeCacheDocument, keyHash null");
+                //    return;
+                //}
+                if (cacheDocument is null) {
+                    logger.Trace("storeCacheDocument, cacheDocument null, key [{1}]", keyHash.key);
+                    return;
+                }
                 string depKey = cacheDocument?.keyPtrHash?.key is null ? "" : cacheDocument.keyPtrHash.key;
-                string dependentKeyHashList = cacheDocument?.dependentKeyHashList is null ? "" : cacheDocument.dependentKeyHashList.Count==0 ? "" : string.Join(",", cacheDocument.dependentKeyHashList);
-                logger.Trace( "cacheType [{0}], key [{1}], expires [{2}], depends on [{3}], points to key [{4}]", typeMessage, keyHash.key, dependentKeyHashList, depKey);
+                string dependentKeyHashList = cacheDocument?.dependentKeyHashList is null ? "" : cacheDocument.dependentKeyHashList.Count == 0 ? "" : string.Join(",", cacheDocument.dependentKeyHashList);
+                logger.Trace("cacheType [{0}], key [{1}], invalidationDate [{2}], depends on [{3}], points to key [{4}]", cacheTypeMsg, keyHash.key, cacheDocument.invalidationDate, dependentKeyHashList, depKey);
                 //logger.Trace(LogController.processLogMessage(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to key [" + string.Join(",", cacheDocument.keyPtrHash.key) + "]", false));
                 //
             } catch (Exception ex) {
