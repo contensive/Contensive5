@@ -3225,28 +3225,26 @@ namespace Contensive.Processor.Controllers {
         //
         public void addScriptCode(string code, string addedByMessage, bool forceHead = false, int sourceAddonId = 0) {
             try {
-                if (!string.IsNullOrWhiteSpace(code)) {
-                    CPDocBaseClass.HtmlAssetClass asset = null;
-                    if (sourceAddonId != 0) {
-                        asset = core.doc.htmlAssetList.Find(t => ((t.sourceAddonId == sourceAddonId) && (!t.isLink)));
-                    }
-                    if (asset != null) {
-                        //
-                        // already in list, just mark it forceHead
-                        asset.inHead = asset.inHead || forceHead;
-                    } else {
-                        //
-                        // add to list
-                        core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
-                            assetType = CPDocBaseClass.HtmlAssetTypeEnum.script,
-                            inHead = forceHead,
-                            addedByMessage = addedByMessage,
-                            isLink = false,
-                            content = GenericController.removeScriptTag(code),
-                            sourceAddonId = sourceAddonId
-                        });
-                    }
+                if (string.IsNullOrWhiteSpace(code)) { return; }
+                string codeNormalized = removeScriptTag(code);
+                //
+                CPDocBaseClass.HtmlAssetClass asset =  core.doc.htmlAssetList.Find(t => (t.content == codeNormalized) && (!t.isLink));
+                if (asset != null) {
+                    //
+                    // already in list, just mark it forceHead
+                    asset.inHead = asset.inHead || forceHead;
+                    return;
                 }
+                //
+                // add to list
+                core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
+                    assetType = CPDocBaseClass.HtmlAssetTypeEnum.script,
+                    inHead = forceHead,
+                    addedByMessage = addedByMessage,
+                    isLink = false,
+                    content = codeNormalized,
+                    sourceAddonId = sourceAddonId
+                });
             } catch (Exception ex) {
                 LogController.logError(core, ex);
             }
@@ -3263,19 +3261,20 @@ namespace Contensive.Processor.Controllers {
         public void addScriptLinkSrc(string scriptUrl, string addedByMessage, bool forceHead, int sourceAddonId) {
             try {
                 if (string.IsNullOrEmpty(scriptUrl)) { return; }
-                string link = scriptUrl.Trim();
-                if (link.Substring(0, 1) != "<") {
-                    link = link.replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
-                    if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
+                //
+                // -- normalize scriptUrl
+                string scriptUrlNormalized = scriptUrl.Trim();
+                if (scriptUrlNormalized.Substring(0, 1) != "<") {
+                    scriptUrlNormalized = scriptUrlNormalized.replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
+                    if (!scriptUrlNormalized.StartsWith("/") && !scriptUrlNormalized.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
                         //
                         // -- case where link was relative to the current path. Does not work because URLs are not folders. Assume relative to root
-                        link = "/" + link;
+                        scriptUrlNormalized = "/" + scriptUrlNormalized;
                     }
                 }
-                CPDocBaseClass.HtmlAssetClass asset = null;
-                if (sourceAddonId != 0) {
-                    asset = core.doc.htmlAssetList.Find(t => ((t.content == link) && (t.isLink)));
-                }
+                //
+                // -- block duplicates
+                CPDocBaseClass.HtmlAssetClass asset = core.doc.htmlAssetList.Find(t => (t.content == scriptUrlNormalized) && t.isLink);
                 if (asset != null) {
                     //
                     // already in list, just mark it forceHead
@@ -3289,7 +3288,7 @@ namespace Contensive.Processor.Controllers {
                     addedByMessage = addedByMessage,
                     isLink = true,
                     inHead = forceHead,
-                    content = link,
+                    content = scriptUrlNormalized,
                     sourceAddonId = sourceAddonId
                 });
             } catch (Exception ex) {
@@ -3350,12 +3349,12 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// add a link to the head tag for a remote stylesheet
         /// </summary>
-        /// <param name="styleSheetUrl">link, must start with either "/" or "http" or a "/" is added. This is because designers often create layouts without using a server by opening the files in the filesystem, and it is path relative.</param>
+        /// <param name="styleSheetUrlNormalized">link, must start with either "/" or "http" or a "/" is added. This is because designers often create layouts without using a server by opening the files in the filesystem, and it is path relative.</param>
         /// <param name="addedByMessage">Displayed in debug mode</param>
-        public void addStyleLink(string styleSheetUrl, string addedByMessage) {
+        public void addStyleLink(string styleSheetUrlNormalized, string addedByMessage) {
             try {
-                if (string.IsNullOrEmpty(styleSheetUrl)) { return; }
-                string link = styleSheetUrl.Trim();
+                if (string.IsNullOrEmpty(styleSheetUrlNormalized)) { return; }
+                string link = styleSheetUrlNormalized.Trim();
                 if (link.Substring(0, 1) != "<") {
                     link = link.replace(@"\", "/", StringComparison.InvariantCultureIgnoreCase);
                     if (!link.StartsWith("/") && !link.StartsWith("http", StringComparison.InvariantCultureIgnoreCase)) {
@@ -3364,6 +3363,11 @@ namespace Contensive.Processor.Controllers {
                         link = "/" + link;
                     }
                 }
+                //
+                // -- block duplicates
+                CPDocBaseClass.HtmlAssetClass asset = core.doc.htmlAssetList.Find(t => (t.content == styleSheetUrlNormalized) && t.isLink);
+                if (asset != null) { return; }
+                //
                 core.doc.htmlAssetList.Add(new CPDocBaseClass.HtmlAssetClass {
                     addedByMessage = addedByMessage,
                     assetType = CPDocBaseClass.HtmlAssetTypeEnum.style,

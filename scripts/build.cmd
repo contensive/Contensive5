@@ -121,7 +121,7 @@ rem copy default article and articles for the  Help Pages collection
 "c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" 
 cd ..\scripts
 
- pause
+rem pause
 
 rem ==============================================================
 rem
