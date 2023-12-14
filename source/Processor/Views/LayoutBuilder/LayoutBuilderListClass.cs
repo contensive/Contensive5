@@ -6,13 +6,13 @@ using Contensive.BaseClasses;
 using Contensive.Processor;
 using Contensive.Processor.LayoutBuilder;
 
-namespace Contensive.Addons.PortalFramework {
+
+namespace Contensive.Processor.LayoutBuilder {
     //
     /// <summary>
     /// Create a layout with a data grid
     /// </summary>
-    public class LayoutBuilderListClass : BaseClasses.LayoutBuilder.LayoutBuilderListBaseClass
-    {
+    public class LayoutBuilderListClass : BaseClasses.LayoutBuilder.LayoutBuilderListBaseClass {
         //
         /// <summary>
         /// default constructor
@@ -133,7 +133,7 @@ namespace Contensive.Addons.PortalFramework {
         /// <summary>
         /// create csv download as form is build
         /// </summary>
-        public  bool addCsvDownloadCurrentPage { get; set; } = false;
+        public override bool addCsvDownloadCurrentPage { get; set; } = false;
         ////
         //// ====================================================================================================
         ///// <summary>
@@ -158,7 +158,7 @@ namespace Contensive.Addons.PortalFramework {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public  string GetHtml(CPBaseClass cp) {
+        public string GetHtml(CPBaseClass cp) {
             int hint = 0;
             try {
                 ////
@@ -186,7 +186,7 @@ namespace Contensive.Addons.PortalFramework {
                 //
                 if (captionIncluded) {
                     rowBuilder = new StringBuilder("");
-                    string refreshQueryString = (!string.IsNullOrEmpty(base.refreshQueryString) ? base.refreshQueryString : cp.Doc.RefreshQueryString);
+                    string xrefreshQueryString = (!string.IsNullOrEmpty(refreshQueryString) ? refreshQueryString : cp.Doc.RefreshQueryString);
                     for (colPtr = 0; colPtr <= columnMax; colPtr++) {
                         if (columns[colPtr].visible) {
                             string classAttribute = columns[colPtr].captionClass;
@@ -199,7 +199,7 @@ namespace Contensive.Addons.PortalFramework {
                                 content = "&nbsp;";
                             } else if (columns[colPtr].sortable) {
                                 string sortLink;
-                                sortLink = "?" + base.refreshQueryString + "&columnSort=" + sortField;
+                                sortLink = "?" + refreshQueryString + "&columnSort=" + sortField;
                                 if (columnSort == sortField) {
                                     sortLink += "Desc";
                                 }
@@ -282,19 +282,19 @@ namespace Contensive.Addons.PortalFramework {
                                 if ((colPtrLastVisible == colPtr) && rowEllipseMenuDict.ContainsKey(rowPtr)) {
                                     //
                                     // -- add ellipse menu
-                                    EllipseMenuDataModel ellipseMenu = new EllipseMenuDataModel {
+                                    Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel ellipseMenu = new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataModel {
                                         menuId = rowPtr,
                                         content = rowContent,
                                         hasMenu = true,
-                                        menuList = new List<EllipseMenuDataItemModel>()
+                                        menuList = new List<Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataItemModel>()
                                     };
                                     foreach (var menuItem in rowEllipseMenuDict[rowPtr]) {
-                                        ellipseMenu.menuList.Add(new EllipseMenuDataItemModel {
+                                        ellipseMenu.menuList.Add(new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataItemModel {
                                             menuName = menuItem.name,
                                             menuHref = menuItem.url
-                                        });
+                                         });
                                     }
-                                    rowContent = cp.Mustache.Render(Properties.Resources.ellipseMenu, ellipseMenu);
+                                    rowContent = cp.Mustache.Render(Processor.Properties.Resources.ellipseMenu, ellipseMenu);
                                 }
                                 row += Constants.cr + "<td" + classAttribute2 + ">" + rowContent + "</td>";
                             }
@@ -351,8 +351,8 @@ namespace Contensive.Addons.PortalFramework {
                     + Constants.cr + "</tbody>"
                     + "");
                 result = new StringBuilder(Constants.cr + "<table class=\"afwListReportTable\">" + indent(result.ToString()) + Constants.cr + "</table>");
-                base.body = result.ToString();
-                return base.getHtml(cp);
+                body = result.ToString();
+                return getHtml(cp);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "hint [" + hint + "]");
                 throw;
@@ -473,7 +473,7 @@ namespace Contensive.Addons.PortalFramework {
         /// Optional integer percentagle added to the caption for this column. 1 to 100.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override int ColumnWidthPercent {
+        public override int columnWidthPercent {
             get {
                 checkColumnPtr();
                 return columns[columnPtr].columnWidthPercent;
@@ -545,7 +545,7 @@ namespace Contensive.Addons.PortalFramework {
         /// Add a new column populated with the values provided.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void AddColumn(ReportListColumnClass column) {
+        public override void addColumn(BaseClasses.LayoutBuilder.ReportListColumnBaseClass column) {
             addColumn();
             columnCaption = column.caption;
             columnCaptionClass = column.captionClass;
@@ -607,7 +607,7 @@ namespace Contensive.Addons.PortalFramework {
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
         /// <param name="styleClass"></param>
-        public override void AddRowClass(string styleClass) {
+        public override void addRowClass(string styleClass) {
             localIsEmptyReport = false;
             checkColumnPtr();
             checkRowCnt();
@@ -626,15 +626,15 @@ namespace Contensive.Addons.PortalFramework {
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
         /// <param name="content"></param>
-        public override void SetCell(string content) {
-            SetCell(content, content);
+        public override void setCell(string content) {
+            setCell(content, content);
         }
         // 
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(string reportContent, string downloadContent) {
+        public override void setCell(string reportContent, string downloadContent) {
             if (!ReportTooLong) {
                 localIsEmptyReport = false;
                 checkColumnPtr();
@@ -651,61 +651,61 @@ namespace Contensive.Addons.PortalFramework {
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(int content) => SetCell(content.ToString(), content.ToString());
+        public override void setCell(int content) => setCell(content.ToString(), content.ToString());
         // 
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(int content, int downloadContent) => SetCell(content.ToString(), downloadContent.ToString());
+        public override void setCell(int content, int downloadContent) => setCell(content.ToString(), downloadContent.ToString());
         //
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(double content) => SetCell(content.ToString(), content.ToString());
+        public override void setCell(double content) => setCell(content.ToString(), content.ToString());
         // 
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(double content, double downloadContent) => SetCell(content.ToString(), downloadContent.ToString());
+        public override void setCell(double content, double downloadContent) => setCell(content.ToString(), downloadContent.ToString());
         // 
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(bool content) => SetCell(content.ToString(), content.ToString());
+        public override void setCell(bool content) => setCell(content.ToString(), content.ToString());
         // 
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(bool content, bool downloadContent) => SetCell(content.ToString(), downloadContent.ToString());
+        public override void setCell(bool content, bool downloadContent) => setCell(content.ToString(), downloadContent.ToString());
         // 
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(DateTime content) => SetCell(content.ToString(), content.ToString());
+        public override void setCell(DateTime? content) => setCell(content.ToString(), content.ToString());
+        //// 
+        ///// <summary>
+        ///// populate a cell.
+        ///// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
+        ///// </summary>
+        //public override void setCell(DateTime? content) => setCell((content == null) ? "" : content.ToString(), content.ToString());
+        //// 
+        ///// <summary>
+        ///// populate a cell.
+        ///// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
+        ///// </summary>
+        //public override void setCell(DateTime? content, DateTime? downloadContent) => setCell(content.ToString(), downloadContent.ToString());
         // 
         /// <summary>
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void SetCell(DateTime? content) => SetCell((content == null) ? "" : content.ToString(), content.ToString());
-        // 
-        /// <summary>
-        /// populate a cell.
-        /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
-        /// </summary>
-        public override void SetCell(DateTime content, DateTime downloadContent) => SetCell(content.ToString(), downloadContent.ToString());
-        // 
-        /// <summary>
-        /// populate a cell.
-        /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
-        /// </summary>
-        public override void SetCell(DateTime? content, DateTime downloadContent) => SetCell((content == null) ? "" : content.ToString(), downloadContent.ToString());
+        public override void setCell(DateTime? content, DateTime? downloadContent) => setCell((content == null) ? "" : content.ToString(), downloadContent==null ? "" : downloadContent.ToString());
         //
         //====================================================================================================
         //
@@ -725,24 +725,6 @@ namespace Contensive.Addons.PortalFramework {
             }
         }
         private string localFormId_Local = "";
-        //
-        /// <summary>
-        /// legacy constructor
-        /// </summary>
-        /// <param name="cp"></param>
-        [Obsolete("Use parameterless constructor, New ReportListClass()", false)] public override LayoutBuilderListClass(CPBaseClass cp) { }
-
-
-
-
-
-
-
-
-
-
-
-
 
         //
         //-------------------------------------------------
@@ -778,7 +760,20 @@ namespace Contensive.Addons.PortalFramework {
         /// <summary>
         /// message displayed as a warning message. Not an error, but an issue of some type
         /// </summary>
-        public override string warningMessage { get; set; } = "";
+        public override string warningMessage {
+            get {
+                return _warningMessage;
+            }
+            set {
+                _warningMessage = value;
+            }
+        }
+        private string _warningMessage = "";
+        public override string warning {
+            get {
+                return _warningMessage;
+            }
+        }
         //
         /// <summary>
         /// message displayed as a fail message. Data is wrong
@@ -805,13 +800,13 @@ namespace Contensive.Addons.PortalFramework {
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public override string styleSheet => Properties.Resources.layoutBuilderStyles;
+        public override string styleSheet =>  Processor.Properties.Resources.layoutBuilderStyles;
         //
         //-------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
-        public override string javascript => Properties.Resources.layoutBuilderJavaScript;
+        public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
         //
         //-------------------------------------------------
         /// <summary>
@@ -876,10 +871,6 @@ namespace Contensive.Addons.PortalFramework {
         }
         //
         private string hiddenList = "";
-        /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        private bool includeForm { get; set; } = false;
         //
         /// <summary>
         /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
@@ -1074,20 +1065,13 @@ namespace Contensive.Addons.PortalFramework {
             }
         }
         private string refreshQueryString_Local = "";
-
-
-
-
-
-
-
     }
     //
     //====================================================================================================
     /// <summary>
     /// The data used to build a column
     /// </summary>
-    public class ReportListColumnClass {
+    public class ReportListColumnClass : BaseClasses.LayoutBuilder.ReportListColumnBaseClass {
         public string name { get; set; }
         public string caption { get; set; }
         public string captionClass { get; set; }

@@ -18,7 +18,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// Add padding around the body
         /// </summary>
-        public abstract int reportRowLimit { get; set; }
+        public abstract int reportRowLimit { get; }
         //
         //-------------------------------------------------
         /// <summary>
@@ -145,7 +145,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         //-------------------------------------------------
         //
-        public abstract string warning { get; set; }
+        public abstract string warning { get;  }
         //
         //-------------------------------------------------
         //
@@ -181,8 +181,15 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         //-------------------------------------------------
         //
+        public abstract int columnWidthPercent { get; set; }
+        //
+        //-------------------------------------------------
+        //
         public abstract void addColumn();
         //
+        //====================================================================================================
+        /// 
+        public abstract void addColumn(ReportListColumnBaseClass column);
         //-------------------------------------------------
         //
         public abstract void addRow();
@@ -217,12 +224,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         //-------------------------------------------------
         //
-        public abstract void setCell(DateTime content);
-        public abstract void setCell(DateTime content, DateTime downloadContent);
+        public abstract void setCell(DateTime? content);
+        public abstract void setCell(DateTime? content, DateTime? downloadContent);
         //
         //-------------------------------------------------
         //
-        public abstract bool AddCsvDownloadCurrentPage { get; set; }
+        public abstract bool addCsvDownloadCurrentPage { get; set; }
 
 
         //
@@ -351,4 +358,27 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         public abstract string refreshQueryString { get; set; }
     }
+    //
+    //====================================================================================================
+    /// <summary>
+    /// The data used to build a column
+    /// </summary>
+    public class ReportListColumnBaseClass {
+        public string name { get; set; }
+        public string caption { get; set; }
+        public string captionClass { get; set; }
+        public string cellClass { get; set; }
+        public bool sortable { get; set; } = false;
+        public bool visible { get; set; } = true;
+        public bool downloadable { get; set; } = false;
+        /// <summary>
+        /// set as an integer between 1 and 100. This value will be added as the width of the column in a style tag
+        /// </summary>
+        public int columnWidthPercent { get; set; } = 10;
+    }
+    //
+    public class EllipseMenuItem {
+        public string name { get; set; }
+        public string url { get; set; }
+    } 
 }

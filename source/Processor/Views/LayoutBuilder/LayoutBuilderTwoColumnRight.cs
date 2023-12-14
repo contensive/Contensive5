@@ -3,7 +3,7 @@ using Contensive.BaseClasses;
 using System;
 
 namespace Contensive.Processor.LayoutBuilder {
-    public class LayoutBuilderTwoColumnLeft : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass
+    public class LayoutBuilderTwoColumnRight : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnRightBaseClass
     {
         //
         //====================================================================================================
@@ -117,7 +117,7 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- construct body
             //
             // -- render layout
-            string layout = cp.Layout.GetLayout(Constants.guidLayoutAdminUITwoColumnLeft, Constants.nameLayoutAdminUITwoColumnLeft, Constants.pathFilenameLayoutAdminUITwoColumnLeft);
+            string layout = cp.Layout.GetLayout(Constants.guidLayoutAdminUITwoColumnRight, Constants.nameLayoutAdminUITwoColumnRight, Constants.pathFilenameLayoutAdminUITwoColumnRight);
             //
             AdminUIHtmlDocRequest request = new() {
                 body = cp.Mustache.Render(layout, this),

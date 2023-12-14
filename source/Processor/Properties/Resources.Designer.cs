@@ -163,6 +163,20 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {{#hasMenu}}
+        ///&lt;div class=&quot;d-flex&quot;&gt;
+        ///    &lt;div class=&quot;&quot;&gt;{{{content}}}&lt;/div&gt;
+        ///    &lt;div class=&quot;dropleft d-inline pr-1 pe-1 ml-auto ms-auto&quot;&gt;
+        ///        &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;16&quot; height=&quot;16&quot; fill=&quot;currentColor&quot; class=&quot;bi bi-three-dots-vertical dropdown-toggle&quot; viewBox=&quot;0 0 16 16&quot; id=&quot;dropdownMenuButton{{menuId}}&quot; data-toggle=&quot;dropdown&quot; data-bs-toggle=&quot;dropdown&quot; aria-haspopup=&quot;true&quot; aria-expanded=&quot;false&quot;&gt;
+        ///            &lt;path d=&quot;M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0-5a1.5 1.5 0 1 1-3 [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string ellipseMenu {
+            get {
+                return ResourceManager.GetString("ellipseMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &lt;tr&gt;
         ///    &lt;td class=&quot;ccAdminEditCaption&quot;&gt;{{rowCaption}}&lt;/td&gt;
         ///    &lt;td class=&quot;ccAdminEditField&quot;&gt;
@@ -222,7 +236,23 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to //
+        ///// adminFramework assembly referenced js
+        /////
+        ///if (typeof google !== &apos;object&apos;) {
+        ///    document.write(&apos;&lt;scr&apos; + &apos;ipt type=&quot;text/javascript&quot; src=&quot;https://www.google.com/jsapi&quot;&gt;&lt;/scr&apos; + &apos;ipt&gt;&apos;);
+        ///}
+        ///function cjFrameSubmitForm(remoteMethodName, frameHtmlId, formHtmlId) {
+        ///    jQuery(&apos;#&apos; + frameHtmlId).block();
+        ///    cj.ajax.addon(
+        ///        remoteMethodName
+        ///        , &apos;frameName=&apos; + frameHtmlId
+        ///        , formHtmlId
+        ///        , frameHtmlId
+        ///    );
+        ///}
+        ///function cjFrameUpdate(remoteMethodName, frameHtmlId, qs) {
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string layoutBuilderJavaScript {
             get {
@@ -231,7 +261,32 @@ namespace Contensive.Processor.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to 
+        ////*
+        ///* Contensive.Addons.PortalFramework assembly referenced resources
+        ///*/
+        ///.ccCon #desktop {
+        ///    color: #333;
+        ///    background-color: white !important;
+        ///}
+        ///
+        ///#afw #afwBodyFrame {
+        ///    background-color: white !important;
+        ///}
+        ///
+        ///#afw, #afw p, #afw div, #afw td, #afw li {
+        ///    /*font-family: arial;*/
+        ///    font-weight: normal;
+        ///    /*font-size: 13px;*/
+        ///    /*line-height: 20px;*/
+        ///}
+        ///
+        ///    #afw h1, #afw h2, #afw h3, #afw h3 {
+        ///        /*font-family: arial;*/
+        ///        /*font-weight: bold;*/
+        ///    }
+        ///
+        ///    #afw h [rest of string was truncated]&quot;;.
         /// </summary>
         public static string layoutBuilderStyles {
             get {
