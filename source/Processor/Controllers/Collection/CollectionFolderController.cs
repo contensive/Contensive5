@@ -30,7 +30,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsInstalledList"></param>
         /// <param name="collectionsBuildingFolder">list of collection guids in the process of folder building. use to block recursive loop.</param>
         /// <returns></returns>
-        public static bool buildCollectionFoldersFromCollectionZips(CoreController core, Stack<string> contextLog, string sourceTempFolderPath, DateTime CollectionLastChangeDate, ref List<string> collectionsToInstall, ref string return_ErrorMessage, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder) {
+        public static bool buildCollectionFoldersFromCollectionZips(CoreController core, Stack<string> contextLog, string sourceTempFolderPath, DateTime CollectionLastChangeDate, ref List<string> collectionsToInstall, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder) {
             bool success = false;
             try {
                 //
@@ -69,7 +69,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsInstalledList">collection guids that have been saved to the database during this install.</param>
         /// <param name="collectionsBuildingFolder">folder building is recursive. These are the collection guids whose folders are currently being built.</param>
         /// <returns></returns>
-        public static bool buildCollectionFolderFromCollectionZip(CoreController core, Stack<string> contextLog, string sourceTempFolderPathFilename, DateTime CollectionLastChangeDate, ref string return_ErrorMessage, ref List<string> collectionsDownloaded, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder) {
+        public static bool buildCollectionFolderFromCollectionZip(CoreController core, Stack<string> contextLog, string sourceTempFolderPathFilename, DateTime CollectionLastChangeDate, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsDownloaded, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder) {
             try {
                 //
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + sourceTempFolderPathFilename + "]");
@@ -82,7 +82,7 @@ namespace Contensive.Processor.Controllers {
                 if (!core.tempFiles.pathExists(collectionPath)) {
                     //
                     // return false, The working folder is not there
-                    return_ErrorMessage = "<p>There was a problem with the installation. The installation folder is not valid.</p>";
+                    return_ErrorMessage.errors.Add("<p>There was a problem with the installation. The installation folder is not valid.</p>");
                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, CheckFileFolder was false for the temp folder [" + collectionPath + "]");
                     return false;
                 }
@@ -113,7 +113,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // -- There was a parse error in this xml file. Set the return message and the flag
                                 // -- If another xml files shows up, and process OK it will cover this error
-                                return_ErrorMessage = "There was a problem installing the Collection File [" + tmpInstallPath + file.Name + "]. The error reported was [" + ex.Message + "].";
+                                return_ErrorMessage.errors.Add("There was a problem installing the Collection File [" + tmpInstallPath + file.Name + "]. The error reported was [" + ex.Message + "].");
                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, error reading collection [" + sourceTempFolderPathFilename + "]");
                                 continue;
                             }
@@ -134,7 +134,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // ----- Error condition -- it must have a collection name
                                     //
-                                    return_ErrorMessage = "<p>There was a problem with this Collection. The collection file does not have a collection name.</p>";
+                                    return_ErrorMessage.errors.Add("<p>There was a problem with this Collection. The collection file does not have a collection name.</p>");
                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, collection has no name");
                                     continue;
                                 }
@@ -180,7 +180,7 @@ namespace Contensive.Processor.Controllers {
                                                 if (string.IsNullOrEmpty(ChildCollectionGUID)) {
                                                     //
                                                     // -- Needs a GUID to install
-                                                    return_ErrorMessage = statusMsg + ". The installation can not continue because an imported collection could not be downloaded because it does not include a valid GUID.";
+                                                    return_ErrorMessage.errors.Add(statusMsg + ". The installation can not continue because an imported collection could not be downloaded because it does not include a valid GUID.");
                                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, return message [" + return_ErrorMessage + "]");
                                                 } else {
                                                     if ((!collectionsBuildingFolder.Contains(ChildCollectionGUID)) && (!collectionsDownloaded.Contains(ChildCollectionGUID)) && (!collectionsInstalledList.Contains(ChildCollectionGUID))) {
@@ -200,11 +200,7 @@ namespace Contensive.Processor.Controllers {
                                                                 //
                                                                 // -- did not download correctly
                                                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, [" + statusMsg + "], downloadCollectionFiles returned error state, message [" + return_ErrorMessage + "]");
-                                                                if (string.IsNullOrEmpty(return_ErrorMessage)) {
-                                                                    return_ErrorMessage = statusMsg + ". The installation can not continue because there was an unknown error while downloading the necessary collection file, [" + ChildCollectionGUID + "].";
-                                                                } else {
-                                                                    return_ErrorMessage = statusMsg + ". The installation can not continue because there was an error while downloading the necessary collection file, guid [" + ChildCollectionGUID + "]. The error was [" + return_ErrorMessage + "]";
-                                                                }
+                                                                return_ErrorMessage.errors.Add(statusMsg + ". The installation can not continue because there was an unknown error while downloading the necessary collection file, [" + ChildCollectionGUID + "].");
                                                             } else {
                                                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, libraryCollectionLastChangeDate [" + libraryCollectionLastModifiedDate.ToString() + "].");
                                                                 bool installDependentCollection = true;
@@ -233,11 +229,7 @@ namespace Contensive.Processor.Controllers {
                                                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, collection missing or needs to be updated.");
                                                                     if (!buildCollectionFoldersFromCollectionZips(core, contextLog, workingTempPath, libraryCollectionLastModifiedDate, ref collectionsDownloaded, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder)) {
                                                                         LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, [" + statusMsg + "], BuildLocalCollectionFolder returned error state, message [" + return_ErrorMessage + "]");
-                                                                        if (string.IsNullOrEmpty(return_ErrorMessage)) {
-                                                                            return_ErrorMessage = statusMsg + ". The installation can not continue because there was an unknown error installing the included collection file, guid [" + ChildCollectionGUID + "].";
-                                                                        } else {
-                                                                            return_ErrorMessage = statusMsg + ". The installation can not continue because there was an unknown error installing the included collection file, guid [" + ChildCollectionGUID + "]. The error was [" + return_ErrorMessage + "]";
-                                                                        }
+                                                                        return_ErrorMessage.errors.Add(statusMsg + ". The installation can not continue because there was an unknown error installing the included collection file, guid [" + ChildCollectionGUID + "].");
                                                                     }
                                                                 }
                                                             }
@@ -262,14 +254,14 @@ namespace Contensive.Processor.Controllers {
                                                 break;
                                             }
                                     }
-                                    if (!string.IsNullOrEmpty(return_ErrorMessage)) {
+                                    if (return_ErrorMessage.errors.Count > 0) {
                                         //
                                         // -- if error during xml processing, skip the rest of the xml nodes and go to the next file.
                                         break;
                                     }
                                 }
                             }
-                            if (!string.IsNullOrEmpty(return_ErrorMessage)) {
+                            if (return_ErrorMessage.errors.Count > 0) {
                                 //
                                 // -- stop processing xml nodes if error
                                 break;
@@ -279,7 +271,7 @@ namespace Contensive.Processor.Controllers {
                             updateCollectionFolderConfig(core, Collectionname, collectionGuid, CollectionLastChangeDate, CollectionVersionFolderName);
                             break;
                         }
-                        if (!string.IsNullOrEmpty(return_ErrorMessage)) {
+                        if (return_ErrorMessage.errors.Count > 0) {
                             //
                             // -- stop files if error
                             break;
@@ -287,10 +279,10 @@ namespace Contensive.Processor.Controllers {
                     }
                     // 
                     // -- all files finished
-                    if (string.IsNullOrEmpty(return_ErrorMessage) && !CollectionXmlFileFound) {
+                    if (!CollectionXmlFileFound) {
                         //
                         // no errors, but xml file not found. Make an error
-                        return_ErrorMessage = "<p>There was a problem with the installation. The collection zip was not downloaded successfully.</p>";
+                        return_ErrorMessage.errors.Add("<p>There was a problem with the installation. The collection zip was not downloaded successfully.</p>");
                     }
                 } catch (Exception) {
                     throw;
@@ -302,7 +294,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder, Exiting with ErrorMessage [" + return_ErrorMessage + "]");
                 //
-                return string.IsNullOrEmpty(return_ErrorMessage);
+                return return_ErrorMessage.errors.Count == 0;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

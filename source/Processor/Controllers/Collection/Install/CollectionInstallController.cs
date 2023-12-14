@@ -108,7 +108,7 @@ namespace Contensive.Processor.Controllers {
                         core.tempFiles.copyFile(baseCollectionZipFilename, baseCollectionZipPathFilename);
                         core.tempFiles.deleteFile(baseCollectionZipFilename);
                         //
-                        string installErrorMessage = "";
+                        ErrorReturnModel installErrorMessage = new();
                         string installedCollectionGuid = "";
                         bool isDependency = false;
                         if (!installCollectionFromTempFile(core, isDependency, contextLog, baseCollectionZipPathFilename, ref installErrorMessage, ref installedCollectionGuid, isNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall)) {
@@ -152,7 +152,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsDownloaded">Collections downloaded but not installed yet. Do not need to download them again.</param>
         /// <param name="isDependency"></param>
         /// <returns></returns>
-        public static bool installCollectionFromCollectionFolder(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref string return_ErrorMessage, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall) {
+        public static bool installCollectionFromCollectionFolder(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref ErrorReturnModel return_ErrorMessage, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall) {
             bool result = false;
             try {
                 //
@@ -175,7 +175,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- ERROR, collection folder not found
                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder not found.");
-                    return_ErrorMessage += "The collection was not installed from the local collections because the folder containing the Add-on's resources could not be found. It may not be installed locally.";
+                    return_ErrorMessage.errors.Add("The collection was not installed from the local collections because the folder containing the Add-on's resources could not be found. It may not be installed locally.");
                     return false;
                 }
                 //
@@ -187,7 +187,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- EXIT, ERROR, collection folder was empty
                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder is empty.");
-                    return_ErrorMessage += "The collection was not installed because the folder containing the Add-on's resources was empty.";
+                    return_ErrorMessage.errors.Add("The collection was not installed because the folder containing the Add-on's resources was empty.");
                     return false;
                 }
                 //
@@ -236,7 +236,7 @@ namespace Contensive.Processor.Controllers {
                                     // ----- Error condition -- it must have a collection name
                                     //
                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], collection has no name");
-                                    return_ErrorMessage += "The collection was not installed because the collection name in the xml collection file is blank";
+                                    return_ErrorMessage.errors.Add("The collection was not installed because the collection name in the xml collection file is blank");
                                     return false;
                                 }
                                 bool CollectionSystem = GenericController.encodeBoolean(XmlController.getXMLAttribute(core, Doc.DocumentElement, "system", "false"));
@@ -261,7 +261,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     //
                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], Collection file contains incorrect GUID, correct GUID [" + collectionGuid.ToLowerInvariant() + "], incorrect GUID in file [" + GenericController.toLCase(FileGuid) + "]");
-                                    return_ErrorMessage += " The collection was not installed because the unique number identifying the collection, called the guid, does not match the collection requested.";
+                                    return_ErrorMessage.errors.Add(" The collection was not installed because the unique number identifying the collection, called the guid, does not match the collection requested.");
                                     return false;
                                 }
                                 if (string.IsNullOrEmpty(collectionGuid)) {
@@ -276,14 +276,14 @@ namespace Contensive.Processor.Controllers {
                                     // -- New collection Not Updateable and collection already exists
                                     string message = "The collection [" + CollectionName + "] was not installed because the new collection is marked not-updateable and the current collection is already installed";
                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], " + message);
-                                    return_ErrorMessage += message;
+                                    return_ErrorMessage.errors.Add(message);
                                     return true;
                                 } else if ((collection != null) && !collection.updatable) {
                                     //
                                     // -- Current collection is not updateable
                                     string message = "The collection [" + CollectionName + "] was not installed because the current collection is marked not-updateable";
                                     LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], " + message);
-                                    return_ErrorMessage += message;
+                                    return_ErrorMessage.errors.Add(message);
                                     return true;
                                 }
                                 //
@@ -563,7 +563,7 @@ namespace Contensive.Processor.Controllers {
                                                 //
                                                 string errMsg = "[" + CollectionName + "], creating navigator entries, there was an error parsing the portion of the collection that contains metadata. Navigator entry creation was aborted. [There was an error reading the Meta data file.]";
                                                 logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
-                                                return_ErrorMessage += " The collection was not installed because the xml collection file has an error.";
+                                                return_ErrorMessage.errors.Add(" The collection was not installed because the xml collection file has an error.");
                                                 return false;
                                             }
                                             if (loadOK) {
@@ -620,7 +620,7 @@ namespace Contensive.Processor.Controllers {
                                                                         // -- bad content name, skip the record
                                                                         LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data.record node with a blank content attribute.");
                                                                         result = false;
-                                                                        return_ErrorMessage += " Collection file [" + CollectionName + "]  was not fully installed because it contains a data.record node with a blank content attribute. This data was skipped.";
+                                                                        return_ErrorMessage.errors.Add(" Collection file [" + CollectionName + "]  was not fully installed because it contains a data.record node with a blank content attribute. This data was skipped.");
                                                                         continue;
                                                                     }
                                                                     string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
@@ -628,7 +628,7 @@ namespace Contensive.Processor.Controllers {
                                                                     if (string.IsNullOrEmpty(ContentRecordGuid) && string.IsNullOrEmpty(ContentRecordName)) {
                                                                         LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
                                                                         result = false;
-                                                                        return_ErrorMessage += " The collection [" + CollectionName + "] was not fully installed because it contains a data record in [" + ContentName + "] with neither name nor guid. This data was skipped.";
+                                                                        return_ErrorMessage.errors.Add(" The collection [" + CollectionName + "] was not fully installed because it contains a data record in [" + ContentName + "] with neither name nor guid. This data was skipped.");
                                                                         continue;
                                                                     }
                                                                     //
@@ -711,12 +711,12 @@ namespace Contensive.Processor.Controllers {
                                             case "scriptingmodule":
                                             case "scriptingmodules": {
                                                     result = false;
-                                                    return_ErrorMessage += " Collection [" + CollectionName + "] includes a scripting module which is no longer supported. Move scripts to the code tab.";
+                                                    return_ErrorMessage.errors.Add(" Collection [" + CollectionName + "] includes a scripting module which is no longer supported. Move scripts to the code tab.");
                                                     return false;
                                                 }
                                             case "sharedstyle": {
                                                     result = false;
-                                                    return_ErrorMessage += " Collection [" + CollectionName + "] includes a shared style which is no longer supported. Move styles to the default styles tab.";
+                                                    return_ErrorMessage.errors.Add (" Collection [" + CollectionName + "] includes a shared style which is no longer supported. Move styles to the default styles tab.");
                                                     return false;
                                                 }
                                             case "addon":
@@ -882,7 +882,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="dataNode"></param>
         /// <param name="return_ErrorMessage"></param>
-        public static void installDataNode(CoreController core, AddonCollectionModel collection, XmlNode dataNode, ref string return_ErrorMessage) {
+        public static void installDataNode(CoreController core, AddonCollectionModel collection, XmlNode dataNode, ref ErrorReturnModel return_ErrorMessage) {
             try {
                 List<string> dataRecordList = new();
                 foreach (XmlNode contentNode in dataNode.ChildNodes) {
@@ -892,7 +892,7 @@ namespace Contensive.Processor.Controllers {
                         string contentName = XmlController.getXMLAttribute(core, contentNode, "content", "");
                         if (string.IsNullOrEmpty(contentName)) {
                             LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder, install collection file contains a data.record node with a blank content attribute.");
-                            return_ErrorMessage += "<P>Collection file contains a data.record node with a blank content attribute.</P>";
+                            return_ErrorMessage.errors.Add("<P>Collection file contains a data.record node with a blank content attribute.</P>");
                             break;
                         }
                         string contentRecordGuid = XmlController.getXMLAttribute(core, contentNode, "guid", "");
@@ -1066,7 +1066,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="includeBaseMetaDataInstall"></param>
         /// <param name="collectionsDownloaded">List of collections that have been downloaded during this istall pass but have not been installed yet. Do no need to download them again.</param>
         /// <returns></returns>
-        public static bool installCollectionsFromTempFolder(CoreController core, bool isDependency, Stack<string> contextLog, string installTempPath, ref string return_ErrorMessage, ref List<string> collectionsInstalledList, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall) {
+        public static bool installCollectionsFromTempFolder(CoreController core, bool isDependency, Stack<string> contextLog, string installTempPath, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsInstalledList, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, bool includeBaseMetaDataInstall, ref List<string> collectionsDownloaded, bool skipCdefInstall) {
             bool returnSuccess = false;
             try {
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + installTempPath + "]");
@@ -1096,9 +1096,7 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 returnSuccess = false;
-                if (string.IsNullOrEmpty(return_ErrorMessage)) {
-                    return_ErrorMessage = "There was an unexpected error installing the collection, details [" + ex.Message + "]";
-                }
+                return_ErrorMessage.errors.Add("There was an unexpected error installing the collection, details [" + ex.Message + "]");
             } finally {
                 contextLog.Pop();
             }
@@ -1112,7 +1110,7 @@ namespace Contensive.Processor.Controllers {
         /// Calls installCollectionFromCollectionFolder.
         /// </summary>
         /// <param name="skipCdefInstall">if true, skip all cdef during install. </param>
-        public static bool installCollectionFromTempFile(CoreController core, bool isDependency, Stack<string> contextLog, string tempPathFilename, ref string return_ErrorMessage, ref string return_CollectionGUID, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool skipCdefInstall) {
+        public static bool installCollectionFromTempFile(CoreController core, bool isDependency, Stack<string> contextLog, string tempPathFilename, ref ErrorReturnModel return_ErrorMessage, ref string return_CollectionGUID, bool IsNewBuild, bool reinstallDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool skipCdefInstall) {
             bool returnSuccess = true;
             try {
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + tempPathFilename + "]");
@@ -1151,9 +1149,7 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 returnSuccess = false;
-                if (string.IsNullOrEmpty(return_ErrorMessage)) {
-                    return_ErrorMessage = "There was an unexpected error installing the collection, details [" + ex.Message + "]";
-                }
+                return_ErrorMessage.errors.Add("There was an unexpected error installing the collection, details [" + ex.Message + "]");
             } finally {
                 contextLog.Pop();
             }
@@ -1166,7 +1162,7 @@ namespace Contensive.Processor.Controllers {
         /// this is the second pass, so all add-ons should be added
         /// no errors for missing addones, except the include add-on case
         /// </summary>
-        private static void setAddonDependencies(CoreController core, string parentCollectionName, XmlNode AddonNode, string AddonGuidFieldName, string ignore_BuildVersion, int CollectionID, ref bool ReturnUpgradeOK, ref string ReturnErrorMessage) {
+        private static void setAddonDependencies(CoreController core, string parentCollectionName, XmlNode AddonNode, string AddonGuidFieldName, string ignore_BuildVersion, int CollectionID, ref bool ReturnUpgradeOK, ref ErrorReturnModel ReturnErrorMessage) {
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);
                 if ((Basename == "page") || (Basename == "process") || (Basename == "addon") || (Basename == "add-on")) {
@@ -1224,7 +1220,7 @@ namespace Contensive.Processor.Controllers {
                                                 string UserError = "While installng collection/addon [" + parentCollectionName + "/" + parentAddonName + "], the include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
                                                 LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
                                                 ReturnUpgradeOK = false;
-                                                ReturnErrorMessage = ReturnErrorMessage + "<P>The collection was not installed because the add-on [" + addonName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>";
+                                                ReturnErrorMessage.errors.Add("<P>The collection was not installed because the add-on [" + addonName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>");
                                             } else {
                                                 using (var cs3 = new CsModel(core)) {
                                                     AddRule = !cs3.openSql("select ID from ccAddonIncludeRules where Addonid=" + csData.getInteger("id") + " and IncludedAddonID=" + IncludeAddonId);

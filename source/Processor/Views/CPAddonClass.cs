@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
 
 namespace Contensive.Processor {
     //
@@ -197,7 +198,9 @@ namespace Contensive.Processor {
                 var installedCollections = new List<string>();
                 var context = new Stack<string>();
                 context.Push("Api call cp.addon.InstallCollectionFile [" + tempPathFilename + "]");
-                returnOk = Controllers.CollectionInstallController.installCollectionFromTempFile(cp.core, false, context, tempPathFilename, ref returnUserError, ref ignoreReturnedCollectionGuid, false, true, ref tmpList, logPrefix, ref installedCollections, skipCdefInstall);
+                ErrorReturnModel localUserErrors = new();
+                returnOk = Controllers.CollectionInstallController.installCollectionFromTempFile(cp.core, false, context, tempPathFilename, ref localUserErrors, ref ignoreReturnedCollectionGuid, false, true, ref tmpList, logPrefix, ref installedCollections, skipCdefInstall);
+                returnUserError = string.Join(" ", localUserErrors);
                 if (deleteTempFileWhenDone) { cp.TempFiles.DeleteFolder(tempPathFilename); }
             } catch (Exception ex) {
                 Controllers.LogController.logError(cp.core, ex);
@@ -228,7 +231,7 @@ namespace Contensive.Processor {
                 cp.PrivateFiles.CopyPath(tempPath, tempPath, cp.TempFiles);
                 deleteTempFolderWhenDone = true;
             }
-            string ignoreUserMessage = "";
+            ErrorReturnModel ignoreUserMessage = new();
             List<string> ignoreList1 = new List<string>();
             List<string> ignoreList2 = new List<string>();
             string logPrefix = "CPUtilsClass.installCollectionsFromFolder";
@@ -259,14 +262,16 @@ namespace Contensive.Processor {
         /// Install an addon collections from the collection library asynchonously. The task is queued and the taskId is returned. Use cp.tasks.getTaskStatus to determine status
         /// </summary>
         public override bool InstallCollectionFromLibrary(string collectionGuid, ref string returnUserError) {
-            string ignoreUserMessage = "";
+            ErrorReturnModel localUserError = new();
             var installedCollections = new List<string>();
             string logPrefix = "installCollectionFromLibrary";
             var nonCriticalErrorList = new List<string>();
             var context = new Stack<string>();
             bool skipCdefInstall = false;
             context.Push("Api call cp.addon.InstallCollectionFromLibrary [" + collectionGuid + "]");
-            return CollectionLibraryController.installCollectionFromLibrary(cp.core, false, context, collectionGuid, ref ignoreUserMessage, false, false, ref nonCriticalErrorList, logPrefix, ref installedCollections, skipCdefInstall);
+            bool result = CollectionLibraryController.installCollectionFromLibrary(cp.core, false, context, collectionGuid, ref localUserError, false, false, ref nonCriticalErrorList, logPrefix, ref installedCollections, skipCdefInstall);
+            returnUserError = string.Join(" ", localUserError);
+            return result;
         }
         //
         public override int InstallCollectionFromLibraryAsync(string collectionGuid) {

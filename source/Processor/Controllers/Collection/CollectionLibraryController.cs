@@ -1,4 +1,5 @@
 ﻿
+using Contensive.Processor.Models.Domain;
 using NLog;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="return_CollectionLastModifiedDate"></param>
         /// <param name="return_ErrorMessage"></param>
         /// <returns></returns>
-        internal static bool downloadCollectionFromLibrary(CoreController core, string tempFilesDownloadPath, string collectionGuid, ref DateTime return_CollectionLastModifiedDate, ref string return_ErrorMessage) {
+        internal static bool downloadCollectionFromLibrary(CoreController core, string tempFilesDownloadPath, string collectionGuid, ref DateTime return_CollectionLastModifiedDate, ref ErrorReturnModel return_ErrorMessage) {
             bool result = false;
             try {
                 //
@@ -57,7 +58,6 @@ namespace Contensive.Processor.Controllers {
                 do {
                     try {
                         result = true;
-                        return_ErrorMessage = "";
                         //
                         // -- pause for a second between fetches to pace the server (<10 hits in 10 seconds)
                         Thread.Sleep(downloadDelay);
@@ -80,7 +80,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     downloadRetry += 1;
                 } while (downloadRetry < downloadRetryMax);
-                if (string.IsNullOrEmpty(return_ErrorMessage)) {
+                if (return_ErrorMessage.errors.Count == 0) {
                     //
                     // continue if no errors
                     if (Doc.DocumentElement.Name.ToLowerInvariant() != GenericController.toLCase(DownloadFileRootNode)) {
@@ -225,7 +225,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="logPrefix"></param>
         /// <param name="collectionsInstalledList"></param>
         /// <returns></returns>
-        public static bool installCollectionFromLibrary(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref string return_ErrorMessage, bool IsNewBuild, bool repair, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool skipCdefInstall) {
+        public static bool installCollectionFromLibrary(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref ErrorReturnModel return_ErrorMessage, bool IsNewBuild, bool repair, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool skipCdefInstall) {
             bool UpgradeOK = true;
             try {
                 //
@@ -237,7 +237,7 @@ namespace Contensive.Processor.Controllers {
                 } else if (!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) {
                     //
                     // Download all files for this collection and build the collection folder(s)
-                    string tempFilesDownloadPath = AddonController.getPrivateFilesAddonPath() +  Contensive.Processor.Controllers.GenericController.getGUIDNaked() + "\\";
+                    string tempFilesDownloadPath = AddonController.getPrivateFilesAddonPath() + Contensive.Processor.Controllers.GenericController.getGUIDNaked() + "\\";
                     core.tempFiles.createPath(tempFilesDownloadPath);
                     //
                     // -- download the collection file into the download path from the collectionGuid provided

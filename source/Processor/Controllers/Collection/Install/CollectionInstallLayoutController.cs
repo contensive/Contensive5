@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Models.Db;
+using Contensive.Processor.Models.Domain;
 using System;
 using System.Xml;
 
@@ -13,8 +14,7 @@ namespace Contensive.Processor.Controllers {
         //
         //======================================================================================================
         //
-        public static void installNode(CoreController core, XmlNode rootNode, int collectionId, ref bool return_UpgradeOK, ref string return_ErrorMessage, ref bool collectionIncludesDiagnosticAddons) {
-            return_ErrorMessage = "";
+        public static void installNode(CoreController core, XmlNode rootNode, int collectionId, ref bool return_UpgradeOK, ref ErrorReturnModel return_ErrorMessage, ref bool collectionIncludesDiagnosticAddons) {
             return_UpgradeOK = true;
             try {
                 string Basename = GenericController.toLCase(rootNode.Name);

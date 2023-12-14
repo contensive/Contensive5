@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using Contensive.Processor.Models.Domain;
 using Contensive.Processor.Properties;
 using System;
 using System.Collections.Generic;
@@ -107,7 +108,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // -- reinstall newest font-awesome collection
-                        string returnErrorMessage = "";
+                        ErrorReturnModel returnErrorMessage = new();
                         var context = new Stack<string>();
                         var nonCritialErrorList = new List<string>();
                         var collectionsInstalledList = new List<string>();
@@ -115,7 +116,6 @@ namespace Contensive.Processor.Controllers {
                         CollectionLibraryController.installCollectionFromLibrary(core, false, context, Constants.fontAwesomeCollectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
                         //
                         // -- reinstall newest redactor collection
-                        returnErrorMessage = "";
                         context = new Stack<string>();
                         nonCritialErrorList = new List<string>();
                         collectionsInstalledList = new List<string>();

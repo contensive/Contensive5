@@ -32,9 +32,8 @@ namespace Contensive.Processor.Controllers {
         //
         //======================================================================================================
         //
-        public static void installNode(CoreController core, XmlNode AddonNode, string AddonGuidFieldName, int CollectionID, ref bool return_UpgradeOK, ref string return_ErrorMessage, ref bool collectionIncludesDiagnosticAddons) {
+        public static void installNode(CoreController core, XmlNode AddonNode, string AddonGuidFieldName, int CollectionID, ref bool return_UpgradeOK, ref ErrorReturnModel return_ErrorMessage, ref bool collectionIncludesDiagnosticAddons) {
             // todo - return bool
-            return_ErrorMessage = "";
             return_UpgradeOK = true;
             try {
                 string Basename = GenericController.toLCase(AddonNode.Name);

@@ -42,7 +42,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 string GuidFieldName = null;
                 List<int> collectionsInstalledIDList = new List<int>();
                 DateTime DateValue = default;
-                string ErrorMessage = "";
+                ErrorReturnModel ErrorMessage = new();
                 string OnServerGuidList = "";
                 bool UpgradeOK = false;
                 XmlDocument LocalCollections = null;
@@ -234,10 +234,10 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                 bool skipCdefInstall = false;
                                 UpgradeOK = CollectionInstallController.installCollectionsFromTempFolder(core, false, context, privateFilesInstallPath, ref ErrorMessage, ref collectionsInstalledList, false, true, ref nonCriticalErrorList, logPrefix, true, ref collectionsDownloaded, skipCdefInstall);
                                 if (!UpgradeOK) {
-                                    if (string.IsNullOrEmpty(ErrorMessage)) {
+                                    if (ErrorMessage.errors.Count==0) {
                                         ErrorController.addUserError(core, "The Add-on Collection did not install correctly, but no detailed error message was given.");
                                     } else {
-                                        ErrorController.addUserError(core, "The Add-on Collection did not install correctly, " + ErrorMessage);
+                                        ErrorController.addUserError(core, "The Add-on Collection did not install correctly, " + string.Join( "", ErrorMessage.errors));
                                     }
                                 } else {
                                     foreach (string installedCollectionGuid in collectionsInstalledList) {
@@ -444,7 +444,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                                             //
                                                             // Not installed yet
                                                             //
-                                                            Cells3[RowPtr, 0] = "<input TYPE=\"CheckBox\" NAME=\"LibraryRow\" VALUE=\"" + RowPtr + "\" onClick=\"clearLibraryRows('" + RowPtr + "');\">" + HtmlController.inputHidden("LibraryRowGuid" + RowPtr, CollectionGuid) + HtmlController.inputHidden("LibraryRowName" + RowPtr, Collectionname);
+                                                            Cells3[RowPtr, 0] = "<input TYPE=\"CheckBox\" NAME=\"LibraryRow\" VALUE=\"" + RowPtr + "\" onClick=\"clearLibraryRows('" + RowPtr + "');\">" + Controllers.HtmlController.inputHidden("LibraryRowGuid" + RowPtr, CollectionGuid) + Controllers.HtmlController.inputHidden("LibraryRowName" + RowPtr, Collectionname);
                                                             Cells3[RowPtr, 1] = Collectionname + "&nbsp;";
                                                             Cells3[RowPtr, 2] = CollectionLastChangeDate + "&nbsp;";
                                                             Cells3[RowPtr, 3] = CollectionDescription + "&nbsp;";
@@ -476,7 +476,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                             + "<div style=\"width:100%\">" + AdminUIController.getReport2(core, RowPtr, ColCaption, ColAlign, ColWidth, Cells3, RowPtr, 1, "", PostTableCopy, RowPtr, "ccAdmin", ColSortable, 0) + "</div>"
                             + "";
                             BodyHTML = AdminUIController.getEditPanel(core, true, "Add-on Collection Library", "Select an Add-on to install from the Contensive Add-on Library. Please select only one at a time. Click OK to install the selected Add-on. The site may need to be stopped during the installation, but will be available again in approximately one minute.", BodyHTML);
-                            BodyHTML = BodyHTML + HtmlController.inputHidden("AOCnt", RowPtr);
+                            BodyHTML = BodyHTML + Controllers.HtmlController.inputHidden("AOCnt", RowPtr);
                             adminMenu.addEntry("<nobr>Collection&nbsp;Library</nobr>", BodyHTML, "ccAdminTab");
                         }
                         //
@@ -526,7 +526,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                             Cells = tempVar3;
                             RowPtr = 0;
                             while (csData.ok()) {
-                                Cells[RowPtr, 0] = HtmlController.checkbox("AC" + RowPtr) + HtmlController.inputHidden("ACID" + RowPtr, csData.getInteger("ID"));
+                                Cells[RowPtr, 0] = Controllers.HtmlController.checkbox("AC" + RowPtr) + Controllers.HtmlController.inputHidden("ACID" + RowPtr, csData.getInteger("ID"));
                                 Cells[RowPtr, 1] = csData.getText("name");
                                 if (DisplaySystem) {
                                     if (csData.getBoolean("system")) {
@@ -540,7 +540,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         }
                         BodyHTML = "<div style=\"width:100%\">" + AdminUIController.getReport2(core, RowPtr, ColCaption, ColAlign, ColWidth, Cells, RowPtr, 1, "", PostTableCopy, RowPtr, "ccAdmin", ColSortable, 0) + "</div>";
                         BodyHTML = AdminUIController.getEditPanel(core, true, "Add-on Collections", "Use this form to review and delete current add-on collections.", BodyHTML);
-                        BodyHTML = BodyHTML + HtmlController.inputHidden("accnt", RowPtr);
+                        BodyHTML = BodyHTML + Controllers.HtmlController.inputHidden("accnt", RowPtr);
                         adminMenu.addEntry("Installed&nbsp;Collections", BodyHTML, "ccAdminTab");
                         //
                         // --------------------------------------------------------------------------------
@@ -557,9 +557,9 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                 + "<table border=\"0\" cellpadding=\"0\" cellspacing=\"1\" width=\"100%\">"
                                 + "<tr><td align=\"left\"><a href=\"#\" onClick=\"InsertUpload(); return false;\">+ Add more files</a></td></tr>"
                                 + "</table>"
-                                + HtmlController.inputHidden("UploadCount", 1, "", "UploadCount") + "";
+                                + Controllers.HtmlController.inputHidden("UploadCount", 1, "", "UploadCount") + "";
                             Body.add(AdminUIController.editTable(""
-                                + AdminUIController.getEditRowLegacy(core, HtmlController.inputFile("MetaFile"), "Add-on Collection File(s)", "", true, false, "")
+                                + AdminUIController.getEditRowLegacy(core, Controllers.HtmlController.inputFile("MetaFile"), "Add-on Collection File(s)", "", true, false, "")
                                 + AdminUIController.getEditRowLegacy(core, FormInput, "&nbsp;", "", true, false, "")
                                 ));
                         }
@@ -572,7 +572,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         Content.add(adminMenu.getTabs(core));
                         //
                         ButtonList = ButtonCancel + "," + ButtonOK;
-                        Content.add(HtmlController.inputHidden(RequestNameAdminSourceForm, AdminFormLegacyAddonManager));
+                        Content.add(Controllers.HtmlController.inputHidden(RequestNameAdminSourceForm, AdminFormLegacyAddonManager));
                     }
                     //
                     // Output the Add-on

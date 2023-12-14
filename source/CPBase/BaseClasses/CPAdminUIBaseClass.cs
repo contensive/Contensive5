@@ -9,7 +9,23 @@ namespace Contensive.BaseClasses {
     /// </summary>
     public abstract class CPAdminUIBaseClass {
         //
-        //==========================================================================================
+        //====================================================================================================
+        //
+        public abstract LayoutBuilder.LayoutBuilderBaseClass CreateLayoutBuilder();
+        //
+        //====================================================================================================
+        //
+        public abstract LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass CreateLayoutBuilderTwoColumnLeft();
+        //
+        //====================================================================================================
+        //
+        public abstract LayoutBuilder.LayoutBuilderTwoColumnRightBaseClass CreateLayoutBuilderTwoColumnRight();
+        //
+        //====================================================================================================
+        //
+        public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList();
+        //
+        //====================================================================================================
         /// <summary>
         /// Create an html row that includes a caption, editor and optional help content
         /// </summary>
@@ -766,13 +782,13 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <returns></returns>
         [Obsolete("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi.", true)]
-        public abstract AdminUI.ToolFormBaseClass NewToolForm();
+        public abstract LayoutBuilder.LayoutBuilderToolFormBaseClass NewToolForm();
         /// <summary>
         /// Create a new instance of a List Report. List reports have a list of data rows with filters on the left
         /// </summary>
         /// <returns></returns>
         [Obsolete("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi.", true)]
-        public abstract AdminUI.ListReportBaseClass NewListReport();
+        public abstract LayoutBuilder.LayoutBuilderListBaseClass NewListReport();
         //
     }
 }

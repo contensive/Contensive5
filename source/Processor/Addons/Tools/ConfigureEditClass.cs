@@ -211,12 +211,12 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 //   Print Output
                 string description = ""
-                    + HtmlController.p( "Use this tool to add or modify content definition fields and the underlying sql table fields.")
+                    + Controllers.HtmlController.p( "Use this tool to add or modify content definition fields and the underlying sql table fields.")
                     + ((ContentId.Equals(0)) ? "" : ""
-                        + HtmlController.ul(""
-                            + HtmlController.li(HtmlController.a("Edit Content", "?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                            + HtmlController.li(HtmlController.a("Edit Records", "?cid=" + ContentId, "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                            + HtmlController.li(HtmlController.a("Select Different Fields", "?af=105", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                        + Controllers.HtmlController.ul(""
+                            + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Content", "?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                            + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Records", "?cid=" + ContentId, "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                            + Controllers.HtmlController.li(Controllers.HtmlController.a("Select Different Fields", "?af=105", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
                             , "nav")
                     );
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
@@ -229,7 +229,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // -- errors with last operations
                 if (!string.IsNullOrEmpty(ErrorMessage)) {
-                    Stream.add(HtmlController.div("There was a problem saving these changes" + "<UL>" + ErrorMessage + "</UL>", "ccError"));
+                    Stream.add(Controllers.HtmlController.div("There was a problem saving these changes" + "<UL>" + ErrorMessage + "</UL>", "ccError"));
                 }
                 if (ReloadCDef) {
                     contentMetadata = Processor.Models.Domain.ContentMetadataModel.create(core, ContentId, true, true);
@@ -243,7 +243,7 @@ namespace Contensive.Processor.Addons.Tools {
                 } else {
                     //
                     // Configure edit form
-                    Stream.add(HtmlController.inputHidden(RequestNameToolContentId, ContentId));
+                    Stream.add(Controllers.HtmlController.inputHidden(RequestNameToolContentId, ContentId));
                     Stream.add(core.html.getPanelTop());
                     ButtonList = ButtonCancel + "," + ButtonSave + "," + ButtonOK + "," + ButtonAdd;
                     //
@@ -336,7 +336,7 @@ namespace Contensive.Processor.Addons.Tools {
                             // put the menu into the current menu format
                             //
                             formFieldId = fieldsort.field.id;
-                            streamRow.add(HtmlController.inputHidden("dtfaID." + RecordCount, formFieldId));
+                            streamRow.add(Controllers.HtmlController.inputHidden("dtfaID." + RecordCount, formFieldId));
                             streamRow.add("<tr>");
                             //
                             // edit button
@@ -354,7 +354,7 @@ namespace Contensive.Processor.Addons.Tools {
                                 //
                                 // inherited property
                                 //
-                                streamRow.add("<td class=\"ccPanelInput\" align=\"center\">" + HtmlController.checkbox("dtfaInherited." + RecordCount, fieldsort.field.inherited) + "</td>");
+                                streamRow.add("<td class=\"ccPanelInput\" align=\"center\">" + Controllers.HtmlController.checkbox("dtfaInherited." + RecordCount, fieldsort.field.inherited) + "</td>");
                             } else {
                                 Processor.Models.Domain.ContentFieldMetadataModel parentField = null;
                                 //
@@ -372,7 +372,7 @@ namespace Contensive.Processor.Addons.Tools {
                                     streamRow.add("<td class=\"ccPanelInput\" align=\"center\">" + SpanClassAdminSmall + "False**</span></td>");
                                     NeedFootNote2 = true;
                                 } else {
-                                    streamRow.add("<td class=\"ccPanelInput\" align=\"center\">" + HtmlController.checkbox("dtfaInherited." + RecordCount, fieldsort.field.inherited) + "</td>");
+                                    streamRow.add("<td class=\"ccPanelInput\" align=\"center\">" + Controllers.HtmlController.checkbox("dtfaInherited." + RecordCount, fieldsort.field.inherited) + "</td>");
                                 }
                             }
                             //
@@ -386,7 +386,7 @@ namespace Contensive.Processor.Addons.Tools {
                             } else if (FieldLocked) {
                                 streamRow.add(SpanClassAdminSmall + fieldsort.field.nameLc + "&nbsp;</SPAN><input type=hidden name=dtfaName." + RecordCount + " value=\"" + fieldsort.field.nameLc + "\">");
                             } else {
-                                streamRow.add(HtmlController.inputText_Legacy(core, "dtfaName." + RecordCount, fieldsort.field.nameLc, 1, 10));
+                                streamRow.add(Controllers.HtmlController.inputText_Legacy(core, "dtfaName." + RecordCount, fieldsort.field.nameLc, 1, 10));
                             }
                             streamRow.add("</nobr></td>");
                             //
@@ -396,7 +396,7 @@ namespace Contensive.Processor.Addons.Tools {
                             if (fieldsort.field.inherited) {
                                 streamRow.add(SpanClassAdminSmall + fieldsort.field.caption + "</SPAN>");
                             } else {
-                                streamRow.add(HtmlController.inputText_Legacy(core, "dtfaCaption." + RecordCount, fieldsort.field.caption, 1, 10));
+                                streamRow.add(Controllers.HtmlController.inputText_Legacy(core, "dtfaCaption." + RecordCount, fieldsort.field.caption, 1, 10));
                             }
                             streamRow.add("</nobr></td>");
                             //
@@ -406,7 +406,7 @@ namespace Contensive.Processor.Addons.Tools {
                             if (fieldsort.field.inherited) {
                                 streamRow.add(SpanClassAdminSmall + fieldsort.field.editTabName + "</SPAN>");
                             } else {
-                                streamRow.add(HtmlController.inputText_Legacy(core, "dtfaEditTab." + RecordCount, fieldsort.field.editTabName, 1, 10));
+                                streamRow.add(Controllers.HtmlController.inputText_Legacy(core, "dtfaEditTab." + RecordCount, fieldsort.field.editTabName, 1, 10));
                             }
                             streamRow.add("</nobr></td>");
                             //
@@ -416,7 +416,7 @@ namespace Contensive.Processor.Addons.Tools {
                             if (fieldsort.field.inherited) {
                                 streamRow.add(SpanClassAdminSmall + GenericController.encodeText(fieldsort.field.defaultValue) + "</SPAN>");
                             } else {
-                                streamRow.add(HtmlController.inputText_Legacy(core, "dtfaDefaultValue." + RecordCount, GenericController.encodeText(fieldsort.field.defaultValue), 1, 10));
+                                streamRow.add(Controllers.HtmlController.inputText_Legacy(core, "dtfaDefaultValue." + RecordCount, GenericController.encodeText(fieldsort.field.defaultValue), 1, 10));
                             }
                             streamRow.add("</nobr></td>");
                             //
@@ -434,7 +434,7 @@ namespace Contensive.Processor.Addons.Tools {
                                     }
                                 }
                             } else if (FieldLocked) {
-                                streamRow.add(DbBaseModel.getRecordName<ContentFieldTypeModel>(core.cpParent, (int)fieldsort.field.fieldTypeId) + HtmlController.inputHidden("dtfaType." + RecordCount, (int)fieldsort.field.fieldTypeId));
+                                streamRow.add(DbBaseModel.getRecordName<ContentFieldTypeModel>(core.cpParent, (int)fieldsort.field.fieldTypeId) + Controllers.HtmlController.inputHidden("dtfaType." + RecordCount, (int)fieldsort.field.fieldTypeId));
                             } else {
                                 string TypeSelect = TypeSelectTemplate;
                                 TypeSelect = GenericController.strReplace(TypeSelect, "menuname", "dtfaType." + RecordCount, 1, 99, 1);
@@ -449,7 +449,7 @@ namespace Contensive.Processor.Addons.Tools {
                             if (fieldsort.field.inherited) {
                                 streamRow.add(SpanClassAdminSmall + fieldsort.field.editSortPriority + "</SPAN>");
                             } else {
-                                streamRow.add(HtmlController.inputText_Legacy(core, "dtfaEditSortPriority." + RecordCount, fieldsort.field.editSortPriority.ToString(), 1, 10));
+                                streamRow.add(Controllers.HtmlController.inputText_Legacy(core, "dtfaEditSortPriority." + RecordCount, fieldsort.field.editSortPriority.ToString(), 1, 10));
                             }
                             streamRow.add("</nobr></td>");
                             //
@@ -513,7 +513,7 @@ namespace Contensive.Processor.Addons.Tools {
                             }
                         }
                         Stream.add(StreamValidRows.text);
-                        Stream.add(HtmlController.inputHidden("dtfaRecordCount", RecordCount));
+                        Stream.add(Controllers.HtmlController.inputHidden("dtfaRecordCount", RecordCount));
                     }
                     Stream.add("</table>");
                     //
@@ -525,7 +525,7 @@ namespace Contensive.Processor.Addons.Tools {
                         Stream.add("<br>**This field can not be inherited because the Parent Content Definition does not have a field with the same name.");
                     }
                 }
-                Stream.add(HtmlController.inputHidden("ReloadCDef", ReloadCDef));
+                Stream.add(Controllers.HtmlController.inputHidden("ReloadCDef", ReloadCDef));
                 //
                 // -- assemble form
                 return AdminUIController.getToolForm(core, Stream.text, ButtonList);
@@ -548,7 +548,7 @@ namespace Contensive.Processor.Addons.Tools {
             if (Inherited) {
                 result += SpanClassAdminSmall + getYesNo(selected) + "</SPAN>";
             } else {
-                result += HtmlController.checkbox(htmlName, selected);
+                result += Controllers.HtmlController.checkbox(htmlName, selected);
             }
             return result + "</nobr></td>";
         }

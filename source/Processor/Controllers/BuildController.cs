@@ -223,17 +223,9 @@ namespace Contensive.Processor.Controllers {
                             if (!collectionsInstalledList.Contains(collection.ccguid)) {
                                 //
                                 // -- install all of them, ignore install errors
-                                string installErrorMessage = "";
+                                ErrorReturnModel installErrorMessage = new();
                                 nonCriticalErrorList = new List<string>();
                                 CollectionLibraryController.installCollectionFromLibrary(core, false, new Stack<string>(), collection.ccguid, ref installErrorMessage, isNewBuild, repair, ref nonCriticalErrorList, "", ref collectionsInstalledList, skipCdefInstall);
-                                if (!string.IsNullOrWhiteSpace(installErrorMessage)) {
-                                    //
-                                    // -- error messages, already reported?
-                                }
-                                foreach (string nonCriticalError in nonCriticalErrorList) {
-                                    //
-                                    // -- error messages, already reported?
-                                }
                             }
                         }
                     }

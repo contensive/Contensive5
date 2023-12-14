@@ -448,7 +448,7 @@ namespace Contensive.Processor.Addons.Tools {
                 FormPanel += core.html.selectFromContent("ContentID", ContentId, "Content");
                 Stream.add(core.html.getPanel(FormPanel));
                 core.siteProperties.setProperty("AllowContentAutoLoad", AllowContentAutoLoad);
-                Stream.add(HtmlController.inputHidden("ReloadCDef", ReloadCDef));
+                Stream.add(Controllers.HtmlController.inputHidden("ReloadCDef", ReloadCDef));
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
                 LogController.logError(core, ex);

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
 
 namespace Contensive.CLI {
     static class InstallFileCmd {
@@ -78,12 +79,12 @@ namespace Contensive.CLI {
                 cpApp.TempFiles.CopyLocalToRemote(tempPathFilename);
                 //
                 // -- build the collection folders for all collection files in the download path and created a list of collection Guids that need to be installed
-                string errorMessage = "";
+                ErrorReturnModel errorMessage = new();
                 var nonCriticalErrorList = new List<string>();
                 var collectionsInstalled = new List<string>();
                 string collectionGuidsInstalled = "";
                 if (!CollectionInstallController.installCollectionFromTempFile(cpApp.core, false, contextLog, tempPathFilename, ref errorMessage, ref collectionGuidsInstalled, false, false, ref nonCriticalErrorList, logPrefix, ref collectionsInstalled, skipCdefInstall)) {
-                    if (!string.IsNullOrEmpty(errorMessage)) {
+                    if (errorMessage.hasErrors) {
                         Console.WriteLine("***** Error installing the collection: " + errorMessage);
                     } else {
                         Console.WriteLine("***** Error installing the collection. The detail message available.");

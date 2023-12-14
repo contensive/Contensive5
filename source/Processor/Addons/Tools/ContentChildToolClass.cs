@@ -148,12 +148,12 @@ namespace Contensive.Processor.Addons.Tools {
                         FieldValue = FieldValue + "</select>";
                         tableBody += AdminUIController.getEditRowLegacy(cp.core, FieldValue, "Parent Content Name", "", false, false, "");
                         //
-                        FieldValue = HtmlController.inputText_Legacy(cp.core, "ChildContentName", ChildContentName, 1, 40);
+                        FieldValue = Controllers.HtmlController.inputText_Legacy(cp.core, "ChildContentName", ChildContentName, 1, 40);
                         tableBody += AdminUIController.getEditRowLegacy(cp.core, FieldValue, "New Child Content Name", "", false, false, "");
                         //
                         FieldValue = ""
-                            + HtmlController.inputRadio("NewGroup", false.ToString(), NewGroup.ToString()) + cp.core.html.selectFromContent("GroupID", GroupId, "Groups", "", "", "", ref IsEmptyList) + "(Select a current group)"
-                            + "<br>" + HtmlController.inputRadio("NewGroup", true.ToString(), NewGroup.ToString()) + HtmlController.inputText_Legacy(cp.core, "NewGroupName", NewGroupName) + "(Create a new group)";
+                            + Controllers.HtmlController.inputRadio("NewGroup", false.ToString(), NewGroup.ToString()) + cp.core.html.selectFromContent("GroupID", GroupId, "Groups", "", "", "", ref IsEmptyList) + "(Select a current group)"
+                            + "<br>" + Controllers.HtmlController.inputRadio("NewGroup", true.ToString(), NewGroup.ToString()) + Controllers.HtmlController.inputText_Legacy(cp.core, "NewGroupName", NewGroupName) + "(Create a new group)";
                         tableBody += AdminUIController.getEditRowLegacy(cp.core, FieldValue, "Content Manager Group", "", false, false, "");
                         //
                         Content.add(AdminUIController.editTable(tableBody));
@@ -161,7 +161,7 @@ namespace Contensive.Processor.Addons.Tools {
                         //
                         ButtonList = ButtonOK + "," + ButtonCancel;
                     }
-                    Content.add(HtmlController.inputHidden(rnAdminSourceForm, AdminFormContentChildTool));
+                    Content.add(Controllers.HtmlController.inputHidden(rnAdminSourceForm, AdminFormContentChildTool));
                 }
                 //
                 Caption = "Create Content Definition";

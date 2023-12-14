@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Models.Db;
+using Contensive.Processor.Models.Domain;
 using System;
 using System.Xml;
 using static Contensive.Processor.Controllers.GenericController;
@@ -14,8 +15,7 @@ namespace Contensive.Processor.Controllers {
         //
         //======================================================================================================
         //
-        public static void installNode(CoreController core, XmlNode templateNode, int collectionId, ref bool return_UpgradeOK, ref string return_ErrorMessage, ref bool collectionIncludesDiagnosticAddons) {
-            return_ErrorMessage = "";
+        public static void installNode(CoreController core, XmlNode templateNode, int collectionId, ref bool return_UpgradeOK, ref ErrorReturnModel return_ErrorMessage, ref bool collectionIncludesDiagnosticAddons) {
             return_UpgradeOK = true;
             try {
                 string Basename = toLCase(templateNode.Name);
@@ -43,7 +43,7 @@ namespace Contensive.Processor.Controllers {
                                     if (!string.IsNullOrEmpty(addonGuid)) {
                                         var addon = core.cacheRuntime.addonCache.create(addonGuid);
                                         if (addon == null) {
-                                            return_ErrorMessage += "Addon dependency [" + addonName + "] for template [" + templateName + "] could not be found by its guid [" + addonGuid + "]";
+                                            return_ErrorMessage.errors.Add( "Addon dependency [" + addonName + "] for template [" + templateName + "] could not be found by its guid [" + addonGuid + "]");
                                         }
                                         var ruleList = DbBaseModel.createList<AddonTemplateRuleModel>(core.cpParent, "(addonId=" + addon.id + ")and(addonId=" + template.id + ")");
                                         if (ruleList.Count.Equals(0)) {

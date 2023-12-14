@@ -2,11 +2,11 @@
 using System;
 using Contensive.BaseClasses;
 
-namespace Contensive.BaseClasses.AdminUI {
+namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// Create a Tool Form. Tool Forms how rows of input elements
     /// </summary>
-    public abstract class ToolFormBaseClass {
+    public abstract class LayoutBuilderToolFormBaseClass : LayoutBuilderBaseClass {
         //
         //-------------------------------------------------
         /// <summary>

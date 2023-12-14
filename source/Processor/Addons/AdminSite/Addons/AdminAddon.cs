@@ -50,7 +50,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         + cp.core.html.getPanel(result, "ccPanel", "ccPanelHilite", "ccPanelShadow", "400", 15)
                         + "</div>";
                     cp.core.html.addTitle("Unauthorized Access", "adminSite");
-                    return HtmlController.div(result, "container-fluid ccBodyAdmin ccCon");
+                    return Processor.Controllers.HtmlController.div(result, "container-fluid ccBodyAdmin ccCon");
                 }
                 //
                 // get admin site

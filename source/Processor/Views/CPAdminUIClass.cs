@@ -1,50 +1,94 @@
-﻿
-using Contensive.BaseClasses.AdminUI;
+﻿using Contensive.BaseClasses;
+using Contensive.BaseClasses.LayoutBuilder;
+using Contensive.Models.Db;
+using NLog.LayoutRenderers.Wrappers;
 using System;
 using System.Collections.Generic;
 
 namespace Contensive.Processor {
-    public class CPAdminUIClass : BaseClasses.CPAdminUIBaseClass {
+    public class CPAdminUIClass : CPAdminUIBaseClass {
         //
         public CPAdminUIClass(Controllers.CoreController core) {
             this.core = core;
         }
         //
-        private readonly Contensive.Processor.Controllers.CoreController core;
+        private readonly Controllers.CoreController core;
+        //
+        // ====================================================================================================
+        //
+        public override LayoutBuilderBaseClass CreateLayoutBuilder() {
+            return new LayoutBuilderClass();
+        }
+
+        public override LayoutBuilderTwoColumnLeftBaseClass CreateLayoutBuilderTwoColumnLeft() {
+            return new LayoutBuilderTwoColumnLeftClass();
+        }
+
+        public override LayoutBuilderTwoColumnRightBaseClass CreateLayoutBuilderTwoColumnRight() {
+            return new LayoutBuilderTwoColumnRightClass();
+        }
+
+        public override LayoutBuilderListBaseClass CreateLayoutBuilderList() {
+            return new LayoutBuilderListClass();
+        }
+
+
+        //
+        // ====================================================================================================
+        //
+        private static void getDefaultValues<T>(CPBaseClass cp, int createdModifiedById, string contentSqlSelect, List<int> childIdList, Dictionary<string, string> defaultValues) where T : DbBaseModel { }
         //
         // ====================================================================================================
         //
         public override string GetBooleanEditor(string htmlName, bool htmlValue, string htmlId, bool readOnly, bool required)
             => Controllers.AdminUIEditorController.getBooleanEditor(core, htmlName, htmlValue, readOnly, htmlId, required);
-
+        //
+        // ====================================================================================================
+        //
         public override string GetBooleanEditor(string htmlName, bool htmlValue, string htmlId, bool readOnly)
             => Controllers.AdminUIEditorController.getBooleanEditor(core, htmlName, htmlValue, readOnly, htmlId);
-
+        //
+        // ====================================================================================================
+        //
         public override string GetBooleanEditor(string htmlName, bool htmlValue, string htmlId)
             => Controllers.AdminUIEditorController.getBooleanEditor(core, htmlName, htmlValue, false, htmlId, false);
-
+        //
+        // ====================================================================================================
+        //
         public override string GetBooleanEditor(string htmlName, bool htmlValue)
             => Controllers.AdminUIEditorController.getBooleanEditor(core, htmlName, htmlValue, false, "", false);
-
+        //
+        // ====================================================================================================
+        //
         public override string GetCurrencyEditor(string htmlName, double? htmlValue, string htmlId, bool readOnly, bool required) {
             throw new NotImplementedException();
         }
-
+        //
+        // ====================================================================================================
+        //
         public override string GetCurrencyEditor(string htmlName, double? htmlValue, string htmlId, bool readOnly) {
             throw new NotImplementedException();
         }
-
+        //
+        // ====================================================================================================
+        //
         public override string GetCurrencyEditor(string htmlName, double? htmlValue, string htmlId) {
             throw new NotImplementedException();
         }
-
+        //
+        // ====================================================================================================
+        //
         public override string GetCurrencyEditor(string htmlName, double? htmlValue) {
             throw new NotImplementedException();
         }
-
+        //
+        // ====================================================================================================
+        //
         public override string GetDateTimeEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly, bool required)
             => Controllers.AdminUIEditorController.getDateTimeEditor(core, htmlName, htmlValue, readOnly, htmlId, required);
-
+        //
+        // ====================================================================================================
+        //
         public override string GetDateTimeEditor(string htmlName, DateTime? htmlValue, string htmlId, bool readOnly)
             => Controllers.AdminUIEditorController.getDateTimeEditor(core, htmlName, htmlValue, readOnly, htmlId, false);
 
@@ -125,7 +169,7 @@ namespace Contensive.Processor {
         }
 
         public override string GetIntegerEditor(string htmlName, int? htmlValue, string htmlId, bool readOnly, bool required)
-            => Controllers.AdminUIEditorController.getIntegerEditor(core, htmlName, htmlValue, readOnly, htmlId, required,"");
+            => Controllers.AdminUIEditorController.getIntegerEditor(core, htmlName, htmlValue, readOnly, htmlId, required, "");
 
         public override string GetIntegerEditor(string htmlName, int? htmlValue, string htmlId, bool readOnly)
             => Controllers.AdminUIEditorController.getIntegerEditor(core, htmlName, htmlValue, readOnly, htmlId, false, "");
@@ -359,21 +403,22 @@ namespace Contensive.Processor {
         public override string GetTextEditor(string htmlName, string htmlValue) {
             return Controllers.AdminUIEditorController.getTextEditor(core, htmlName, htmlValue);
         }
+
         /// <summary>
         /// deprecated
         /// </summary>
         /// <returns></returns>
-        [Obsolete("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi.",true)]
-        public override ToolFormBaseClass NewToolForm() {
+        [Obsolete("Deprecated. Use CreateLayoutBuilderTool()", true)]
+        public override LayoutBuilderToolFormBaseClass NewToolForm() {
             throw new NotImplementedException("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi");
         }
         /// <summary>
         /// deprecated
         /// </summary>
         /// <returns></returns>
-        [Obsolete("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi.", true)]
-        public override ListReportBaseClass NewListReport() {
-            throw new NotImplementedException("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi");
+        [Obsolete("Deprecated. Use CreateLayoutBuilderList()", true)]
+        public override LayoutBuilderListBaseClass NewListReport() {
+            throw new NotImplementedException("Deprecated. Use CreateLayoutBuilderList()");
         }
     }
 }

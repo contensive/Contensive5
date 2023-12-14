@@ -60,8 +60,8 @@ namespace Contensive.Processor.Addons {
                 }
                 //
                 // -- wrap in form
-                result += HtmlController.form(core, layout);
-                result = HtmlController.div(result, "ccLoginFormCon pt-4");
+                result += Controllers.HtmlController.form(core, layout);
+                result = Controllers.HtmlController.div(result, "ccLoginFormCon pt-4");
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
