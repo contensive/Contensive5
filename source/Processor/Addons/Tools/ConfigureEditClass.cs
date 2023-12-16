@@ -220,7 +220,7 @@ namespace Contensive.Processor.Addons.Tools {
                             , "nav")
                     );
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
-                Stream.add(AdminUIController.getHeaderTitleDescription("Manage Admin Edit Fields", description));
+                Stream.add(AdminUIController.getHeaderTitleDescription("Edit Table Metadata", description));
                 //
                 // -- status of last operation
                 if (!string.IsNullOrEmpty(StatusMessage)) {

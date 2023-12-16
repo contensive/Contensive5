@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.Tools {
                 DataSourceModel datasource = DataSourceModel.create(core.cpParent, core.docProperties.getInteger("DataSourceID"));
                 //
                 ButtonList = ButtonCancel + "," + ButtonRun;
-                Caption = "Create Content Definition";
+                Caption = "Create Table Child Metadata";
                 Description = "This tool creates a Content Definition. If the SQL table exists, it is used. If it does not exist, it is created. If records exist in the table with a blank ContentControlID, the ContentControlID will be populated from this new definition. A Navigator Menu entry will be added under Manage Site Content - Advanced.";
                 //
                 //   print out the submit form

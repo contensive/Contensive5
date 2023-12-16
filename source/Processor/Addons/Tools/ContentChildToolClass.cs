@@ -164,8 +164,8 @@ namespace Contensive.Processor.Addons.Tools {
                     Content.add(Controllers.HtmlController.inputHidden(rnAdminSourceForm, AdminFormContentChildTool));
                 }
                 //
-                Caption = "Create Content Definition";
-                Description = "<div>This tool is used to create content definitions that help segregate your content into authorable segments.</div>" + Description;
+                Caption = "Create Child Table Metadata";
+                Description = "<div>This tool is used to create child table metadata (child content definitions) that help segregate your content into authorable segments.</div>" + Description;
                 result = AdminUIController.getToolBody(cp.core, Caption, ButtonList, "", false, false, Description, "", 0, Content.text);
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);

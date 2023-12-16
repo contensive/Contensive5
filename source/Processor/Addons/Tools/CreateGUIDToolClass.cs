@@ -3,7 +3,7 @@ using System;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
 //
-namespace Contensive.Processor.Addons.Tools {
+namespace Contensive.Processor.Addons.Tools.CreateGUIDToolClass {
     //
     public class CreateGUIDToolClass : Contensive.BaseClasses.AddonBaseClass {
         //
