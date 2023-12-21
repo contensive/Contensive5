@@ -1,13 +1,23 @@
 ﻿
 using System;
+using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Addons.AdminSite {
-    public class ToolDownloads {
+    public class DownloadManagerAddon : Contensive.BaseClasses.AddonBaseClass {
         //
-        //========================================================================
+        //====================================================================================================
+        /// <summary>
+        /// addon method, deliver complete Html admin site
+        /// blank return on OK or cancel button
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public override object Execute(Contensive.BaseClasses.CPBaseClass cpBase) {
+            return get(((CPClass)cpBase).core);
+        }
         //
         //========================================================================
         //

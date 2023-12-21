@@ -1699,7 +1699,7 @@ namespace Contensive.Processor.Controllers {
                 if (addon == null) {
                     //
                     // -- addon not found
-                    string errMsg = "executeAsync called with null addon model.";
+                    string errMsg = "executeAsProcess called with null addon model.";
                     logger.Error(LogController.processLogMessage(core, errMsg, true));
                     return;
                 }
@@ -1715,7 +1715,7 @@ namespace Contensive.Processor.Controllers {
                     args = compositeArgs
                 }, false);
             } catch (Exception ex) {
-                LogController.logError(core, ex, "executeAsync");
+                LogController.logError(core, ex, "executeAsProcess");
             }
         }
         //
@@ -1733,9 +1733,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="guid"></param>
         /// <param name="OptionString"></param>
         public void executeAsProcess(string guid, string OptionString = "") {
-            if (string.IsNullOrEmpty(guid)) { throw new ArgumentException("executeAsync called with invalid guid [" + guid + "]"); }
+            if (string.IsNullOrEmpty(guid)) { throw new ArgumentException("executeAsProcess called with invalid guid [" + guid + "]"); }
             var addon = core.cacheRuntime.addonCache.create(guid);
-            if (addon == null) { throw new ArgumentException("ExecuteAsync cannot find Addon for guid [" + guid + "]"); }
+            if (addon == null) { throw new ArgumentException("executeAsProcess cannot find Addon for guid [" + guid + "]"); }
             executeAsProcess(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
         }
         //
@@ -1746,10 +1746,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="name"></param>
         /// <param name="OptionString"></param>
         public void executeAsProcessByName(string name, string OptionString = "") {
-            if (string.IsNullOrEmpty(name)) { throw new ArgumentException("executeAsyncByName called with invalid name [" + name + "]"); }
+            if (string.IsNullOrEmpty(name)) { throw new ArgumentException("executeAsProcessByName called with invalid name [" + name + "]"); }
             AddonModel addon = core.cacheRuntime.addonCache.createByUniqueName(name);
             //var addon = AddonModel.createByUniqueName(core.cpParent, name);
-            if (addon == null) { throw new ArgumentException("executeAsyncByName cannot find Addon for name [" + name + "]"); }
+            if (addon == null) { throw new ArgumentException("executeAsProcessByName cannot find Addon for name [" + name + "]"); }
             executeAsProcess(addon, convertQSNVAArgumentstoDocPropertiesList(core, OptionString));
         }
         //

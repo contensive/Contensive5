@@ -2928,6 +2928,11 @@
     Tools
 
   -->  
+  <Addon name="Download Manager" guid="{55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}" type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.DownloadManagerAddon]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<category><![CDATA[Advanced]]></category>
+  </Addon>  
   <Addon name="Create Guid" guid="{CFA18140-FBB4-4404-BF02-7B5C82BE2964}" type="Tool">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.CreateGUIDToolClass]]></DotNetClass>
     <Admin>Yes</Admin>

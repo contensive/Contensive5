@@ -1508,6 +1508,16 @@ var RLMediaType = "";
 //	build admin site workspace
 //
 var AFinnerHTML;
+/*
+* onready
+*/
+function ready(fn) {
+  if (document.readyState !== 'loading') {
+    fn();
+    return;
+  }
+  document.addEventListener('DOMContentLoaded', fn);
+}
 //
 //
 // cross browser window size function
@@ -3026,49 +3036,16 @@ function DecodeAddonOptionArgument(EncodedArg) {
     a = a.replace(/#0038#/g, "&");
     return a;
 }
-//
-//-------------------------------------------------------------------------
-//	child list methods
-//-------------------------------------------------------------------------
-//
-// function saveSortable(listId) {
-//     var e, c, s;
-//     s = listId;
-//     e = document.getElementById(listId);
-//     for (i = 0; i < e.childNodes.length; i++) {
-//         c = e.childNodes[i];
-//         if (c.id) { s += "," + c.id }
-//     }
-//     cj.ajax.addon("savePageManagerChildListSort", "sortlist=" + s)
-// }
-// $(function () {
-//     jQuery(".ccEditWrapper .ccChildList").sortable({
-//         items: "li.allowSort",
-//         stop: function (event, ui) {
-//             saveSortable(jQuery(this).attr("id"));
-//         },
-//         connectWith: ".ccChildList",
-// 		receive: function(event,ui) {
-//             saveSortable(jQuery(this).attr("id"));
-// 		},		
-// 		placeholder: "ui-state-highlight"
-//     });
-// })
-//
-//-------------------------------------------------------------------------
-// Legacy
-//-------------------------------------------------------------------------
-//
 /*
 * Admin List, submit FindButton if enter while find input field focus 
 */
-jQuery(".findInput").keypress(function (e) {
+ready( jQuery(".findInput").keypress(function (e) {
     if (e.which === 13) {
         e.stopPropagation();
         e.preventDefault();
         jQuery("#FindButton").click();
     }
-});
+}));
 /*
  *  dynamicTab
 */
@@ -3215,7 +3192,7 @@ function BodyOnClick() {
 /*
  * on ready bindings
  */
-jQuery(document).ready(function () {
+ready(function () {
     jQuery("body").on("click",BodyOnClick);
     document.addEventListener("mousedown", PageClick, true);
     document.addEventListener("mouseclick", BodyOnClick, true);
@@ -3240,7 +3217,7 @@ function setDateTimeEditorHidden(htmlId) {
 /*
 * admin header command
 */
-$( function() {
+ready( function() {
     $( "#cmdSearch" ).autocomplete({
       source: function (request, response) {
         $.ajax({
@@ -3256,5 +3233,5 @@ $( function() {
           window.location.href = ui.item.url;        
       }
     });
-});    
+});
 </script>

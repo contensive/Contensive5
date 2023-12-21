@@ -56,7 +56,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 loaded = true,
                 open = false,
                 pageNumber = 1,
-                recordsPerPage = Constants.RecordsPerPageDefault,
+                recordsPerPage = adminData.listViewRecordsPerPage,
                 recordTop = 0,
                 groupList = new string[groupListCntMax],
                 groupListCnt = 0,

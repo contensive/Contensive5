@@ -41,6 +41,9 @@ namespace Contensive.Processor {
         /// </summary>
         public override int Id {
             get {
+                if (cp?.core?.session?.visit == null) { return 0; }
+                if (cp.core.session.visit.id != 0) { return cp.core.session.visit.id; }
+                cp.core.session.verifyUser();
                 return cp.core.session.visit.id;
             }
         }

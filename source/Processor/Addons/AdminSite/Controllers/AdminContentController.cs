@@ -294,7 +294,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 break;
                             }
                         case AdminFormToolManualQuery: {
-                                content = ManualQueryClass.get(cp);
+                                content = ManualQueryXClass.get(cp);
                                 break;
                             }
                         case AdminFormToolDefineContentFieldsFromTable: {
@@ -340,7 +340,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 break;
                             }
                         case AdminFormDownloads: {
-                                content = (ToolDownloads.get(cp.core));
+                                content = (DownloadManagerAddon.get(cp.core));
                                 break;
                             }
                         case AdminFormImportWizard: {

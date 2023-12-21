@@ -12,7 +12,7 @@ using Contensive.BaseModels;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
-    public class ManualQueryClass : Contensive.BaseClasses.AddonBaseClass {
+    public class ManualQueryXClass : Contensive.BaseClasses.AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
@@ -39,12 +39,12 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // Get the members SQL Queue
                 //
-                string SQLFilename = core.userProperty.getText("SQLArchive");
-                if (string.IsNullOrEmpty(SQLFilename)) {
-                    SQLFilename = "SQLArchive" + core.session.user.id.ToString("000000000") + ".txt";
-                    core.userProperty.setProperty("SQLArchive", SQLFilename);
+                string sqlHistoryPathFilename = core.userProperty.getText("SQLArchive");
+                if (string.IsNullOrEmpty(sqlHistoryPathFilename)) {
+                    sqlHistoryPathFilename = "sqlToolArchive\\SQLArchive" + core.session.user.id.ToString("000000000") + ".txt";
+                    core.userProperty.setProperty("SQLArchive", sqlHistoryPathFilename);
                 }
-                string SQLArchive = core.cdnFiles.readFileText(SQLFilename);
+                string sqlHistory = core.cdnFiles.readFileText(sqlHistoryPathFilename);
                 //
                 // Read in arguments if available
                 //
@@ -74,16 +74,16 @@ namespace Contensive.Processor.Addons.Tools {
                     // Add this SQL to the members SQL list
                     //
                     if (!string.IsNullOrEmpty(SQL)) {
-                        string SQLArchiveOld = SQLArchive.Replace(SQL + Environment.NewLine, "");
-                        SQLArchive = SQL.Replace( Environment.NewLine, " ") + Environment.NewLine;
+                        string SQLArchiveOld = sqlHistory.Replace(SQL + Environment.NewLine, "");
+                        sqlHistory = SQL.Replace( Environment.NewLine, " ") + Environment.NewLine;
                         int LineCounter = 0;
                         while ((LineCounter < 10) && (!string.IsNullOrEmpty(SQLArchiveOld))) {
                             string line = getLine(ref SQLArchiveOld).Trim();
                             if (!string.IsNullOrWhiteSpace(line)) {
-                                SQLArchive += line + Environment.NewLine;
+                                sqlHistory += line + Environment.NewLine;
                             }
                         }
-                        core.cdnFiles.saveFile(SQLFilename, SQLArchive);
+                        core.cdnFiles.saveFile(sqlHistoryPathFilename, sqlHistory);
                     }
                     //
                     // Run the SQL
@@ -97,7 +97,12 @@ namespace Contensive.Processor.Addons.Tools {
                         Stream.add("<p>" + core.dateTimeNowMockable + " Executing sql [" + SQL + "] on DataSource [" + datasource.name + "]");
                         DataTable dt = null;
                         try {
-                            dt = core.db.executeQuery(SQL, DbController.getStartRecord( pageSize, pageNumber ), pageSize);
+                            if(datasource.name.ToLowerInvariant()=="default" || string.IsNullOrEmpty(datasource.name)) {
+                                dt = core.db.executeQuery(SQL, DbController.getStartRecord(pageSize, pageNumber), pageSize);
+                            } else {
+                                var db = new DbController(core, datasource.name);
+                                dt = db.executeQuery(SQL, DbController.getStartRecord(pageSize, pageNumber), pageSize);
+                            }
                         } catch (Exception ex) {
                             //
                             // ----- error
@@ -184,7 +189,7 @@ namespace Contensive.Processor.Addons.Tools {
                     //
                     // -- sql list
                     string js = "var e = document.getElementById('SQLList');SQL.value=e.options[e.selectedIndex].text;";
-                    List<string> lookupList = SQLArchive.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    List<string> lookupList = sqlHistory.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries).ToList();
                     string inputSelect = AdminUIEditorController.getLookupListEditor(core, "SQLList", 0 , lookupList,false, "SQLList","",false);
                     inputSelect = inputSelect.Replace("<select ", "<select onChange=\"" + js + "\" ");
                     Stream.add(AdminUIController.getToolFormInputRow(core, "Previous Queries", inputSelect));
