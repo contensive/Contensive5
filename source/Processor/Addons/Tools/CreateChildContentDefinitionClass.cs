@@ -79,7 +79,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }

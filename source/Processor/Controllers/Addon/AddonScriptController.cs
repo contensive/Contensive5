@@ -65,10 +65,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("ccLib", mainCsv);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object ex-6, hint[" + hint + "]");
-                        LogControllerX.logError(core, ex, errorMessage);
+                        LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        LogControllerX.logError(core, ex, "ex-7, hint[" + hint + "]");
+                        LogController.logError(core, ex, "ex-7, hint[" + hint + "]");
                         throw;
                     }                    //
                     // -- adding cp
@@ -77,10 +77,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("cp", core.cpParent);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cp object, ex-5, hint[" + hint + "] ");
-                        LogControllerX.logError(core, ex, errorMessage);
+                        LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        LogControllerX.logError(core, ex, "ex-4, hint[" + hint + "]");
+                        LogController.logError(core, ex, "ex-4, hint[" + hint + "]");
                         throw;
                     }
                     //
@@ -96,7 +96,7 @@ namespace Contensive.Processor.Controllers {
                         return returnText;
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "executing script, hint[" + hint + "]");
-                        LogControllerX.logError(core, ex, errorMessage);
+                        LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
                         string addonDescription = AddonController.getAddonDescription(core, addon);
@@ -105,7 +105,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "ex-1, hint [" + hint + "]");
+                LogController.logError(core, ex, "ex-1, hint [" + hint + "]");
                 throw;
             }
         }
@@ -158,10 +158,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("ccLib", mainCsv);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cclib compatibility object");
-                        LogControllerX.logError(core, ex, errorMessage);
+                        LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        LogControllerX.logError(core, ex, "Clearscript Javascript exception.");
+                        LogController.logError(core, ex, "Clearscript Javascript exception.");
                         throw;
                     }
                     //
@@ -170,10 +170,10 @@ namespace Contensive.Processor.Controllers {
                         engine.AddHostObject("cp", core.cpParent);
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "Adding cp object");
-                        LogControllerX.logError(core, ex, errorMessage);
+                        LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
-                        LogControllerX.logError(core, ex, "Clearscript Javascript exception.");
+                        LogController.logError(core, ex, "Clearscript Javascript exception.");
                         throw;
                     }
                     //
@@ -188,7 +188,7 @@ namespace Contensive.Processor.Controllers {
                         return returnText;
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
                         string errorMessage = getScriptEngineExceptionMessage(ex, "executing script");
-                        LogControllerX.logError(core, ex, errorMessage);
+                        LogController.logError(core, ex, errorMessage);
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {
                         string addonDescription = AddonController.getAddonDescription(core, addon);
@@ -197,7 +197,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }

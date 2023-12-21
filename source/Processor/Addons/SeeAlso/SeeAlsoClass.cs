@@ -63,7 +63,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 if (SeeAlsoCount == 0) { return string.Empty; }
                 return HtmlController.div(HtmlController.h4("See Also") + HtmlController.ul(result, "ccList"), "ccSeeAlso");
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }

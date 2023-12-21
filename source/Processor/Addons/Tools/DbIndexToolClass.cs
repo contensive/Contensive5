@@ -61,7 +61,7 @@ namespace Contensive.Processor.Addons.Tools {
                         DataSource = csData.getText("DataSourceID");
                     }
                 }
-                using (var db = new DbControllerX(core, DataSource)) {
+                using (var db = new DbController(core, DataSource)) {
                     //
                     if ((TableId != 0) && (TableId == core.docProperties.getInteger("previoustableid")) && (!string.IsNullOrEmpty(Button))) {
                         //
@@ -180,7 +180,7 @@ namespace Contensive.Processor.Addons.Tools {
                     result = AdminUIController.getToolForm(core, result, ButtonList);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }

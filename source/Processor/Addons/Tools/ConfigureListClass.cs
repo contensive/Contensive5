@@ -81,7 +81,7 @@ namespace Contensive.Processor.Addons.Tools {
                                         SourceContentId = field.contentId;
                                         SourceName = field.nameLc;
                                         using (var CSSource = new CsModel(core)) {
-                                            CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbControllerX.encodeSQLText(SourceName) + ")");
+                                            CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")");
                                             if (CSSource.ok()) {
                                                 using (var CSTarget = new CsModel(core)) {
                                                     CSTarget.insert("Content Fields");
@@ -109,7 +109,7 @@ namespace Contensive.Processor.Addons.Tools {
                                 SourceContentId = field.contentId;
                                 SourceName = field.nameLc;
                                 using (var CSSource = new CsModel(core)) {
-                                    if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbControllerX.encodeSQLText(SourceName) + ")")) {
+                                    if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")")) {
                                         using (var CSTarget = new CsModel(core)) {
                                             if (CSTarget.insert("Content Fields")) {
                                                 CSSource.copyRecord(CSTarget);
@@ -451,7 +451,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add(Controllers.HtmlController.inputHidden("ReloadCDef", ReloadCDef));
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }
@@ -472,7 +472,7 @@ namespace Contensive.Processor.Addons.Tools {
                     tempLocal_GetContentNameById = GenericController.encodeText(dt.Rows[0][0]);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempLocal_GetContentNameById;
         }
@@ -594,7 +594,7 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
         }
         //

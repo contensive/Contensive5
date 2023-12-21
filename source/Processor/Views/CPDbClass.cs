@@ -22,7 +22,7 @@ namespace Contensive.Processor {
         /// All db controller calls go to this object. 
         /// If this instance was created with the default datasource, db is set the core.db
         /// </summary>
-        internal DbControllerX db;
+        internal DbController db;
         /// <summary>
         /// 
         /// </summary>
@@ -46,7 +46,7 @@ namespace Contensive.Processor {
         /// <param name="cpParent"></param>
         public CPDbClass(CPClass cpParent, string dataSourceName) {
             cp = cpParent;
-            db = new DbControllerX(cp.core, dataSourceName);
+            db = new DbController(cp.core, dataSourceName);
         }
         //
         //====================================================================================================
@@ -98,7 +98,7 @@ namespace Contensive.Processor {
                     //
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
             }
             return returnKey;
         }
@@ -106,37 +106,37 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string EncodeSQLBoolean(bool SourceBoolean) {
-            return DbControllerX.encodeSQLBoolean(SourceBoolean);
+            return DbController.encodeSQLBoolean(SourceBoolean);
         }
         //
         //====================================================================================================
         //
         public override string EncodeSQLDate(DateTime SourceDate) {
-            return DbControllerX.encodeSQLDate(SourceDate);
+            return DbController.encodeSQLDate(SourceDate);
         }
         //
         //====================================================================================================
         //
         public override string EncodeSQLNumber(double SourceNumber) {
-            return DbControllerX.encodeSQLNumber(SourceNumber);
+            return DbController.encodeSQLNumber(SourceNumber);
         }
         //
         //====================================================================================================
         //
         public override string EncodeSQLText(string SourceText) {
-            return DbControllerX.encodeSQLText(SourceText);
+            return DbController.encodeSQLText(SourceText);
         }
         //
         //====================================================================================================
         //
         public override string EncodeSQLTextLike(string SourceText) {
-            return DbControllerX.encodeSqlTextLike(SourceText);
+            return DbController.encodeSqlTextLike(SourceText);
         }
         //
         //====================================================================================================
         //
         public override string GetRemoteQueryKey(string sql)
-            => GetRemoteQueryKey(sql, DbControllerX.sqlPageSizeDefault);
+            => GetRemoteQueryKey(sql, DbController.sqlPageSizeDefault);
         //
         //====================================================================================================
         //
@@ -158,7 +158,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string EncodeSQLNumber(int SourceNumber) {
-            return DbControllerX.encodeSQLNumber(SourceNumber);
+            return DbController.encodeSQLNumber(SourceNumber);
         }
         //
         //====================================================================================================
@@ -387,7 +387,7 @@ namespace Contensive.Processor {
         //
         [Obsolete("Deprecated. Use CP.Content.GetTableId().", false)]
         public override int GetTableID(string TableName) {
-            return DbControllerX.getTableID(cp.core, TableName);
+            return DbController.getTableID(cp.core, TableName);
         }
         //
         [Obsolete("Deprecated. Use methods without explicit datasource.", false)]
@@ -424,14 +424,14 @@ namespace Contensive.Processor {
                     //
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
             }
             return returnKey;
         }
         //
         [Obsolete("Deprecated. Use methods without explicit datasource.", false)]
         public override string GetRemoteQueryKey(string sql, string ignoreDataSourceName)
-            => GetRemoteQueryKey(sql, DbControllerX.sqlPageSizeDefault);
+            => GetRemoteQueryKey(sql, DbController.sqlPageSizeDefault);
         //
         [Obsolete("Deprecated. Use methods without explicit datasource.", false)]
         public override void ExecuteNonQuery(string sql, string ignoreDataSourceName) {

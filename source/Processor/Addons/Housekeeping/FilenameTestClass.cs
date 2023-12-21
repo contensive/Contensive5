@@ -21,8 +21,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, FilenameTestClass");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }
@@ -51,19 +51,19 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             // -- unix test
                             pathFilename = FileController.convertToUnixSlash(pathFilename);
                             if (pathFilename != FileController.encodeUnixPathFilename(pathFilename)) {
-                                LogControllerX.logAlarm(env.core, $"Housekeep File Unix compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
+                                LogController.logAlarm(env.core, $"Housekeep File Unix compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
                             }
                             // -- dos test
                             pathFilename = FileController.convertToDosSlash(pathFilename);
                             if (pathFilename != FileController.encodeDosPathFilename(pathFilename)) {
-                                LogControllerX.logAlarm(env.core, $"Housekeep File DOS compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
+                                LogController.logAlarm(env.core, $"Housekeep File DOS compatible Fieldname test failed. Invalid filename [{pathFilename}] in table [{file.table}], field [{file.field}]");
                             }
                         }
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }

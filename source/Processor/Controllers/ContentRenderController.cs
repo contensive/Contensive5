@@ -241,9 +241,9 @@ namespace Contensive.Processor.Controllers {
                                                                 using (var csData = new CsModel(core)) {
                                                                     string Criteria = "";
                                                                     if (!string.IsNullOrEmpty(ACGuid)) {
-                                                                        Criteria = "ccguid=" + DbControllerX.encodeSQLText(ACGuid);
+                                                                        Criteria = "ccguid=" + DbController.encodeSQLText(ACGuid);
                                                                     } else {
-                                                                        Criteria = "name=" + DbControllerX.encodeSQLText(ACName.ToUpper());
+                                                                        Criteria = "name=" + DbController.encodeSQLText(ACName.ToUpper());
                                                                     }
                                                                     if (csData.open(AddonContentName, Criteria, "Name,ID", false, 0, SelectList)) {
                                                                         IconFilename = csData.getText("IconFilename");
@@ -405,7 +405,7 @@ namespace Contensive.Processor.Controllers {
                     result = Stream.text;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 // throw;
             }
             return result;
@@ -489,7 +489,7 @@ namespace Contensive.Processor.Controllers {
                             LineEnd = GenericController.strInstr(LineStart, result, EndFlag);
                             string Copy = "";
                             if (LineEnd == 0) {
-                                LogControllerX.logWarn(core, "csv_EncodeContent9, Addon could not be inserted into content because the HTML comment holding the position is not formated correctly");
+                                LogController.logWarn(core, "csv_EncodeContent9, Addon could not be inserted into content because the HTML comment holding the position is not formated correctly");
                                 break;
                             } else {
                                 hint = "53";
@@ -556,7 +556,7 @@ namespace Contensive.Processor.Controllers {
                 } catch (Exception ex) {
                     //
                     // -- handle error, but don't abort encode
-                    LogControllerX.logError(core, ex, "hint [" + hint + "]");
+                    LogController.logError(core, ex, "hint [" + hint + "]");
                 }
                 //
                 // process out text block comments inserted by addons
@@ -604,7 +604,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "hint [" + hint + "]");
+                LogController.logError(core, ex, "hint [" + hint + "]");
             }
             return result;
         }
@@ -1067,7 +1067,7 @@ namespace Contensive.Processor.Controllers {
                                                                                                                 //
                                                                                                                 // image load failed, use raw filename
                                                                                                                 //
-                                                                                                                LogControllerX.logWarn(core, new GenericException("ImageEditController failed to load filename [" + RecordVirtualFilename + "]"));
+                                                                                                                LogController.logWarn(core, new GenericException("ImageEditController failed to load filename [" + RecordVirtualFilename + "]"));
                                                                                                             } else {
                                                                                                                 //
                                                                                                                 //
@@ -1161,7 +1161,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
             //
@@ -1222,7 +1222,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return htmlContentUpdated;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return htmlContent;
             }
         }

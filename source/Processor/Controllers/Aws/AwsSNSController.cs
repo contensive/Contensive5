@@ -35,7 +35,7 @@ namespace Contensive.Processor.Controllers {
                 var topicResponse = snsClient.CreateTopicAsync(core.appConfig.name + "_" + topic).waitSynchronously();
                 return topicResponse.TopicArn;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return "";
             }
         }

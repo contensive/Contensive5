@@ -31,7 +31,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (core.session.visit.id == core.docProperties.getInteger(RequestNameDashboardReset)) {
                     //$$$$$ cache this
                     using (var csData = new CsModel(core)) {
-                        csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbControllerX.encodeSQLText(addonGuidDashboard));
+                        csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbController.encodeSQLText(addonGuidDashboard));
                         if (csData.ok()) {
                             addonId = csData.getInteger("id");
                             core.siteProperties.setProperty("AdminRootAddonID", GenericController.encodeText(addonId));
@@ -110,7 +110,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + "";
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnHtml;

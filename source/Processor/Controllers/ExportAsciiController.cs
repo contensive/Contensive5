@@ -38,7 +38,7 @@ namespace Contensive.Processor.Controllers {
                 // ----- Check for special case iContentNames
                 //
                 core.webServer.responseContentType = "text/plain"; 
-                TableName = DbControllerX.getDbObjectTableName(MetadataController.getContentTablename(core, iContentName));
+                TableName = DbController.getDbObjectTableName(MetadataController.getContentTablename(core, iContentName));
                 switch (GenericController.toUCase(TableName)) {
                     case "CCMEMBERS":
                         //
@@ -164,7 +164,7 @@ namespace Contensive.Processor.Controllers {
                 result = core.wwwFiles.readFileText(TestFilename);
                 core.wwwFiles.deleteFile(TestFilename);
             } catch (Exception ex) {
-                LogControllerX.logError( core,ex);
+                LogController.logError( core,ex);
             }
             return result;
         }

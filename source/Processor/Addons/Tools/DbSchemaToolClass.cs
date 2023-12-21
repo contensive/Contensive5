@@ -71,7 +71,7 @@ namespace Contensive.Processor.Addons.Tools {
                     //
                     RSSchema = core.db.getTableSchemaData(TableName);
                     Stream.add(core.dateTimeNowMockable + " GetSchema executed successfully<br>");
-                    if (!DbControllerX.isDataTableOk(RSSchema)) {
+                    if (!DbController.isDataTableOk(RSSchema)) {
                         //
                         // ----- no result
                         //
@@ -128,7 +128,7 @@ namespace Contensive.Processor.Addons.Tools {
                     Stream.add(core.dateTimeNowMockable + " Opening Index Schema<br>");
                     //
                     RSSchema = core.db.getIndexSchemaData(TableName);
-                    if (!DbControllerX.isDataTableOk(RSSchema)) {
+                    if (!DbController.isDataTableOk(RSSchema)) {
                         //
                         // ----- no result
                         //
@@ -186,7 +186,7 @@ namespace Contensive.Processor.Addons.Tools {
                     //
                     RSSchema = core.db.getColumnSchemaData(TableName);
                     Stream.add(core.dateTimeNowMockable + " GetSchema executed successfully<br>");
-                    if (DbControllerX.isDataTableOk(RSSchema)) {
+                    if (DbController.isDataTableOk(RSSchema)) {
                         //
                         // ----- no result
                         //
@@ -257,7 +257,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }

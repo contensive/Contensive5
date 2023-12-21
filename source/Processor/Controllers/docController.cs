@@ -400,7 +400,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -412,9 +412,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         public void verifyRegistrationFormPage(CoreController core) {
             try {
-                MetadataController.deleteContentRecords(core, "Form Pages", "name=" + DbControllerX.encodeSQLText("Registration Form"));
+                MetadataController.deleteContentRecords(core, "Form Pages", "name=" + DbController.encodeSQLText("Registration Form"));
                 using (var csData = new CsModel(core)) {
-                    if (!csData.open("Form Pages", "name=" + DbControllerX.encodeSQLText("Registration Form"))) {
+                    if (!csData.open("Form Pages", "name=" + DbController.encodeSQLText("Registration Form"))) {
                         //
                         // create Version 1 template - just to main_Get it started
                         //
@@ -441,7 +441,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
         }
         //
@@ -467,7 +467,7 @@ namespace Contensive.Processor.Controllers {
                     refreshQueryString = GenericController.modifyQueryString(core.doc.refreshQueryString, Name, Value, true);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
 

@@ -135,7 +135,7 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override void AppendLog(string Text) {
-            LogControllerX.logInfo(cp.core, Text);
+            LogController.logInfo(cp.core, Text);
         }
         //
         // ====================================================================================================
@@ -358,7 +358,7 @@ namespace Contensive.Processor {
             try {
                 var ExportCSVAddon = cp.core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
-                    LogControllerX.logError(cp.core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
+                    LogController.logError(cp.core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
                 } else {
                     var cmdDetail = new TaskModel.CmdDetailClass {
                         addonId = ExportCSVAddon.id,
@@ -415,7 +415,7 @@ namespace Contensive.Processor {
                 throw new GenericException("Installation upgrade through the cp interface is deprecated. Please use the command line tool.");
                 // Controllers.appBuilderController.upgrade(CP.core, isNewApp)
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
             }
         }
         //
@@ -489,14 +489,14 @@ namespace Contensive.Processor {
                     cp.core.addon.executeAsProcess(addon);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
             }
             return string.Empty;
         }
         //
         [Obsolete("Deprecated, use AppendLog")]
         public override void AppendLogFile(string Text) {
-            LogControllerX.logInfo(cp.core, Text);
+            LogController.logInfo(cp.core, Text);
         }
         //
         [Obsolete("Deprecated, file logging is no longer supported. Use AppendLog(message) to log Info level messages")]
@@ -504,7 +504,7 @@ namespace Contensive.Processor {
             if ((!string.IsNullOrWhiteSpace(pathFilename)) && (!string.IsNullOrWhiteSpace(Text))) {
                 pathFilename = FileController.convertToDosSlash(pathFilename);
                 string[] parts = pathFilename.Split('\\');
-                LogControllerX.logInfo(cp.core, "legacy logFile: [" + pathFilename + "], " + Text);
+                LogController.logInfo(cp.core, "legacy logFile: [" + pathFilename + "], " + Text);
             }
         }
         //

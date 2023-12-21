@@ -110,7 +110,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError( core,ex);
+                LogController.logError( core,ex);
                 throw;
             }
             return tableSchema;

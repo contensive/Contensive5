@@ -38,7 +38,7 @@ namespace Contensive.Processor {
             try {
                 return cs.insert(contentName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -59,7 +59,7 @@ namespace Contensive.Processor {
                 cs.close();
                 return false;
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -101,7 +101,7 @@ namespace Contensive.Processor {
                 cs.close();
                 return false;
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
 
@@ -134,7 +134,7 @@ namespace Contensive.Processor {
             try {
                 return cs.open(contentName, sqlCriteria, sortFieldList, activeOnly, 0, selectFieldList, pageSize, pageNumber);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -148,27 +148,27 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool Open(string contentName, string sqlCriteria, string sortFieldList, bool activeOnly, string selectFieldList)
-            => Open(contentName, sqlCriteria, sortFieldList, activeOnly, selectFieldList, DbControllerX.sqlPageSizeDefault, 1);
+            => Open(contentName, sqlCriteria, sortFieldList, activeOnly, selectFieldList, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool Open(string contentName, string sqlCriteria, string sortFieldList, bool activeOnly)
-            => Open(contentName, sqlCriteria, sortFieldList, activeOnly, "", DbControllerX.sqlPageSizeDefault, 1);
+            => Open(contentName, sqlCriteria, sortFieldList, activeOnly, "", DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool Open(string contentName, string sqlCriteria, string sortFieldList)
-            => Open(contentName, sqlCriteria, sortFieldList, true, "", DbControllerX.sqlPageSizeDefault, 1);
+            => Open(contentName, sqlCriteria, sortFieldList, true, "", DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool Open(string contentName, string sqlCriteria)
-            => Open(contentName, sqlCriteria, "", true, "", DbControllerX.sqlPageSizeDefault, 1);
+            => Open(contentName, sqlCriteria, "", true, "", DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool Open(string contentName)
-            => Open(contentName, "", "", true, "", DbControllerX.sqlPageSizeDefault, 1);
+            => Open(contentName, "", "", true, "", DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
@@ -176,7 +176,7 @@ namespace Contensive.Processor {
             try {
                 return cs.openGroupUsers(groupList, sqlCriteria, sortFieldList, activeOnly, pageSize, pageNumber);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -189,22 +189,22 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool OpenGroupUsers(List<string> groupList, string sqlCriteria, string sortFieldList, bool activeOnly)
-            => OpenGroupUsers(groupList, sqlCriteria, sortFieldList, activeOnly, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(groupList, sqlCriteria, sortFieldList, activeOnly, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool OpenGroupUsers(List<string> groupList, string sqlCriteria, string sortFieldList)
-            => OpenGroupUsers(groupList, sqlCriteria, sortFieldList, true, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(groupList, sqlCriteria, sortFieldList, true, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool OpenGroupUsers(List<string> groupList, string sqlCriteria)
-            => OpenGroupUsers(groupList, sqlCriteria, "", true, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(groupList, sqlCriteria, "", true, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool OpenGroupUsers(List<string> groupList)
-            => OpenGroupUsers(groupList, "", "", true, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(groupList, "", "", true, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
@@ -219,22 +219,22 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool OpenGroupUsers(string groupName, string sqlCriteria, string sortFieldList, bool activeOnly)
-            => OpenGroupUsers(new List<string> { groupName }, sqlCriteria, sortFieldList, activeOnly, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(new List<string> { groupName }, sqlCriteria, sortFieldList, activeOnly, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool OpenGroupUsers(string groupName, string sqlCriteria, string sortFieldList)
-            => OpenGroupUsers(new List<string> { groupName }, sqlCriteria, sortFieldList, true, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(new List<string> { groupName }, sqlCriteria, sortFieldList, true, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool OpenGroupUsers(string groupName, string sqlCriteria)
-            => OpenGroupUsers(new List<string> { groupName }, sqlCriteria, "", true, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(new List<string> { groupName }, sqlCriteria, "", true, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool OpenGroupUsers(string groupName)
-            => OpenGroupUsers(new List<string> { groupName }, "", "", true, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenGroupUsers(new List<string> { groupName }, "", "", true, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
@@ -243,12 +243,12 @@ namespace Contensive.Processor {
                 if (((string.IsNullOrEmpty(sql)) || (sql.ToLowerInvariant() == "default")) && (!string.IsNullOrEmpty(dataSourcename)) && (dataSourcename.ToLowerInvariant() != "default")) {
                     //
                     // -- arguments reversed from legacy api mistake, datasource has the query, sql has the datasource
-                    LogControllerX.logWarn(cp.core, "Call to cs with arguments reversed, datasource [" + dataSourcename + "], sql [" + sql + "]");
+                    LogController.logWarn(cp.core, "Call to cs with arguments reversed, datasource [" + dataSourcename + "], sql [" + sql + "]");
                     return cs.openSql(dataSourcename, sql, pageSize, pageNumber);
                 }
                 return cs.openSql(sql, dataSourcename, pageSize, pageNumber);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -261,12 +261,12 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool OpenSQL(string sql, string dataSourcename)
-            => OpenSQL(sql, dataSourcename, DbControllerX.sqlPageSizeDefault, 1);
+            => OpenSQL(sql, dataSourcename, DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
         public override bool OpenSQL(string sql)
-            => OpenSQL(sql, "", DbControllerX.sqlPageSizeDefault, 1);
+            => OpenSQL(sql, "", DbController.sqlPageSizeDefault, 1);
         //
         //====================================================================================================
         //
@@ -274,7 +274,7 @@ namespace Contensive.Processor {
             try {
                 cs.close();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -300,7 +300,7 @@ namespace Contensive.Processor {
             try {
                 cs.deleteRecord();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -311,7 +311,7 @@ namespace Contensive.Processor {
             try {
                 return cs.isFieldSupported(fieldName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -322,7 +322,7 @@ namespace Contensive.Processor {
             try {
                 cs.goFirst(false);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -333,7 +333,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getRecordAddLink(presetNameValueList, allowPaste);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -350,7 +350,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getBoolean(FieldName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -361,7 +361,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getDate(FieldName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -372,7 +372,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getRecordEditLink(allowCut);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -393,7 +393,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getFilename(fieldName, originalFilename, contentName, 0);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -402,7 +402,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getFilename(fieldName, originalFilename);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -411,7 +411,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getFilename(fieldName, "");
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -422,7 +422,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getInteger(FieldName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -433,7 +433,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getNumber(FieldName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -444,7 +444,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getRowCount();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -455,7 +455,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getSql();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -466,7 +466,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getText(fieldName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -477,7 +477,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getText(fieldName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -488,7 +488,7 @@ namespace Contensive.Processor {
             try {
                 cs.goNext();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -500,7 +500,7 @@ namespace Contensive.Processor {
                 cs.goNext();
                 return cs.ok();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -511,7 +511,7 @@ namespace Contensive.Processor {
             try {
                 return cs.ok();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -522,7 +522,7 @@ namespace Contensive.Processor {
             try {
                 cs.save();
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -552,7 +552,7 @@ namespace Contensive.Processor {
                 }
                 cs.set(fieldName, fieldValue.ToString());
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -579,7 +579,7 @@ namespace Contensive.Processor {
             try {
                 cs.setFormInput(cp.core, fieldName, requestName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -658,7 +658,7 @@ namespace Contensive.Processor {
             try {
                 cs.setTextFile(FieldName, Copy, ContentName);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }

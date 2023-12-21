@@ -106,7 +106,7 @@ namespace Contensive.Processor.Addons {
                             data = new AuthenticateResponseData()
                         };
                     } else {
-                        LogControllerX.addActivityCompletedVisit(core, "Login", errorPrefix + " successful", core.session.user.id);
+                        LogController.addActivityCompletedVisit(core, "Login", errorPrefix + " successful", core.session.user.id);
                         return new AuthenticateResponse {
                             errors = new List<string>(),
                             data = new AuthenticateResponseData {

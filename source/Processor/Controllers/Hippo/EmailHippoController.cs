@@ -64,7 +64,7 @@ namespace Contensive.Processor.Controllers {
                         return reader.ReadToEnd();
                     }
                 } catch (Exception exception) {
-                    LogControllerX.logError(core, exception);
+                    LogController.logError(core, exception);
                     return string.Empty;
                 }
             }

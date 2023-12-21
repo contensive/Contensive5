@@ -36,7 +36,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="tableId"></param>
         /// <param name="recordId"></param>
         /// <returns></returns>
-        public static string getTableRecordKey(int tableId, int recordId) => DbControllerX.encodeSQLText(tableId.ToString() + "/" + recordId.ToString());
+        public static string getTableRecordKey(int tableId, int recordId) => DbController.encodeSQLText(tableId.ToString() + "/" + recordId.ToString());
         //
         //==========================================================================================
         /// <summary>
@@ -46,7 +46,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="tableRecordKey"></param>
         /// <returns></returns>
         public static string getAuthoringControlCriteria(string tableRecordKey, DateTime dateTimeMockable)
-            => "(contentRecordKey=" + tableRecordKey + ")and((DateExpires>" + DbControllerX.encodeSQLDate(dateTimeMockable) + ")or(DateExpires Is null))";
+            => "(contentRecordKey=" + tableRecordKey + ")and((DateExpires>" + DbController.encodeSQLDate(dateTimeMockable) + ")or(DateExpires Is null))";
         //
         //==========================================================================================
         /// <summary>
@@ -110,7 +110,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 };
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return new editLockClass { isEditLocked = false };
         }
@@ -254,7 +254,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return result;

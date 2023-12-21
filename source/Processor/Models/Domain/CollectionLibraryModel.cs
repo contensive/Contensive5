@@ -37,13 +37,13 @@ namespace Contensive.Processor.Models.Domain {
                     LibCollections.Load("http://support.contensive.com/GetCollectionList?iv=" + CoreController.codeVersion() + "&includeSystem=1&includeNonPublic=1");
                 } catch (Exception) {
                     string UserError = "There was an error reading the Collection Library. The site may be unavailable.";
-                    LogControllerX.logInfo(core, UserError);
+                    LogController.logInfo(core, UserError);
                     ErrorController.addUserError(core, UserError);
                     return null;
                 }
                 if (GenericController.toLCase(LibCollections.DocumentElement.Name) != GenericController.toLCase(Constants.CollectionListRootNode)) {
                     string UserError = "There was an error reading the Collection Library file. The '" + Constants.CollectionListRootNode + "' element was not found.";
-                    LogControllerX.logInfo(core, UserError);
+                    LogController.logInfo(core, UserError);
                     ErrorController.addUserError(core, UserError);
                     return null;
                 }

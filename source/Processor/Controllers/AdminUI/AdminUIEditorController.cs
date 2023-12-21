@@ -271,7 +271,7 @@ namespace Contensive.Processor.Controllers {
         public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, ContentMetadataModel lookupContentMetacontent, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string lookupContentSqlFilter) {
             string result = "";
             if (lookupContentMetacontent == null) {
-                LogControllerX.logWarn(core, "Lookup content not set, field [" + fieldName + "]");
+                LogController.logWarn(core, "Lookup content not set, field [" + fieldName + "]");
                 return string.Empty;
             }
             if (readOnly) {
@@ -329,7 +329,7 @@ namespace Contensive.Processor.Controllers {
         public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, int lookupContentId, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string lookupContentSqlFilter) {
             ContentMetadataModel lookupContentMetacontent = ContentMetadataModel.create(core, lookupContentId);
             if (lookupContentMetacontent == null) {
-                LogControllerX.logWarn(core, "Lookup content not set, field [" + fieldName + "], lookupContentId [" + lookupContentId + "]");
+                LogController.logWarn(core, "Lookup content not set, field [" + fieldName + "], lookupContentId [" + lookupContentId + "]");
                 return string.Empty;
             }
             return getLookupContentEditor(core, fieldName, fieldValue, lookupContentMetacontent, ref IsEmptyList, readOnly, htmlId, WhyReadOnlyMsg, fieldRequired, lookupContentSqlFilter);
@@ -338,7 +338,7 @@ namespace Contensive.Processor.Controllers {
         public static string getLookupContentEditor(CoreController core, string fieldName, int fieldValue, string lookupContentName, ref bool IsEmptyList, bool readOnly, string htmlId, string WhyReadOnlyMsg, bool fieldRequired, string lookupContentSqlFilter) {
             ContentMetadataModel lookupContentMetacontent = ContentMetadataModel.createByUniqueName(core, lookupContentName);
             if (lookupContentMetacontent == null) {
-                LogControllerX.logWarn(core, "Lookup content not set, field [" + fieldName + "], lookupContentName [" + lookupContentName + "]");
+                LogController.logWarn(core, "Lookup content not set, field [" + fieldName + "], lookupContentName [" + lookupContentName + "]");
                 return string.Empty;
             }
             return getLookupContentEditor(core, fieldName, fieldValue, lookupContentMetacontent, ref IsEmptyList, readOnly, htmlId, WhyReadOnlyMsg, fieldRequired, lookupContentSqlFilter);
@@ -658,7 +658,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -799,7 +799,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return HtmlController.div("There was an error displaying the related data for this field.");
             }
         }
@@ -910,7 +910,7 @@ namespace Contensive.Processor.Controllers {
                 });
                 return MustacheController.renderStringToString(Resources.GroupRuleEditorRow2, groupRuleEditor);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }

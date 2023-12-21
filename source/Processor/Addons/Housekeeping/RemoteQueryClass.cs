@@ -19,7 +19,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, RemoteQuery");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
+                LogController.logError(env.core, ex);
                 throw;
             }
         }
@@ -36,10 +36,10 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 // Remote Query Expiration
                 //
-                SQL = "delete from ccRemoteQueries where (DateExpires is not null)and(DateExpires<" + DbControllerX.encodeSQLDate(env.core.dateTimeNowMockable) + ")";
+                SQL = "delete from ccRemoteQueries where (DateExpires is not null)and(DateExpires<" + DbController.encodeSQLDate(env.core.dateTimeNowMockable) + ")";
                 env.core.db.executeNonQuery(SQL);
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
+                LogController.logError(env.core, ex);
             }
         }
         //

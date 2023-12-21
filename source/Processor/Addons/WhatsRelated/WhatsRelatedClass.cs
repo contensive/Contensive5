@@ -67,7 +67,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 }
                 return string.Empty;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }

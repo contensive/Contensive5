@@ -25,7 +25,7 @@ namespace Contensive.Processor.Controllers {
         public static string getLoginPage(CoreController core, bool forceDefaultLoginForm, bool blockNoPasswordMode) {
             try {
                 //
-                LogControllerX.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + blockNoPasswordMode + "]");
+                LogController.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + blockNoPasswordMode + "]");
                 //
                 if (forceDefaultLoginForm || core.siteProperties.loginPageAddonId == 0) {
                     //
@@ -56,7 +56,7 @@ namespace Contensive.Processor.Controllers {
                 qs = GenericController.modifyQueryString(qs, "RequestBinary", "");
                 return core.webServer.redirect("?" + qs, "Login form success");
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -71,7 +71,7 @@ namespace Contensive.Processor.Controllers {
         private static string getLoginPage_Default(CoreController core, bool blockNoPasswordMode) {
             try {
                 //
-                LogControllerX.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
+                LogController.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
                 //
                 string formType = core.docProperties.getText("type");
                 if (formType == FormTypeLogin) {
@@ -165,7 +165,7 @@ namespace Contensive.Processor.Controllers {
                     + "</div>" 
                     + "</div>";
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -183,7 +183,7 @@ namespace Contensive.Processor.Controllers {
         public static bool processLoginPage_Default(CoreController core, string requestUsername, string requestPassword, bool requestIncludesPassword) {
             try {
                 //
-                LogControllerX.logTrace(core, "loginController.processLoginFormDefault, requestUsername [" + requestUsername + "], requestPassword [" + requestPassword + "], requestIncludesPassword [" + requestIncludesPassword + "]");
+                LogController.logTrace(core, "loginController.processLoginFormDefault, requestUsername [" + requestUsername + "], requestPassword [" + requestPassword + "], requestIncludesPassword [" + requestIncludesPassword + "]");
                 //
                 if ((!core.session.visit.cookieSupport) && (core.session.visit.pageVisits > 1)) {
                     //
@@ -235,10 +235,10 @@ namespace Contensive.Processor.Controllers {
                         user.save(core.cpParent);
                     }
                 }
-                LogControllerX.addActivityCompletedVisit(core, "Login", "successful username/password login", core.session.user.id);
+                LogController.addActivityCompletedVisit(core, "Login", "successful username/password login", core.session.user.id);
                 return true;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }

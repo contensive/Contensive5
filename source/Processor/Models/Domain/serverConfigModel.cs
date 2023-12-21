@@ -252,7 +252,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return returnModel;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "exception in serverConfigModel.getObject");
+                LogController.logError(core, ex, "exception in serverConfigModel.getObject");
                 throw;
             }
         }
@@ -268,7 +268,7 @@ namespace Contensive.Processor.Models.Domain {
                 string jsonTemp = SerializeObject(this);
                 core.programDataFiles.saveFile("config.json", jsonTemp);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return 0;
         }

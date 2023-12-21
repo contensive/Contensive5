@@ -21,8 +21,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, ViewingSummary");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -57,8 +57,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //    pageViewSummary(core, datePtr, env.yesterday, 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                 //}
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -119,15 +119,15 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         using (var csPages = new CsModel(env.core)) {
                             string sql = "select distinct recordid,pagetitle from ccviewings h"
                                 + " where (h.recordid<>0)"
-                                + " and(h.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                + " and (h.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                + " and(h.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (h.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                 + " and((h.ExcludeFromAnalytics is null)or(h.ExcludeFromAnalytics=0))"
                                 + "order by recordid";
                             hint = 3;
                             if (!csPages.openSql(sql)) {
                                 //
                                 // no hits found - add or update a single record for this day so we know it has been calculated
-                                csPages.open("Page View Summary", "(timeduration=" + HourDuration + ")and(DateNumber=" + DateNumber + ")and(TimeNumber=" + TimeNumber + ")and(pageid=" + PageId + ")and(pagetitle=" + DbControllerX.encodeSQLText(PageTitle) + ")");
+                                csPages.open("Page View Summary", "(timeduration=" + HourDuration + ")and(DateNumber=" + DateNumber + ")and(TimeNumber=" + TimeNumber + ")and(pageid=" + PageId + ")and(pagetitle=" + DbController.encodeSQLText(PageTitle) + ")");
                                 if (!csPages.ok()) {
                                     csPages.close();
                                     csPages.insert("Page View Summary");
@@ -161,13 +161,13 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     string baseCriteria = ""
                                         + " (h.recordid=" + PageId + ")"
                                         + " "
-                                        + " and(h.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                        + " and(h.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                        + " and(h.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                        + " and(h.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                         + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                         + " and((h.ExcludeFromAnalytics is null)or(h.ExcludeFromAnalytics=0))"
                                         + "";
                                     if (!string.IsNullOrEmpty(PageTitle)) {
-                                        baseCriteria = baseCriteria + "and(h.pagetitle=" + DbControllerX.encodeSQLText(PageTitle) + ")";
+                                        baseCriteria = baseCriteria + "and(h.pagetitle=" + DbController.encodeSQLText(PageTitle) + ")";
                                     }
                                     hint = 6;
                                     //
@@ -240,7 +240,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                     // Add or update the Visit Summary Record
                                     //
                                     using (var csPVS = new CsModel(env.core)) {
-                                        if (!csPVS.open("Page View Summary", "(timeduration=" + HourDuration + ")and(DateNumber=" + DateNumber + ")and(TimeNumber=" + TimeNumber + ")and(pageid=" + PageId + ")and(pagetitle=" + DbControllerX.encodeSQLText(PageTitle) + ")")) {
+                                        if (!csPVS.open("Page View Summary", "(timeduration=" + HourDuration + ")and(DateNumber=" + DateNumber + ")and(TimeNumber=" + TimeNumber + ")and(pageid=" + PageId + ")and(pagetitle=" + DbController.encodeSQLText(PageTitle) + ")")) {
                                             csPVS.insert("Page View Summary");
                                         }
                                         //
@@ -279,7 +279,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex, "hint [" + hint + "]");
+                LogController.logError(env.core, ex, "hint [" + hint + "]");
             }
         }
         //

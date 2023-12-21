@@ -206,7 +206,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (returnIndexConfig.recordsPerPage <= 0) {
                                         returnIndexConfig.recordsPerPage = 50;
                                     }
-                                    returnIndexConfig.recordTop = DbControllerX.getStartRecord(returnIndexConfig.recordsPerPage, returnIndexConfig.pageNumber);
+                                    returnIndexConfig.recordTop = DbController.getStartRecord(returnIndexConfig.recordsPerPage, returnIndexConfig.pageNumber);
                                     break;
                                 case "pagenumber":
                                     Ptr += 1;
@@ -214,7 +214,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (returnIndexConfig.pageNumber <= 0) {
                                         returnIndexConfig.pageNumber = 1;
                                     }
-                                    returnIndexConfig.recordTop = DbControllerX.getStartRecord(returnIndexConfig.recordsPerPage, returnIndexConfig.pageNumber);
+                                    returnIndexConfig.recordTop = DbController.getStartRecord(returnIndexConfig.recordsPerPage, returnIndexConfig.pageNumber);
                                     break;
                                 default:
                                     break;
@@ -238,7 +238,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnIndexConfig;

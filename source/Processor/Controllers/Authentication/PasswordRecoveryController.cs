@@ -54,7 +54,7 @@ namespace Contensive.Processor.Controllers {
                     returnResult = HtmlController.form(core, returnResult, QueryString);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnResult;
@@ -70,7 +70,7 @@ namespace Contensive.Processor.Controllers {
                 string returnUserMessage = "";
                 _ = sendPassword(core, core.docProperties.getText("email"), ref returnUserMessage);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -107,13 +107,13 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         string EMailName = strMid(workingEmail, 1, atPtr - 1);
                         //
-                        LogControllerX.addActivityCompletedVisit(core, "Password Request", "password request for email " + workingEmail, core.session.user.id );
+                        LogController.addActivityCompletedVisit(core, "Password Request", "password request for email " + workingEmail, core.session.user.id );
                         //
                         bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false);
                         int recordCnt = 0;
                         using (var csData = new CsModel(core)) {
-                            string sqlCriteria = "(email=" + DbControllerX.encodeSQLText(workingEmail) + ")";
-                            sqlCriteria = sqlCriteria + "and((dateExpires is null)or(dateExpires>" + DbControllerX.encodeSQLDate(core.dateTimeNowMockable) + "))";
+                            string sqlCriteria = "(email=" + DbController.encodeSQLText(workingEmail) + ")";
+                            sqlCriteria = sqlCriteria + "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
                             csData.open("People", sqlCriteria, "ID", true, core.session.user.id, "username,password", 1);
                             if (!csData.ok()) {
                                 //
@@ -124,7 +124,7 @@ namespace Contensive.Processor.Controllers {
                                     // look for expired account to renew
                                     //
                                     csData.close();
-                                    csData.open("People", "((email=" + DbControllerX.encodeSQLText(workingEmail) + "))", "ID");
+                                    csData.open("People", "((email=" + DbController.encodeSQLText(workingEmail) + "))", "ID");
                                     if (csData.ok()) {
                                         //
                                         // renew this old record
@@ -222,7 +222,7 @@ namespace Contensive.Processor.Controllers {
                     EmailController.sendAdHocEmail(core, "Password Email", core.session.user.id, workingEmail, FromAddress, subject, Message, "", "", "", true, false, 0, ref sendStatus, 0);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return result;

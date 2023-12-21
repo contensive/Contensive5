@@ -32,7 +32,7 @@ namespace Contensive.Processor.Controllers {
                     cs.set("datasourceid", MetadataController.getRecordIdByUniqueName(core, "Data Sources", dataSourceName));
                     cs.set("sqlquery", SQL);
                     cs.set("maxRows", maxRows);
-                    cs.set("dateexpires", DbControllerX.encodeSQLDate(core.doc.profileStartTime.AddDays(1)));
+                    cs.set("dateexpires", DbController.encodeSQLDate(core.doc.profileStartTime.AddDays(1)));
                     cs.set("QueryTypeID", QueryTypeSQL);
                     cs.set("VisitId", core.session.visit.id);
                 }

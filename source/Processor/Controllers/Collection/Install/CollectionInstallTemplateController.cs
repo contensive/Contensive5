@@ -67,7 +67,7 @@ namespace Contensive.Processor.Controllers {
                     template.save(core.cpParent);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }

@@ -40,11 +40,11 @@ namespace Contensive.Processor.Controllers {
             try {
                 processTimer.Enabled = false;
                 using (CPClass cp = new CPClass()) {
-                    LogControllerX.logTrace(cp.core, "stopTimerEvents");
+                    LogController.logTrace(cp.core, "stopTimerEvents");
                 }
             } catch (Exception ex) {
                 using (CPClass cp = new CPClass()) {
-                    LogControllerX.logError(cp.core, ex);
+                    LogController.logError(cp.core, ex);
                 }
             }
         }
@@ -67,11 +67,11 @@ namespace Contensive.Processor.Controllers {
                     StartServiceInProgress = false;
                 }
                 using (CPClass cp = new CPClass()) {
-                    LogControllerX.logTrace(cp.core, "stopTimerEvents");
+                    LogController.logTrace(cp.core, "stopTimerEvents");
                 }
             } catch (Exception ex) {
                 using (CPClass cp = new CPClass()) {
-                    LogControllerX.logError(cp.core, ex);
+                    LogController.logError(cp.core, ex);
                 }
             }
             return returnStartedOk;
@@ -95,12 +95,12 @@ namespace Contensive.Processor.Controllers {
                         long workingSetMemory = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
                         long virtualMemory = System.Diagnostics.Process.GetCurrentProcess().VirtualMemorySize64;
                         long privateMemory = System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64;
-                        LogControllerX.log(cp.core, "TaskScheduler exit, workingSetMemory [" + workingSetMemory + "], virtualMemory [" + virtualMemory + "], privateMemory [" + privateMemory + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
+                        LogController.log(cp.core, "TaskScheduler exit, workingSetMemory [" + workingSetMemory + "], virtualMemory [" + virtualMemory + "], privateMemory [" + privateMemory + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
                     }
                 }
             } catch (Exception ex) {
                 using (CPClass cp = new CPClass()) {
-                    LogControllerX.logError(cp.core, ex);
+                    LogController.logError(cp.core, ex);
                 }
             } finally {
                 ProcessTimerInProcess = false;
@@ -117,7 +117,7 @@ namespace Contensive.Processor.Controllers {
                 // -- run tasks for each app
                 foreach (var appKvp in core.serverConfig.apps) {
                     if (appKvp.Value.enabled && appKvp.Value.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
-                        LogControllerX.logTrace(core, "scheduleTasks, app=[" + appKvp.Value.name + "]");
+                        LogController.logTrace(core, "scheduleTasks, app=[" + appKvp.Value.name + "]");
                         using CPClass cpApp = new(appKvp.Value.name);
                         //
                         // -- execute processes
@@ -128,7 +128,7 @@ namespace Contensive.Processor.Controllers {
                                 + " and("
                                 + "  ((ProcessRunOnce is not null)and(ProcessRunOnce<>0))"
                                 + "  or((ProcessInterval is not null)and(ProcessInterval<>0)and(ProcessNextRun is null))"
-                                + "  or(ProcessNextRun<" + DbControllerX.encodeSQLDate(core.dateTimeNowMockable) + ")"
+                                + "  or(ProcessNextRun<" + DbController.encodeSQLDate(core.dateTimeNowMockable) + ")"
                                 + " )";
                             var addonList = DbBaseModel.createList<AddonModel>(cpApp, sqlAddonsCriteria);
                             foreach (var addon in addonList) {
@@ -146,7 +146,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (addon.processNextRun <= core.dateTimeNowMockable) {
                                     //
-                                    LogControllerX.logInfo(cpApp.core, "scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
+                                    LogController.logInfo(cpApp.core, "scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
                                     //
                                     // -- add task to queue for runner
                                     addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
@@ -167,14 +167,14 @@ namespace Contensive.Processor.Controllers {
                                 addon.save(cpApp);
                             }
                         } catch (Exception ex) {
-                            LogControllerX.logTrace(cpApp.core, "scheduleTasks, exception [" + ex + "]");
-                            LogControllerX.logError(cpApp.core, ex);
+                            LogController.logTrace(cpApp.core, "scheduleTasks, exception [" + ex + "]");
+                            LogController.logError(cpApp.core, ex);
                         }
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logTrace(core, "scheduleTasks, exeception [" + ex + "]");
-                LogControllerX.logError(core, ex);
+                LogController.logTrace(core, "scheduleTasks, exeception [" + ex + "]");
+                LogController.logError(core, ex);
             }
         }
         //
@@ -211,7 +211,7 @@ namespace Contensive.Processor.Controllers {
                 if (blockDuplicates) {
                     //
                     // -- Search for a duplicate
-                    string sql = "select top 1 id from cctasks where ((cmdDetail=" + DbControllerX.encodeSQLText(cmdDetailJson) + ")and(datestarted is null)and(datecompleted is null)and(cmdRunner is null))";
+                    string sql = "select top 1 id from cctasks where ((cmdDetail=" + DbController.encodeSQLText(cmdDetailJson) + ")and(datestarted is null)and(datecompleted is null)and(cmdRunner is null))";
                     using (var csData = new CsModel(core)) {
                         allowAdd = !csData.openSql(sql);
                     }
@@ -224,13 +224,13 @@ namespace Contensive.Processor.Controllers {
                     task.cmdDetail = cmdDetailJson;
                     task.resultDownloadId = downloadId;
                     task.save(core.cpParent);
-                    LogControllerX.logTrace(core, "addTaskToQueue, task added, cmdDetailJson [" + cmdDetailJson + "]");
+                    LogController.logTrace(core, "addTaskToQueue, task added, cmdDetailJson [" + cmdDetailJson + "]");
                     return true;
                 }
-                LogControllerX.logTrace(core, "addTaskToQueue, task blocked because duplicate found, cmdDetailJson [" + cmdDetailJson + "]");
+                LogController.logTrace(core, "addTaskToQueue, task blocked because duplicate found, cmdDetailJson [" + cmdDetailJson + "]");
                 return false;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return false;
             }
         }

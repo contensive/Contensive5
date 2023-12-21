@@ -161,8 +161,8 @@ namespace Contensive.Processor.Controllers {
         public static SessionController create(CoreController core, bool trackVisits) {
             //
             Logger.Trace("SessionController.create, enter-1");
-            Logger.Trace(LogControllerX.processLogMessage(core, "SessionController.create, enter-2", false));
-            LogControllerX.logTrace(core, "SessionController.create, enter-3");
+            Logger.Trace(LogController.processLogMessage(core, "SessionController.create, enter-2", false));
+            LogController.logTrace(core, "SessionController.create, enter-3");
             //
             SessionController resultSessionContext = null;
             try {
@@ -171,14 +171,14 @@ namespace Contensive.Processor.Controllers {
                 if (core.serverConfig == null) {
                     //
                     // -- application error if no server config
-                    LogControllerX.logError(core, new GenericException("authorization context cannot be created without a server configuration."));
+                    LogController.logError(core, new GenericException("authorization context cannot be created without a server configuration."));
                     return default;
                 }
                 resultSessionContext = new SessionController(core);
                 if (core.appConfig == null) {
                     //
                     // -- no application, this is a server-only call not related to a 
-                    LogControllerX.logTrace(core, "app.config null, create server session");
+                    LogController.logTrace(core, "app.config null, create server session");
                     return resultSessionContext;
                 }
                 //
@@ -186,7 +186,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 string visitCookie = resultSessionContext.getVisitCookie();
                 SecurityController.TokenData visitToken = (string.IsNullOrEmpty(visitCookie)) ? new SecurityController.TokenData() : SecurityController.decodeToken(core, visitCookie);
-                LogControllerX.logTrace(core, "visitCookie [" + visitCookie + "], visitCookie.id [" + visitToken.id + "]");
+                LogController.logTrace(core, "visitCookie [" + visitCookie + "], visitCookie.id [" + visitToken.id + "]");
                 if (!visitToken.id.Equals(0)) {
                     VisitModel visitTest = DbBaseModel.create<VisitModel>(core.cpParent, visitToken.id);
                     if (!(visitTest is null)) {
@@ -201,7 +201,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 string visitorCookie = resultSessionContext.getVisitorCookie();
                 var visitorToken = (string.IsNullOrEmpty(visitorCookie)) ? new SecurityController.TokenData() : SecurityController.decodeToken(core, visitorCookie);
-                LogControllerX.logTrace(core, "visitorCookie [" + visitorCookie + "], visitorCookie.id [" + visitorToken.id + "]");
+                LogController.logTrace(core, "visitorCookie [" + visitorCookie + "], visitorCookie.id [" + visitorToken.id + "]");
                 if (!visitorToken.id.Equals(0)) {
                     VisitorModel visitorTest = DbBaseModel.create<VisitorModel>(core.cpParent, visitorToken.id);
                     if (!(visitorTest is null)) {
@@ -254,34 +254,34 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- attempt link authentication
                         var linkToken = SecurityController.decodeToken(core, linkEid);
-                        LogControllerX.logTrace(core, "link authentication, linkEid [" + linkEid + "], linkToken.id [" + linkToken.id + "]");
+                        LogController.logTrace(core, "link authentication, linkEid [" + linkEid + "], linkToken.id [" + linkToken.id + "]");
                         if (!linkToken.id.Equals(0) && linkToken.expires.CompareTo(core.dateTimeNowMockable) < 0) {
                             //
                             // -- valid link token, attempt login/recognize
                             if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
                                 //
                                 // -- allow Link Login
-                                LogControllerX.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
+                                LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
                                 if (authenticateById(core, linkToken.id, resultSessionContext)) {
                                     trackVisits = true;
-                                    LogControllerX.addActivityCompletedVisit(core, "Login", "Successful link login", resultSessionContext.user.id);
+                                    LogController.addActivityCompletedVisit(core, "Login", "Successful link login", resultSessionContext.user.id);
                                 }
                             } else if (core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
                                 //
                                 // -- allow Link Recognize
-                                LogControllerX.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
+                                LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
                                 if (recognizeById(core, linkToken.id, resultSessionContext)) {
                                     trackVisits = true;
-                                    LogControllerX.addActivityCompletedVisit(core, "Login", "Successful link recognize", resultSessionContext.user.id);
+                                    LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", resultSessionContext.user.id);
                                 }
                             } else {
                                 //
-                                LogControllerX.logTrace(core, "link login unsuccessful, site properties disabled");
+                                LogController.logTrace(core, "link login unsuccessful, site properties disabled");
                                 //
                             }
                         } else {
                             //
-                            LogControllerX.logTrace(core, "link login unsuccessful, token expired or invalid [" + linkEid + "]");
+                            LogController.logTrace(core, "link login unsuccessful, token expired or invalid [" + linkEid + "]");
                             //
                         }
                     }
@@ -298,7 +298,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- login by the visitor.memberid
                             if (authenticateById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                                LogControllerX.addActivityCompletedVisit(core, "Login", "auto-login", resultSessionContext.user.id);
+                                LogController.addActivityCompletedVisit(core, "Login", "auto-login", resultSessionContext.user.id);
                                 resultSessionContect_visitor_changes = true;
                                 resultSessionContext_user_changes = true;
                             }
@@ -306,7 +306,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- recognize by the visitor.memberid
                             if (recognizeById(core, resultSessionContext.visitor.memberId, resultSessionContext, true)) {
-                                LogControllerX.addActivityCompletedVisit(core, "Recognize", "auto-recognize", resultSessionContext.user.id);
+                                LogController.addActivityCompletedVisit(core, "Recognize", "auto-recognize", resultSessionContext.user.id);
                                 resultSessionContect_visitor_changes = true;
                                 resultSessionContext_user_changes = true;
                             }
@@ -349,12 +349,12 @@ namespace Contensive.Processor.Controllers {
                     if ((resultSessionContext.visit == null) || (resultSessionContext.visit.id.Equals(0))) {
                         //
                         // -- visit record is missing, create a new visit
-                        LogControllerX.logTrace(core, "visit invalid, create a new visit");
+                        LogController.logTrace(core, "visit invalid, create a new visit");
                         createNewVisit = true;
                     } else if ((resultSessionContext.visit.lastVisitTime != null) && (encodeDate(resultSessionContext.visit.lastVisitTime).AddHours(1) < core.doc.profileStartTime)) {
                         //
                         // -- visit has expired, create new visit
-                        LogControllerX.logTrace(core, "visit expired, create new visit");
+                        LogController.logTrace(core, "visit expired, create new visit");
                         createNewVisit = true;
                     }
                     if (createNewVisit) {
@@ -480,7 +480,7 @@ namespace Contensive.Processor.Controllers {
                 // -- execute onNewVisit addons
                 //
                 if (AllowOnNewVisitEvent) {
-                    LogControllerX.logTrace(core, "execute NewVisit Event");
+                    LogController.logTrace(core, "execute NewVisit Event");
                     foreach (var addon in core.cacheRuntime.addonCache.getOnNewVisitAddonList()) {
                         CPUtilsBaseClass.addonExecuteContext executeContext = new() {
                             addonType = CPUtilsBaseClass.addonContext.ContextOnNewVisit,
@@ -494,7 +494,7 @@ namespace Contensive.Processor.Controllers {
                 setVisitCookie(core, resultSessionContext);
                 return resultSessionContext;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -516,7 +516,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static PersonModel createGuest(CoreController core, bool exitWithoutSave) {
             //
-            LogControllerX.logTrace(core, "SessionController.createGuest, enter");
+            LogController.logTrace(core, "SessionController.createGuest, enter");
             //
             PersonModel user = DbBaseModel.addEmpty<PersonModel>(core.cpParent);
             user.createdByVisit = true;
@@ -543,7 +543,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getVisitCookie() {
             //
-            LogControllerX.logTrace(core, "SessionController.getVisitCookie, enter");
+            LogController.logTrace(core, "SessionController.getVisitCookie, enter");
             //
             return core.webServer.requestCookie(appNameCookiePrefix + cookieNameVisit);
         }
@@ -555,7 +555,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getVisitorCookie() {
             //
-            LogControllerX.logTrace(core, "SessionController.getVisitorCookie, enter");
+            LogController.logTrace(core, "SessionController.getVisitorCookie, enter");
             //
             return core.webServer.requestCookie(appNameCookiePrefix + cookieNameVisitor);
         }
@@ -568,12 +568,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sessionContext"></param>
         public static void setVisitCookie(CoreController core, SessionController sessionContext) {
             //
-            LogControllerX.logTrace(core, "SessionController.setVisitCookie, enter");
+            LogController.logTrace(core, "SessionController.setVisitCookie, enter");
             //
             if (sessionContext.visit.id.Equals(0)) { return; }
             DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddMinutes(60);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visit.id, expirationDate);
-            LogControllerX.logTrace(core, "set visit cookie, visitId [" + sessionContext.visit.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
+            LogController.logTrace(core, "set visit cookie, visitId [" + sessionContext.visit.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
             core.webServer.addResponseCookie(sessionContext.appNameCookiePrefix + Constants.cookieNameVisit, cookieValue);
         }
         //
@@ -585,12 +585,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sessionContext"></param>
         public static void setVisitorCookie(CoreController core, SessionController sessionContext) {
             //
-            LogControllerX.logTrace(core, "SessionController.setVisitorCookie, enter");
+            LogController.logTrace(core, "SessionController.setVisitorCookie, enter");
             //
             if (sessionContext.visitor.id.Equals(0)) { return; }
             DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddYears(1);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visitor.id, expirationDate);
-            LogControllerX.logTrace(core, "set visitor cookie, visitorId [" + sessionContext.visitor.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
+            LogController.logTrace(core, "set visitor cookie, visitorId [" + sessionContext.visitor.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
             core.webServer.addResponseCookie(sessionContext.appNameCookiePrefix + cookieNameVisitor, cookieValue, expirationDate);
         }
         //
@@ -603,11 +603,11 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedAdmin() {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isAuthenticatedAdmin, enter");
+                LogController.logTrace(core, "SessionController.isAuthenticatedAdmin, enter");
                 //
                 return visit.visitAuthenticated && (user.admin || user.developer);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -621,11 +621,11 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedDeveloper() {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isAuthenticatedDeveloper, enter");
+                LogController.logTrace(core, "SessionController.isAuthenticatedDeveloper, enter");
                 //
                 return visit.visitAuthenticated && user.developer;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -640,7 +640,7 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedContentManager(ContentMetadataModel contentMetadata) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
+                LogController.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
                 //
                 if (core.session.isAuthenticatedAdmin()) { return true; }
                 if (!isAuthenticated) { return false; }
@@ -648,7 +648,7 @@ namespace Contensive.Processor.Controllers {
                 // -- for specific Content
                 return PermissionController.getUserContentPermissions(core, contentMetadata).allowEdit;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return false;
             }
         }
@@ -663,7 +663,7 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedContentManager(string ContentName) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
+                LogController.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
                 //
                 if (core.session.isAuthenticatedAdmin()) { return true; }
                 //
@@ -678,7 +678,7 @@ namespace Contensive.Processor.Controllers {
                     return PermissionController.getUserContentPermissions(core, cdef).allowEdit;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -693,7 +693,7 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedContentManager() {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
+                LogController.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
                 //
                 if (core.session.isAuthenticatedAdmin()) { return true; }
                 if (_isAuthenticatedContentManagerAnything_loaded && _isAuthenticatedContentManagerAnything_userId.Equals(user.id)) { return _isAuthenticatedContentManagerAnything; }
@@ -704,11 +704,11 @@ namespace Contensive.Processor.Controllers {
                         + " SELECT ccGroupRules.ContentID"
                         + " FROM ccGroupRules RIGHT JOIN ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
                         + " WHERE ("
-                            + "(ccMemberRules.memberId=" + DbControllerX.encodeSQLNumber(user.id) + ")"
+                            + "(ccMemberRules.memberId=" + DbController.encodeSQLNumber(user.id) + ")"
                             + " AND(ccMemberRules.active<>0)"
                             + " AND(ccGroupRules.active<>0)"
                             + " AND(ccGroupRules.ContentID Is not Null)"
-                            + " AND((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + "))"
+                            + " AND((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
                             + ")";
                     _isAuthenticatedContentManagerAnything = csData.openSql(sql);
                 }
@@ -717,7 +717,7 @@ namespace Contensive.Processor.Controllers {
                 _isAuthenticatedContentManagerAnything_loaded = true;
                 return _isAuthenticatedContentManagerAnything;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -758,7 +758,7 @@ namespace Contensive.Processor.Controllers {
                 visitor.memberId = user.id;
                 visitor.save(core.cpParent);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -774,25 +774,25 @@ namespace Contensive.Processor.Controllers {
         public int getUserIdForUsernameCredentials(string username, string password, bool requestIncludesPassword) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials enter");
+                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials enter");
                 //
                 if (string.IsNullOrEmpty(username)) {
                     //
                     // -- username blank, stop here
-                    LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, username blank");
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, username blank");
                     return 0;
                 }
                 bool allowNoPassword = !requestIncludesPassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
                 if (string.IsNullOrEmpty(password) && !allowNoPassword) {
                     //
                     // -- password blank, stop here
-                    LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, password blank");
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, password blank");
                     return 0;
                 }
                 if (visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts) {
                     //
                     // ----- already tried 5 times
-                    LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, maxVisitLoginAttempts reached");
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, maxVisitLoginAttempts reached");
                     return 0;
                 }
                 string Criteria;
@@ -800,28 +800,28 @@ namespace Contensive.Processor.Controllers {
                 if (allowEmailLogin) {
                     //
                     // -- login by username or email
-                    LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt email login");
-                    Criteria = "((username=" + DbControllerX.encodeSQLText(username) + ")or(email=" + DbControllerX.encodeSQLText(username) + "))";
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt email login");
+                    Criteria = "((username=" + DbController.encodeSQLText(username) + ")or(email=" + DbController.encodeSQLText(username) + "))";
                 } else {
                     //
                     // -- login by username only
-                    LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt username login");
-                    Criteria = "(username=" + DbControllerX.encodeSQLText(username) + ")";
+                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt username login");
+                    Criteria = "(username=" + DbController.encodeSQLText(username) + ")";
                 }
-                Criteria += "and((dateExpires is null)or(dateExpires>" + DbControllerX.encodeSQLDate(core.dateTimeNowMockable) + "))";
+                Criteria += "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
                 string peopleFieldList = "ID,password,passwordHash,admin,developer,ccguid";
                 bool allowPlainTextPassword = core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPassword, true);
                 using (var cs = new CsModel(core)) {
                     if (!cs.open("People", Criteria, "id", true, user.id, peopleFieldList, PageSize: 2)) {
                         //
                         // -- fail, username not found, stop here
-                        LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, user record not found");
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, user record not found");
                         return 0;
                     }
                     if (cs.getRowCount() > 1) {
                         //
                         // -- fail, multiple matches
-                        LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, multiple users found");
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, multiple users found");
                         return 0;
                     }
                     if (!allowNoPassword) {
@@ -830,7 +830,7 @@ namespace Contensive.Processor.Controllers {
                         if (string.IsNullOrEmpty(password)) {
                             //
                             // -- fail, no password
-                            LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank password");
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank password");
                             return 0;
                         }
                         if (allowPlainTextPassword) {
@@ -839,12 +839,12 @@ namespace Contensive.Processor.Controllers {
                             if (password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
                                 //
                                 // -- success, password match
-                                LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
                                 return cs.getInteger("ID");
                             }
                             //
                             // -- fail, plain text
-                            LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
                             return 0;
                         } else {
                             //
@@ -853,13 +853,13 @@ namespace Contensive.Processor.Controllers {
                             if (passwordHash.Equals(cs.getText("passwordHash"), StringComparison.InvariantCultureIgnoreCase)) {
                                 //
                                 // -- success, encrypted password match
-                                LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
                                 return cs.getInteger("ID");
                             }
                             if (!core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPasswordHash, true)) {
                                 //
                                 // -- migration mode disabled, encrypted password fail
-                                LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
                                 return 0;
                             }
                             if (!string.IsNullOrEmpty(cs.getText("password")) && string.IsNullOrEmpty(cs.getText("passwordhash")) && password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
@@ -868,12 +868,12 @@ namespace Contensive.Processor.Controllers {
                                 cs.set("passwordHash", passwordHash);
                                 cs.set("password", "");
                                 cs.save();
-                                LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw migration");
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw migration");
                                 return cs.getInteger("ID");
                             }
                             //
                             // -- fail, hash password
-                            LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
                             return 0;
                         }
                     }
@@ -882,7 +882,7 @@ namespace Contensive.Processor.Controllers {
                     if (cs.getBoolean("admin") || cs.getBoolean("developer")) {
                         //
                         // -- fail, no-password-mode and match is admin/dev
-                        LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode matched admin/dev");
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode matched admin/dev");
                         return 0;
                     }
                     //
@@ -896,21 +896,21 @@ namespace Contensive.Processor.Controllers {
                         + " and(ccMemberRules.active>0)"
                         + " and(ccGroupRules.active>0)"
                         + " and(ccGroupRules.ContentID Is not Null)"
-                        + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + "))"
+                        + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
                         + ");";
                     if (!csRules.openSql(SQL)) {
                         //
                         // -- success, match is not content manager
-                        LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
+                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
                         return cs.getInteger("ID");
                     }
                 }
                 //
-                LogControllerX.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, exit with no  match");
+                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, exit with no  match");
                 //
                 return 0;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -928,7 +928,7 @@ namespace Contensive.Processor.Controllers {
         public bool isNewCredentialOK(string Username, string Password, ref string returnErrorMessage, ref int returnErrorCode) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isNewCredentialOK enter");
+                LogController.logTrace(core, "SessionController.isNewCredentialOK enter");
                 //
                 bool returnOk = false;
                 if (string.IsNullOrEmpty(Username)) {
@@ -943,7 +943,7 @@ namespace Contensive.Processor.Controllers {
                     returnErrorMessage = "A valid login requires a non-blank password.";
                 } else {
                     using (var csData = new CsModel(core)) {
-                        if (csData.open("People", "username=" + DbControllerX.encodeSQLText(Username), "id", false, 2, "ID")) {
+                        if (csData.open("People", "username=" + DbController.encodeSQLText(Username), "id", false, 2, "ID")) {
                             //
                             // ----- username was found, stop here
                             returnErrorCode = 3;
@@ -955,7 +955,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return returnOk;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -971,13 +971,13 @@ namespace Contensive.Processor.Controllers {
         public bool authenticate(string username, string password, bool setUserAutoLogin) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.authenticate enter");
+                LogController.logTrace(core, "SessionController.authenticate enter");
                 //
                 int userId = getUserIdForUsernameCredentials(username, password, false);
                 if (!userId.Equals(0) && authenticateById(userId, this)) {
                     //
                     // -- successful
-                    LogControllerX.addActivityCompletedVisit(core, "Login", "successful login, credential [" + username + "]", user.id);
+                    LogController.addActivityCompletedVisit(core, "Login", "successful login, credential [" + username + "]", user.id);
                     //
                     core.db.executeNonQuery("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
                     return true;
@@ -991,7 +991,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return false;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1008,7 +1008,7 @@ namespace Contensive.Processor.Controllers {
         public static bool authenticateById(CoreController core, int userId, SessionController authContext, bool requestUserAutoLogin) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.authenticateById, enter, userid [" + userId + "]");
+                LogController.logTrace(core, "SessionController.authenticateById, enter, userid [" + userId + "]");
                 //
                 if (userId == 0) { return false; }
                 if (!recognizeById(core, userId, authContext, requestUserAutoLogin)) {
@@ -1028,7 +1028,7 @@ namespace Contensive.Processor.Controllers {
                 authContext.visit.save(core.cpParent);
                 return true;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1061,7 +1061,7 @@ namespace Contensive.Processor.Controllers {
         public static bool recognizeById(CoreController core, int userId, SessionController sessionContext, bool requireUserAutoLogin) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.recognizeById, enter");
+                LogController.logTrace(core, "SessionController.recognizeById, enter");
                 //
                 // -- argument validation
                 if (userId.Equals(0)) { return false; }
@@ -1099,7 +1099,7 @@ namespace Contensive.Processor.Controllers {
                 sessionContext.user.save(core.cpParent);
                 return true;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1133,7 +1133,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isAuthenticatedMember() {
             //
-            LogControllerX.logTrace(core, "SessionController.isAuthenticatedMember, enter");
+            LogController.logTrace(core, "SessionController.isAuthenticatedMember, enter");
             //
             var userPeopleMetadata = ContentMetadataModel.create(core, user.contentControlId);
             if (userPeopleMetadata == null) { return false; }
@@ -1149,7 +1149,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isGuest() {
             //
-            LogControllerX.logTrace(core, "SessionController.isGuest, enter");
+            LogController.logTrace(core, "SessionController.isGuest, enter");
             //
             return !isRecognized();
         }
@@ -1161,7 +1161,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isRecognized() {
             //
-            LogControllerX.logTrace(core, "SessionController.isRecognized, enter");
+            LogController.logTrace(core, "SessionController.isRecognized, enter");
             //
             return !visit.memberNew;
         }
@@ -1184,7 +1184,7 @@ namespace Contensive.Processor.Controllers {
                 isEditingLocal = editingSiteProperty && (core.session.user.admin || core.session.user.developer);
                 return (bool)isEditingLocal;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1199,7 +1199,7 @@ namespace Contensive.Processor.Controllers {
         public bool isEditing_ContentId(int contentId) {
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isEditing, contentid [" + contentId + "]");
+                LogController.logTrace(core, "SessionController.isEditing, contentid [" + contentId + "]");
                 //
                 if (contentId <= 0) { return false; }
                 if (!isAuthenticated) { return false; }
@@ -1207,7 +1207,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(contentName)) { return false; }
                 return isEditing_ContentName(contentName);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1222,7 +1222,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (string.IsNullOrEmpty(contentName)) { return isEditing(); }
                 //
-                LogControllerX.logTrace(core, "SessionController.isEditing [" + contentName + "]");
+                LogController.logTrace(core, "SessionController.isEditing [" + contentName + "]");
                 //
                 // -- if empty contentid or contentName, return true if admin and editing is turned on
                 if (!isAuthenticated) { return false; }
@@ -1241,7 +1241,7 @@ namespace Contensive.Processor.Controllers {
                 core.doc.contentNotEditingList.Add(contentNameLc);
                 return false;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1258,7 +1258,7 @@ namespace Contensive.Processor.Controllers {
                 if (contentNameOrId.isNumeric()) { return isEditing_ContentId(encodeInteger(contentNameOrId)); }
                 return isEditing_ContentName(contentNameOrId);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1270,7 +1270,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isTemplateEditing() {
             //
-            LogControllerX.logTrace(core, "SessionController.isTemplateEditing, enter");
+            LogController.logTrace(core, "SessionController.isTemplateEditing, enter");
             //
             if (!isAuthenticatedAdmin()) { return false; }
             return core.visitProperty.getBoolean("AllowTemplateEditing", false) || core.visitProperty.getBoolean("AllowAdvancedEditor", false);
@@ -1283,7 +1283,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isPageBuilderEditing() {
             //
-            LogControllerX.logTrace(core, "SessionController.isPageBuilderEditing, enter");
+            LogController.logTrace(core, "SessionController.isPageBuilderEditing, enter");
             //
             if (!isAuthenticatedAdmin()) { return false; }
             return core.visitProperty.getBoolean("AllowQuickEditor", false);
@@ -1296,7 +1296,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isDebugging() {
             //
-            LogControllerX.logTrace(core, "SessionController.IsDebugging, enter");
+            LogController.logTrace(core, "SessionController.IsDebugging, enter");
             //
             if (!isAuthenticatedDeveloper()) { return false; }
             return core.visitProperty.getBoolean("AllowDebugging", false);
@@ -1312,13 +1312,13 @@ namespace Contensive.Processor.Controllers {
             bool returnResult = false;
             try {
                 //
-                LogControllerX.logTrace(core, "SessionController.isQuickEditing, enter");
+                LogController.logTrace(core, "SessionController.isQuickEditing, enter");
                 //
                 if (isAuthenticatedContentManager(ContentName)) {
                     returnResult = core.visitProperty.getBoolean("AllowQuickEditor");
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnResult;
@@ -1333,7 +1333,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isAdvancedEditing() {
             //
-            LogControllerX.logTrace(core, "SessionController.isAdvancedEditing, enter");
+            LogController.logTrace(core, "SessionController.isAdvancedEditing, enter");
             //
             // -- todo consider advancedEditing only for developers
             if ((!user.admin) && (!user.developer)) { return false; }
@@ -1344,7 +1344,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static bool isMobile(CoreController core, string browserUserAgent) {
             //
-            LogControllerX.logTrace(core, "SessionController.isMobile, enter");
+            LogController.logTrace(core, "SessionController.isMobile, enter");
             //
             Regex b = new(@"(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             Regex v = new(@"1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-", RegexOptions.IgnoreCase | RegexOptions.Multiline);
@@ -1361,7 +1361,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isLoginOK(string Username, string Password) {
             //
-            LogControllerX.logTrace(core, "SessionController.isLoginOK, enter");
+            LogController.logTrace(core, "SessionController.isLoginOK, enter");
             //
             return !getUserIdForUsernameCredentials(Username, Password, false).Equals(0);
         }
@@ -1370,7 +1370,7 @@ namespace Contensive.Processor.Controllers {
         //
         public string getAuthoringStatusMessage(bool RecordEditLocked, string main_EditLockName, DateTime main_EditLockExpires) {
             //
-            LogControllerX.logTrace(core, "SessionController.getAuthoringStatusMessage, enter");
+            LogController.logTrace(core, "SessionController.getAuthoringStatusMessage, enter");
             //
             if (!RecordEditLocked) { return Msg_WorkflowDisabled; }
             //

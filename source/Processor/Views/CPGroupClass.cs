@@ -114,7 +114,7 @@ namespace Contensive.Processor {
             }
             //
             // -- name
-            GroupModel.deleteRows<GroupModel>(core.cpParent, "(name=" + DbControllerX.encodeSQLText(GroupNameIdOrGuid) + ")");
+            GroupModel.deleteRows<GroupModel>(core.cpParent, "(name=" + DbController.encodeSQLText(GroupNameIdOrGuid) + ")");
         }
         //
         //====================================================================================================

@@ -46,8 +46,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, done");
                 return "";
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
-                LogControllerX.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(core, ex);
+                LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

@@ -6,7 +6,7 @@ using static Newtonsoft.Json.JsonConvert;
 
 namespace Contensive.Processor.Controllers {
     //
-    public class KeyPtrControllerX {
+    public class KeyPtrController {
         //
         // new serializable and deserialize
         //   declare a private instance of a class that holds everything

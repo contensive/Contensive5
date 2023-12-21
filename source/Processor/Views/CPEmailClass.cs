@@ -44,7 +44,7 @@ namespace Contensive.Processor {
                 int personalizeAddonId = 0;
                 EmailController.sendAdHocEmail(cp.core, "Ad Hoc email from api", 0, toAddress, fromAddress, subject, body, fromAddress, fromAddress, "", sendImmediately, bodyIsHTML, 0, ref adminErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -77,7 +77,7 @@ namespace Contensive.Processor {
                 EmailController.trySendFormEmail(cp.core, toAddress, fromAddress, subject, out string errorMessage);
                 adminErrorMessage = errorMessage;
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }

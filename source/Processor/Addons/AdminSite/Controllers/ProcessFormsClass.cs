@@ -334,7 +334,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }

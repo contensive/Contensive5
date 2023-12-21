@@ -242,7 +242,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                 } else {
                                     foreach (string installedCollectionGuid in collectionsInstalledList) {
                                         using var csData = new CsModel(core);
-                                        csData.open("Add-on Collections", GuidFieldName + "=" + DbControllerX.encodeSQLText(installedCollectionGuid));
+                                        csData.open("Add-on Collections", GuidFieldName + "=" + DbController.encodeSQLText(installedCollectionGuid));
                                         if (csData.ok()) {
                                             collectionsInstalledIDList.Add(csData.getInteger("ID"));
                                         }
@@ -304,7 +304,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         try {
                             LibCollections.Load("http://support.contensive.com/GetCollectionList?iv=" + CoreController.codeVersion() + "&includeSystem=1&includeNonPublic=1");
                         } catch (Exception ex) {
-                            LogControllerX.logError(core, ex);
+                            LogController.logError(core, ex);
                             UserError = "There was an error reading the Collection Library. The site may be unavailable.";
                             HandleClassAppendLog("AddonManager", UserError);
                             status += "<br>" + UserError;
@@ -414,7 +414,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                                     } else {
                                                         IsOnServer = GenericController.encodeBoolean(OnServerGuidList.IndexOf(CollectionGuid, System.StringComparison.OrdinalIgnoreCase) + 1);
                                                         using (var csData = new CsModel(core)) {
-                                                            IsOnSite = csData.open("Add-on Collections", GuidFieldName + "=" + DbControllerX.encodeSQLText(CollectionGuid));
+                                                            IsOnSite = csData.open("Add-on Collections", GuidFieldName + "=" + DbController.encodeSQLText(CollectionGuid));
                                                         }
                                                         if (IsOnSite) {
                                                             //
@@ -596,7 +596,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                     core.html.addTitle("Add-on Manager", "Add-on Manager");
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return addonManager;
@@ -609,9 +609,9 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 int EntryID = 0;
                 using (var csData = new CsModel(core)) {
                     if (EntryParentID == 0) {
-                        csData.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbControllerX.encodeSQLText(EntryName) + ")and((parentID is null)or(parentid=0))");
+                        csData.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbController.encodeSQLText(EntryName) + ")and((parentID is null)or(parentid=0))");
                     } else {
-                        csData.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbControllerX.encodeSQLText(EntryName) + ")and(parentID=" + DbControllerX.encodeSQLNumber(EntryParentID) + ")");
+                        csData.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbController.encodeSQLText(EntryName) + ")and(parentID=" + DbController.encodeSQLNumber(EntryParentID) + ")");
                     }
                     if (csData.ok()) {
                         EntryID = csData.getInteger("ID");
@@ -621,7 +621,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 //
                 if (EntryID != 0) {
                     using (var csData = new CsModel(core)) {
-                        csData.open(NavigatorEntryModel.tableMetadata.contentName, "(parentID=" + DbControllerX.encodeSQLNumber(EntryID) + ")");
+                        csData.open(NavigatorEntryModel.tableMetadata.contentName, "(parentID=" + DbController.encodeSQLNumber(EntryID) + ")");
                         while (csData.ok()) {
                             GetForm_SafeModeAddonManager_DeleteNavigatorBranch(csData.getText("name"), EntryID);
                             csData.goNext();
@@ -631,7 +631,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                     MetadataController.deleteContentRecord(core, NavigatorEntryModel.tableMetadata.contentName, EntryID);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
         }
         //
@@ -670,7 +670,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             HandleClassTrapError("GetXMLAttribute");
             return tempGetXMLAttribute;
@@ -679,7 +679,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
         //
         //
         private void HandleClassAppendLog(string MethodName, string Context) {
-            LogControllerX.logTrace(core, "addonManager: " + Context);
+            LogController.logTrace(core, "addonManager: " + Context);
         }
         //
         //===========================================================================
@@ -712,7 +712,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                     }
                     if (string.IsNullOrEmpty(ParentNameSpace)) {
                         using var csData = new CsModel(core);
-                        csData.open(ContentName, "(name=" + DbControllerX.encodeSQLText(ParentName) + ")and((parentid is null)or(parentid=0))", "ID", false, 0, "ID");
+                        csData.open(ContentName, "(name=" + DbController.encodeSQLText(ParentName) + ")and((parentid is null)or(parentid=0))", "ID", false, 0, "ID");
                         if (csData.ok()) {
                             tempGetParentIDFromNameSpace = csData.getInteger("ID");
                         }
@@ -720,7 +720,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                     } else {
                         ParentId = getParentIDFromNameSpace(ContentName, ParentNameSpace);
                         using var csData = new CsModel(core);
-                        csData.open(ContentName, "(name=" + DbControllerX.encodeSQLText(ParentName) + ")and(parentid=" + ParentId + ")", "ID", false, 0, "ID");
+                        csData.open(ContentName, "(name=" + DbController.encodeSQLText(ParentName) + ")and(parentid=" + ParentId + ")", "ID", false, 0, "ID");
                         if (csData.ok()) {
                             tempGetParentIDFromNameSpace = csData.getInteger("ID");
                         }
@@ -732,7 +732,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             HandleClassTrapError("GetParentIDFromNameSpace");
             return tempGetParentIDFromNameSpace;

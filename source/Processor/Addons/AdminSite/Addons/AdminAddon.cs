@@ -56,7 +56,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // get admin site
                 return getAdminSite(cp);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }

@@ -60,7 +60,7 @@ namespace Contensive.Processor.Controllers {
                                 try {
                                     core.db.executeNonQuery("alter table " + table.name + " add primary key (ID)");
                                 } catch (Exception ex) {
-                                    LogControllerX.logError(core, ex, "Content Table [" + table.name + "] does not include column ID. Exception happened while adding column and setting it primarykey.");
+                                    LogController.logError(core, ex, "Content Table [" + table.name + "] does not include column ID. Exception happened while adding column and setting it primarykey.");
                                 }
                             }
                         }
@@ -154,7 +154,7 @@ namespace Contensive.Processor.Controllers {
                                                 menu.classTopList = cs.getText("classTopList");
                                                 menu.classTopWrapper = cs.getText("classTopWrapper");
                                             } catch (Exception ex) {
-                                                LogControllerX.logError(core, ex, "migrateData error populating menu from dynamic menu.");
+                                                LogController.logError(core, ex, "migrateData error populating menu from dynamic menu.");
                                             }
                                             menu.save(cp);
                                         }
@@ -368,7 +368,7 @@ namespace Contensive.Processor.Controllers {
                             try {
                                 MinifyController.minifyAddon(core, addon);
                             } catch (Exception ex) {
-                                LogControllerX.logWarn(core, ex, "Warning during upgrade, data migration, build addon css and js minification, addon [" + addon.id + ", " + addon.name + "]");
+                                LogController.logWarn(core, ex, "Warning during upgrade, data migration, build addon css and js minification, addon [" + addon.id + ", " + addon.name + "]");
                             }
                         }
                     }
@@ -408,7 +408,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "Warning during upgrade, data migration");
+                LogController.logError(core, ex, "Warning during upgrade, data migration");
             }
         }
         //

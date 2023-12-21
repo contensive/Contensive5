@@ -131,7 +131,7 @@ namespace Contensive.Processor {
                 if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
                     if (core == null) { throw new GenericException("cp.executeAddon failed because coreController null"); }
                     if (core?.appConfig == null) { throw new GenericException("cp.executeAddon failed because core.appConfig null"); }
-                    LogControllerX.logDebug(core, "cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
+                    LogController.logDebug(core, "cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
                 if (GenericController.isGuid(addonNameOrGuid)) {
@@ -180,7 +180,7 @@ namespace Contensive.Processor {
                 if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
                     if (core == null) { throw new GenericException("cp.executeAddon failed because coreController null"); }
                     if (core?.appConfig == null) { throw new GenericException("cp.executeAddon failed because core.appConfig null"); }
-                    LogControllerX.logDebug(core, "cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
+                    LogController.logDebug(core, "cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
                 AddonModel addon = core.cacheRuntime.addonCache.create(addonId);

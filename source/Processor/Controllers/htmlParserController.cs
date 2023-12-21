@@ -163,7 +163,7 @@ namespace Contensive.Processor.Controllers {
                 LocalElements = new Contensive.Processor.Controllers.HtmlParserController.Element[elementCount + 1];
                 return tempLoad;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempLoad;
         }
@@ -184,7 +184,7 @@ namespace Contensive.Processor.Controllers {
                     result = LocalElements[ElementPointer].IsTag;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }
@@ -204,7 +204,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempText;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempText;
         }
@@ -224,7 +224,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempTagName;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempTagName;
         }
@@ -244,7 +244,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempPosition;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempPosition;
         }
@@ -264,7 +264,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempElementAttributeCount;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempElementAttributeCount;
         }
@@ -286,7 +286,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempElementAttributeName;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempElementAttributeName;
         }
@@ -308,7 +308,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempElementAttributeValue;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempElementAttributeValue;
         }
@@ -340,7 +340,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempElementAttribute;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempElementAttribute;
         }
@@ -416,7 +416,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
         }
         //
@@ -442,7 +442,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempGetLesserNonZero;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempGetLesserNonZero;
         }
@@ -461,7 +461,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return tempPassWhiteSpace;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempPassWhiteSpace;
         }

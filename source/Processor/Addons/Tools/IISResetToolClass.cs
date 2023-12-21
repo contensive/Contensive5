@@ -48,7 +48,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 return AdminUIController.getToolForm(core, result_reset.text, ButtonCancel + "," + ButtonIISReset);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }

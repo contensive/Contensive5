@@ -123,7 +123,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonCancel + "," + ButtonFindAndReplace);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }

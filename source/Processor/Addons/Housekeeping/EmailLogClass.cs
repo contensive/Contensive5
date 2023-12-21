@@ -19,8 +19,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, EmailLog");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -42,10 +42,10 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // clear email body field for emails older than 7 days
                 env.log("Clear email body field for email logs older then " + env.emailLogBodyRetainDays + " days");
                 DateTime emailLogBodyRetainDate = env.core.dateTimeNowMockable.AddDays(-env.emailLogBodyRetainDays).Date;
-                env.core.db.executeNonQuery("update ccemaillog set body=null where dateadded<" + DbControllerX.encodeSQLDate(emailLogBodyRetainDate));
+                env.core.db.executeNonQuery("update ccemaillog set body=null where dateadded<" + DbController.encodeSQLDate(emailLogBodyRetainDate));
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

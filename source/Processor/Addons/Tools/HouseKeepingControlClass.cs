@@ -155,7 +155,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 cp.core.html.addTitle(Caption,Caption);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
             }
             return tempGetForm_HouseKeepingControl;
         }

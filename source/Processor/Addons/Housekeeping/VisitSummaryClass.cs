@@ -20,8 +20,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, VisitSummary");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -42,7 +42,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 DateTime LastTimeSummaryWasRun = env.visitArchiveDate;
                 env.core.db.sqlCommandTimeout = 180;
                 using (var csData = new CsModel(env.core)) {
-                    if (csData.openSql(env.core.db.getSQLSelect("ccVisitSummary", "DateAdded", "(timeduration=1)and(Dateadded>" + DbControllerX.encodeSQLDate(env.visitArchiveDate) + ")", "id Desc", "", 1))) {
+                    if (csData.openSql(env.core.db.getSQLSelect("ccVisitSummary", "DateAdded", "(timeduration=1)and(Dateadded>" + DbController.encodeSQLDate(env.visitArchiveDate) + ")", "id Desc", "", 1))) {
                         LastTimeSummaryWasRun = csData.getDate("DateAdded");
                         env.log("Update hourly visit summary, last time summary was run was [" + LastTimeSummaryWasRun + "]");
                     } else {
@@ -61,7 +61,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 DateTime OldestDateAdded = StartOfHour;
                 env.core.db.sqlCommandTimeout = 180;
                 using (var csData = new CsModel(env.core)) {
-                    if (csData.openSql(env.core.db.getSQLSelect("ccVisits", "DateAdded", "LastVisitTime>" + DbControllerX.encodeSQLDate(StartOfHour), "dateadded", "", 1))) {
+                    if (csData.openSql(env.core.db.getSQLSelect("ccVisits", "DateAdded", "LastVisitTime>" + DbController.encodeSQLDate(StartOfHour), "dateadded", "", 1))) {
                         OldestDateAdded = csData.getDate("DateAdded");
                         if (OldestDateAdded < NextSummaryStartDate) {
                             NextSummaryStartDate = OldestDateAdded;
@@ -136,8 +136,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -204,8 +204,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         string SQL = "select count(v.id) as NoCookieVisits"
                             + " from ccvisits v"
                             + " where (v.CookieSupport<>1)"
-                            + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                            + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                            + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                            + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                             + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                             + "";
                         int NoCookieVisits = 0;
@@ -222,8 +222,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         SQL = "select count(v.id) as VisitCnt ,Sum(v.PageVisits) as HitCnt"
                             + " from ccvisits v"
                             + " where (v.CookieSupport<>0)"
-                            + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                            + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                            + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                            + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                             + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                             + "";
                         // ,sum(v.TimetoLastHit) as TimeOnSite
@@ -254,8 +254,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             SQL = "select count(v.id) as NewVisitorVisits"
                                 + " from ccvisits v"
                                 + " where (v.CookieSupport<>0)"
-                                + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(v.VisitorNew<>0)"
                                 + "";
@@ -272,8 +272,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             SQL = "select count(v.id) as SinglePageVisits"
                                 + " from ccvisits v"
                                 + " where (v.CookieSupport<>0)"
-                                + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(v.PageVisits=1)"
                                 + "";
@@ -290,8 +290,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             SQL = "select count(v.id) as VisitCnt ,sum(v.PageVisits) as HitCnt "
                                 + " from ccvisits v"
                                 + " where (v.CookieSupport<>0)"
-                                + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(PageVisits>1)"
                                 + "";
@@ -313,8 +313,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             SQL = "select count(v.id) as AuthenticatedVisits "
                                 + " from ccvisits v"
                                 + " where (v.CookieSupport<>0)"
-                                + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(VisitAuthenticated<>0)"
                                 + "";
@@ -332,8 +332,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             SQL = "select count(v.id) as cnt "
                                 + " from ccvisits v"
                                 + " where (v.CookieSupport<>0)"
-                                + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(Mobile<>0)"
                                 + "";
@@ -350,8 +350,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                             SQL = "select count(v.id) as cnt "
                                 + " from ccvisits v"
                                 + " where (v.CookieSupport<>0)"
-                                + " and(v.dateadded>=" + DbControllerX.encodeSQLDate(DateStart) + ")"
-                                + " and (v.dateadded<" + DbControllerX.encodeSQLDate(DateEnd) + ")"
+                                + " and(v.dateadded>=" + DbController.encodeSQLDate(DateStart) + ")"
+                                + " and (v.dateadded<" + DbController.encodeSQLDate(DateEnd) + ")"
                                 + " and((v.ExcludeFromAnalytics is null)or(v.ExcludeFromAnalytics=0))"
                                 + " and(Bot<>0)"
                                 + "";
@@ -419,7 +419,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
+                LogController.logError(env.core, ex);
             }
         }
 

@@ -19,8 +19,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, Viewings");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -42,7 +42,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     env.core.db.sqlCommandTimeout = 1800;
                     env.core.db.executeNonQuery("delete from ccviewings where (dateadded < DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
                 } catch (Exception) {
-                    LogControllerX.logWarn(env.core, "exception deleting old viewings");
+                    LogController.logWarn(env.core, "exception deleting old viewings");
                 }
                 //
                 if (env.archiveDeleteNoCookie) {
@@ -55,7 +55,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         env.core.db.sqlCommandTimeout = 1800;
                         env.core.db.executeNonQuery(sql);
                     } catch (Exception) {
-                        LogControllerX.logWarn(env.core, "exception deleting viewings with no cookie");
+                        LogController.logWarn(env.core, "exception deleting viewings with no cookie");
                     }
                 }
                 //
@@ -66,11 +66,11 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     env.core.db.sqlCommandTimeout = 1800;
                     env.core.db.executeNonQuery(sql);
                 } catch (Exception) {
-                    LogControllerX.logWarn(env.core, "exception deleting viewings with invalid visits");
+                    LogController.logWarn(env.core, "exception deleting viewings with invalid visits");
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

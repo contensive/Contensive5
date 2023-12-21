@@ -31,11 +31,11 @@ namespace Contensive.Processor.Models.Domain {
                 try {
                     doc.LoadXml(getCollectionFolderConfigXml(core));
                 } catch (Exception) {
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Error loading CollectionFolderConfig file.");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Error loading CollectionFolderConfig file.");
                     return null;
                 }
                 if (doc.DocumentElement.Name.ToLower(CultureInfo.InvariantCulture) != GenericController.toLCase(Constants.CollectionListRootNode)) {
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", The Collections.xml file has an invalid root node");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", The Collections.xml file has an invalid root node");
                     return null;
                 }
                 foreach (XmlNode configNode in doc.DocumentElement.ChildNodes) {
@@ -71,7 +71,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return null;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -94,11 +94,11 @@ namespace Contensive.Processor.Models.Domain {
                 returnXml = core.privateFiles.readFileText(collectionFilePathFilename);
                 if (string.IsNullOrWhiteSpace(returnXml)) {
                     //
-                    LogControllerX.logInfo(core, "Collection Folder XML is blank, rebuild start");
+                    LogController.logInfo(core, "Collection Folder XML is blank, rebuild start");
                     //                     
                     List<FolderDetail> FolderList = core.privateFiles.getFolderList(AddonController.getPrivateFilesAddonPath());
                     //
-                    LogControllerX.logInfo(core, "Collection Folder XML rebuild, FolderList.count [" + FolderList.Count + "]");
+                    LogController.logInfo(core, "Collection Folder XML rebuild, FolderList.count [" + FolderList.Count + "]");
                     //                     
                     if (FolderList.Count > 0) {
                         var collectionsFound = new List<string>();
@@ -113,7 +113,7 @@ namespace Contensive.Processor.Models.Domain {
                                     if (collectionsFound.Contains(CollectionGuid)) {
                                         //
                                         // -- folder with duplicate Guid not allowed. throw;ception and block the folder
-                                        LogControllerX.logError(core, new GenericException("Add-on Collection Folder contains a mulitple collection folders with the same guid, [" + CollectionGuid + "], duplicate folder ignored [" + folder.Name + "]. Remove or Combine the mulitple instances. Then delete the collections.xml file and it will regenerate without the duplicate."));
+                                        LogController.logError(core, new GenericException("Add-on Collection Folder contains a mulitple collection folders with the same guid, [" + CollectionGuid + "], duplicate folder ignored [" + folder.Name + "]. Remove or Combine the mulitple instances. Then delete the collections.xml file and it will regenerate without the duplicate."));
                                     } else {
                                         collectionsFound.Add(CollectionGuid);
                                         List<FolderDetail> SubFolderList = core.privateFiles.getFolderList(AddonController.getPrivateFilesAddonPath() + FolderName + "\\");
@@ -139,11 +139,11 @@ namespace Contensive.Processor.Models.Domain {
                     returnXml = "<CollectionList>" + returnXml + Environment.NewLine + "</CollectionList>";
                     core.privateFiles.saveFile(collectionFilePathFilename, returnXml);
                     //
-                    LogControllerX.logInfo(core, "Collection Folder XML is blank, rebuild finished and saved");
+                    LogController.logInfo(core, "Collection Folder XML is blank, rebuild finished and saved");
                     //                     
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnXml;
@@ -169,14 +169,14 @@ namespace Contensive.Processor.Models.Domain {
                         LocalCollections.LoadXml(localCollectionStoreListXml);
                     } catch (Exception) {
                         string Copy = "Error loading privateFiles\\addons\\Collections.xml";
-                        LogControllerX.logInfo(core, Copy);
+                        LogController.logInfo(core, Copy);
                         return_ErrorMessage += "<P>" + Copy + "</P>";
                         returnOk = false;
                     }
                     if (returnOk) {
                         if (GenericController.toLCase(LocalCollections.DocumentElement.Name) != GenericController.toLCase(Constants.CollectionListRootNode)) {
                             string Copy = "The addons\\Collections.xml has an invalid root node, [" + LocalCollections.DocumentElement.Name + "] was received and [" + Constants.CollectionListRootNode + "] was expected.";
-                            LogControllerX.logInfo(core, Copy);
+                            LogController.logInfo(core, Copy);
                             return_ErrorMessage += "<P>" + Copy + "</P>";
                             returnOk = false;
                         } else {
@@ -208,7 +208,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnOk;

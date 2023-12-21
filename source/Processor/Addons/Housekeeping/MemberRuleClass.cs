@@ -19,7 +19,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, MemberRules");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
+                LogController.logError(env.core, ex);
                 throw;
             }
         }
@@ -65,7 +65,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         + ")";
                 env.core.db.executeNonQuery(sql);
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
+                LogController.logError(env.core, ex);
             }
         }
     }

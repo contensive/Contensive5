@@ -81,7 +81,7 @@ namespace Contensive.Processor.Addons.Tools {
                         if (ContentId == 0) {
                             Stream.add("GetContentID failed. Fields were not changed.");
                         } else {
-                            MetadataController.deleteContentRecords(core, "Content Fields", "ContentID=" + DbControllerX.encodeSQLNumber(ContentId));
+                            MetadataController.deleteContentRecords(core, "Content Fields", "ContentID=" + DbController.encodeSQLNumber(ContentId));
                             //
                             // todo -- looks like the tool code did not come with the migration ?
                             //
@@ -91,7 +91,7 @@ namespace Contensive.Processor.Addons.Tools {
                 string ButtonList = "";
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }

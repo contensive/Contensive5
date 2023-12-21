@@ -50,7 +50,7 @@ namespace Contensive.Processor.Controllers {
                     result = getUserAuthoringPermissions_ContentManager(core, cdef, new List<int>());
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }
@@ -103,11 +103,11 @@ namespace Contensive.Processor.Controllers {
                     string SQL = "SELECT ccGroupRules.ContentID,allowAdd,allowDelete"
                     + " FROM ccGroupRules RIGHT JOIN ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
                     + " WHERE ("
-                        + " (ccMemberRules.memberId=" + DbControllerX.encodeSQLNumber(core.session.user.id) + ")"
+                        + " (ccMemberRules.memberId=" + DbController.encodeSQLNumber(core.session.user.id) + ")"
                         + " AND(ccMemberRules.active<>0)"
                         + " AND(ccGroupRules.active<>0)"
                         + " AND(ccGroupRules.ContentID=" + cdef.id + ")"
-                        + " AND((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + "))"
+                        + " AND((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
                         + ");";
                     using (var csData = new CsModel(core)) {
                         csData.openSql(SQL);
@@ -147,7 +147,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return result;

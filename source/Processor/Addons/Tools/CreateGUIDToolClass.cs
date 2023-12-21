@@ -32,7 +32,7 @@ namespace Contensive.Processor.Addons.Tools {
                 // Display form
                 return AdminUIController.getToolForm(core, result_guid.text, ButtonCancel + "," + ButtonCreateGUId);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }

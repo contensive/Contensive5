@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----- All Visits Today
                 //
                 using (var csData = new CsModel(core)) {
-                    sql = "SELECT Count(ccVisits.ID) AS VisitCount, Avg(ccVisits.PageVisits) AS PageCount FROM ccVisits WHERE ((ccVisits.StartTime)>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime.Date) + ");";
+                    sql = "SELECT Count(ccVisits.ID) AS VisitCount, Avg(ccVisits.PageVisits) AS PageCount FROM ccVisits WHERE ((ccVisits.StartTime)>" + DbController.encodeSQLDate(core.doc.profileStartTime.Date) + ");";
                     csData.openSql(sql);
                     if (csData.ok()) {
                         VisitCount = csData.getInteger("VisitCount");
@@ -54,7 +54,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----- Non-Bot Visits Today
                 //
                 using (var csData = new CsModel(core)) {
-                    sql = "SELECT Count(ccVisits.ID) AS VisitCount, Avg(ccVisits.PageVisits) AS PageCount FROM ccVisits WHERE (ccVisits.CookieSupport=1)and((ccVisits.StartTime)>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime.Date) + ");";
+                    sql = "SELECT Count(ccVisits.ID) AS VisitCount, Avg(ccVisits.PageVisits) AS PageCount FROM ccVisits WHERE (ccVisits.CookieSupport=1)and((ccVisits.StartTime)>" + DbController.encodeSQLDate(core.doc.profileStartTime.Date) + ");";
                     csData.openSql(sql);
                     if (csData.ok()) {
                         VisitCount = csData.getInteger("VisitCount");
@@ -70,7 +70,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----- Visits Today by new visitors
                 //
                 using (var csData = new CsModel(core)) {
-                    sql = "SELECT Count(ccVisits.ID) AS VisitCount, Avg(ccVisits.PageVisits) AS PageCount FROM ccVisits WHERE (ccVisits.CookieSupport=1)and(ccVisits.StartTime>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime.Date) + ")AND(ccVisits.VisitorNew<>0);";
+                    sql = "SELECT Count(ccVisits.ID) AS VisitCount, Avg(ccVisits.PageVisits) AS PageCount FROM ccVisits WHERE (ccVisits.CookieSupport=1)and(ccVisits.StartTime>" + DbController.encodeSQLDate(core.doc.profileStartTime.Date) + ")AND(ccVisits.VisitorNew<>0);";
                     csData.openSql(sql);
                     if (csData.ok()) {
                         VisitCount = csData.getInteger("VisitCount");
@@ -94,7 +94,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     using (var csData = new CsModel(core)) {
                         sql = "SELECT ccVisits.HTTP_REFERER as referer,ccVisits.remote_addr as Remote_Addr, ccVisits.LastVisitTime as LastVisitTime, ccVisits.PageVisits as PageVisits, ccMembers.Name as MemberName, ccVisits.ID as VisitID, ccMembers.ID as MemberID"
                             + " FROM ccVisits LEFT JOIN ccMembers ON ccVisits.memberId = ccMembers.ID"
-                            + " WHERE (((ccVisits.LastVisitTime)>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime.AddHours(-1)) + "))"
+                            + " WHERE (((ccVisits.LastVisitTime)>" + DbController.encodeSQLDate(core.doc.profileStartTime.AddHours(-1)) + "))"
                             + " ORDER BY ccVisits.LastVisitTime DESC;";
                         csData.openSql(sql);
                         if (csData.ok()) {
@@ -139,7 +139,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }

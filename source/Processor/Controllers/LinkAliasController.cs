@@ -78,16 +78,16 @@ namespace Contensive.Processor.Controllers {
             string hint = "";
             try {
                 //
-                LogControllerX.logTrace(core, "addLinkAlias, enter, linkAlias [" + linkAlias + "], pageID [" + pageId + "], queryStringSuffix [" + queryStringSuffix + "], overRideDuplicate [" + overRideDuplicate + "], dupCausesWarning [" + dupCausesWarning + "]");
+                LogController.logTrace(core, "addLinkAlias, enter, linkAlias [" + linkAlias + "], pageID [" + pageId + "], queryStringSuffix [" + queryStringSuffix + "], overRideDuplicate [" + overRideDuplicate + "], dupCausesWarning [" + dupCausesWarning + "]");
                 //
                 string normalizedLinkAlias = LinkAliasModel.normalizeLinkAlias(core.cpParent, linkAlias);
                 if (string.IsNullOrEmpty(normalizedLinkAlias)) {
                     //
-                    LogControllerX.logTrace(core, "addLinkAlias exit, blank linkalias");
+                    LogController.logTrace(core, "addLinkAlias exit, blank linkalias");
                     return ""; 
                 }
                 //
-                LogControllerX.logTrace(core, "addLinkAlias, normalized normalizedLinkAlias [" + normalizedLinkAlias + "]");
+                LogController.logTrace(core, "addLinkAlias, normalized normalizedLinkAlias [" + normalizedLinkAlias + "]");
                 //
                 // Make sure there is not a folder or page in the wwwroot that matches this Alias
                 //
@@ -125,10 +125,10 @@ namespace Contensive.Processor.Controllers {
                     bool invalidateLinkAliasTableCache = false;
                     int linkAliasId = 0;
                     using (var csData = new CsModel(core)) {
-                        csData.open("Link Aliases", "name=" + DbControllerX.encodeSQLText(normalizedLinkAlias), "", false, 0, "Name,PageID,QueryStringSuffix");
+                        csData.open("Link Aliases", "name=" + DbController.encodeSQLText(normalizedLinkAlias), "", false, 0, "Name,PageID,QueryStringSuffix");
                         if (!csData.ok()) {
                             //
-                            LogControllerX.logTrace(core, "addLinkAlias, not found in Db, add");
+                            LogController.logTrace(core, "addLinkAlias, not found in Db, add");
                             //
                             // Alias not found, create a Link Aliases
                             //
@@ -144,7 +144,7 @@ namespace Contensive.Processor.Controllers {
                             int recordPageId = csData.getInteger("pageID");
                             string recordQss = csData.getText("QueryStringSuffix").ToLowerInvariant();
                             //
-                            LogControllerX.logTrace(core, "addLinkAlias, linkalias record found by its name, record recordPageId [" + recordPageId + "], record QueryStringSuffix [" + recordQss + "]");
+                            LogController.logTrace(core, "addLinkAlias, linkalias record found by its name, record recordPageId [" + recordPageId + "], record QueryStringSuffix [" + recordQss + "]");
                             //
                             // Alias found, verify the pageid & QueryStringSuffix
                             //
@@ -153,12 +153,12 @@ namespace Contensive.Processor.Controllers {
                             if ((recordQss == queryStringSuffix.ToLowerInvariant()) && (pageId == recordPageId)) {
                                 CurrentLinkAliasId = csData.getInteger("id");
                                 //
-                                LogControllerX.logTrace(core, "addLinkAlias, linkalias matches name, pageid, and querystring of linkalias [" + CurrentLinkAliasId + "]");
+                                LogController.logTrace(core, "addLinkAlias, linkalias matches name, pageid, and querystring of linkalias [" + CurrentLinkAliasId + "]");
                                 //
                                 // it maches a current entry for this link alias, if the current entry is not the highest number id,
                                 //   remove it and add this one
                                 //
-                                string sql = string.IsNullOrEmpty(queryStringSuffix) ? "QueryStringSuffix is null" : $"QueryStringSuffix={DbControllerX.encodeSQLText(queryStringSuffix)}";
+                                string sql = string.IsNullOrEmpty(queryStringSuffix) ? "QueryStringSuffix is null" : $"QueryStringSuffix={DbController.encodeSQLText(queryStringSuffix)}";
                                 sql = $"select top 1 id from ccLinkAliases where (pageid={recordPageId})and({sql}) order by id desc";
                                 using (var CS3 = new CsModel(core)) {
                                     CS3.openSql(sql);
@@ -168,7 +168,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (resaveLinkAlias) {
                                     //
-                                    LogControllerX.logTrace(core, "addLinkAlias, another link alias matches this pageId and QS. Move this to the top position");
+                                    LogController.logTrace(core, "addLinkAlias, another link alias matches this pageId and QS. Move this to the top position");
                                     //
                                     core.db.executeNonQuery("delete from ccLinkAliases where id=" + CurrentLinkAliasId);
                                     using (var CS3 = new CsModel(core)) {
@@ -182,13 +182,13 @@ namespace Contensive.Processor.Controllers {
                                 }
                             } else {
                                 //
-                                LogControllerX.logTrace(core, "addLinkAlias, linkalias matches name, but pageid and querystring are different. Add this a newest linkalias");
+                                LogController.logTrace(core, "addLinkAlias, linkalias matches name, but pageid and querystring are different. Add this a newest linkalias");
                                 //
                                 // link alias matches, but id/qs does not -- this is either a change, or a duplicate that needs to be blocked
                                 //
                                 if (overRideDuplicate) {
                                     //
-                                    LogControllerX.logTrace(core, "addLinkAlias, overRideDuplicate true, change the Link Alias to the new link");
+                                    LogController.logTrace(core, "addLinkAlias, overRideDuplicate true, change the Link Alias to the new link");
                                     //
                                     // change the Link Alias to the new link
                                     csData.set("Pageid", pageId);
@@ -196,7 +196,7 @@ namespace Contensive.Processor.Controllers {
                                     invalidateLinkAliasTableCache = true;
                                 } else if (dupCausesWarning) {
                                     //
-                                    LogControllerX.logTrace(core, "addLinkAlias, overRideDuplicate false, dupCausesWarning true, just return user warning if this is from admin");
+                                    LogController.logTrace(core, "addLinkAlias, overRideDuplicate false, dupCausesWarning true, just return user warning if this is from admin");
                                     //
                                     if (recordPageId == 0) {
                                         int PageContentCId = Models.Domain.ContentMetadataModel.getContentId(core, "Page Content");
@@ -225,11 +225,11 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                LogControllerX.logTrace(core, "addLinkAlias, exit");
+                LogController.logTrace(core, "addLinkAlias, exit");
                 //
                 return normalizedLinkAlias;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "addLinkAlias exception, hint [" + hint + "]");
+                LogController.logError(core, ex, "addLinkAlias exception, hint [" + hint + "]");
                 throw;
             }
         }

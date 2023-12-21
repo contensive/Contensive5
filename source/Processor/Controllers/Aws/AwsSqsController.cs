@@ -31,7 +31,7 @@ namespace Contensive.Processor.Controllers {
                 var queueResponse = sqsClient.CreateQueueAsync(queueRequest).waitSynchronously();
                 return queueResponse.QueueUrl;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }

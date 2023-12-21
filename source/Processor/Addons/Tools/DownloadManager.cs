@@ -163,7 +163,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 core.html.addTitle(Caption,"Download Manager");
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return tempGetForm_Downloads;
         }

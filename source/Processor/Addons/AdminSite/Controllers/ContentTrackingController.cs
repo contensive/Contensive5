@@ -31,7 +31,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     // ----- update/create the content watch record for this content record
                     int ContentId = (editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : editRecord.contentControlId;
                     using (var csData = new CsModel(cp.core)) {
-                        csData.open("Content Watch", "(ContentID=" + DbControllerX.encodeSQLNumber(ContentId) + ")And(RecordID=" + DbControllerX.encodeSQLNumber(editRecord.id) + ")");
+                        csData.open("Content Watch", "(ContentID=" + DbController.encodeSQLNumber(ContentId) + ")And(RecordID=" + DbController.encodeSQLNumber(editRecord.id) + ")");
                         if (!csData.ok()) {
                             csData.insert("Content Watch");
                             csData.set("contentid", ContentId);
@@ -40,7 +40,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             csData.set("clicks", 0);
                         }
                         if (!csData.ok()) {
-                            LogControllerX.logError(cp.core, new GenericException("SaveContentTracking, can Not create New record"));
+                            LogController.logError(cp.core, new GenericException("SaveContentTracking, can Not create New record"));
                         } else {
                             int ContentWatchId = csData.getInteger("ID");
                             csData.set("LinkLabel", adminData.contentWatchLinkLabel);
@@ -76,7 +76,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
             }
         }
         //
@@ -98,7 +98,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     // ----- Open the content watch record for this content record
                     //
                     ContentID = ((editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : editRecord.contentControlId);
-                    using var csData = new CsModel(core); csData.open("Content Watch", "(ContentID=" + DbControllerX.encodeSQLNumber(ContentID) + ")AND(RecordID=" + DbControllerX.encodeSQLNumber(editRecord.id) + ")");
+                    using var csData = new CsModel(core); csData.open("Content Watch", "(ContentID=" + DbController.encodeSQLNumber(ContentID) + ")AND(RecordID=" + DbController.encodeSQLNumber(editRecord.id) + ")");
                     if (csData.ok()) {
                         adminData.contentWatchLoaded = true;
                         adminData.contentWatchRecordID = (csData.getInteger("ID"));
@@ -110,7 +110,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -151,7 +151,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
         }
     }

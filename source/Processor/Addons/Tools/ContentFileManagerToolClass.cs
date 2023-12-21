@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.Tools {
                 string ButtonList = ButtonApply + "," + ButtonCancel;
                 result = AdminUIController.getToolBody(core, "Content File Manager", ButtonList, "", false, false, Description, "", 0, Content);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }

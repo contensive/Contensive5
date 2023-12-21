@@ -36,7 +36,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Trace(string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Trace, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, false)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Trace, Logger.Name, LogController.processLogMessage(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -45,7 +45,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Debug(string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, false)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogController.processLogMessage(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -54,7 +54,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Info(string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Info, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, false)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Info, Logger.Name, LogController.processLogMessage(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -63,7 +63,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Warn(string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.processLogMessage(cp.core, logMessage, true)));
         }
         //
         // ====================================================================================================
@@ -72,7 +72,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Warn(Exception ex, string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage + ", exception [" + ex + "]", true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.processLogMessage(cp.core, logMessage + ", exception [" + ex + "]", true)));
         }
         //
         // ====================================================================================================
@@ -81,7 +81,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Warn(Exception ex) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogControllerX.processLogMessage(cp.core, "exception [" + ex + "]", true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.processLogMessage(cp.core, "exception [" + ex + "]", true)));
         }
         //
         // ====================================================================================================
@@ -90,7 +90,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Error(string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.processLogMessage(cp.core, logMessage, true)));
         }
         //
         // ====================================================================================================
@@ -99,7 +99,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Error(Exception ex, string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage + ", exception [" + ex + "]", true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.processLogMessage(cp.core, logMessage + ", exception [" + ex + "]", true)));
         }
         //
         // ====================================================================================================
@@ -108,7 +108,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Error(Exception ex) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogControllerX.processLogMessage(cp.core, "exception [" + ex + "]", true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.processLogMessage(cp.core, "exception [" + ex + "]", true)));
         }
         //
         // ====================================================================================================
@@ -117,7 +117,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.processLogMessage(cp.core, logMessage, true)));
         }
         //
         // ====================================================================================================
@@ -126,7 +126,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(Exception ex, string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage + ", exception[" + ex + "]", true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.processLogMessage(cp.core, logMessage + ", exception[" + ex + "]", true)));
         }
         //
         // ====================================================================================================
@@ -135,7 +135,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Fatal(Exception ex) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogControllerX.processLogMessage(cp.core, "exception[" + ex + "]", true)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.processLogMessage(cp.core, "exception[" + ex + "]", true)));
         }
         //
         // ====================================================================================================
@@ -144,7 +144,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="logMessage"></param>
         public override void Add(string logMessage) {
-            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, false)));
+            Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogController.processLogMessage(cp.core, logMessage, false)));
         }
         //
         // ====================================================================================================
@@ -156,31 +156,31 @@ namespace Contensive.Processor {
         public override void Add(LogLevel level, string logMessage) {
             switch (level) {
                 case LogLevel.Trace: {
-                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Trace, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, false)));
+                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Trace, Logger.Name, LogController.processLogMessage(cp.core, logMessage, false)));
                         break;
                     }
                 case LogLevel.Debug: {
-                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, false)));
+                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Debug, Logger.Name, LogController.processLogMessage(cp.core, logMessage, false)));
                         break;
                     }
                 case LogLevel.Warn: {
-                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, true)));
+                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Warn, Logger.Name, LogController.processLogMessage(cp.core, logMessage, true)));
                         break;
                     }
                 case LogLevel.Error: {
-                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, true)));
+                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Error, Logger.Name, LogController.processLogMessage(cp.core, logMessage, true)));
                         break;
                     }
                 case LogLevel.Fatal: {
-                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, true)));
+                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Fatal, Logger.Name, LogController.processLogMessage(cp.core, logMessage, true)));
                         break;
                     }
                 default: {
-                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Info, Logger.Name, LogControllerX.processLogMessage(cp.core, logMessage, false)));
+                        Logger.Log(typeof(CPLogClass), new NLog.LogEventInfo(NLog.LogLevel.Info, Logger.Name, LogController.processLogMessage(cp.core, logMessage, false)));
                         break;
                     }
             }
-            LogControllerX.log(cp.core, logMessage, level);
+            LogController.log(cp.core, logMessage, level);
         }
         //
         #region  IDisposable Support 

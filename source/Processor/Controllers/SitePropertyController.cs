@@ -123,7 +123,7 @@ namespace Contensive.Processor.Controllers {
             setProperty(key, string.Empty);
             //
             // -- remove from db 
-            core.db.executeNonQuery("Delete from ccsetup where (name=" + DbControllerX.encodeSQLText(key) + ")");
+            core.db.executeNonQuery("Delete from ccsetup where (name=" + DbController.encodeSQLText(key) + ")");
         }
         //
         //====================================================================================================
@@ -470,13 +470,13 @@ namespace Contensive.Processor.Controllers {
                         } else {
                             //
                             // -- set value in Db
-                            string SQLNow = DbControllerX.encodeSQLDate(core.dateTimeNowMockable);
-                            string SQL = "UPDATE ccSetup Set FieldValue=" + DbControllerX.encodeSQLText(Value) + ",ModifiedDate=" + SQLNow + " WHERE name=" + DbControllerX.encodeSQLText(propertyName);
+                            string SQLNow = DbController.encodeSQLDate(core.dateTimeNowMockable);
+                            string SQL = "UPDATE ccSetup Set FieldValue=" + DbController.encodeSQLText(Value) + ",ModifiedDate=" + SQLNow + " WHERE name=" + DbController.encodeSQLText(propertyName);
                             int recordsAffected = 0;
                             core.db.executeNonQuery(SQL, ref recordsAffected);
                             if (recordsAffected == 0) {
                                 SQL = "INSERT INTO ccSetup (ACTIVE,CONTENTCONTROLID,NAME,FIELDVALUE,ModifiedDate,DateAdded)VALUES("
-                            + "1,0," + DbControllerX.encodeSQLText(propertyName.ToUpper()) + "," + DbControllerX.encodeSQLText(Value) + "," + SQLNow + "," + SQLNow + ");";
+                            + "1,0," + DbController.encodeSQLText(propertyName.ToUpper()) + "," + DbController.encodeSQLText(Value) + "," + SQLNow + "," + SQLNow + ");";
                                 core.db.executeNonQuery(SQL);
                             }
                             //
@@ -490,7 +490,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -571,7 +571,7 @@ namespace Contensive.Processor.Controllers {
                 return_propertyFound = true;
                 return DefaultValue;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -629,7 +629,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(cacheName, DefaultValue);
                 return DefaultValue;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }

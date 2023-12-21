@@ -75,7 +75,7 @@ namespace Contensive.Processor.Models.Domain {
                     addonType = CPUtilsBaseClass.addonContext.ContextPage
                 });
             } catch (Exception) {
-                LogControllerX.logWarn(core, "The addonList for page [" + core.doc.pageController.page.id + ", " + core.doc.pageController.page.name + "] was not empty, but deserialized to null, addonList '" + core.doc.pageController.page.addonList + "'");
+                LogController.logWarn(core, "The addonList for page [" + core.doc.pageController.page.id + ", " + core.doc.pageController.page.name + "] was not empty, but deserialized to null, addonList '" + core.doc.pageController.page.addonList + "'");
                 throw;
             }
         }

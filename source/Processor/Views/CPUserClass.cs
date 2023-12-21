@@ -214,7 +214,7 @@ namespace Contensive.Processor {
                 }
                 return IsInGroupList(groupId.ToString(), userId);
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 return false;
             }
         }

@@ -68,7 +68,7 @@ namespace Contensive.Processor.Controllers {
                 {
                     //
                     // -- Special Case - must install base collection metadata first because it builds the system that the system needs to do everything else
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installBaseCollection, install metadata first to verify system requirements");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installBaseCollection, install metadata first to verify system requirements");
 
                     CollectionInstallMetadataController.installMetaDataMiniCollectionFromXml(core, baseCollectionXml, isNewBuild, reinstallDependencies, true, logPrefix);
                 }
@@ -115,7 +115,7 @@ namespace Contensive.Processor.Controllers {
                             throw new GenericException("installBaseCollection, call to installCollectionFromPrivateFile failed, message returned [" + installErrorMessage + "]");
                         }
                     } catch (Exception ex) {
-                        LogControllerX.logError(core, ex);
+                        LogController.logError(core, ex);
                         throw;
                     } finally {
                         //
@@ -127,7 +127,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "installBaseCollection, unexpected exception");
+                LogController.logError(core, ex, "installBaseCollection, unexpected exception");
                 throw;
             } finally {
                 contextLog.Pop();
@@ -162,7 +162,7 @@ namespace Contensive.Processor.Controllers {
                 if (collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) {
                     //
                     // -- EXIT, this collection has already been installed during this installation process. Skip and return success
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", [" + collectionGuid + "] was not installed because it was previously installed during this installation.");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", [" + collectionGuid + "] was not installed because it was previously installed during this installation.");
                     return true;
                 }
                 // -- collection needs to be installed
@@ -174,7 +174,7 @@ namespace Contensive.Processor.Controllers {
                 if ((collectionFolderConfig == null) || string.IsNullOrEmpty(collectionFolderConfig.path)) {
                     //
                     // -- ERROR, collection folder not found
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder not found.");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder not found.");
                     return_ErrorMessage.errors.Add("The collection was not installed from the local collections because the folder containing the Add-on's resources could not be found. It may not be installed locally.");
                     return false;
                 }
@@ -186,7 +186,7 @@ namespace Contensive.Processor.Controllers {
                 if (srcFileInfoArray.Count == 0) {
                     //
                     // -- EXIT, ERROR, collection folder was empty
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder is empty.");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], collection folder is empty.");
                     return_ErrorMessage.errors.Add("The collection was not installed because the folder containing the Add-on's resources was empty.");
                     return false;
                 }
@@ -197,14 +197,14 @@ namespace Contensive.Processor.Controllers {
                     if (file.Extension.ToLowerInvariant() == ".dll") {
                         // -- add files to a list to be included in execfiles. Maintain filename case for unix remove mode
                         if (!assembliesInZip.Contains(file.Name)) {
-                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], adding DLL from folder[" + file.Name.ToLowerInvariant() + "].");
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], adding DLL from folder[" + file.Name.ToLowerInvariant() + "].");
                             assembliesInZip.Add(file.Name);
                         }
                     }
                 }
                 //
                 // -- Process the other files
-                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], process xml files.");
+                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + collectionGuid + "], process xml files.");
                 foreach (FileDetail file in srcFileInfoArray) {
                     if (file.Extension == ".xml") {
                         //
@@ -220,7 +220,7 @@ namespace Contensive.Processor.Controllers {
                             // error - Need a way to reach the user that submitted the file
                             //
                             string errMsg = "skipping xml file, not valid collection metadata, [" + core.privateFiles.localAbsRootPath + CollectionVersionFolder + file.Name + "]";
-                            logger.Error(ex, LogControllerX.processLogMessage(core, errMsg, true));
+                            logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                             loadOK = false;
                         }
                         if (loadOK) {
@@ -235,7 +235,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // ----- Error condition -- it must have a collection name
                                     //
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], collection has no name");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], collection has no name");
                                     return_ErrorMessage.errors.Add("The collection was not installed because the collection name in the xml collection file is blank");
                                     return false;
                                 }
@@ -260,7 +260,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     //
                                     //
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], Collection file contains incorrect GUID, correct GUID [" + collectionGuid.ToLowerInvariant() + "], incorrect GUID in file [" + GenericController.toLCase(FileGuid) + "]");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], Collection file contains incorrect GUID, correct GUID [" + collectionGuid.ToLowerInvariant() + "], incorrect GUID in file [" + GenericController.toLCase(FileGuid) + "]");
                                     return_ErrorMessage.errors.Add(" The collection was not installed because the unique number identifying the collection, called the guid, does not match the collection requested.");
                                     return false;
                                 }
@@ -275,20 +275,20 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // -- New collection Not Updateable and collection already exists
                                     string message = "The collection [" + CollectionName + "] was not installed because the new collection is marked not-updateable and the current collection is already installed";
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], " + message);
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], " + message);
                                     return_ErrorMessage.errors.Add(message);
                                     return true;
                                 } else if ((collection != null) && !collection.updatable) {
                                     //
                                     // -- Current collection is not updateable
                                     string message = "The collection [" + CollectionName + "] was not installed because the current collection is marked not-updateable";
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], " + message);
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], " + message);
                                     return_ErrorMessage.errors.Add(message);
                                     return true;
                                 }
                                 //
                                 //-------------------------------------------------------------------------------
-                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-1, save resourses and process collection dependencies");
+                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-1, save resourses and process collection dependencies");
                                 // Go through all collection nodes
                                 // Process ImportCollection Nodes - so includeaddon nodes will work
                                 // these must be processes regardless of the state of this collection in this app
@@ -309,7 +309,7 @@ namespace Contensive.Processor.Controllers {
                                                 string resourcePath = XmlController.getXMLAttribute(core, MetaDataSection, "path", "");
                                                 string filename = XmlController.getXMLAttribute(core, MetaDataSection, "name", "");
                                                 //
-                                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], resource found, name [" + filename + "], type [" + resourceType + "], path [" + resourcePath + "]");
+                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], resource found, name [" + filename + "], type [" + resourceType + "], path [" + resourcePath + "]");
                                                 //
                                                 filename = FileController.convertToDosSlash(filename);
                                                 string SrcPath = "";
@@ -344,10 +344,10 @@ namespace Contensive.Processor.Controllers {
                                                     case "wwwroot":
                                                     case "www": {
                                                             wwwFileList += Environment.NewLine + dstDosPath + filename;
-                                                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to wwwFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + core.appConfig.localWwwPath + dstDosPath + "].");
+                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to wwwFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + core.appConfig.localWwwPath + dstDosPath + "].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.wwwFiles);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
-                                                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping www file [" + core.appConfig.localWwwPath + dstDosPath + filename + "].");
+                                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping www file [" + core.appConfig.localWwwPath + dstDosPath + filename + "].");
                                                                 core.wwwFiles.unzipFile(dstDosPath + filename);
                                                                 core.wwwFiles.deleteFile(dstDosPath + filename);
                                                             }
@@ -356,10 +356,10 @@ namespace Contensive.Processor.Controllers {
                                                     case "privatefiles":
                                                     case "private": {
                                                             ContentFileList += Environment.NewLine + dstDosPath + filename;
-                                                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to privateFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
+                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to privateFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
-                                                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping privateFiles file [" + dstDosPath + filename + "].");
+                                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping privateFiles file [" + dstDosPath + filename + "].");
                                                                 core.privateFiles.unzipFile(dstDosPath + filename);
                                                                 core.privateFiles.deleteFile(dstDosPath + filename);
                                                             }
@@ -370,10 +370,10 @@ namespace Contensive.Processor.Controllers {
                                                     case "cdnfiles":
                                                     case "content": {
                                                             ContentFileList += Environment.NewLine + dstDosPath + filename;
-                                                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to cdnFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
+                                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, copying file to cdnFiles, src [" + CollectionVersionFolder + SrcPath + "], dst [" + dstDosPath + "].");
                                                             core.privateFiles.copyFile(CollectionVersionFolder + SrcPath + filename, dstDosPath + filename, core.cdnFiles);
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
-                                                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping cdnFiles [" + dstDosPath + filename + "].");
+                                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping cdnFiles [" + dstDosPath + filename + "].");
                                                                 core.cdnFiles.unzipFile(dstDosPath + filename);
                                                                 core.cdnFiles.deleteFile(dstDosPath + filename);
                                                             }
@@ -403,7 +403,7 @@ namespace Contensive.Processor.Controllers {
                                                     //
                                                     // circular import detected, this collection is already imported
                                                     //
-                                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], Circular import detected. This collection attempts to import a collection that had previously been imported. A collection can not import itself. The collection is [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1. The collection to be imported is [" + ChildCollectionName + "], GUID [" + ChildCollectionGUId + "]");
+                                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], Circular import detected. This collection attempts to import a collection that had previously been imported. A collection can not import itself. The collection is [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1. The collection to be imported is [" + ChildCollectionName + "], GUID [" + ChildCollectionGUId + "]");
                                                 } else {
                                                     //
                                                     // -- all included collections should already be installed, because buildfolder is called before call
@@ -424,7 +424,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 //
                                 //-------------------------------------------------------------------------------
-                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-2, determine if this collection is already installed");
+                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-2, determine if this collection is already installed");
                                 //-------------------------------------------------------------------------------
                                 //
                                 bool OKToInstall = false;
@@ -433,19 +433,19 @@ namespace Contensive.Processor.Controllers {
                                     // Upgrade addon
                                     //
                                     if (!isDependency) {
-                                        LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], Install non-dependency collection.");
+                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], Install non-dependency collection.");
                                         OKToInstall = true;
                                     } else if (reinstallDependencies) {
-                                        LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is up-to-date but installation set to reinstall all collections.");
+                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is up-to-date but installation set to reinstall all collections.");
                                         OKToInstall = true;
                                     } else if (collectionFolderConfig.lastChangeDate == DateTime.MinValue) {
-                                        LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection installedDate could not be determined so it will upgrade.");
+                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection installedDate could not be determined so it will upgrade.");
                                         OKToInstall = true;
                                     } else if (collectionFolderConfig.lastChangeDate > collection.modifiedDate) {
-                                        LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is out-of-date and will be upgraded.");
+                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is out-of-date and will be upgraded.");
                                         OKToInstall = true;
                                     } else {
-                                        LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is up-to-date and will not be upgraded, but all imports in the new version will be checked.");
+                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], dependent collection is up-to-date and will not be upgraded, but all imports in the new version will be checked.");
                                         OKToInstall = false;
                                     }
                                 } else {
@@ -453,7 +453,7 @@ namespace Contensive.Processor.Controllers {
                                     // Install new on this application
                                     //
                                     collection = AddonCollectionModel.addEmpty<AddonCollectionModel>(core.cpParent);
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], App does not have this collection so it will be installed.");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], App does not have this collection so it will be installed.");
                                     OKToInstall = true;
                                 }
                                 if (!OKToInstall) {
@@ -464,7 +464,7 @@ namespace Contensive.Processor.Controllers {
                                 } else {
                                     //
                                     //-------------------------------------------------------------------------------
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-3, prepare to import full collection");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-3, prepare to import full collection");
                                     //-------------------------------------------------------------------------------
                                     //
                                     {
@@ -506,7 +506,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     //-------------------------------------------------------------------------------
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-4, isolate and process schema-relatednodes (metadata,index,etc)");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-4, isolate and process schema-relatednodes (metadata,index,etc)");
                                     //-------------------------------------------------------------------------------
                                     //
                                     bool isBaseCollection = (baseCollectionGuid.ToLowerInvariant() == collectionGuid.ToLowerInvariant());
@@ -562,7 +562,7 @@ namespace Contensive.Processor.Controllers {
                                                 // error - Need a way to reach the user that submitted the file
                                                 //
                                                 string errMsg = "[" + CollectionName + "], creating navigator entries, there was an error parsing the portion of the collection that contains metadata. Navigator entry creation was aborted. [There was an error reading the Meta data file.]";
-                                                logger.Error(ex, LogControllerX.processLogMessage(core, errMsg, true));
+                                                logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                                                 return_ErrorMessage.errors.Add(" The collection was not installed because the xml collection file has an error.");
                                                 return false;
                                             }
@@ -597,7 +597,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     //-------------------------------------------------------------------------------
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-5, create data records from data nodes, ignore fields");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-5, create data records from data nodes, ignore fields");
                                     //-------------------------------------------------------------------------------
                                     //
                                     {
@@ -618,7 +618,7 @@ namespace Contensive.Processor.Controllers {
                                                                     if (string.IsNullOrEmpty(ContentName)) {
                                                                         //
                                                                         // -- bad content name, skip the record
-                                                                        LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data.record node with a blank content attribute.");
+                                                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data.record node with a blank content attribute.");
                                                                         result = false;
                                                                         return_ErrorMessage.errors.Add(" Collection file [" + CollectionName + "]  was not fully installed because it contains a data.record node with a blank content attribute. This data was skipped.");
                                                                         continue;
@@ -626,7 +626,7 @@ namespace Contensive.Processor.Controllers {
                                                                     string ContentRecordGuid = XmlController.getXMLAttribute(core, ContentNode, "guid", "");
                                                                     string ContentRecordName = XmlController.getXMLAttribute(core, ContentNode, "name", "");
                                                                     if (string.IsNullOrEmpty(ContentRecordGuid) && string.IsNullOrEmpty(ContentRecordName)) {
-                                                                        LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
+                                                                        LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], install collection file contains a data record node with neither guid nor name. It must have either a name or a guid attribute. The content is [" + ContentName + "]");
                                                                         result = false;
                                                                         return_ErrorMessage.errors.Add(" The collection [" + CollectionName + "] was not fully installed because it contains a data record in [" + ContentName + "] with neither name nor guid. This data was skipped.");
                                                                         continue;
@@ -638,11 +638,11 @@ namespace Contensive.Processor.Controllers {
                                                                     if (metaData.fields["name"].uniqueName) {
                                                                         //
                                                                         // -- content's name field requires unique. Insert and update based on name and update guid
-                                                                        csData.open(ContentName, "name=" + DbControllerX.encodeSQLText(ContentRecordName));
+                                                                        csData.open(ContentName, "name=" + DbController.encodeSQLText(ContentRecordName));
                                                                     } else {
                                                                         //
                                                                         // -- insert and update based on guid, and update name
-                                                                        csData.open(ContentName, "ccguid=" + DbControllerX.encodeSQLText(ContentRecordGuid));
+                                                                        csData.open(ContentName, "ccguid=" + DbController.encodeSQLText(ContentRecordGuid));
                                                                     }
                                                                     if (!csData.ok()) { csData.insert(ContentName); }
                                                                     csData.set("name", string.IsNullOrEmpty(ContentRecordName) ? $"{ContentName} {csData.getInteger("id")}" : ContentRecordName);
@@ -666,7 +666,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     //-------------------------------------------------------------------------------
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-6, install addon nodes, set importcollection relationships");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-6, install addon nodes, set importcollection relationships");
                                     //-------------------------------------------------------------------------------
                                     //
                                     foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
@@ -690,7 +690,7 @@ namespace Contensive.Processor.Controllers {
                                                     }
                                                     if (!string.IsNullOrEmpty(ChildCollectionGuid)) {
                                                         using (var csData = new CsModel(core)) {
-                                                            csData.open("Add-on Collections", "ccguid=" + DbControllerX.encodeSQLText(ChildCollectionGuid));
+                                                            csData.open("Add-on Collections", "ccguid=" + DbController.encodeSQLText(ChildCollectionGuid));
                                                             int ChildCollectionId = 0;
                                                             if (csData.ok()) {
                                                                 ChildCollectionId = csData.getInteger("id");
@@ -761,7 +761,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     //-------------------------------------------------------------------------------
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-7, set addon dependency relationships");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-7, set addon dependency relationships");
                                     //-------------------------------------------------------------------------------
                                     //
                                     foreach (XmlNode collectionNode in Doc.DocumentElement.ChildNodes) {
@@ -792,7 +792,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     //-------------------------------------------------------------------------------
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-8, process data nodes, set record fields");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-8, process data nodes, set record fields");
                                     //-------------------------------------------------------------------------------
                                     //
                                     if (!skipCdefInstall) {
@@ -804,7 +804,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                     //
                                     //----------------------------------------------------------------------------------------------------------------------
-                                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", verify all navigator menu entries for updated addons");
+                                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", verify all navigator menu entries for updated addons");
                                     //----------------------------------------------------------------------------------------------------------------------
                                     //
                                     if (!skipCdefInstall) {
@@ -831,14 +831,14 @@ namespace Contensive.Processor.Controllers {
                                 if (!collectionIncludesDiagnosticAddon) {
                                     //
                                     // -- log warning. This collection does not have an install addon
-                                    logger.Debug(LogControllerX.processLogMessage(core, "Collection does not include a Diagnostic addon, [" + collection.name + "]", false));
+                                    logger.Debug(LogController.processLogMessage(core, "Collection does not include a Diagnostic addon, [" + collection.name + "]", false));
                                 }
                                 //
                                 // -- execute onInstall addon if found
                                 if (string.IsNullOrEmpty(collectionOninstalladdonGuid)) {
                                     //
                                     // -- log warning. This collection does not have an install addon
-                                    logger.Debug(LogControllerX.processLogMessage(core, "Collection does not include an install addon, [" + collection.name + "]", false));
+                                    logger.Debug(LogController.processLogMessage(core, "Collection does not include an install addon, [" + collection.name + "]", false));
                                 } else {
                                     //
                                     // -- install the install addon
@@ -852,7 +852,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                                 //
-                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], upgrade complete, flush cache");
+                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder [" + CollectionName + "], upgrade complete, flush cache");
                                 //
                                 // -- import complete, flush caches
                                 core.cache.invalidateAll();
@@ -867,7 +867,7 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 //
                 // Log error and exit with failure. This way any other upgrading will still continue
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             } finally {
                 contextLog.Pop();
@@ -891,7 +891,7 @@ namespace Contensive.Processor.Controllers {
                         // -- process record node
                         string contentName = XmlController.getXMLAttribute(core, contentNode, "content", "");
                         if (string.IsNullOrEmpty(contentName)) {
-                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder, install collection file contains a data.record node with a blank content attribute.");
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", installCollectionFromAddonCollectionFolder, install collection file contains a data.record node with a blank content attribute.");
                             return_ErrorMessage.errors.Add("<P>Collection file contains a data.record node with a blank content attribute.</P>");
                             break;
                         }
@@ -905,9 +905,9 @@ namespace Contensive.Processor.Controllers {
                             int recordId = 0;
                             using (var csData = new CsModel(core)) {
                                 if (!string.IsNullOrEmpty(contentRecordGuid)) {
-                                    csData.open(contentName, "ccguid=" + DbControllerX.encodeSQLText(contentRecordGuid));
+                                    csData.open(contentName, "ccguid=" + DbController.encodeSQLText(contentRecordGuid));
                                 } else {
-                                    csData.open(contentName, "name=" + DbControllerX.encodeSQLText(contentRecordName));
+                                    csData.open(contentName, "name=" + DbController.encodeSQLText(contentRecordName));
                                 }
                                 if (csData.ok()) {
                                     //
@@ -1044,7 +1044,7 @@ namespace Contensive.Processor.Controllers {
                     collection.save(core.cpParent);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1081,11 +1081,11 @@ namespace Contensive.Processor.Controllers {
                     //
                     // BuildLocal failed, log it and do not upgrade
                     //
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder returned false with Error Message [" + return_ErrorMessage + "], exiting without calling UpgradeAllAppsFromLocalCollection");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder returned false with Error Message [" + return_ErrorMessage + "], exiting without calling UpgradeAllAppsFromLocalCollection");
                 } else {
                     foreach (string collectionGuid in collectionsToInstall) {
                         if (!installCollectionFromCollectionFolder(core, isDependency, contextLog, collectionGuid, ref return_ErrorMessage, IsNewBuild, reinstallDependencies, ref nonCriticalErrorList, logPrefix, ref collectionsInstalledList, includeBaseMetaDataInstall, ref collectionsDownloaded, skipCdefInstall)) {
-                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
                             break;
                         }
                         //
@@ -1094,7 +1094,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 returnSuccess = false;
                 return_ErrorMessage.errors.Add("There was an unexpected error installing the collection, details [" + ex.Message + "]");
             } finally {
@@ -1126,7 +1126,7 @@ namespace Contensive.Processor.Controllers {
                     // BuildLocal failed, log it and do not upgrade
                     //
                     returnSuccess = false;
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder returned false with Error Message [" + return_ErrorMessage + "], exiting without calling UpgradeAllAppsFromLocalCollection");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", BuildLocalCollectionFolder returned false with Error Message [" + return_ErrorMessage + "], exiting without calling UpgradeAllAppsFromLocalCollection");
                 } else if (collectionsDownloaded.Count > 0) {
                     return_CollectionGUID = collectionsDownloaded.First();
                     foreach (var collection in collectionsDownloaded) {
@@ -1135,19 +1135,19 @@ namespace Contensive.Processor.Controllers {
                             // Upgrade all apps failed
                             //
                             returnSuccess = false;
-                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Error, Collection(s) install failed, UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
+                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Error, Collection(s) install failed, UpgradeAllAppsFromLocalCollection returned false with Error Message [" + return_ErrorMessage + "].");
                             break;
                         }
                     }
                 }
                 if (returnSuccess) {
-                    LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Collection(s) installed successfully.");
+                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Collection(s) installed successfully.");
                 }
                 //
                 // -- invalidate cache
                 core.cache.invalidateAll();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 returnSuccess = false;
                 return_ErrorMessage.errors.Add("There was an unexpected error installing the collection, details [" + ex.Message + "]");
             } finally {
@@ -1171,7 +1171,7 @@ namespace Contensive.Processor.Controllers {
                     if (string.IsNullOrEmpty(addonName)) { addonName = "No Name"; }
                     string addonGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", addonName);
                     if (string.IsNullOrEmpty(addonGuid)) { addonGuid = addonName; }
-                    string Criteria = "(" + AddonGuidFieldName + "=" + DbControllerX.encodeSQLText(addonGuid) + ")";
+                    string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(addonGuid) + ")";
                     using (var csData = new CsModel(core)) {
                         //
                         //????? dont understand why this code aborted if the addon was found. It should add the dependencies found, remove the ones not found
@@ -1180,11 +1180,11 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- not found by GUID - search name to update legacy Add-ons
                             csData.close();
-                            Criteria = "(name=" + DbControllerX.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
+                            Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
                             if (!csData.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                 //
                                 // Could not find add-on, this is an error, but do not abort
-                                LogControllerX.logError(core, new GenericException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
+                                LogController.logError(core, new GenericException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
                                 return;
                             }
                         }
@@ -1201,12 +1201,12 @@ namespace Contensive.Processor.Controllers {
                                         int IncludeAddonId = 0;
                                         Criteria = "";
                                         if (!string.IsNullOrEmpty(IncludeAddonGuid)) {
-                                            Criteria = AddonGuidFieldName + "=" + DbControllerX.encodeSQLText(IncludeAddonGuid);
+                                            Criteria = AddonGuidFieldName + "=" + DbController.encodeSQLText(IncludeAddonGuid);
                                             if (string.IsNullOrEmpty(IncludeAddonName)) {
                                                 IncludeAddonName = "Add-on " + IncludeAddonGuid;
                                             }
                                         } else if (!string.IsNullOrEmpty(IncludeAddonName)) {
-                                            Criteria = "(name=" + DbControllerX.encodeSQLText(IncludeAddonName) + ")";
+                                            Criteria = "(name=" + DbController.encodeSQLText(IncludeAddonName) + ")";
                                         }
                                         if (!string.IsNullOrEmpty(Criteria)) {
                                             using (var CS2 = new CsModel(core)) {
@@ -1218,7 +1218,7 @@ namespace Contensive.Processor.Controllers {
                                             bool AddRule = false;
                                             if (IncludeAddonId == 0) {
                                                 string UserError = "While installng collection/addon [" + parentCollectionName + "/" + parentAddonName + "], the include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
-                                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
+                                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
                                                 ReturnUpgradeOK = false;
                                                 ReturnErrorMessage.errors.Add("<P>The collection was not installed because the add-on [" + addonName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>");
                                             } else {
@@ -1248,7 +1248,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1268,7 +1268,7 @@ namespace Contensive.Processor.Controllers {
                     if (string.IsNullOrEmpty(addonName)) { addonName = "No Name"; }
                     string addonGuid = XmlController.getXMLAttribute(core, AddonNode, "guid", addonName);
                     if (string.IsNullOrEmpty(addonGuid)) { addonGuid = addonName; }
-                    string Criteria = "(" + AddonGuidFieldName + "=" + DbControllerX.encodeSQLText(addonGuid) + ")";
+                    string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(addonGuid) + ")";
                     foreach (XmlNode PageInterface in AddonNode.ChildNodes) {
                         switch (GenericController.toLCase(PageInterface.Name)) {
                             case "includeaddon":
@@ -1282,11 +1282,11 @@ namespace Contensive.Processor.Controllers {
                                         //
                                         // -- not found by GUID - search name to update legacy Add-ons
                                         addonCs.close();
-                                        Criteria = "(name=" + DbControllerX.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
+                                        Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
                                         if (!addonCs.open(AddonModel.tableMetadata.contentName, Criteria, "", false)) {
                                             //
                                             // Could not find add-on, this is an error, but do not abort
-                                            LogControllerX.logError(core, new GenericException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
+                                            LogController.logError(core, new GenericException(MethodInfo.GetCurrentMethod().Name + ", installing collection [" + parentCollectionName + "], could not find the addon in which the dependency is added, by name [" + addonName + "], Guid [" + addonGuid + "],  skipping dependent add-on"));
                                             return;
                                         }
                                     }
@@ -1297,12 +1297,12 @@ namespace Contensive.Processor.Controllers {
                                     int IncludeAddonId = 0;
                                     Criteria = "";
                                     if (!string.IsNullOrEmpty(IncludeAddonGuid)) {
-                                        Criteria = AddonGuidFieldName + "=" + DbControllerX.encodeSQLText(IncludeAddonGuid);
+                                        Criteria = AddonGuidFieldName + "=" + DbController.encodeSQLText(IncludeAddonGuid);
                                         if (string.IsNullOrEmpty(IncludeAddonName)) {
                                             IncludeAddonName = "Add-on " + IncludeAddonGuid;
                                         }
                                     } else if (!string.IsNullOrEmpty(IncludeAddonName)) {
-                                        Criteria = "(name=" + DbControllerX.encodeSQLText(IncludeAddonName) + ")";
+                                        Criteria = "(name=" + DbController.encodeSQLText(IncludeAddonName) + ")";
                                     }
                                     if (!string.IsNullOrEmpty(Criteria)) {
                                         using (var CS2 = new CsModel(core)) {
@@ -1314,7 +1314,7 @@ namespace Contensive.Processor.Controllers {
                                         bool AddRule = false;
                                         if (IncludeAddonId == 0) {
                                             string UserError = "While installng collection/addon [" + parentCollectionName + "/" + parentAddonName + "], the include add-on [" + IncludeAddonName + "] could not be added because it was not found. If it is in the collection being installed, it must appear before any add-ons that include it.";
-                                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
+                                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAddFromLocalCollection_InstallAddonNode, UserError [" + UserError + "]");
                                             ReturnUpgradeOK = false;
                                             ReturnErrorMessage = ReturnErrorMessage + "<P>The collection was not installed because the add-on [" + addonName + "] requires an included add-on [" + IncludeAddonName + "] which could not be found. If it is in the collection being installed, it must appear before any add-ons that include it.</P>";
                                         } else {
@@ -1344,7 +1344,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1357,7 +1357,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="contextLog"></param>
         private static void traceContextLog(CoreController core, Stack<string> contextLog) {
-            logger.Log(LogLevel.Info, LogControllerX.processLogMessage(core, string.Join(",", contextLog), false));
+            logger.Log(LogLevel.Info, LogController.processLogMessage(core, string.Join(",", contextLog), false));
         }
         //
         private static void copyTempSubfoldersToRoot(CoreController core, string srcPath, string rootPath) {

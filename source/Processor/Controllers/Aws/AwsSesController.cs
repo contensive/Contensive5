@@ -39,7 +39,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- test for email bounce block list
                 using (var cs = core.cpParent.CSNew()) {
-                    string sql = "select count(*) as cnt from EmailBounceList where name like" + DbControllerX.encodeSqlTextLike(email.toAddress) + " and transient=0";
+                    string sql = "select count(*) as cnt from EmailBounceList where name like" + DbController.encodeSqlTextLike(email.toAddress) + " and transient=0";
                     if (cs.OpenSQL(sql)) {
                         if (!cs.GetInteger("cnt").Equals(0)) {
                             reasonForFail = "Recipient email address is on the email block list";
@@ -67,19 +67,19 @@ namespace Contensive.Processor.Controllers {
                     }
                 };
                 try {
-                    LogControllerX.logInfo(core, "Sending SES email" + logShortDetail);
+                    LogController.logInfo(core, "Sending SES email" + logShortDetail);
                     var response = core.sesClient.SendEmailAsync(sendRequest).waitSynchronously();
                     return true;
                 } catch (Exception ex) {
                     reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
                     string errMsg = "Unexpected exception during SES send" + logLongDetail + "";
-                    logger.Error(ex, LogControllerX.processLogMessage(core, errMsg, true));
+                    logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                     return false;
                 }
             } catch (Exception ex) {
                 reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
                 string errMsg = "Unexpected exception during SES configure" + logLongDetail + "";
-                logger.Error(ex, LogControllerX.processLogMessage(core, errMsg, true));
+                logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 return false;
             }
         }

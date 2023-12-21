@@ -86,7 +86,7 @@ namespace Contensive.Processor.Controllers {
                 var layout = cp.core.cacheRuntime.layoutIdDict[layoutId];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -105,7 +105,7 @@ namespace Contensive.Processor.Controllers {
                 var layout = cp.core.cacheRuntime.layoutGuidDict[layoutGuid];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -124,7 +124,7 @@ namespace Contensive.Processor.Controllers {
                 var layout = cp.core.cacheRuntime.layoutNameDict[layoutName];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }
@@ -160,7 +160,7 @@ namespace Contensive.Processor.Controllers {
                     return defaultLayout;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(cp.core, ex);
+                LogController.logError(cp.core, ex);
                 throw;
             }
         }

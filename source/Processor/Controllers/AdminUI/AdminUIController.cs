@@ -45,7 +45,7 @@ namespace Contensive.Processor.Controllers {
                 result = HtmlController.div(result, "p-2");
                 return HtmlController.section(result);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -57,7 +57,7 @@ namespace Contensive.Processor.Controllers {
         public static string getSectionButtonBarForEdit(CoreController core, EditButtonBarInfoClass info) {
             try {
                 //
-                LogControllerX.logTrace(core, "getSectionButtonBarForEdit, enter");
+                LogController.logTrace(core, "getSectionButtonBarForEdit, enter");
                 //
                 string buttonsLeft = "";
                 string buttonsRight = "";
@@ -85,11 +85,11 @@ namespace Contensive.Processor.Controllers {
                     buttonsRight += getButtonDanger(ButtonModifyEditForm, "window.location='?af=105&button=select&contentid=" + info.contentId + "';return false;", info.contentId.Equals(0));
                 }
                 //
-                LogControllerX.logTrace(core, "getButtonBarForEdit, exit");
+                LogController.logTrace(core, "getButtonBarForEdit, exit");
                 //
                 return getSectionButtonBar(core, buttonsLeft, buttonsRight);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -138,7 +138,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result.ToString();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -275,7 +275,7 @@ namespace Contensive.Processor.Controllers {
                     + cr2 + "</ul>"
                     + cr + "</div>";
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -301,7 +301,7 @@ namespace Contensive.Processor.Controllers {
                 // -- assemble form
                 return getToolForm(core, body, ButtonCommaListLeft, ButtonCommaListRight);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return toolExceptionMessage;
             }
         }
@@ -330,7 +330,7 @@ namespace Contensive.Processor.Controllers {
                 result.Append((!string.IsNullOrEmpty(PanelDescription)) ? "<p class=\"p-2 ccAdminEditDescription\">" + PanelDescription + "</p>" : "");
                 result.Append(PanelBody + "</div>");
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result.ToString();
         }
@@ -418,7 +418,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 result = Environment.NewLine + "<td style=\"" + Style + "\" class=\"" + ClassStyle + "\">" + Copy + "</td>";
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }
@@ -475,7 +475,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 result = getReport2(core, RowCount, ColCaption, ColAlign, ColWidth, Cells, PageSize, PageNumber, PreTableCopy, PostTableCopy, DataRowCount, ClassStyle, ColSortable, 0);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result;
         }
@@ -550,7 +550,7 @@ namespace Contensive.Processor.Controllers {
                     Content.add(getReport_Cell("-- End --", "left", ColumnCount, 0));
                     Content.add(Environment.NewLine + "</tr>");
                 } else {
-                    RowBase = DbControllerX.getStartRecord(reportPageSize, reportPageNumber) + 1;
+                    RowBase = DbController.getStartRecord(reportPageSize, reportPageNumber) + 1;
                     for (RowPointer = 0; RowPointer < RowCount; RowPointer++) {
                         Content.add(Environment.NewLine + "<tr>");
                         Content.add(getReport_Cell((RowBase + RowPointer).ToString(), "right", 1, RowPointer));
@@ -617,7 +617,7 @@ namespace Contensive.Processor.Controllers {
                 + result + "</td></tr></table>"
                 + PostTableCopy + "";
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -878,7 +878,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -902,7 +902,7 @@ namespace Contensive.Processor.Controllers {
                 if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
                 return getRecordEditAndCutAnchorTag(core, contentMetadata, recordId, allowCut, recordName, customCaption);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -941,7 +941,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -955,7 +955,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -1033,7 +1033,7 @@ namespace Contensive.Processor.Controllers {
                 if (addonId < 1) { throw (new GenericException("RecordID [" + addonId + "] is invalid")); }
                 return AdminUIController.getAddonEditAnchorTag(core, addonId, "Edit Add-on" + ((string.IsNullOrEmpty(addonName)) ? "" : " '" + addonName + "'"));
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -1055,7 +1055,7 @@ namespace Contensive.Processor.Controllers {
                 if (contentMetadata == null) { throw new GenericException("getRecordEditLink called with contentName [" + contentName + "], but no content metadata found with this name."); }
                 return getRecordEditSegment(core, contentMetadata, recordId, recordName, customCaption);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return string.Empty;
             }
         }
@@ -1160,7 +1160,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 return new List<string>();
             }
         }
@@ -1219,7 +1219,7 @@ namespace Contensive.Processor.Controllers {
                             + " AND(ccContent.active<>0)"
                             + " AND(ccGroupRules.active<>0)"
                             + " AND(ccMemberRules.active<>0)"
-                            + " AND((ccMemberRules.DateExpires is Null)or(ccMemberRules.DateExpires>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + "))"
+                            + " AND((ccMemberRules.DateExpires is Null)or(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
                             + " AND(ccgroups.active<>0)"
                             + " AND(ccMembers.active<>0)"
                             + " AND(ccMembers.ID=" + core.session.user.id + ")"

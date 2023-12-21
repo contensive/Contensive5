@@ -122,8 +122,8 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogControllerX.processLogMessage(core, "exception", true));
-                LogControllerX.logError(core, ex);
+                logger.Error(ex, LogController.processLogMessage(core, "exception", true));
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -198,7 +198,7 @@ namespace Contensive.Processor {
                 }
 
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -248,12 +248,12 @@ namespace Contensive.Processor {
                 }
                 //
                 int recordId = getInteger("ID");
-                using (var db = new DbControllerX(core, contentMeta.dataSourceName)) {
+                using (var db = new DbController(core, contentMeta.dataSourceName)) {
                     db.delete(recordId, contentMeta.tableName);
                 }
                 MetadataController.deleteContentRules(core, contentMeta, recordId);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -283,7 +283,7 @@ namespace Contensive.Processor {
                             case "dateadded": {
                                     //
                                     // -- 
-                                    sqlList.Add(field.nameLc, DbControllerX.encodeSQLDate(DateTime.Now));
+                                    sqlList.Add(field.nameLc, DbController.encodeSQLDate(DateTime.Now));
                                     break;
                                 }
                             case "contentcontrolid": {
@@ -309,21 +309,21 @@ namespace Contensive.Processor {
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                                                    sqlList.Add(field.nameLc, DbControllerX.encodeSQLBoolean(GenericController.encodeBoolean(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLBoolean(GenericController.encodeBoolean(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Currency:
                                             case CPContentBaseClass.FieldTypeIdEnum.Float: {
-                                                    sqlList.Add(field.nameLc, DbControllerX.encodeSQLNumber(GenericController.encodeNumber(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeNumber(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Integer:
                                             case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
-                                                    sqlList.Add(field.nameLc, DbControllerX.encodeSQLNumber(GenericController.encodeInteger(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLNumber(GenericController.encodeInteger(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                                                    sqlList.Add(field.nameLc, DbControllerX.encodeSQLDate(GenericController.encodeDate(field.defaultValue)));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLDate(GenericController.encodeDate(field.defaultValue)));
                                                     break;
                                                 }
                                             case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
@@ -367,7 +367,7 @@ namespace Contensive.Processor {
 
                                                     string pathfilename = FileController.getVirtualTableFieldUnixPath(metaData.tableName, field.nameLc) + GenericController.getGUIDNaked() + ".bin";
                                                     core.cdnFiles.saveFile(pathfilename, field.defaultValue);
-                                                    sqlList.Add(field.nameLc, DbControllerX.encodeSQLText(pathfilename));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLText(pathfilename));
                                                     renameContentFields = true;
                                                     break;
                                                 }
@@ -375,7 +375,7 @@ namespace Contensive.Processor {
                                                     //
                                                     // else text
                                                     //
-                                                    sqlList.Add(field.nameLc, DbControllerX.encodeSQLText(field.defaultValue));
+                                                    sqlList.Add(field.nameLc, DbController.encodeSQLText(field.defaultValue));
                                                     break;
                                                 }
                                         }
@@ -386,7 +386,7 @@ namespace Contensive.Processor {
                     }
                 }
                 //
-                using (var db = new DbControllerX(core, metaData.dataSourceName)) {
+                using (var db = new DbController(core, metaData.dataSourceName)) {
                     init();
                     dt = db.insert(metaData.tableName, sqlList, userId);
                     this.readable = true;
@@ -430,7 +430,7 @@ namespace Contensive.Processor {
                 }
                 return ok();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -522,7 +522,7 @@ namespace Contensive.Processor {
                 this.writeCache = new Dictionary<string, string>();
                 this.readCacheRowPtr += 1;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -542,7 +542,7 @@ namespace Contensive.Processor {
                 this.writeCache = new Dictionary<string, string>();
                 this.readCacheRowPtr = 0;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -601,7 +601,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnValue;
@@ -618,7 +618,7 @@ namespace Contensive.Processor {
                 this.fieldPointer = 0;
                 return getNextFieldName();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -637,7 +637,7 @@ namespace Contensive.Processor {
                 }
                 return "";
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -653,7 +653,7 @@ namespace Contensive.Processor {
                 if (ok() && this.createdWithMetaData && !string.IsNullOrEmpty(this.contentMeta.name)) { return this.contentMeta.fields[fieldName.ToLowerInvariant()].fieldTypeId; }
                 return 0;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -674,7 +674,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnResult;
@@ -690,7 +690,7 @@ namespace Contensive.Processor {
                 if (ok()) { return string.Join(",", this.fieldNames); }
                 return string.Empty;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -707,7 +707,7 @@ namespace Contensive.Processor {
                 if (!ok()) { throw new ArgumentException("dataset is not valid"); }
                 return GenericController.isInDelimitedString(getSelectFieldList(), fieldName, ",");
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -830,7 +830,7 @@ namespace Contensive.Processor {
                 }
                 return returnFilename;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -877,7 +877,7 @@ namespace Contensive.Processor {
                 }
                 this.writeCache.Add(fieldName.ToLowerInvariant(), filename);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -914,7 +914,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -933,7 +933,7 @@ namespace Contensive.Processor {
                 // -- normal open
                 return this.isOpen && (this.readCacheRowPtr >= 0) && (this.readCacheRowPtr < this.readCacheRowCnt);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -948,7 +948,7 @@ namespace Contensive.Processor {
                 if (!ok()) { throw new ArgumentException("the dataset is not valid"); }
                 return this.sqlSource;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -982,7 +982,7 @@ namespace Contensive.Processor {
                         string DbTable = MetadataController.getContentTablename(core, ContentName);
                         string sql = "Select " + field.manyToManyRuleSecondaryField + " from " + DbTable + " where " + field.manyToManyRulePrimaryField + "=" + RecordId;
                         using DataTable dtResult = core.db.executeQuery(sql);
-                        if (DbControllerX.isDataTableOk(dtResult)) {
+                        if (DbController.isDataTableOk(dtResult)) {
                             foreach (DataRow dr in dtResult.Rows) {
                                 result.Append("," + dr[0].ToString());
                             }
@@ -1022,7 +1022,7 @@ namespace Contensive.Processor {
                                     //
                                     // -- First try Lookup Content
                                     using var cs = new CsModel(core);
-                                    if (cs.open(LookupContentName, "ID=" + DbControllerX.encodeSQLNumber(encodeInteger(rawData)), "", true, 0, "name", 1)) {
+                                    if (cs.open(LookupContentName, "ID=" + DbController.encodeSQLNumber(encodeInteger(rawData)), "", true, 0, "name", 1)) {
                                         return cs.getText("name");
                                     }
                                 }
@@ -1064,7 +1064,7 @@ namespace Contensive.Processor {
                             // -- this code treates the rawData is a filename. If not valid file log error and continue
                             if (string.IsNullOrWhiteSpace(rawData)) { return string.Empty; }
                             if (!core.cdnFiles.isValidPathFilename(rawData)) {
-                                LogControllerX.logError(core, new ArgumentException($"cs.getText error, file-content type but data not valid filename [{rawData}]"));
+                                LogController.logError(core, new ArgumentException($"cs.getText error, file-content type but data not valid filename [{rawData}]"));
                                 return string.Empty;
                             }
                             return core.cdnFiles.readFileText(GenericController.encodeText(rawData));
@@ -1102,7 +1102,7 @@ namespace Contensive.Processor {
                         }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1210,7 +1210,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1320,7 +1320,7 @@ namespace Contensive.Processor {
                 if (!ok()) { throw new ArgumentException("dataset is not valid"); }
                 this.writeCache.Clear();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1336,16 +1336,16 @@ namespace Contensive.Processor {
                 if (!ok()) { return; }
                 if (this.writeCache.Count == 0) { return; }
                 if (contentMeta == null) {
-                    Controllers.LogControllerX.logTrace(core, "save, contentMeta NULL, sqlSource [" + sqlSource + "]");
+                    Controllers.LogController.logTrace(core, "save, contentMeta NULL, sqlSource [" + sqlSource + "]");
                 } else {
-                    Controllers.LogControllerX.logTrace(core, "save, enter, contentMeta.name [" + contentMeta.name + "], contentMeta.tableName [" + contentMeta.tableName + "], contentMeta.dataSourceName [" + contentMeta.dataSourceName + "], asyncSave [" + asyncSave + "], blockClearCache [" + blockClearCache + "]");
+                    Controllers.LogController.logTrace(core, "save, enter, contentMeta.name [" + contentMeta.name + "], contentMeta.tableName [" + contentMeta.tableName + "], contentMeta.dataSourceName [" + contentMeta.dataSourceName + "], asyncSave [" + asyncSave + "], blockClearCache [" + blockClearCache + "]");
                 }
                 //
                 if (!(this.createdWithMetaData)) { throw new ArgumentException("The dataset cannot be updated because it was created with a query and not a content table."); }
                 if (this.contentMeta == null) { throw new ArgumentException("The dataset cannot be updated because it was not created from a valid content table."); }
                 //
                 // -- create the Db controller instance
-                using (var db = new DbControllerX(core, this.contentMeta.dataSourceName)) {
+                using (var db = new DbController(core, this.contentMeta.dataSourceName)) {
                     string sqlUpdate = "";
                     DateTime sqlModifiedDate = core.dateTimeNowMockable;
                     int sqlModifiedBy = this.userId;
@@ -1399,7 +1399,7 @@ namespace Contensive.Processor {
                                         if (string.IsNullOrWhiteSpace(encodeText(writeCacheValue))) {
                                             SQLSetPair = fieldName + "=null";
                                         } else {
-                                            SQLSetPair = fieldName + "=" + DbControllerX.encodeSQLNumber(encodeInteger(writeCacheValue));
+                                            SQLSetPair = fieldName + "=" + DbController.encodeSQLNumber(encodeInteger(writeCacheValue));
                                         }
                                         break;
                                     }
@@ -1410,16 +1410,16 @@ namespace Contensive.Processor {
                                         if (string.IsNullOrWhiteSpace(encodeText(writeCacheValue))) {
                                             SQLSetPair = fieldName + "=null";
                                         } else {
-                                            SQLSetPair = fieldName + "=" + DbControllerX.encodeSQLNumber(encodeNumber(writeCacheValue));
+                                            SQLSetPair = fieldName + "=" + DbController.encodeSQLNumber(encodeNumber(writeCacheValue));
                                         }
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Boolean: {
-                                        SQLSetPair = fieldName + "=" + DbControllerX.encodeSQLBoolean(encodeBoolean(writeCacheValue));
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLBoolean(encodeBoolean(writeCacheValue));
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Date: {
-                                        SQLSetPair = fieldName + "=" + DbControllerX.encodeSQLDate(encodeDate(writeCacheValue));
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLDate(encodeDate(writeCacheValue));
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Text: {
@@ -1430,7 +1430,7 @@ namespace Contensive.Processor {
                                         if (field.scramble) {
                                             Copy = textScramble(core, Copy);
                                         }
-                                        SQLSetPair = fieldName + "=" + DbControllerX.encodeSQLText(Copy);
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLText(Copy);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.Link:
@@ -1447,13 +1447,13 @@ namespace Contensive.Processor {
                                         if (filename.Length > 255) {
                                             filename = filename.left(255);
                                         }
-                                        SQLSetPair = fieldName + "=" + DbControllerX.encodeSQLText(filename);
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLText(filename);
                                         break;
                                     }
                                 case CPContentBaseClass.FieldTypeIdEnum.LongText:
                                 case CPContentBaseClass.FieldTypeIdEnum.HTML:
                                 case CPContentBaseClass.FieldTypeIdEnum.HTMLCode: {
-                                        SQLSetPair = fieldName + "=" + DbControllerX.encodeSQLText(GenericController.encodeText(writeCacheValue));
+                                        SQLSetPair = fieldName + "=" + DbController.encodeSQLText(GenericController.encodeText(writeCacheValue));
                                         break;
                                     }
                                 default: {
@@ -1520,8 +1520,8 @@ namespace Contensive.Processor {
                             // ----- Authorable Fields Updated in non-Authoring Mode, set Live Record Modified
                             //
                             sqlUpdate = sqlUpdate
-                                + ",modifiedDate=" + DbControllerX.encodeSQLDate(sqlModifiedDate)
-                                + ",modifiedBy=" + DbControllerX.encodeSQLNumber(sqlModifiedBy);
+                                + ",modifiedDate=" + DbController.encodeSQLDate(sqlModifiedDate)
+                                + ",modifiedBy=" + DbController.encodeSQLNumber(sqlModifiedBy);
                         }
                     }
                     //
@@ -1536,12 +1536,12 @@ namespace Contensive.Processor {
                         //
                         // -- unique violation
                         if (dtRecords.Rows.Count > 0) {
-                            LogControllerX.logError(core, new GenericException("Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]"));
+                            LogController.logError(core, new GenericException("Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]"));
                             return;
                         }
                     }
                     //
-                    Controllers.LogControllerX.logTrace(core, "save, FieldFoundCount [" + FieldFoundCount + "], sqlUpdate [" + sqlUpdate + "]");
+                    Controllers.LogController.logTrace(core, "save, FieldFoundCount [" + FieldFoundCount + "], sqlUpdate [" + sqlUpdate + "]");
                     //
                     if (FieldFoundCount > 0) {
                         //
@@ -1569,10 +1569,10 @@ namespace Contensive.Processor {
                     }
                 }
                 //
-                logger.Trace(LogControllerX.processLogMessage(core, "save, exit", false));
+                logger.Trace(LogController.processLogMessage(core, "save, exit", false));
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1608,7 +1608,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1627,7 +1627,7 @@ namespace Contensive.Processor {
         public bool openGroupUsers(List<string> groupList, string sqlCriteria, string sortFieldList, bool activeOnly, int pageSize, int pageNumber) {
             try {
                 if (groupList.Count > 0) {
-                    pageSize = (pageSize > 0) ? pageSize : DbControllerX.sqlPageSizeDefault;
+                    pageSize = (pageSize > 0) ? pageSize : DbController.sqlPageSizeDefault;
                     pageNumber = (pageNumber > 0) ? pageNumber : 1;
                     //
                     // Build Inner Query to select distinct id needed
@@ -1643,7 +1643,7 @@ namespace Contensive.Processor {
                     string subQuery = "";
                     foreach (string groupName in groupList) {
                         if (!string.IsNullOrEmpty(groupName.Trim())) {
-                            subQuery += "or(ccGroups.Name=" + DbControllerX.encodeSQLText(groupName.Trim()) + ")";
+                            subQuery += "or(ccGroups.Name=" + DbController.encodeSQLText(groupName.Trim()) + ")";
                         }
                     }
                     if (!string.IsNullOrEmpty(subQuery)) {
@@ -1651,7 +1651,7 @@ namespace Contensive.Processor {
                     }
                     //
                     // -- group expiration
-                    SQL += "and((ccMemberRules.DateExpires Is Null)or(ccMemberRules.DateExpires>" + DbControllerX.encodeSQLDate(core.dateTimeNowMockable) + "))";
+                    SQL += "and((ccMemberRules.DateExpires Is Null)or(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
                     //
                     // Build outer query to get all ccmember fields
                     // Must do this inner/outer because if the table has a text field, it can not be in the distinct
@@ -1666,7 +1666,7 @@ namespace Contensive.Processor {
                     return openSql(SQL, "Default", pageSize, pageNumber);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return false;
@@ -1691,7 +1691,7 @@ namespace Contensive.Processor {
         /// <param name="activeOnly"></param>
         /// <returns></returns>
         public bool openGroupUsers(List<string> groupList, string sqlCriteria, string sortFieldList, bool activeOnly)
-            => openGroupUsers(groupList, sqlCriteria, sortFieldList, activeOnly, DbControllerX.sqlPageSizeDefault, 1);
+            => openGroupUsers(groupList, sqlCriteria, sortFieldList, activeOnly, DbController.sqlPageSizeDefault, 1);
         /// <summary>
         /// Opens a csv_ContentSet with the Members of a group
         /// </summary>
@@ -1700,7 +1700,7 @@ namespace Contensive.Processor {
         /// <param name="sortFieldList"></param>
         /// <returns></returns>
         public bool openGroupUsers(List<string> groupList, string sqlCriteria, string sortFieldList)
-            => openGroupUsers(groupList, sqlCriteria, sortFieldList, true, DbControllerX.sqlPageSizeDefault, 1);
+            => openGroupUsers(groupList, sqlCriteria, sortFieldList, true, DbController.sqlPageSizeDefault, 1);
         /// <summary>
         /// Opens a csv_ContentSet with the Members of a group
         /// </summary>
@@ -1708,14 +1708,14 @@ namespace Contensive.Processor {
         /// <param name="sqlCriteria"></param>
         /// <returns></returns>
         public bool openGroupUsers(List<string> groupList, string sqlCriteria)
-            => openGroupUsers(groupList, sqlCriteria, "", true, DbControllerX.sqlPageSizeDefault, 1);
+            => openGroupUsers(groupList, sqlCriteria, "", true, DbController.sqlPageSizeDefault, 1);
         /// <summary>
         /// Opens a csv_ContentSet with the Members of a group
         /// </summary>
         /// <param name="groupList"></param>
         /// <returns></returns>
         public bool openGroupUsers(List<string> groupList)
-            => openGroupUsers(groupList, "", "", true, DbControllerX.sqlPageSizeDefault, 1);
+            => openGroupUsers(groupList, "", "", true, DbController.sqlPageSizeDefault, 1);
         //
         //========================================================================
         /// <summary>
@@ -1746,7 +1746,7 @@ namespace Contensive.Processor {
             try {
                 return this.contentName;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1764,7 +1764,7 @@ namespace Contensive.Processor {
                 if (!string.IsNullOrEmpty(ContentName)) { return AdminUIController.getRecordEditAndCutAnchorTag(core, ContentName, getInteger("ID"), allowCut, getText("Name")); }
                 return string.Empty;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1865,7 +1865,7 @@ namespace Contensive.Processor {
                     result.Append(AddLink);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
             }
             return result.ToString();
         }
@@ -1885,7 +1885,7 @@ namespace Contensive.Processor {
             try {
                 return openContentWatchList("What's New", SortFieldList);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1904,7 +1904,7 @@ namespace Contensive.Processor {
         public bool openContentWatchList(string listName, string sortFieldList, bool activeOnly, int pageSize, int pageNumber) {
             try {
                 sortFieldList = encodeEmpty(sortFieldList, "dateadded").Trim(' ');
-                pageSize = (pageSize > 0) ? pageSize : DbControllerX.sqlPageSizeDefault;
+                pageSize = (pageSize > 0) ? pageSize : DbController.sqlPageSizeDefault;
                 pageNumber = (pageNumber > 0) ? pageNumber : 1;
                 //
                 // ----- Add tablename to the front of SortFieldList fieldnames
@@ -1933,20 +1933,20 @@ namespace Contensive.Processor {
                     + " FROM (ccContentWatchLists"
                     + " LEFT JOIN ccContentWatchListRules ON ccContentWatchLists.Id = ccContentWatchListRules.ContentWatchListID)"
                     + " LEFT JOIN ccContentWatch ON ccContentWatchListRules.ContentWatchId = ccContentWatch.ID"
-                    + " WHERE (((ccContentWatchLists.Name)=" + DbControllerX.encodeSQLText(listName) + ")"
+                    + " WHERE (((ccContentWatchLists.Name)=" + DbController.encodeSQLText(listName) + ")"
                     + "AND ((ccContentWatchLists.Active)<>0)"
                     + "AND ((ccContentWatchListRules.Active)<>0)"
                     + "AND ((ccContentWatch.Active)<>0)"
                     + "AND (ccContentWatch.Link is not null)"
                     + "AND (ccContentWatch.LinkLabel is not null)"
-                    + "AND ((ccContentWatch.WhatsNewDateExpires is null)or(ccContentWatch.WhatsNewDateExpires>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + "))"
+                    + "AND ((ccContentWatch.WhatsNewDateExpires is null)or(ccContentWatch.WhatsNewDateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
                     + ")"
                     + " ORDER BY " + sortFieldList + ";";
                 if (!openSql(SQL, "", pageSize, pageNumber)) {
                     //
                     // Check if listname exists
                     //
-                    if (!this.open("Content Watch Lists", "name=" + DbControllerX.encodeSQLText(listName), "ID", false, 0, "ID")) {
+                    if (!this.open("Content Watch Lists", "name=" + DbController.encodeSQLText(listName), "ID", false, 0, "ID")) {
                         this.close();
                         if (this.insert("Content Watch Lists")) {
                             this.set("name", listName);
@@ -1957,7 +1957,7 @@ namespace Contensive.Processor {
                 }
                 return true;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1966,13 +1966,13 @@ namespace Contensive.Processor {
             => openContentWatchList(listName, sortFieldList, activeOnly, pageSize, 1);
         //
         public bool openContentWatchList(string listName, string sortFieldList, bool activeOnly)
-            => openContentWatchList(listName, sortFieldList, activeOnly, DbControllerX.sqlPageSizeDefault, 1);
+            => openContentWatchList(listName, sortFieldList, activeOnly, DbController.sqlPageSizeDefault, 1);
         //
         public bool openContentWatchList(string listName, string sortFieldList)
-            => openContentWatchList(listName, sortFieldList, true, DbControllerX.sqlPageSizeDefault, 1);
+            => openContentWatchList(listName, sortFieldList, true, DbController.sqlPageSizeDefault, 1);
         //
         public bool openContentWatchList(string listName)
-            => openContentWatchList(listName, "", true, DbControllerX.sqlPageSizeDefault, 1);
+            => openContentWatchList(listName, "", true, DbController.sqlPageSizeDefault, 1);
         //
         //========================================================================
         /// <summary>
@@ -1983,7 +1983,7 @@ namespace Contensive.Processor {
         /// <param name="selectFieldList"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, int recordId, string selectFieldList) {
-            return open(contentName, "(ID=" + DbControllerX.encodeSQLNumber(recordId) + ")", "", false, userId, selectFieldList);
+            return open(contentName, "(ID=" + DbController.encodeSQLNumber(recordId) + ")", "", false, userId, selectFieldList);
         }
         /// <summary>
         /// Open dataset for the record specified
@@ -1992,7 +1992,7 @@ namespace Contensive.Processor {
         /// <param name="recordId"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, int recordId) {
-            return open(contentName, "(ID=" + DbControllerX.encodeSQLNumber(recordId) + ")", "", false, userId);
+            return open(contentName, "(ID=" + DbController.encodeSQLNumber(recordId) + ")", "", false, userId);
         }
         //
         //========================================================================
@@ -2004,7 +2004,7 @@ namespace Contensive.Processor {
         /// <param name="selectFieldList"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, string recordGuid, string selectFieldList) {
-            return open(contentName, "(ccguid=" + DbControllerX.encodeSQLText(recordGuid) + ")", "", false, userId, selectFieldList);
+            return open(contentName, "(ccguid=" + DbController.encodeSQLText(recordGuid) + ")", "", false, userId, selectFieldList);
         }
         /// <summary>
         /// Open dataset for the record specified
@@ -2013,7 +2013,7 @@ namespace Contensive.Processor {
         /// <param name="recordGuid"></param>
         /// <returns></returns>
         public bool openRecord(string contentName, string recordGuid) {
-            return open(contentName, "(ID=" + DbControllerX.encodeSQLText(recordGuid) + ")", "", false, userId);
+            return open(contentName, "(ID=" + DbController.encodeSQLText(recordGuid) + ")", "", false, userId);
         }
         //
         //========================================================================
@@ -2044,7 +2044,7 @@ namespace Contensive.Processor {
                 if (string.IsNullOrWhiteSpace(contentMetaData.tableName)) { throw (new GenericException("Content metadata [" + contentName + "] does not reference a valid table")); }
                 sqlOrderBy = GenericController.encodeEmpty(sqlOrderBy, contentMetaData.defaultSortMethod);
                 sqlSelectFieldList = GenericController.encodeEmpty(sqlSelectFieldList, contentMetaData.selectCommaList);
-                pageSize = (pageSize > 0) ? pageSize : DbControllerX.sqlPageSizeDefault;
+                pageSize = (pageSize > 0) ? pageSize : DbController.sqlPageSizeDefault;
                 pageNumber = (pageNumber > 0) ? pageNumber : 1;
                 //
                 // -- verify the sortfields are in this table
@@ -2101,32 +2101,32 @@ namespace Contensive.Processor {
                     return true;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return result;
         }
         //
         public bool open(string contentName, string sqlCriteria, string sqlOrderBy, bool activeOnly, int memberId)
-            => open(contentName, sqlCriteria, sqlOrderBy, activeOnly, memberId, "", DbControllerX.sqlPageSizeDefault, 1);
+            => open(contentName, sqlCriteria, sqlOrderBy, activeOnly, memberId, "", DbController.sqlPageSizeDefault, 1);
         //
         public bool open(string contentName, string sqlCriteria, string sqlOrderBy, bool activeOnly, int memberId, string sqlSelectFieldList, int PageSize)
             => open(contentName, sqlCriteria, sqlOrderBy, activeOnly, memberId, sqlSelectFieldList, PageSize, 1);
         //
         public bool open(string contentName, string sqlCriteria, string sqlOrderBy, bool activeOnly, int memberId, string sqlSelectFieldList)
-            => open(contentName, sqlCriteria, sqlOrderBy, activeOnly, memberId, sqlSelectFieldList, DbControllerX.sqlPageSizeDefault, 1);
+            => open(contentName, sqlCriteria, sqlOrderBy, activeOnly, memberId, sqlSelectFieldList, DbController.sqlPageSizeDefault, 1);
         //
         public bool open(string contentName, string sqlCriteria, string sqlOrderBy, bool activeOnly)
-            => open(contentName, sqlCriteria, sqlOrderBy, activeOnly, 0, "", DbControllerX.sqlPageSizeDefault, 1);
+            => open(contentName, sqlCriteria, sqlOrderBy, activeOnly, 0, "", DbController.sqlPageSizeDefault, 1);
         //
         public bool open(string contentName, string sqlCriteria, string sqlOrderBy)
-            => open(contentName, sqlCriteria, sqlOrderBy, true, 0, "", DbControllerX.sqlPageSizeDefault, 1);
+            => open(contentName, sqlCriteria, sqlOrderBy, true, 0, "", DbController.sqlPageSizeDefault, 1);
         //
         public bool open(string contentName, string sqlCriteria)
-            => open(contentName, sqlCriteria, "", true, 0, "", DbControllerX.sqlPageSizeDefault, 1);
+            => open(contentName, sqlCriteria, "", true, 0, "", DbController.sqlPageSizeDefault, 1);
         //
         public bool open(string contentName)
-            => open(contentName, "", "", true, 0, "", DbControllerX.sqlPageSizeDefault, 1);
+            => open(contentName, "", "", true, 0, "", DbController.sqlPageSizeDefault, 1);
         //
         //========================================================================
         /// <summary>
@@ -2144,25 +2144,25 @@ namespace Contensive.Processor {
                 this.createdWithMetaData = false;
                 this.contentName = "";
                 this.sqlSource = sql;
-                pageSize = (pageSize > 0) ? pageSize : DbControllerX.sqlPageSizeDefault;
+                pageSize = (pageSize > 0) ? pageSize : DbController.sqlPageSizeDefault;
                 pageNumber = (pageNumber > 0) ? pageNumber : 1;
                 //
-                using (var db = new DbControllerX(core, dataSourceName)) {
-                    this.dt = core.db.executeQuery(sql, DbControllerX.getStartRecord(pageSize, pageNumber), pageSize);
+                using (var db = new DbController(core, dataSourceName)) {
+                    this.dt = core.db.executeQuery(sql, DbController.getStartRecord(pageSize, pageNumber), pageSize);
                 }
                 initAfterOpen();
                 return ok();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
         //
         public bool openSql(string sql, string dataSourceName, int pageSize) => openSql(sql, dataSourceName, pageSize, 1);
         //
-        public bool openSql(string sql, string dataSourceName) => openSql(sql, dataSourceName, DbControllerX.sqlPageSizeDefault, 1);
+        public bool openSql(string sql, string dataSourceName) => openSql(sql, dataSourceName, DbController.sqlPageSizeDefault, 1);
         //
-        public bool openSql(string sql) => openSql(sql, "default", DbControllerX.sqlPageSizeDefault, 1);
+        public bool openSql(string sql) => openSql(sql, "default", DbController.sqlPageSizeDefault, 1);
         //
         //========================================================================
         // Dispose

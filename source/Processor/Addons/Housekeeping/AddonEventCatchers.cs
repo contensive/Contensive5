@@ -19,8 +19,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, ccAddonEventCatchers");
                 //
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }
@@ -40,8 +40,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // -- addon trigger rules
                 env.core.db.executeNonQuery("delete from ccAddonEventCatchers from ccAddonEventCatchers c left join ccAggregateFunctions a on a.id=c.addonId where a.id is null");
             } catch (Exception ex) {
-                LogControllerX.logError(env.core, ex);
-                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogController.logError(env.core, ex);
+                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }

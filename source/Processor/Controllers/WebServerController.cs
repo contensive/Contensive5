@@ -358,11 +358,11 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string requestCookie(string cookieName) {
             //
-            LogControllerX.log(core, "WebServerController.requestCookie, key [" + cookieName + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+            LogController.log(core, "WebServerController.requestCookie, key [" + cookieName + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
             //
             if (!requestCookies.ContainsKey(cookieName)) { return ""; }
             //
-            LogControllerX.log(core, "WebServerController.requestCookie, ContainsKey true, value [" + requestCookies[cookieName].value + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+            LogController.log(core, "WebServerController.requestCookie, ContainsKey true, value [" + requestCookies[cookieName].value + "]", BaseClasses.CPLogBaseClass.LogLevel.Trace);
             //
             return requestCookies[cookieName].value;
         }
@@ -413,7 +413,7 @@ namespace Contensive.Processor.Controllers {
                 string arg = "";
                 string stdOut = runProcess(core, cmd, arg, true);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -430,12 +430,12 @@ namespace Contensive.Processor.Controllers {
                     if (appPool.Name.ToLowerInvariant() == core.appConfig.name.ToLowerInvariant()) {
                         if (appPool.Start() == ObjectState.Started) {
                             appPool.Recycle();
-                            LogControllerX.logInfo(core, "iis recycle, app [" + core.appConfig.name + "]");
+                            LogController.logInfo(core, "iis recycle, app [" + core.appConfig.name + "]");
                         }
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -448,7 +448,7 @@ namespace Contensive.Processor.Controllers {
         public bool initHttpContext() {
             try {
                 //
-                LogControllerX.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 // -- must have valid context, else non http 
                 if (httpContext == null) { return false; }
@@ -516,7 +516,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- request domain not in domains table  and not in app.config - use the wildcard domain
                     testDomain = DomainModel.getWildcardDomain(core.cpParent);
-                    LogControllerX.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
+                    LogController.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
                 }
                 core.domain = testDomain;
                 //
@@ -559,13 +559,13 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                LogControllerX.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
             } catch (Exception ex) {
                 //
-                LogControllerX.logShortLine("initHttpContext, exception", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogController.logShortLine("initHttpContext, exception", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return core.doc.continueProcessing;
@@ -584,22 +584,22 @@ namespace Contensive.Processor.Controllers {
         public void addResponseCookie(string name, string value, DateTime dateExpires, string domain, string path, bool secure) {
             try {
                 //
-                LogControllerX.log(core, "addResponseCookie enter, cookie name [" + name + "],  value [" + value + "]", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                LogController.log(core, "addResponseCookie enter, cookie name [" + name + "],  value [" + value + "]", BaseClasses.CPLogBaseClass.LogLevel.Debug);
                 //
                 if ((httpContext == null) || (httpContext.Response == null) || (httpContext.Response.cookies == null)) {
                     if (httpContext == null) {
-                        LogControllerX.log(core, "addResponseCookie exit, httpContext null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                        LogController.log(core, "addResponseCookie exit, httpContext null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
                         return;
                     }
                     if (httpContext.Response == null) {
-                        LogControllerX.log(core, "addResponseCookie exit, httpContext.Response null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                        LogController.log(core, "addResponseCookie exit, httpContext.Response null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
                         return;
                     }
                     if (httpContext.Response.cookies == null) {
-                        LogControllerX.log(core, "addResponseCookie exit, httpContext.Response.cookies null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                        LogController.log(core, "addResponseCookie exit, httpContext.Response.cookies null", BaseClasses.CPLogBaseClass.LogLevel.Debug);
                         return;
                     }
-                    LogControllerX.log(core, "addResponseCookie exit, httpContext.Response null hood but nothing null?", BaseClasses.CPLogBaseClass.LogLevel.Debug);
+                    LogController.log(core, "addResponseCookie exit, httpContext.Response null hood but nothing null?", BaseClasses.CPLogBaseClass.LogLevel.Debug);
                     return;
                 }
                 //
@@ -623,7 +623,7 @@ namespace Contensive.Processor.Controllers {
                     httpContext.Response.cookies[name].secure = secure;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -744,7 +744,7 @@ namespace Contensive.Processor.Controllers {
                     value = HeaderValue
                 });
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -789,22 +789,22 @@ namespace Contensive.Processor.Controllers {
                     //
                     // Link is not valid
                     //
-                    LogControllerX.logError(core, new GenericException("Redirect was called with a blank Link. Redirect Reason [" + redirectReason + "]"));
+                    LogController.logError(core, new GenericException("Redirect was called with a blank Link. Redirect Reason [" + redirectReason + "]"));
                     return result;
                 }
                 if ((requestForm.Count == 0) && (requestUrlSource == fullLink)) {
                     //
                     // Loop redirect error, throw trap and block redirect to prevent loop
                     //
-                    LogControllerX.logError(core, new GenericException("Redirect was called to the same URL, requestUrl is [" + requestUrl + "], requestUrlSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
+                    LogController.logError(core, new GenericException("Redirect was called to the same URL, requestUrl is [" + requestUrl + "], requestUrlSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
                     return result;
                 }
-                LogControllerX.setSiteWarning(core, "Page Not Found Redirect", "Page Not Found Redirect [" + requestUrlSource + "]", isPageNotFound);
+                LogController.setSiteWarning(core, "Page Not Found Redirect", "Page Not Found Redirect [" + requestUrlSource + "]", isPageNotFound);
                 if (isPageNotFound) {
                     //
                     // -- Do a PageNotFound then redirect
                     if (!string.IsNullOrEmpty(shortLink)) {
-                        string sql = "Update ccContentWatch set link=null where link=" + DbControllerX.encodeSQLText(shortLink);
+                        string sql = "Update ccContentWatch set link=null where link=" + DbController.encodeSQLText(shortLink);
                         core.db.executeNonQuery(sql);
                     }
                     //
@@ -822,7 +822,7 @@ namespace Contensive.Processor.Controllers {
                     core.doc.continueProcessing = false;
                     return result;
                 }
-                LogControllerX.logInfo(core, "Redirect called, from [" + requestUrl + "], to [" + nonEncodedLink + "], reason [" + redirectReason + "]");
+                LogController.logInfo(core, "Redirect called, from [" + requestUrl + "], to [" + nonEncodedLink + "], reason [" + redirectReason + "]");
                 if (allowDebugMessage && core.doc.visitPropertyAllowDebugging) {
                     //
                     // -- Verbose - do not redirect, just print the link
@@ -839,7 +839,7 @@ namespace Contensive.Processor.Controllers {
                 core.doc.continueProcessing = false;
                 return result;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -953,7 +953,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -984,7 +984,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return "";
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1010,7 +1010,7 @@ namespace Contensive.Processor.Controllers {
                 verifyAppPool(appName);
                 verifyWebsite(appName, DomainName, rootPublicFilesPath, appName);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "verifySite");
+                LogController.logError(core, ex, "verifySite");
                 throw;
             }
         }
@@ -1041,7 +1041,7 @@ namespace Contensive.Processor.Controllers {
                 appPool.ManagedPipelineMode = ManagedPipelineMode.Integrated;
                 serverManager.CommitChanges();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "verifyAppPool");
+                LogController.logError(core, ex, "verifyAppPool");
                 throw;
             }
         }
@@ -1062,7 +1062,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "verifyWebsite");
+                LogController.logError(core, ex, "verifyWebsite");
                 throw;
             }
         }
@@ -1110,7 +1110,7 @@ namespace Contensive.Processor.Controllers {
                 // -- commit any changes
                 iisManager.CommitChanges();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "verifyWebsite");
+                LogController.logError(core, ex, "verifyWebsite");
                 throw;
             }
         }
@@ -1141,7 +1141,7 @@ namespace Contensive.Processor.Controllers {
                     iisManager.CommitChanges();
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "verifyWebsite_Binding");
+                LogController.logError(core, ex, "verifyWebsite_Binding");
                 throw;
             }
         }
@@ -1174,7 +1174,7 @@ namespace Contensive.Processor.Controllers {
                     iisManager.CommitChanges();
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -1225,7 +1225,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex, "verifyWebsite_VirtualDirectory");
+                LogController.logError(core, ex, "verifyWebsite_VirtualDirectory");
                 throw;
             }
         }

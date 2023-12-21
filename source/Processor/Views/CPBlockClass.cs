@@ -24,11 +24,11 @@ namespace Contensive.Processor {
                 try {
                     htmlDoc = new Controllers.HtmlController(cp.core);
                 } catch (Exception ex) {
-                    LogControllerX.logError( cp.core,ex, "Error creating object Controllers.htmlToolsController during cp.block constructor.");
+                    LogController.logError( cp.core,ex, "Error creating object Controllers.htmlToolsController during cp.block constructor.");
                     throw;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -39,7 +39,7 @@ namespace Contensive.Processor {
             try {
                 accum = htmlString;
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -50,7 +50,7 @@ namespace Contensive.Processor {
             try {
                 accum += htmlString;
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -61,7 +61,7 @@ namespace Contensive.Processor {
             try {
                 accum = "";
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -113,7 +113,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -141,7 +141,7 @@ namespace Contensive.Processor {
                     accum = copy.copy;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -155,7 +155,7 @@ namespace Contensive.Processor {
                     accum = cp.WwwFiles.Read(wwwFileName);
                 }
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -183,7 +183,7 @@ namespace Contensive.Processor {
                     accum = layout.layout.content;
                 }
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -194,7 +194,7 @@ namespace Contensive.Processor {
             try {
                 accum = htmlString + accum;
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -205,7 +205,7 @@ namespace Contensive.Processor {
             try {
                 accum = HtmlParseStaticController.setInner(cp.core, accum, findSelector, htmlString);
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }
@@ -216,7 +216,7 @@ namespace Contensive.Processor {
             try {
                 accum = HtmlParseStaticController.setOuter(cp.core, accum, findSelector, htmlString);
             } catch (Exception ex) {
-                LogControllerX.logError( cp.core,ex);
+                LogController.logError( cp.core,ex);
                 throw;
             }
         }

@@ -57,17 +57,17 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- send email
                     try {
-                        LogControllerX.logInfo(core, "sendSmtp, to [" + email.toAddress + "], from [" + email.fromAddress + "], subject [" + email.subject + "], BounceAddress [" + email.bounceAddress + "], replyTo [" + email.replyToAddress + "]");
+                        LogController.logInfo(core, "sendSmtp, to [" + email.toAddress + "], from [" + email.fromAddress + "], subject [" + email.subject + "], BounceAddress [" + email.bounceAddress + "], replyTo [" + email.replyToAddress + "]");
                         client.Send(mailMessage);
                         status = true;
                     } catch (Exception ex) {
                         returnErrorMessage = "There was an smtp error sending the email";
-                        Logger.Error(ex, LogControllerX.processLogMessage(core, returnErrorMessage, true));
+                        Logger.Error(ex, LogController.processLogMessage(core, returnErrorMessage, true));
                     }
                 }
             } catch (Exception ex) {
                 string errMsg = "There was an error configuring the smtp server";
-                Logger.Error(ex, LogControllerX.processLogMessage(core, errMsg, true));
+                Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                 throw;
             }
             return status;

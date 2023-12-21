@@ -68,10 +68,10 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 result.AppendLine("ok, database connection passed.");
                 //
                 // -- test for taskscheduler not running
-                if (DbBaseModel.createList<AddonModel>(core.cpParent, "(ProcessNextRun<" + DbControllerX.encodeSQLDate( core.dateTimeNowMockable.AddHours(-1)) + ")").Count > 0) {
+                if (DbBaseModel.createList<AddonModel>(core.cpParent, "(ProcessNextRun<" + DbController.encodeSQLDate( core.dateTimeNowMockable.AddHours(-1)) + ")").Count > 0) {
                     return "ERROR, there are process addons unexecuted for over 1 hour. TaskScheduler may not be enabled, or no server is running the Contensive Task Service.";
                 }
-                if (DbBaseModel.createList<TaskModel>(core.cpParent, "(dateCompleted is null)and(dateStarted<" + DbControllerX.encodeSQLDate(core.dateTimeNowMockable.AddHours(-1)) + ")").Count > 0) {
+                if (DbBaseModel.createList<TaskModel>(core.cpParent, "(dateCompleted is null)and(dateStarted<" + DbController.encodeSQLDate(core.dateTimeNowMockable.AddHours(-1)) + ")").Count > 0) {
                     return "ERROR, there are tasks that have been executing for over 1 hour. The Task Runner Server may have stopped.";
                 }
                 result.AppendLine("ok, taskscheduler running.");

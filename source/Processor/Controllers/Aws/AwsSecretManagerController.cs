@@ -14,7 +14,7 @@ namespace Contensive.Processor.Controllers.Aws {
         public static void setSecret(CoreController core, Amazon.RegionEndpoint region, string secretName, string secretValue) {
             try {
                 //
-                LogControllerX.logDebug(core, "AwsSecretManagerController.setSecret()");
+                LogController.logDebug(core, "AwsSecretManagerController.setSecret()");
                 //
                 CreateSecretRequest secretRequest = new() {
                     Name = secretName,
@@ -24,7 +24,7 @@ namespace Contensive.Processor.Controllers.Aws {
                 CreateSecretResponse result = client.CreateSecret(secretRequest);
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -38,7 +38,7 @@ namespace Contensive.Processor.Controllers.Aws {
         public static string getSecret(CoreController core, Amazon.RegionEndpoint region, string secretName) {
             try {
                 //
-                LogControllerX.logDebug(core, $"AwsSecretManagerController.getSecret( region [{region}], secretName [{secretName}])");
+                LogController.logDebug(core, $"AwsSecretManagerController.getSecret( region [{region}], secretName [{secretName}])");
                 //
                 GetSecretValueRequest secretRequest = new() {
                     SecretId = secretName
@@ -47,7 +47,7 @@ namespace Contensive.Processor.Controllers.Aws {
                 GetSecretValueResponse result = client.GetSecretValue(secretRequest);
                 return result.SecretString;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }

@@ -10,7 +10,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Manage the sql server (adding catalogs, etc.)
     /// </summary>
-    public class DbServerControllerX : IDisposable {
+    public class DbServerController : IDisposable {
         //
         // objects passed in that are not disposed
         //
@@ -22,11 +22,11 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <remarks></remarks>
-        public DbServerControllerX(CoreController core) {
+        public DbServerController(CoreController core) {
             try {
                 this.core = core;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -65,7 +65,7 @@ namespace Contensive.Processor.Controllers {
                     returnConnString += "Encrypt=yes;";
                 }
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnConnString;
@@ -80,7 +80,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 executeQuery("create database " + catalogName);
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -98,7 +98,7 @@ namespace Contensive.Processor.Controllers {
                 executeQuery("DROP DATABASE " + catalogName);
                 return;
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
         }
@@ -120,7 +120,7 @@ namespace Contensive.Processor.Controllers {
                 returnOk = (dt.Rows.Count > 0);
                 dt.Dispose();
             } catch (Exception ex) {
-                LogControllerX.logError(core, ex);
+                LogController.logError(core, ex);
                 throw;
             }
             return returnOk;
@@ -161,7 +161,7 @@ namespace Contensive.Processor.Controllers {
                 adptSQL.Fill(returnData);
             } catch (Exception ex) {
                 var newEx = new GenericException("Exception [" + ex.Message + "] executing master sql [" + sql + "]", ex);
-                LogControllerX.logError(core, newEx);
+                LogController.logError(core, newEx);
             }
             return returnData;
         }
@@ -203,7 +203,7 @@ namespace Contensive.Processor.Controllers {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        ~DbServerControllerX() {
+        ~DbServerController() {
             Dispose(false);
 
 

@@ -10,31 +10,31 @@ namespace Contensive.Services {
             InitializeComponent();
         }
         private TaskSchedulerController taskScheduler = null;
-        private TaskRunnerControllerX taskRunner = null;
+        private TaskRunnerController taskRunner = null;
         //
         protected override void OnStart(string[] args) {
             using (CPClass cp = new CPClass()) {
                 try {
                     //
-                    LogControllerX.logTrace(cp.core, "Services.OnStart enter");
+                    LogController.logTrace(cp.core, "Services.OnStart enter");
                     //
                     if (true) {
                         //
                         // -- start scheduler
-                        LogControllerX.logTrace(cp.core, "Services.OnStart, call taskScheduler.startTimerEvents");
+                        LogController.logTrace(cp.core, "Services.OnStart, call taskScheduler.startTimerEvents");
                         taskScheduler = new TaskSchedulerController();
                         taskScheduler.startTimerEvents();
                     }
                     if (true) {
                         //
                         // -- start runner
-                        LogControllerX.logTrace(cp.core, "Services.OnStart, call taskRunner.startTimerEvents");
-                        taskRunner = new TaskRunnerControllerX();
+                        LogController.logTrace(cp.core, "Services.OnStart, call taskRunner.startTimerEvents");
+                        taskRunner = new TaskRunnerController();
                         taskRunner.startTimerEvents();
                     }
-                    LogControllerX.logTrace(cp.core, "Services.OnStart exit");
+                    LogController.logTrace(cp.core, "Services.OnStart exit");
                 } catch (Exception ex) {
-                    LogControllerX.logError(cp.core, ex, "taskService.OnStart Exception");
+                    LogController.logError(cp.core, ex, "taskService.OnStart Exception");
                 }
             }
         }
@@ -43,13 +43,13 @@ namespace Contensive.Services {
             using (CPClass cp = new CPClass()) {
                 try {
                     //
-                    LogControllerX.logTrace(cp.core, "Services.OnStop enter");
+                    LogController.logTrace(cp.core, "Services.OnStop enter");
                     //
                     if (taskScheduler != null) {
                         //
                         // stop taskscheduler
                         //
-                        LogControllerX.logTrace(cp.core, "Services.OnStop, call taskScheduler.stopTimerEvents");
+                        LogController.logTrace(cp.core, "Services.OnStop, call taskScheduler.stopTimerEvents");
                         taskScheduler.stopTimerEvents();
                         taskScheduler.Dispose();
                     }
@@ -57,13 +57,13 @@ namespace Contensive.Services {
                         //
                         // stop taskrunner
                         //
-                        LogControllerX.logTrace(cp.core, "Services.OnStop, call taskRunner.stopTimerEvents");
+                        LogController.logTrace(cp.core, "Services.OnStop, call taskRunner.stopTimerEvents");
                         taskRunner.stopTimerEvents();
                         taskRunner.Dispose();
                     }
-                    LogControllerX.logTrace(cp.core, "Services.OnStop exit");
+                    LogController.logTrace(cp.core, "Services.OnStop exit");
                 } catch (Exception ex) {
-                    LogControllerX.logError(cp.core, ex, "taskService.OnStop Exception");
+                    LogController.logError(cp.core, ex, "taskService.OnStop Exception");
                 }
             }
         }

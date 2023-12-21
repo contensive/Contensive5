@@ -39,7 +39,7 @@ namespace Contensive.Processor.Addons.Primitives {
                                 log.save(core.cpParent);
                             }
                             //
-                            LogControllerX.addActivityCompleted(core, "File download", logName + ", downloaded file [" + file.name + "]", core.session.user.id, (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit);
+                            LogController.addActivityCompleted(core, "File download", logName + ", downloaded file [" + file.name + "]", core.session.user.id, (int)ActivityLogModel.ActivityLogTypeEnum.OnlineVisit);
                             //
                             // -- and go
                             string link = GenericController.getCdnFileLink(core, file.filename);

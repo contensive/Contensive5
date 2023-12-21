@@ -17,7 +17,7 @@ namespace Contensive.Processor.Addons.ExportSql {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
-                LogControllerX.logTrace(core, "ExportCsvClass.execute, sql [" + cp.Doc.GetText("sql") + "]");
+                LogController.logTrace(core, "ExportCsvClass.execute, sql [" + cp.Doc.GetText("sql") + "]");
                 //
                 string dataSource = cp.Doc.GetText("datasource");
                 using ( var db = cp.DbNew(dataSource)) {
@@ -27,7 +27,7 @@ namespace Contensive.Processor.Addons.ExportSql {
                     using (DataTable dt = db.ExecuteQuery(cp.Doc.GetText("sql"))) {
                         string result = dt.toCsv();
                         //
-                        LogControllerX.logTrace(core, "ExportCsvClass.execute, result [" + (result.Length>100 ? result.Substring(0,100) : result) + "]");
+                        LogController.logTrace(core, "ExportCsvClass.execute, result [" + (result.Length>100 ? result.Substring(0,100) : result) + "]");
                         //
                         return result;
                     }
