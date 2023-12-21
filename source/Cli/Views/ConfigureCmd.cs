@@ -229,7 +229,7 @@ namespace Contensive.CLI {
                                     Console.WriteLine("\n\nThe Sql Server password cannot be blank.");
                                 }
                             } while (string.IsNullOrEmpty(core.secrets.defaultDataSourcePassword));
-                            Contensive.Processor.Controllers.DbServerController test = new(core);
+                            Contensive.Processor.Controllers.DbServerControllerX test = new(core);
                             Console.Write("Testing database connection...");
                             dbErrorMessage = test.getSqlOpenErrors();
                             if (!string.IsNullOrEmpty(dbErrorMessage)) {

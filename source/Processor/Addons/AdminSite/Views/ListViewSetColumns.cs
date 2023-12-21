@@ -80,7 +80,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         //
                                         // -- copy the field
                                         using var CSSource = new CsModel(core);
-                                        if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")")) {
+                                        if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbControllerX.encodeSQLText(SourceName) + ")")) {
                                             using var CSTarget = new CsModel(core);
                                             if (CSTarget.insert("Content Fields")) {
                                                 CSSource.copyRecord(CSTarget);
@@ -102,7 +102,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 SourceContentId = field.contentId;
                                 SourceName = field.nameLc;
                                 using var CSSource = new CsModel(core);
-                                if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbController.encodeSQLText(SourceName) + ")")) {
+                                if (CSSource.open("Content Fields", "(ContentID=" + SourceContentId + ")and(Name=" + DbControllerX.encodeSQLText(SourceName) + ")")) {
                                     using var CSTarget = new CsModel(core);
                                     if (CSTarget.insert("Content Fields")) {
                                         CSSource.copyRecord(CSTarget);
@@ -459,7 +459,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 result = AdminUIController.getToolForm(core, Content, ButtonOK + "," + ButtonReset);
                 core.html.addTitle(Title, "admin list view set columns");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }

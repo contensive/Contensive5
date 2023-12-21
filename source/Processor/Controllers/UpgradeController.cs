@@ -59,7 +59,7 @@ namespace Contensive.Processor.Controllers {
                     core.db.deleteTableField(table.name, fieldName, true);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

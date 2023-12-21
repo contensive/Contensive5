@@ -30,7 +30,7 @@ namespace Contensive.Processor.Controllers {
         public static void upgrade(CoreController core, bool isNewBuild, bool repair) {
             try {
                 //
-                LogController.logInfo(core, "AppBuilderController.upgrade, app [" + core.appConfig.name + "], repair [" + repair + "]");
+                LogControllerX.logInfo(core, "AppBuilderController.upgrade, app [" + core.appConfig.name + "], repair [" + repair + "]");
                 string logPrefix = "upgrade[" + core.appConfig.name + "]";
                 //
                 {
@@ -51,18 +51,18 @@ namespace Contensive.Processor.Controllers {
                     // 20180217 - move this before base collection because during install it runs addons (like _oninstall)
                     // if anything is needed that is not there yet, I need to build a list of adds to run after the app goes to app status ok
                     // -- Update server config file
-                    LogController.logInfo(core, logPrefix + ", update configuration file");
+                    LogControllerX.logInfo(core, logPrefix + ", update configuration file");
                     if (!core.appConfig.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
                         core.appConfig.appStatus = AppConfigModel.AppStatusEnum.ok;
                         core.serverConfig.save(core);
                     }
                     //
                     // verify current database meets minimum field requirements (before installing base collection)
-                    LogController.logInfo(core, logPrefix + ", verify existing database fields meet requirements");
+                    LogControllerX.logInfo(core, logPrefix + ", verify existing database fields meet requirements");
                     verifySqlfieldCompatibility(core, logPrefix);
                     //
                     // -- verify base collection
-                    LogController.logInfo(core, logPrefix + ", install base collection");
+                    LogControllerX.logInfo(core, logPrefix + ", install base collection");
                     var context = new Stack<string>();
                     context.Push("NewAppController.upgrade call installbasecollection, repair [" + repair + "]");
                     var collectionsInstalledList = new List<string>();
@@ -78,22 +78,22 @@ namespace Contensive.Processor.Controllers {
                     if (isNewBuild) {
                         //
                         // -- verify iis configuration
-                        LogController.logInfo(core, logPrefix + ", verify iis configuration");
+                        LogControllerX.logInfo(core, logPrefix + ", verify iis configuration");
                         core.webServer.verifySite(core.appConfig.name, primaryDomain, core.appConfig.localWwwPath);
                         //
                         // -- verify root developer
-                        LogController.logInfo(core, logPrefix + ", verify developer user");
+                        LogControllerX.logInfo(core, logPrefix + ", verify developer user");
                         var root = DbBaseModel.create<PersonModel>(core.cpParent, defaultRootUserGuid);
                         if (root == null) {
-                            LogController.logInfo(core, logPrefix + ", root user guid not found, test for root username");
+                            LogControllerX.logInfo(core, logPrefix + ", root user guid not found, test for root username");
                             var rootList = DbBaseModel.createList<PersonModel>(core.cpParent, "(username='root')");
                             if (rootList.Count > 0) {
-                                LogController.logInfo(core, logPrefix + ", root username found");
+                                LogControllerX.logInfo(core, logPrefix + ", root username found");
                                 root = rootList.First();
                             }
                         }
                         if (root == null) {
-                            LogController.logInfo(core, logPrefix + ", root user not found, adding root/contensive");
+                            LogControllerX.logInfo(core, logPrefix + ", root user not found, adding root/contensive");
                             root = DbBaseModel.addEmpty<PersonModel>(core.cpParent);
                             root.name = defaultRootUserName;
                             root.firstName = defaultRootUserName;
@@ -105,15 +105,15 @@ namespace Contensive.Processor.Controllers {
                                 root.save(core.cpParent);
                             } catch (Exception ex) {
                                 string errMsg = "error prevented root user update";
-                                logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
+                                logger.Error(ex, LogControllerX.processLogMessage(core, errMsg, true));
                             }
                         }
                         //
                         // -- verify site managers group
-                        LogController.logInfo(core, logPrefix + ", verify site managers groups");
+                        LogControllerX.logInfo(core, logPrefix + ", verify site managers groups");
                         var group = DbBaseModel.create<GroupModel>(core.cpParent, defaultSiteManagerGuid);
                         if (group == null) {
-                            LogController.logInfo(core, logPrefix + ", verify site manager group");
+                            LogControllerX.logInfo(core, logPrefix + ", verify site manager group");
                             group = DbBaseModel.addEmpty<GroupModel>(core.cpParent);
                             group.name = defaultSiteManagerName;
                             group.caption = defaultSiteManagerName;
@@ -122,7 +122,7 @@ namespace Contensive.Processor.Controllers {
                             try {
                                 group.save(core.cpParent);
                             } catch (Exception ex) {
-                                LogController.logInfo(core, logPrefix + ", error creating site managers group. " + ex);
+                                LogControllerX.logInfo(core, logPrefix + ", error creating site managers group. " + ex);
                             }
                         }
                         if ((root != null) && (group != null)) {
@@ -144,10 +144,10 @@ namespace Contensive.Processor.Controllers {
                     if (versionIsOlder(DataBuildVersion, CoreController.codeVersion())) {
                         //
                         // -- data updates
-                        LogController.logInfo(core, logPrefix + ", run database conversions, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
+                        LogControllerX.logInfo(core, logPrefix + ", run database conversions, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
                         BuildDataMigrationController.migrateData(core, DataBuildVersion, logPrefix);
                     }
-                    LogController.logInfo(core, logPrefix + ", verify records required");
+                    LogControllerX.logInfo(core, logPrefix + ", verify records required");
                     //
                     //  menus are created in ccBase.xml, this just checks for dups
                     verifyAdminMenus(core, DataBuildVersion);
@@ -161,7 +161,7 @@ namespace Contensive.Processor.Controllers {
                     // -- verify many to many triggers for all many-to-many fields
                     verifyManyManyDeleteTriggers(core);
                     //
-                    LogController.logInfo(core, logPrefix + ", verify Site Properties");
+                    LogControllerX.logInfo(core, logPrefix + ", verify Site Properties");
                     if (repair) {
                         //
                         // -- repair, set values to what the default system uses
@@ -246,16 +246,16 @@ namespace Contensive.Processor.Controllers {
                     //
                     // ----- internal upgrade complete
                     {
-                        LogController.logInfo(core, logPrefix + ", internal upgrade complete, set Buildversion to " + CoreController.codeVersion());
+                        LogControllerX.logInfo(core, logPrefix + ", internal upgrade complete, set Buildversion to " + CoreController.codeVersion());
                         core.siteProperties.setProperty("BuildVersion", CoreController.codeVersion());
                     }
                     //
                     // ----- Explain, put up a link and exit without continuing
                     core.cache.invalidateAll();
-                    LogController.logInfo(core, logPrefix + ", Upgrade Complete");
+                    LogControllerX.logInfo(core, logPrefix + ", Upgrade Complete");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -277,7 +277,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -294,10 +294,10 @@ namespace Contensive.Processor.Controllers {
         private static void verifyRecord(CoreController core, string contentName, string name, string sqlName, string sqlValue) {
             try {
                 var metaData = ContentMetadataModel.createByUniqueName(core, contentName);
-                DataTable dt = core.db.executeQuery("SELECT ID FROM " + metaData.tableName + " WHERE NAME=" + DbController.encodeSQLText(name) + ";");
+                DataTable dt = core.db.executeQuery("SELECT ID FROM " + metaData.tableName + " WHERE NAME=" + DbControllerX.encodeSQLText(name) + ";");
                 if (dt.Rows.Count == 0) {
                     string sql1 = "insert into " + metaData.tableName + " (active,name";
-                    string sql2 = ") values (1," + DbController.encodeSQLText(name);
+                    string sql2 = ") values (1," + DbControllerX.encodeSQLText(name);
                     string sql3 = ")";
                     if (!string.IsNullOrEmpty(sqlName)) {
                         sql1 += "," + sqlName;
@@ -306,7 +306,7 @@ namespace Contensive.Processor.Controllers {
                     core.db.executeNonQuery(sql1 + sql2 + sql3);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -350,7 +350,7 @@ namespace Contensive.Processor.Controllers {
                             hint = "4";
                             if ((column.DATA_TYPE.ToLowerInvariant() == "datetime2") && (column.DATETIME_PRECISION < 3)) {
                                 //
-                                LogController.logInfo(core, logPrefix + ", verifySqlFieldCompatibility, conversion required, table [" + table.name + "], field [" + column.COLUMN_NAME + "], reason [datetime precision too low (" + column.DATETIME_PRECISION.ToString() + ")]");
+                                LogControllerX.logInfo(core, logPrefix + ", verifySqlFieldCompatibility, conversion required, table [" + table.name + "], field [" + column.COLUMN_NAME + "], reason [datetime precision too low (" + column.DATETIME_PRECISION.ToString() + ")]");
                                 //
                                 // these can be very long queries for big tables 
                                 int sqlTimeout = core.cpParent.Db.SQLTimeout;
@@ -362,7 +362,7 @@ namespace Contensive.Processor.Controllers {
                                 foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
                                     if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
                                         //
-                                        LogController.logInfo(core, logPrefix + ", verifySqlFieldCompatibility, index [" + index.index_name + "] must be dropped");
+                                        LogControllerX.logInfo(core, logPrefix + ", verifySqlFieldCompatibility, index [" + index.index_name + "] must be dropped");
                                         core.db.deleteIndex(table.name, index.index_name);
                                         indexDropped = true;
                                         //
@@ -384,7 +384,7 @@ namespace Contensive.Processor.Controllers {
                                     foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
                                         if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
                                             //
-                                            LogController.logInfo(core, logPrefix + ", verifySqlFieldCompatibility, recreating index [" + index.index_name + "]");
+                                            LogControllerX.logInfo(core, logPrefix + ", verifySqlFieldCompatibility, recreating index [" + index.index_name + "]");
                                             core.db.createSQLIndex(table.name, index.index_name, index.index_keys);
                                             //
                                         }
@@ -396,7 +396,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "hint [" + hint + "]");
+                LogControllerX.logError(core, ex, "hint [" + hint + "]");
                 throw;
             }
         }
@@ -416,7 +416,7 @@ namespace Contensive.Processor.Controllers {
                 verifyRecord(core, "Languages", "French", "HTTP_Accept_Language", "'fr'");
                 verifyRecord(core, "Languages", "Any", "HTTP_Accept_Language", "'any'");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -436,7 +436,7 @@ namespace Contensive.Processor.Controllers {
                     verifyRecord(core, "Library Folders", "Downloads");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -521,7 +521,7 @@ namespace Contensive.Processor.Controllers {
                     verifyRecord(core, "Library File Types", "Default", "IsFlash", "0");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -545,7 +545,7 @@ namespace Contensive.Processor.Controllers {
                 state.countryId = CountryID;
                 state.save(core.cpParent, 0, true);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -619,7 +619,7 @@ namespace Contensive.Processor.Controllers {
                 verifyState(core, "West Virginia", "WV", 0.0D, CountryID);
                 verifyState(core, "Wyoming", "WY", 0.0D, CountryID);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -634,7 +634,7 @@ namespace Contensive.Processor.Controllers {
         private static void verifyCountry(CoreController core, string name, string abbreviation) {
             try {
                 using (var csData = new CsModel(core)) {
-                    csData.open("Countries", "name=" + DbController.encodeSQLText(name));
+                    csData.open("Countries", "name=" + DbControllerX.encodeSQLText(name));
                     if (!csData.ok()) {
                         csData.close();
                         csData.insert("Countries");
@@ -654,7 +654,7 @@ namespace Contensive.Processor.Controllers {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -679,7 +679,7 @@ namespace Contensive.Processor.Controllers {
 
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -694,10 +694,10 @@ namespace Contensive.Processor.Controllers {
                 appendUpgradeLogAddStep(core, core.appConfig.name, "VerifyDefaultGroups", "Verify Default Groups");
                 //
                 int groupId = GroupController.add(core, "Site Managers");
-                string sql = "Update ccContent Set EditorGroupID=" + DbController.encodeSQLNumber(groupId) + " where EditorGroupID is null;";
+                string sql = "Update ccContent Set EditorGroupID=" + DbControllerX.encodeSQLNumber(groupId) + " where EditorGroupID is null;";
                 core.db.executeNonQuery(sql);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -713,7 +713,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 {
                     logPrefix += "-verifyBasicTables";
-                    LogController.logInfo(core, logPrefix + ", enter");
+                    LogControllerX.logInfo(core, logPrefix + ", enter");
                     //
                     core.db.createSQLTable("ccDataSources");
                     core.db.createSQLTableField("ccDataSources", "username", CPContentBaseClass.FieldTypeIdEnum.Text);
@@ -803,7 +803,7 @@ namespace Contensive.Processor.Controllers {
                     core.db.createSQLTable("ccFieldTypes");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -811,13 +811,13 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         //
         private static void verifyManyManyDeleteTriggers(CoreController core) {
-            LogController.logDebug(core, "verifyManyManyDeleteTriggers not implemented");
+            LogControllerX.logDebug(core, "verifyManyManyDeleteTriggers not implemented");
         }
         //
         //====================================================================================================
         //  todo deprecate 
         private static void appendUpgradeLog(CoreController core, string appName, string Method, string Message) {
-            LogController.logInfo(core, "app [" + appName + "], Method [" + Method + "], Message [" + Message + "]");
+            LogControllerX.logInfo(core, "app [" + appName + "], Method [" + Method + "], Message [" + Message + "]");
         }
         //
         //====================================================================================================
@@ -845,7 +845,7 @@ namespace Contensive.Processor.Controllers {
                     addon ??= ((!string.IsNullOrWhiteSpace(menu.addonName)) ? core.cacheRuntime.addonCache.createByUniqueName(menu.addonName) : null);
                     int parentId = verifyNavigatorEntry_getParentIdFromNameSpace(core, menu.menuNameSpace);
                     int contentId = ContentMetadataModel.getContentId(core, menu.contentName);
-                    string listCriteria = "(name=" + DbController.encodeSQLText(menu.name) + ")and(Parentid=" + parentId + ")";
+                    string listCriteria = "(name=" + DbControllerX.encodeSQLText(menu.name) + ")and(Parentid=" + parentId + ")";
                     List<NavigatorEntryModel> entryList = DbBaseModel.createList<NavigatorEntryModel>(core.cpParent, listCriteria, "id");
                     NavigatorEntryModel entry = null;
                     if (entryList.Count == 0) {
@@ -875,7 +875,7 @@ namespace Contensive.Processor.Controllers {
                     returnEntry = entry.id;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return returnEntry;
@@ -895,7 +895,7 @@ namespace Contensive.Processor.Controllers {
                     foreach (var parent in parents) {
                         string recordName = parent.Trim();
                         if (!string.IsNullOrEmpty(recordName)) {
-                            string Criteria = "(name=" + DbController.encodeSQLText(recordName) + ")";
+                            string Criteria = "(name=" + DbControllerX.encodeSQLText(recordName) + ")";
                             if (parentRecordId == 0) {
                                 Criteria += "and((Parentid is null)or(Parentid=0))";
                             } else {
@@ -922,7 +922,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return parentRecordId;
@@ -936,10 +936,10 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 NameValueCollection sqlList = new() {
-                    { "orderbyclause", DbController.encodeSQLText(OrderByCriteria) }
+                    { "orderbyclause", DbControllerX.encodeSQLText(OrderByCriteria) }
                 };
                 //
-                using (DataTable dt = core.db.openTable("ccSortMethods", "name=" + DbController.encodeSQLText(Name), "id", "id", 1, 1)) {
+                using (DataTable dt = core.db.openTable("ccSortMethods", "name=" + DbControllerX.encodeSQLText(Name), "id", "id", 1, 1)) {
                     if (dt.Rows.Count > 0) {
                         //
                         // update sort method
@@ -953,7 +953,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -963,7 +963,7 @@ namespace Contensive.Processor.Controllers {
         public static void verifySortMethods(CoreController core) {
             try {
                 //
-                LogController.logInfo(core, "Verify Sort Records");
+                LogControllerX.logInfo(core, "Verify Sort Records");
                 //
                 verifySortMethod(core, "By Name", "Name");
                 verifySortMethod(core, "By Alpha Sort Order Field", "SortOrder");
@@ -971,7 +971,7 @@ namespace Contensive.Processor.Controllers {
                 verifySortMethod(core, "By Date Reverse", "DateAdded Desc");
                 verifySortMethod(core, "By Alpha Sort Order Then Oldest First", "SortOrder,ID");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -986,7 +986,7 @@ namespace Contensive.Processor.Controllers {
                 int RowsFound = 0;
                 bool TableBad = false;
                 using (DataTable rs = core.db.executeQuery("Select ID from ccFieldTypes order by id")) {
-                    if (!DbController.isDataTableOk(rs)) {
+                    if (!DbControllerX.isDataTableOk(rs)) {
                         //
                         // problem
                         //
@@ -1027,7 +1027,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Problem
                         //
-                        LogController.logError(core, new GenericException("Content Field Types content definition was not found"));
+                        LogControllerX.logError(core, new GenericException("Content Field Types content definition was not found"));
                     } else {
                         while (RowsNeeded > 0) {
                             core.db.executeNonQuery("Insert into ccFieldTypes (active,contentcontrolid)values(1," + CId + ")");
@@ -1063,7 +1063,7 @@ namespace Contensive.Processor.Controllers {
                 core.db.executeNonQuery("Update ccFieldTypes Set active=1,Name='HTML Code' where ID=23;");
                 core.db.executeNonQuery("Update ccFieldTypes Set active=1,Name='HTML Code File' where ID=24;");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

@@ -53,7 +53,7 @@ namespace Contensive.Processor.Addons.Tools {
                     Stream.add(SpanClassAdminSmall);
                     Stream.add("<P>Creating content [" + ContentName + "] on table [" + TableName + "] on Datasource [" + datasource.name + "].</P>");
                     if ((!string.IsNullOrEmpty(ContentName)) && (!string.IsNullOrEmpty(TableName)) && (!string.IsNullOrEmpty(datasource.name))) {
-                        using (var db = new DbController(core, datasource.name)) {
+                        using (var db = new DbControllerX(core, datasource.name)) {
                             //
                             // -- create table and core fields, plus core indexes. Then during maintenance, remove unused indexes
                             db.createSQLTable(TableName);
@@ -66,13 +66,13 @@ namespace Contensive.Processor.Addons.Tools {
                         if (ParentNavId != 0) {
                             ParentNavId = 0;
                             using (var csSrc = new CsModel(core)) {
-                                if (csSrc.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbController.encodeSQLText("Advanced") + ")and(parentid=" + ParentNavId + ")")) {
+                                if (csSrc.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbControllerX.encodeSQLText("Advanced") + ")and(parentid=" + ParentNavId + ")")) {
                                     ParentNavId = csSrc.getInteger("ID");
                                 }
                             }
                             if (ParentNavId != 0) {
                                 using (var csDest = new CsModel(core)) {
-                                    csDest.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbController.encodeSQLText(ContentName) + ")and(parentid=" + NavId + ")");
+                                    csDest.open(NavigatorEntryModel.tableMetadata.contentName, "(name=" + DbControllerX.encodeSQLText(ContentName) + ")and(parentid=" + NavId + ")");
                                     if (!csDest.ok()) {
                                         csDest.close();
                                         csDest.insert(NavigatorEntryModel.tableMetadata.contentName);
@@ -105,7 +105,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add("</SPAN>");
                 result = AdminUIController.getToolBody(core, Caption, ButtonList, "", false, false, Description, "", 10, Stream.text);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }

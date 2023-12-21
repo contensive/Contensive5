@@ -28,7 +28,7 @@ namespace Contensive.CLI {
                 case "run":
                     //
                     // -- run the taskscheduler in the console
-                    using (var taskRunner = new TaskRunnerController()) {
+                    using (var taskRunner = new TaskRunnerControllerX()) {
                         Console.WriteLine("Beginning command line taskRunner. Hit any key to exit");
                         taskRunner.startTimerEvents();
                         object keyStroke = Console.ReadKey();

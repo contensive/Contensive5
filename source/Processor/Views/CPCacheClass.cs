@@ -320,7 +320,7 @@ namespace Contensive.Processor {
                     cp.core.cache.storeObject(key, Value, invalidationDate, invalidatationKeyHashList);
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
                 throw;
             }
         }

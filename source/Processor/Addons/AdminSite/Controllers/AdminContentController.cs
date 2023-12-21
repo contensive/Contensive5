@@ -100,11 +100,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 string buildVersion = cp.core.siteProperties.dataBuildVersion;
                 if (versionIsOlder(buildVersion, cp.Version)) {
-                    LogController.logWarn(cp.core, new GenericException("Application code (v" + cp.Version + ") is newer than database (v" + buildVersion + "). Upgrade the database with the command line 'cc.exe -a " + cp.core.appConfig.name + " -u'."));
+                    LogControllerX.logWarn(cp.core, new GenericException("Application code (v" + cp.Version + ") is newer than database (v" + buildVersion + "). Upgrade the database with the command line 'cc.exe -a " + cp.core.appConfig.name + " -u'."));
                 }
                 //
                 if (versionIsOlder(cp.Version, buildVersion)) {
-                    LogController.logWarn(cp.core, new GenericException("Database upgrade (v" + buildVersion + ") is newer than the Application code (v" + cp.Version + "). Upgrade the website code."));
+                    LogControllerX.logWarn(cp.core, new GenericException("Database upgrade (v" + buildVersion + ") is newer than the Application code (v" + cp.Version + "). Upgrade the website code."));
                 }
                 //
                 // Process SourceForm/Button into Action/Form, and process
@@ -444,7 +444,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- create the body html
                 return content;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
                 throw;
             }
         }
@@ -514,7 +514,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
                 throw;
             }
             return addonHelp;
@@ -578,7 +578,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + "</div>";
                 return returnHelp;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
                 throw;
             }
         }
@@ -595,7 +595,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             try {
                 bool Found = false;
                 using (var csData = new CsModel(cp.core)) {
-                    string SQL = "select h.HelpDefault,h.HelpCustom from ccfieldhelp h left join ccfields f on f.id=h.fieldid where f.contentid=" + ContentID + " and f.name=" + DbController.encodeSQLText(FieldName);
+                    string SQL = "select h.HelpDefault,h.HelpCustom from ccfieldhelp h left join ccfields f on f.id=h.fieldid where f.contentid=" + ContentID + " and f.name=" + DbControllerX.encodeSQLText(FieldName);
                     csData.openSql(SQL);
                     if (csData.ok()) {
                         Found = true;
@@ -618,7 +618,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
                 throw;
             }
         }

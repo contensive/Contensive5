@@ -252,7 +252,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 result = HtmlController.form(core, Stream.text, "", "adminForm");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return result;
@@ -420,7 +420,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 int TestInteger = core.docProperties.getInteger("indexGoToPage");
                 if (TestInteger > 0) {
                     IndexConfig.pageNumber = TestInteger;
-                    IndexConfig.recordTop = DbController.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
+                    IndexConfig.recordTop = DbControllerX.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
                 } else {
                     //
                     // ----- Read filter changes and First/Next/Previous from form
@@ -432,13 +432,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 // Force to first page
                                 IndexConfig.pageNumber = 1;
-                                IndexConfig.recordTop = DbController.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
+                                IndexConfig.recordTop = DbControllerX.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
                                 break;
                             case ButtonNext:
                                 //
                                 // Go to next page
                                 IndexConfig.pageNumber += 1;
-                                IndexConfig.recordTop = DbController.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
+                                IndexConfig.recordTop = DbControllerX.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
                                 break;
                             case ButtonPrevious:
                                 //
@@ -447,13 +447,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 if (IndexConfig.pageNumber <= 0) {
                                     IndexConfig.pageNumber = 1;
                                 }
-                                IndexConfig.recordTop = DbController.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
+                                IndexConfig.recordTop = DbControllerX.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
                                 break;
                             case ButtonFind:
                                 //
                                 // Find (change search criteria and go to first page)
                                 IndexConfig.pageNumber = 1;
-                                IndexConfig.recordTop = DbController.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
+                                IndexConfig.recordTop = DbControllerX.getStartRecord(IndexConfig.recordsPerPage, IndexConfig.pageNumber);
                                 ColumnCnt = core.docProperties.getInteger("ColumnCnt");
                                 if (ColumnCnt > 0) {
                                     int ColumnPtr = 0;
@@ -665,7 +665,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -806,7 +806,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     adminData.adminContent.id = adminData.adminContent.id;
                     int SubContentCnt = 0;
                     if (!string.IsNullOrEmpty(list)) {
-                        LogController.logInfo(core, "appendlog - adminContext.adminContext.content.contentControlCriteria=" + list);
+                        LogControllerX.logInfo(core, "appendlog - adminContext.adminContext.content.contentControlCriteria=" + list);
                         string[] ListSplit = list.Split('=');
                         int Cnt = ListSplit.GetUpperBound(0) + 1;
                         if (Cnt > 0) {
@@ -849,17 +849,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // Where Clause: edited today
                 if (IndexConfig.lastEditedToday) {
-                    sqlWhere.Append("AND(" + adminData.adminContent.tableName + ".ModifiedDate>=" + DbController.encodeSQLDate(core.doc.profileStartTime.Date) + ")");
+                    sqlWhere.Append("AND(" + adminData.adminContent.tableName + ".ModifiedDate>=" + DbControllerX.encodeSQLDate(core.doc.profileStartTime.Date) + ")");
                 }
                 //
                 // Where Clause: edited past week
                 if (IndexConfig.lastEditedPast7Days) {
-                    sqlWhere.Append("AND(" + adminData.adminContent.tableName + ".ModifiedDate>=" + DbController.encodeSQLDate(core.doc.profileStartTime.Date.AddDays(-7)) + ")");
+                    sqlWhere.Append("AND(" + adminData.adminContent.tableName + ".ModifiedDate>=" + DbControllerX.encodeSQLDate(core.doc.profileStartTime.Date.AddDays(-7)) + ")");
                 }
                 //
                 // Where Clause: edited past month
                 if (IndexConfig.lastEditedPast30Days) {
-                    sqlWhere.Append("AND(" + adminData.adminContent.tableName + ".ModifiedDate>=" + DbController.encodeSQLDate(core.doc.profileStartTime.Date.AddDays(-30)) + ")");
+                    sqlWhere.Append("AND(" + adminData.adminContent.tableName + ".ModifiedDate>=" + DbControllerX.encodeSQLDate(core.doc.profileStartTime.Date.AddDays(-30)) + ")");
                 }
                 //
                 // Where Clause: Where Pairs
@@ -871,7 +871,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // found it, add it in the sql
                             string sqlValue = adminData.wherePair[field.nameLc];
                             if ((field.fieldTypeId != CPContentBaseClass.FieldTypeIdEnum.Currency) && (field.fieldTypeId != CPContentClass.FieldTypeIdEnum.Float) && (field.fieldTypeId != CPContentClass.FieldTypeIdEnum.Integer) && (field.fieldTypeId != CPContentClass.FieldTypeIdEnum.Lookup)) {
-                                sqlValue = DbController.encodeSQLText(sqlValue);
+                                sqlValue = DbControllerX.encodeSQLText(sqlValue);
                             }
                             sqlWhere.Append("and(" + adminData.adminContent.tableName + "." + field.nameLc + "=" + sqlValue + ")");
                             break;
@@ -916,15 +916,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                             }
                                                         case (int)FindWordMatchEnum.MatchEquals:
                                                         case (int)FindWordMatchEnum.matchincludes: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbController.encodeSQLNumber(FindWordValueInteger) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbControllerX.encodeSQLNumber(FindWordValueInteger) + ")");
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.MatchGreaterThan: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + ">" + DbController.encodeSQLNumber(FindWordValueInteger) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + ">" + DbControllerX.encodeSQLNumber(FindWordValueInteger) + ")");
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.MatchLessThan: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<" + DbController.encodeSQLNumber(FindWordValueInteger) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<" + DbControllerX.encodeSQLNumber(FindWordValueInteger) + ")");
                                                                 break;
                                                             }
                                                         default:
@@ -949,17 +949,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.MatchGreaterThan: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + ">" + DbController.encodeSQLNumber(FindWordValueDouble) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + ">" + DbControllerX.encodeSQLNumber(FindWordValueDouble) + ")");
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.MatchLessThan: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<" + DbController.encodeSQLNumber(FindWordValueDouble) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<" + DbControllerX.encodeSQLNumber(FindWordValueDouble) + ")");
                                                                 break;
                                                             }
                                                         default: {
                                                                 // (int)FindWordMatchEnum.MatchEquals:
                                                                 // (int)FindWordMatchEnum.matchincludes:
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbController.encodeSQLNumber(FindWordValueDouble) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbControllerX.encodeSQLNumber(FindWordValueDouble) + ")");
                                                                 break;
                                                             }
                                                     }
@@ -998,15 +998,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.MatchGreaterThan: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + ">" + DbController.encodeSQLDate(findDate) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + ">" + DbControllerX.encodeSQLDate(findDate) + ")");
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.MatchLessThan: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<" + DbController.encodeSQLDate(findDate) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "<" + DbControllerX.encodeSQLDate(findDate) + ")");
                                                                 break;
                                                             }
                                                         default: {
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbController.encodeSQLDate(findDate) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbControllerX.encodeSQLDate(findDate) + ")");
                                                                 break;
                                                             }
                                                     }
@@ -1030,11 +1030,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                     break;
                                                                 }
                                                             case (int)FindWordMatchEnum.MatchEquals: {
-                                                                    sqlWhere.Append("AND(LookupTable" + FieldPtr + ".Name=" + DbController.encodeSQLText(FindWordValue) + ")");
+                                                                    sqlWhere.Append("AND(LookupTable" + FieldPtr + ".Name=" + DbControllerX.encodeSQLText(FindWordValue) + ")");
                                                                     break;
                                                                 }
                                                             case (int)FindWordMatchEnum.matchincludes: {
-                                                                    sqlWhere.Append("AND(LookupTable" + FieldPtr + ".Name LIKE " + DbController.encodeSQLText("%" + FindWordValue + "%") + ")");
+                                                                    sqlWhere.Append("AND(LookupTable" + FieldPtr + ".Name LIKE " + DbControllerX.encodeSQLText("%" + FindWordValue + "%") + ")");
                                                                     break;
                                                                 }
                                                             default:
@@ -1059,7 +1059,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                     //
                                                                     for (int LookupPtr = 0; LookupPtr <= lookups.GetUpperBound(0); LookupPtr++) {
                                                                         if (lookups[LookupPtr].Contains(FindWordValue.ToLower(CultureInfo.InvariantCulture))) {
-                                                                            LookupQuery = LookupQuery + "OR(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbController.encodeSQLNumber(LookupPtr + 1) + ")";
+                                                                            LookupQuery = LookupQuery + "OR(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbControllerX.encodeSQLNumber(LookupPtr + 1) + ")";
                                                                         }
                                                                     }
                                                                     if (!string.IsNullOrEmpty(LookupQuery)) {
@@ -1110,14 +1110,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.matchincludes: {
-                                                                FindWordValue = DbController.encodeSQLText(FindWordValue);
+                                                                FindWordValue = DbControllerX.encodeSQLText(FindWordValue);
                                                                 FindWordValue = FindWordValue.Substring(1, FindWordValue.Length - 2);
                                                                 sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + " LIKE '%" + FindWordValue + "%')");
                                                                 break;
                                                             }
                                                         default: {
                                                                 // FindWordMatchEnum.MatchEquals
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbController.encodeSQLText(FindWordValue) + ")");
+                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + "=" + DbControllerX.encodeSQLText(FindWordValue) + ")");
                                                                 break;
                                                             }
                                                     }
@@ -1159,7 +1159,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     orderByDelim = ",";
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -1353,7 +1353,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Sub Content Definitions
                 //
                 SubFilterList = "";
-                var contentList = ContentModel.createList<ContentModel>(core.cpParent, "(contenttableid in (select id from cctables where name=" + DbController.encodeSQLText(adminData.adminContent.tableName) + "))");
+                var contentList = ContentModel.createList<ContentModel>(core.cpParent, "(contenttableid in (select id from cctables where name=" + DbControllerX.encodeSQLText(adminData.adminContent.tableName) + "))");
                 string Caption = null;
                 if (contentList.Count > 1) {
                     foreach (var subContent in contentList) {
@@ -1464,7 +1464,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 returnContent = "<div style=\"padding-left:10px;padding-right:10px;\">" + returnContent + "</div>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return returnContent;

@@ -462,7 +462,7 @@ namespace Contensive.Processor.Models.Domain {
                 var groupByGuid = DbBaseModel.create<GroupModel>(core.cpParent, _memberSelectGroupName);
                 if ( groupByGuid == null ) {
                     core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
-                    LogController.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+                    LogControllerX.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
                     _memberSelectGroupId = 0;
                     return 0;
                 }
@@ -484,7 +484,7 @@ namespace Contensive.Processor.Models.Domain {
             }
             //
             // -- memberSelectGroupName was not valid
-            LogController.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+            LogControllerX.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
             core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
             _memberSelectGroupId = 0;
             return 0;
@@ -709,7 +709,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 contentMetadata.verifyContentField(core, field, true, logMsgContext);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -807,7 +807,7 @@ namespace Contensive.Processor.Models.Domain {
                         break;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex); // "Unexpected exception")
+                LogControllerX.logError(core, ex); // "Unexpected exception")
                 throw;
             }
             return returnFieldTypeName;
@@ -816,7 +816,7 @@ namespace Contensive.Processor.Models.Domain {
         public static string getDefaultValue(CoreController core, string contentName, string fieldName) {
             string defaultValue = "";
             int contentId = ContentMetadataModel.getContentId(core, contentName);
-            string SQL = "select defaultvalue from ccfields where name=" + DbController.encodeSQLText(fieldName) + " and contentid=(" + contentId + ")";
+            string SQL = "select defaultvalue from ccfields where name=" + DbControllerX.encodeSQLText(fieldName) + " and contentid=(" + contentId + ")";
             using (var csData = new CsModel(core)) {
                 csData.openSql(SQL);
                 if (csData.ok()) {

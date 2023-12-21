@@ -280,7 +280,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + DataTable_HdrRow + dataTableRows + DataTable_FindRow + "</table>";
                 return grid;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -412,7 +412,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 return HtmlController.encodeHtml(Stream.text);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

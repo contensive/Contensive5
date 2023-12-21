@@ -291,7 +291,7 @@ namespace Contensive.Processor {
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject) {
-            return LogController.addActivityCompletedVisit(cp.core, subject, subject);
+            return LogControllerX.addActivityCompletedVisit(cp.core, subject, subject);
         }
         //
         //====================================================================================================
@@ -303,7 +303,7 @@ namespace Contensive.Processor {
         /// <param name="userID"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject, string detailsText) {
-            return LogController.addActivityCompletedVisit(cp.core, subject, detailsText);
+            return LogControllerX.addActivityCompletedVisit(cp.core, subject, detailsText);
         }
         //
         //====================================================================================================
@@ -315,7 +315,7 @@ namespace Contensive.Processor {
         /// <param name="activityUserId"></param>
         /// <param name="organizationId"></param>
         public override int AddActivity(string subject, string detailsText, int activityUserId) {
-            return LogController.addActivityCompletedVisit(cp.core, subject, detailsText, activityUserId);
+            return LogControllerX.addActivityCompletedVisit(cp.core, subject, detailsText, activityUserId);
         }
         //
         //====================================================================================================
@@ -329,7 +329,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId) {
-            return LogController.addActivityCompleted(cp.core, subject, detailsText, activityUserId, typeId);
+            return LogControllerX.addActivityCompleted(cp.core, subject, detailsText, activityUserId, typeId);
         }
         //
         //====================================================================================================
@@ -344,7 +344,7 @@ namespace Contensive.Processor {
         /// <param name="scheduledStaffId"></param>
         [Obsolete("Use overload with activity-type", false)]
         public override int AddActivity(string subject, string detailsText, int activityUserID, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserID, dateScheduled, duration, scheduledStaffId);
+            return LogControllerX.addActivityScheduled(cp.core, subject, detailsText, activityUserID, dateScheduled, duration, scheduledStaffId);
         }
         //
         //====================================================================================================
@@ -361,7 +361,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override int AddActivity(string subject, string detailsText, int activityUserId, int typeId, DateTime dateScheduled, int duration, int scheduledStaffId) {
-            return LogController.addActivityScheduled(cp.core, subject, detailsText, activityUserId, typeId, dateScheduled, duration, scheduledStaffId);
+            return LogControllerX.addActivityScheduled(cp.core, subject, detailsText, activityUserId, typeId, dateScheduled, duration, scheduledStaffId);
         }
 
         //
@@ -374,7 +374,7 @@ namespace Contensive.Processor {
         /// <param name="legacyOrganizationId"></param>
         [Obsolete]
         public override void LogActivity(string activityMessage, int activityUserID, int legacyOrganizationId) {
-            LogController.addActivityCompletedVisit(cp.core, "", activityMessage, activityUserID);
+            LogControllerX.addActivityCompletedVisit(cp.core, "", activityMessage, activityUserID);
         }
         //
         //====================================================================================================
@@ -386,7 +386,7 @@ namespace Contensive.Processor {
         /// <param name="typeOfWarningKey"></param>
         /// <param name="instanceKey"></param>
         public override void SetSiteWarning(string name, string description) {
-            LogController.setSiteWarning(cp.core, name, description, true);
+            LogControllerX.setSiteWarning(cp.core, name, description, true);
         }
         //
         //====================================================================================================
@@ -399,7 +399,7 @@ namespace Contensive.Processor {
         /// <param name="instanceKey"></param>
         /// <param name="addRemove">if true add the warning, else remove it</param>
         public override void SetSiteWarning(string name, string description, bool addRemove) {
-            LogController.setSiteWarning(cp.core, name, description, addRemove);
+            LogControllerX.setSiteWarning(cp.core, name, description, addRemove);
         }
 
 
@@ -410,7 +410,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="cause"></param>
         public override void LogAlarm(string cause) {
-            LogController.logAlarm(cp.core, cause);
+            LogControllerX.logAlarm(cp.core, cause);
         }
         //
         //====================================================================================================
@@ -419,7 +419,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="message"></param>
         public override void ErrorReport(string message) {
-            LogController.log(cp.core, message, BaseClasses.CPLogBaseClass.LogLevel.Error);
+            LogControllerX.log(cp.core, message, BaseClasses.CPLogBaseClass.LogLevel.Error);
         }
         /// <summary>
         /// 
@@ -427,14 +427,14 @@ namespace Contensive.Processor {
         /// <param name="ex"></param>
         /// <param name="message"></param>
         public override void ErrorReport(System.Exception ex, string message) {
-            LogController.log(cp.core, message + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+            LogControllerX.log(cp.core, message + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="ex"></param>
         public override void ErrorReport(System.Exception ex) {
-            LogController.log(cp.core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+            LogControllerX.log(cp.core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
         }
         //
         //====================================================================================================
@@ -443,7 +443,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="message"></param>
         public override void TestPoint(string message)
-            => Logger.Trace(LogController.processLogMessage(cp.core, "testpoint:" + message, false));
+            => Logger.Trace(LogControllerX.processLogMessage(cp.core, "testpoint:" + message, false));
 
         //
         //====================================================================================================
@@ -624,7 +624,7 @@ namespace Contensive.Processor {
         }
         [Obsolete("Use CP.Site.AddAdminWarning", false)]
         public override void LogWarning(string name, string description, string typeOfWarningKey, string instanceKey) {
-            LogController.setSiteWarning(cp.core, name, description, true);
+            LogControllerX.setSiteWarning(cp.core, name, description, true);
         }
         //
         //

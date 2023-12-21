@@ -42,7 +42,7 @@ namespace Contensive.Processor.Models.Domain {
         //
         // todo change array to dictionary
         private string[,] localCache;
-        private KeyPtrController propertyCache_nameIndex;
+        private KeyPtrControllerX propertyCache_nameIndex;
         private bool localCacheLoaded = false;
         private int localCacheCnt;
         //
@@ -77,7 +77,7 @@ namespace Contensive.Processor.Models.Domain {
             setProperty(key, string.Empty);
             //
             // -- remove from db 
-            core.db.executeNonQuery("Delete from ccProperties where (TypeID=" + (int)propertyType + ")and(KeyID=" + propertyKeyId + ")and(name=" + DbController.encodeSQLText(key) + ")");
+            core.db.executeNonQuery("Delete from ccProperties where (TypeID=" + (int)propertyType + ")and(KeyID=" + propertyKeyId + ")and(name=" + DbControllerX.encodeSQLText(key) + ")");
         }
         //
         //====================================================================================================
@@ -184,10 +184,10 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 // -- save to db
                 int RecordId = GenericController.encodeInteger(localCache[2, Ptr]);
-                string SQLNow = DbController.encodeSQLDate(core.dateTimeNowMockable);
-                core.db.executeNonQuery("update ccProperties set FieldValue=" + DbController.encodeSQLText(propertyValue) + ",ModifiedDate=" + SQLNow + " where id=" + RecordId);
+                string SQLNow = DbControllerX.encodeSQLDate(core.dateTimeNowMockable);
+                core.db.executeNonQuery("update ccProperties set FieldValue=" + DbControllerX.encodeSQLText(propertyValue) + ",ModifiedDate=" + SQLNow + " where id=" + RecordId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -331,7 +331,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return returnString;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -354,7 +354,7 @@ namespace Contensive.Processor.Models.Domain {
         private void loadLocalCache(int keyId) {
             try {
                 //
-                propertyCache_nameIndex = new KeyPtrController();
+                propertyCache_nameIndex = new KeyPtrControllerX();
                 localCacheCnt = 0;
                 localCache = new string[3, 1];
                 localCacheLoaded = true;
@@ -375,7 +375,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 localCacheCnt = dt.Rows.Count;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

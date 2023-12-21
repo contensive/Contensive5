@@ -21,8 +21,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, EmailBounceList");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -55,8 +55,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.core.cpParent.Db.ExecuteNonQuery("update ccmembers set allowbulkemail=0 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

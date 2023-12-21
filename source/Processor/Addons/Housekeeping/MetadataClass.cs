@@ -21,8 +21,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, MetaData");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -95,12 +95,12 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 string VirtualLink = GenericController.strReplace(VirtualFileName, "\\", "/");
                                 long FileSize = file.Size;
                                 if (FileSize == 0) {
-                                    sql = "update " + TableName + " set " + FieldName + "=null where (" + FieldName + "=" + DbController.encodeSQLText(VirtualFileName) + ")or(" + FieldName + "=" + DbController.encodeSQLText(VirtualLink) + ")";
+                                    sql = "update " + TableName + " set " + FieldName + "=null where (" + FieldName + "=" + DbControllerX.encodeSQLText(VirtualFileName) + ")or(" + FieldName + "=" + DbControllerX.encodeSQLText(VirtualLink) + ")";
                                     env.core.db.executeNonQuery(sql);
                                     env.core.cdnFiles.deleteFile(VirtualFileName);
                                 } else {
                                     using var csTest = new CsModel(env.core); 
-                                    sql = "SELECT ID FROM " + TableName + " WHERE (" + FieldName + "=" + DbController.encodeSQLText(VirtualFileName) + ")or(" + FieldName + "=" + DbController.encodeSQLText(VirtualLink) + ")";
+                                    sql = "SELECT ID FROM " + TableName + " WHERE (" + FieldName + "=" + DbControllerX.encodeSQLText(VirtualFileName) + ")or(" + FieldName + "=" + DbControllerX.encodeSQLText(VirtualLink) + ")";
                                     if (!csTest.openSql(sql)) {
                                         env.core.cdnFiles.deleteFile(VirtualFileName);
                                     }
@@ -122,8 +122,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

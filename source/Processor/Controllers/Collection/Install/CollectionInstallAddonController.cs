@@ -53,22 +53,22 @@ namespace Contensive.Processor.Controllers {
                     }
                     int addonId = 0;
                     using (var cs = new CsModel(core)) {
-                        string Criteria = "(" + AddonGuidFieldName + "=" + DbController.encodeSQLText(addonGuid) + ")";
+                        string Criteria = "(" + AddonGuidFieldName + "=" + DbControllerX.encodeSQLText(addonGuid) + ")";
                         cs.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
                         if (cs.ok()) {
                             //
                             // Update the Addon
                             //
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                         } else {
                             //
                             // not found by GUID - search name against name to update legacy Add-ons
                             //
                             cs.close();
-                            Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
+                            Criteria = "(name=" + DbControllerX.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
                             cs.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
                             if (cs.ok()) {
-                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on name matched an existing Add-on that has no GUID, Updating legacy Aggregate Function to Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on name matched an existing Add-on that has no GUID, Updating legacy Aggregate Function to Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                             }
                         }
                         if (!cs.ok()) {
@@ -78,14 +78,14 @@ namespace Contensive.Processor.Controllers {
                             cs.close();
                             cs.insert(AddonModel.tableMetadata.contentName);
                             if (cs.ok()) {
-                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Creating new Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                                LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Creating new Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                             }
                         }
                         if (!cs.ok()) {
                             //
                             // Could not create new Add-on
                             //
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                            LogControllerX.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                         } else {
                             addonId = cs.getInteger("ID");
                             MetadataController.deleteContentRecords(core, "Add-on Include Rules", "addonid=" + addonId);
@@ -161,10 +161,10 @@ namespace Contensive.Processor.Controllers {
                                                                         }
                                                                     }
                                                                     using (var CS2 = new CsModel(core)) {
-                                                                        Criteria = "(ccguid=" + DbController.encodeSQLText(ContentNameorGuid) + ")";
+                                                                        Criteria = "(ccguid=" + DbControllerX.encodeSQLText(ContentNameorGuid) + ")";
                                                                         CS2.open("Content", Criteria);
                                                                         if (!CS2.ok()) {
-                                                                            Criteria = "(ccguid is null)and(name=" + DbController.encodeSQLText(ContentNameorGuid) + ")";
+                                                                            Criteria = "(ccguid is null)and(name=" + DbControllerX.encodeSQLText(ContentNameorGuid) + ")";
                                                                             CS2.open("content", Criteria);
                                                                         }
                                                                         if (CS2.ok()) {
@@ -424,7 +424,7 @@ namespace Contensive.Processor.Controllers {
                                                         //
                                                         // Bad field name - need to report it somehow
                                                         //
-                                                        LogController.logError(core, new InvalidOperationException("bad field found [" + fieldName + "], in addon node [" + addonName + "], of collection [" + MetadataController.getRecordName(core, "add-on collections", CollectionID) + "]"));
+                                                        LogControllerX.logError(core, new InvalidOperationException("bad field found [" + fieldName + "], in addon node [" + addonName + "], of collection [" + MetadataController.getRecordName(core, "add-on collections", CollectionID) + "]"));
                                                     } else {
                                                         cs.set(fieldName, FieldValue);
                                                     }
@@ -449,7 +449,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

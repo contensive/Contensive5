@@ -29,7 +29,7 @@ namespace Contensive.Processor.Controllers {
                 if (meta != null) { return meta.tableName; }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -47,7 +47,7 @@ namespace Contensive.Processor.Controllers {
                 if (meta != null) { return meta.name; }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -62,7 +62,7 @@ namespace Contensive.Processor.Controllers {
                 if (meta == null) { return string.Empty; }
                 return meta.getRecordName(core, recordID);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -75,14 +75,14 @@ namespace Contensive.Processor.Controllers {
             try {
                 var meta = ContentMetadataModel.createByUniqueName(core, contentName);
                 if (meta == null) { return string.Empty; }
-                using (DataTable dt = core.db.executeQuery("select top 1 name from " + meta.tableName + " where ccguid=" + DbController.encodeSQLText(recordGuid) + " order by id")) {
+                using (DataTable dt = core.db.executeQuery("select top 1 name from " + meta.tableName + " where ccguid=" + DbControllerX.encodeSQLText(recordGuid) + " order by id")) {
                     foreach (DataRow dr in dt.Rows) {
-                        return DbController.getDataRowFieldText(dr, "name");
+                        return DbControllerX.getDataRowFieldText(dr, "name");
                     }
                 }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -99,14 +99,14 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrWhiteSpace(recordName)) { return 0; }
                 var meta = ContentMetadataModel.createByUniqueName(core, contentName);
                 if ((meta == null) || (String.IsNullOrWhiteSpace(meta.tableName))) { return 0; }
-                using (DataTable dt = core.db.executeQuery("select top 1 id from " + meta.tableName + " where name=" + DbController.encodeSQLText(recordName) + " order by id")) {
+                using (DataTable dt = core.db.executeQuery("select top 1 id from " + meta.tableName + " where name=" + DbControllerX.encodeSQLText(recordName) + " order by id")) {
                     foreach (DataRow dr in dt.Rows) {
-                        return DbController.getDataRowFieldInteger(dr, "id");
+                        return DbControllerX.getDataRowFieldInteger(dr, "id");
                     }
                 }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -137,7 +137,7 @@ namespace Contensive.Processor.Controllers {
         public static void deleteContentRecord(CoreController core, string contentName, int recordId) {
             var meta = ContentMetadataModel.createByUniqueName(core, contentName);
             if (meta == null) { return; }
-            using var db = new DbController(core, meta.dataSourceName); 
+            using var db = new DbControllerX(core, meta.dataSourceName); 
             core.db.delete(recordId, meta.tableName);
         }
         //
@@ -152,7 +152,7 @@ namespace Contensive.Processor.Controllers {
         public static void deleteContentRecords(CoreController core, string contentName, string sqlCriteria, int userId = 0) {
             var meta = ContentMetadataModel.createByUniqueName(core, contentName);
             if (meta == null) { return; }
-            using (var db = new DbController(core, meta.dataSourceName)) {
+            using (var db = new DbControllerX(core, meta.dataSourceName)) {
                 core.db.deleteRows(meta.tableName, sqlCriteria);
             }
         }
@@ -168,21 +168,21 @@ namespace Contensive.Processor.Controllers {
             try {
                 switch (fieldType) {
                     case CPContentBaseClass.FieldTypeIdEnum.Boolean:
-                        return DbController.encodeSQLBoolean(GenericController.encodeBoolean(expression));
+                        return DbControllerX.encodeSQLBoolean(GenericController.encodeBoolean(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.Currency:
                     case CPContentBaseClass.FieldTypeIdEnum.Float:
-                        return DbController.encodeSQLNumber(GenericController.encodeNumber(expression));
+                        return DbControllerX.encodeSQLNumber(GenericController.encodeNumber(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement:
                     case CPContentBaseClass.FieldTypeIdEnum.Integer:
                     case CPContentBaseClass.FieldTypeIdEnum.Lookup:
                     case CPContentBaseClass.FieldTypeIdEnum.MemberSelect:
-                        return DbController.encodeSQLNumber(GenericController.encodeInteger(expression));
+                        return DbControllerX.encodeSQLNumber(GenericController.encodeInteger(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.Date:
-                        return DbController.encodeSQLDate(GenericController.encodeDate(expression));
+                        return DbControllerX.encodeSQLDate(GenericController.encodeDate(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.LongText:
                     case CPContentBaseClass.FieldTypeIdEnum.HTML:
                     case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
-                        return DbController.encodeSQLText(GenericController.encodeText(expression));
+                        return DbControllerX.encodeSQLText(GenericController.encodeText(expression));
                     case CPContentBaseClass.FieldTypeIdEnum.File:
                     case CPContentBaseClass.FieldTypeIdEnum.FileImage:
                     case CPContentBaseClass.FieldTypeIdEnum.Link:
@@ -196,7 +196,7 @@ namespace Contensive.Processor.Controllers {
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
-                        return DbController.encodeSQLText(GenericController.encodeText(expression));
+                        return DbControllerX.encodeSQLText(GenericController.encodeText(expression));
                     default:
                         throw new GenericException("Unknown Field Type [" + fieldType + "");
                 }
@@ -226,7 +226,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(originalFilename)) { return FileController.getVirtualRecordUnixPathFilename(meta.tableName, fieldName, recordId, meta.fields[fieldName.ToLowerInvariant()].fieldTypeId); }
                 return FileController.getVirtualRecordUnixPathFilename(meta.tableName, fieldName, recordId, originalFilename);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -310,7 +310,7 @@ namespace Contensive.Processor.Controllers {
                         break;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

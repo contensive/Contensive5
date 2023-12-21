@@ -95,7 +95,7 @@ namespace Contensive.Processor.Addons.Tools {
                             //
                             if (NewGroup && (!string.IsNullOrEmpty(NewGroupName))) {
                                 using (var csData = new CsModel(cp.core)) {
-                                    csData.open("Groups", "name=" + DbController.encodeSQLText(NewGroupName));
+                                    csData.open("Groups", "name=" + DbControllerX.encodeSQLText(NewGroupName));
                                     if (csData.ok()) {
                                         Description = Description + "<div>Group [" + NewGroupName + "] already exists, using existing group.</div>";
                                         GroupId = csData.getInteger("ID");
@@ -168,7 +168,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Description = "<div>This tool is used to create child table metadata (child content definitions) that help segregate your content into authorable segments.</div>" + Description;
                 result = AdminUIController.getToolBody(cp.core, Caption, ButtonList, "", false, false, Description, "", 0, Content.text);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
             return result;
         }
@@ -206,7 +206,7 @@ namespace Contensive.Processor.Addons.Tools {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
                 throw;
             }
             return returnOptions;

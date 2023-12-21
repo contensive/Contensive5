@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     hint = 10;
                     //
                     // There are no visible fiels, return empty
-                    LogController.logError(core, new GenericException("There is no metadata for this field."));
+                    LogControllerX.logError(core, new GenericException("There is no metadata for this field."));
                 } else {
                     hint = 20;
                     //
@@ -86,7 +86,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     hint = 160;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "hint [" + hint + "]");
+                LogControllerX.logError(core, ex, "hint [" + hint + "]");
                 throw;
             }
             return returnHtml;
@@ -118,7 +118,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 int[] HelpIDCache = { };
                 string[] helpDefaultCache = { };
                 string[] HelpCustomCache = { };
-                KeyPtrController helpIdIndex = new KeyPtrController();
+                KeyPtrControllerX helpIdIndex = new KeyPtrControllerX();
                 if (fieldHelpArray.GetLength(0) > 0) {
                     HelpCnt = fieldHelpArray.GetUpperBound(1) + 1;
                     HelpIDCache = new int[HelpCnt + 1];
@@ -154,7 +154,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -173,7 +173,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (string.IsNullOrEmpty(Content)) { return; }
                 editTabs.addEntry(Caption.Replace(" ", "&nbsp;"), "", "", Content, false, "ccAdminTab");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
         }
     }

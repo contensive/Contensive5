@@ -19,8 +19,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, TasksClass");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }
@@ -44,8 +44,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     env.core.db.executeNonQuery("delete from cctasks where (cmdRunner is not null)or(DateAdded<DATEADD(day,-1,CAST(GETDATE() AS DATE)))");
                 }
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
             }

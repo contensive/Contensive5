@@ -3156,6 +3156,7 @@
     <styleslinkhref> </styleslinkhref>
     <htmlDocument>Yes</htmlDocument>
 	  <JavascriptInHead><![CDATA[]]></JavascriptInHead>
+    <javascriptforcehead>Yes</javascriptforcehead>
   </Addon>
   <Addon name="AdminAutocompleteCommands" guid="{FBD591E1-F1CD-4E7D-BD2B-F760C313C568}" type="Add-on">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.AdminAutocompleteCommands]]></DotNetClass>

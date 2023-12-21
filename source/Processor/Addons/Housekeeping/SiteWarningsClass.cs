@@ -69,8 +69,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 }
                 return;
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, SiteWarningsClass, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, SiteWarningsClass, ex [" + ex + "]");
                 throw;
             }
             //

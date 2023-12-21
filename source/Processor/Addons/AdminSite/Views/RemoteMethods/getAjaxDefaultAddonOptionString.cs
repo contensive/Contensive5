@@ -19,7 +19,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 using (CoreController core = ((CPClass)cp).core) {
                     using (var csData = new CsModel(core)) {
                         string AddonGuid = core.docProperties.getText("guid");
-                        csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbController.encodeSQLText(AddonGuid));
+                        csData.open(AddonModel.tableMetadata.contentName, "ccguid=" + DbControllerX.encodeSQLText(AddonGuid));
                         if (csData.ok()) {
                             string addonArgumentList = csData.getText("argumentlist");
                             bool addonIsInline = csData.getBoolean("IsInline");

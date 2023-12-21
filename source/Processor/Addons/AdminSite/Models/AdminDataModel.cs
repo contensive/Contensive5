@@ -295,7 +295,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return tempIsVisibleUserField;
         }
@@ -318,7 +318,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     return core.session.isAuthenticatedContentManager(cdef.name);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return false;
         }
@@ -380,7 +380,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (editRecord.id.Equals(0)) {
                         string requestedGuid = request.guid;
                         if (!string.IsNullOrWhiteSpace(requestedGuid) && isGuid(requestedGuid)) {
-                            using var csData = new CsModel(core); csData.open(adminContent.name, "(ccguid=" + DbController.encodeSQLText(requestedGuid) + ")", "id", false, core.session.user.id, "id,contentControlId");
+                            using var csData = new CsModel(core); csData.open(adminContent.name, "(ccguid=" + DbControllerX.encodeSQLText(requestedGuid) + ")", "id", false, core.session.user.id, "id,contentControlId");
                             if (csData.ok()) {
                                 editRecord.id = csData.getInteger("id");
                                 //
@@ -480,7 +480,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
         }
         //

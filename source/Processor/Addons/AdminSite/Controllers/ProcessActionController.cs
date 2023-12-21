@@ -48,7 +48,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     } else {
                         //
                         // Process actions
-                        using (var db = new DbController(cp.core, adminData.adminContent.dataSourceName)) {
+                        using (var db = new DbControllerX(cp.core, adminData.adminContent.dataSourceName)) {
                             switch (adminData.admin_Action) {
                                 case Constants.AdminActionEditRefresh:
                                     //
@@ -180,7 +180,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                     //
                                                     // -- if there were no errors, and the table supports lastsendtestdate, update it
                                                     adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
-                                                    db.executeQuery("update ccemail Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                                    db.executeQuery("update ccemail Set lastsendtestdate=" + DbControllerX.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
                                                     //
                                                     // -- force a sent task process
                                                     AddonModel.setRunNow(cp, addonGuidEmailSendTask);
@@ -228,7 +228,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                     //
                                                     // -- if there were no errors, and the table supports lastsendtestdate, update it
                                                     adminData.editRecord.fieldsLc["lastsendtestdate"].value_content = cp.core.doc.profileStartTime;
-                                                    db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbController.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
+                                                    db.executeQuery("update ccGroupTextMessages Set lastsendtestdate=" + DbControllerX.encodeSQLDate(cp.core.doc.profileStartTime) + " where id=" + adminData.editRecord.id);
                                                     //
                                                     // -- force a send task process (doc environment not necessary)
                                                     AddonModel.setRunNow(cp, addonGuidTextMessageSendTask);
@@ -372,7 +372,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
             } catch (GenericException) {
             } catch (Exception ex) {
                 ErrorController.addUserError(cp.core, "There was an unknown error processing this page at " + cp.core.doc.profileStartTime + ". Please try again, Or report this error To the site administrator.");
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //
@@ -462,7 +462,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     adminData.admin_Action = Constants.AdminActionNop;
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //
@@ -585,7 +585,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                 }
                 adminData.admin_Action = Constants.AdminActionNop;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //
@@ -655,7 +655,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //
@@ -671,7 +671,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     LoadAndSaveGroupRules_ForContentAndChildren(cp, adminData.editRecord.id, "");
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //
@@ -700,7 +700,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //   
@@ -785,7 +785,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     GroupRuleModel.invalidateCacheOfTable<GroupRuleModel>(cp);
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //
@@ -832,7 +832,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         // 
@@ -915,7 +915,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     GroupRuleModel.invalidateCacheOfTable<GroupRuleModel>(cp);
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                LogControllerX.logError(cp.core, ex);
             }
         }
         //

@@ -43,7 +43,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (System.Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

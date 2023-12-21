@@ -62,14 +62,14 @@ namespace Contensive.Processor.Addons.NewApp {
                         appConfig.remotePrivatePath = "/" + appConfig.name + "/private/";
                         appConfig.cdnFileUrl = "https://s3.amazonaws.com/" + cpServer.core.serverConfig.awsBucketName + "/" + appConfig.name + "/files/";
                     }
-                    Contensive.Processor.Controllers.LogController.logInfo(cpServer.core, "Create local folders.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cpServer.core, "Create local folders.");
                     setupDirectory(appConfig.localWwwPath);
                     setupDirectory(appConfig.localFilesPath);
                     setupDirectory(appConfig.localPrivatePath);
                     setupDirectory(appConfig.localTempPath);
                     //
                     // -- save the app configuration and reload the server using this app
-                    Contensive.Processor.Controllers.LogController.logInfo(cpServer.core, "Save app configuration.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cpServer.core, "Save app configuration.");
                     appConfig.appStatus = AppConfigModel.AppStatusEnum.maintenance;
                     cpServer.core.serverConfig.apps.Add(appConfig.name, appConfig);
                     cpServer.core.serverConfig.save(cpServer.core);
@@ -79,36 +79,36 @@ namespace Contensive.Processor.Addons.NewApp {
                     // update local host file
                     //
                     try {
-                        LogController.logInfo(cpServer.core, "Update host file to add domain [127.0.0.1 " + appConfig.name + "].");
+                        LogControllerX.logInfo(cpServer.core, "Update host file to add domain [127.0.0.1 " + appConfig.name + "].");
                         File.AppendAllText("c:\\windows\\system32\\drivers\\etc\\hosts", System.Environment.NewLine + "127.0.0.1\t" + appConfig.name);
                     } catch (Exception ex) {
-                        LogController.logWarn(cpServer.core, "Error attempting to update local host file:" + ex);
-                        LogController.logWarn(cpServer.core, "Please manually add the following line to your host file (c:\\windows\\system32\\drivers\\etc\\hosts):" + "127.0.0.1\t" + appConfig.name);
+                        LogControllerX.logWarn(cpServer.core, "Error attempting to update local host file:" + ex);
+                        LogControllerX.logWarn(cpServer.core, "Please manually add the following line to your host file (c:\\windows\\system32\\drivers\\etc\\hosts):" + "127.0.0.1\t" + appConfig.name);
                     }
                     //
                     // create the database on the server
                     //
-                    LogController.logInfo(cpServer.core, "Create database.");
+                    LogControllerX.logInfo(cpServer.core, "Create database.");
                     cpServer.core.dbServer.createCatalog(appConfig.name);
                 }
                 //
                 // initialize the new app, use the save authentication that was used to authorize this object
                 //
                 using (CPClass cp = new CPClass(appName)) {
-                    LogController.logInfo(cp.core, "Verify website.");
+                    LogControllerX.logInfo(cp.core, "Verify website.");
                     //
                     const string iisDefaultDoc = "default.aspx";
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.localWwwPath);
                     //
-                    LogController.logInfo(cp.core, "Run db upgrade.");
+                    LogControllerX.logInfo(cp.core, "Run db upgrade.");
                     BuildController.upgrade(cp.core, true, true);
                     //
                     // -- set the application back to normal mode
                     cp.core.serverConfig.save(cp.core);
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_ServerPageDefault, iisDefaultDoc);
                     //
-                    LogController.logInfo(cp.core, "Upgrade complete.");
-                    LogController.logInfo(cp.core, "Use IIS Import Application to install either you web application, or the Contensive DefaultAspxSite.zip application.");
+                    LogControllerX.logInfo(cp.core, "Upgrade complete.");
+                    LogControllerX.logInfo(cp.core, "Use IIS Import Application to install either you web application, or the Contensive DefaultAspxSite.zip application.");
                 }
                 //
                 return string.Empty;

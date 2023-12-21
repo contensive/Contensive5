@@ -17,16 +17,16 @@ namespace Tests {
             // arrange
             // act
             // assert
-            Assert.AreEqual("", DbController.encodeSqlTableName(""));
-            Assert.AreEqual("", DbController.encodeSqlTableName("-----"));
-            Assert.AreEqual("", DbController.encodeSqlTableName("01234567879"));
-            Assert.AreEqual("a", DbController.encodeSqlTableName("a"));
-            Assert.AreEqual("aa", DbController.encodeSqlTableName("a a"));
-            Assert.AreEqual("aA", DbController.encodeSqlTableName(" aA"));
-            Assert.AreEqual("aA", DbController.encodeSqlTableName(" aA "));
-            Assert.AreEqual("aA", DbController.encodeSqlTableName("aA "));
-            Assert.AreEqual("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", DbController.encodeSqlTableName("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
-            Assert.AreEqual("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@#", DbController.encodeSqlTableName("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@#"));
+            Assert.AreEqual("", DbControllerX.encodeSqlTableName(""));
+            Assert.AreEqual("", DbControllerX.encodeSqlTableName("-----"));
+            Assert.AreEqual("", DbControllerX.encodeSqlTableName("01234567879"));
+            Assert.AreEqual("a", DbControllerX.encodeSqlTableName("a"));
+            Assert.AreEqual("aa", DbControllerX.encodeSqlTableName("a a"));
+            Assert.AreEqual("aA", DbControllerX.encodeSqlTableName(" aA"));
+            Assert.AreEqual("aA", DbControllerX.encodeSqlTableName(" aA "));
+            Assert.AreEqual("aA", DbControllerX.encodeSqlTableName("aA "));
+            Assert.AreEqual("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", DbControllerX.encodeSqlTableName("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"));
+            Assert.AreEqual("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@#", DbControllerX.encodeSqlTableName("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_@#"));
             //
         }
         //
@@ -182,7 +182,7 @@ namespace Tests {
                     int id2 = csData.getInteger("id");
                     //
                     // act
-                    csData.open("people", "name=" + DbController.encodeSQLText(name), "id");
+                    csData.open("people", "name=" + DbControllerX.encodeSQLText(name), "id");
                     Assert.IsTrue(csData.ok(), "csOpen");
                     Assert.AreEqual(id0, csData.getInteger("id"), "correct id0 after open");
                     csData.goNext();
@@ -221,7 +221,7 @@ namespace Tests {
                     int id2 = csData.getInteger("id");
                     //
                     // act
-                    csData.open("people", "name=" + DbController.encodeSQLText(name), "id");
+                    csData.open("people", "name=" + DbControllerX.encodeSQLText(name), "id");
                     Assert.IsTrue(csData.ok(), "csOpen");
                     csData.goNext();
                     csData.goNext();

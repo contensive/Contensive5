@@ -108,7 +108,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string sqlDateTimeMockable {
             get {
-                return DbController.encodeSQLDate(dateTimeNowMockable);
+                return DbControllerX.encodeSQLDate(dateTimeNowMockable);
             }
         }
         //
@@ -432,7 +432,7 @@ namespace Contensive.Processor.Controllers {
                 if (executePath.ToLowerInvariant().IndexOf("\\git\\") > -1) {
                     //
                     //  -- developer execution, do not use saved path, use the git path but do not save
-                    LogController.logWarn(this, "Execution path includes GIT, use it and do not update serverConfig.ProgramFilesPath.");
+                    LogControllerX.logWarn(this, "Execution path includes GIT, use it and do not update serverConfig.ProgramFilesPath.");
                     _programFiles = new FileController(this, executePath);
                     return _programFiles;
                 }
@@ -444,7 +444,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 //  -- developer, fake a path
-                LogController.logWarn(this, "serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
+                LogControllerX.logWarn(this, "serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
                 if (System.IO.File.Exists("c:\\Program Files\\Contensive\\Processor.dll")) {
                     serverConfig.programFilesPath = "c:\\Program Files\\Contensive\\";
                 } else {
@@ -528,29 +528,29 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// database datasource for the default datasource
         /// </summary>
-        public DbController db {
+        public DbControllerX db {
             get {
                 if (_db == null) {
-                    _db = new DbController(this, "default");
+                    _db = new DbControllerX(this, "default");
                 }
                 return _db;
             }
         }
-        private DbController _db;
+        private DbControllerX _db;
         //
         //===================================================================================================
         /// <summary>
         /// db access to the server to add and query catalogs
         /// </summary>
-        public DbServerController dbServer {
+        public DbServerControllerX dbServer {
             get {
                 if (_dbServer == null) {
-                    _dbServer = new DbServerController(this);
+                    _dbServer = new DbServerControllerX(this);
                 }
                 return _dbServer;
             }
         }
-        private DbServerController _dbServer;
+        private DbServerControllerX _dbServer;
         //
         //===================================================================================================
         /// <summary>
@@ -629,7 +629,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 coreController_Initialize(appName, httpContext, true);
             } catch (Exception ex) {
-                LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+                LogControllerX.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
             }
         }
@@ -649,7 +649,7 @@ namespace Contensive.Processor.Controllers {
                 // -- clear mock datetime
                 _mockNow = null;
                 //
-                LogController.log(this, "coreController_Initialize, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                LogControllerX.log(this, "coreController_Initialize, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
                 //
                 serverConfig = ServerConfigModel.create(this);
                 serverConfig.defaultDataSourceType = ServerConfigBaseModel.DataSourceTypeEnum.sqlServer;
@@ -697,7 +697,7 @@ namespace Contensive.Processor.Controllers {
                     session = SessionController.create(this, allowVisit && siteProperties.allowVisitTracking);
                 }
             } catch (Exception ex) {
-                LogController.logShortLine("CoreController coreController_Initialize, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+                LogControllerX.logShortLine("CoreController coreController_Initialize, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
             }
         }
@@ -819,23 +819,23 @@ namespace Contensive.Processor.Controllers {
                                 string sql = "insert into ccviewings ("
                                     + "Name,VisitId,MemberID,Host,Path,Page,QueryString,Form,Referer,DateAdded,StateOK,pagetime,Active,RecordID,ExcludeFromAnalytics,pagetitle,ccguid"
                                     + ")values("
-                                    + " " + DbController.encodeSQLText(ViewingName.substringSafe(0, 240))
+                                    + " " + DbControllerX.encodeSQLText(ViewingName.substringSafe(0, 240))
                                     + "," + session.visit.id.ToString()
                                     + "," + session.user.id.ToString()
-                                    + "," + DbController.encodeSQLText(webServer.requestDomain.substringSafe(0, 240))
-                                    + "," + DbController.encodeSQLText(webServer.requestPath.substringSafe(0, 240))
-                                    + "," + DbController.encodeSQLText(webServer.requestPage.substringSafe(0, 240))
-                                    + "," + DbController.encodeSQLText(webServer.requestQueryString.substringSafe(0, 240))
-                                    + "," + DbController.encodeSQLText(requestFormSerialized.substringSafe(0, 240))
-                                    + "," + DbController.encodeSQLText(webServer.requestReferrer.substringSafe(0, 240))
-                                    + "," + DbController.encodeSQLDate(doc.profileStartTime)
-                                    + "," + DbController.encodeSQLBoolean(session.visitStateOk)
+                                    + "," + DbControllerX.encodeSQLText(webServer.requestDomain.substringSafe(0, 240))
+                                    + "," + DbControllerX.encodeSQLText(webServer.requestPath.substringSafe(0, 240))
+                                    + "," + DbControllerX.encodeSQLText(webServer.requestPage.substringSafe(0, 240))
+                                    + "," + DbControllerX.encodeSQLText(webServer.requestQueryString.substringSafe(0, 240))
+                                    + "," + DbControllerX.encodeSQLText(requestFormSerialized.substringSafe(0, 240))
+                                    + "," + DbControllerX.encodeSQLText(webServer.requestReferrer.substringSafe(0, 240))
+                                    + "," + DbControllerX.encodeSQLDate(doc.profileStartTime)
+                                    + "," + DbControllerX.encodeSQLBoolean(session.visitStateOk)
                                     + "," + doc.appStopWatch.ElapsedMilliseconds.ToString()
                                     + ",1"
                                     + "," + PageId.ToString()
-                                    + "," + DbController.encodeSQLBoolean(webServer.pageExcludeFromAnalytics)
-                                    + "," + DbController.encodeSQLText(pagetitle.substringSafe(0, 240))
-                                    + "," + DbController.encodeSQLText(doc.docGuid);
+                                    + "," + DbControllerX.encodeSQLBoolean(webServer.pageExcludeFromAnalytics)
+                                    + "," + DbControllerX.encodeSQLText(pagetitle.substringSafe(0, 240))
+                                    + "," + DbControllerX.encodeSQLText(doc.docGuid);
                                 sql += ");";
                                 hint = "54";
                                 db.executeNonQuery(sql);

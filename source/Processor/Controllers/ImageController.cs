@@ -137,7 +137,7 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- argument testing, width and height must be >=0
                 if ((holeHeight < 0) || (holeWidth < 0)) {
-                    LogController.logError(core, new ArgumentException("Image resize/crop size must be >0, width [" + holeWidth + "], height [" + holeHeight + "]"));
+                    LogControllerX.logError(core, new ArgumentException("Image resize/crop size must be >0, width [" + holeWidth + "], height [" + holeHeight + "]"));
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 // 
@@ -194,7 +194,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- future actions will open this file. Verify it exists to prevent hard errors
                 if (!core.cdnFiles.fileExists(imageCdnPathFilename)) {
-                    LogController.logError(core, new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imageCdnPathFilename + "]"));
+                    LogControllerX.logError(core, new ArgumentException("Image.getBestFit called but source file not found, imagePathFilename [" + imageCdnPathFilename + "]"));
                     return imageCdnPathFilename.Replace(@"\", "/");
                 }
                 // 
@@ -305,12 +305,12 @@ namespace Contensive.Processor.Controllers {
             } catch (UnknownImageFormatException ex) {
                 //
                 // -- unknown image error, return original image
-                LogController.logWarn(core, ex, "Unknown image type [" + imageCdnPathFilename + "]");
+                LogControllerX.logWarn(core, ex, "Unknown image type [" + imageCdnPathFilename + "]");
                 return imageCdnPathFilename.Replace(@"\", "/");
             } catch (Exception ex) {
                 //
                 // -- unknown exception
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 return imageCdnPathFilename;
             }
         }

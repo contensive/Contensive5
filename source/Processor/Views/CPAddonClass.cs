@@ -83,7 +83,7 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName) {
             AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
+                LogControllerX.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
             }
             return cp.core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext());
@@ -94,7 +94,7 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName, Dictionary<string, string> argumentKeyValuePairs) {
             AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
+                LogControllerX.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
             }
             return cp.core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
@@ -107,7 +107,7 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName, CPUtilsBaseClass.addonExecuteContext executeContext) {
             AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "], executeContext [" + executeContext.errorContextMessage + "].");
+                LogControllerX.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "], executeContext [" + executeContext.errorContextMessage + "].");
                 return "";
             }
             return cp.core.addon.execute(addon, executeContext);
@@ -203,7 +203,7 @@ namespace Contensive.Processor {
                 returnUserError = string.Join(" ", localUserErrors);
                 if (deleteTempFileWhenDone) { cp.TempFiles.DeleteFolder(tempPathFilename); }
             } catch (Exception ex) {
-                Controllers.LogController.logError(cp.core, ex);
+                Controllers.LogControllerX.logError(cp.core, ex);
                 if (!cp.core.siteProperties.trapErrors) {
                     throw;
                 }

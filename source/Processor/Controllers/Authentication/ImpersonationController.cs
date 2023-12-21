@@ -29,11 +29,11 @@ namespace Contensive.Processor.Controllers {
                 if (usernameOrId.Equals(GenericController.encodeInteger(usernameOrId).ToString()))
                     // 
                     // -- username is numeric, consider it an ID
-                    sqlImpersonate = "(id=" + DbController.encodeSQLNumber(GenericController.encodeInteger(usernameOrId)) + ")";
+                    sqlImpersonate = "(id=" + DbControllerX.encodeSQLNumber(GenericController.encodeInteger(usernameOrId)) + ")";
                 else {
                     // 
                     // -- username is not numeric, consider it a username
-                    string sqlUsername = DbController.encodeSQLText(usernameOrId);
+                    string sqlUsername = DbControllerX.encodeSQLText(usernameOrId);
                     sqlImpersonate = "(username=" + sqlUsername + ")";
                 }
                 List<PersonModel> people = DbBaseModel.createList<PersonModel>(core.cpParent, sqlImpersonate);
@@ -54,7 +54,7 @@ namespace Contensive.Processor.Controllers {
                 core.visitProperty.setProperty("adminImpersonation", userIdToRestore);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -81,7 +81,7 @@ namespace Contensive.Processor.Controllers {
                 core.visitProperty.clearProperty("adminImpersonation");
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

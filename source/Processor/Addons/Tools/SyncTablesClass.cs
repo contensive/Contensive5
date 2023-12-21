@@ -49,7 +49,7 @@ namespace Contensive.Processor.Addons.Tools {
                                 metadata = Processor.Models.Domain.ContentMetadataModel.create(core, csData.getInteger("id"));
                                 TableName = metadata.tableName;
                                 Stream.add("Synchronizing Content " + metadata.name + " to table " + TableName + "<br>");
-                                using (var db = new DbController(core, metadata.dataSourceName)) {
+                                using (var db = new DbControllerX(core, metadata.dataSourceName)) {
                                     db.createSQLTable(TableName);
                                     if (metadata.fields.Count > 0) {
                                         foreach (var keyValuePair in metadata.fields) {
@@ -68,7 +68,7 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 returnValue = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return returnValue;

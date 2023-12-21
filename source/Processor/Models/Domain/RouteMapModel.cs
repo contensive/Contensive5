@@ -110,7 +110,7 @@ namespace Contensive.Processor.Models.Domain {
                     string localRoute = GenericController.normalizeRoute(remoteMethod.name);
                     if (!string.IsNullOrWhiteSpace(localRoute)) {
                         if (result.routeDictionary.ContainsKey(localRoute)) {
-                            LogController.logWarn(core, new GenericException("Route [" + localRoute + "] cannot be added because it matches the Admin Route or another Remote Method."));
+                            LogControllerX.logWarn(core, new GenericException("Route [" + localRoute + "] cannot be added because it matches the Admin Route or another Remote Method."));
                         } else {
                             //
                             // -- add routeSuffix wildcard to all remote methods that do not have a wildcard so /a/b/c will match addons a, or a/b, or a/b/c
@@ -136,7 +136,7 @@ namespace Contensive.Processor.Models.Domain {
                         if (result.routeDictionary.ContainsKey(localRoute)) {
                             string warnName = $"Link Forward Route [{localRoute}] cannot be added";
                             string warnDesc = $"Link Forward Route [{localRoute}] cannot be added because it matches the Admin Route [{core.appConfig.adminRoute}], a Remote Method or another Link Forward.";
-                            LogController.setSiteWarning(core, warnName, warnDesc,true);
+                            LogControllerX.setSiteWarning(core, warnName, warnDesc,true);
                         } else {
                             //
                             // -- link alias does not modify the route 
@@ -164,7 +164,7 @@ namespace Contensive.Processor.Models.Domain {
                         // -- duplicate route. map must be unique. fail route
                         string warnName = $"Link Alias route [{localRoute}] cannot be added";
                         string warnDesc = $"Link Alias route [{localRoute}] cannot be added because it matches the Admin Route, a Remote Method, a Link Forward o another Link Alias.";
-                        LogController.setSiteWarning(core, warnName, warnDesc, true);
+                        LogControllerX.setSiteWarning(core, warnName, warnDesc, true);
                         continue;
                     }
                     //
@@ -229,7 +229,7 @@ namespace Contensive.Processor.Models.Domain {
                 return result;
             } catch (Exception ex) {
                 // -- log error but return what you can. Without routes the application fails hard.
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 if (result == null) { return new RouteMapModel(); }
                 return result;
             }

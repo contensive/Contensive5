@@ -98,10 +98,10 @@ namespace Contensive.Processor.Addons.Tools {
                         DataTable dt = null;
                         try {
                             if(datasource.name.ToLowerInvariant()=="default" || string.IsNullOrEmpty(datasource.name)) {
-                                dt = core.db.executeQuery(SQL, DbController.getStartRecord(pageSize, pageNumber), pageSize);
+                                dt = core.db.executeQuery(SQL, DbControllerX.getStartRecord(pageSize, pageNumber), pageSize);
                             } else {
-                                var db = new DbController(core, datasource.name);
-                                dt = db.executeQuery(SQL, DbController.getStartRecord(pageSize, pageNumber), pageSize);
+                                var db = new DbControllerX(core, datasource.name);
+                                dt = db.executeQuery(SQL, DbControllerX.getStartRecord(pageSize, pageNumber), pageSize);
                             }
                         } catch (Exception ex) {
                             //
@@ -210,7 +210,7 @@ namespace Contensive.Processor.Addons.Tools {
                 // -- assemble form
                 returnHtml = AdminUIController.getToolForm(core, Stream.text, ButtonCancel + "," + ButtonRun);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return returnHtml;

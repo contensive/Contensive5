@@ -12,7 +12,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             try {
                 //
                 if (!string.IsNullOrEmpty(DeveloperError)) {
-                    LogController.log(core, DeveloperError, BaseClasses.CPLogBaseClass.LogLevel.Error);
+                    LogControllerX.log(core, DeveloperError, BaseClasses.CPLogBaseClass.LogLevel.Error);
                 }
                 if (!string.IsNullOrEmpty(UserError)) {
                     Processor.Controllers.ErrorController.addUserError(core, UserError);
@@ -20,7 +20,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }

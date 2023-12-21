@@ -53,7 +53,7 @@ namespace Contensive.Processor.Controllers {
                     ContentName = MetadataController.getContentNameByID(core, ContentID);
                     if (!string.IsNullOrEmpty(ContentName)) {
                         using (var csData = new CsModel(core)) {
-                            csData.open(ContentName, "ID=" + DbController.encodeSQLNumber(RecordID), "", false);
+                            csData.open(ContentName, "ID=" + DbControllerX.encodeSQLNumber(RecordID), "", false);
                             if (csData.ok()) {
                                 csData.set(FieldName, ContentCopy);
                             }
@@ -155,7 +155,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 return null;
             }
         }

@@ -31,7 +31,7 @@ namespace Contensive.Processor.Addons.Tools {
         public static string get(CPClass cp) {
             CoreController core = cp.core;
             try {
-                KeyPtrController Index = new KeyPtrController();
+                KeyPtrControllerX Index = new KeyPtrControllerX();
                 int ContentId = cp.Doc.GetInteger(RequestNameToolContentId);
                 var contentMetadata = ContentMetadataModel.create(core, ContentId, true, true);
                 int RecordCount = 0;
@@ -140,26 +140,26 @@ namespace Contensive.Processor.Addons.Tools {
                                                         core.db.executeNonQuery(SQL);
                                                     }
                                                     SQL = "Update ccFields"
-                                                        + " Set name=" + DbController.encodeSQLText(formFieldName)
+                                                        + " Set name=" + DbControllerX.encodeSQLText(formFieldName)
                                                         + ",type=" + (int)formFieldTypeId
-                                                        + ",caption=" + DbController.encodeSQLText(cp.Doc.GetText("dtfaCaption." + RecordPointer))
-                                                        + ",DefaultValue=" + DbController.encodeSQLText(cp.Doc.GetText("dtfaDefaultValue." + RecordPointer))
-                                                        + ",EditSortPriority=" + DbController.encodeSQLText(GenericController.encodeText(cp.Doc.GetInteger("dtfaEditSortPriority." + RecordPointer)))
-                                                        + ",Active=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaActive." + RecordPointer))
-                                                        + ",ReadOnly=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaReadOnly." + RecordPointer))
-                                                        + ",Authorable=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaAuthorable." + RecordPointer))
-                                                        + ",Required=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaRequired." + RecordPointer))
-                                                        + ",UniqueName=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaUniqueName." + RecordPointer))
-                                                        + ",TextBuffered=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaTextBuffered." + RecordPointer))
-                                                        + ",Password=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaPassword." + RecordPointer))
-                                                        + ",HTMLContent=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaHTMLContent." + RecordPointer))
-                                                        + ",EditTab=" + DbController.encodeSQLText(cp.Doc.GetText("dtfaEditTab." + RecordPointer))
-                                                        + ",Scramble=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaScramble." + RecordPointer)) + "";
+                                                        + ",caption=" + DbControllerX.encodeSQLText(cp.Doc.GetText("dtfaCaption." + RecordPointer))
+                                                        + ",DefaultValue=" + DbControllerX.encodeSQLText(cp.Doc.GetText("dtfaDefaultValue." + RecordPointer))
+                                                        + ",EditSortPriority=" + DbControllerX.encodeSQLText(GenericController.encodeText(cp.Doc.GetInteger("dtfaEditSortPriority." + RecordPointer)))
+                                                        + ",Active=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaActive." + RecordPointer))
+                                                        + ",ReadOnly=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaReadOnly." + RecordPointer))
+                                                        + ",Authorable=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaAuthorable." + RecordPointer))
+                                                        + ",Required=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaRequired." + RecordPointer))
+                                                        + ",UniqueName=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaUniqueName." + RecordPointer))
+                                                        + ",TextBuffered=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaTextBuffered." + RecordPointer))
+                                                        + ",Password=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaPassword." + RecordPointer))
+                                                        + ",HTMLContent=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaHTMLContent." + RecordPointer))
+                                                        + ",EditTab=" + DbControllerX.encodeSQLText(cp.Doc.GetText("dtfaEditTab." + RecordPointer))
+                                                        + ",Scramble=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaScramble." + RecordPointer)) + "";
                                                     if (core.session.isAuthenticatedAdmin()) {
-                                                        SQL += ",adminonly=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaAdminOnly." + RecordPointer));
+                                                        SQL += ",adminonly=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaAdminOnly." + RecordPointer));
                                                     }
                                                     if (core.session.isAuthenticatedDeveloper()) {
-                                                        SQL += ",DeveloperOnly=" + DbController.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaDeveloperOnly." + RecordPointer));
+                                                        SQL += ",DeveloperOnly=" + DbControllerX.encodeSQLBoolean(cp.Doc.GetBoolean("dtfaDeveloperOnly." + RecordPointer));
                                                     }
                                                     SQL += " where ID=" + formFieldId;
                                                     core.db.executeNonQuery(SQL);
@@ -530,7 +530,7 @@ namespace Contensive.Processor.Addons.Tools {
                 // -- assemble form
                 return AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 return toolExceptionMessage;
             }
         }

@@ -34,7 +34,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 tempGetForm_LogFiles = AdminUIController.getToolForm(core, tempGetForm_LogFiles, ButtonList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return tempGetForm_LogFiles;
         }
@@ -171,7 +171,7 @@ namespace Contensive.Processor.Addons.Tools {
                     result += GetTableEnd;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }

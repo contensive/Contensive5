@@ -12,7 +12,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// static class controller
     /// </summary>
-    public class QuickEditController : IDisposable {
+    public class QuickEditControllerX : IDisposable {
         //
         //=============================================================================
         /// <summary>
@@ -157,7 +157,7 @@ namespace Contensive.Processor.Controllers {
                 result = HtmlController.formMultipart(core, result, core.webServer.requestQueryString, "", "ccForm");
                 result = "<div class=\"ccCon\">" + result + "</div>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -207,7 +207,7 @@ namespace Contensive.Processor.Controllers {
             GC.SuppressFinalize(this);
         }
         //
-        ~QuickEditController()  {
+        ~QuickEditControllerX()  {
             // do not add code here. Use the Dispose(disposing) overload
             Dispose(false);
 

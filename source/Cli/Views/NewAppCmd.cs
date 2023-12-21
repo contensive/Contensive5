@@ -203,7 +203,7 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- configure local folders
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Create local folders.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "Create local folders.");
                     setupDirectory(appConfig.localWwwPath);
                     setupDirectory(appConfig.localFilesPath);
                     setupDirectory(appConfig.localPrivatePath);
@@ -252,7 +252,7 @@ namespace Contensive.CLI {
                     }
                     //
                     // -- save the app configuration and reload the server using this app
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Save app configuration.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "Save app configuration.");
                     appConfig.appStatus = AppConfigModel.AppStatusEnum.maintenance;
                     cp.core.serverConfig.apps.Add(appConfig.name, appConfig);
                     cp.core.serverConfig.save(cp.core);
@@ -262,7 +262,7 @@ namespace Contensive.CLI {
                     // update local host file
                     //
                     try {
-                        Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Update host file to add domain [127.0.0.1 " + appConfig.name + "].");
+                        Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "Update host file to add domain [127.0.0.1 " + appConfig.name + "].");
                         File.AppendAllText("c:\\windows\\system32\\drivers\\etc\\hosts", System.Environment.NewLine + "127.0.0.1\t" + appConfig.name);
                     } catch (Exception ex) {
                         Console.Write("Error attempting to update local host file:" + ex);
@@ -271,10 +271,10 @@ namespace Contensive.CLI {
                     //
                     // create the database on the server
                     //
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Create database.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "Create database.");
                     cp.core.dbServer.createCatalog(appConfig.name);
                     //
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "When app creation is complete, use IIS Import Application to install either you web application, or the Contensive DefaultAspxSite.zip application.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "When app creation is complete, use IIS Import Application to install either you web application, or the Contensive DefaultAspxSite.zip application.");
                     //// copy in the pattern files 
                     ////  - the only pattern is aspx
                     ////  - this is cc running, so they are setting up new application which may or may not have a webrole here.
@@ -287,11 +287,11 @@ namespace Contensive.CLI {
                 // initialize the new app, use the save authentication that was used to authorize this object
                 //
                 using (CPClass cp = new CPClass(appName)) {
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Verify website.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "Verify website.");
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.localWwwPath);
                     //
                     bool DefaultAspxSiteInstalled = false;
-                    Processor.Controllers.LogController.logInfo(cp.core, "Install DefaultAspxSite.");
+                    Processor.Controllers.LogControllerX.logInfo(cp.core, "Install DefaultAspxSite.");
                     if (!cp.core.programFiles.fileExists(@"\defaultaspxsite.zip")) {
                         //
                         // -- message to install defaultsite manually
@@ -322,18 +322,18 @@ namespace Contensive.CLI {
                         cp.WwwFiles.Copy("WebRewrite-Sample.config", "WebRewrite.config");
                     }
                     //
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Run db upgrade.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "Run db upgrade.");
                     Processor.Controllers.BuildController.upgrade(cp.core, true, true);
                     //
                     // -- set the application back to normal mode
                     cp.core.serverConfig.save(cp.core);
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_ServerPageDefault, iisDefaultDoc);
                     //
-                    Contensive.Processor.Controllers.LogController.logInfo(cp.core, "Upgrade complete.");
+                    Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "Upgrade complete.");
                     if (DefaultAspxSiteInstalled) {
-                        Contensive.Processor.Controllers.LogController.logInfo(cp.core, "A default website was imported into an iis website with this applicaiton name.");
+                        Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "A default website was imported into an iis website with this applicaiton name.");
                     } else {
-                        Contensive.Processor.Controllers.LogController.logInfo(cp.core, "The Contensive website was not imported because the file DefaultAspxSite.zip was not found in path [" + cp.core.programFiles.localAbsRootPath + "].");
+                        Contensive.Processor.Controllers.LogControllerX.logInfo(cp.core, "The Contensive website was not imported because the file DefaultAspxSite.zip was not found in path [" + cp.core.programFiles.localAbsRootPath + "].");
                     }
                 }
                 //

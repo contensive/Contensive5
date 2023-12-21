@@ -17,7 +17,7 @@ namespace Contensive.Processor.Controllers {
     /// nlog: http://nlog-project.org/
     /// base configuration from: https://brutaldev.com/post/logging-setup-in-5-minutes-with-nlog
     /// </summary>
-    public static class LogController {
+    public static class LogControllerX {
         //
         //=============================================================================
         /// <summary>
@@ -92,7 +92,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="level"></param>
         public static void logShortLine(string messageLine, BaseClasses.CPLogBaseClass.LogLevel level) {
             try {
-                logger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
+                logger.Log(typeof(LogControllerX), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
             } catch (Exception) {
                 // -- throw away errors in error-handling
             }
@@ -108,7 +108,7 @@ namespace Contensive.Processor.Controllers {
         public static void log(CoreController core, string message, BaseClasses.CPLogBaseClass.LogLevel level) {
             try {
                 string messageLine = processLogMessage(core, message, level >= BaseClasses.CPLogBaseClass.LogLevel.Warn);
-                logger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
+                logger.Log(typeof(LogControllerX), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
             } catch (Exception) {
                 // -- throw away errors in error-handling
             }
@@ -390,15 +390,15 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- delete the warning
                 string sqlDelete = "delete from ccSiteWarnings"
-                    + " where (name=" + DbController.encodeSQLText(name) + ")"
-                    + " and(description=" + DbController.encodeSQLText(description) + ")"
+                    + " where (name=" + DbControllerX.encodeSQLText(name) + ")"
+                    + " and(description=" + DbControllerX.encodeSQLText(description) + ")"
                     + "";
                 core.db.executeNonQuery(sqlDelete);
                 return;
             }
             string sql = "select top 1 ID from ccSiteWarnings"
-                + " where (name=" + DbController.encodeSQLText(name) + ")"
-                + " and(description=" + DbController.encodeSQLText(description) + ")"
+                + " where (name=" + DbControllerX.encodeSQLText(name) + ")"
+                + " and(description=" + DbControllerX.encodeSQLText(description) + ")"
                 + "";
             using (DataTable dt = core.db.executeQuery(sql)) {
                 if (dt.Rows.Count > 0) {
@@ -407,7 +407,7 @@ namespace Contensive.Processor.Controllers {
                     int warningId = GenericController.encodeInteger(dt.Rows[0]["id"]);
                     sql = "update ccsitewarnings "
                         + " set count=count+1,"
-                        + " dateLastReported=" + DbController.encodeSQLDate(core.dateTimeNowMockable) + " "
+                        + " dateLastReported=" + DbControllerX.encodeSQLDate(core.dateTimeNowMockable) + " "
                         + " where id=" + warningId;
                     core.db.executeNonQuery(sql);
                     return;

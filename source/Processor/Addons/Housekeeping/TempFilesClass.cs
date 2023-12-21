@@ -22,8 +22,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 deleteOldFilesReturnFilesRemaining(env, "\\");
 
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -62,8 +62,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 return filesRemaining;
 
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }

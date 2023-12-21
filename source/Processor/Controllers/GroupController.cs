@@ -66,7 +66,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
         }
         //
@@ -121,7 +121,7 @@ namespace Contensive.Processor.Controllers {
             if (groupNameIdOrGuid.isNumeric()) {
                 group = DbBaseModel.create<GroupModel>(core.cpParent, GenericController.encodeInteger(groupNameIdOrGuid));
                 if (group == null) {
-                    LogController.logError(core, new GenericException("addUser called with invalid groupId [" + groupNameIdOrGuid + "]"));
+                    LogControllerX.logError(core, new GenericException("addUser called with invalid groupId [" + groupNameIdOrGuid + "]"));
                     return;
                 }
             } else if (GenericController.isGuid(groupNameIdOrGuid)) {
@@ -201,7 +201,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="user"></param>
         public static void removeUser(CoreController core, GroupModel group, PersonModel user) {
             if ((group != null) && (user != null)) {
-                MemberRuleModel.deleteRows<MemberRuleModel>(core.cpParent, "(MemberID=" + DbController.encodeSQLNumber(user.id) + ")AND(groupid=" + DbController.encodeSQLNumber(group.id) + ")");
+                MemberRuleModel.deleteRows<MemberRuleModel>(core.cpParent, "(MemberID=" + DbControllerX.encodeSQLNumber(user.id) + ")AND(groupid=" + DbControllerX.encodeSQLNumber(group.id) + ")");
             }
         }
         //
@@ -269,7 +269,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 result = isInGroupList(core, "," + GroupController.getGroupId(core, GroupName), userId, true);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return result;
@@ -289,7 +289,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 result = isInGroupList(core, checkMemberId, core.session.isAuthenticated, GroupIDList, adminReturnsTrue);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return result;
@@ -371,7 +371,7 @@ namespace Contensive.Processor.Controllers {
                         criteria = ""
                             + "(" + criteria + ")"
                             + " and(r.id is not null)"
-                            + " and((r.DateExpires is null)or(r.DateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))"
+                            + " and((r.DateExpires is null)or(r.DateExpires>" + DbControllerX.encodeSQLDate(core.dateTimeNowMockable) + "))"
                             + " ";
                         if (adminReturnsTrue) {
                             criteria = "(" + criteria + ")or(m.admin<>0)or(m.developer<>0)";
@@ -394,7 +394,7 @@ namespace Contensive.Processor.Controllers {
 
                 return returnResult;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

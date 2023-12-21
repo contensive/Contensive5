@@ -71,7 +71,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 string archiveLink = core.webServer.requestPathPage;
                 archiveLink = convertLinkToShortLink(archiveLink, core.webServer.requestDomain, core.appConfig.cdnFileUrl);
                 archiveLink = encodeVirtualPath(archiveLink, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
-                string sqlCriteria = "(parentId=" + parentPageID + ")" + ((string.IsNullOrWhiteSpace(UcaseRequestedListName)) ? "" : "and(parentListName=" + DbController.encodeSQLText(UcaseRequestedListName) + ")");
+                string sqlCriteria = "(parentId=" + parentPageID + ")" + ((string.IsNullOrWhiteSpace(UcaseRequestedListName)) ? "" : "and(parentListName=" + DbControllerX.encodeSQLText(UcaseRequestedListName) + ")");
                 List<PageContentModel> childPageList = DbBaseModel.createList<PageContentModel>(core.cpParent, sqlCriteria, "sortOrder");
                 var inactiveList = new StringBuilder();
                 var activeList = new StringBuilder();
@@ -233,7 +233,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 return string.Empty;
             }
         }

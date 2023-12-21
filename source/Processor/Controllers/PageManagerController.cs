@@ -321,10 +321,10 @@ namespace Contensive.Processor.Controllers {
                         string LinkForwardCriteria = ""
                             + "(active<>0)"
                             + "and("
-                            + "(SourceLink=" + DbController.encodeSQLText(core.webServer.requestPathPage) + ")"
-                            + "or(SourceLink=" + DbController.encodeSQLText(LinkNoProtocol) + ")"
-                            + "or(SourceLink=" + DbController.encodeSQLText(LinkFullPath) + ")"
-                            + "or(SourceLink=" + DbController.encodeSQLText(LinkFullPathNoSlash) + ")"
+                            + "(SourceLink=" + DbControllerX.encodeSQLText(core.webServer.requestPathPage) + ")"
+                            + "or(SourceLink=" + DbControllerX.encodeSQLText(LinkNoProtocol) + ")"
+                            + "or(SourceLink=" + DbControllerX.encodeSQLText(LinkFullPath) + ")"
+                            + "or(SourceLink=" + DbControllerX.encodeSQLText(LinkFullPathNoSlash) + ")"
                             + ")";
                         sql = core.db.getSQLSelect("ccLinkForwards", "ID,DestinationLink,Viewings,GroupID", LinkForwardCriteria, "ID", "", 1);
                         using (var csData = new CsModel(core)) {
@@ -488,7 +488,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -506,7 +506,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- If no domain, block content with message
                     string errMsg = "Domain not recognized:" + core.webServer.requestUrlSource;
-                    logger.Error(LogController.processLogMessage(core, errMsg, true));
+                    logger.Error(LogControllerX.processLogMessage(core, errMsg, true));
                     return HtmlController.div("This domain name is not configured for this site.", "ccDialogPageNotFound");
                 }
                 //
@@ -555,7 +555,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return result;
@@ -571,7 +571,7 @@ namespace Contensive.Processor.Controllers {
                 if (core.doc.pageController.page.id == 0) {
                     //
                     // -- landing page is not valid -- display error
-                    LogController.logInfo(core, "Requested page/document not found:" + core.webServer.requestUrlSource);
+                    LogControllerX.logInfo(core, "Requested page/document not found:" + core.webServer.requestUrlSource);
                     core.doc.redirectBecausePageNotFound = true;
                     core.doc.redirectReason = "Redirecting because the page selected could not be found.";
                     core.doc.redirectLink = PageManagerController.getPageNotFoundRedirectLink(core, core.doc.redirectReason, "", "", 0);
@@ -623,12 +623,12 @@ namespace Contensive.Processor.Controllers {
                             + " FROM (ccPageContentBlockRules"
                             + " LEFT JOIN ccgroups ON ccPageContentBlockRules.GroupId = ccgroups.ID)"
                             + " LEFT JOIN ccMemberRules ON ccgroups.Id = ccMemberRules.GroupID"
-                            + " WHERE (((ccMemberRules.memberId)=" + DbController.encodeSQLNumber(core.session.user.id) + ")"
+                            + " WHERE (((ccMemberRules.memberId)=" + DbControllerX.encodeSQLNumber(core.session.user.id) + ")"
                             + " AND ((ccPageContentBlockRules.RecordID) In (" + BlockedRecordIDList + "))"
                             + " AND ((ccPageContentBlockRules.Active)<>0)"
                             + " AND ((ccgroups.Active)<>0)"
                             + " AND ((ccMemberRules.Active)<>0)"
-                            + " AND ((ccMemberRules.DateExpires) Is Null Or (ccMemberRules.DateExpires)>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "));";
+                            + " AND ((ccMemberRules.DateExpires) Is Null Or (ccMemberRules.DateExpires)>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + "));";
                         using (var csData = new CsModel(core)) {
                             csData.openSql(SQL);
                             BlockedRecordIDList = "," + BlockedRecordIDList;
@@ -653,7 +653,7 @@ namespace Contensive.Processor.Controllers {
                                 + " AND ((ccGroupRules.Active)<>0)"
                                 + " AND ((ManagementGroups.Active)<>0)"
                                 + " AND ((ManagementMemberRules.Active)<>0)"
-                                + " AND ((ManagementMemberRules.DateExpires) Is Null Or (ManagementMemberRules.DateExpires)>" + DbController.encodeSQLDate(core.doc.profileStartTime) + ")"
+                                + " AND ((ManagementMemberRules.DateExpires) Is Null Or (ManagementMemberRules.DateExpires)>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + ")"
                                 + " AND ((ManagementMemberRules.memberId)=" + core.session.user.id + " ));";
                             using (var csData = new CsModel(core)) {
                                 csData.openSql(SQL);
@@ -1006,7 +1006,7 @@ namespace Contensive.Processor.Controllers {
                     return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -1046,7 +1046,7 @@ namespace Contensive.Processor.Controllers {
                     if (userLegacyQuickEditing) {
                         //
                         // -- quick editor for wysiwyg content instead of rendered content
-                        resultInnerContent.Append(QuickEditController.getQuickEditing(core));
+                        resultInnerContent.Append(QuickEditControllerX.getQuickEditing(core));
                     } else {
                         //
                         // -- Render the legacy content for the page (copyFilename field)
@@ -1171,7 +1171,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result.ToString();
         }
@@ -1209,7 +1209,7 @@ namespace Contensive.Processor.Controllers {
                 copyRecord.save(core.cpParent);
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -1241,7 +1241,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 result = Copy;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -1276,7 +1276,7 @@ namespace Contensive.Processor.Controllers {
                 if (domain == null) {
                     //
                     // -- domain is not valid
-                    LogController.logError(core, new GenericException("Page could not be determined because the domain was not recognized."));
+                    LogControllerX.logError(core, new GenericException("Page could not be determined because the domain was not recognized."));
                     return "";
                 }
                 //
@@ -1434,7 +1434,7 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("Open Graph Image", (string.IsNullOrEmpty(core.doc.pageController.page.imageFilename.filename)) ? string.Empty : core.webServer.requestProtocol + core.appConfig.domainList.First() + core.appConfig.cdnFileUrl + core.doc.pageController.page.imageFilename);
                 return "";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -1456,7 +1456,7 @@ namespace Contensive.Processor.Controllers {
                 if (domain == null) {
                     //
                     // -- domain not available
-                    LogController.logError(core, new GenericException("Landing page could not be determined because the domain was not recognized."));
+                    LogControllerX.logError(core, new GenericException("Landing page could not be determined because the domain was not recognized."));
                 } else {
                     //
                     // -- attempt domain landing page
@@ -1495,7 +1495,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
             return landingPage;
@@ -1590,7 +1590,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 result = Link;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -1689,7 +1689,7 @@ namespace Contensive.Processor.Controllers {
                 // -- assemble
                 result = linkprotocol + linkDomain + linkPathPage;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -1746,7 +1746,7 @@ namespace Contensive.Processor.Controllers {
                                         FormValue = core.docProperties.getText(formField.peopleFieldName);
                                         if ((!string.IsNullOrEmpty(FormValue)) && peopleFieldMeta.uniqueName) {
                                             using (var csData = new CsModel(core)) {
-                                                string SQL = "select count(*) from ccMembers where " + formField.peopleFieldName + "=" + DbController.encodeSQLText(FormValue);
+                                                string SQL = "select count(*) from ccMembers where " + formField.peopleFieldName + "=" + DbControllerX.encodeSQLText(FormValue);
                                                 csData.openSql(SQL);
                                                 if (csData.ok()) {
                                                     Success = csData.getInteger("cnt") == 0;
@@ -1869,7 +1869,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -1965,7 +1965,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -1982,7 +1982,7 @@ namespace Contensive.Processor.Controllers {
                 bool IsRetry = (core.docProperties.getInteger("ContensiveFormPageID") != 0);
                 int FormPageId = 0;
                 using (var csData = new CsModel(core)) {
-                    csData.open("Form Pages", "name=" + DbController.encodeSQLText(FormPageName));
+                    csData.open("Form Pages", "name=" + DbControllerX.encodeSQLText(FormPageName));
                     if (csData.ok()) {
                         FormPageId = csData.getInteger("ID");
                         Formhtml = csData.getText("Body");
@@ -2063,7 +2063,7 @@ namespace Contensive.Processor.Controllers {
                     + ErrorController.getUserError(core)
                     + HtmlController.formMultipart(core, innerHtml, core.doc.refreshQueryString, "", "ccForm");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -2181,7 +2181,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -2224,7 +2224,7 @@ namespace Contensive.Processor.Controllers {
                     result = AdminUIController.getEditWrapper(core, result);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -2394,7 +2394,7 @@ namespace Contensive.Processor.Controllers {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }
@@ -2437,13 +2437,13 @@ namespace Contensive.Processor.Controllers {
                     + " AND ((ccPageContentBlockRules.Active)<>0)"
                     + " AND ((ccgroups.Active)<>0)"
                     + " AND ((ccMemberRules.Active)<>0)"
-                    + " AND ((ccMemberRules.DateExpires) Is Null Or (ccMemberRules.DateExpires)>" + DbController.encodeSQLDate(core.doc.profileStartTime) + ")"
+                    + " AND ((ccMemberRules.DateExpires) Is Null Or (ccMemberRules.DateExpires)>" + DbControllerX.encodeSQLDate(core.doc.profileStartTime) + ")"
                     + " AND ((ccMemberRules.memberId)=" + core.session.user.id + "));";
                 int recordsReturned = 0;
                 DataTable dt = core.db.executeQuery(sql, 0, 1, ref recordsReturned);
                 return !recordsReturned.Equals(0);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }

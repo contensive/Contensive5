@@ -150,7 +150,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logFatal(core, ex, "exception in serverConfigModel.getObject");
+                LogControllerX.logFatal(core, ex, "exception in serverConfigModel.getObject");
                 throw;
             }
             return returnModel;
@@ -173,7 +173,7 @@ namespace Contensive.Processor.Models.Domain {
                     core.serverConfig.save(core);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
         }
     }

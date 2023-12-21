@@ -42,7 +42,7 @@ namespace Contensive.CLI {
             }
             //
             // -- execute task
-            TaskRunnerController.executeRunnerTasks(appName, arg);
+            TaskRunnerControllerX.executeRunnerTasks(appName, arg);
         }
     }
 }

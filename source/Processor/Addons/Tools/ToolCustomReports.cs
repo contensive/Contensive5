@@ -226,7 +226,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 return AdminUIController.getToolBody(core, title, ButtonCommaListLeft, ButtonCommaListRight, true, true, Description, ContentSummary, ContentPadding, Content);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 return toolExceptionMessage;
             }
         }
@@ -241,7 +241,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             if ( customReport != null) {
                 var ExportCSVAddon = core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
-                    LogController.logError(core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
+                    LogControllerX.logError(core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
                 } else {
                     var docProperties = new Dictionary<string, string> {
                                                 { "sql", customReport.sqlQuery },

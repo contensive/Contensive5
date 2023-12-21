@@ -257,7 +257,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 return wrapForm(core, Stream.text, adminData, AdminFormEdit);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }
@@ -278,7 +278,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     autocomplete = false
                 });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

@@ -87,7 +87,7 @@ namespace Contensive.Processor.Addons.Tools {
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }

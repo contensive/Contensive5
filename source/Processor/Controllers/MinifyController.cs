@@ -64,7 +64,7 @@ namespace Contensive.Processor.Controllers {
                 addon.save(core.cpParent);
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 throw;
             }
         }

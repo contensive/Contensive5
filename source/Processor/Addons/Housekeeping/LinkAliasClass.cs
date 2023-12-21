@@ -19,8 +19,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, LinkAlias");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -58,7 +58,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 if (recordsAffectedTotal > 0) { Contensive.Models.Db.DbBaseModel.invalidateCacheOfTable<Contensive.Models.Db.LinkAliasModel>(env.core.cpParent); }
 
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                LogControllerX.logError(env.core, ex);
             }
 
         }

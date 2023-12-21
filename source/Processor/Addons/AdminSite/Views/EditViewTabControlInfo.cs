@@ -29,12 +29,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // Content not found or not loaded
                     if (adminData.adminContent.id == 0) {
                         //
-                        LogController.logError(core, new GenericException("No content definition was specified for this page"));
+                        LogControllerX.logError(core, new GenericException("No content definition was specified for this page"));
                         return HtmlController.p("No content was specified.");
                     } else {
                         //
                         // Content Definition was not specified
-                        LogController.logError(core, new GenericException("The content definition specified for this page [" + adminData.adminContent.id + "] was not found"));
+                        LogControllerX.logError(core, new GenericException("The content definition specified for this page [" + adminData.adminContent.id + "] was not found"));
                         return HtmlController.p("No content was specified.");
                     }
                 }
@@ -282,7 +282,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 tabPanel = null;
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
                 string s = AdminUIController.editTable(tabPanel.text);
                 result = AdminUIController.getEditPanel(core, true, "Control Information", "", $"<div>There was an error reading the data for this page. [{ex}]</div>{s}");
                 adminData.editSectionPanelCount += 1;

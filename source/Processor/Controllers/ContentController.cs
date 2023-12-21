@@ -160,7 +160,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- PersonModel
                     if (!isDelete) {
-                        LogController.addActivityCompletedEdit(core, "Edit", core.session.user.name + " saved changes to user #" + recordId + " (" + recordName + ")", recordId);
+                        LogControllerX.addActivityCompletedEdit(core, "Edit", core.session.user.name + " saved changes to user #" + recordId + " (" + recordName + ")", recordId);
                         // -- if password is saved, and plaintext is disabled, create and save hash
                         bool allowPlainTextPassword = core.siteProperties.getBoolean(Constants.sitePropertyName_AllowPlainTextPassword, true);
                         if (!allowPlainTextPassword) {
@@ -269,7 +269,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
         }
         //

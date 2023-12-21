@@ -36,7 +36,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string processAjaxData(CoreController core) {
             string result = "";
             try {
-                LogController.logError(core, new GenericException("executeRoute_ProcessAjaxData deprecated"));
+                LogControllerX.logError(core, new GenericException("executeRoute_ProcessAjaxData deprecated"));
             } catch (Exception ex) {
                 throw (ex);
             }

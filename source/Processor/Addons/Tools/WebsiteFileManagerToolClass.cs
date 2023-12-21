@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.Tools {
                 string ButtonList = ButtonApply + "," + ButtonCancel;
                 result = AdminUIController.getToolBody(core, "Website File Manager", ButtonList, "", false, false, Description, "", 0, Content);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
             return result;
         }

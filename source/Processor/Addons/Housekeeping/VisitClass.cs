@@ -20,8 +20,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, Visits");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -120,8 +120,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
 
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
-                LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
+                LogControllerX.logError(env.core, ex);
+                LogControllerX.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
         }
@@ -147,7 +147,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 SQLTablePeople = MetadataController.getContentTablename(env.core, "People");
                 //
                 appName = env.core.appConfig.name;
-                DeleteBeforeDateSQL = DbController.encodeSQLDate(DeleteBeforeDate);
+                DeleteBeforeDateSQL = DbControllerX.encodeSQLDate(DeleteBeforeDate);
                 //
                 // Visits older then archive age
                 //
@@ -166,7 +166,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 return;
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                LogControllerX.logError(env.core, ex);
             }
         }
     }

@@ -20,7 +20,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
         public void log( string message ) {
             //
             // -- add to the info log
-            LogController.logInfo(core, message);
+            LogControllerX.logInfo(core, message);
             //
             // -- append to the temp/housekeep log
             DateTime rightNow = DateTime.Now;
@@ -184,7 +184,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
             try {
                 this.core = core;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                LogControllerX.logError(core, ex);
             }
         }
     }
