@@ -686,15 +686,15 @@ namespace Contensive.Processor.Controllers {
                 if (appConfig == null) {
                     //
                     // -- server mode, there is no application
-                    session = SessionController.create(this, false);
+                    session = new(this, false);
                 } else if (appConfig.appStatus != AppConfigModel.AppStatusEnum.ok) {
                     //
                     // -- application is not ready, might be error, or in maintainence mode
-                    session = SessionController.create(this, false);
+                    session = new(this, false);
                 } else {
                     //
                     // -- initialize session
-                    session = SessionController.create(this, allowVisit && siteProperties.allowVisitTracking);
+                    session = new(this, allowVisit && siteProperties.allowVisitTracking);
                 }
             } catch (Exception ex) {
                 LogController.logShortLine("CoreController coreController_Initialize, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
