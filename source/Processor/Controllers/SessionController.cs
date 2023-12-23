@@ -212,7 +212,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- authentication from form/querystring, authAction=login, authUsername+authPassword
                 //
-                if(core.docProperties.containsKey("authAction") && core.docProperties.getText("authAction").ToLowerInvariant().Equals("login")) {
+                if (core.docProperties.containsKey("authAction") && core.docProperties.getText("authAction").ToLowerInvariant().Equals("login")) {
                     string authUsername = core.docProperties.getText("authUsername");
                     string authPassword = core.docProperties.getText("authPassword");
                     if ((!string.IsNullOrWhiteSpace(authUsername)) && (!string.IsNullOrWhiteSpace(authPassword))) {
@@ -768,10 +768,10 @@ namespace Contensive.Processor.Controllers {
         /// Test the username and password against users and return the userId of the match, or 0 if not valid match
         /// </summary>
         /// <param name="username"></param>
-        /// <param name="password"></param>
+        /// <param name="requestPassword"></param>
         /// <param name="requestIncludesPassword">If true, the noPassword option is disabled</param>
         /// <returns></returns>
-        public int getUserIdForUsernameCredentials(string username, string password, bool requestIncludesPassword) {
+        public int getUserIdForUsernameCredentials(string username, string requestPassword, bool requestIncludesPassword) {
             try {
                 //
                 LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials enter");
@@ -783,7 +783,7 @@ namespace Contensive.Processor.Controllers {
                     return 0;
                 }
                 bool allowNoPassword = !requestIncludesPassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
-                if (string.IsNullOrEmpty(password) && !allowNoPassword) {
+                if (string.IsNullOrEmpty(requestPassword) && !allowNoPassword) {
                     //
                     // -- password blank, stop here
                     LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, password blank");
@@ -827,53 +827,65 @@ namespace Contensive.Processor.Controllers {
                     if (!allowNoPassword) {
                         //
                         // -- password mode
-                        if (string.IsNullOrEmpty(password)) {
+                        if (string.IsNullOrEmpty(requestPassword)) {
                             //
                             // -- fail, no password
-                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank password");
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank requestPassword");
                             return 0;
                         }
+                        string recordPassword = cs.getText("password");
                         if (allowPlainTextPassword) {
                             //
                             // -- legacy plain text password mode
-                            if (password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
+                            if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
                                 //
                                 // -- success, password match
                                 LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
                                 return cs.getInteger("ID");
                             }
-                            //
+                            // todo remove tmp-password logging
                             // -- fail, plain text
-                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                            if (DateTime.Now<new DateTime(2024,1,1)) { LogController.logTrace(core, $"SessionController.getUserIdForUsernameCredentials, allowPlainTextPassword, fail password mismatch, recordPassword [{recordPassword}], requestPassword [{requestPassword}]"); }
                             return 0;
                         } else {
                             //
                             // -- test encrypted password entered with passwordHash saved
-                            string passwordHash = SecurityController.encryptOneWay(core, password, cs.getText("ccguid"));
-                            if (passwordHash.Equals(cs.getText("passwordHash"), StringComparison.InvariantCultureIgnoreCase)) {
+                            string requestPasswordHash = SecurityController.encryptOneWay(core, requestPassword, cs.getText("ccguid"));
+                            string recordPasswordHash = cs.getText("passwordHash");
+                            if (requestPasswordHash.Equals(recordPasswordHash)) {
                                 //
-                                // -- success, encrypted password match
-                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
+                                // -- success, passwordHash match
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, success, passwordHash match, !allowPlainTextPassword");
                                 return cs.getInteger("ID");
                             }
-                            if (!core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPasswordHash, true)) {
+                            bool migrateToPasswordHash = core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPasswordHash, true);
+                            if (!migrateToPasswordHash) {
                                 //
+                                // todo remove tmp-password logging
                                 // -- migration mode disabled, encrypted password fail
-                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                                if (DateTime.Now < new DateTime(2024, 1, 1)) { LogController.logTrace(core, $"SessionController.getUserIdForUsernameCredentials fail passwordhash mismatch, !allowPlainTextPassword, !migration-mode, recordPasswordHash [{recordPasswordHash}], requestPasswordHash [{requestPasswordHash}]"); }
                                 return 0;
                             }
-                            if (!string.IsNullOrEmpty(cs.getText("password")) && string.IsNullOrEmpty(cs.getText("passwordhash")) && password.Equals(cs.getText("password"), StringComparison.InvariantCultureIgnoreCase)) {
+                            //
+                            // -- migration mode
+                            if (string.IsNullOrEmpty(recordPassword)) {
                                 //
-                                // -- migration model -- password matches plain text password, no hash, allow 1-time and migrate
-                                cs.set("passwordHash", passwordHash);
+                                // -- fail, blank record password
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredential, !allowPlainTextPassword, migration-mode, plain-text password blank");
+                                return 0;
+                            }
+                            if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
+                                //
+                                // -- migration mode -- plain-text password matche, allow 1-time and passwordhas update
+                                cs.set("passwordHash", requestPasswordHash);
                                 cs.set("password", "");
                                 cs.save();
-                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw migration");
+                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, !allowPlainTextPassword, migration-mode, matched plain text pw, setup passwordhash, cleared password.");
                                 return cs.getInteger("ID");
                             }
                             //
                             // -- fail, hash password
-                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank or incorrect pw");
+                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, !allowPlainTextPassword, migration-mode, migration failed because plain-text password mismatch");
                             return 0;
                         }
                     }
