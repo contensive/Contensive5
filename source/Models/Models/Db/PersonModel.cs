@@ -39,10 +39,6 @@ namespace Contensive.Models.Db {
         /// </summary>
         public bool blockTextMessage { get; set; }
         /// <summary>
-        /// enable/disable tool panel
-        /// </summary>
-        public bool allowToolsPanel { get; set; }
-        /// <summary>
         /// if true, the user allows auto login. It must be enabled on the site as well.
         /// </summary>
         public bool autoLogin { get; set; }

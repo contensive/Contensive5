@@ -52,7 +52,7 @@ namespace Tests {
             using (var cp = new CPClass(testAppName)) {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", true);
-                cp.Site.SetProperty("allow plain text password auto conversion to hash", false);
+                cp.Site.SetProperty("allow auto create password hash", false);
                 string testPassword = cp.Utils.GetRandomInteger().ToString();
                 string testUsername = cp.Utils.GetRandomInteger().ToString();
                 PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
@@ -81,7 +81,7 @@ namespace Tests {
             using (var cp = new CPClass(testAppName)) {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", false);
-                cp.Site.SetProperty("allow plain text password auto conversion to hash", false);
+                cp.Site.SetProperty("allow auto create password hash", false);
                 string testPassword = cp.Utils.GetRandomInteger().ToString();
                 string testUsername = cp.Utils.GetRandomInteger().ToString();
                 PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
@@ -111,7 +111,7 @@ namespace Tests {
             using (var cp = new CPClass(testAppName)) {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", false);
-                cp.Site.SetProperty("allow plain text password auto conversion to hash", true);
+                cp.Site.SetProperty("allow auto create password hash", true);
                 string testPassword = cp.Utils.GetRandomInteger().ToString();
                 string testUsername = cp.Utils.GetRandomInteger().ToString();
                 PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);

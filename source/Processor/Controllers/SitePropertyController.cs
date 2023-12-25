@@ -325,20 +325,6 @@ namespace Contensive.Processor.Controllers {
         private bool? _allowVisitTracking;
         //
         //====================================================================================================
-        /// <summary>
-        /// trap errors (hide errors) - when true, errors will be logged and code resumes next. When false, errors are re-thrown
-        /// </summary>
-        /// <value></value>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        public bool trapErrors {
-            get {
-                return getPropertyBase("TrapErrors", true, ref _trapErrors);
-            }
-        }
-        private bool? _trapErrors = null;
-        //
-        //====================================================================================================
         //
         public string serverPageDefault {
             get {
@@ -385,15 +371,6 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private bool? _useContentWatchLink = null;
-        //
-        //====================================================================================================
-        //
-        public bool allowTestPointLogging {
-            get {
-                return getPropertyBase("AllowTestPointLogging", false, ref _allowTestPointLogging);
-            }
-        }
-        private bool? _allowTestPointLogging = null;
         //
         //====================================================================================================
         //

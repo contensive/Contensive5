@@ -100,7 +100,7 @@ namespace Contensive.Processor {
         /// </summary>
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
         //
-        internal const string sitePropertyName_AllowPlainTextPasswordHash = "allow plain text password auto conversion to hash";
+        internal const string sitePropertyName_AllowAutoCreatePasswordHash = "allow auto create password hash";
         //
         //========================================================================
         // html

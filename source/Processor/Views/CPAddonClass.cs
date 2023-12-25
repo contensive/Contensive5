@@ -161,7 +161,7 @@ namespace Contensive.Processor {
         /// <param name="keyValuePairs"></param>
         public override void ExecuteAsProcessByUniqueName(string name, Dictionary<string, string> keyValuePairs) {
             if (string.IsNullOrEmpty(name)) { throw new ArgumentException("ExecuteAsyncByUniqueName called with invalid name [" + name + "]"); }
-            var addon = cp.core.cacheRuntime.addonCache.createByUniqueName( name);
+            var addon = cp.core.cacheRuntime.addonCache.createByUniqueName(name);
             if (addon == null) { throw new ArgumentException("ExecuteAsyncByUniqueName cannot find Addon for name [" + name + "]"); }
             cp.core.addon.executeAsProcess(addon, keyValuePairs);
         }
@@ -202,13 +202,11 @@ namespace Contensive.Processor {
                 returnOk = Controllers.CollectionInstallController.installCollectionFromTempFile(cp.core, false, context, tempPathFilename, ref localUserErrors, ref ignoreReturnedCollectionGuid, false, true, ref tmpList, logPrefix, ref installedCollections, skipCdefInstall);
                 returnUserError = string.Join(" ", localUserErrors);
                 if (deleteTempFileWhenDone) { cp.TempFiles.DeleteFolder(tempPathFilename); }
+                return returnOk;
             } catch (Exception ex) {
-                Controllers.LogController.logError(cp.core, ex);
-                if (!cp.core.siteProperties.trapErrors) {
-                    throw;
-                }
+                cp.Site.ErrorReport(ex);
+                throw;
             }
-            return returnOk;
         }
         //
         public override int InstallCollectionFileAsync(string tempPathFilename) {
@@ -241,10 +239,10 @@ namespace Contensive.Processor {
             context.Push("Api call cp.addon.InstallCollectionFromFolder [" + tempPath + "]");
             bool isDependency = false;
             bool result = CollectionInstallController.installCollectionsFromTempFolder(cp.core, isDependency, context, tempPath, ref ignoreUserMessage, ref collectionsInstalledList, false, false, ref ignoreList2, logPrefix, true, ref collectionsDownloaded, skipCdefInstall);
-            if (deleteTempFolderWhenDone) { 
+            if (deleteTempFolderWhenDone) {
                 //
                 // -- caller used private folder. delete the temp path created, but do not delete anything from private folder. They need to do it right.
-                cp.TempFiles.DeleteFolder(tempPath); 
+                cp.TempFiles.DeleteFolder(tempPath);
             } else {
                 //
                 // -- if they used the temp folder and asked folder to be deleted, delete.

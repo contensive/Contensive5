@@ -896,12 +896,6 @@ namespace Contensive.Processor.Controllers {
                 userErrorMessage = "";
                 string Message = "";
                 string emailSubjectWorking = emailSubject;
-                if ((toAddress.IndexOf("@", StringComparison.InvariantCultureIgnoreCase) == -1)) {
-                    toAddress = core.siteProperties.getText("TrapEmail");
-                    emailSubjectWorking = "EmailForm with bad to-address";
-                    Message = "Subject: " + emailSubjectWorking;
-                    Message += Environment.NewLine;
-                }
                 Message += "The form was submitted " + core.doc.profileStartTime + Environment.NewLine;
                 Message += Environment.NewLine;
                 Message += "All text fields are included, completed or not.\r\n";

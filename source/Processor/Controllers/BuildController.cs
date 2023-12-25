@@ -179,9 +179,6 @@ namespace Contensive.Processor.Controllers {
                     core.siteProperties.getText("ConvertContentText2HTML", "False");
                     core.siteProperties.getText("AllowMemberJoin", "False");
                     core.siteProperties.getText("AllowPasswordEmail", "True");
-                    core.siteProperties.getText("AllowTestPointLogging", "False");
-                    core.siteProperties.getText("AllowTestPointPrinting", "False");
-                    core.siteProperties.getText("AllowTrapEmail", "True");
                     core.siteProperties.getText("AllowWorkflowAuthoring", "False");
                     core.siteProperties.getText("ArchiveAllowFileClean", "False");
                     core.siteProperties.getText("ArchiveRecordAgeDays", "2");
@@ -203,8 +200,6 @@ namespace Contensive.Processor.Controllers {
                     core.siteProperties.getText("SMTPServer", "127.0.0.1");
                     core.siteProperties.getText("TextSearchEndTag", "<!-- TextSearchEnd -->");
                     core.siteProperties.getText("TextSearchStartTag", "<!-- TextSearchStart -->");
-                    core.siteProperties.getText("TrapEmail", "");
-                    core.siteProperties.getText("TrapErrors", "0");
                     core.siteProperties.getBoolean("AllowLinkAlias", true);
                     // -- initialize for Page Builder for new sites
                     core.siteProperties.getBoolean("ALLOW ADDONLIST EDITOR FOR QUICK EDITOR", true);

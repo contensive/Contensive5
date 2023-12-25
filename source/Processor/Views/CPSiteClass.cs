@@ -554,7 +554,7 @@ namespace Contensive.Processor {
         [Obsolete("Deprecated.", false)]
         public override bool TrapErrors {
             get {
-                return GenericController.encodeBoolean(GetProperty("TrapErrors", "1"));
+                return false;
             }
         }
         /// <summary>

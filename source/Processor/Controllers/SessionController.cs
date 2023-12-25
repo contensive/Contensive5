@@ -861,7 +861,7 @@ namespace Contensive.Processor.Controllers {
                                 LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, success, passwordHash match, !allowPlainTextPassword");
                                 return cs.getInteger("ID");
                             }
-                            bool migrateToPasswordHash = core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPasswordHash, true);
+                            bool migrateToPasswordHash = core.siteProperties.getBoolean(sitePropertyName_AllowAutoCreatePasswordHash, true);
                             if (!migrateToPasswordHash) {
                                 //
                                 // todo remove tmp-password logging
