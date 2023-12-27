@@ -75,7 +75,6 @@ namespace Contensive.Models.Db {
         public string nickName { get; set; }
         public string notesFilename { get; set; }
         public int organizationId { get; set; }
-        public string password { get; set; }
         public string shipAddress { get; set; }
         public string shipAddress2 { get; set; }
         public string shipCity { get; set; }
@@ -124,7 +123,17 @@ namespace Contensive.Models.Db {
         /// </summary>
         public double longitude { get; set; }
         /// <summary>
-        /// if siteproperty "allow plain text password" is false, this is password hashed with encryptOneWay. login tests this field
+        /// use setPassword() method to set password.
+        /// if sp allow-plain-text true -- this is the password
+        /// see AuthenticationController for all login/authentication
+        /// </summary>
+        public string password { get; set; }
+        /// <summary>
+        /// use setPassword() method to set password.
+        /// if sp allow-plain-text false -- this is password hash, use setPassword() to set. 
+        /// stored as {hasherVersion}${encryptVersion}${payload}
+        /// if delimiters are missing, this is version 1 -- sha512, password salted with record-guid
+        /// see AuthenticationController for all password/login/authentication details
         /// </summary>
         public string passwordHash { get; set; }
         //
@@ -298,69 +307,6 @@ namespace Contensive.Models.Db {
             } else {
                 return name;
             }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// set the current user's password. returns false if password does not meet password rule criteria
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="password"></param>
-        public static bool setPassword(CPBaseClass cp, string password, int userId) {
-            string userErrorMessage = "";
-            return setPassword(cp, password, userId, ref userErrorMessage);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// set the current user's password. returns false if password does not meet password rule criteria
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="password"></param>
-        public static bool setPassword(CPBaseClass cp, string password) {
-            string userErrorMessage = "";
-            return setPassword(cp, password, cp.User.Id, ref userErrorMessage);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// set the current user's password. returns false if password does not meet password rule criteria
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="password"></param>
-        public static bool setPassword(CPBaseClass cp, string password, ref string userErrorMessage) {
-            return setPassword(cp, password, cp.User.Id, ref userErrorMessage);
-        }
-        //
-        //====================================================================================================
-        //
-        public static bool setPassword(CPBaseClass cp, string password, int userId, ref string userErrorMessage) {
-            //
-            // todo -- add password policy tests, like min-length
-            //
-            userErrorMessage = "";
-            int passwordMinLength = cp.Site.GetInteger("password min length", 5);
-            if (password.Length < passwordMinLength) {
-                userErrorMessage = "Password length must be at least " + passwordMinLength.ToString() + " characters.";
-                return false;
-            }
-            //
-            if (cp.Site.GetBoolean("allow plain text password", true)) {
-                //
-                // -- set plain-text password
-                cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={cp.Db.EncodeSQLText(password)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id} where id={userId}");
-                invalidateCacheOfRecord<PersonModel>(cp, userId);
-                return true;
-            }
-            //
-            // -- set hash password
-            string guid = "";
-            using (DataTable dt = cp.Db.ExecuteQuery($"select ccguid from ccmembers where id={userId}"))
-                if (dt?.Rows != null && dt.Rows.Count > 0) { guid = cp.Utils.EncodeText(dt.Rows[0][0]); }
-            string passwordHash = cp.Security.EncryptOneWay(password, guid);
-            cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={cp.Db.EncodeSQLText(passwordHash)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id} where id={userId}");
-            invalidateCacheOfRecord<PersonModel>(cp, userId);
-            return true;
         }
     }
 }

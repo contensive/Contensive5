@@ -59,7 +59,7 @@ namespace Contensive.Processor.Controllers {
         public void verifyUser() {
             if (user.id == 0) {
                 var user = createGuest(core, false);
-                recognizeById(core, user.id, this);
+                AuthenticationController.recognizeById(core, this, user.id);
             }
         }
 
@@ -219,9 +219,9 @@ namespace Contensive.Processor.Controllers {
                     string authUsername = core.docProperties.getText("authUsername");
                     string authPassword = core.docProperties.getText("authPassword");
                     if ((!string.IsNullOrWhiteSpace(authUsername)) && (!string.IsNullOrWhiteSpace(authPassword))) {
-                        int userId = getUserIdForUsernameCredentials(authUsername, authPassword, false);
+                        int userId = AuthenticationController.getUserByUsernamePassword(core, this, authUsername, authPassword, false);
                         if (userId > 0) {
-                            authenticateById(userId, this);
+                            AuthenticationController.authenticateById(core, this, userId);
                             authenticationProcessSuccess = true;
                         }
                     }
@@ -240,9 +240,9 @@ namespace Contensive.Processor.Controllers {
                         if (usernamePassword.Length == 2) {
                             string username = usernamePassword[0];
                             string password = usernamePassword[1];
-                            int userId = getUserIdForUsernameCredentials(username, password, false);
+                            int userId = AuthenticationController.getUserByUsernamePassword(core, this,username, password, false);
                             if (userId > 0) {
-                                authenticateById(userId, this);
+                                AuthenticationController.authenticateById(core, this, userId);
                                 authenticationProcessSuccess = true;
                             }
                         }
@@ -265,7 +265,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // -- allow Link Login
                                 LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
-                                if (authenticateById(core, linkToken.id, this)) {
+                                if (AuthenticationController.authenticateById(core, this, linkToken.id)) {
                                     trackVisits = true;
                                     LogController.addActivityCompletedVisit(core, "Login", "Successful link login", user.id);
                                 }
@@ -273,7 +273,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // -- allow Link Recognize
                                 LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
-                                if (recognizeById(core, linkToken.id, this)) {
+                                if (AuthenticationController.recognizeById(core, this, linkToken.id)) {
                                     trackVisits = true;
                                     LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", user.id);
                                 }
@@ -300,7 +300,7 @@ namespace Contensive.Processor.Controllers {
                         if (core.siteProperties.allowAutoLogin) {
                             //
                             // -- login by the visitor.memberid
-                            if (authenticateById(core, visitor.memberId, this, true)) {
+                            if (AuthenticationController.authenticateById(core, this, visitor.memberId, true)) {
                                 LogController.addActivityCompletedVisit(core, "Login", "auto-login", user.id);
                                 resultSessionContect_visitor_changes = true;
                                 resultSessionContext_user_changes = true;
@@ -308,7 +308,7 @@ namespace Contensive.Processor.Controllers {
                         } else if (core.siteProperties.allowAutoRecognize) {
                             //
                             // -- recognize by the visitor.memberid
-                            if (recognizeById(core, visitor.memberId, this, true)) {
+                            if (AuthenticationController.recognizeById(core, this, visitor.memberId, true)) {
                                 LogController.addActivityCompletedVisit(core, "Recognize", "auto-recognize", user.id);
                                 resultSessionContect_visitor_changes = true;
                                 resultSessionContext_user_changes = true;
@@ -728,208 +728,6 @@ namespace Contensive.Processor.Controllers {
         private int _isAuthenticatedContentManagerAnything_userId;
         private bool _isAuthenticatedContentManagerAnything;
         //
-        //========================================================================
-        /// <summary>
-        /// logout user
-        /// </summary>
-        public void logout() {
-            try {
-                //
-                // -- if user has autoLogin, turn off
-                if (user.autoLogin) {
-                    user.autoLogin = false;
-                    user.save(core.cpParent);
-                }
-                if (!core.siteProperties.allowVisitTracking) {
-                    visit = new VisitModel();
-                    visitor = new VisitorModel();
-                    user = new PersonModel();
-                    return;
-                }
-                user = SessionController.createGuest(core, true);
-                //
-                // -- guest was created from a logout, disable autoLogin
-                user.autoLogin = false;
-                user.save(core.cpParent);
-                //
-                // -- update visit record for new user, not authenticated
-                visit.memberId = user.id;
-                visit.visitAuthenticated = false;
-                visit.save(core.cpParent);
-                //
-                // -- update visitor record
-                visitor.memberId = user.id;
-                visitor.save(core.cpParent);
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-        }
-        //
-        //===================================================================================================
-        /// <summary>
-        /// Test the username and password against users and return the userId of the match, or 0 if not valid match
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="requestPassword"></param>
-        /// <param name="requestIncludesPassword">If true, the noPassword option is disabled</param>
-        /// <returns></returns>
-        public int getUserIdForUsernameCredentials(string username, string requestPassword, bool requestIncludesPassword) {
-            try {
-                //
-                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials enter");
-                //
-                if (string.IsNullOrEmpty(username)) {
-                    //
-                    // -- username blank, stop here
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, username blank");
-                    return 0;
-                }
-                bool allowNoPassword = !requestIncludesPassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
-                if (string.IsNullOrEmpty(requestPassword) && !allowNoPassword) {
-                    //
-                    // -- password blank, stop here
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, password blank");
-                    return 0;
-                }
-                if (visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts) {
-                    //
-                    // ----- already tried 5 times
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, maxVisitLoginAttempts reached");
-                    return 0;
-                }
-                string Criteria;
-                bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin);
-                if (allowEmailLogin) {
-                    //
-                    // -- login by username or email
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt email login");
-                    Criteria = "((username=" + DbController.encodeSQLText(username) + ")or(email=" + DbController.encodeSQLText(username) + "))";
-                } else {
-                    //
-                    // -- login by username only
-                    LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, attempt username login");
-                    Criteria = "(username=" + DbController.encodeSQLText(username) + ")";
-                }
-                Criteria += "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
-                string peopleFieldList = "ID,password,passwordHash,admin,developer,ccguid";
-                bool allowPlainTextPassword = core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPassword, true);
-                using (var cs = new CsModel(core)) {
-                    if (!cs.open("People", Criteria, "id", true, user.id, peopleFieldList, PageSize: 2)) {
-                        //
-                        // -- fail, username not found, stop here
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, user record not found");
-                        return 0;
-                    }
-                    if (cs.getRowCount() > 1) {
-                        //
-                        // -- fail, multiple matches
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, multiple users found");
-                        return 0;
-                    }
-                    if (!allowNoPassword) {
-                        //
-                        // -- password mode
-                        if (string.IsNullOrEmpty(requestPassword)) {
-                            //
-                            // -- fail, no password
-                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, blank requestPassword");
-                            return 0;
-                        }
-                        string recordPassword = cs.getText("password");
-                        if (allowPlainTextPassword) {
-                            //
-                            // -- legacy plain text password mode
-                            if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
-                                //
-                                // -- success, password match
-                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, pw match");
-                                return cs.getInteger("ID");
-                            }
-                            // todo remove tmp-password logging
-                            // -- fail, plain text
-                            if (DateTime.Now<new DateTime(2024,1,1)) { LogController.logTrace(core, $"SessionController.getUserIdForUsernameCredentials, allowPlainTextPassword, fail password mismatch, recordPassword [{recordPassword}], requestPassword [{requestPassword}]"); }
-                            return 0;
-                        } else {
-                            //
-                            // -- test encrypted password entered with passwordHash saved
-                            string requestPasswordHash = SecurityController.encryptOneWay(core, requestPassword, cs.getText("ccguid"));
-                            string recordPasswordHash = cs.getText("passwordHash");
-                            if (requestPasswordHash.Equals(recordPasswordHash)) {
-                                //
-                                // -- success, passwordHash match
-                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials, success, passwordHash match, !allowPlainTextPassword");
-                                return cs.getInteger("ID");
-                            }
-                            bool migrateToPasswordHash = core.siteProperties.getBoolean(sitePropertyName_AllowAutoCreatePasswordHash, true);
-                            if (!migrateToPasswordHash) {
-                                //
-                                // todo remove tmp-password logging
-                                // -- migration mode disabled, encrypted password fail
-                                if (DateTime.Now < new DateTime(2024, 1, 1)) { LogController.logTrace(core, $"SessionController.getUserIdForUsernameCredentials fail passwordhash mismatch, !allowPlainTextPassword, !migration-mode, recordPasswordHash [{recordPasswordHash}], requestPasswordHash [{requestPasswordHash}]"); }
-                                return 0;
-                            }
-                            //
-                            // -- migration mode
-                            if (string.IsNullOrEmpty(recordPassword)) {
-                                //
-                                // -- fail, blank record password
-                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredential, !allowPlainTextPassword, migration-mode, plain-text password blank");
-                                return 0;
-                            }
-                            if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
-                                //
-                                // -- migration mode -- plain-text password matche, allow 1-time and passwordhas update
-                                cs.set("passwordHash", requestPasswordHash);
-                                cs.set("password", "");
-                                cs.save();
-                                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials success, !allowPlainTextPassword, migration-mode, matched plain text pw, setup passwordhash, cleared password.");
-                                return cs.getInteger("ID");
-                            }
-                            //
-                            // -- fail, hash password
-                            LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, !allowPlainTextPassword, migration-mode, migration failed because plain-text password mismatch");
-                            return 0;
-                        }
-                    }
-                    //
-                    // -- no-password mode
-                    if (cs.getBoolean("admin") || cs.getBoolean("developer")) {
-                        //
-                        // -- fail, no-password-mode and match is admin/dev
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode matched admin/dev");
-                        return 0;
-                    }
-                    //
-                    // -- no-password auth cannot be content manager
-                    using var csRules = new CsModel(core);
-                    string SQL = ""
-                        + " select ccGroupRules.ContentID"
-                        + " from ccGroupRules right join ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
-                        + " where (1=1)"
-                        + " and(ccMemberRules.memberId=" + cs.getInteger("ID") + ")"
-                        + " and(ccMemberRules.active>0)"
-                        + " and(ccGroupRules.active>0)"
-                        + " and(ccGroupRules.ContentID Is not Null)"
-                        + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
-                        + ");";
-                    if (!csRules.openSql(SQL)) {
-                        //
-                        // -- success, match is not content manager
-                        LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
-                        return cs.getInteger("ID");
-                    }
-                }
-                //
-                LogController.logTrace(core, "SessionController.getUserIdForUsernameCredentials fail, exit with no  match");
-                //
-                return 0;
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-        }
-        //
         //====================================================================================================
         /// <summary>
         /// Checks the username and password for a new login, returns true if this can be used, returns false, and a User Error response if it can not be used
@@ -974,172 +772,6 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
-        //
-        //========================================================================
-        /// <summary>
-        /// Login (by username and password)
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <param name="setUserAutoLogin"></param>
-        /// <returns></returns>
-        public bool authenticate(string username, string password, bool setUserAutoLogin) {
-            try {
-                //
-                LogController.logTrace(core, "SessionController.authenticate enter");
-                //
-                int userId = getUserIdForUsernameCredentials(username, password, false);
-                if (!userId.Equals(0) && authenticateById(userId, this)) {
-                    //
-                    // -- successful
-                    LogController.addActivityCompletedVisit(core, "Login", "successful login, credential [" + username + "]", user.id);
-                    //
-                    core.db.executeNonQuery("update ccmembers set autoLogin=" + (setUserAutoLogin ? "1" : "0") + " where id=" + userId);
-                    return true;
-                }
-                //
-                // -- failed to authenticate
-                ErrorController.addUserError(core, loginFailedError);
-                //
-                // -- pause to make brute force attempt for expensive
-                Thread.Sleep(3000);
-                //
-                return false;
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-        }
-        //
-        //========================================================================
-        /// <summary>
-        /// Member Login By ID. Static method because it runs in constructor
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="userId"></param>
-        /// <param name="authContext"></param>
-        /// <param name="requestUserAutoLogin">if true, the user must have autoLogin true to be authenticate (use for auto-login process)</param>
-        /// <returns></returns>
-        public static bool authenticateById(CoreController core, int userId, SessionController authContext, bool requestUserAutoLogin) {
-            try {
-                //
-                LogController.logTrace(core, "SessionController.authenticateById, enter, userid [" + userId + "]");
-                //
-                if (userId == 0) { return false; }
-                if (!recognizeById(core, userId, authContext, requestUserAutoLogin)) {
-                    //
-                    // -- pause to make brute force attempt for expensive
-                    Thread.Sleep(3000);
-                    //
-                    return false;
-                }
-                //
-                // -- recognize success, log them in to that user
-                authContext.visit.visitAuthenticated = true;
-                //
-                // -- verify start time for visit
-                if (authContext.visit.startTime != DateTime.MinValue) authContext.visit.startTime = core.doc.profileStartTime;
-                //
-                authContext.visit.save(core.cpParent);
-                return true;
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-        }
-        //
-        //========================================================================
-        ///
-        public static bool authenticateById(CoreController core, int userId, SessionController authContext)
-            => authenticateById(core, userId, authContext, false);
-        //
-        //========================================================================
-        /// <summary>
-        /// Member Login By ID.
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="userId"></param>
-        /// <param name="authContext"></param>
-        /// <returns></returns>
-        public bool authenticateById(int userId, SessionController authContext) => SessionController.authenticateById(core, userId, authContext, false);
-        //
-        //========================================================================
-        /// <summary>
-        /// Recognize the current member to be non-authenticated, but recognized.  Static method because it runs in constructor.
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="userId"></param>
-        /// <param name="sessionContext"></param>
-        /// <param name="requireUserAutoLogin">if true, the user must have autoLogin true to be recognized.</param>
-        /// <returns></returns>
-        //
-        public static bool recognizeById(CoreController core, int userId, SessionController sessionContext, bool requireUserAutoLogin) {
-            try {
-                //
-                LogController.logTrace(core, "SessionController.recognizeById, enter");
-                //
-                // -- argument validation
-                if (userId.Equals(0)) { return false; }
-                //
-                // -- find user and validate
-                PersonModel contextUser = DbBaseModel.create<PersonModel>(core.cpParent, userId);
-                if (contextUser == null) { return false; }
-                if (requireUserAutoLogin && !contextUser.autoLogin) { return false; }
-                //
-                // -- recognize ok, verify visit and visitor incase visitTracking is off
-                if ((sessionContext.visitor == null) || (sessionContext.visitor.id == 0)) {
-                    sessionContext.visitor = DbBaseModel.addEmpty<VisitorModel>(core.cpParent);
-                }
-                if ((sessionContext.visit == null) || (sessionContext.visit.id == 0)) {
-                    sessionContext.visit = DbBaseModel.addEmpty<VisitModel>(core.cpParent);
-                }
-                //
-                // -- update session for recognized user
-                sessionContext.user = contextUser;
-                sessionContext.visitor.memberId = sessionContext.user.id;
-                sessionContext.visit.memberId = sessionContext.user.id;
-                sessionContext.visit.visitAuthenticated = false;
-                sessionContext.visit.visitorId = sessionContext.visitor.id;
-                sessionContext.visit.loginAttempts = 0;
-                sessionContext.user.visits = sessionContext.user.visits + 1;
-                if (sessionContext.user.visits == 1) {
-                    sessionContext.visit.memberNew = true;
-                } else {
-                    sessionContext.visit.memberNew = false;
-                }
-                sessionContext.user.lastVisit = core.doc.profileStartTime;
-                sessionContext.visit.excludeFromAnalytics = sessionContext.visit.excludeFromAnalytics || sessionContext.visit.bot || sessionContext.user.excludeFromAnalytics || sessionContext.user.admin || sessionContext.user.developer;
-                sessionContext.visit.save(core.cpParent);
-                sessionContext.visitor.save(core.cpParent);
-                sessionContext.user.save(core.cpParent);
-                return true;
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Recognize the current member to be non-authenticated, but recognized. 
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="userId"></param>
-        /// <param name="sessionContext"></param>
-        /// <returns></returns>
-        public static bool recognizeById(CoreController core, int userId, SessionController sessionContext)
-            => recognizeById(core, userId, sessionContext, false);
-        //
-        //========================================================================
-        /// <summary>
-        /// Recognize the current member to be non-authenticated, but recognized.
-        /// </summary>
-        /// <param name="userId"></param>
-        /// <param name="sessionContext"></param>
-        /// <returns></returns>
-        //
-        public bool recognizeById(int userId, ref SessionController sessionContext)
-            => recognizeById(core, userId, sessionContext, false);
         //
         //====================================================================================================
         /// <summary>
@@ -1365,20 +997,6 @@ namespace Contensive.Processor.Controllers {
             Regex v = new(@"1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             if (string.IsNullOrEmpty(browserUserAgent) || browserUserAgent.Length < 4) { return false; }
             return (b.IsMatch(browserUserAgent) || v.IsMatch(browserUserAgent.Substring(0, 4)));
-        }
-        //
-        // ================================================================================================
-        /// <summary>
-        /// Return true if this username/password are valid without authenticating
-        /// </summary>
-        /// <param name="Username"></param>
-        /// <param name="Password"></param>
-        /// <returns></returns>
-        public bool isLoginOK(string Username, string Password) {
-            //
-            LogController.logTrace(core, "SessionController.isLoginOK, enter");
-            //
-            return !getUserIdForUsernameCredentials(Username, Password, false).Equals(0);
         }
         //
         // ================================================================================================

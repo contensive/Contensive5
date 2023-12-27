@@ -178,7 +178,9 @@ namespace Contensive.Processor.Controllers {
                                             Ptr = 0;
                                             while (!usernameOK && (Ptr < 100)) {
                                                 Username = EMailName + encodeInteger(Math.Floor(encodeNumber(Microsoft.VisualBasic.VBMath.Rnd() * 9999)));
-                                                usernameOK = !core.session.isLoginOK(Username, "test");
+                                                // -- test for one and only one match
+                                                
+                                                usernameOK = !AuthenticationController.getUserByUsernamePassword(core, core.session, Username, "test", false).Equals(0);
                                                 Ptr += 1;
                                             }
                                             if (usernameOK) {

@@ -2001,7 +2001,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // Logout - This can only come from the Horizonal Tool Bar
                                     //
-                                    core.session.logout();
+                                    AuthenticationController.logout(core, core.session);
                                 }
                                 break;
                             case ButtonLogin: {

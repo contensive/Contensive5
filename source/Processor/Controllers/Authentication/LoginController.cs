@@ -159,10 +159,10 @@ namespace Contensive.Processor.Controllers {
                 result = HtmlController.div(result, "ccLoginFormCon pt-4");
                 if (string.IsNullOrWhiteSpace(result)) { return result; }
                 return ""
-                    + "<div style=\"width:100%;padding:50px 20px\">" 
-                    + "<div class=\"ccCon bg-light pt-0 pb-2\" style=\"max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">" 
-                    + result 
-                    + "</div>" 
+                    + "<div style=\"width:100%;padding:50px 20px\">"
+                    + "<div class=\"ccCon bg-light pt-0 pb-2\" style=\"max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;\">"
+                    + result
+                    + "</div>"
                     + "</div>";
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -199,11 +199,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- attempt authentication use-cases
-                int userId = core.session.getUserIdForUsernameCredentials(
-                    requestUsername,
-                    requestPassword,
-                    requestIncludesPassword
-                );
+                int userId = AuthenticationController.getUserByUsernamePassword(core, core.session, requestUsername, requestPassword, requestIncludesPassword);
                 if (userId == 0) {
                     //
                     // -- getUserId failed, userError already added
@@ -216,7 +212,7 @@ namespace Contensive.Processor.Controllers {
                     ErrorController.addUserError(core, loginFailedError);
                     return false;
                 }
-                if (!core.session.authenticateById(userId, core.session)) {
+                if (!AuthenticationController.authenticateById(core, core.session, userId)) {
                     core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
                     core.session.visit.save(core.cpParent);
                     ErrorController.addUserError(core, loginFailedError);

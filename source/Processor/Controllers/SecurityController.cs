@@ -15,6 +15,22 @@ namespace Contensive.Processor.Controllers {
             des = 0,
             aes = 1
         }
+
+        //const int keySize = 64;
+        //const int iterations = 350000;
+        //HashAlgorithmName hashAlgorithm = HashAlgorithmName.SHA512;
+        //string HashPasword(string password, out byte[] salt) {
+        //    salt = RandomNumberGenerator.GetBytes(keySize);
+        //    var hash = Rfc2898DeriveBytes.Pbkdf2(
+        //        Encoding.UTF8.GetBytes(password),
+        //        salt,
+        //        iterations,
+        //        hashAlgorithm,
+        //        keySize);
+        //    return Convert.ToHexString(hash);
+        //}
+
+
         //
         //========================================================================
         /// <summary>
@@ -74,8 +90,8 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string encryptOneWay(CoreController core, string password, string salt) {
             try {
-                byte[] emptySalt = Encoding.ASCII.GetBytes(salt);
-                return HashEncode.computeHash(password, "SHA512", emptySalt);
+                byte[] saltBytes = Encoding.ASCII.GetBytes(salt);
+                return HashEncode.computeHash(password, "SHA512", saltBytes);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

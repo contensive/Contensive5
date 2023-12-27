@@ -1,6 +1,7 @@
 ﻿
 using System;
 using Contensive.Processor.Controllers;
+using Microsoft.VisualBasic.ApplicationServices;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor {
@@ -51,7 +52,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override int GetIdByLogin(string username, string password) {
             if (cp?.core?.session == null) { return 0; }
-            return cp.core.session.getUserIdForUsernameCredentials(username, password, false);
+            return AuthenticationController.getUserByUsernamePassword(cp.core, cp.core.session, username, password, false);
         }
         //
         //====================================================================================================
@@ -310,44 +311,35 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        public override bool Login(string usernameOrEmail, string password, bool setAutoLogin) {
-            if (cp?.core?.session == null) { return false; }
-            return cp.core.session.authenticate(usernameOrEmail, password, setAutoLogin);
+        public override bool Login(string username, string password, bool setAutoLogin) {
+            return AuthenticationController.login(cp.core, cp.core.session, username, password, setAutoLogin);
         }
-        public override bool Login(string usernameOrEmail, string password)
-            => Login(usernameOrEmail, password, false);
+        public override bool Login(string username, string password) {
+            return AuthenticationController.login(cp.core, cp.core.session, username, password, false);
+        }
         //
         //====================================================================================================
         //
         public override bool LoginByID(int userId) {
-            if (cp?.core?.session == null) { return false; }
-            return cp.core.session.authenticateById(userId, cp.core.session);
+            return AuthenticationController.loginById(cp.core, cp.core.session, userId, false );
         }
         //
         //====================================================================================================
         //
         public override bool LoginByID(int userId, bool setAutoLogin) {
-            if (cp?.core?.session == null) { return false; }
-            bool result = cp.core.session.authenticateById(userId, cp.core.session);
-            if (result) {
-                cp.core.session.user.autoLogin = setAutoLogin;
-                cp.core.session.user.save(cp);
-            }
-            return result;
+            return AuthenticationController.loginById(cp.core, cp.core.session, userId, setAutoLogin);
         }
         //
         //====================================================================================================
         //
-        public override bool LoginIsOK(string usernameOrEmail, string password) {
-            if (cp?.core?.session == null) { return false; }
-            return cp.core.session.isLoginOK(usernameOrEmail, password);
+        public override bool LoginIsOK(string username, string password) {
+            return !AuthenticationController.getUserByUsernamePassword(cp.core, cp.core.session, username, password, false).Equals(0);
         }
         //
         //====================================================================================================
         //
         public override void Logout() {
-            if (cp?.core?.session == null) { return; }
-            cp.core.session.logout();
+            AuthenticationController.logout(cp.core, cp.core.session);
         }
         //
         //====================================================================================================
@@ -389,7 +381,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool Recognize(int userID) {
-            return SessionController.recognizeById(cp.core, userID, cp.core.session);
+            return AuthenticationController.recognizeById(cp.core, cp.core.session, userID);
         }
         //
         //====================================================================================================
@@ -467,25 +459,26 @@ namespace Contensive.Processor {
         //=======================================================================================================
         //
         public override bool SetPassword(string password, ref string userErrorMessage) {
-            return Contensive.Models.Db.PersonModel.setPassword(cp, password, ref userErrorMessage);
+            return AuthenticationController.trySetPassword(cp, password, ref userErrorMessage);
         }
         //
         //=======================================================================================================
         //
         public override bool SetPassword(string password, int userId, ref string userErrorMessage) {
-            return Contensive.Models.Db.PersonModel.setPassword(cp, password, userId, ref userErrorMessage);
+            return AuthenticationController.trySetPassword(cp, password, userId, ref userErrorMessage);
         }
         //
         //=======================================================================================================
         //
         public override bool SetPassword(string password) {
-            return Contensive.Models.Db.PersonModel.setPassword(cp, password);
+            string userErrorMessage = "";
+            return AuthenticationController.trySetPassword(cp, password, ref userErrorMessage);
         }
         //
         //=======================================================================================================
         //
         public override bool SetPassword(string password, int userId) {
-            return Contensive.Models.Db.PersonModel.setPassword(cp, password, userId);
+            return AuthenticationController.trySetPassword(cp, password, userId);
         }
         //
         //====================================================================================================
@@ -519,7 +512,7 @@ namespace Contensive.Processor {
         //
         [Obsolete("Use LoginById(integer) instead", false)]
         public override bool LoginByID(string RecordID, bool SetAutoLogin = false) {
-            return cp.core.session.authenticateById(encodeInteger(RecordID), cp.core.session);
+            return AuthenticationController.authenticateById(cp.core, cp.core.session, encodeInteger(RecordID));
         }
         //
         //=======================================================================================================

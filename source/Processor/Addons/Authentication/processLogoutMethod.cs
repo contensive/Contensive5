@@ -17,7 +17,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 CoreController core = ((CPClass)cp).core;
                 //
                 // -- logout the current member
-                core.session.logout();
+                AuthenticationController.logout(core, core.session);
                 return string.Empty;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

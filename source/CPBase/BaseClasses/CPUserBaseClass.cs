@@ -172,18 +172,18 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// Autheticate the current user to the credentials provided. If the site property AllowEmailLogin is true, this method treats the first argument as either email or username. Duplicates and email=username matches are not allowed.
         /// </summary>
-        /// <param name="usernameOrEmail"></param>
+        /// <param name="username"></param>
         /// <param name="password"></param>
         /// <param name="setAutoLogin">If true, and allowed on the site, the user will be automatically logged in by their visitor cookie on future visits. Not available to admin or devloper roles.</param>
         /// <returns></returns>
-        public abstract bool Login(string usernameOrEmail, string password, bool setAutoLogin);
+        public abstract bool Login(string username, string password, bool setAutoLogin);
         /// <summary>
         /// Autheticate the current user to the credentials provided. If the site property AllowEmailLogin is true, this method treats the first argument as either email or username. Duplicates and email=username matches are not allowed.
         /// </summary>
-        /// <param name="usernameOrEmail"></param>
+        /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public abstract bool Login(string usernameOrEmail, string password);
+        public abstract bool Login(string username, string password);
         //
         //====================================================================================================
         /// <summary>
@@ -206,10 +206,10 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// returns true if the credentials provided are valid for a user in the system.
         /// </summary>
-        /// <param name="usernameOrEmail"></param>
+        /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public abstract bool LoginIsOK(string usernameOrEmail, string password);
+        public abstract bool LoginIsOK(string username, string password);
         //
         //====================================================================================================
         /// <summary>

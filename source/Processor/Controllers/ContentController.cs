@@ -2,9 +2,11 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using Microsoft.VisualBasic.ApplicationServices;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Xml.Linq;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -31,7 +33,7 @@ namespace Contensive.Processor.Controllers {
                     if (string.IsNullOrEmpty(CollectionVersionFolderName)) {
                         //
                         // -- new collection
-                        string CollectionVersionFolder =  AddonController.getPrivateFilesAddonPath() + CollectionVersionFolderName;
+                        string CollectionVersionFolder = AddonController.getPrivateFilesAddonPath() + CollectionVersionFolderName;
                         core.privateFiles.createPath(CollectionVersionFolder);
                         CollectionFolderController.updateCollectionFolderConfig(core, addonCollection.name, addonCollection.ccguid, core.dateTimeNowMockable, CollectionVersionFolderName);
                     }
@@ -161,14 +163,30 @@ namespace Contensive.Processor.Controllers {
                     // -- PersonModel
                     if (!isDelete) {
                         LogController.addActivityCompletedEdit(core, "Edit", core.session.user.name + " saved changes to user #" + recordId + " (" + recordName + ")", recordId);
-                        // -- if password is saved, and plaintext is disabled, create and save hash
                         bool allowPlainTextPassword = core.siteProperties.getBoolean(Constants.sitePropertyName_AllowPlainTextPassword, true);
                         if (!allowPlainTextPassword) {
+                            //
+                            // -- handle password hash
                             PersonModel user = DbBaseModel.create<PersonModel>(core.cpParent, recordId);
-                            if (user != null && !string.IsNullOrEmpty(user.password)) {
-                                user.passwordHash = SecurityController.encryptOneWay(core, user.password, user.ccguid);
-                                user.password = "";
+                            if (user is null) {
+                                // -- user not valid
+                                ErrorController.addUserError(core, "Could not set password. Error accessing user record.");
+                            } else if (string.IsNullOrEmpty(user.password)) {
+                                // -- blank password
+                                user.passwordHash = "";
                                 user.save(core.cpParent);
+                            } else {
+                                string newPassword = user.password;
+                                user.password = "";
+                                user.passwordHash = "";
+                                user.save(core.cpParent);
+                                //
+                                string userErrorMessage = "";
+                                if (!AuthenticationController.tryIsValidPassword(core, user, newPassword, ref userErrorMessage)) {
+                                    ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
+                                } else {
+                                    AuthenticationController.trySetPassword(core.cpParent, newPassword, user.id, ref userErrorMessage);
+                                }
                             }
                         }
                     }
@@ -291,13 +309,13 @@ namespace Contensive.Processor.Controllers {
         //
         protected bool disposed;
         //
-        public void Dispose()  {
+        public void Dispose() {
             // do not add code here. Use the Dispose(disposing) overload
             Dispose(true);
             GC.SuppressFinalize(this);
         }
         //
-        ~ContentController()  {
+        ~ContentController() {
             // do not add code here. Use the Dispose(disposing) overload
             Dispose(false);
         }

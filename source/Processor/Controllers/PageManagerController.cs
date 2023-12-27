@@ -753,7 +753,7 @@ namespace Contensive.Processor.Controllers {
                                     if (!core.session.isAuthenticated && core.session.isRecognized()) {
                                         //
                                         // -- Can not take the chance, if you go to a registration page, and you are recognized but not auth -- logout first
-                                        core.session.logout();
+                                        AuthenticationController.logout(core, core.session);
                                     }
                                     if (!core.session.isAuthenticated) {
                                         //
@@ -1723,7 +1723,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // If this form will authenticate when done, and their is a current, non-authenticated account -- logout first
                         //
-                        core.session.logout();
+                        AuthenticationController.logout(core, core.session);
                     }
                     bool Success = true;
                     int Ptr = 0;
@@ -1847,7 +1847,7 @@ namespace Contensive.Processor.Controllers {
                         // Authenticate
                         //
                         if (pageForm.authenticateOnFormProcess) {
-                            core.session.authenticateById(core.session.user.id, core.session);
+                            AuthenticationController.authenticateById(core, core.session, core.session.user.id);
                         }
                         //
                         // Join Group requested by page that created form

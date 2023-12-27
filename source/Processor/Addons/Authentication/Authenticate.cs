@@ -26,7 +26,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 CoreController core = ((CPClass)cp).core;
                 //
                 // -- start with a logout if logged in
-                if ((core.session.isAuthenticated) || (core.session.isRecognized())) { core.session.logout(); }
+                if ((core.session.isAuthenticated) || (core.session.isRecognized())) { AuthenticationController.logout(core, core.session); }
                 if (core.session.visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts) {
                     //
                     // -- too many attempts
@@ -84,7 +84,7 @@ namespace Contensive.Processor.Addons.Primitives {
         /// <param name="errorPrefix"></param>
         /// <returns></returns>
         public static AuthenticateResponse authenticateUsernamePassword(CoreController core, string username, string password, string errorPrefix) {
-            int userId = core.session.getUserIdForUsernameCredentials(username, password, false);
+            int userId = AuthenticationController.getUserByUsernamePassword(core, core.session, username, password, false);
             if (userId == 0) {
                 //
                 // -- user was not found
@@ -94,7 +94,7 @@ namespace Contensive.Processor.Addons.Primitives {
                     data = new AuthenticateResponseData()
                 };
             } else {
-                if (!core.session.authenticateById(userId, core.session)) {
+                if (!AuthenticationController.authenticateById(core, core.session, userId)) {
                     //
                     // -- username/password login failed
                     core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
@@ -111,7 +111,7 @@ namespace Contensive.Processor.Addons.Primitives {
                             data = new AuthenticateResponseData()
                         };
                     } else {
-                        LogController.addActivityCompletedVisit(core, "Login", errorPrefix + " successful", core.session.user.id );
+                        LogController.addActivityCompletedVisit(core, "Login", errorPrefix + " successful", core.session.user.id);
                         return new AuthenticateResponse {
                             errors = new List<string>(),
                             data = new AuthenticateResponseData {

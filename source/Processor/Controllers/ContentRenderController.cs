@@ -1273,7 +1273,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- if user is valid, attempt to authenticate, else leave as guest
                 if (recipientNullable!= null && recipientNullable.id > 0) {
-                    cp.core.session.authenticateById(recipientNullable.id, cp.core.session);
+                    AuthenticationController.authenticateById(cp.core,cp.core.session, recipientNullable.id);
                 }
                 //
                 string result = ContentCmdController.executeContentCommands(cp.core, source, CPUtilsBaseClass.addonContext.ContextEmail);
