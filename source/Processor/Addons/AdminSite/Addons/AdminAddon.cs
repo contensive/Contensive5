@@ -31,7 +31,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!cp.core.session.isAuthenticated) {
                     //
                     // --- must be authenticated to continue. Force a local login
-                    return LoginController.getLoginPage(((CPClass)cp).core, true, true);
+                    return LoginController.getLoginPage(cp.core, false, true);
                 }
                 if (!cp.core.session.isAuthenticatedAdmin()) {
                     //

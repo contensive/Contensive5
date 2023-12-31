@@ -38,7 +38,7 @@ namespace Contensive.CLI {
                 //
                 // -- setup password
                 if (string.IsNullOrEmpty(password)) { 
-                    password = "contensive";
+                    password = "C0ntensive!";
                     int minLength = cp.Site.GetInteger("password min length", 5);
                     if (password.Length < minLength) { password += new string('0', minLength - password.Length); }
                 }

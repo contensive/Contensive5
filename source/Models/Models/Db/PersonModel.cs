@@ -136,6 +136,19 @@ namespace Contensive.Models.Db {
         /// see AuthenticationController for all password/login/authentication details
         /// </summary>
         public string passwordHash { get; set; }
+        /// <summary>
+        /// The last time the passwordwas updated
+        /// </summary>
+        public DateTime passwordModifiedDate { get; set; }
+        ///// <summary>
+        ///// each login fail, this is incremented. on successful login, it is cleared. 
+        ///// Use for lockout policy
+        ///// </summary>
+        //public int loginSequentialFailCount { get; set; }
+        ///// <summary>
+        ///// When the lockout policy is exceeded, this date is set. If the date is in the past, 
+        ///// </summary>
+        //public DateTime passwordLockoutDate { get; set; }
         //
         // -- to be deprecated
         public string resumeFilename { get; set; }

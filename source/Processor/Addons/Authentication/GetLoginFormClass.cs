@@ -18,8 +18,8 @@ namespace Contensive.Processor.Addons.Login {
         /// <returns></returns>
         public override object Execute(BaseClasses.CPBaseClass cp) {
             try {
-                bool requirePassword = cp.Doc.GetBoolean("requirePassword");
-                bool forceDefaultLogin = cp.Doc.GetBoolean("Force Default Login");
+                bool requirePassword = cp.Doc.GetBoolean("requirePassword", true);
+                bool forceDefaultLogin = cp.Doc.GetBoolean("Force Default Login", false);
                 return LoginController.getLoginPage(((CPClass)cp).core, forceDefaultLogin, requirePassword);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

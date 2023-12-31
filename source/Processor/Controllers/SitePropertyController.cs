@@ -27,6 +27,18 @@ namespace Contensive.Processor.Controllers {
         }
         //
         /// <summary>
+        /// if true, the password is cleared when a password saved in a people record in admin and automatically converted to a passwordHash
+        /// </summary>
+        public bool clearAdminPasswordOnHash {
+            get {
+                if(_clearAdminPasswordOnHash != null) { return (bool)_clearAdminPasswordOnHash;  }
+                _clearAdminPasswordOnHash = getBoolean("clear admin password on hash", true);
+                return (bool)_clearAdminPasswordOnHash;
+            }
+        }
+        private bool? _clearAdminPasswordOnHash = null;
+        //
+        /// <summary>
         /// temp property, test if this will work. if true, include a page settings button
         /// </summary>
         public bool allowPageSettingsEdit {

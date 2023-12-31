@@ -210,9 +210,33 @@ namespace Contensive.Processor.Controllers {
         public static bool authenticateById(CoreController core, SessionController authContext, int userId)
             => authenticateById(core, authContext, userId, false);
         //
+        //========================================================================
+        //
+        public static void processLoginFail(CoreController core, int userId) {
+            try {
+                if (userId == 0) { return; }
+                AuthenticationLogModel.log(core.cpParent, userId, false);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
+        //========================================================================
+        //
+        public static void processLoginSuccess(CoreController core, int userId) {
+            try {
+                AuthenticationLogModel.log(core.cpParent, userId, true);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
         //===================================================================================================
         /// <summary>
         /// Test the username and password against users and return the userId of the match, or 0 if not valid match
+        /// Process login success and fail here to centralize
         /// </summary>
         /// <param name="requestUsername"></param>
         /// <param name="requestPassword"></param>
@@ -271,7 +295,7 @@ namespace Contensive.Processor.Controllers {
                         LogController.logTrace(core, "getUserIdForUsernameCredentials fail, multiple users found");
                         return 0;
                     }
-                    int recordId = cs.getInteger("id");
+                    int userRecordId = cs.getInteger("id");
                     if (allowNoPassword) {
                         //
                         // -- no-password mode
@@ -288,7 +312,7 @@ namespace Contensive.Processor.Controllers {
                             + " select ccGroupRules.ContentID"
                             + " from ccGroupRules right join ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
                             + " where (1=1)"
-                            + " and(ccMemberRules.memberId=" + recordId + ")"
+                            + " and(ccMemberRules.memberId=" + userRecordId + ")"
                             + " and(ccMemberRules.active>0)"
                             + " and(ccGroupRules.active>0)"
                             + " and(ccGroupRules.ContentID Is not Null)"
@@ -298,7 +322,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- success, match is not content manager
                             LogController.logTrace(core, "getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
-                            return recordId;
+                            return userRecordId;
                         }
 
                     }
@@ -309,6 +333,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- fail, no password
                         LogController.logTrace(core, "getUserIdForUsernameCredentials fail, blank requestPassword");
+                        processLoginFail(core, userRecordId);
                         return 0;
                     }
                     string recordPassword = cs.getText("password");
@@ -318,20 +343,31 @@ namespace Contensive.Processor.Controllers {
                         //
                         if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
                             //
+                            // -- check account lockout
+                            if(!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, userRecordId)) {
+                                //
+                                // -- fail, lockout
+                                LogController.logTrace(core, $"getUserIdForUsernameCredentials, allowPlainTextPassword, fail account lockout, memberId [{userRecordId}]");
+                                processLoginFail(core, userRecordId);
+                                return 0;
+                            }
+                            //
                             // -- success, password match
                             LogController.logTrace(core, "getUserIdForUsernameCredentials success, pw match");
-                            return recordId;
+                            processLoginSuccess(core, userRecordId);
+                            return userRecordId;
                         }
                         // todo remove tmp-password logging
                         // -- fail, plain text
                         LogController.logTrace(core, $"getUserIdForUsernameCredentials, allowPlainTextPassword, fail password mismatch");
+                        processLoginFail(core, userRecordId);
                         return 0;
                     } else {
                         //
                         // -- hash password mode
                         //
                         PasswordHashInfo recordPasswordHash = new(cs.getText("passwordHash"));
-                        switch( recordPasswordHash.hasherVersion) {
+                        switch (recordPasswordHash.hasherVersion) {
                             case "": {
                                     //
                                     // -- legacy hash. no version, etc
@@ -339,20 +375,32 @@ namespace Contensive.Processor.Controllers {
                                     PasswordHashInfo requestPasswordHash = createPasswordHash_Legacy(core, requestPassword, cs.getText("ccguid"));
                                     if (requestPasswordHash.text.Equals(recordPasswordHash.text)) {
                                         //
+                                        // -- check account lockout
+                                        if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, userRecordId)) {
+                                            //
+                                            // -- fail, lockout
+                                            LogController.logTrace(core, $"getUserIdForUsernameCredentials, hash-no-version, fail account lockout, memberId [{userRecordId}]");
+                                            processLoginFail(core, userRecordId);
+                                            return 0;
+                                        }
+                                        //
                                         // -- success, passwordHash match, try upgrde to current password hasher and return success
                                         string userErrorMessage = "";
-                                        if (trySetPassword(core.cpParent, requestPassword, recordId, ref userErrorMessage)) {
+                                        if (trySetPassword(core.cpParent, requestPassword, userRecordId, ref userErrorMessage)) {
                                             // 
                                             // log issue
                                             LogController.logWarn(core, $"Cannot migrade from legacy-hasher to current-current, no user error returned, error [{userErrorMessage}]");
-                                            return recordId;
+                                            processLoginSuccess(core, userRecordId);
+                                            return userRecordId;
                                         }
                                         LogController.logTrace(core, "getUserIdForUsernameCredentials, success, passwordHash match, !allowPlainTextPassword");
-                                        return recordId;
+                                        processLoginSuccess(core, userRecordId);
+                                        return userRecordId;
                                     }
                                     //
                                     // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
-                                    return migrateToPasswordHash(core, requestPassword, recordPassword, recordId, requestPasswordHash);
+                                    processLoginFail(core, userRecordId);
+                                    return migrateToPasswordHash(core, requestPassword, recordPassword, userRecordId, requestPasswordHash);
                                 }
                             case "231226": {
                                     //
@@ -361,13 +409,24 @@ namespace Contensive.Processor.Controllers {
                                     PasswordHashInfo requestPasswordHash = createPasswordHash_231226(core, requestPassword, cs.getText("ccguid"));
                                     if (requestPasswordHash.payload.Equals(recordPasswordHash.payload)) {
                                         //
+                                        // -- check account lockout
+                                        if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, userRecordId)) {
+                                            //
+                                            // -- fail, lockout
+                                            LogController.logTrace(core, $"getUserIdForUsernameCredentials, hash-231226, fail account lockout, memberId [{userRecordId}]");
+                                            processLoginFail(core, userRecordId);
+                                            return 0;
+                                        }
+                                        //
                                         // -- success, passwordHash match, try upgrde to current password hasher and return success
                                         LogController.logTrace(core, "getUserIdForUsernameCredentials, success, passwordHash match, !allowPlainTextPassword");
-                                        return recordId;
+                                        processLoginSuccess(core, userRecordId);
+                                        return userRecordId;
                                     }
                                     //
                                     // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
-                                    return migrateToPasswordHash(core, requestPassword, recordPassword, recordId, requestPasswordHash);
+                                    processLoginFail(core, userRecordId);
+                                    return migrateToPasswordHash(core, requestPassword, recordPassword, userRecordId, requestPasswordHash);
                                 }
                         }
                     }
@@ -392,15 +451,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="requestPassword"></param>
         /// <param name="recorrdPassword"></param>
         /// <returns></returns>
-        public static int  migrateToPasswordHash(CoreController core, string requestPassword, string recordPassword, int userId, PasswordHashInfo requestPasswordHash) {
-            bool sp_migrateToPasswordHash = core.siteProperties.getBoolean(sitePropertyName_AllowAutoCreatePasswordHash, true);
-            if (!sp_migrateToPasswordHash) {
-                //
-                // todo remove tmp-password logging
-                // -- migration mode disabled, encrypted password fail
-                LogController.logTrace(core, $"getUserIdForUsernameCredentials fail passwordhash mismatch");
-                return 0;
-            }
+        public static int migrateToPasswordHash(CoreController core, string requestPassword, string recordPassword, int userId, PasswordHashInfo requestPasswordHash) {
             //
             // -- migration mode
             if (string.IsNullOrEmpty(recordPassword)) {
@@ -412,7 +463,11 @@ namespace Contensive.Processor.Controllers {
             if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
                 //
                 // -- migration mode -- plain-text password matche, allow 1-time and passwordhas update
-                core.db.executeNonQuery($"update ccmembers set password=null,passwordhash={requestPasswordHash.text} where id={userId}");
+                if (core.siteProperties.clearAdminPasswordOnHash) {
+                    core.db.executeNonQuery($"update ccmembers set password=null,passwordhash={requestPasswordHash.text} where id={userId}");
+                } else {
+                    core.db.executeNonQuery($"update ccmembers set passwordhash={requestPasswordHash.text} where id={userId}");
+                }
                 LogController.logTrace(core, "getUserIdForUsernameCredentials success, !allowPlainTextPassword, migration-mode, matched plain text pw, setup passwordhash, cleared password.");
                 return userId;
             }
@@ -480,23 +535,19 @@ namespace Contensive.Processor.Controllers {
                     userGuid = user.ccguid;
                 }
                 //
-                int passwordMinLength = cp.Site.GetInteger("password min length", 5);
-                if (plainTextPassword.Length < passwordMinLength) {
-                    userErrorMessage = "Password length must be at least " + passwordMinLength.ToString() + " characters.";
-                    return false;
-                }
-                //
                 if (cp.Site.GetBoolean("allow plain text password", true)) {
                     //
                     // -- set plain-text password
-                    cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={cp.Db.EncodeSQLText(plainTextPassword)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id} where id={userId}");
+                    cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={cp.Db.EncodeSQLText(plainTextPassword)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id},passwordModifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)} where id={userId}");
+                    UsedPasswordModel.saveUsedPassword(cp, plainTextPassword, userId);
                     DbBaseModel.invalidateCacheOfRecord<PersonModel>(cp, userId);
                     return true;
                 }
                 //
                 // -- set hash password
                 PasswordHashInfo passwordHash = createPasswordHash_current(cp.core, plainTextPassword, userGuid);
-                cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={cp.Db.EncodeSQLText(passwordHash.text)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id} where id={userId}");
+                cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={cp.Db.EncodeSQLText(passwordHash.text)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id},passwordModifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)}  where id={userId}");
+                UsedPasswordModel.saveUsedPassword(cp, passwordHash.text, userId);
                 DbBaseModel.invalidateCacheOfRecord<PersonModel>(cp, userId);
                 return true;
             } catch (Exception ex) {
@@ -665,7 +716,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 // 
                 // -- is on used password list
-                if (UsedPasswordModel.isUsedPasswordHash(core.cpParent, newPassword)) {
+                if (UsedPasswordModel.isUsedPassword(core.cpParent, newPassword, newPasswordHash.text)) {
                     userError = $"This Password is not available.";
                     return false;
                 }
