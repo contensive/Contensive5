@@ -1,6 +1,9 @@
 ﻿
+using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using Microsoft.VisualBasic.ApplicationServices;
 using System;
+using System.Collections.Generic;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 //
@@ -14,10 +17,7 @@ namespace Contensive.Processor.Controllers {
         //
         //=============================================================================
         /// <summary>
-        /// Emails the user;s username and password
-        /// todo -- deprecate this. 
-        /// Add 1. emailed link to a change password form that does not require previous password, emailing a hashed token with id and current time, saved in user record with an expiration date/time.
-        /// Add 2. One-Time-Password, send (email or text) a 6 digit number and present a OTP login form for the number. Number is one-way encoded and stored in user record with an expiration date/time.
+        /// Send password recovery
         /// </summary>
         /// <returns></returns>
         public static string getPasswordRecoveryForm(CoreController core) {
@@ -68,166 +68,11 @@ namespace Contensive.Processor.Controllers {
         public static void processPasswordRecoveryForm(CoreController core) {
             try {
                 string returnUserMessage = "";
-                _ = sendPassword(core, core.docProperties.getText("email"), ref returnUserMessage);
+                _ = EmailController.trySendPasswordReset(core, core.docProperties.getText("email"), ref returnUserMessage);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
             }
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Send the user's username and password to them
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="Email"></param>
-        /// <param name="returnUserMessage"></param>
-        /// <returns></returns>
-        public static bool sendPassword(CoreController core, string Email, ref string returnUserMessage) {
-            bool result = false;
-            returnUserMessage = "";
-            try {
-                const string passwordChrs = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ012345678999999";
-                const int passwordChrsLength = 62;
-                //
-                string workingEmail = GenericController.encodeText(Email);
-                //
-                string Message = "";
-                string FromAddress = "";
-                string subject = "";
-                if (string.IsNullOrEmpty(workingEmail)) {
-                    ErrorController.addUserError(core, "Please enter your email address before requesting your username and password.");
-                } else {
-                    int atPtr = GenericController.strInstr(1, workingEmail, "@");
-                    if (atPtr < 2) {
-                        //
-                        // email not valid
-                        //
-                        ErrorController.addUserError(core, "Please enter a valid email address before requesting your username and password.");
-                    } else {
-                        string EMailName = strMid(workingEmail, 1, atPtr - 1);
-                        //
-                        LogController.addActivityCompletedVisit(core, "Password Request", "password request for email " + workingEmail, core.session.user.id );
-                        //
-                        bool allowEmailLogin = core.siteProperties.getBoolean(sitePropertyName_AllowEmailLogin, false);
-                        int recordCnt = 0;
-                        using (var csData = new CsModel(core)) {
-                            string sqlCriteria = "(email=" + DbController.encodeSQLText(workingEmail) + ")";
-                            sqlCriteria = sqlCriteria + "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
-                            csData.open("People", sqlCriteria, "ID", true, core.session.user.id, "username,password", 1);
-                            if (!csData.ok()) {
-                                //
-                                // valid login account for this email not found
-                                //
-                                if (encodeText(strMid(workingEmail, atPtr + 1)).ToLowerInvariant() == "contensive.com") {
-                                    //
-                                    // look for expired account to renew
-                                    //
-                                    csData.close();
-                                    csData.open("People", "((email=" + DbController.encodeSQLText(workingEmail) + "))", "ID");
-                                    if (csData.ok()) {
-                                        //
-                                        // renew this old record
-                                        //
-                                        csData.set("developer", "1");
-                                        csData.set("admin", "1");
-                                        if (csData.getDate("dateExpires") > DateTime.MinValue) { csData.set("dateExpires", core.dateTimeNowMockable.AddDays(7).Date.ToString()); }
-                                    } else {
-                                        //
-                                        // inject support record
-                                        //
-                                        csData.close();
-                                        csData.insert("people");
-                                        csData.set("name", "Contensive Support");
-                                        csData.set("email", workingEmail);
-                                        csData.set("developer", "1");
-                                        csData.set("admin", "1");
-                                        csData.set("dateExpires", core.dateTimeNowMockable.AddDays(7).Date.ToString());
-                                    }
-                                } else {
-                                    ErrorController.addUserError(core, "No current user was found matching this email address. Please try again. ");
-                                }
-                            }
-                            if (csData.ok()) {
-                                FromAddress = core.siteProperties.getText("EmailFromAddress", "info@" + core.webServer.requestDomain);
-                                subject = "Password Request at " + core.webServer.requestDomain;
-                                Message = "";
-                                while (csData.ok()) {
-                                    bool updateUser = false;
-                                    if (string.IsNullOrEmpty(Message)) {
-                                        Message = "This email was sent in reply to a request at " + core.webServer.requestDomain + " for the username and password associated with this email address. ";
-                                        Message += "If this request was made by you, please return to the login screen and use the following:\r\n";
-                                        Message += Environment.NewLine;
-                                    } else {
-                                        Message += Environment.NewLine;
-                                        Message += "Additional user accounts with the same email address: \r\n";
-                                    }
-                                    //
-                                    // username
-                                    //
-                                    string Username = csData.getText("Username");
-                                    bool usernameOK = true;
-                                    int Ptr = 0;
-                                    if (!allowEmailLogin) {
-                                        if (Username != Username.Trim()) {
-                                            Username = Username.Trim();
-                                            updateUser = true;
-                                        }
-                                        if (string.IsNullOrEmpty(Username)) {
-                                            usernameOK = false;
-                                            Ptr = 0;
-                                            while (!usernameOK && (Ptr < 100)) {
-                                                Username = EMailName + encodeInteger(Math.Floor(encodeNumber(Microsoft.VisualBasic.VBMath.Rnd() * 9999)));
-                                                // -- test for one and only one match
-                                                
-                                                usernameOK = !AuthenticationController.getUserByUsernamePassword(core, core.session, Username, "test", false).Equals(0);
-                                                Ptr += 1;
-                                            }
-                                            if (usernameOK) {
-                                                updateUser = true;
-                                            }
-                                        }
-                                        Message += " username: " + Username + Environment.NewLine;
-                                    }
-                                    if (usernameOK) {
-                                        //
-                                        // password
-                                        //
-                                        string Password = csData.getText("Password");
-                                        if (Password.Trim() != Password) {
-                                            Password = Password.Trim();
-                                            updateUser = true;
-                                        }
-                                        if (string.IsNullOrEmpty(Password)) {
-                                            for (Ptr = 0; Ptr <= 8; Ptr++) {
-                                                int Index = encodeInteger(Microsoft.VisualBasic.VBMath.Rnd() * passwordChrsLength);
-                                                Password += strMid(passwordChrs, Index, 1);
-                                            }
-                                            updateUser = true;
-                                        }
-                                        Message += " password: " + Password + Environment.NewLine;
-                                        result = true;
-                                        if (updateUser) {
-                                            csData.set("username", Username);
-                                            csData.set("password", Password);
-                                        }
-                                        recordCnt += 1;
-                                    }
-                                    csData.goNext();
-                                }
-                            }
-                        }
-                    }
-                }
-                if (result) {
-                    string sendStatus = "";
-                    EmailController.sendAdHocEmail(core, "Password Email", core.session.user.id, workingEmail, FromAddress, subject, Message, "", "", "", true, false, 0, ref sendStatus, 0);
-                }
-            } catch (Exception ex) {
-                LogController.logError(core, ex);
-                throw;
-            }
-            return result;
         }
         //
         //====================================================================================================

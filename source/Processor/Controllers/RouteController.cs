@@ -1,11 +1,10 @@
 ﻿
 using Contensive.BaseClasses;
-using Contensive.Models.Db;
 using Contensive.Exceptions;
+using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 
@@ -388,7 +387,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     case FormTypePasswordRecovery: {
                             //
-                            (new Contensive.Processor.Addons.Primitives.processPasswordRecoveryFormClass()).Execute(core.cpParent);
+                            (new Contensive.Processor.Addons.Primitives.ProcessPasswordRecoveryFormClass()).Execute(core.cpParent);
                             return;
                         }
                     case FormTypeLogin:

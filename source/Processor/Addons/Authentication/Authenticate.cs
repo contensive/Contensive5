@@ -26,19 +26,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 CoreController core = ((CPClass)cp).core;
                 //
                 // -- start with a logout if logged in
-                if ((core.session.isAuthenticated) || (core.session.isRecognized())) { AuthenticationController.logout(core, core.session); }
-                if (core.session.visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts) {
-                    //
-                    // -- too many attempts
-                    return new AuthenticateResponse {
-                        errors = new List<string> { "Authentication failed." },
-                        data = new AuthenticateResponseData()
-                    };
-                }
-                //
-                // -- count the login attempt
-                core.session.visit.loginAttempts++;
-                core.session.visit.save(core.cpParent);
+                if (core.session.isAuthenticated || core.session.isRecognized()) { AuthenticationController.logout(core, core.session); }
                 //
                 // -- test for username/password authentication
                 {
@@ -51,7 +39,7 @@ namespace Contensive.Processor.Addons.Primitives {
                     }
                 }
                 //
-                // -- test for basic username/password authentication
+                // -- test for header basic authentication
                 string basicAuthentication = core.docProperties.getText("authorization");
                 if ((!string.IsNullOrWhiteSpace(basicAuthentication)) && (basicAuthentication.Length > 7) && (basicAuthentication.Substring(0, 6).ToLower(CultureInfo.InvariantCulture) == "basic ")) {
                     string usernamePasswordEncoded = basicAuthentication.Substring(6);
@@ -60,7 +48,7 @@ namespace Contensive.Processor.Addons.Primitives {
                     if (usernamePassword.Length != 2) {
                         cp.Response.SetStatus(WebServerController.httpResponseStatus401_Unauthorized);
                         return new AuthenticateResponse {
-                            errors = new List<string> { "Basic Authentication failed." },
+                            errors = ["Basic Authentication Failed."],
                             data = new AuthenticateResponseData()
                         };
                     }
@@ -84,13 +72,14 @@ namespace Contensive.Processor.Addons.Primitives {
         /// <param name="errorPrefix"></param>
         /// <returns></returns>
         public static AuthenticateResponse authenticateUsernamePassword(CoreController core, string username, string password, string errorPrefix) {
-            int userId = AuthenticationController.getUserByUsernamePassword(core, core.session, username, password, false);
+            string userErrorMessage = "";
+            int userId = AuthenticationController.preflightAuthentication_returnUserId(core, core.session, username, password, false, ref userErrorMessage);
             if (userId == 0) {
                 //
                 // -- user was not found
                 core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
                 return new AuthenticateResponse {
-                    errors = new List<string> { errorPrefix + " failed." },
+                    errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                     data = new AuthenticateResponseData()
                 };
             } else {
@@ -99,7 +88,7 @@ namespace Contensive.Processor.Addons.Primitives {
                     // -- username/password login failed
                     core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
                     return new AuthenticateResponse {
-                        errors = new List<string> { errorPrefix + " failed." },
+                        errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                         data = new AuthenticateResponseData()
                     };
                 } else {

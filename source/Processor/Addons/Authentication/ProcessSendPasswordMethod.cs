@@ -7,7 +7,7 @@ namespace Contensive.Processor.Addons.Primitives {
         //
         //====================================================================================================
         /// <summary>
-        /// getFieldEditorPreference remote method
+        /// 
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
@@ -19,8 +19,8 @@ namespace Contensive.Processor.Addons.Primitives {
                 // -- send password
                 string Emailtext = core.docProperties.getText("email");
                 if (!string.IsNullOrEmpty(Emailtext)) {
-                    string sendStatus = "";
-                    PasswordRecoveryController.sendPassword(core, Emailtext, ref sendStatus);
+                    string userErrorMessage = "";
+                    EmailController.trySendPasswordReset(core, Emailtext, ref userErrorMessage);
                     result += ""
                         + "<div style=\"width:300px;margin:100px auto 0 auto;\">"
                         + "<p>An attempt to send login information for email address '" + Emailtext + "' has been made.</p>"

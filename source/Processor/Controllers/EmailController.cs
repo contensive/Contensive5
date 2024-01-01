@@ -22,6 +22,28 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class EmailController {
         //
+        //
+        public static bool trySendPasswordReset( CoreController core, string emailAddress, ref string userErrorMessage) {
+            try {
+                SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
+                if(email is null) {
+                    email = DbBaseModel.addDefault<SystemEmailModel>(core.cpParent);
+                    email.name = "Password Reset";
+                    email.subject = "Password reset";
+                    email.fromAddress = core.siteProperties.emailFromAddress;
+                    string primaryDomain = core.appConfig.domainList.First();
+                    string resetUrl = $"https://{primaryDomain}/setPassword?authToken={PersonModel.createAuthToken(core.cpParent, core.session.user)}";
+                    email.copyFilename.content = $"<p>You received this email because there was a request at {primaryDomain} to reset your password. If this was you, <a href=\"{resetUrl}\">click here.</a></p>";
+                    email.save(core.cpParent);
+                }
+                userErrorMessage = "";
+                return sendAdHocEmail(core, email.copyFilename.content, 0, emailAddress, email.fromAddress, email.subject, email.copyFilename.content, "", email.fromAddress, "", true, true, email.id, ref userErrorMessage, 0);
+            } catch (Exception ex) {
+                LogController.logError(core, ex);
+                throw;
+            }
+        }
+        //
         //====================================================================================================
         //
         public static void unblockEmailAddress(CoreController core, string recipientRawEmail) {
@@ -1064,7 +1086,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- this queue record is not shared with another process, send it
                     DbBaseModel.delete<EmailQueueModel>(core.cpParent, targetQueueRecord.id);
-                    EmailSendRequest sendRequest = DeserializeObject<EmailSendRequest>(targetQueueRecord.content);
+                    EmailSendRequest sendRequest = Newtonsoft.Json.JsonConvert.DeserializeObject<EmailSendRequest>(targetQueueRecord.content);
                     string reasonForFail = "";
                     trySendImmediate(core,  sendRequest, ref reasonForFail);
                 }

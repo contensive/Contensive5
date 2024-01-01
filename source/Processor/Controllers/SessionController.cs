@@ -219,7 +219,8 @@ namespace Contensive.Processor.Controllers {
                     string authUsername = core.docProperties.getText("authUsername");
                     string authPassword = core.docProperties.getText("authPassword");
                     if ((!string.IsNullOrWhiteSpace(authUsername)) && (!string.IsNullOrWhiteSpace(authPassword))) {
-                        int userId = AuthenticationController.getUserByUsernamePassword(core, this, authUsername, authPassword, false);
+                        string userErrorMessage = "";
+                        int userId = AuthenticationController.preflightAuthentication_returnUserId(core, this, authUsername, authPassword, false, ref userErrorMessage);
                         if (userId > 0) {
                             AuthenticationController.authenticateById(core, this, userId);
                             authenticationProcessSuccess = true;
@@ -240,7 +241,8 @@ namespace Contensive.Processor.Controllers {
                         if (usernamePassword.Length == 2) {
                             string username = usernamePassword[0];
                             string password = usernamePassword[1];
-                            int userId = AuthenticationController.getUserByUsernamePassword(core, this,username, password, false);
+                            string userErrorMessage = "";
+                            int userId = AuthenticationController.preflightAuthentication_returnUserId(core, this,username, password, false, ref userErrorMessage);
                             if (userId > 0) {
                                 AuthenticationController.authenticateById(core, this, userId);
                                 authenticationProcessSuccess = true;

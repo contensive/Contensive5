@@ -308,15 +308,6 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        internal int maxVisitLoginAttempts {
-            get {
-                return getPropertyBase("maxVisitLoginAttempts", 20, ref _maxVisitLoginAttempts);
-            }
-        }
-        private int? _maxVisitLoginAttempts = null;
-        //
-        //====================================================================================================
-        //
         public string loginIconFilename {
             get {
                 return getPropertyBase("LoginIconFilename", "" + cdnPrefix + "images/ccLibLogin.GIF", ref _LoginIconFilename);

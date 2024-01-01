@@ -21,11 +21,16 @@ namespace Contensive.Models.Db {
         public bool success { get; set; }
         public int memberId { get; set; }
         //
-        public static void log(CPBaseClass cp, int userid, bool success) {
+        public static void log(CPBaseClass cp, int userid, bool success, string logMessage) {
             var log = DbBaseModel.addDefault<AuthenticationLogModel>(cp);
+            log.name = logMessage;
             log.memberId = userid;
             log.success = success;
             log.save(cp);
+        }
+        //
+        public static void log(CPBaseClass cp, int userid, bool success) {
+            log(cp, userid, success, success ? "login success" : "login fail");
         }
         /// <summary>
         /// return true if login allowed. return false if policy fails and block login
@@ -34,11 +39,12 @@ namespace Contensive.Models.Db {
         /// <param name="userId"></param>
         /// <returns></returns>
         public static bool allowLoginForLockoutPolicy(CPBaseClass cp, int userId) {
-            DataTable dt = cp.Db.ExecuteQuery($"select top 3 success from ccAuthenticationLog where memberid={userId} and dateadded<{cp.Db.EncodeSQLDate(DateTime.Now)} order by id desc");
+            int accountLockoutPolicyDuration = 15;
+            DataTable dt = cp.Db.ExecuteQuery($"select top 3 success from ccAuthenticationLog where memberid={userId} and dateadded>{cp.Db.EncodeSQLDate(DateTime.Now.AddMinutes(accountLockoutPolicyDuration))} order by id desc");
             if (dt == null || dt.Rows.Count == 0) return true;
             // return false if 3 false in a row
             int failCnt = 0;
-            foreach( DataRow dr in dt.Rows) {
+            foreach (DataRow dr in dt.Rows) {
                 if (cp.Utils.EncodeBoolean(dr[0])) { return true; }
                 failCnt++;
             }

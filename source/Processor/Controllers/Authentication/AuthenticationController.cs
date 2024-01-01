@@ -1,11 +1,8 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.Models.Db;
-using NLog.Targets.Wrappers;
+﻿using Contensive.Models.Db;
 using System;
-using System.Data;
+using System.Collections.Generic;
+using System.Drawing.Printing;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Threading;
 using static Contensive.Processor.Constants;
 //
@@ -63,7 +60,6 @@ namespace Contensive.Processor.Controllers {
                 session.visit.memberId = session.user.id;
                 session.visit.visitAuthenticated = false;
                 session.visit.visitorId = session.visitor.id;
-                session.visit.loginAttempts = 0;
                 session.user.visits = session.user.visits + 1;
                 if (session.user.visits == 1) {
                     session.visit.memberNew = true;
@@ -140,12 +136,13 @@ namespace Contensive.Processor.Controllers {
         /// <param name="requestPassword"></param>
         /// <param name="setUserAutoLogin"></param>
         /// <returns></returns>
-        public static bool authenticate(CoreController core, SessionController session, string requestUsername, string requestPassword, bool setUserAutoLogin) {
+        public static bool tryAuthenticate(CoreController core, SessionController session, string requestUsername, string requestPassword, bool setUserAutoLogin, ref string userErrorMessage) {
             try {
+                userErrorMessage = "";
                 //
                 LogController.logTrace(core, "AuthenticationController.authenticate enter");
                 //
-                int userId = getUserByUsernamePassword(core, session, requestUsername, requestPassword, false);
+                int userId = preflightAuthentication_returnUserId(core, session, requestUsername, requestPassword, false, ref userErrorMessage);
                 if (!userId.Equals(0) && authenticateById(core, session, userId)) {
                     //
                     // -- successful
@@ -226,6 +223,11 @@ namespace Contensive.Processor.Controllers {
         //
         public static void processLoginSuccess(CoreController core, int userId) {
             try {
+                //
+                // -- successful login, clear login attempts
+                core.session.visit.loginAttempts = 0;
+                core.db.executeNonQuery($"update ccvisits set loginattempts={core.session.visit.loginAttempts} where id={core.session.visit.id}");
+                //
                 AuthenticationLogModel.log(core.cpParent, userId, true);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -235,35 +237,37 @@ namespace Contensive.Processor.Controllers {
         //
         //===================================================================================================
         /// <summary>
-        /// Test the username and password against users and return the userId of the match, or 0 if not valid match
-        /// Process login success and fail here to centralize
+        /// If credentials are valid, return the userId, but the user is NOT authenticated. Else return 0 and a userErrorMessage that can be displayed.
+        /// Test for valid credentials.
+        /// Log success and fail here to centralize.
         /// </summary>
         /// <param name="requestUsername"></param>
         /// <param name="requestPassword"></param>
         /// <param name="requestIncludesPassword">If true, the noPassword option is disabled</param>
         /// <returns></returns>
-        public static int getUserByUsernamePassword(CoreController core, SessionController session, string requestUsername, string requestPassword, bool requestIncludesPassword) {
+        public static int preflightAuthentication_returnUserId(CoreController core, SessionController session, string requestUsername, string requestPassword, bool requestIncludesPassword, ref string userErrorMessage) {
             try {
                 //
-                LogController.logTrace(core, "getUserIdForUsernameCredentials enter");
+                LogController.logTrace(core, "preflightAuthentication_returnUserId enter");
                 //
+                // -- track the visit attempt
+                core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
+                core.db.executeNonQuery($"update ccvisits set loginattempts={core.session.visit.loginAttempts} where id={core.session.visit.id}");
+                //
+                userErrorMessage = "";
                 if (string.IsNullOrEmpty(requestUsername)) {
                     //
                     // -- username blank, stop here
-                    LogController.logTrace(core, "getUserIdForUsernameCredentials fail, username blank");
+                    userErrorMessage = "Username is required.";
+                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, username blank");
                     return 0;
                 }
                 bool allowNoPassword = !requestIncludesPassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
                 if (string.IsNullOrEmpty(requestPassword) && !allowNoPassword) {
                     //
                     // -- password blank, stop here
-                    LogController.logTrace(core, "getUserIdForUsernameCredentials fail, password blank");
-                    return 0;
-                }
-                if (session.visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts) {
-                    //
-                    // ----- already tried 5 times
-                    LogController.logTrace(core, "getUserIdForUsernameCredentials fail, maxVisitLoginAttempts reached");
+                    userErrorMessage = "Password is required.";
+                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, password blank");
                     return 0;
                 }
                 string Criteria;
@@ -271,170 +275,183 @@ namespace Contensive.Processor.Controllers {
                 if (allowEmailLogin) {
                     //
                     // -- login by username or email
-                    LogController.logTrace(core, "getUserIdForUsernameCredentials, attempt email login");
+                    LogController.logTrace(core, "preflightAuthentication_returnUserId, attempt email login");
                     Criteria = "((username=" + DbController.encodeSQLText(requestUsername) + ")or(email=" + DbController.encodeSQLText(requestUsername) + "))";
                 } else {
                     //
                     // -- login by username only
-                    LogController.logTrace(core, "getUserIdForUsernameCredentials, attempt username login");
+                    LogController.logTrace(core, "preflightAuthentication_returnUserId, attempt username login");
                     Criteria = "(username=" + DbController.encodeSQLText(requestUsername) + ")";
                 }
                 Criteria += "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
-                string peopleFieldList = "ID,password,passwordHash,admin,developer,ccguid";
                 bool allowPlainTextPassword = core.siteProperties.getBoolean(sitePropertyName_AllowPlainTextPassword, true);
-                using (var cs = new CsModel(core)) {
-                    if (!cs.open("People", Criteria, "id", true, session.user.id, peopleFieldList, PageSize: 2)) {
+                List<PersonModel> records = DbBaseModel.createList<PersonModel>(core.cpParent, Criteria, "id", 2);
+                if (records.Count == 0) {
+                    //
+                    // -- fail, username not found, stop here
+                    userErrorMessage = "Username or password incorrect.";
+                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, user record not found");
+                    return 0;
+                }
+                if (records.Count > 1) {
+                    //
+                    // -- fail, multiple matches
+                    userErrorMessage = "Username is not valid.";
+                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, multiple users found");
+                    return 0;
+                }
+                var record = records[0];
+                if (allowNoPassword) {
+                    //
+                    // -- no-password mode
+                    if (record.admin || record.developer) {
                         //
-                        // -- fail, username not found, stop here
-                        LogController.logTrace(core, "getUserIdForUsernameCredentials fail, user record not found");
+                        // -- fail, admin/dev cannot be no-password-mode
+                        userErrorMessage = "Admin users require password login.";
+                        LogController.logTrace(core, "preflightAuthentication_returnUserId fail, no-pw mode matched admin/dev");
                         return 0;
                     }
-                    if (cs.getRowCount() > 1) {
+                    //
+                    // todo -- consider removing content manager role
+                    // -- no-password auth cannot be content manager
+                    using var csRules = new CsModel(core);
+                    string SQL = ""
+                        + " select ccGroupRules.ContentID"
+                        + " from ccGroupRules right join ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
+                        + " where (1=1)"
+                        + " and(ccMemberRules.memberId=" + record.id + ")"
+                        + " and(ccMemberRules.active>0)"
+                        + " and(ccGroupRules.active>0)"
+                        + " and(ccGroupRules.ContentID Is not Null)"
+                        + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
+                        + ");";
+                    if (!csRules.openSql(SQL)) {
                         //
-                        // -- fail, multiple matches
-                        LogController.logTrace(core, "getUserIdForUsernameCredentials fail, multiple users found");
-                        return 0;
+                        // -- success, match is not content manager
+                        LogController.logTrace(core, "preflightAuthentication_returnUserId fail, no-pw mode did not match content manager");
+                        return record.id;
                     }
-                    int userRecordId = cs.getInteger("id");
-                    if (allowNoPassword) {
+
+                }
+                //
+                // -- password mode
+                //
+                if (string.IsNullOrEmpty(requestPassword)) {
+                    //
+                    // -- fail, no password
+                    userErrorMessage = "Password is required.";
+                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, blank requestPassword");
+                    processLoginFail(core, record.id);
+                    return 0;
+                }
+                string recordPassword = record.password;
+                if (allowPlainTextPassword) {
+                    //
+                    // -- legacy plain text password mode
+                    //
+                    if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
                         //
-                        // -- no-password mode
-                        if (cs.getBoolean("admin") || cs.getBoolean("developer")) {
+                        // -- check account lockout
+                        if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
                             //
-                            // -- fail, admin/dev cannot be no-password-mode
-                            LogController.logTrace(core, "getUserIdForUsernameCredentials fail, no-pw mode matched admin/dev");
+                            // -- fail, lockout
+                            userErrorMessage = "Too many login attempts. Please wait and try again.";
+                            LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, fail account lockout, memberId [{record.id}]");
+                            processLoginFail(core, record.id);
                             return 0;
                         }
                         //
-                        // -- no-password auth cannot be content manager
-                        using var csRules = new CsModel(core);
-                        string SQL = ""
-                            + " select ccGroupRules.ContentID"
-                            + " from ccGroupRules right join ccMemberRules ON ccGroupRules.GroupId = ccMemberRules.GroupID"
-                            + " where (1=1)"
-                            + " and(ccMemberRules.memberId=" + userRecordId + ")"
-                            + " and(ccMemberRules.active>0)"
-                            + " and(ccGroupRules.active>0)"
-                            + " and(ccGroupRules.ContentID Is not Null)"
-                            + " and((ccMemberRules.DateExpires is null)OR(ccMemberRules.DateExpires>" + DbController.encodeSQLDate(core.doc.profileStartTime) + "))"
-                            + ");";
-                        if (!csRules.openSql(SQL)) {
-                            //
-                            // -- success, match is not content manager
-                            LogController.logTrace(core, "getUserIdForUsernameCredentials fail, no-pw mode did not match content manager");
-                            return userRecordId;
-                        }
-
+                        // -- success, password match
+                        LogController.logTrace(core, "preflightAuthentication_returnUserId success, pw match");
+                        processLoginSuccess(core, record.id);
+                        return record.id;
                     }
+                    // 
+                    // -- fail, plain text
+                    userErrorMessage = "Username or password are incorrect.";
+                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, fail password mismatch");
+                    processLoginFail(core, record.id);
+                    return 0;
+                } else {
                     //
-                    // -- password mode
+                    // -- hash password mode
+                    PasswordHashInfo recordPasswordHashInfo = new(record.passwordHash);
                     //
-                    if (string.IsNullOrEmpty(requestPassword)) {
+                    // -- test for plain-text to hash password migration (must be plain-text password match)
+                    if (string.IsNullOrEmpty(record.passwordHash) && !string.IsNullOrEmpty(recordPassword)) {
                         //
-                        // -- fail, no password
-                        LogController.logTrace(core, "getUserIdForUsernameCredentials fail, blank requestPassword");
-                        processLoginFail(core, userRecordId);
-                        return 0;
-                    }
-                    string recordPassword = cs.getText("password");
-                    if (allowPlainTextPassword) {
-                        //
-                        // -- legacy plain text password mode
-                        //
+                        // -- record with password and no hash
                         if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
                             //
-                            // -- check account lockout
-                            if(!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, userRecordId)) {
-                                //
-                                // -- fail, lockout
-                                LogController.logTrace(core, $"getUserIdForUsernameCredentials, allowPlainTextPassword, fail account lockout, memberId [{userRecordId}]");
-                                processLoginFail(core, userRecordId);
-                                return 0;
+                            // -- plain-text password match with request, convert record to hash
+                            PasswordHashInfo requestPasswordHashInfo = createPasswordHash_current(core, requestPassword, record.ccguid);
+                            if (core.siteProperties.clearAdminPasswordOnHash) {
+                                record.password = "";
                             }
-                            //
-                            // -- success, password match
-                            LogController.logTrace(core, "getUserIdForUsernameCredentials success, pw match");
-                            processLoginSuccess(core, userRecordId);
-                            return userRecordId;
-                        }
-                        // todo remove tmp-password logging
-                        // -- fail, plain text
-                        LogController.logTrace(core, $"getUserIdForUsernameCredentials, allowPlainTextPassword, fail password mismatch");
-                        processLoginFail(core, userRecordId);
-                        return 0;
-                    } else {
-                        //
-                        // -- hash password mode
-                        //
-                        PasswordHashInfo recordPasswordHash = new(cs.getText("passwordHash"));
-                        switch (recordPasswordHash.hasherVersion) {
-                            case "": {
-                                    //
-                                    // -- legacy hash. no version, etc
-                                    //
-                                    PasswordHashInfo requestPasswordHash = createPasswordHash_Legacy(core, requestPassword, cs.getText("ccguid"));
-                                    if (requestPasswordHash.text.Equals(recordPasswordHash.text)) {
-                                        //
-                                        // -- check account lockout
-                                        if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, userRecordId)) {
-                                            //
-                                            // -- fail, lockout
-                                            LogController.logTrace(core, $"getUserIdForUsernameCredentials, hash-no-version, fail account lockout, memberId [{userRecordId}]");
-                                            processLoginFail(core, userRecordId);
-                                            return 0;
-                                        }
-                                        //
-                                        // -- success, passwordHash match, try upgrde to current password hasher and return success
-                                        string userErrorMessage = "";
-                                        if (trySetPassword(core.cpParent, requestPassword, userRecordId, ref userErrorMessage)) {
-                                            // 
-                                            // log issue
-                                            LogController.logWarn(core, $"Cannot migrade from legacy-hasher to current-current, no user error returned, error [{userErrorMessage}]");
-                                            processLoginSuccess(core, userRecordId);
-                                            return userRecordId;
-                                        }
-                                        LogController.logTrace(core, "getUserIdForUsernameCredentials, success, passwordHash match, !allowPlainTextPassword");
-                                        processLoginSuccess(core, userRecordId);
-                                        return userRecordId;
-                                    }
-                                    //
-                                    // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
-                                    processLoginFail(core, userRecordId);
-                                    return migrateToPasswordHash(core, requestPassword, recordPassword, userRecordId, requestPasswordHash);
-                                }
-                            case "231226": {
-                                    //
-                                    // 231226
-                                    // 
-                                    PasswordHashInfo requestPasswordHash = createPasswordHash_231226(core, requestPassword, cs.getText("ccguid"));
-                                    if (requestPasswordHash.payload.Equals(recordPasswordHash.payload)) {
-                                        //
-                                        // -- check account lockout
-                                        if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, userRecordId)) {
-                                            //
-                                            // -- fail, lockout
-                                            LogController.logTrace(core, $"getUserIdForUsernameCredentials, hash-231226, fail account lockout, memberId [{userRecordId}]");
-                                            processLoginFail(core, userRecordId);
-                                            return 0;
-                                        }
-                                        //
-                                        // -- success, passwordHash match, try upgrde to current password hasher and return success
-                                        LogController.logTrace(core, "getUserIdForUsernameCredentials, success, passwordHash match, !allowPlainTextPassword");
-                                        processLoginSuccess(core, userRecordId);
-                                        return userRecordId;
-                                    }
-                                    //
-                                    // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
-                                    processLoginFail(core, userRecordId);
-                                    return migrateToPasswordHash(core, requestPassword, recordPassword, userRecordId, requestPasswordHash);
-                                }
+                            record.passwordHash = requestPasswordHashInfo.text;
+                            record.save(core.cpParent);
+                            recordPasswordHashInfo = requestPasswordHashInfo;
                         }
                     }
+                    //
+                    switch (recordPasswordHashInfo.hasherVersion) {
+                        case "231226": {
+                                //
+                                // 231226
+                                // 
+                                PasswordHashInfo requestPasswordHashInfo = createPasswordHash_231226(core, requestPassword, record.ccguid);
+                                if (!requestPasswordHashInfo.payload.Equals(recordPasswordHashInfo.payload)) {
+                                    //
+                                    // -- fail, unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
+                                    userErrorMessage = "Username or password are incorrect.";
+                                    processLoginFail(core, record.id);
+                                    return 0;
+                                }
+                                //
+                                if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
+                                    //
+                                    // -- fail, account lockout
+                                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-231226, fail account lockout, memberId [{record.id}]");
+                                    userErrorMessage = "Too many login attempts. Please wait and try again.";
+                                    processLoginFail(core, record.id);
+                                    return 0;
+                                }
+                                //
+                                // -- success, passwordHash match, try upgrde to current password hasher and return success
+                                LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
+                                processLoginSuccess(core, record.id);
+                                return record.id;
+                            }
+                        default: {
+                                //
+                                // -- legacy hash. no version, etc
+                                PasswordHashInfo requestPasswordHashInfo = createPasswordHash_Legacy(core, requestPassword, record.ccguid);
+                                if (!requestPasswordHashInfo.text.Equals(recordPasswordHashInfo.text)) {
+                                    //
+                                    // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
+                                    userErrorMessage = "Username or password are incorrect.";
+                                    processLoginFail(core, record.id);
+                                    return 0;
+                                }
+                                //
+                                // -- check account lockout
+                                if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
+                                    //
+                                    // -- fail, lockout
+                                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-no-version, fail account lockout, memberId [{record.id}]");
+                                    userErrorMessage = "Too many login attempts. Please wait and try again.";
+                                    processLoginFail(core, record.id);
+                                    return 0;
+                                }
+                                //
+                                // -- success, passwordHash match, try upgrde to current password hasher and return success
+                                LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
+                                trySetPassword(core.cpParent, requestPassword, record, ref userErrorMessage);
+                                processLoginSuccess(core, record.id);
+                                return record.id;
+                            }
+                    }
                 }
-                //
-                LogController.logTrace(core, "getUserIdForUsernameCredentials fail, exit with no  match");
-                //
-                return 0;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;
@@ -468,21 +485,21 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     core.db.executeNonQuery($"update ccmembers set passwordhash={requestPasswordHash.text} where id={userId}");
                 }
-                LogController.logTrace(core, "getUserIdForUsernameCredentials success, !allowPlainTextPassword, migration-mode, matched plain text pw, setup passwordhash, cleared password.");
+                LogController.logTrace(core, "migrateToPasswordHash success, !allowPlainTextPassword, migration-mode, matched plain text pw, setup passwordhash, cleared password.");
                 return userId;
             }
             //
             // -- fail, hash password
-            LogController.logTrace(core, "getUserIdForUsernameCredentials fail, !allowPlainTextPassword, migration-mode, migration failed because plain-text password mismatch");
+            LogController.logTrace(core, "migrateToPasswordHash fail, !allowPlainTextPassword, migration-mode, migration failed because plain-text password mismatch");
             return 0;
 
         }
         //
         //====================================================================================================
         //
-        public static bool login(CoreController core, SessionController session, string usernameOrEmail, string password, bool setAutoLogin) {
+        public static bool login(CoreController core, SessionController session, string usernameOrEmail, string password, bool setAutoLogin, ref string userErrorMessage) {
             if (session == null) { return false; }
-            return authenticate(core, session, usernameOrEmail, password, setAutoLogin);
+            return tryAuthenticate(core, session, usernameOrEmail, password, setAutoLogin, ref userErrorMessage);
         }
         //
         //====================================================================================================
@@ -503,9 +520,9 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="plainTextPassword"></param>
-        public static bool trySetPassword(CPClass cp, string plainTextPassword, int userId) {
+        public static bool trySetPassword(CPClass cp, string plainTextPassword, PersonModel user) {
             string userErrorMessage = "";
-            return trySetPassword(cp, plainTextPassword, userId, ref userErrorMessage);
+            return trySetPassword(cp, plainTextPassword, user, ref userErrorMessage);
         }
         //
         //====================================================================================================
@@ -515,20 +532,20 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="plainTextPassword"></param>
         public static bool trySetPassword(CPClass cp, string plainTextPassword, ref string userErrorMessage) {
-            return trySetPassword(cp, plainTextPassword, cp.User.Id, ref userErrorMessage);
+            var user = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
+            return trySetPassword(cp, plainTextPassword, user, ref userErrorMessage);
         }
         //
         //====================================================================================================
         //
-        public static bool trySetPassword(CPClass cp, string plainTextPassword, int userId, ref string userErrorMessage) {
+        public static bool trySetPassword(CPClass cp, string plainTextPassword, PersonModel user, ref string userErrorMessage) {
             try {
                 userErrorMessage = "";
                 string userGuid = "";
                 //
                 {
-                    PersonModel user = DbBaseModel.create<PersonModel>(cp, userId);
                     if (user is null) {
-                        userErrorMessage = $"The user could not be found for id [{userId}]";
+                        userErrorMessage = $"The user could not be found for id [{user.id}]";
                         return false;
                     }
                     if (!tryIsValidPassword(cp.core, user, plainTextPassword, ref userErrorMessage)) { return false; }
@@ -538,17 +555,27 @@ namespace Contensive.Processor.Controllers {
                 if (cp.Site.GetBoolean("allow plain text password", true)) {
                     //
                     // -- set plain-text password
-                    cp.Db.ExecuteNonQuery($"update ccmembers set passwordHash=null,password={cp.Db.EncodeSQLText(plainTextPassword)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id},passwordModifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)} where id={userId}");
-                    UsedPasswordModel.saveUsedPassword(cp, plainTextPassword, userId);
-                    DbBaseModel.invalidateCacheOfRecord<PersonModel>(cp, userId);
+                    user.passwordHash = null;
+                    user.password = plainTextPassword;
+                    user.modifiedDate = DateTime.Now;
+                    user.modifiedBy = user.id;
+                    user.passwordModifiedDate = DateTime.Now;
+                    user.save(cp);
+                    UsedPasswordModel.saveUsedPassword(cp, plainTextPassword, user.id);
+                    DbBaseModel.invalidateCacheOfRecord<PersonModel>(cp, user.id);
                     return true;
                 }
                 //
                 // -- set hash password
-                PasswordHashInfo passwordHash = createPasswordHash_current(cp.core, plainTextPassword, userGuid);
-                cp.Db.ExecuteNonQuery($"update ccmembers set password=null,passwordHash={cp.Db.EncodeSQLText(passwordHash.text)},modifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)},modifiedBy={cp.User.Id},passwordModifiedDate={cp.Db.EncodeSQLDate(DateTime.Now)}  where id={userId}");
-                UsedPasswordModel.saveUsedPassword(cp, passwordHash.text, userId);
-                DbBaseModel.invalidateCacheOfRecord<PersonModel>(cp, userId);
+                PasswordHashInfo passwordHashInfo = createPasswordHash_current(cp.core, plainTextPassword, userGuid);
+                user.passwordHash = passwordHashInfo.text;
+                user.password = null;
+                user.modifiedDate = DateTime.Now;
+                user.modifiedBy = user.id;
+                user.passwordModifiedDate = DateTime.Now;
+                user.save(cp);
+                UsedPasswordModel.saveUsedPassword(cp, passwordHashInfo.text, user.id);
+                DbBaseModel.invalidateCacheOfRecord<PersonModel>(cp, user.id);
                 return true;
             } catch (Exception ex) {
                 LogController.logError(cp.core, ex);
@@ -602,6 +629,7 @@ namespace Contensive.Processor.Controllers {
         public const string passwordAllowedSpecialCharacters = "~!@#$%^&*()_+`-={}|[]\\:;'<>,.";
         public const string passwordAllowedNonSpecialCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public const int passwordMinLength = 10;
+        public const int userNameMinLength = 4;
         //
         //====================================================================================================
         /// <summary>
@@ -610,33 +638,32 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="user"></param>
         /// <param name="newUsername"></param>
-        /// <param name="userError"></param>
+        /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool tryIsValidUsername(CoreController core, PersonModel user, string newUsername, ref string userError) {
+        public static bool tryIsValidUsername(CoreController core, PersonModel user, string newUsername, ref string userErrorMessage) {
             try {
-                int userNameMinLength = 4;
-                userError = "";
+                userErrorMessage = "";
                 // 
                 // -- min length
                 if (string.IsNullOrEmpty(newUsername)) {
-                    userError = $"Username must be a minimum of {userNameMinLength} characters.";
+                    userErrorMessage = $"Username must be a minimum of {userNameMinLength} characters.";
                     return false;
                 }
                 if (newUsername.Length < userNameMinLength) {
-                    userError = $"Username must be a minimum of {userNameMinLength} characters.";
+                    userErrorMessage = $"Username must be a minimum of {userNameMinLength} characters.";
                     return false;
                 }
                 // 
                 // -- must contain only characters
                 if (!newUsername.Any(c => usernameAllowedCharacters.Contains(c))) {
-                    userError = $"The username must only contain the following characters ({usernameAllowedCharacters}).";
+                    userErrorMessage = $"The username must only contain the following characters ({usernameAllowedCharacters}).";
                     return false;
                 }
                 // 
                 // -- username must be unique accross all local usernames
                 int dupCount = DbBaseModel.getCount<PersonModel>(core.cpParent, $"(id<>{user.id})and(username={DbController.encodeSQLText(newUsername)})");
                 if (dupCount > 0) {
-                    userError = $"This username is not available.";
+                    userErrorMessage = $"This username is not available.";
                     return false;
                 }
                 // 
@@ -655,69 +682,63 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="user"></param>
         /// <param name="newPassword"></param>
-        /// <param name="userError"></param>
+        /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool tryIsValidPassword(CoreController core, PersonModel user, string newPassword, ref string userError) {
+        public static bool tryIsValidPassword(CoreController core, PersonModel user, string newPassword, ref string userErrorMessage) {
             try {
-                userError = "";
+                userErrorMessage = "";
                 // 
                 // -- min length
                 if (string.IsNullOrEmpty(newPassword)) {
-                    userError = $"Password must be a minimum of {passwordMinLength} characters.";
+                    userErrorMessage = $"Password must be a minimum of {passwordMinLength} characters.";
                     return false;
                 }
                 if (newPassword.Length < passwordMinLength) {
-                    userError = $"Password must be a minimum of {passwordMinLength} characters.";
+                    userErrorMessage = $"Password must be a minimum of {passwordMinLength} characters.";
                     return false;
                 }
                 // 
                 // -- must contain only characters
                 if (!newPassword.Any(c => (passwordAllowedNonSpecialCharacters + passwordAllowedSpecialCharacters).Contains(c))) {
-                    userError = $"The password must only contain the following characters ({passwordAllowedNonSpecialCharacters + passwordAllowedSpecialCharacters}).";
+                    userErrorMessage = $"The password must only contain the following characters ({passwordAllowedNonSpecialCharacters + passwordAllowedSpecialCharacters}).";
                     return false;
                 }
                 // 
                 // -- must at least 1 a-z
                 if (!newPassword.Any(char.IsLower)) {
-                    userError = $"This password must include at least 1 lower case character.";
+                    userErrorMessage = $"This password must include at least 1 lower case character.";
                     return false;
                 }
                 // 
                 // -- must at least 1 A-Z
                 if (!newPassword.Any(char.IsUpper)) {
-                    userError = $"This password must include at least 1 upper case character.";
+                    userErrorMessage = $"This password must include at least 1 upper case character.";
                     return false;
                 }
                 // 
                 // -- must at least 1 number
                 if (!newPassword.Any(char.IsNumber)) {
-                    userError = $"This password must include at least 1 number.";
+                    userErrorMessage = $"This password must include at least 1 number.";
                     return false;
                 }
                 // 
                 // -- must at least 1 special characters
                 if (!newPassword.Any(c => passwordAllowedSpecialCharacters.Contains(c))) {
-                    userError = $"This password must include at least 1 special character ({passwordAllowedSpecialCharacters}).";
+                    userErrorMessage = $"This password must include at least 1 special character ({passwordAllowedSpecialCharacters}).";
                     return false;
                 }
                 // 
                 // -- password must not be on bad-password list
                 if (DbBaseModel.getCount<CommonPasswordModel>(core.cpParent, $"(name={DbController.encodeSQLText(newPassword)})") > 0) {
-                    userError = $"This password is not available.";
+                    userErrorMessage = $"This password is not available.";
                     return false;
                 }
                 // 
-                PasswordHashInfo newPasswordHash = createPasswordHash_current(core, newPassword, user.ccguid);
-                // 
-                // -- password must be different
-                if (DbBaseModel.getCount<PersonModel>(core.cpParent, $"(id={user.id})and((password={DbController.encodeSQLText(newPassword)})or(passwordHash={DbController.encodeSQLText(newPasswordHash.text)}))") > 0) {
-                    userError = $"This password is not available.";
-                    return false;
-                }
+                PasswordHashInfo newPasswordHashInfo = createPasswordHash_current(core, newPassword, user.ccguid);
                 // 
                 // -- is on used password list
-                if (UsedPasswordModel.isUsedPassword(core.cpParent, newPassword, newPasswordHash.text)) {
-                    userError = $"This Password is not available.";
+                if (UsedPasswordModel.isUsedPassword(core.cpParent, newPassword, newPasswordHashInfo.text)) {
+                    userErrorMessage = $"This password is not available.";
                     return false;
                 }
                 //

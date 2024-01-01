@@ -3,7 +3,7 @@ using System;
 using Contensive.Processor.Controllers;
 //
 namespace Contensive.Processor.Addons.Primitives {
-    public class processPasswordRecoveryFormClass : Contensive.BaseClasses.AddonBaseClass {
+    public class ProcessPasswordRecoveryFormClass : Contensive.BaseClasses.AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>

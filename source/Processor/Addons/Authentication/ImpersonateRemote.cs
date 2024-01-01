@@ -79,13 +79,14 @@ namespace Contensive.Processor.Addons {
         /// <param name="errorPrefix"></param>
         /// <returns></returns>
         public static AuthenticateResponse authenticateUsernamePassword(CoreController core, string username, string password, string errorPrefix) {
-            int userId = AuthenticationController.getUserByUsernamePassword(core, core.session, username, password, false);
+            string userErrorMessage = "";
+            int userId = AuthenticationController.preflightAuthentication_returnUserId(core, core.session, username, password, false, ref userErrorMessage);
             if (userId == 0) {
                 //
                 // -- user was not found
                 core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
                 return new AuthenticateResponse {
-                    errors = new List<string> { errorPrefix + " failed." },
+                    errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                     data = new AuthenticateResponseData()
                 };
             } else {
@@ -94,7 +95,7 @@ namespace Contensive.Processor.Addons {
                     // -- username/password login failed
                     core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
                     return new AuthenticateResponse {
-                        errors = new List<string> { errorPrefix + " failed." },
+                        errors = [$"{errorPrefix} failed. {userErrorMessage}"],
                         data = new AuthenticateResponseData()
                     };
                 } else {
@@ -102,13 +103,13 @@ namespace Contensive.Processor.Addons {
                     if (user == null) {
                         core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);
                         return new AuthenticateResponse {
-                            errors = new List<string> { errorPrefix + " user is not valid." },
+                            errors = [$"{errorPrefix} failed. User is not valid"],
                             data = new AuthenticateResponseData()
                         };
                     } else {
                         LogController.addActivityCompletedVisit(core, "Login", errorPrefix + " successful", core.session.user.id);
                         return new AuthenticateResponse {
-                            errors = new List<string>(),
+                            errors = [],
                             data = new AuthenticateResponseData {
                                 firstName = user.firstName,
                                 lastName = user.lastName,

@@ -177,7 +177,7 @@ namespace Contensive.Processor.Controllers {
                                     string userErrorMessage = "";
                                     if (!AuthenticationController.tryIsValidPassword(core, user, user.password, ref userErrorMessage)) {
                                         ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
-                                    } else if (!AuthenticationController.trySetPassword(core.cpParent, user.password, user.id, ref userErrorMessage)) {
+                                    } else if (!AuthenticationController.trySetPassword(core.cpParent, user.password, user, ref userErrorMessage)) {
                                         ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
                                     }
                                     user.password = "";

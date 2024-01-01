@@ -1,5 +1,6 @@
 ﻿
 using System;
+using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Microsoft.VisualBasic.ApplicationServices;
 using static Contensive.Processor.Controllers.GenericController;
@@ -52,7 +53,8 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override int GetIdByLogin(string username, string password) {
             if (cp?.core?.session == null) { return 0; }
-            return AuthenticationController.getUserByUsernamePassword(cp.core, cp.core.session, username, password, false);
+            string userErrorMessage = "";
+            return AuthenticationController.preflightAuthentication_returnUserId(cp.core, cp.core.session, username, password, false, ref userErrorMessage);
         }
         //
         //====================================================================================================
@@ -312,10 +314,12 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool Login(string username, string password, bool setAutoLogin) {
-            return AuthenticationController.login(cp.core, cp.core.session, username, password, setAutoLogin);
+            string userErrorMessage = "";
+            return AuthenticationController.login(cp.core, cp.core.session, username, password, setAutoLogin, ref userErrorMessage);
         }
         public override bool Login(string username, string password) {
-            return AuthenticationController.login(cp.core, cp.core.session, username, password, false);
+            string userErrorMessage = "";
+            return AuthenticationController.login(cp.core, cp.core.session, username, password, false, ref userErrorMessage);
         }
         //
         //====================================================================================================
@@ -333,7 +337,8 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool LoginIsOK(string username, string password) {
-            return !AuthenticationController.getUserByUsernamePassword(cp.core, cp.core.session, username, password, false).Equals(0);
+            string userErrorMessage = "";
+            return !AuthenticationController.preflightAuthentication_returnUserId(cp.core, cp.core.session, username, password, false, ref userErrorMessage).Equals(0);
         }
         //
         //====================================================================================================
@@ -465,7 +470,8 @@ namespace Contensive.Processor {
         //=======================================================================================================
         //
         public override bool SetPassword(string password, int userId, ref string userErrorMessage) {
-            return AuthenticationController.trySetPassword(cp, password, userId, ref userErrorMessage);
+            PersonModel user = DbBaseModel.create<PersonModel>(cp, userId);
+            return AuthenticationController.trySetPassword(cp, password, user, ref userErrorMessage);
         }
         //
         //=======================================================================================================
@@ -478,7 +484,8 @@ namespace Contensive.Processor {
         //=======================================================================================================
         //
         public override bool SetPassword(string password, int userId) {
-            return AuthenticationController.trySetPassword(cp, password, userId);
+            PersonModel user = DbBaseModel.create<PersonModel>(cp, userId);
+            return AuthenticationController.trySetPassword(cp, password, user);
         }
         //
         //====================================================================================================

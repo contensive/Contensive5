@@ -90,12 +90,12 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override void sendPassword(string UserEmailAddress, ref string adminErrorMessage) {
-            PasswordRecoveryController.sendPassword(cp.core, UserEmailAddress, ref adminErrorMessage);
+            EmailController.trySendPasswordReset(cp.core, UserEmailAddress, ref adminErrorMessage);
         }
         //
         public override void sendPassword(string UserEmailAddress) {
             string adminErrorMessage = "";
-            sendPassword(UserEmailAddress, ref adminErrorMessage);
+            EmailController.trySendPasswordReset(cp.core, UserEmailAddress, ref adminErrorMessage);
         }
         //
         //====================================================================================================

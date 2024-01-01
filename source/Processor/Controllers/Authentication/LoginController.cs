@@ -191,37 +191,23 @@ namespace Contensive.Processor.Controllers {
                     ErrorController.addUserError(core, "The login failed because cookies are disabled.");
                     return false;
                 }
-                if ((core.session.visit.loginAttempts >= core.siteProperties.maxVisitLoginAttempts)) {
-                    //
-                    // -- too many attempts
-                    ErrorController.addUserError(core, "The login failed.");
-                    return false;
-                }
                 //
                 // -- attempt authentication use-cases
-                int userId = AuthenticationController.getUserByUsernamePassword(core, core.session, requestUsername, requestPassword, requestIncludesPassword);
+                string UserErrorMessage = "";
+                int userId = AuthenticationController.preflightAuthentication_returnUserId(core, core.session, requestUsername, requestPassword, requestIncludesPassword, ref UserErrorMessage);
                 if (userId == 0) {
                     //
                     // -- getUserId failed, userError already added
                     // -- if login fails, do not logout. Current issue where a second longin process is running, fails, 
                     // -- and logs out because there is a 'username' collision with another addon which overwrites the global-space username variable
                     // -- informal survey of trusted sites leave you logged in if sign-on fails. 
-                    // -- i f   ( c o r e . s e s s i o n . i s A u t h e n t i c a t e d   | |   c o r e . s e s s i o n . i s R e c o g n i z e d ( ) )   {   c o r e . s e s s i o n . l o g o u t ( ) ;  }
-                    core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
-                    core.session.visit.save(core.cpParent);
-                    ErrorController.addUserError(core, loginFailedError);
+                    ErrorController.addUserError(core, UserErrorMessage);
                     return false;
                 }
                 if (!AuthenticationController.authenticateById(core, core.session, userId)) {
-                    core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
-                    core.session.visit.save(core.cpParent);
                     ErrorController.addUserError(core, loginFailedError);
                     return false;
                 }
-                //
-                // -- successful login
-                core.session.visit.loginAttempts = 0;
-                core.session.visit.save(core.cpParent);
                 //
                 // -- implement auto login - if login-success and siteproperty.allowAutoLogin and form.autologin and not person.login, then set person.autoLogin=true
                 if (core.docProperties.getBoolean("autoLogin") && core.siteProperties.getBoolean(sitePropertyName_AllowAutoLogin)) {

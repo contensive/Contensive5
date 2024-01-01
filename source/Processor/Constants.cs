@@ -939,6 +939,8 @@ namespace Contensive.Processor {
         //   Email
         //-------------------------------------------------------------------------------------
         //
+        internal const string emailGuidResetPassword = "{6A27F2BF-AAC0-4338-AAAD-FC374544D7B6}";
+        //
         internal const int EmailLogTypeDrop = 1; // Email was dropped
         internal const int EmailLogTypeOpen = 2; // System detected the email was opened
         internal const int EmailLogTypeClick = 3; // System detected a click from a link on the email
