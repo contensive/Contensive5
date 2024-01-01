@@ -19,7 +19,7 @@ namespace Tests {
             using (var cp = new CPClass(testAppName)) {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", true);
-                cp.Site.SetProperty("password min length", 5);
+                cp.core.siteProperties.passwordMinLength = 5;
                 // act
                 string returnMsg = "1234";
                 Assert.IsFalse(cp.User.SetPassword("1", ref returnMsg));

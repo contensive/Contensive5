@@ -39,11 +39,13 @@ namespace Contensive.CLI {
                 // -- setup password
                 if (string.IsNullOrEmpty(password)) { 
                     password = "C0ntensive!";
-                    int minLength = cp.Site.GetInteger("password min length", 5);
+                    int minLength = cp.core.siteProperties.passwordMinLength;
                     if (password.Length < minLength) { password += new string('0', minLength - password.Length); }
                 }
                 //
+                // -- delete current root
                 DbBaseModel.deleteRows<PersonModel>(cp, "(username=" + cp.Db.EncodeSQLText(username) + ")");
+                //
                 var currentUser = DbBaseModel.addDefault<PersonModel>(cp);
                 currentUser.name = "root";
                 currentUser.firstName = "root";
@@ -53,6 +55,10 @@ namespace Contensive.CLI {
                 currentUser.developer = true;
                 currentUser.dateExpires = DateTime.Now.AddHours(1);
                 currentUser.save(cp);
+                //
+                // -- clear used passwords
+                DbBaseModel.deleteRows<UsedPasswordModel>(cp, $"memberId={currentUser.id}");
+                //
                 string userError = "";
                 if (!cp.User.SetPassword(password, currentUser.id, ref userError)) {
                     Console.Write(Environment.NewLine + "User reset but the password could not be saved. " + userError);

@@ -26,17 +26,182 @@ namespace Contensive.Processor.Controllers {
             this.core = core;
         }
         //
+        //====================================================================================================
+        /// <summary>
+        /// sampleBoolProperty
+        /// </summary>
+        public bool sampleBoolProperty {
+            get {
+                if (_sampleBoolProperty != null) { return (bool)_sampleBoolProperty; }
+                _sampleBoolProperty = getBoolean(spSampleBoolProperty);
+                return (bool)_sampleBoolProperty;
+            }
+            set {
+                _sampleBoolProperty = value;
+                setProperty(spSampleBoolProperty, value);
+            }
+        }
+        private string spSampleBoolProperty = "sampleBoolProperty";
+        private bool? _sampleBoolProperty = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// sampleIntProperty
+        /// </summary>
+        public int sampleIntProperty {
+            get {
+                if (_sampleIntProperty != null) { return (int)_sampleIntProperty; }
+                _sampleIntProperty = getInteger(spSampleIntProperty);
+                return (int)_sampleIntProperty;
+            }
+            set {
+                _sampleIntProperty = value;
+                setProperty(spSampleIntProperty, value);
+            }
+        }
+        private string spSampleIntProperty = "sampleIntProperty";
+        private int? _sampleIntProperty = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// sampleTextProperty
+        /// </summary>
+        public string sampleTextProperty {
+            get {
+                if (_sampleTextProperty != null) { return (string)_sampleTextProperty; }
+                _sampleTextProperty = getText(spSampleTextProperty);
+                return (string)_sampleTextProperty;
+            }
+            set {
+                _sampleTextProperty = value;
+                setProperty(spSampleTextProperty, value);
+            }
+        }
+        private string spSampleTextProperty = "sampleTextProperty";
+        private string _sampleTextProperty = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// passwordBlockUsedPasswordPeriod
+        /// </summary>
+        public int passwordBlockUsedPasswordPeriod {
+            get {
+                if (_passwordBlockUsedPasswordPeriod != null) { return (int)_passwordBlockUsedPasswordPeriod; }
+                _passwordBlockUsedPasswordPeriod = getInteger(spPasswordBlockUsedPasswordPeriod);
+                return (int)_passwordBlockUsedPasswordPeriod;
+            }
+            set {
+                _passwordBlockUsedPasswordPeriod = value;
+                setProperty(spPasswordBlockUsedPasswordPeriod, value);
+            }
+        }
+        private string spPasswordBlockUsedPasswordPeriod = "password block used password period";
+        private int? _passwordBlockUsedPasswordPeriod = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// passwordRequiresSpecialCharacter
+        /// </summary>
+        public bool passwordRequiresSpecialCharacter {
+            get {
+                if (_passwordRequiresSpecialCharacter != null) { return (bool)_passwordRequiresSpecialCharacter; }
+                _passwordRequiresSpecialCharacter = getBoolean(spPasswordRequiresSpecialCharacter);
+                return (bool)_passwordRequiresSpecialCharacter;
+            }
+            set {
+                _passwordRequiresSpecialCharacter = value;
+                setProperty(spPasswordRequiresSpecialCharacter, value);
+            }
+        }
+        private string spPasswordRequiresSpecialCharacter = "password requires special character";
+        private bool? _passwordRequiresSpecialCharacter = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// passwordRequiresNumber
+        /// </summary>
+        public bool passwordRequiresNumber {
+            get {
+                if (_passwordRequiresNumber != null) { return (bool)_passwordRequiresNumber; }
+                _passwordRequiresNumber = getBoolean(spPasswordRequiresNumber);
+                return (bool)_passwordRequiresNumber;
+            }
+            set {
+                _passwordRequiresNumber = value;
+                setProperty(spPasswordRequiresNumber, value);
+            }
+        }
+        private string spPasswordRequiresNumber = "password requires number";
+        private bool? _passwordRequiresNumber = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// passwordRequiresUppercase
+        /// </summary>
+        public bool passwordRequiresUppercase {
+            get {
+                if (_passwordRequiresUppercase != null) { return (bool)_passwordRequiresUppercase; }
+                _passwordRequiresUppercase = getBoolean(spPasswordRequiresUppercase);
+                return (bool)_passwordRequiresUppercase;
+            }
+            set {
+                _passwordRequiresUppercase = value;
+                setProperty(spPasswordRequiresUppercase, value);
+            }
+        }
+        private string spPasswordRequiresUppercase = "password requires uppercase";
+        private bool? _passwordRequiresUppercase = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// passwordRequiresLowercase
+        /// </summary>
+        public bool passwordRequiresLowercase {
+            get {
+                if (_passwordRequiresLowercase != null) { return (bool)_passwordRequiresLowercase; }
+                _passwordRequiresLowercase = getBoolean(spPasswordRequiresLowercase);
+                return (bool)_passwordRequiresLowercase;
+            }
+            set {
+                _passwordRequiresLowercase = value;
+                setProperty(spPasswordRequiresLowercase, value);
+            }
+        }
+        private string spPasswordRequiresLowercase = "password requires lowercase";
+        private bool? _passwordRequiresLowercase = null;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// passwordMinLength
+        /// </summary>
+        public int passwordMinLength {
+            get {
+                if (_passwordMinLength != null) { return (int)_passwordMinLength; }
+                _passwordMinLength = getInteger("password min length", 10);
+                return (int)_passwordMinLength;
+            }
+            set {
+                _passwordMinLength = value;
+                setProperty("password min length", value);
+            }
+        }
+        private int? _passwordMinLength = null;
+        //
+        //====================================================================================================
+        //
         /// <summary>
         /// if true, the password is cleared when a password saved in a people record in admin and automatically converted to a passwordHash
         /// </summary>
         public bool clearAdminPasswordOnHash {
             get {
-                if(_clearAdminPasswordOnHash != null) { return (bool)_clearAdminPasswordOnHash;  }
+                if (_clearAdminPasswordOnHash != null) { return (bool)_clearAdminPasswordOnHash; }
                 _clearAdminPasswordOnHash = getBoolean("clear admin password on hash", true);
                 return (bool)_clearAdminPasswordOnHash;
             }
         }
         private bool? _clearAdminPasswordOnHash = null;
+        //
+        //====================================================================================================
         //
         /// <summary>
         /// temp property, test if this will work. if true, include a page settings button
@@ -229,7 +394,7 @@ namespace Contensive.Processor.Controllers {
         //
         private bool dbNotReady {
             get {
-                if(core?.appConfig is null ) { return true;  }
+                if (core?.appConfig is null) { return true; }
                 return (core.appConfig.appStatus != AppConfigModel.AppStatusEnum.ok);
             }
         }
@@ -678,7 +843,7 @@ namespace Contensive.Processor.Controllers {
                 if (_allowCache_notCached != null) { return (bool)_allowCache_notCached; }
                 // -- special case, allowCache referenced in nameValueDict load
                 if (_nameValueDict != null) {
-                    return getPropertyBase("AllowBake",true, ref _allowCache_notCached);
+                    return getPropertyBase("AllowBake", true, ref _allowCache_notCached);
                 }
                 if (dbNotReady) { return false; }
                 bool propertyFound = false;

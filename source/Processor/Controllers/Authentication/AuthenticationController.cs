@@ -628,7 +628,7 @@ namespace Contensive.Processor.Controllers {
         public const string usernameAllowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public const string passwordAllowedSpecialCharacters = "~!@#$%^&*()_+`-={}|[]\\:;'<>,.";
         public const string passwordAllowedNonSpecialCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        public const int passwordMinLength = 10;
+        //public const int passwordMinLength = 10;
         public const int userNameMinLength = 4;
         //
         //====================================================================================================
@@ -690,11 +690,11 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- min length
                 if (string.IsNullOrEmpty(newPassword)) {
-                    userErrorMessage = $"Password must be a minimum of {passwordMinLength} characters.";
+                    userErrorMessage = $"Password must be a minimum of {core.siteProperties.passwordMinLength} characters.";
                     return false;
                 }
-                if (newPassword.Length < passwordMinLength) {
-                    userErrorMessage = $"Password must be a minimum of {passwordMinLength} characters.";
+                if (newPassword.Length < core.siteProperties.passwordMinLength) {
+                    userErrorMessage = $"Password must be a minimum of {core.siteProperties.passwordMinLength} characters.";
                     return false;
                 }
                 // 
@@ -705,27 +705,35 @@ namespace Contensive.Processor.Controllers {
                 }
                 // 
                 // -- must at least 1 a-z
-                if (!newPassword.Any(char.IsLower)) {
-                    userErrorMessage = $"This password must include at least 1 lower case character.";
-                    return false;
+                if (core.siteProperties.passwordRequiresLowercase) {
+                    if (!newPassword.Any(char.IsLower)) {
+                        userErrorMessage = $"This password must include at least 1 lower case character.";
+                        return false;
+                    }
                 }
                 // 
                 // -- must at least 1 A-Z
-                if (!newPassword.Any(char.IsUpper)) {
-                    userErrorMessage = $"This password must include at least 1 upper case character.";
-                    return false;
+                if (core.siteProperties.passwordRequiresUppercase) {
+                    if (!newPassword.Any(char.IsUpper)) {
+                        userErrorMessage = $"This password must include at least 1 upper case character.";
+                        return false;
+                    }
                 }
                 // 
                 // -- must at least 1 number
-                if (!newPassword.Any(char.IsNumber)) {
-                    userErrorMessage = $"This password must include at least 1 number.";
-                    return false;
+                if (core.siteProperties.passwordRequiresNumber) {
+                    if (!newPassword.Any(char.IsNumber)) {
+                        userErrorMessage = $"This password must include at least 1 number.";
+                        return false;
+                    }
                 }
                 // 
                 // -- must at least 1 special characters
-                if (!newPassword.Any(c => passwordAllowedSpecialCharacters.Contains(c))) {
-                    userErrorMessage = $"This password must include at least 1 special character ({passwordAllowedSpecialCharacters}).";
-                    return false;
+                if (core.siteProperties.passwordRequiresSpecialCharacter) {
+                    if (!newPassword.Any(c => passwordAllowedSpecialCharacters.Contains(c))) {
+                        userErrorMessage = $"This password must include at least 1 special character ({passwordAllowedSpecialCharacters}).";
+                        return false;
+                    }
                 }
                 // 
                 // -- password must not be on bad-password list
