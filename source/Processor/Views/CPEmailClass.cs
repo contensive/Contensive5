@@ -3,6 +3,7 @@ using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Contensive.Processor {
     public class CPEmailClass : BaseClasses.CPEmailBaseClass, IDisposable {
@@ -88,14 +89,26 @@ namespace Contensive.Processor {
         }
         //
         //====================================================================================================
-        //
-        public override void sendPassword(string UserEmailAddress, ref string adminErrorMessage) {
-            EmailController.trySendPasswordReset(cp.core, UserEmailAddress, ref adminErrorMessage);
+        /// <summary>
+        /// if email not found, return
+        /// if found, send the user an email with a token, and save the token in the user's record.
+        /// </summary>
+        /// <param name="userEmail"></param>
+        /// <param name="userErrorMessage"></param>
+        public override void sendPassword(string userEmail, ref string userErrorMessage) {
+            if (string.IsNullOrEmpty(userEmail)) { return; }
+            List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
+            if (users.Count != 1) { return; }
+            PersonModel user = users[0];
+            string authToken = PersonModel.createAuthToken(cp, users.First());
+            EmailController.trySendPasswordReset(cp.core, user, authToken, ref userErrorMessage);
+            user.authToken = authToken;
+            user.save(cp);
         }
         //
-        public override void sendPassword(string UserEmailAddress) {
-            string adminErrorMessage = "";
-            EmailController.trySendPasswordReset(cp.core, UserEmailAddress, ref adminErrorMessage);
+        public override void sendPassword(string userEmail) {
+            string userErrorMessage = "";
+            sendPassword(userEmail, ref userErrorMessage);
         }
         //
         //====================================================================================================

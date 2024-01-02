@@ -1,7 +1,7 @@
 ﻿
-using System;
-using Contensive.Processor.Controllers;
 using Contensive.BaseClasses;
+using Contensive.Processor.Controllers;
+using System;
 //
 namespace Contensive.Processor.Addons.PageManager {
     //
@@ -16,6 +16,16 @@ namespace Contensive.Processor.Addons.PageManager {
         public override object Execute(CPBaseClass cp) {
             try {
                 CoreController core = ((CPClass)cp).core;
+                //
+                // -- check for authenticated, but password expired
+                if (core.session.isAuthenticated && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate > DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                    //
+                    // -- authenticated, and password-age is too old, force to change-password form
+                    if (core.webServer.requestPathPage != "/password-age-lockout") {
+                        core.webServer.redirect("/password-age-lockout", "password age lockout.");
+                        return "";
+                    }
+                }
                 string result = PageManagerController.getHtmlBody(core);
                 if ((core.doc.pageController?.page != null) && (core?.webServer?.httpContext?.Response != null) && string.IsNullOrEmpty(core.webServer.httpContext.Response.redirectUrl)) {
                     //

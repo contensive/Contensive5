@@ -4,6 +4,8 @@ using Contensive.Processor.Models.Domain;
 using Microsoft.VisualBasic.ApplicationServices;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
+using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 //
@@ -68,7 +70,21 @@ namespace Contensive.Processor.Controllers {
         public static void processPasswordRecoveryForm(CoreController core) {
             try {
                 string returnUserMessage = "";
-                _ = EmailController.trySendPasswordReset(core, core.docProperties.getText("email"), ref returnUserMessage);
+                string userEmail = core.docProperties.getText("email");
+                if (string.IsNullOrEmpty(userEmail)) {
+                    // -- no email entered
+                    return;
+                }
+                List<PersonModel> users = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}");
+                if (users.Count != 1) {
+                    // -- 0 or 2+ users found
+                    return;
+                }
+                PersonModel user = users[0];
+                string authToken = PersonModel.createAuthToken(core.cpParent, user);
+                EmailController.trySendPasswordReset(core, user, authToken, ref returnUserMessage);
+                user.authToken = authToken;
+                user.save(core.cpParent);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

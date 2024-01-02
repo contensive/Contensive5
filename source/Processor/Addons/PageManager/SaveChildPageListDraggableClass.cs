@@ -46,13 +46,13 @@ namespace Contensive.Processor.Addons.PageManager {
                 if (parentPage == null) { return new ChildListSaveResponse { success = false, errors = new List<string> { "parent page invalid" } }; };
                 //
                 // -- verify parent page set to sort order field
-                SortMethodModel sortMethod = DbBaseModel.createByUniqueName<SortMethodModel>(core.cpParent, "By Alpha Sort Order Field");
+                SortMethodModelx sortMethod = DbBaseModel.createByUniqueName<SortMethodModelx>(core.cpParent, "By Alpha Sort Order Field");
                 if (sortMethod == null) {
-                    sortMethod = DbBaseModel.createByUniqueName<SortMethodModel>(core.cpParent, "Alpha Sort Order Field");
+                    sortMethod = DbBaseModel.createByUniqueName<SortMethodModelx>(core.cpParent, "Alpha Sort Order Field");
                     if (sortMethod == null) {
                         //
                         // -- create the required sortMethod
-                        sortMethod = DbBaseModel.addDefault<SortMethodModel>(core.cpParent, Processor.Models.Domain.ContentMetadataModel.getDefaultValueDict(core, SortMethodModel.tableMetadata.contentName));
+                        sortMethod = DbBaseModel.addDefault<SortMethodModelx>(core.cpParent, Processor.Models.Domain.ContentMetadataModel.getDefaultValueDict(core, SortMethodModelx.tableMetadata.contentName));
                         sortMethod.name = "By Alpha Sort Order Field";
                         sortMethod.orderByClause = "sortOrder";
                         sortMethod.save(core.cpParent);

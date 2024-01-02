@@ -25,7 +25,6 @@ namespace Contensive.Processor.Addons {
         /// <param name="cp"></param>
         /// <returns></returns>
         public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
-            string result = "";
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
@@ -48,7 +47,7 @@ namespace Contensive.Processor.Addons {
                 if (user == null) {
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                         userErrorHtml = "<p>Set password feature is disabled because the user can not be determined.</p>",
-                        autoToken = ""
+                        authToken = ""
                     }));
                 }
                 //
@@ -78,7 +77,7 @@ namespace Contensive.Processor.Addons {
                 }
                 return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                     userErrorHtml = userErrorMessage,
-                    autoToken = cp.Doc.GetText("authToken")
+                    authToken = cp.Doc.GetText("authToken")
                 }));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -87,7 +86,7 @@ namespace Contensive.Processor.Addons {
         }
         //
         public class setPasswordDataModel {
-            public string autoToken { get; set; }
+            public string authToken { get; set; }
             public string userErrorHtml { get; set; }
         }
     }

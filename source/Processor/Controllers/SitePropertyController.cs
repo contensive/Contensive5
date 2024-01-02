@@ -33,7 +33,7 @@ namespace Contensive.Processor.Controllers {
         public bool sampleBoolProperty {
             get {
                 if (_sampleBoolProperty != null) { return (bool)_sampleBoolProperty; }
-                _sampleBoolProperty = getBoolean(spSampleBoolProperty);
+                _sampleBoolProperty = getBoolean(spSampleBoolProperty, true);
                 return (bool)_sampleBoolProperty;
             }
             set {
@@ -51,7 +51,7 @@ namespace Contensive.Processor.Controllers {
         public int sampleIntProperty {
             get {
                 if (_sampleIntProperty != null) { return (int)_sampleIntProperty; }
-                _sampleIntProperty = getInteger(spSampleIntProperty);
+                _sampleIntProperty = getInteger(spSampleIntProperty, 99);
                 return (int)_sampleIntProperty;
             }
             set {
@@ -69,7 +69,7 @@ namespace Contensive.Processor.Controllers {
         public string sampleTextProperty {
             get {
                 if (_sampleTextProperty != null) { return (string)_sampleTextProperty; }
-                _sampleTextProperty = getText(spSampleTextProperty);
+                _sampleTextProperty = getText(spSampleTextProperty, "default");
                 return (string)_sampleTextProperty;
             }
             set {
@@ -82,12 +82,30 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// passwordAgeLockupDays - how many days old a password can be without being updated
+        /// </summary>
+        public int passwordAgeLockoutDays {
+            get {
+                if (_passwordAgeLockoutDays != null) { return (int)_passwordAgeLockoutDays; }
+                _passwordAgeLockoutDays = getInteger(spPasswordAgeLockoutDays, 90);
+                return (int)_passwordAgeLockoutDays;
+            }
+            set {
+                _passwordAgeLockoutDays = value;
+                setProperty(spPasswordAgeLockoutDays, value);
+            }
+        }
+        private string spPasswordAgeLockoutDays = "password age lockout days";
+        private int? _passwordAgeLockoutDays = null;
+        //
+        //====================================================================================================
+        /// <summary>
         /// passwordBlockUsedPasswordPeriod
         /// </summary>
         public int passwordBlockUsedPasswordPeriod {
             get {
                 if (_passwordBlockUsedPasswordPeriod != null) { return (int)_passwordBlockUsedPasswordPeriod; }
-                _passwordBlockUsedPasswordPeriod = getInteger(spPasswordBlockUsedPasswordPeriod);
+                _passwordBlockUsedPasswordPeriod = getInteger(spPasswordBlockUsedPasswordPeriod, 30);
                 return (int)_passwordBlockUsedPasswordPeriod;
             }
             set {
@@ -105,7 +123,7 @@ namespace Contensive.Processor.Controllers {
         public bool passwordRequiresSpecialCharacter {
             get {
                 if (_passwordRequiresSpecialCharacter != null) { return (bool)_passwordRequiresSpecialCharacter; }
-                _passwordRequiresSpecialCharacter = getBoolean(spPasswordRequiresSpecialCharacter);
+                _passwordRequiresSpecialCharacter = getBoolean(spPasswordRequiresSpecialCharacter, true);
                 return (bool)_passwordRequiresSpecialCharacter;
             }
             set {
@@ -123,7 +141,7 @@ namespace Contensive.Processor.Controllers {
         public bool passwordRequiresNumber {
             get {
                 if (_passwordRequiresNumber != null) { return (bool)_passwordRequiresNumber; }
-                _passwordRequiresNumber = getBoolean(spPasswordRequiresNumber);
+                _passwordRequiresNumber = getBoolean(spPasswordRequiresNumber, true);
                 return (bool)_passwordRequiresNumber;
             }
             set {
@@ -141,7 +159,7 @@ namespace Contensive.Processor.Controllers {
         public bool passwordRequiresUppercase {
             get {
                 if (_passwordRequiresUppercase != null) { return (bool)_passwordRequiresUppercase; }
-                _passwordRequiresUppercase = getBoolean(spPasswordRequiresUppercase);
+                _passwordRequiresUppercase = getBoolean(spPasswordRequiresUppercase, true);
                 return (bool)_passwordRequiresUppercase;
             }
             set {
@@ -159,7 +177,7 @@ namespace Contensive.Processor.Controllers {
         public bool passwordRequiresLowercase {
             get {
                 if (_passwordRequiresLowercase != null) { return (bool)_passwordRequiresLowercase; }
-                _passwordRequiresLowercase = getBoolean(spPasswordRequiresLowercase);
+                _passwordRequiresLowercase = getBoolean(spPasswordRequiresLowercase, true);
                 return (bool)_passwordRequiresLowercase;
             }
             set {
@@ -197,6 +215,10 @@ namespace Contensive.Processor.Controllers {
                 if (_clearAdminPasswordOnHash != null) { return (bool)_clearAdminPasswordOnHash; }
                 _clearAdminPasswordOnHash = getBoolean("clear admin password on hash", true);
                 return (bool)_clearAdminPasswordOnHash;
+            }
+            set {
+                _clearAdminPasswordOnHash = value;
+                setProperty("clear admin password on hash", value);
             }
         }
         private bool? _clearAdminPasswordOnHash = null;

@@ -1,7 +1,7 @@
 ﻿
 namespace Contensive.Models.Db {
     //
-    public class SortMethodModel : DbBaseModel {
+    public class SortMethodModelx : DbBaseModel {
         //
         //====================================================================================================
         /// <summary>

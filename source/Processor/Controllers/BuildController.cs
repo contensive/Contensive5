@@ -940,7 +940,7 @@ namespace Contensive.Processor.Controllers {
                         // update sort method
                         int recordId = GenericController.encodeInteger(dt.Rows[0]["id"]);
                         core.db.update("ccsortmethods", "id=" + recordId.ToString(), sqlList);
-                        DbBaseModel.invalidateCacheOfRecord<SortMethodModel>(core.cpParent, recordId);
+                        DbBaseModel.invalidateCacheOfRecord<SortMethodModelx>(core.cpParent, recordId);
                     } else {
                         //
                         // Create the new sort method

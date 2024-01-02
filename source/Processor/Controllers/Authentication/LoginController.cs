@@ -3,6 +3,7 @@ using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using NLog;
 using System;
+using System.Linq;
 using static Contensive.Processor.Constants;
 //
 namespace Contensive.Processor.Controllers {
@@ -73,8 +74,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 LogController.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
                 //
-                string formType = core.docProperties.getText("type");
-                if (formType == FormTypeLogin) {
+                string processFormType = core.docProperties.getText("type");
+                if (processFormType == FormTypeLogin) {
                     //
                     // -- process a previous login for instance, and return blank if it is successful (legacy workflow)
                     string requestUsername = core.cpParent.Doc.GetText("username");
@@ -84,13 +85,18 @@ namespace Contensive.Processor.Controllers {
                         return "";
                     }
                 }
-                string result = "";
-                if (formType == FormTypePasswordRecovery) {
+                if (processFormType == FormTypePasswordRecovery) {
                     //
                     // -- process send password
                     PasswordRecoveryController.processPasswordRecoveryForm(core);
-                    result += "<p>If this email address was found, an email was sent to it with login instructions.</p>";
+                    string primaryDomain = core.appConfig.domainList.First();
+                    string authToken = PersonModel.createAuthToken(core.cpParent, core.session.user);
+                    string resetUrl = $"https://{primaryDomain}{endpointSetPassword}?authToken={authToken}";
+                    core.webServer.redirect(resetUrl, "redirect to password recovery form");
+                    return "";
                 }
+                //
+                // todo -- convert to one mustache
                 //
                 // -- select the correct layout
                 bool allowAutoLogin = core.siteProperties.getBoolean(sitePropertyName_AllowAutoLogin, false);
@@ -141,15 +147,11 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- add user errors
-                if (!core.doc.userErrorList.Count.Equals(0)) {
-                    layout = layout.Replace("{{userError}}", ErrorController.getUserError(core));
-                } else {
-                    layout = layout.Replace("{{userError}}", "");
-                }
+                layout = layout.Replace("{{userError}}", core.doc.userErrorList.Count.Equals(0) ? "" : ErrorController.getUserError(core));
+                layout += HtmlController.inputHidden("Type", FormTypeLogin);
                 //
                 // -- wrap in form
-                layout += HtmlController.inputHidden("Type", FormTypeLogin);
-                result += HtmlController.form(core, layout);
+                string result = HtmlController.form(core, layout);
                 //
                 // -- Password Form
                 if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {

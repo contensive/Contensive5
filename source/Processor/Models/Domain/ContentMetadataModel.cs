@@ -1132,13 +1132,13 @@ namespace Contensive.Processor.Models.Domain {
                     // sortmethod - First try lookup by name
                     int defaultSortMethodId = 0;
                     if (!string.IsNullOrEmpty(contentMetadata.defaultSortMethod)) {
-                        var sortMethod = DbBaseModel.createByUniqueName<SortMethodModel>(core.cpParent, contentMetadata.defaultSortMethod);
+                        var sortMethod = DbBaseModel.createByUniqueName<SortMethodModelx>(core.cpParent, contentMetadata.defaultSortMethod);
                         if (sortMethod != null) { defaultSortMethodId = sortMethod.id; }
                     }
                     if (defaultSortMethodId == 0) {
                         //
                         // fallback - maybe they put the orderbyclause in (common mistake)
-                        var sortMethodList = DbBaseModel.createList<SortMethodModel>(core.cpParent, "(OrderByClause=" + DbController.encodeSQLText(contentMetadata.defaultSortMethod) + ")and(active<>0)", "id");
+                        var sortMethodList = DbBaseModel.createList<SortMethodModelx>(core.cpParent, "(OrderByClause=" + DbController.encodeSQLText(contentMetadata.defaultSortMethod) + ")and(active<>0)", "id");
                         if (sortMethodList.Count() > 0) { defaultSortMethodId = sortMethodList.First().id; }
                     }
 

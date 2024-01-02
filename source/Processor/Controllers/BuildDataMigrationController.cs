@@ -350,12 +350,12 @@ namespace Contensive.Processor.Controllers {
                         // -- import old smtp bounce list and update emailBounceList table
                         string blockList = core.privateFiles.readFileText("Config\\SMTPBlockList.txt");
                         blockList += core.cdnFiles.readFileText("Config\\SMTPBlockList_" + core.appConfig.name + ".txt");
-                        foreach (var row in  blockList.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)) {
+                        foreach (var row in blockList.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)) {
                             string[] rowParts = row.Split('\t');
                             var record = DbBaseModel.addDefault<EmailBounceListModel>(cp);
                             record.name = rowParts[0];
-                            record.email = EmailController.getSimpleEmailFromFriendlyEmail(cp,record.name);
-                            record.details = rowParts[1] + ", user requested to be unsubscribed."; 
+                            record.email = EmailController.getSimpleEmailFromFriendlyEmail(cp, record.name);
+                            record.details = rowParts[1] + ", user requested to be unsubscribed.";
                             record.save(cp);
                         }
                         core.privateFiles.renameFile("Config\\SMTPBlockList.txt", "Legacy_SMTPBlockList.txt");
@@ -384,24 +384,35 @@ namespace Contensive.Processor.Controllers {
                         // -- no, cannot remove field because it fails old collection installs (and it must be removed from model also)
                         //core.db.executeNonQuery($"delete from ccfields where name='objectprogramid' and contentcontrolid={cp.Content.GetID("Content fields")}");
                     }
-                    if(GenericController.versionIsOlder(DataBuildVersion, "23.7.28.6")) {
+                    if (GenericController.versionIsOlder(DataBuildVersion, "23.7.28.6")) {
                         //
                         // -- remove page edit tag
                         core.siteProperties.setProperty("allow page settings edit", false);
                     }
-                    if(GenericController.versionIsOlder(DataBuildVersion, "23.11.26.1")) {
+                    if (GenericController.versionIsOlder(DataBuildVersion, "23.11.26.1")) {
                         //
                         // -- change sitewarnings field from text to varchar
                         core.db.executeNonQuery("ALTER TABLE ccsitewarnings ALTER COLUMN description VARCHAR(4000)");
                         //
                         // -- convert all text to varchar(nmax)
-                        foreach ( var table in DbBaseModel.createList<TableModel>(cp,"(active>0)and(name is not null)and(name<>'')")) {
+                        foreach (var table in DbBaseModel.createList<TableModel>(cp, "(active>0)and(name is not null)and(name<>'')")) {
                             DataTable dt = core.db.executeQuery($"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '{table.name}' and data_type='text'");
                             if (dt?.Rows == null && dt.Rows.Count == 0) { continue; }
-                            foreach( DataRow dr in dt.Rows) {
+                            foreach (DataRow dr in dt.Rows) {
                                 core.db.executeNonQuery($"ALTER TABLE {table.name} ALTER COLUMN {cp.Utils.EncodeText(dr[0])} VARCHAR(max)");
                             }
                         }
+                    }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.1.1.1")) {
+                        //
+                        // -- old sites, turn off all password requirements
+                        core.siteProperties.passwordBlockUsedPasswordPeriod = 0;
+                        core.siteProperties.passwordMinLength = 0;
+                        core.siteProperties.passwordRequiresLowercase = false;
+                        core.siteProperties.passwordRequiresNumber = false;
+                        core.siteProperties.passwordRequiresSpecialCharacter = false;
+                        core.siteProperties.passwordRequiresUppercase = false;
+                        core.siteProperties.clearAdminPasswordOnHash = false;
                     }
                 }
                 // -- Reload

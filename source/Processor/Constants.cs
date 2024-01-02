@@ -101,6 +101,12 @@ namespace Contensive.Processor {
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
         //
         //========================================================================
+        // end-points (must match remote names)
+        //
+        public static readonly string endpointSetPassword = "/set-password";
+        //
+        //
+        //========================================================================
         // html
         //
         public static readonly string iconNotAvailable = "<i title=\"not available\" class=\"fas fa-ban\"></i>";
