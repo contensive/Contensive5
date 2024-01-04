@@ -69,8 +69,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- GUID
                 {
-                    string guidSetHtmlId = "guidSet" + GenericController.getRandomInteger(core).ToString();
-                    string guidInputHtmlId = "guidInput" + GenericController.getRandomInteger(core).ToString();
+                    string guidSetHtmlId = "guidSet" + GenericController.getRandomInteger().ToString();
+                    string guidInputHtmlId = "guidInput" + GenericController.getRandomInteger().ToString();
                     string fieldValue = GenericController.encodeText(adminData.editRecord.fieldsLc["ccguid"].value_content);
                     string fieldEditor = "";
                     if (adminData.editRecord.userReadOnly) {

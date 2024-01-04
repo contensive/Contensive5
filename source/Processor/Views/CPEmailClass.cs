@@ -1,6 +1,7 @@
 ﻿
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,7 +92,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         /// <summary>
         /// if email not found, return
-        /// if found, send the user an email with a token, and save the token in the user's record.
+        /// if found, send the user an email with a token, and save the token in visit.
         /// </summary>
         /// <param name="userEmail"></param>
         /// <param name="userErrorMessage"></param>
@@ -99,11 +100,8 @@ namespace Contensive.Processor {
             if (string.IsNullOrEmpty(userEmail)) { return; }
             List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
             if (users.Count != 1) { return; }
-            PersonModel user = users[0];
-            string authToken = PersonModel.createAuthToken(cp, users.First());
-            EmailController.trySendPasswordReset(cp.core, user, authToken, ref userErrorMessage);
-            user.authToken = authToken;
-            user.save(cp);
+            AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getAndClearVisitAuthTokenInfo(cp);
+            EmailController.trySendPasswordReset(cp.core, users[0], visitAuthTokeninfo, ref userErrorMessage);
         }
         //
         public override void sendPassword(string userEmail) {

@@ -503,7 +503,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var addon = AddonModel.addDefault<AddonModel>(cp, ContentMetadataModel.getDefaultValueDict(cp.core, AddonModel.tableMetadata.contentName));
-                addon.copy = "test" + GenericController.getRandomInteger(cp.core).ToString();
+                addon.copy = "test" + GenericController.getRandomInteger().ToString();
                 addon.save(cp);
                 // act
                 string result = cp.core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {

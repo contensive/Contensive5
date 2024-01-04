@@ -18,8 +18,8 @@ namespace Tests {
         public void groupEmail_Send_Test() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+                string emailAddress2 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 TestController.testGroupEmail(cp, emailAddress1, emailAddress2);
                 // assert
                 Assert.AreEqual(2, cp.core.mockEmailList.Count);
@@ -30,7 +30,7 @@ namespace Tests {
         public void groupEmail_Duplicates_Test() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 string emailAddress2 = emailAddress1;
                 TestController.testGroupEmail(cp, emailAddress1, emailAddress2);
                 // assert
@@ -42,7 +42,7 @@ namespace Tests {
         public void groupEmail_Duplicate_Friendly_Test() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 string emailAddress2 = "\"test\" <" + emailAddress1 + ">";
                 TestController.testGroupEmail(cp, emailAddress1, emailAddress2);
                 // assert
@@ -54,8 +54,8 @@ namespace Tests {
         public void systemEmail_Send_Immediate_Test() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+                string emailAddress2 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 TestController.testSystemEmail(cp, emailAddress1, emailAddress2, true);
                 // assert
                 Assert.AreEqual(2, cp.core.mockEmailList.Count);
@@ -66,8 +66,8 @@ namespace Tests {
         public void systemEmail_Send_NotImmediate_Test() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string emailAddress2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+                string emailAddress2 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 TestController.testSystemEmail(cp, emailAddress1, emailAddress2, false);
                 // assert
                 Assert.AreEqual(2, cp.core.mockEmailList.Count);
@@ -78,7 +78,7 @@ namespace Tests {
         public void SystemEmail_Duplicates() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 string emailAddress2 = emailAddress1;
                 TestController.testSystemEmail(cp, emailAddress1, emailAddress2, true);
                 // assert
@@ -90,7 +90,7 @@ namespace Tests {
         public void SystemEmail_Duplicate_Friendly() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
-                string emailAddress1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string emailAddress1 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 string emailAddress2 = "\"test\" <" + emailAddress1 + ">";
                 TestController.testSystemEmail(cp, emailAddress1, emailAddress2, true);
                 // assert
@@ -106,8 +106,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
-                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 // act
                 EmailController.addToBlockList(cp.core, test1);
                 // assert
@@ -124,8 +124,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
-                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 // act
                 EmailController.addToBlockList(cp.core, test1);
                 EmailController.addToBlockList(cp.core, test2);
@@ -149,7 +149,7 @@ namespace Tests {
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 //
                 // arrange
-                string email1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string email1 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
                 person1.email = email1;
                 person1.allowBulkEmail = true;
@@ -174,7 +174,7 @@ namespace Tests {
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 //
                 // arrange
-                string email1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string email1 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 PersonModel person1 = DbBaseModel.addDefault<PersonModel>(cp);
                 person1.email = email1;
                 person1.save(cp);
@@ -198,8 +198,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<ActivityLogModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
-                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 // act
                 EmailController.addToBlockList(cp.core, test1);
                 // assert
@@ -229,8 +229,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
-                string test1 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                string test2 = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                string test1 = GenericController.getRandomInteger().ToString() + "@kma.net";
+                string test2 = GenericController.getRandomInteger().ToString() + "@kma.net";
                 //
                 // -- group
                 GroupModel group = DbBaseModel.addDefault<GroupModel>(cp);
@@ -386,7 +386,7 @@ namespace Tests {
                 DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
-                string body = GenericController.getRandomInteger(cp.core).ToString();
+                string body = GenericController.getRandomInteger().ToString();
                 string sendStatus = "";
                 string ResultLogFilename = "";
                 // act
@@ -417,12 +417,12 @@ namespace Tests {
                 DbBaseModel.deleteRows<EmailQueueModel>(cp, "(1=1)");
                 Assert.AreEqual(0, cp.core.mockEmailList.Count);
                 // arrange
-                string body = GenericController.getRandomInteger(cp.core).ToString();
+                string body = GenericController.getRandomInteger().ToString();
                 var toPerson = DbBaseModel.addDefault<PersonModel>(cp, ContentMetadataModel.getDefaultValueDict(cp.core, PersonModel.tableMetadata.contentName));
                 Assert.IsNotNull(toPerson);
-                toPerson.email = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                toPerson.firstName = GenericController.getRandomInteger(cp.core).ToString();
-                toPerson.lastName = GenericController.getRandomInteger(cp.core).ToString();
+                toPerson.email = GenericController.getRandomInteger().ToString() + "@kma.net";
+                toPerson.firstName = GenericController.getRandomInteger().ToString();
+                toPerson.lastName = GenericController.getRandomInteger().ToString();
                 toPerson.save(cp);
                 string sendStatus = "";
                 // act
@@ -457,9 +457,9 @@ namespace Tests {
                 //
                 var confirmPerson = DbBaseModel.addDefault<PersonModel>(cp);
                 Assert.IsNotNull(confirmPerson);
-                confirmPerson.email = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                confirmPerson.firstName = GenericController.getRandomInteger(cp.core).ToString();
-                confirmPerson.lastName = GenericController.getRandomInteger(cp.core).ToString();
+                confirmPerson.email = GenericController.getRandomInteger().ToString() + "@kma.net";
+                confirmPerson.firstName = GenericController.getRandomInteger().ToString();
+                confirmPerson.lastName = GenericController.getRandomInteger().ToString();
                 confirmPerson.save(cp);
                 //
                 SystemEmailModel systemEmail = DbBaseModel.addDefault<SystemEmailModel>(cp);
@@ -467,7 +467,7 @@ namespace Tests {
                 systemEmail.addLinkEId = false;
                 systemEmail.allowSpamFooter = false;
                 systemEmail.emailTemplateId = 0;
-                systemEmail.fromAddress = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
+                systemEmail.fromAddress = GenericController.getRandomInteger().ToString() + "@kma.net";
                 systemEmail.subject = htmlBody;
                 systemEmail.copyFilename.content = systemEmail.subject;
                 systemEmail.testMemberId = confirmPerson.id;
@@ -475,9 +475,9 @@ namespace Tests {
                 //
                 var toPerson = DbBaseModel.addDefault<PersonModel>(cp);
                 Assert.IsNotNull(toPerson);
-                toPerson.email = GenericController.getRandomInteger(cp.core).ToString() + "@kma.net";
-                toPerson.firstName = GenericController.getRandomInteger(cp.core).ToString();
-                toPerson.lastName = GenericController.getRandomInteger(cp.core).ToString();
+                toPerson.email = GenericController.getRandomInteger().ToString() + "@kma.net";
+                toPerson.firstName = GenericController.getRandomInteger().ToString();
+                toPerson.lastName = GenericController.getRandomInteger().ToString();
                 toPerson.save(cp);
                 //
                 var group = DbBaseModel.addDefault<GroupModel>(cp);

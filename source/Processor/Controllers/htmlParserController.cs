@@ -93,7 +93,7 @@ namespace Contensive.Processor.Controllers {
                 // get a unique signature
                 //
                 do {
-                    BlobSN = "/blob" + encodeText(GenericController.getRandomInteger(core)) + ":";
+                    BlobSN = "/blob" + encodeText(GenericController.getRandomInteger()) + ":";
                     Ptr = Ptr + 1;
                 } while ((WorkingSrc.IndexOf(BlobSN, System.StringComparison.OrdinalIgnoreCase) != -1) && (Ptr < 10));
                 //

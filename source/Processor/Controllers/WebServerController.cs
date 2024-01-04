@@ -408,7 +408,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public void reset() {
             try {
-                string logFilename = core.tempFiles.localAbsRootPath + "iisreset-" + getRandomInteger(core).ToString() + ".Log";
+                string logFilename = core.tempFiles.localAbsRootPath + "iisreset-" + getRandomInteger().ToString() + ".Log";
                 string cmd = "IISReset.exe";
                 string arg = "";
                 string stdOut = runProcess(core, cmd, arg, true);

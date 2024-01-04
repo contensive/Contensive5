@@ -22,9 +22,18 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class EmailController {
         //
-        //
-        public static bool trySendPasswordReset( CoreController core, PersonModel user, string authToken, ref string userErrorMessage) {
+        /// <summary>
+        /// Send link to the set-password endpoint
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="user"></param>
+        /// <param name="authToken"></param>
+        /// <param name="userErrorMessage"></param>
+        /// <returns></returns>
+        public static bool trySendPasswordReset( CoreController core, PersonModel user, AuthTokenInfoModel authTokenInfo , ref string userErrorMessage) {
             try {
+                string primaryDomain = core.appConfig.domainList.First();
+                string resetUrl = $"https://{primaryDomain}{endpointSetPassword}?authToken={authTokenInfo.text}";
                 SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
                 if(email is null) {
                     email = DbBaseModel.addDefault<SystemEmailModel>(core.cpParent);
@@ -32,14 +41,10 @@ namespace Contensive.Processor.Controllers {
                     email.name = "Password Reset";
                     email.subject = "Password reset";
                     email.fromAddress = core.siteProperties.emailFromAddress;
-                    string primaryDomain = core.appConfig.domainList.First();
-                    string resetUrl = $"https://{primaryDomain}{Constants.endpointSetPassword}?authToken={authToken}";
-                    email.copyFilename.content = $"<p>You received this email because there was a request at {primaryDomain} to reset your password. If this was you, <a href=\"{resetUrl}\">click here.</a></p>";
+                    email.copyFilename.content = $"<p>You received this email because there was a request at {primaryDomain} to reset your password.</p>";
                     email.save(core.cpParent);
                 }
-                userErrorMessage = "";
-                return trySendSystemEmail(core, true, email.id);
-                //return sendAdHocEmail(core, email.copyFilename.content, 0, emailAddress, email.fromAddress, email.subject, email.copyFilename.content, "", email.fromAddress, "", true, true, email.id, ref userErrorMessage, 0);
+                return trySendSystemEmail(core, true, email.id, $"<p>If this was you, <a href=\"{resetUrl}\">click here to reset your password.</a></p>", user.id);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

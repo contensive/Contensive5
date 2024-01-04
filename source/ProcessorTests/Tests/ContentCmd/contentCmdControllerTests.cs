@@ -18,7 +18,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var addon = AddonModel.addEmpty<AddonModel>(cp);
-                addon.name = "testaddon-4-" + GenericController.getRandomInteger(cp.core).ToString() ;
+                addon.name = "testaddon-4-" + GenericController.getRandomInteger().ToString() ;
                 addon.copyText = "foo";
                 addon.save(cp);
                 string cmd = "<div>{% \"" + addon.name + "\" %}</div>";
@@ -38,12 +38,12 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
-                addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
+                addonFoo.name = "addonFoo" + GenericController.getRandomInteger().ToString();
                 addonFoo.copyText = "foo";
                 addonFoo.save(cp);
                 //
                 AddonModel addonBar = AddonModel.addEmpty<AddonModel>(cp);
-                addonBar.name = "addonBar" + GenericController.getRandomInteger(cp.core).ToString();
+                addonBar.name = "addonBar" + GenericController.getRandomInteger().ToString();
                 addonBar.copyText = "Bar";
                 addonBar.save(cp);
                 string cmd = "<div>{% \"" + addonFoo.name + "\" %}{% \"" + addonBar.name + "\" %}+{% \"" + addonFoo.name + "\" %}\n{% \"" + addonBar.name + "\" %}</div>";
@@ -63,12 +63,12 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
-                addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
+                addonFoo.name = "addonFoo" + GenericController.getRandomInteger().ToString();
                 addonFoo.copyText = "foo";
                 addonFoo.save(cp);
                 //
                 AddonModel addonBar = AddonModel.addEmpty<AddonModel>(cp);
-                addonBar.name = "addonBar" + GenericController.getRandomInteger(cp.core).ToString();
+                addonBar.name = "addonBar" + GenericController.getRandomInteger().ToString();
                 addonBar.copyText = "Bar";
                 addonBar.save(cp);
                 string cmd = "<div>{%[{\"" + addonFoo.name + "\":\"commandArgument\"}]%}</div>";
@@ -88,12 +88,12 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
-                addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
+                addonFoo.name = "addonFoo" + GenericController.getRandomInteger().ToString();
                 addonFoo.copyText = "foo";
                 addonFoo.save(cp);
                 //
                 AddonModel addonBar = AddonModel.addEmpty<AddonModel>(cp);
-                addonBar.name = "addonBar" + GenericController.getRandomInteger(cp.core).ToString();
+                addonBar.name = "addonBar" + GenericController.getRandomInteger().ToString();
                 addonBar.copyText = "$cmdAccumulator$Bar";
                 addonBar.save(cp);
                 string cmd = "<div>{%[{\"" + addonFoo.name + "\":\"commandArgument\"},{\"" + addonBar.name + "\":\"commandArgument\"}]%}</div>";
@@ -113,7 +113,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
-                addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
+                addonFoo.name = "addonFoo" + GenericController.getRandomInteger().ToString();
                 addonFoo.copyText = "foo";
                 addonFoo.save(cp);
                 string cmd = "<div class=\"sample\">{% {\"addon\":{\"addon\":\"" + addonFoo.name + "\"}} %}</div>";
@@ -133,7 +133,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addonFoo = AddonModel.addEmpty<AddonModel>(cp);
-                addonFoo.name = "addonFoo" + GenericController.getRandomInteger(cp.core).ToString();
+                addonFoo.name = "addonFoo" + GenericController.getRandomInteger().ToString();
                 addonFoo.copyText = "foo$ReplaceMe$";
                 addonFoo.save(cp);
                 string cmd = "<div class=\"sample\">{% {\"addon\":{\"addon\":\"" + addonFoo.name + "\",\"ReplaceMe\":\"BAR\"}} %}</div>";
@@ -153,7 +153,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 AddonModel addon = AddonModel.addEmpty<AddonModel>(cp);
-                addon.name = "testaddon-3-" + GenericController.getRandomInteger(cp.core).ToString();
+                addon.name = "testaddon-3-" + GenericController.getRandomInteger().ToString();
                 addon.copyText = "foo$insert$";
                 addon.save(cp);
                 string cmd = "<div class=\"sample\">{% {\"addon\":{\"addon\":\"" + addon.name + "\",\"insert\":\"bar\"}} %}</div>";

@@ -25,7 +25,7 @@ namespace Contensive.Processor.Controllers {
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
                 string TestFilename;
                 //
-                TestFilename = "AsciiExport" + GenericController.getRandomInteger(core) + ".txt";
+                TestFilename = "AsciiExport" + GenericController.getRandomInteger() + ".txt";
                 //
                 iContentName = GenericController.encodeText(ContentName);
                 if (PageSize == 0) {

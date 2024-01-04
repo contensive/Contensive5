@@ -1,12 +1,8 @@
 ﻿
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
-using Microsoft.ClearScript.Windows;
+using Contensive.Processor.Models.Domain;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
 //
 namespace Contensive.Processor.Addons {
     //
@@ -28,21 +24,21 @@ namespace Contensive.Processor.Addons {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
-                // -- determine user. If authenticated, use current user.
+                // -- determine user.
+                // -- If authenticated, use current user.
                 // -- if authToken string is included, used as one-time-login tokenk saved in user
                 string userErrorMessage = "";
                 PersonModel user = null;
+                AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getAndClearVisitAuthTokenInfo(cp);
                 if (cp.User.IsAuthenticated) {
                     //
                     // -- user changing password
                     user = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
-                } else if (cp.Doc.IsProperty("authToken")) {
+                } else if (visitAuthTokeninfo != null && !string.IsNullOrEmpty(visitAuthTokeninfo.text) && visitAuthTokeninfo.text== cp.Doc.GetText(Constants.rn_authToken)) {
                     //
-                    // -- forgot-password process, aut
-                    List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"authToken={DbController.encodeSQLText(cp.Doc.GetText("authToken"))}");
-                    if (users.Count == 1) {
-                        user = users.First();
-                    }
+                    // -- authToken in link to site matches authToken saved in visit when invitation was sent (email/sms) so this is the same visitor
+                    // -- forgot-password process, this user-visit requested forgot-password link
+                    user = DbBaseModel.create<PersonModel>(cp, visitAuthTokeninfo.userId);
                 }
                 if (user == null) {
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
@@ -54,7 +50,7 @@ namespace Contensive.Processor.Addons {
                 if (cp.Doc.GetText("button").ToLowerInvariant() == "cancel") {
                     //
                     // -- handle cancel button
-                    if (cp.Request.PathPage== cp.GetAppConfig().adminRoute) {
+                    if (cp.Request.PathPage == cp.GetAppConfig().adminRoute) {
                         cp.Response.Redirect(cp.GetAppConfig().adminRoute + "?refresh");
                     } else {
                         cp.Response.Redirect("/");
@@ -81,7 +77,7 @@ namespace Contensive.Processor.Addons {
                 }));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return "<p>There was an error attempting impersonation.</p>";
+                return "<p>There was an error on the set-password form.</p>";
             }
         }
         //

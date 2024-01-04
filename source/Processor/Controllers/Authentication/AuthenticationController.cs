@@ -1,8 +1,10 @@
-﻿using Contensive.Models.Db;
+﻿using Contensive.BaseClasses;
+using Contensive.Models.Db;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Printing;
 using System.Linq;
+using System.ServiceModel.Security;
 using System.Threading;
 using static Contensive.Processor.Constants;
 //
@@ -375,7 +377,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     //
                     // -- hash password mode
-                    PasswordHashInfo recordPasswordHashInfo = new(record.passwordHash);
+                    PasswordHashInfoModel recordPasswordHashInfo = new(record.passwordHash);
                     //
                     // -- test for plain-text to hash password migration (must be plain-text password match)
                     if (string.IsNullOrEmpty(record.passwordHash) && !string.IsNullOrEmpty(recordPassword)) {
@@ -384,7 +386,7 @@ namespace Contensive.Processor.Controllers {
                         if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
                             //
                             // -- plain-text password match with request, convert record to hash
-                            PasswordHashInfo requestPasswordHashInfo = createPasswordHash_current(core, requestPassword, record.ccguid);
+                            PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_current(core, requestPassword, record.ccguid);
                             if (core.siteProperties.clearAdminPasswordOnHash) {
                                 record.password = "";
                             }
@@ -399,7 +401,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // 231226
                                 // 
-                                PasswordHashInfo requestPasswordHashInfo = createPasswordHash_231226(core, requestPassword, record.ccguid);
+                                PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_231226(core, requestPassword, record.ccguid);
                                 if (!requestPasswordHashInfo.payload.Equals(recordPasswordHashInfo.payload)) {
                                     //
                                     // -- fail, unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
@@ -425,7 +427,7 @@ namespace Contensive.Processor.Controllers {
                         default: {
                                 //
                                 // -- legacy hash. no version, etc
-                                PasswordHashInfo requestPasswordHashInfo = createPasswordHash_Legacy(core, requestPassword, record.ccguid);
+                                PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_Legacy(core, requestPassword, record.ccguid);
                                 if (!requestPasswordHashInfo.text.Equals(recordPasswordHashInfo.text)) {
                                     //
                                     // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
@@ -468,7 +470,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="requestPassword"></param>
         /// <param name="recorrdPassword"></param>
         /// <returns></returns>
-        public static int migrateToPasswordHash(CoreController core, string requestPassword, string recordPassword, int userId, PasswordHashInfo requestPasswordHash) {
+        public static int migrateToPasswordHash(CoreController core, string requestPassword, string recordPassword, int userId, PasswordHashInfoModel requestPasswordHash) {
             //
             // -- migration mode
             if (string.IsNullOrEmpty(recordPassword)) {
@@ -567,7 +569,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- set hash password
-                PasswordHashInfo passwordHashInfo = createPasswordHash_current(cp.core, plainTextPassword, userGuid);
+                PasswordHashInfoModel passwordHashInfo = createPasswordHash_current(cp.core, plainTextPassword, userGuid);
                 user.passwordHash = passwordHashInfo.text;
                 user.password = null;
                 user.modifiedDate = DateTime.Now;
@@ -591,7 +593,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="plainTextPassword"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
-        public static PasswordHashInfo createPasswordHash_current(CoreController core, string plainTextPassword, string salt) {
+        public static PasswordHashInfoModel createPasswordHash_current(CoreController core, string plainTextPassword, string salt) {
             return createPasswordHash_231226(core, plainTextPassword, salt);
         }
         //
@@ -605,8 +607,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="plainTextPassword"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
-        private static PasswordHashInfo createPasswordHash_Legacy(CoreController core, string plainTextPassword, string salt) {
-            return new PasswordHashInfo(SecurityController.encryptOneWay(core, plainTextPassword, salt));
+        private static PasswordHashInfoModel createPasswordHash_Legacy(CoreController core, string plainTextPassword, string salt) {
+            return new PasswordHashInfoModel(SecurityController.encryptOneWay(core, plainTextPassword, salt));
         }
         //
         //====================================================================================================
@@ -619,8 +621,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="plainTextPassword"></param>
         /// <param name="salt"></param>
         /// <returns></returns>
-        private static PasswordHashInfo createPasswordHash_231226(CoreController core, string plainTextPassword, string salt) {
-            return new PasswordHashInfo("231226", "231226", SecurityController.encryptOneWay(core, plainTextPassword, salt));
+        private static PasswordHashInfoModel createPasswordHash_231226(CoreController core, string plainTextPassword, string salt) {
+            return new PasswordHashInfoModel("231226", "231226", SecurityController.encryptOneWay(core, plainTextPassword, salt));
         }
         //
         //====================================================================================================
@@ -742,7 +744,7 @@ namespace Contensive.Processor.Controllers {
                     return false;
                 }
                 // 
-                PasswordHashInfo newPasswordHashInfo = createPasswordHash_current(core, newPassword, user.ccguid);
+                PasswordHashInfoModel newPasswordHashInfo = createPasswordHash_current(core, newPassword, user.ccguid);
                 // 
                 // -- is on used password list
                 if (UsedPasswordModel.isUsedPassword(core.cpParent, newPassword, newPasswordHashInfo.text)) {
@@ -763,13 +765,13 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// structor of the password hash info object, response from AuthenticationController.create password hash
         /// </summary>
-        public class PasswordHashInfo {
+        public class PasswordHashInfoModel {
             //
             /// <summary>
             /// create from full text
             /// </summary>
             /// <param name="text"></param>
-            public PasswordHashInfo(string text) {
+            public PasswordHashInfoModel(string text) {
                 if (text.Contains("$")) {
                     //
                     // -- delimited 
@@ -799,7 +801,7 @@ namespace Contensive.Processor.Controllers {
             /// <param name="hasherVersion"></param>
             /// <param name="encryptVersion"></param>
             /// <param name="payload"></param>
-            public PasswordHashInfo(string hasherVersion, string encryptVersion, string payload) {
+            public PasswordHashInfoModel(string hasherVersion, string encryptVersion, string payload) {
                 this.hasherVersion = hasherVersion;
                 this.encryptVersion = encryptVersion;
                 this.payload = payload;

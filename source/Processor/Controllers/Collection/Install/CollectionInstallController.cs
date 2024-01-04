@@ -76,7 +76,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // now copy all program files to a temp folder and create a zip (xml plus any resources installed) and install
                     const string baseCollectionZipFilename = "aoBase51.zip";
-                    string installTempPath = "installBaseCollection" + GenericController.getRandomInteger(core) + "\\";
+                    string installTempPath = "installBaseCollection" + GenericController.getRandomInteger() + "\\";
                     try {
                         core.tempFiles.createPath(installTempPath);
                         core.programFiles.copyPath("\\", installTempPath, core.tempFiles);

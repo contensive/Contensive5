@@ -367,7 +367,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // -- datetime2(0)...datetime2(2) need to be converted to datetime2(7)
                                 // -- rename column to tempName
-                                string tempName = "tempDateTime" + GenericController.getRandomInteger(core).ToString();
+                                string tempName = "tempDateTime" + GenericController.getRandomInteger().ToString();
                                 core.db.executeNonQuery("sp_rename '" + table.name + "." + column.COLUMN_NAME + "', '" + tempName + "', 'COLUMN';");
                                 core.db.executeNonQuery("ALTER TABLE " + table.name + " ADD " + column.COLUMN_NAME + " DateTime2(7) NULL;");
                                 core.db.executeNonQuery("update " + table.name + " set " + column.COLUMN_NAME + "=" + tempName + " ");

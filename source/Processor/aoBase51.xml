@@ -755,17 +755,6 @@
 		<Field Name="passwordmodifieddate" active="True" AdminOnly="False" Authorable="True" Caption="Password Modified Date" DeveloperOnly="False" EditSortPriority="1450" FieldType="Date" HTMLContent="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Permissions" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IsBaseField="False" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
 			<HelpDefault><![CDATA[Date when the password was last changed.]]></HelpDefault>
 		</Field>
-    <Field Name="authToken" active="1" AdminOnly="1" Authorable="1" Caption="One-Time Authentication" DeveloperOnly="1" EditSortPriority="1500" FieldType="Text" HTMLContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Permissions" Scramble="False" LookupList="" NotEditable="False" Password="1" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
-      <HelpDefault><![CDATA[Typically blank. This field is used when a user requires a one-time login, such as a password reset.]]></HelpDefault>
-    </Field>
-    <!-- use authentication-log instead for lockout policy
-		<Field Name="loginSequentialFailCount" active="1" AdminOnly="0" Authorable="1" Caption="Login Failed Attempts" DeveloperOnly="0" EditSortPriority="1455" FieldType="Integer" HTMLContent="0" IndexColumn="3" IndexSortDirection="" IndexSortOrder="3" IndexWidth="10" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Permissions" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="1" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
-			<HelpDefault><![CDATA[The number of sequential login fails to this user account.]]></HelpDefault>
-		</Field>
-		<Field Name="passwordLockoutDate" active="True" AdminOnly="False" Authorable="True" Caption="Password Lockout Date" DeveloperOnly="False" EditSortPriority="1456" FieldType="Date" HTMLContent="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" Required="False" TextBuffered="False" UniqueName="False" DefaultValue="" RSSTitle="False" RSSDescription="False" MemberSelectGroup="" EditTab="Permissions" Scramble="False" LookupList="" NotEditable="False" Password="False" ReadOnly="False" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IsBaseField="False" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
-			<HelpDefault><![CDATA[If the lockout policy is exceeded, this date is set. An empty or future date disabled this record's authentication.]]></HelpDefault>
-		</Field>
-    -->
     <!-- 
       Analytics 
     -->

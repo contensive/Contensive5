@@ -1,8 +1,10 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using Contensive.Processor.Models.Domain;
 using NLog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using static Contensive.Processor.Constants;
 //
@@ -88,12 +90,23 @@ namespace Contensive.Processor.Controllers {
                 if (processFormType == FormTypePasswordRecovery) {
                     //
                     // -- process send password
-                    PasswordRecoveryController.processPasswordRecoveryForm(core);
-                    string primaryDomain = core.appConfig.domainList.First();
-                    string authToken = PersonModel.createAuthToken(core.cpParent, core.session.user);
-                    string resetUrl = $"https://{primaryDomain}{endpointSetPassword}?authToken={authToken}";
-                    core.webServer.redirect(resetUrl, "redirect to password recovery form");
-                    return "";
+                    string email = core.cpParent.Doc.GetText("email");
+                    if (string.IsNullOrEmpty(email)) {
+                        core.cpParent.UserError.Add("Email is required.");
+                    } else {
+                        //
+                        List<PersonModel> emailUsers = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(email)}");
+                        if (emailUsers.Count != 1) {
+                            core.cpParent.UserError.Add("Email is not valid.");
+                        } else {
+                            var authTokenInfo = new AuthTokenInfoModel(core.cpParent, emailUsers[0]);
+                            AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
+                            PasswordRecoveryController.processPasswordRecoveryForm(core, authTokenInfo);
+                            //
+                            // -- display the password recovery instructions page. Access to set-password can only happen from the email
+                            return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email });
+                        }
+                    }
                 }
                 //
                 // todo -- convert to one mustache

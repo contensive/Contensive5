@@ -107,7 +107,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         Content.add(AdminUIController.getFormBodyAdminOnly());
                     } else {
                         //
-                        InstallFolder = "temp\\CollectionUpload" + encodeText(GenericController.getRandomInteger(core));
+                        InstallFolder = "temp\\CollectionUpload" + encodeText(GenericController.getRandomInteger());
                         privateFilesInstallPath = InstallFolder + "\\";
                         if (Button == Constants.ButtonOK) {
                             //

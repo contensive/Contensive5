@@ -33,8 +33,8 @@ namespace Tests {
         public void Controllers_cache_SetGetString() {
             using (CPClass cp = new(testAppName)) {
                 // arrange
-                string key = "test" + GenericController.getRandomInteger(cp.core).ToString();
-                string value = "value" + GenericController.getRandomInteger(cp.core).ToString();
+                string key = "test" + GenericController.getRandomInteger().ToString();
+                string value = "value" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(key, value);
                 string readBack = cp.core.cache.getObject<string>(key);
@@ -58,7 +58,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var srcTest = new cacheTestClass();
-                string key = "test" + GenericController.getRandomInteger(cp.core).ToString();
+                string key = "test" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(key, srcTest);
                 var dstTest = cp.core.cache.getObject<cacheTestClass>(key);
@@ -78,7 +78,7 @@ namespace Tests {
                     prop4 = false,
                     prop5 = true
                 };
-                string key = "test" + GenericController.getRandomInteger(cp.core).ToString();
+                string key = "test" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(key, srcTest);
                 var dstTest = cp.core.cache.getObject<cacheTestClass>(key);
@@ -92,8 +92,8 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
-                string keyTest = "test" + GenericController.getRandomInteger(cp.core).ToString();
-                string keyDependency = "dependencyKey1" + GenericController.getRandomInteger(cp.core).ToString();
+                string keyTest = "test" + GenericController.getRandomInteger().ToString();
+                string keyDependency = "dependencyKey1" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(keyDependency, "1");
                 System.Threading.Thread.Sleep(1);
@@ -114,8 +114,8 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
-                string keyTest = cp.Cache.CreateKey("test" + GenericController.getRandomInteger(cp.core).ToString());
-                string keyDependency = cp.Cache.CreateKey("dependencyKey1" + GenericController.getRandomInteger(cp.core).ToString());
+                string keyTest = cp.Cache.CreateKey("test" + GenericController.getRandomInteger().ToString());
+                string keyDependency = cp.Cache.CreateKey("dependencyKey1" + GenericController.getRandomInteger().ToString());
                 var dependencyList = new List<string>();
                 dependencyList.Add(keyDependency);
                 dependencyList.Add(cp.Cache.CreateKey("fake"));
@@ -139,8 +139,8 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
-                string keyTestWithDate = "testWithDate" + GenericController.getRandomInteger(cp.core).ToString();
-                string keyTestNoDate = "testNoDate" + GenericController.getRandomInteger(cp.core).ToString();
+                string keyTestWithDate = "testWithDate" + GenericController.getRandomInteger().ToString();
+                string keyTestNoDate = "testNoDate" + GenericController.getRandomInteger().ToString();
                 DateTime invalidateDate = cp.core.dateTimeNowMockable.AddMilliseconds(1);
                 // act
                 cp.core.cache.storeObject(keyTestNoDate, originalObject);
@@ -159,7 +159,7 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
-                string keyTest = "test" + GenericController.getRandomInteger(cp.core).ToString();
+                string keyTest = "test" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(keyTest, originalObject);
                 System.Threading.Thread.Sleep(1);
@@ -181,8 +181,8 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
-                string testKey = "test" + GenericController.getRandomInteger(cp.core).ToString();
-                string testAlias = "test" + GenericController.getRandomInteger(cp.core).ToString();
+                string testKey = "test" + GenericController.getRandomInteger().ToString();
+                string testAlias = "test" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(testKey, originalObject);
                 cp.core.cache.storePtr(testAlias, testKey);
@@ -200,8 +200,8 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
-                string testKey = "test" + GenericController.getRandomInteger(cp.core).ToString();
-                string testAlias = "test" + GenericController.getRandomInteger(cp.core).ToString();
+                string testKey = "test" + GenericController.getRandomInteger().ToString();
+                string testAlias = "test" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(testKey, originalObject);
                 cp.core.cache.storePtr(testAlias, testKey);
@@ -222,8 +222,8 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 var originalObject = new cacheTestClass();
-                string testKey = "test" + GenericController.getRandomInteger(cp.core).ToString();
-                string testAlias = "test" + GenericController.getRandomInteger(cp.core).ToString();
+                string testKey = "test" + GenericController.getRandomInteger().ToString();
+                string testAlias = "test" + GenericController.getRandomInteger().ToString();
                 // act
                 cp.core.cache.storeObject(testKey, originalObject);
                 cp.core.cache.storePtr(testAlias, testKey);

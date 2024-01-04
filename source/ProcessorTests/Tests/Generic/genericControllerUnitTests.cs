@@ -189,8 +189,8 @@ namespace Tests {
             using (CPClass cp = new(testAppName)) {
                 // arrange
                 // act
-                int test1 = GenericController.getRandomInteger(cp.core);
-                int test2 = GenericController.getRandomInteger(cp.core);
+                int test1 = GenericController.getRandomInteger();
+                int test2 = GenericController.getRandomInteger();
                 // assert
                 Assert.AreNotEqual(test1, test2);
             }
@@ -202,11 +202,11 @@ namespace Tests {
                 // arrange
                 // act
                 for (int i = 0; i < 100; i++) {
-                    int test = GenericController.getRandomInteger(cp.core, 10);
+                    int test = GenericController.getRandomInteger(10);
                     Assert.IsTrue(test >= 0 && test <= 10);
                 }
                 for (int i = 0; i < 100; i++) {
-                    int test = GenericController.getRandomInteger(cp.core, 1000000);
+                    int test = GenericController.getRandomInteger(1000000);
                     Assert.IsTrue(test >= 0 && test <= 1000000);
                 }
             }
@@ -219,7 +219,7 @@ namespace Tests {
                 List<string> dupCheck = new();
                 // act
                 for (int i = 0; i < 100; i++) {
-                    string test = GenericController.GetRandomString(cp.core, 1000);
+                    string test = GenericController.getRandomString(1000);
                     Assert.IsFalse(dupCheck.Contains(test));
                     dupCheck.Add(test); 
                     Assert.IsTrue(test.Length==1000);

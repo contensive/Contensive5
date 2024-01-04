@@ -61,7 +61,7 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         //
         public static string getDateTimeEditor(CoreController core, string fieldName, DateTime? FieldValueDate, bool readOnly, string htmlId, bool fieldRequired) {
-            htmlId = !string.IsNullOrEmpty(htmlId) ? htmlId : "id" + getRandomInteger(core).ToString();
+            htmlId = !string.IsNullOrEmpty(htmlId) ? htmlId : "id" + getRandomInteger().ToString();
             string inputDate = HtmlController.inputDate(core, fieldName + "-date", FieldValueDate, "", "component-" + htmlId + "-date", "form-control", readOnly, fieldRequired, false);
             DateTime? FieldValueTime = FieldValueDate;
             if (FieldValueTime != null) {
@@ -108,7 +108,7 @@ namespace Contensive.Processor.Controllers {
             if (readOnly) {
                 return HtmlController.a("[" + fieldValuefilename + "]", encodedLink, "", "", "", "_blank");
             }
-            string deleteCheckboxId = "deleteCheckbox" + getRandomInteger(core).ToString();
+            string deleteCheckboxId = "deleteCheckbox" + getRandomInteger().ToString();
             string deleteCheckbox = ""
                 + HtmlController.div(
                     HtmlController.checkbox(fieldName + ".DeleteFlag", false, deleteCheckboxId, false, "form-check-input")
@@ -145,7 +145,7 @@ namespace Contensive.Processor.Controllers {
             if (readOnly) {
                 return HtmlController.div("[" + fieldValuefilename + "]");
             }
-            string deleteCheckboxId = "deleteCheckbox" + getRandomInteger(core).ToString();
+            string deleteCheckboxId = "deleteCheckbox" + getRandomInteger().ToString();
             string deleteCheckbox = ""
                 + HtmlController.div(
                     HtmlController.checkbox(fieldName + ".DeleteFlag", false, deleteCheckboxId, false, "form-check-input")
@@ -225,7 +225,7 @@ namespace Contensive.Processor.Controllers {
             string deleteCheckbox = "";
             string uploadControl = "";
             if (!readOnly) {
-                string deleteCheckboxId = "deleteCheckbox" + getRandomInteger(core).ToString();
+                string deleteCheckboxId = "deleteCheckbox" + getRandomInteger().ToString();
                 deleteCheckbox = ""
                     + HtmlController.div(
                         HtmlController.checkbox(fieldName + ".DeleteFlag", false, deleteCheckboxId, false, "form-check-input")

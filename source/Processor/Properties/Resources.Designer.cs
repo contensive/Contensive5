@@ -258,11 +258,29 @@ namespace Contensive.Processor.Properties {
         ///    &lt;div class=&quot;ccCon bg-light pt-0 pb-2&quot; style=&quot;max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;&quot;&gt;
         ///        &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
         ///            &lt;div class=&quot;ccLoginFormCon pt-4&quot;&gt;
+        ///                &lt;h4 class=&quot;mt-0&quot;&gt;Password Reset Sent&lt;/h4&gt;
+        ///                &lt;p&gt;
+        ///                    A password reset link has been sent to your email at {{email}}.
+        ///                &lt;/p&gt;
+        ///                &lt;p&gt;
+        ///                    To resend the emai [rest of string was truncated]&quot;;.
+        /// </summary>
+        public static string Layout_PasswordResetSent {
+            get {
+                return ResourceManager.GetString("Layout_PasswordResetSent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;div style=&quot;width:100%;padding:50px 0&quot;&gt;
+        ///    &lt;div class=&quot;ccCon bg-light pt-0 pb-2&quot; style=&quot;max-width:400px;margin:0 auto 0 auto;border:1px solid #bbb;border-radius:5px;&quot;&gt;
+        ///        &lt;div class=&quot;p-4 pt-0 container-fluid&quot;&gt;
+        ///            &lt;div class=&quot;ccLoginFormCon pt-4&quot;&gt;
         ///                &lt;h4 class=&quot;mt-0&quot;&gt;Set Password&lt;/h4&gt;
         ///                {{{userErrorHtml}}}
         ///                &lt;div class=&quot;pt-2&quot;&gt;
         ///                    &lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///                    &lt;input type=&quot;text&quot; n [rest of string was truncated]&quot;;.
+        ///                    &lt;input type=&quot;passwor [rest of string was truncated]&quot;;.
         /// </summary>
         public static string Layout_SetPassword {
             get {

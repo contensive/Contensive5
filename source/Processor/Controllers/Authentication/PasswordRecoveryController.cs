@@ -67,7 +67,7 @@ namespace Contensive.Processor.Controllers {
         /// processes a simple email password form that can be stacked into the login page
         /// </summary>
         /// <param name="core"></param>
-        public static void processPasswordRecoveryForm(CoreController core) {
+        public static void processPasswordRecoveryForm(CoreController core, AuthTokenInfoModel authTokenInfo) {
             try {
                 string returnUserMessage = "";
                 string userEmail = core.docProperties.getText("email");
@@ -80,11 +80,7 @@ namespace Contensive.Processor.Controllers {
                     // -- 0 or 2+ users found
                     return;
                 }
-                PersonModel user = users[0];
-                string authToken = PersonModel.createAuthToken(core.cpParent, user);
-                EmailController.trySendPasswordReset(core, user, authToken, ref returnUserMessage);
-                user.authToken = authToken;
-                user.save(core.cpParent);
+                EmailController.trySendPasswordReset(core, users[0], authTokenInfo,  ref returnUserMessage);
             } catch (Exception ex) {
                 LogController.logError(core, ex);
                 throw;

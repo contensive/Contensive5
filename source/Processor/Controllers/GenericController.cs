@@ -690,13 +690,12 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <returns></returns>
-        public static int getRandomInteger(CoreController core) {
+        public static int getRandomInteger() {
             byte[] rngBytes = new byte[4];
             RandomNumberGenerator.Create().GetBytes(rngBytes);
             int myInt = BitConverter.ToInt32(rngBytes,0);
             if(myInt>0) { return myInt;  }
             return 0 - myInt;
-            //return core.random.Next(Int32.MaxValue);
         }
         //
         //=================================================================================
@@ -706,8 +705,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="maxValue"></param>
         /// <returns></returns>
-        public static int getRandomInteger(CoreController core, int maxValue) {
-            return Convert.ToInt32(maxValue * (double)getRandomInteger(core) / (double)Int32.MaxValue);
+        public static int getRandomInteger(int maxValue) {
+            return Convert.ToInt32(maxValue * (double)getRandomInteger() / (double)Int32.MaxValue);
 
         }
         //
@@ -717,8 +716,8 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <returns></returns>
-        public static double getRandomDouble(CoreController core) {
-            return (double)getRandomInteger(core) / (double)Int32.MaxValue;
+        public static double getRandomDouble() {
+            return (double)getRandomInteger() / (double)Int32.MaxValue;
         }
         //
         //=================================================================================
@@ -728,11 +727,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="length"></param>
         /// <returns></returns>
-        public static string GetRandomString(CoreController core, int length) {
+        public static string getRandomString(int length) {
             var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var stringChars = new char[length];
             for (int i = 0; i < length; i++) {
-                stringChars[i] = chars[getRandomInteger(core, chars.Length-1)];
+                stringChars[i] = chars[getRandomInteger(chars.Length-1)];
             }
             return new String(stringChars);
         }

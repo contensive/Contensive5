@@ -65,7 +65,7 @@ namespace Contensive.Processor.Addons {
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
-                return "<p>There was an error attempting impersonation.</p>";
+                return "<p>There was an error on the impersonation form.</p>";
             }
         }
         //

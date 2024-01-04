@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
+using static Contensive.Processor.Controllers.AuthenticationController;
 //
 namespace Contensive.Processor.Addons.Primitives {
     public class ProcessSendPasswordMethodClass : Contensive.BaseClasses.AddonBaseClass {
@@ -23,14 +25,12 @@ namespace Contensive.Processor.Addons.Primitives {
                 //
                 List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
                 if (users.Count != 1) { return ""; }
-                PersonModel user = users[0];
                 //
-                string authToken = PersonModel.createAuthToken(cp, user);
                 string userErrorMessage = "";
-                EmailController.trySendPasswordReset(core, user, authToken, ref userErrorMessage);
+                var authTokenInfo = new AuthTokenInfoModel(cp, users[0]);
+                AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
+                EmailController.trySendPasswordReset(core, users[0], authTokenInfo, ref userErrorMessage);
                 //
-                user.authToken = authToken;
-                user.save(core.cpParent);
                 core.doc.continueProcessing = false;
                 return ""
                     + "<div style=\"width:300px;margin:100px auto 0 auto;\">"

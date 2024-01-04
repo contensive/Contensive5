@@ -177,19 +177,19 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override int GetRandomInteger() {
-            return GenericController.getRandomInteger(cp.core);
+            return GenericController.getRandomInteger();
         }
         //
         // ====================================================================================================
         //
         public override int GetRandomInteger(int maxValue) {
-            return GenericController.getRandomInteger(cp.core, maxValue);
+            return GenericController.getRandomInteger( maxValue);
         }
         //
         // ====================================================================================================
         //
         public override double GetRandomDouble() {
-            return GenericController.getRandomDouble(cp.core);
+            return GenericController.getRandomDouble();
         }
         //
         // ====================================================================================================
@@ -200,7 +200,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override string GetRandomString(int length) {
-            return GenericController.GetRandomString(cp.core, length);
+            return GenericController.getRandomString(length);
         }
 
         //

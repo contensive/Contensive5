@@ -77,7 +77,7 @@ namespace Contensive.Processor.Models.Domain {
                     string containerHtmlClass = "tab-pane container-full active";
                     var containerList = new List<string>();
                     foreach ( var tab in Tabs ) {
-                        string containerHtmlId = "container" + GenericController.getRandomInteger(core).ToString();
+                        string containerHtmlId = "container" + GenericController.getRandomInteger().ToString();
                         //
                         // -- tab
                         string item = HtmlController.a(tab.caption, "#" + containerHtmlId, tabHtmlClass).Replace(">", " data-toggle=\"tab\" data-bs-toggle=\"tab\">");

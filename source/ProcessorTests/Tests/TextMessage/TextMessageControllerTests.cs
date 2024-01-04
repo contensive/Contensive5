@@ -21,8 +21,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-                string test1 = GenericController.getRandomInteger(cp.core).ToString();
-                string test2 = GenericController.getRandomInteger(cp.core).ToString();
+                string test1 = GenericController.getRandomInteger().ToString();
+                string test2 = GenericController.getRandomInteger().ToString();
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 //
                 // act
@@ -42,8 +42,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-                string test1 = GenericController.getRandomInteger(cp.core).ToString();
-                string test2 = GenericController.getRandomInteger(cp.core).ToString();
+                string test1 = GenericController.getRandomInteger().ToString();
+                string test2 = GenericController.getRandomInteger().ToString();
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 //
                 // act - assert
@@ -61,8 +61,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-                string testPhone = GenericController.getRandomInteger(cp.core).ToString();
-                string testMessage = GenericController.getRandomInteger(cp.core).ToString();
+                string testPhone = GenericController.getRandomInteger().ToString();
+                string testMessage = GenericController.getRandomInteger().ToString();
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 //
                 // act - assert
@@ -94,8 +94,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-                string testPhone = GenericController.getRandomInteger(cp.core).ToString();
-                string testMessage = GenericController.getRandomInteger(cp.core).ToString();
+                string testPhone = GenericController.getRandomInteger().ToString();
+                string testMessage = GenericController.getRandomInteger().ToString();
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 //
                 // act - assert
@@ -125,8 +125,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-                string testPhone = GenericController.getRandomInteger(cp.core).ToString();
-                string testMessage = GenericController.getRandomInteger(cp.core).ToString();
+                string testPhone = GenericController.getRandomInteger().ToString();
+                string testMessage = GenericController.getRandomInteger().ToString();
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 //
                 // act - assert
@@ -156,8 +156,8 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-                string testPhone = GenericController.getRandomInteger(cp.core).ToString();
-                string testMessage = GenericController.getRandomInteger(cp.core).ToString();
+                string testPhone = GenericController.getRandomInteger().ToString();
+                string testMessage = GenericController.getRandomInteger().ToString();
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 //
                 // act - assert
@@ -186,10 +186,10 @@ namespace Tests {
                 DbBaseModel.deleteRows<GroupTextMessageModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TaskModel>(cp, "(1=1)");
                 DbBaseModel.deleteRows<TextMessageQueueModel>(cp, "(1=1)");
-                string testName = GenericController.getRandomInteger(cp.core).ToString();
-                string testPhone = GenericController.getRandomInteger(cp.core).ToString();
-                string testMessage = GenericController.getRandomInteger(cp.core).ToString();
-                string testAppendCopy = GenericController.getRandomInteger(cp.core).ToString();
+                string testName = GenericController.getRandomInteger().ToString();
+                string testPhone = GenericController.getRandomInteger().ToString();
+                string testMessage = GenericController.getRandomInteger().ToString();
+                string testAppendCopy = GenericController.getRandomInteger().ToString();
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 SystemTextMessageModel text = DbBaseModel.addDefault<SystemTextMessageModel>(cp);
                 text.body = testMessage;
@@ -230,19 +230,19 @@ namespace Tests {
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 // -- create group
                 var testGroup = DbBaseModel.addDefault<GroupModel>(cp);
-                testGroup.name = GenericController.getRandomInteger(cp.core).ToString();
-                testGroup.caption = GenericController.getRandomInteger(cp.core).ToString();
+                testGroup.name = GenericController.getRandomInteger().ToString();
+                testGroup.caption = GenericController.getRandomInteger().ToString();
                 testGroup.save(cp);
                 // -- create groupMember1
                 var user1 = DbBaseModel.addDefault<PersonModel>(cp);
-                user1.name = GenericController.getRandomInteger(cp.core).ToString();
-                user1.cellPhone = GenericController.getRandomInteger(cp.core).ToString();
+                user1.name = GenericController.getRandomInteger().ToString();
+                user1.cellPhone = GenericController.getRandomInteger().ToString();
                 user1.blockTextMessage = false;
                 user1.save(cp);
                 // -- create groupMember2
                 var user2 = DbBaseModel.addDefault<PersonModel>(cp);
-                user2.name = GenericController.getRandomInteger(cp.core).ToString();
-                user2.cellPhone = GenericController.getRandomInteger(cp.core).ToString();
+                user2.name = GenericController.getRandomInteger().ToString();
+                user2.cellPhone = GenericController.getRandomInteger().ToString();
                 user2.blockTextMessage = false;
                 user2.save(cp);
                 // -- add groupMembers to group
@@ -258,8 +258,8 @@ namespace Tests {
 
                 // -- create system text
                 SystemTextMessageModel text = DbBaseModel.addDefault<SystemTextMessageModel>(cp);
-                text.body = GenericController.getRandomInteger(cp.core).ToString();
-                text.name = GenericController.getRandomInteger(cp.core).ToString();
+                text.body = GenericController.getRandomInteger().ToString();
+                text.name = GenericController.getRandomInteger().ToString();
                 text.save(cp);
                 // -- add group to text message 
                 var rule3 = DbBaseModel.addDefault<SystemTextMessageGroupRuleModel>(cp);
@@ -309,19 +309,19 @@ namespace Tests {
                 Assert.AreEqual(0, cp.core.mockTextMessageList.Count);
                 // -- create group
                 var testGroup = DbBaseModel.addDefault<GroupModel>(cp);
-                testGroup.name = GenericController.getRandomInteger(cp.core).ToString();
-                testGroup.caption = GenericController.getRandomInteger(cp.core).ToString();
+                testGroup.name = GenericController.getRandomInteger().ToString();
+                testGroup.caption = GenericController.getRandomInteger().ToString();
                 testGroup.save(cp);
                 // -- create groupMember1
                 var user1 = DbBaseModel.addDefault<PersonModel>(cp);
-                user1.name = GenericController.getRandomInteger(cp.core).ToString();
-                user1.cellPhone = GenericController.getRandomInteger(cp.core).ToString();
+                user1.name = GenericController.getRandomInteger().ToString();
+                user1.cellPhone = GenericController.getRandomInteger().ToString();
                 user1.blockTextMessage = false;
                 user1.save(cp);
                 // -- create groupMember2
                 var user2 = DbBaseModel.addDefault<PersonModel>(cp);
-                user2.name = GenericController.getRandomInteger(cp.core).ToString();
-                user2.cellPhone = GenericController.getRandomInteger(cp.core).ToString();
+                user2.name = GenericController.getRandomInteger().ToString();
+                user2.cellPhone = GenericController.getRandomInteger().ToString();
                 user2.blockTextMessage = false;
                 user2.save(cp);
                 // -- add groupMembers to group
@@ -335,8 +335,8 @@ namespace Tests {
                 rule2.save(cp);
                 // -- create group text
                 GroupTextMessageModel text = DbBaseModel.addDefault<GroupTextMessageModel>(cp);
-                text.body = GenericController.getRandomInteger(cp.core).ToString();
-                text.name = GenericController.getRandomInteger(cp.core).ToString();
+                text.body = GenericController.getRandomInteger().ToString();
+                text.name = GenericController.getRandomInteger().ToString();
                 text.submitted = true;
                 text.sent = false;
                 text.save(cp);

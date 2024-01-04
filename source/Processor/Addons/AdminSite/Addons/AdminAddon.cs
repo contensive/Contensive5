@@ -38,8 +38,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!cp.core.session.isAuthenticated) {
                     //
                     // --- must be authenticated to continue. Force a local login
-                    cp.core.html.addTitle("Unauthorized Access", "AdminAddon");
-                    return LoginController.getLoginPage(cp.core, false, true);
+                    // -- blank response means login process successful, can continue
+                    // -- non-blank is the login form, return it
+                    string loginResult = LoginController.getLoginPage(cp.core, false, true);
+                    if (!string.IsNullOrEmpty(loginResult)) {
+                        cp.User.Logout();
+                        cp.core.html.addTitle("Unauthorized Access", "AdminAddon");
+                        return loginResult;
+                    }
                 }
                 if (!cp.core.session.isAuthenticatedAdmin()) {
                     //

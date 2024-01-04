@@ -102,7 +102,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpBlock_ImportFileTest() {
             using (CPClass cp = new(testAppName)) {
-                string filename = "cpBlockTest" + getRandomInteger(cp.core).ToString() + ".html";
+                string filename = "cpBlockTest" + getRandomInteger().ToString() + ".html";
                 try {
                     CPBlockBaseClass block = cp.BlockNew();
                     // act
@@ -125,7 +125,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpBlock_OpenCopyTest() {
             using (CPClass cp = new(testAppName)) {
-                string recordName = "cpBlockTest" + getRandomInteger(cp.core).ToString();
+                string recordName = "cpBlockTest" + getRandomInteger().ToString();
                 int recordId = 0;
                 try {
                     // arrange
@@ -155,7 +155,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpBlock_OpenFileTest() {
             using (CPClass cp = new(testAppName)) {
-                string filename = "cpBlockTest" + getRandomInteger(cp.core).ToString() + ".html";
+                string filename = "cpBlockTest" + getRandomInteger().ToString() + ".html";
                 // act
                 cp.core.wwwFiles.saveFile(filename, layoutA,cp.core.wwwFiles.isLocal);
                 CPBlockBaseClass block = cp.BlockNew();
@@ -174,7 +174,7 @@ namespace Tests {
         [TestMethod]
         public void views_cpBlock_OpenLayoutTest() {
             using (CPClass cp = new(testAppName)) {
-                string recordName = "cpBlockTest" + getRandomInteger(cp.core).ToString();
+                string recordName = "cpBlockTest" + getRandomInteger().ToString();
                 int recordId = 0;
                 // arrange
                 CPBlockBaseClass block = cp.BlockNew();
