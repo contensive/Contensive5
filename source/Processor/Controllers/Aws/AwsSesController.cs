@@ -72,6 +72,9 @@ namespace Contensive.Processor.Controllers {
                     return true;
                 } catch (Exception ex) {
                     reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
+                    if(ex.InnerException != null) {
+                        reasonForFail += $", {ex.InnerException.Message}";
+                    }
                     string errMsg = "Unexpected exception during SES send" + logLongDetail + "";
                     logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
                     return false;
