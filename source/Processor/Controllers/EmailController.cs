@@ -30,12 +30,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="authToken"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool trySendPasswordReset( CoreController core, PersonModel user, AuthTokenInfoModel authTokenInfo , ref string userErrorMessage) {
+        public static bool trySendPasswordReset(CoreController core, PersonModel user, AuthTokenInfoModel authTokenInfo, ref string userErrorMessage) {
             try {
                 string primaryDomain = core.appConfig.domainList.First();
                 string resetUrl = $"https://{primaryDomain}{endpointSetPassword}?authToken={authTokenInfo.text}";
                 SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
-                if(email is null) {
+                if (email is null) {
                     email = DbBaseModel.addDefault<SystemEmailModel>(core.cpParent);
                     email.ccguid = emailGuidResetPassword;
                     email.name = "Password Reset";
@@ -346,7 +346,7 @@ namespace Contensive.Processor.Controllers {
                     toMemberId = 0,
                 };
                 if (isImmediate) {
-                    return trySendImmediate(core,  sendRequest, ref userErrorMessage);
+                    return trySendImmediate(core, sendRequest, ref userErrorMessage);
                 }
                 queueEmail(core, false, sendRequest);
                 return true;
@@ -450,7 +450,7 @@ namespace Contensive.Processor.Controllers {
                 if (Immediate) {
                     //
                     // -- send immediate
-                    return trySendImmediate(core,  sendRequest, ref userErrorMessage);
+                    return trySendImmediate(core, sendRequest, ref userErrorMessage);
                 }
                 //
                 // -- add to queue
@@ -716,7 +716,7 @@ namespace Contensive.Processor.Controllers {
                     usedEmail.Add(simpleEmail);
                     string EmailStatus = "";
                     string queryStringForLinkAppend = "";
-                    trySendPersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "",immediate, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
+                    trySendPersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", immediate, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
                     confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                     //
                     LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
@@ -1068,10 +1068,45 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Send email in email queue. Log errors and swallow, as this process is an async from the sending client
+        /// The key from the sending process that is assigned to this entry. 
+        /// A record is assigned to a key for a period, defined by the expiration. 
+        /// Only this process can send the record, and only for that period.
         /// </summary>
         /// <param name="core"></param>
         public static void sendImmediateFromQueue(CoreController core) {
+            try {
+                //
+                // -- create a process key and process expiration
+                string processKey = GenericController.getGUID();
+                DateTime processExpiration = DateTime.Now.AddMinutes(1);
+                //
+                // -- clear key for records that expired over a minute ago,then mark a group of records for this process
+                EmailQueueModel.clearExpiredKeys(core.cpParent, DateTime.Now.AddMinutes(-1));
+                EmailQueueModel.setProcessKey(core.cpParent, processKey, processExpiration, 100);
+                List<EmailQueueModel> queueEmailList = EmailQueueModel.selectRecordsToSend(core.cpParent, processKey, processExpiration, 100);
+                if (queueEmailList.Count == 0) { return; }
+                //
+                using var sesClient = AwsSesController.getSesClient(core);
+                foreach (EmailQueueModel queueEmail in queueEmailList) {
+                    //
+                    // -- this queue record is not shared with another process, send it
+                    DbBaseModel.delete<EmailQueueModel>(core.cpParent, queueEmail.id);
+                    EmailSendRequest sendRequest = Newtonsoft.Json.JsonConvert.DeserializeObject<EmailSendRequest>(queueEmail.content);
+                    string reasonForFail = "";
+                    trySendImmediate(core, sendRequest, ref reasonForFail);
+                }
+            } catch (Exception ex) {
+                core.cpParent.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Send email in email queue. Log errors and swallow, as this process is an async from the sending client
+        /// </summary>
+        /// <param name="core"></param>
+        public static void sendImmediateFromQueue_Legacy(CoreController core) {
             //
             // -- only send a limited number (100?) and exit so if there is only one task running, sending email will not block all other processes
             // -- make it thread safe(r), from the samples, mark one record and read back marked record. Still exposed to a second process selecting the target-marked email before this process deletes
@@ -1095,7 +1130,7 @@ namespace Contensive.Processor.Controllers {
                     DbBaseModel.delete<EmailQueueModel>(core.cpParent, targetQueueRecord.id);
                     EmailSendRequest sendRequest = Newtonsoft.Json.JsonConvert.DeserializeObject<EmailSendRequest>(targetQueueRecord.content);
                     string reasonForFail = "";
-                    trySendImmediate(core,  sendRequest, ref reasonForFail);
+                    trySendImmediate(core, sendRequest, ref reasonForFail);
                 }
             }
         }
@@ -1185,7 +1220,7 @@ namespace Contensive.Processor.Controllers {
                     sendStatus = sendStatus.Substring(0, (sendStatus.Length > 254) ? 254 : sendStatus.Length);
                     sendRequest.attempts += 1;
                     var log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
-                    log.name = ("Failed send queued for retry: " + sendRequest.emailContextMessage).substringSafe(0,254);
+                    log.name = ("Failed send queued for retry: " + sendRequest.emailContextMessage).substringSafe(0, 254);
                     log.toAddress = sendRequest.toAddress;
                     log.fromAddress = sendRequest.fromAddress;
                     log.subject = sendRequest.subject.substringSafe(0, 254);
