@@ -370,89 +370,89 @@ namespace Contensive.Processor.Controllers {
                     }
                     // 
                     // -- fail, plain text
-                    userErrorMessage = "Username or password are incorrect.";
-                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, fail password mismatch");
-                    processLoginFail(core, record.id);
-                    return 0;
-                } else {
+                    //userErrorMessage = "Username or password are incorrect.";
+                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, fail password mismatch, attempt hashpassword (for hashed site that enables plain-text)");
+                    //processLoginFail(core, record.id);
+                    //return 0;
+                }
+                //
+                // -- hash password mode
+                PasswordHashInfoModel recordPasswordHashInfo = new(record.passwordHash);
+                //
+                // -- test for plain-text to hash password migration (must be plain-text password match)
+                if (string.IsNullOrEmpty(record.passwordHash) && !string.IsNullOrEmpty(recordPassword)) {
                     //
-                    // -- hash password mode
-                    PasswordHashInfoModel recordPasswordHashInfo = new(record.passwordHash);
-                    //
-                    // -- test for plain-text to hash password migration (must be plain-text password match)
-                    if (string.IsNullOrEmpty(record.passwordHash) && !string.IsNullOrEmpty(recordPassword)) {
+                    // -- record with password and no hash
+                    if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
                         //
-                        // -- record with password and no hash
-                        if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
-                            //
-                            // -- plain-text password match with request, convert record to hash
-                            PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_current(core, requestPassword, record.ccguid);
-                            if (core.siteProperties.clearAdminPasswordOnHash) {
-                                record.password = "";
-                            }
-                            record.passwordHash = requestPasswordHashInfo.text;
-                            record.save(core.cpParent);
-                            recordPasswordHashInfo = requestPasswordHashInfo;
+                        // -- plain-text password match with request, convert record to hash
+                        PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_current(core, requestPassword, record.ccguid);
+                        if (core.siteProperties.clearAdminPasswordOnHash) {
+                            record.password = "";
                         }
+                        record.passwordHash = requestPasswordHashInfo.text;
+                        record.save(core.cpParent);
+                        recordPasswordHashInfo = requestPasswordHashInfo;
                     }
-                    //
-                    switch (recordPasswordHashInfo.hasherVersion) {
-                        case "231226": {
+                }
+                //
+                // -- process hashed request agains passwordhash field
+                switch (recordPasswordHashInfo.hasherVersion) {
+                    case "231226": {
+                            //
+                            // 231226
+                            // 
+                            PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_231226(core, requestPassword, record.ccguid);
+                            if (!requestPasswordHashInfo.payload.Equals(recordPasswordHashInfo.payload)) {
                                 //
-                                // 231226
-                                // 
-                                PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_231226(core, requestPassword, record.ccguid);
-                                if (!requestPasswordHashInfo.payload.Equals(recordPasswordHashInfo.payload)) {
-                                    //
-                                    // -- fail, unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
-                                    userErrorMessage = "Username or password are incorrect.";
-                                    processLoginFail(core, record.id);
-                                    return 0;
-                                }
-                                //
-                                if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
-                                    //
-                                    // -- fail, account lockout
-                                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-231226, fail account lockout, memberId [{record.id}]");
-                                    userErrorMessage = "Too many login attempts. Please wait and try again.";
-                                    processLoginFail(core, record.id);
-                                    return 0;
-                                }
-                                //
-                                // -- success, passwordHash match, try upgrde to current password hasher and return success
-                                LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
-                                processLoginSuccess(core, record.id);
-                                return record.id;
+                                // -- fail, unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
+                                userErrorMessage = "Username or password are incorrect.";
+                                processLoginFail(core, record.id);
+                                return 0;
                             }
-                        default: {
+                            //
+                            if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
                                 //
-                                // -- legacy hash. no version, etc
-                                PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_Legacy(core, requestPassword, record.ccguid);
-                                if (!requestPasswordHashInfo.text.Equals(recordPasswordHashInfo.text)) {
-                                    //
-                                    // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
-                                    userErrorMessage = "Username or password are incorrect.";
-                                    processLoginFail(core, record.id);
-                                    return 0;
-                                }
-                                //
-                                // -- check account lockout
-                                if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
-                                    //
-                                    // -- fail, lockout
-                                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-no-version, fail account lockout, memberId [{record.id}]");
-                                    userErrorMessage = "Too many login attempts. Please wait and try again.";
-                                    processLoginFail(core, record.id);
-                                    return 0;
-                                }
-                                //
-                                // -- success, passwordHash match, try upgrde to current password hasher and return success
-                                LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
-                                trySetPassword(core.cpParent, requestPassword, record, ref userErrorMessage);
-                                processLoginSuccess(core, record.id);
-                                return record.id;
+                                // -- fail, account lockout
+                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-231226, fail account lockout, memberId [{record.id}]");
+                                userErrorMessage = "Too many login attempts. Please wait and try again.";
+                                processLoginFail(core, record.id);
+                                return 0;
                             }
-                    }
+                            //
+                            // -- success, passwordHash match, return success
+                            LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
+                            processLoginSuccess(core, record.id);
+                            return record.id;
+                        }
+                    default: {
+                            //
+                            // -- legacy hash. no version, etc
+                            PasswordHashInfoModel requestPasswordHashInfo = createPasswordHash_Legacy(core, requestPassword, record.ccguid);
+                            if (!requestPasswordHashInfo.text.Equals(recordPasswordHashInfo.text)) {
+                                //
+                                // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
+                                userErrorMessage = "Username or password are incorrect.";
+                                processLoginFail(core, record.id);
+                                return 0;
+                            }
+                            //
+                            // -- check account lockout
+                            if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
+                                //
+                                // -- fail, lockout
+                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-no-version, fail account lockout, memberId [{record.id}]");
+                                userErrorMessage = "Too many login attempts. Please wait and try again.";
+                                processLoginFail(core, record.id);
+                                return 0;
+                            }
+                            //
+                            // -- success, passwordHash match, try upgrde to current password hasher and return success
+                            LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
+                            trySetPassword(core.cpParent, requestPassword, record, ref userErrorMessage);
+                            processLoginSuccess(core, record.id);
+                            return record.id;
+                        }
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);

@@ -354,9 +354,8 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string emailBounceAddress {
             get {
-                if (_emailBounceAddress == null) {
-                    _emailBounceAddress = getText("EmailBounceAddress");
-                }
+                // compound assignment -- if the value is null, make the assignment
+                _emailBounceAddress ??= getText("EmailBounceAddress");
                 return Convert.ToString(_emailBounceAddress);
             }
         }
