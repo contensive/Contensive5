@@ -7,6 +7,10 @@ using System.Linq;
 namespace Tests {
     public class TestController {
         //
+        public static string getRandomPassword(CPClass cp) {
+            return $"{cp.Utils.GetRandomString(10)}aB0!";
+        }
+        //
         /// <summary>
         /// send 2 emails, caller tests emails send in mockEmailList
         /// </summary>
@@ -162,7 +166,7 @@ namespace Tests {
             //email1.submitted = true;
             //email1.save(cp);
             //
-            if(sendImmediate) {
+            if (sendImmediate) {
                 //
                 // -- send immediate
                 //

@@ -22,23 +22,23 @@ namespace Tests {
                 cp.core.siteProperties.passwordMinLength = 5;
                 // act
                 string returnMsg = "1234";
-                Assert.IsFalse(cp.User.SetPassword("1", ref returnMsg));
+                Assert.IsFalse(cp.User.SetPassword("a", ref returnMsg));
                 Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
-                Assert.IsFalse(cp.User.SetPassword("12", ref returnMsg));
+                Assert.IsFalse(cp.User.SetPassword("aB", ref returnMsg));
                 Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
-                Assert.IsFalse(cp.User.SetPassword("123", ref returnMsg));
+                Assert.IsFalse(cp.User.SetPassword("aB!", ref returnMsg));
                 Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
-                Assert.IsFalse(cp.User.SetPassword("1234", ref returnMsg));
+                Assert.IsFalse(cp.User.SetPassword("aB!1", ref returnMsg));
                 Assert.IsFalse(string.IsNullOrEmpty(returnMsg));
-                Assert.IsTrue(cp.User.SetPassword("12345", ref returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("aB!12", ref returnMsg));
                 Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
-                Assert.IsTrue(cp.User.SetPassword("123456", ref returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("aB!123", ref returnMsg));
                 Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
-                Assert.IsTrue(cp.User.SetPassword("1234567", ref returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("aB!1234", ref returnMsg));
                 Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
-                Assert.IsTrue(cp.User.SetPassword("12345678", ref returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("aB!12345", ref returnMsg));
                 Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
-                Assert.IsTrue(cp.User.SetPassword("123456789", ref returnMsg));
+                Assert.IsTrue(cp.User.SetPassword("aB!123456", ref returnMsg));
                 Assert.IsTrue(string.IsNullOrEmpty(returnMsg));
             }
         }
@@ -53,11 +53,11 @@ namespace Tests {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", true);
                 cp.Site.SetProperty("allow auto create password hash", false);
-                string testPassword = cp.Utils.GetRandomInteger().ToString();
+                string testPassword = TestController.getRandomPassword(cp);
                 string testUsername = cp.Utils.GetRandomInteger().ToString();
                 PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
                 userBefore.username = testUsername;
-                userBefore.password = cp.Utils.GetRandomInteger().ToString();
+                userBefore.password = TestController.getRandomPassword(cp);
                 userBefore.passwordHash = cp.Utils.GetRandomInteger().ToString();
                 userBefore.save(cp);
                 // act
@@ -82,11 +82,11 @@ namespace Tests {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", false);
                 cp.Site.SetProperty("allow auto create password hash", false);
-                string testPassword = cp.Utils.GetRandomInteger().ToString();
+                string testPassword = TestController.getRandomPassword(cp);
                 string testUsername = cp.Utils.GetRandomInteger().ToString();
                 PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
                 userBefore.username = testUsername;
-                userBefore.password = cp.Utils.GetRandomInteger().ToString();
+                userBefore.password = TestController.getRandomPassword(cp);
                 userBefore.passwordHash = cp.Utils.GetRandomInteger().ToString();
                 userBefore.save(cp);
                 // act
@@ -112,7 +112,7 @@ namespace Tests {
                 // arrange
                 cp.Site.SetProperty("allow plain text password", false);
                 cp.Site.SetProperty("allow auto create password hash", true);
-                string testPassword = cp.Utils.GetRandomInteger().ToString();
+                string testPassword = TestController.getRandomPassword(cp);
                 string testUsername = cp.Utils.GetRandomInteger().ToString();
                 PersonModel userBefore = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
                 userBefore.username = testUsername;
