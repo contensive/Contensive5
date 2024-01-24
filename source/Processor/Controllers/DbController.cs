@@ -21,7 +21,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Data Access Layer for individual catalogs. Properties and Methods related to interfacing with the Database
     /// </summary>
-    public partial class DbController : IDisposable {
+    public class DbController : IDisposable {
         //
         /// <summary>
         /// dependencies

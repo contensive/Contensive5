@@ -74,7 +74,6 @@ namespace Contensive.Processor.Controllers {
                         //
                         // this error could be data related, and may not be critical. log issue and continue
                         downloadDelay += 2000;
-                        //return_ErrorMessage = "There was an error while requesting the download details for collection [" + collectionGuid + "]";
                         LogController.logInfo(core, errorPrefix + "There was a parse error for collection [" + collectionGuid + "] reading the response [" + ex + "]");
                         result = true;
                     }
@@ -85,7 +84,6 @@ namespace Contensive.Processor.Controllers {
                     // continue if no errors
                     if (Doc.DocumentElement.Name.ToLowerInvariant() != GenericController.toLCase(DownloadFileRootNode)) {
                         // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
-                        //return_ErrorMessage = "The collection file from the server was not valid for collection [" + collectionGuid + "]";
                         LogController.logInfo(core, errorPrefix + "The response has a basename [" + Doc.DocumentElement.Name + "] but [" + DownloadFileRootNode + "] was expected.");
                         result = true;
                     } else {
@@ -93,7 +91,6 @@ namespace Contensive.Processor.Controllers {
                         // Parse the Download File and download each file into the working folder
                         if (Doc.DocumentElement.ChildNodes.Count == 0) {
                             // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
-                            //return_ErrorMessage = $"The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].";
                             LogController.logInfo(core, errorPrefix + $"The collection library status file from the server has a valid basename, but no childnodes. The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
                             result = true;
                         } else {

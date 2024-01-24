@@ -41,7 +41,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spSampleBoolProperty, value);
             }
         }
-        private string spSampleBoolProperty = "sampleBoolProperty";
+        private readonly string spSampleBoolProperty = "sampleBoolProperty";
         private bool? _sampleBoolProperty = null;
         //
         //====================================================================================================
@@ -59,7 +59,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spSampleIntProperty, value);
             }
         }
-        private string spSampleIntProperty = "sampleIntProperty";
+        private readonly string spSampleIntProperty = "sampleIntProperty";
         private int? _sampleIntProperty = null;
         //
         //====================================================================================================
@@ -68,7 +68,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string sampleTextProperty {
             get {
-                if (_sampleTextProperty != null) { return (string)_sampleTextProperty; }
+                if (_sampleTextProperty != null) { return _sampleTextProperty; }
                 _sampleTextProperty = getText(spSampleTextProperty, "default");
                 return (string)_sampleTextProperty;
             }
@@ -77,8 +77,8 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spSampleTextProperty, value);
             }
         }
-        private string spSampleTextProperty = "sampleTextProperty";
-        private string _sampleTextProperty = null;
+        private readonly string spSampleTextProperty = "sampleTextProperty";
+        private string _sampleTextProperty;
         //
         //====================================================================================================
         /// <summary>
@@ -95,7 +95,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spPasswordAgeLockoutDays, value);
             }
         }
-        private string spPasswordAgeLockoutDays = "password age lockout days";
+        private readonly string spPasswordAgeLockoutDays = "password age lockout days";
         private int? _passwordAgeLockoutDays = null;
         //
         //====================================================================================================
@@ -113,7 +113,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spPasswordBlockUsedPasswordPeriod, value);
             }
         }
-        private string spPasswordBlockUsedPasswordPeriod = "password block used password period";
+        private readonly string spPasswordBlockUsedPasswordPeriod = "password block used password period";
         private int? _passwordBlockUsedPasswordPeriod = null;
         //
         //====================================================================================================
@@ -131,7 +131,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spPasswordRequiresSpecialCharacter, value);
             }
         }
-        private string spPasswordRequiresSpecialCharacter = "password requires special character";
+        private readonly string spPasswordRequiresSpecialCharacter = "password requires special character";
         private bool? _passwordRequiresSpecialCharacter = null;
         //
         //====================================================================================================
@@ -149,7 +149,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spPasswordRequiresNumber, value);
             }
         }
-        private string spPasswordRequiresNumber = "password requires number";
+        private readonly string spPasswordRequiresNumber = "password requires number";
         private bool? _passwordRequiresNumber = null;
         //
         //====================================================================================================
@@ -167,7 +167,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spPasswordRequiresUppercase, value);
             }
         }
-        private string spPasswordRequiresUppercase = "password requires uppercase";
+        private readonly string spPasswordRequiresUppercase = "password requires uppercase";
         private bool? _passwordRequiresUppercase = null;
         //
         //====================================================================================================
@@ -185,7 +185,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(spPasswordRequiresLowercase, value);
             }
         }
-        private string spPasswordRequiresLowercase = "password requires lowercase";
+        private readonly string spPasswordRequiresLowercase = "password requires lowercase";
         private bool? _passwordRequiresLowercase = null;
         //
         //====================================================================================================

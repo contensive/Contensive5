@@ -630,13 +630,7 @@ namespace Contensive.Models.Db {
                                                     break;
                                                 }
                                             // can't initalize a file
-                                            //case "FieldTypeFile": {
-                                            //        //
-                                            //        // -- cdn file
-                                            //        FieldTypeFile instanceFileType = new() { content = propertyValue };
-                                            //        instanceProperty.SetValue(instance, instanceFileType);
-                                            //        break;
-                                            //    }
+                                            // c-a-s-e "FieldTypeFile": {
                                             default: {
                                                     instanceProperty.SetValue(instance, propertyValue, null);
                                                     break;

@@ -370,10 +370,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     // 
                     // -- fail, plain text
-                    //userErrorMessage = "Username or password are incorrect.";
                     LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, fail password mismatch, attempt hashpassword (for hashed site that enables plain-text)");
-                    //processLoginFail(core, record.id);
-                    //return 0;
                 }
                 //
                 // -- hash password mode
@@ -630,7 +627,6 @@ namespace Contensive.Processor.Controllers {
         public const string usernameAllowedCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         public const string passwordAllowedSpecialCharacters = "~!@#$%^&*()_+`-={}|[]\\:;'<>,.";
         public const string passwordAllowedNonSpecialCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        //public const int passwordMinLength = 10;
         public const int userNameMinLength = 4;
         //
         //====================================================================================================

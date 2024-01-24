@@ -300,7 +300,7 @@ namespace Contensive.Processor.Controllers {
                             LogController.log(cp.core, "TaskRunner exit, task [" + task.name + "], cmdDetail [" + task.cmdDetail + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
                         }
                     } catch (Exception exInner) {
-                        LogController.log(cp.core, "TaskRunner exception, ex [" + exInner.ToString() + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+                        LogController.log(cp.core, "TaskRunner exception, ex [" + exInner + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                         throw;
                     }
                 }
