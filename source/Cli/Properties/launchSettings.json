@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a c5test --execute \"htmlplatformversion\"",
+      "commandLineArgs": "-a c5test --execute \"Email process Task\"",
       "workingDirectory": "c:\\tmp",
       "jsWebView2Debugging": false
     }

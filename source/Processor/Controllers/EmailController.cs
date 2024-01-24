@@ -1083,7 +1083,7 @@ namespace Contensive.Processor.Controllers {
                 // -- clear key for records that expired over a minute ago,then mark a group of records for this process
                 EmailQueueModel.clearExpiredKeys(core.cpParent, DateTime.Now.AddMinutes(-1));
                 EmailQueueModel.setProcessKey(core.cpParent, processKey, processExpiration, 100);
-                List<EmailQueueModel> queueEmailList = EmailQueueModel.selectRecordsToSend(core.cpParent, processKey, processExpiration, 100);
+                List<EmailQueueModel> queueEmailList = EmailQueueModel.selectRecordsToSend(core.cpParent, processKey, 100);
                 if (queueEmailList.Count == 0) { return; }
                 //
                 using var sesClient = AwsSesController.getSesClient(core);

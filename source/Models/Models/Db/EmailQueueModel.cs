@@ -66,9 +66,9 @@ namespace Contensive.Models.Db {
         /// <param name="sendingProcessExpiration"></param>
         /// <param name="recordsToSelect"></param>
         /// <returns></returns>
-        public static List<EmailQueueModel> selectRecordsToSend(CPBaseClass cp, string sendingProcessKey, DateTime sendingProcessExpiration, int recordsToSelect) {
+        public static List<EmailQueueModel> selectRecordsToSend(CPBaseClass cp, string sendingProcessKey, int recordsToSelect) {
             try {
-                return createList<EmailQueueModel>(cp, $"(sendingProcessKey={cp.Db.EncodeSQLText(sendingProcessKey)})and(sendingProcessExpiration<{cp.Db.EncodeSQLDate(sendingProcessExpiration)})", "immediate,id asc", recordsToSelect, 1);
+                return createList<EmailQueueModel>(cp, $"(sendingProcessKey={cp.Db.EncodeSQLText(sendingProcessKey)})and(sendingProcessExpiration>{cp.Db.EncodeSQLDate(DateTime.Now)})", "immediate,id asc", recordsToSelect, 1);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

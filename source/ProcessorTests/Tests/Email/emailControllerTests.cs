@@ -15,6 +15,20 @@ namespace Tests {
     public class EmailControllerTests {
         //
         [TestMethod]
+        public void EmailProcessTask_Test() {
+            using (CPClass cp = new(testAppName)) {
+                //
+                // -- add emails to the queue
+                string toAddress = "jay+1@contensive.com";
+                string fromAddress = "jay@contensive.com";
+                string subject = "email subject";
+                string body = "email body";
+                cp.Email.send(toAddress, fromAddress, subject, body, false );
+                cp.Addon.Execute(Constants.addonGuidEmailProcessTask);
+            }
+        }
+        //
+        [TestMethod]
         public void groupEmail_Send_Test() {
             using (CPClass cp = new(testAppName)) {
                 cp.core.mockEmail = true;
