@@ -375,6 +375,45 @@ namespace Contensive.Processor.Controllers {
                 //
                 // set the meta content flag to show it is not needed for the head tag
                 switch (formType) {
+                    case FormTypePasswordRecovery: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processPasswordRecoveryFormClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeLogin:
+                    case "l09H58a195": {
+                            //
+                            string requestUsername = core.cpParent.Doc.GetText("username");
+                            string requestPassword = core.cpParent.Doc.GetText("password");
+                            bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
+                            LoginController.processLoginPage_Default(core, requestUsername, requestPassword, requestIncludesPassword);
+                            return;
+                        }
+                    case FormTypeToolsPanel: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processFormToolsPanelClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypePageAuthoring: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processFormQuickEditingClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeActiveEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.ProcessActiveEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeSiteStyleEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.ProcessSiteStyleEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
+                    case FormTypeHelpBubbleEditor: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processHelpBubbleEditorClass()).Execute(core.cpParent);
+                            return;
+                        }
                     case FormTypeRegister: {
                             //
                             RegisterController.processRegisterForm(core);
