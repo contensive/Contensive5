@@ -375,11 +375,6 @@ namespace Contensive.Processor.Controllers {
                 //
                 // set the meta content flag to show it is not needed for the head tag
                 switch (formType) {
-                    case FormTypePasswordRecovery: {
-                            //
-                            (new Contensive.Processor.Addons.Primitives.processPasswordRecoveryFormClass()).Execute(core.cpParent);
-                            return;
-                        }
                     case FormTypeLogin:
                     case "l09H58a195": {
                             //
