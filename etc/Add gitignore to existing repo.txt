@@ -1,0 +1,4 @@
+- add .gitignore from c5 repo
+- run this
+
+git rm -r --cached . && git add . && git commit -am "Remove ignored files"
