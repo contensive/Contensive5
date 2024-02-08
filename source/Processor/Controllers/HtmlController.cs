@@ -1158,7 +1158,7 @@ namespace Contensive.Processor.Controllers {
         public static string inputTime(CoreController core, string htmlName, DateTime? htmlValue, string htmlId = "", string htmlClass = "", bool readOnly = false, bool required = false, bool disabled = false) {
             string result = "";
             try {
-                result += "<input type=\"time\"  name=\"" + HtmlController.encodeHtml(htmlName) + "\"";
+                result += "<input type=\"time\"  name=\"" + HtmlController.encodeHtml(htmlName) + "\" step=\"1\"";
                 if ((htmlValue != null) && (htmlValue > DateTime.MinValue)) result += " value=\"" + ((DateTime)htmlValue).ToString("o", CultureInfo.InvariantCulture).Substring(11, 12) + "\"";
                 result += (string.IsNullOrEmpty(htmlId)) ? "" : " id=\"" + htmlId + "\"";
                 result += (string.IsNullOrEmpty(htmlClass)) ? "" : " class=\"" + htmlClass + "\"";
