@@ -404,13 +404,15 @@ namespace Contensive.BaseClasses {
         /// <param name="body"></param>
         public abstract void sendUser(int toUserId, string fromAddress, string subject, string body);
         /// <summary>
-        /// Send an email a user.
+        /// validate an email address. 
+        /// Returns true if email is valid, false if invalid.
         /// </summary>
         /// <param name="toAddress"></param>
         /// <returns></returns>
         public abstract bool validateEmail(string toAddress);
         /// <summary>
-        /// Validate a user email
+        /// validate a user's email address. 
+        /// Returns true if the user has a valid email address, else returns false.
         /// </summary>
         /// <param name="toUserId"></param>
         /// <returns></returns>

@@ -79,10 +79,11 @@ DotNet code execution result
 
 ### Routing
 
-The addon name becomes the endpoint. Any path that begins with with the addon name will execute this remopte method.
+The addon name becomes the endpoint. Any path that begins with with the addon name will execute this remote method.  Note that you cannot create an addon with a blank name, or the name "/"
 
-To create a REST api, you could choise to have every REST method go to its own remote method, or just make a method for each object and have it handle all the routes within the object
-
+For example
+- Create an add-on named "api". It will be run for endpoints /api and anything that starts with /api, like /api/user/create
+- Create two add-ons, "api" and "api/user". Endpoint /api/user/delete will go to addon "api/user", endpoint /api/group/add will go to addon "api"
 
 
 
