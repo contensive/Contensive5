@@ -87,7 +87,7 @@ namespace Contensive.Processor.Controllers {
         public int passwordAgeLockoutDays {
             get {
                 if (_passwordAgeLockoutDays != null) { return (int)_passwordAgeLockoutDays; }
-                _passwordAgeLockoutDays = getInteger(spPasswordAgeLockoutDays, 90);
+                _passwordAgeLockoutDays = getInteger(spPasswordAgeLockoutDays, 0);
                 return (int)_passwordAgeLockoutDays;
             }
             set {
