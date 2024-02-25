@@ -36,19 +36,35 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.getBestFit(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+            return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
         }
 
         public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight) {
-            return ImageController.getBestFit(cp.core, imagePathFilename, holeWidth, holeHeight);
+            return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
 
         public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.getBestFitWebP(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+            return ImageController.resizeAndCropWebP(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
         }
 
         public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight) {
-            return ImageController.getBestFitWebP(cp.core, imagePathFilename, holeWidth, holeHeight);
+            return ImageController.resizeAndCropWebP(cp.core, imagePathFilename, holeWidth, holeHeight);
+        }
+
+        public override string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight) {
+            return ImageController.resizeAndPad(cp.core, imagePathFilename, holeWidth, holeHeight);
+        }
+
+        public override string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
+            return ImageController.resizeAndPad(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        }
+
+        public override string GetResizeAndPadWebP(string imagePathFilename, int holeWidth, int holeHeight) {
+            return ImageController.resizeAndPadWebP(cp.core, imagePathFilename, holeWidth, holeHeight);
+        }
+
+        public override string GetResizeAndPadWebP(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
+            return ImageController.resizeAndPadWebP(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
         }
     }
 }
