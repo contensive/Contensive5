@@ -52,7 +52,7 @@ namespace Contensive.Processor.Controllers {
                 }
             }
             avatarPathFilename = string.IsNullOrEmpty(avatarPathFilename) ? avatarPathFilename : core.siteProperties.avatarDefaultPathFilename;
-            return resizeAndCrop(core, avatarPathFilename, holeWidth, holeHeight);
+            return resizeAndCropNoTypeChange(core, avatarPathFilename, holeWidth, holeHeight);
         }
         // 
         // ====================================================================================================
@@ -72,10 +72,10 @@ namespace Contensive.Processor.Controllers {
         /// When returned, the caller should check that the filename did not change, and that the list length did not change. If there is a change, the list should be saved for next call.
         /// </param>
         /// <returns></returns>
-        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
+        public static string resizeAndCropNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
             => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, false, true);
         //
-        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
+        public static string resizeAndPadNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
             => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, false, false);
         //
         //====================================================================================================
@@ -87,11 +87,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="holeWidth"></param>
         /// <param name="holeHeight"></param>
         /// <returns></returns>
-        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, new List<string>(), false, true);
+        public static string resizeAndCropNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], false, true);
         // 
-        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, new List<string>(), false, false);
+        public static string resizeAndPadNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], false, false);
         // 
         // ====================================================================================================
         /// <summary>
@@ -110,26 +110,43 @@ namespace Contensive.Processor.Controllers {
         /// When returned, the caller should check that the filename did not change, and that the list length did not change. If there is a change, the list should be saved for next call.
         /// </param>
         /// <returns></returns>
-        public static string resizeAndCropWebP(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
+        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
             => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, true, true);
         //
-        public static string resizeAndPadWebP(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
+        /// <summary>
+        /// Return a webp image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-pad-[width]x[height]". 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="imageCdnPathFilename"></param>
+        /// <param name="holeWidth"></param>
+        /// <param name="holeHeight"></param>
+        /// <param name="imageAltSizeList"></param>
+        /// <returns></returns>
+        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
             => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, true, false);
         //
         //====================================================================================================
         /// <summary>
-        /// Return an image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-[width]x[height]". 
+        /// Return a webp image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-[width]x[height]". 
         /// </summary>
         /// <param name="core"></param>
         /// <param name="imageCdnPathFilename"></param>
         /// <param name="holeWidth"></param>
         /// <param name="holeHeight"></param>
         /// <returns></returns>
-        public static string resizeAndCropWebP(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, new List<string>(), true, true);
+        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], true, true);
         //
-        public static string resizeAndPadWebP(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, new List<string>(), true, false);
+        /// <summary>
+        /// Return a webp image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-pad-[width]x[height]". 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="imageCdnPathFilename"></param>
+        /// <param name="holeWidth"></param>
+        /// <param name="holeHeight"></param>
+        /// <returns></returns>
+        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], true, false);
         //
         //====================================================================================================
         /// <summary>
@@ -308,6 +325,9 @@ namespace Contensive.Processor.Controllers {
                             cropHeight = image.Height;
                             cropWidth = Convert.ToInt32(image.Height * holeWidth / (double)holeHeight);
                         }
+                        Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder() {
+                            ColorType = PngColorType.RgbWithAlpha
+                        });
                         ResizeOptions options = new() {
                             Mode = ResizeMode.Pad,
                             TargetRectangle = new Rectangle {
@@ -346,12 +366,9 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- resize and pad
-
                         Configuration.Default.ImageFormatsManager.SetEncoder(PngFormat.Instance, new PngEncoder() {
                             ColorType = PngColorType.RgbWithAlpha
                         });
-
-
                         ResizeOptions options = new() {
                             Mode = ResizeMode.Pad,
                             TargetRectangle = new Rectangle {

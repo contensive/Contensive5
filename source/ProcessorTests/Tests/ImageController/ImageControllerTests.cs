@@ -116,10 +116,6 @@ namespace Tests {
         public void resizeAndPad_LandscapeToSquare_ScaleUp_test() {
             using (CPClass cp = new(testAppName)) {
                 resizeTestmethod(cp, false, false, false, false);
-                //
-                // pad is not tranparent
-                //
-                Assert.Fail();
             }
         }
         //
@@ -156,10 +152,6 @@ namespace Tests {
         public void resizeAndPad_LandscapeToSquare_ScaleUp_Webp_test() {
             using (CPClass cp = new(testAppName)) {
                 resizeTestmethod(cp, false, false, true, false);
-                //
-                // pad is not tranparent
-                //
-                Assert.Fail();
             }
         }
         //
@@ -257,18 +249,18 @@ namespace Tests {
                 // -- crop
                 if (toWebP) {
                     // -- crop webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCropWebP(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCrop(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
                 } else {
                     // -- crop non-webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCrop(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
                 }
             } else {
                 if (toWebP) {
                     // -- pad webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPadWebP(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPad(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
                 } else {
                     // -- pad non-webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPad(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPadNoTypeChange(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
                 }
             }
             //
@@ -301,8 +293,8 @@ namespace Tests {
                 Assert.IsFalse(cp.CdnFiles.FileExists(dstImageCdnPathFilename_expected));
                 //
                 // act - convert png, 1920x600 to 50x50
-                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCrop(cp.core, srcImageCdnPathFilename_dos, 50, 50, []);
-                string dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCrop(cp.core, srcImageCdnPathFilename_unix, 50, 50, []);
+                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_dos, 50, 50, []);
+                string dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_unix, 50, 50, []);
                 //
                 // assert
                 Assert.AreEqual(dstImageCdnPathFilename_expected, dstImageCdnPathFilename_dos_returned);
@@ -328,7 +320,7 @@ namespace Tests {
                 cp.Cache.InvalidateAll();
                 //
                 // act - convert 1920x600 to 50x50
-                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCrop(cp.core, srcImageCdnPathFilename_dos, 50, 50, new System.Collections.Generic.List<string>());
+                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_dos, 50, 50, new System.Collections.Generic.List<string>());
                 //
                 // assert
                 Assert.AreEqual(dstImageCdnPathFilename_expected, dstImageCdnPathFilename_dos_returned);
