@@ -39,13 +39,14 @@ namespace Contensive.BaseClasses {
         /// The image is never scaled up. If the hole is larger than the image, the original is cropped returned.
         /// The source imagePathFilename is expected to be in the CdnFiles filesystem. 
         /// The new image is saved back to the same path.
-        /// imageAltSizeList is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. 
+        /// 
         /// </summary>
         /// <param name="imagePathFilename">The source image. The is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
         /// <param name="holeWidth">The width of the final image to be returned.</param>
         /// <param name="holeHeight">The height of the final image to be returned.</param>
-        /// <param name="imageAltSizeList"></param>
-        public abstract string ResizeAndCropNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList);
+        /// <param name="imageAltSizes">A list of image sizes already created. Save this string with the original image URL.</param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back</param>
+        public abstract string ResizeAndCropNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize);
         //
         //==========================================================================================
         /// <summary>
@@ -69,13 +70,14 @@ namespace Contensive.BaseClasses {
         /// The image is never scaled up. If the hole is larger than the image, the original is returned.
         /// The source imagePathFilename is expected to be in the CdnFiles filesystem. 
         /// New image is saved back to the same path.  
-        /// Use imageAltSizeList to determine what sizes have been created. 
+        /// Use imageAltSizes to determine what sizes have been created. 
         /// </summary>
         /// <param name="imagePathFilename">The source image. The is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
         /// <param name="holeWidth">The width of the final image to be returned.</param>
         /// <param name="holeHeight">The height of the final image to be returned.</param>
-        /// <param name="imageAltSizeList">imageAltSizeList is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. </param>
-        public abstract string ResizeAndCrop(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList);
+        /// <param name="imageAltSizes">imageAltSizes is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. </param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back</param>
+        public abstract string ResizeAndCrop(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize);
         //
         //==========================================================================================
         /// <summary>
@@ -114,13 +116,14 @@ namespace Contensive.BaseClasses {
         /// The image is never scaled up. If the hole is larger than the image, the original is returned.
         /// The source imagePathFilename is expected to be in the CdnFiles filesystem. 
         /// New image is saved back to the same path.  
-        /// imageAltSizeList is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. 
+        /// imageAltSizes is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. 
         /// </summary>
         /// <param name="imagePathFilename">The source image. The is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
         /// <param name="holeWidth">The width of the final image to be returned.</param>
         /// <param name="holeHeight">The height of the final image to be returned.</param>
-        /// <param name="imageAltSizeList">imageAltSizeList is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. </param>
-        public abstract string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList);
+        /// <param name="imageAltSizes">imageAltSizes is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. </param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back</param>
+        public abstract string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize);
         //
         //==========================================================================================
         /// <summary>
@@ -130,7 +133,6 @@ namespace Contensive.BaseClasses {
         /// The image is never scaled up. If the hole is larger than the image, the original is returned.
         /// The source imagePathFilename is expected to be in the CdnFiles filesystem. 
         /// New image is saved back to the same path.  
-        /// imageAltSizeList is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. 
         /// </summary>
         /// <param name="imagePathFilename">The source image. The is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
         /// <param name="holeWidth">The width of the final image to be returned.</param>
@@ -145,13 +147,14 @@ namespace Contensive.BaseClasses {
         /// The image is never scaled up. If the hole is larger than the image, the original is returned.
         /// The source imagePathFilename is expected to be in the CdnFiles filesystem. 
         /// New image is saved back to the same path.  
-        /// imageAltSizeList is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. 
+        /// imageAltSizes is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. 
         /// </summary>
         /// <param name="imagePathFilename">The source image. The is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
         /// <param name="holeWidth">The width of the final image to be returned.</param>
         /// <param name="holeHeight">The height of the final image to be returned.</param>
-        /// <param name="imageAltSizeList">imageAltSizeList is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. </param>
-        public abstract string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList);
+        /// <param name="imageAltSizes">imageAltSizes is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. </param>
+        /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back</param>
+        public abstract string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize);
         //
         //====================================================================================================
         // deprecated

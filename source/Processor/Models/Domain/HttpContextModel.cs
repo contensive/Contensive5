@@ -86,6 +86,12 @@ namespace Contensive.Processor.Models.Domain {
         //
         //====================================================================================================
         /// <summary>
+        /// The url originally presented to the webserver, that appears in the browsers. The URL being executed may be rewritten.
+        /// </summary>
+        public string  RawUrl { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
         /// 
         /// </summary>
         public Dictionary<string, HttpContextRequestCookie> Cookies { get; set; }

@@ -109,6 +109,8 @@ Public Class ConfigurationClass
             }
             context.Request.UrlReferrer = iisContext.Request.UrlReferrer
             '
+            context.Request.RawUrl = iisContext.Request.RawUrl
+            '
             ' -- server variables
             storeNameValues(iisContext.Request.ServerVariables, context.Request.ServerVariables, True)
             '

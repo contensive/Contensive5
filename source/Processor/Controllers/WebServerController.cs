@@ -71,10 +71,20 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestPathPage {
             get {
-                if (string.IsNullOrEmpty(_requestPathPage)) {
-                    if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
-                    _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? core.webServer.httpContext.Request.ServerVariables["SCRIPT_NAME"] : "";
+                if (!string.IsNullOrEmpty(_requestPathPage)) { return _requestPathPage; }
+                if (httpContext?.Request == null) { return string.Empty; }
+                if (!string.IsNullOrEmpty(httpContext.Request.RawUrl)) {
+                    try {
+                        string[] pathPage = httpContext.Request.RawUrl.Split('?');
+                        pathPage = pathPage[0].Split('#');
+                        _requestPathPage =  pathPage[0];
+                        return _requestPathPage;
+                    } catch (Exception) {
+                        //
+                    }
                 }
+                if (httpContext.Request.ServerVariables == null) { return string.Empty; }
+                _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? core.webServer.httpContext.Request.ServerVariables["SCRIPT_NAME"] : ""; ;
                 return _requestPathPage;
             }
         }

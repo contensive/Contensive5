@@ -6,6 +6,7 @@ using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 
 namespace Contensive.Processor.Controllers {
@@ -72,11 +73,11 @@ namespace Contensive.Processor.Controllers {
         /// When returned, the caller should check that the filename did not change, and that the list length did not change. If there is a change, the list should be saved for next call.
         /// </param>
         /// <returns></returns>
-        public static string resizeAndCropNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, false, true);
+        public static string resizeAndCropNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, false, true, out isNewSize);
         //
-        public static string resizeAndPadNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, false, false);
+        public static string resizeAndPadNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, false, false, out  isNewSize);
         //
         //====================================================================================================
         /// <summary>
@@ -87,11 +88,16 @@ namespace Contensive.Processor.Controllers {
         /// <param name="holeWidth"></param>
         /// <param name="holeHeight"></param>
         /// <returns></returns>
-        public static string resizeAndCropNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], false, true);
+        public static string resizeAndCropNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight) {
+            string imageAltSizes = "";
+            return resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, false, true, out bool _);
+        }
         // 
-        public static string resizeAndPadNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], false, false);
+        public static string resizeAndPadNoTypeChange(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight) {
+            string imageAltSizes = "";
+            return resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, false, false, out bool _);
+        }
+
         // 
         // ====================================================================================================
         /// <summary>
@@ -110,8 +116,8 @@ namespace Contensive.Processor.Controllers {
         /// When returned, the caller should check that the filename did not change, and that the list length did not change. If there is a change, the list should be saved for next call.
         /// </param>
         /// <returns></returns>
-        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, true, true);
+        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, true, true, out  isNewSize);
         //
         /// <summary>
         /// Return a webp image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-pad-[width]x[height]". 
@@ -122,8 +128,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="holeHeight"></param>
         /// <param name="imageAltSizeList"></param>
         /// <returns></returns>
-        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, imageAltSizeList, true, false);
+        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize)
+            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, true, false, out  isNewSize);
         //
         //====================================================================================================
         /// <summary>
@@ -134,8 +140,11 @@ namespace Contensive.Processor.Controllers {
         /// <param name="holeWidth"></param>
         /// <param name="holeHeight"></param>
         /// <returns></returns>
-        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], true, true);
+        public static string resizeAndCrop(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight) {
+            string imageAltSizes = "";
+            return resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, true, true, out bool _);
+        }
+
         //
         /// <summary>
         /// Return a webp image url (unix slash), resized and cropped to best fit the hole, in the same folder as the original with a suffix "-pad-[width]x[height]". 
@@ -145,8 +154,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="holeWidth"></param>
         /// <param name="holeHeight"></param>
         /// <returns></returns>
-        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight)
-            => resize(core, imageCdnPathFilename, holeWidth, holeHeight, [], true, false);
+        public static string resizeAndPad(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight) {
+            string imageAltSizes = "";
+            return resize(core, imageCdnPathFilename, holeWidth, holeHeight, ref imageAltSizes, true, false, out bool _);
+        }
         //
         //====================================================================================================
         /// <summary>
@@ -162,8 +173,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cropOrPad">if true, resize to smaller proportion and crop off the overlapping proportion.
         /// if false, resize to the larger proportion and pad the open area with transparent, or white depending on image format</param>
         /// <returns></returns>
-        private static string resize(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList, bool saveAsWebP, bool cropOrPad) {
+        private static string resize(CoreController core, string imageCdnPathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, bool saveAsWebP, bool cropOrPad, out bool isNewSize) {
             // 
+            isNewSize = false;
             try {
                 // 
                 // -- argument testing, if image not set, return blank
@@ -196,6 +208,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 // 
                 // -- verify this altsizelist matches this image, or reset it
+                List<string> imageAltSizeList = imageAltSizes.Split(',').ToList();
                 if (!imageAltSizeList.Contains(imageCdnPathFilename)) {
                     // 
                     // -- alt size list does not start with this filename, new image uploaded, reset list
@@ -216,6 +229,8 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- if altSizeList shows the image exists, return it
                     imageAltSizeList.Add(imageAltsize + filenameExt);
+                    imageAltSizes = string.Join(",", imageAltSizeList.ToArray());
+                    isNewSize = true;
                     return newImageFilename.Replace(@"\", "/");
                 }
                 //
@@ -224,6 +239,8 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- image exists, return it
                     imageAltSizeList.Add(imageAltsize + filenameExt);
+                    imageAltSizes = string.Join(",", imageAltSizeList.ToArray());
+                    isNewSize = true;
                     core.cache.storeObject(imageExistsKey, true);
                     return newImageFilename.Replace(@"\", "/");
                 }
@@ -396,6 +413,8 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- save the new size back to the item and cache
                 imageAltSizeList.Add(imageAltsize + filenameExt);
+                imageAltSizes = String.Join(",", imageAltSizeList.ToArray());
+                isNewSize = true;
                 core.cache.storeObject(imageExistsKey, true);
                 return newImageFilename.Replace(@"\", "/");
             } catch (UnknownImageFormatException ex) {

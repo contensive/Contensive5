@@ -4,6 +4,7 @@ using Contensive.Processor;
 using Contensive.Processor.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using Twilio.Rest.Accounts.V1;
 using static Tests.TestConstants;
 
 namespace Tests {
@@ -16,9 +17,28 @@ namespace Tests {
         //====================================================================================================
         //
         [TestMethod]
+        public void resizeAndCrop_AltSize_test() {
+            using (CPClass cp = new(testAppName)) {
+                string imageAltSizes = "";
+                //
+                // -- first time adds image
+                resizeTestmethod(cp, true, false, false, 300, ref imageAltSizes, out bool isNewSize1);
+                Assert.IsFalse(string.IsNullOrWhiteSpace(imageAltSizes));
+                Assert.IsTrue(isNewSize1);
+                //
+                // second time uses existing image
+                resizeTestmethod(cp, true, false, false, 300, ref imageAltSizes, out bool isNewSize2);
+                Assert.IsFalse(isNewSize2);
+            }
+        }
+        //
+        //====================================================================================================
+        //
+        [TestMethod]
         public void resizeAndCrop_LandscapeToSquare_ScaleDown_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, false, false, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, false, false, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -27,7 +47,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndCrop_PortraitToSquare_ScaleDown_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, true, false, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, true, false, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -36,7 +57,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_LandscapeToSquare_ScaleDown_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, false, false, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, false, false, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -45,7 +67,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_PortraitToSquare_ScaleDown_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, true, false, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, true, false, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -54,7 +77,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndCrop_LandscapeToSquare_ScaleDown_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, false, true, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, false, true, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -63,7 +87,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndCrop_PortraitToSquare_ScaleDown_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, true, true, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, true, true, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -72,7 +97,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_LandscapeToSquare_ScaleDown_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, false, true, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, false, true, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -81,23 +107,18 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_PortraitToSquare_ScaleDown_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, true, true, true);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, true, true, 300, ref imageAltSizes, out bool isNewSize);
             }
         }
-
-
-
-
-
-
-
         //
         //====================================================================================================
         //
         [TestMethod]
         public void resizeAndCrop_LandscapeToSquare_ScaleUp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, false, false, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, false, false, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -106,7 +127,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndCrop_PortraitToSquare_ScaleUp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, true, false, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, true, false, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -115,7 +137,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_LandscapeToSquare_ScaleUp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, false, false, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, false, false, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -124,7 +147,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_PortraitToSquare_ScaleUp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, true, false, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, true, false, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -133,7 +157,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndCrop_LandscapeToSquare_ScaleUp_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, false, true, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, false, true, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -142,7 +167,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndCrop_PortraitToSquare_ScaleUp_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, true, true, true, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, true, true, true, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -151,7 +177,8 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_LandscapeToSquare_ScaleUp_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, false, true, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, false, true, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
         //
@@ -160,30 +187,16 @@ namespace Tests {
         [TestMethod]
         public void resizeAndPad_PortraitToSquare_ScaleUp_Webp_test() {
             using (CPClass cp = new(testAppName)) {
-                resizeTestmethod(cp, false, true, true, false);
+                string imageAltSizes = "";
+                resizeTestmethod(cp, false, true, true, 3000, ref imageAltSizes, out bool isNewSize);
             }
         }
-
-
-
-
-
         //
         //====================================================================================================
         //
-        [TestMethod]
-        public void resizeTestmethod(CPClass cp, bool cropOrPad, bool portraitOrLandscape, bool toWebP, bool resizeDown) {
+        public void resizeTestmethod(CPClass cp, bool cropOrPad, bool portraitOrLandscape, bool toWebP, int squareHoleSize, ref string imageAltSizes, out bool isNewSize) {
 
             // arrange
-            int finalWidth;
-            int finalHeight;
-            if (resizeDown) {
-                 finalWidth = 300;
-                 finalHeight = 300;
-            } else {
-                 finalWidth = 3000;
-                 finalHeight = 3000;
-            }
             string srcImageCdnPathFilename_unix;
             string dstImageCdnPathFilename_expected;
             if (portraitOrLandscape) {
@@ -193,18 +206,18 @@ namespace Tests {
                     // -- crop
                     if (toWebP) {
                         // -- crop webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-{finalWidth}x{finalHeight}.webp";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-{squareHoleSize}x{squareHoleSize}.webp";
                     } else {
                         // -- crop non-webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-{finalWidth}x{finalHeight}.png";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-{squareHoleSize}x{squareHoleSize}.png";
                     }
                 } else {
                     if (toWebP) {
                         // -- pad webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-pad-{finalWidth}x{finalHeight}.webp";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-pad-{squareHoleSize}x{squareHoleSize}.webp";
                     } else {
                         // -- pad non-webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-pad-{finalWidth}x{finalHeight}.png";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/SampleTextAndImage-pad-{squareHoleSize}x{squareHoleSize}.png";
                     }
                 }
             } else {
@@ -215,18 +228,18 @@ namespace Tests {
                     // -- crop
                     if (toWebP) {
                         // -- crop webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-{finalWidth}x{finalHeight}.webp";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-{squareHoleSize}x{squareHoleSize}.webp";
                     } else {
                         // -- crop non-webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-{finalWidth}x{finalHeight}.png";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-{squareHoleSize}x{squareHoleSize}.png";
                     }
                 } else {
                     if (toWebP) {
                         // -- pad webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-pad-{finalWidth}x{finalHeight}.webp";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-pad-{squareHoleSize}x{squareHoleSize}.webp";
                     } else {
                         // -- pad non-webp
-                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-pad-{finalWidth}x{finalHeight}.png";
+                        dstImageCdnPathFilename_expected = $"designblocks/img/CarouselSample-pad-{squareHoleSize}x{squareHoleSize}.png";
                     }
                 }
             }
@@ -249,18 +262,18 @@ namespace Tests {
                 // -- crop
                 if (toWebP) {
                     // -- crop webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCrop(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCrop(cp.core, srcImageCdnPathFilename_unix, squareHoleSize, squareHoleSize, ref imageAltSizes, out isNewSize);
                 } else {
                     // -- crop non-webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_unix, squareHoleSize, squareHoleSize, ref imageAltSizes, out isNewSize);
                 }
             } else {
                 if (toWebP) {
                     // -- pad webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPad(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPad(cp.core, srcImageCdnPathFilename_unix, squareHoleSize, squareHoleSize, ref imageAltSizes, out isNewSize);
                 } else {
                     // -- pad non-webp
-                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPadNoTypeChange(cp.core, srcImageCdnPathFilename_unix, finalWidth, finalHeight, []);
+                    dstImageCdnPathFilename_unix_returned = ImageController.resizeAndPadNoTypeChange(cp.core, srcImageCdnPathFilename_unix, squareHoleSize, squareHoleSize, ref imageAltSizes, out isNewSize);
                 }
             }
             //
@@ -293,8 +306,9 @@ namespace Tests {
                 Assert.IsFalse(cp.CdnFiles.FileExists(dstImageCdnPathFilename_expected));
                 //
                 // act - convert png, 1920x600 to 50x50
-                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_dos, 50, 50, []);
-                string dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_unix, 50, 50, []);
+                string imageAltSizes = "";
+                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_dos, 50, 50, ref imageAltSizes, out bool _);
+                string dstImageCdnPathFilename_unix_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_unix, 50, 50, ref imageAltSizes, out bool _);
                 //
                 // assert
                 Assert.AreEqual(dstImageCdnPathFilename_expected, dstImageCdnPathFilename_dos_returned);
@@ -320,7 +334,8 @@ namespace Tests {
                 cp.Cache.InvalidateAll();
                 //
                 // act - convert 1920x600 to 50x50
-                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_dos, 50, 50, new System.Collections.Generic.List<string>());
+                string imageAltSizes = "";
+                string dstImageCdnPathFilename_dos_returned = ImageController.resizeAndCropNoTypeChange(cp.core, srcImageCdnPathFilename_dos, 50, 50, ref imageAltSizes, out bool _);
                 //
                 // assert
                 Assert.AreEqual(dstImageCdnPathFilename_expected, dstImageCdnPathFilename_dos_returned);

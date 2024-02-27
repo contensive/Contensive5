@@ -364,8 +364,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Image ReadOnly
                                     editorEnv.formFieldList += "," + field.nameLc;
-                                    string[] imageAltSizeList = { };
-                                    string resizedImageUrl = ImageController.resizeAndCropNoTypeChange(core, fieldValue_text, 80, 80, new System.Collections.Generic.List<string>());
+                                    string imageAltSizes = "";
+                                    string resizedImageUrl = ImageController.resizeAndCropNoTypeChange(core, fieldValue_text, 80, 80, ref imageAltSizes, out bool _);
                                     EditorString = AdminUIEditorController.getImageEditor(core, field.nameLc, fieldValue_text, resizedImageUrl, field.readOnly, fieldHtmlId);
                                     break;
                                 }
@@ -481,8 +481,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // ----- Image ReadOnly
                                     editorEnv.formFieldList += "," + field.nameLc;
-                                    string[] imageAltSizeList = { };
-                                    string resizedImageUrl = ImageController.resizeAndCropNoTypeChange(core, fieldValue_text, 80, 80, new System.Collections.Generic.List<string>());
+                                    string imageAltSizes = "";
+                                    string resizedImageUrl = ImageController.resizeAndCropNoTypeChange(core, fieldValue_text, 80, 80, ref imageAltSizes, out bool _);
                                     EditorString = AdminUIEditorController.getImageEditor(core, field.nameLc, fieldValue_text, resizedImageUrl, field.readOnly, fieldHtmlId);
                                     break;
                                 }

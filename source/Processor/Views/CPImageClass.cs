@@ -35,19 +35,31 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
-        [Obsolete("Use ResizeAndCrop()", false)] public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        [Obsolete("Use ResizeAndCrop()", false)]
+        public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
+            string imageAltSizes = string.Join(",", imageAltSizeList.ToArray());
+            string result = ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out bool _);
+            imageAltSizeList.Clear();
+            imageAltSizeList.AddRange(imageAltSizes.Split(','));
+            return result;
         }
 
-        [Obsolete("Use ResizeAndCrop()", false)] public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight) {
+        [Obsolete("Use ResizeAndCrop()", false)]
+        public override string GetBestFit(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
 
-        [Obsolete("Use ResizeAndCrop()", false)] public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        [Obsolete("Use ResizeAndCrop()", false)]
+        public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
+            string imageAltSizes = string.Join(",", imageAltSizeList.ToArray());
+            string result = ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out bool _);
+            imageAltSizeList.Clear();
+            imageAltSizeList.AddRange(imageAltSizes.Split(','));
+            return result;
         }
 
-        [Obsolete("Use ResizeAndCrop()", false)] public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight) {
+        [Obsolete("Use ResizeAndCrop()", false)]
+        public override string GetBestFitWebP(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
         //
@@ -56,8 +68,8 @@ namespace Contensive.Processor {
         public override string ResizeAndCrop(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
-        public override string ResizeAndCrop(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        public override string ResizeAndCrop(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
+            return ImageController.resizeAndCrop(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }
         //
         //
@@ -65,8 +77,8 @@ namespace Contensive.Processor {
         public override string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndPad(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
-        public override string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.resizeAndPad(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        public override string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
+            return ImageController.resizeAndPad(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }
         //
         //
@@ -74,8 +86,8 @@ namespace Contensive.Processor {
         public override string ResizeAndCropNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
-        public override string ResizeAndCropNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        public override string ResizeAndCropNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
+            return ImageController.resizeAndCropNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }
         //
         //
@@ -83,8 +95,8 @@ namespace Contensive.Processor {
         public override string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight) {
             return ImageController.resizeAndPadNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight);
         }
-        public override string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, List<string> imageAltSizeList) {
-            return ImageController.resizeAndPadNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, imageAltSizeList);
+        public override string ResizeAndPadNoTypeChange(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize) {
+            return ImageController.resizeAndPadNoTypeChange(cp.core, imagePathFilename, holeWidth, holeHeight, ref imageAltSizes, out isNewSize);
         }
     }
 }
