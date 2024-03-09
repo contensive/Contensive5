@@ -52,6 +52,13 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// true if the current user is editing anything
+        /// </summary>
+        /// <returns></returns>
+        public abstract bool IsEditing();
+        //
+        //====================================================================================================
+        /// <summary>
         /// true if the current user is editing the content specified
         /// </summary>
         /// <param name="contentName"></param>
@@ -62,7 +69,7 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// true if the current user is editing any content
         /// </summary>
-        public abstract bool IsEditingAnything { get; }
+        [Obsolete("Use IsEditing()", false)] public abstract bool IsEditingAnything { get; }
         //
         //====================================================================================================
         /// <summary>

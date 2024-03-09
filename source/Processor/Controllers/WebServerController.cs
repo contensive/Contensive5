@@ -84,7 +84,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 if (httpContext.Request.ServerVariables == null) { return string.Empty; }
-                _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? core.webServer.httpContext.Request.ServerVariables["SCRIPT_NAME"] : ""; ;
+                _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? core.webServer.httpContext.Request.ServerVariables["SCRIPT_NAME"] : "";
                 return _requestPathPage;
             }
         }

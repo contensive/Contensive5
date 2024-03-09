@@ -157,7 +157,14 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        public override bool IsEditingAnything {
+        public override bool IsEditing() {
+                if (cp?.core?.session == null) { return false; }
+                return cp.core.session.isEditing();
+        }
+        //
+        //====================================================================================================
+        //
+        [Obsolete("Use IsEditing()", false)] public override bool IsEditingAnything {
             get {
                 if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isEditing();
