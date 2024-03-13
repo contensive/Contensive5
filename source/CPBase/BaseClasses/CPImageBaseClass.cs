@@ -106,7 +106,7 @@ namespace Contensive.BaseClasses {
         /// <param name="imagePathFilename">The source image. The is expected to be in CdnFiles (accessible with CP.CdnFiles methods).</param>
         /// <param name="holeWidth">The width of the final image to be returned.</param>
         /// <param name="holeHeight">The height of the final image to be returned.</param>
-        public abstract string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight);
+        public abstract string ResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight);
         //
         //==========================================================================================
         /// <summary>
@@ -123,7 +123,7 @@ namespace Contensive.BaseClasses {
         /// <param name="holeHeight">The height of the final image to be returned.</param>
         /// <param name="imageAltSizes">imageAltSizes is a list of comma separated strings. the first string is the original filename. The rest are the sizes already created and expected to be in the cdn folder, in the format width + "x" + height. </param>
         /// <param name="isNewSize">If true, a new size was added and you must save the imageAltSize string back</param>
-        public abstract string GetResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize);
+        public abstract string ResizeAndPad(string imagePathFilename, int holeWidth, int holeHeight, ref string imageAltSizes, out bool isNewSize);
         //
         //==========================================================================================
         /// <summary>

@@ -131,18 +131,6 @@ namespace Contensive.Processor.Controllers {
         /// The current request carries a cookie from the last request (use to detect back-button). if false, page is out of state (sequence)
         /// </summary>
         public bool visitStateOk { get; set; }
-        ////
-        ////====================================================================================================
-        ///// <summary>
-        ///// constructor, no arguments, created default authentication model for use without user, and before user is available
-        ///// </summary>
-        //public SessionController(CoreController core) {
-        //    this.core = core;
-        //    visit = new VisitModel();
-        //    visitor = new VisitorModel();
-        //    user = new PersonModel();
-        //    visitStateOk = true;
-        //}
         //
         //========================================================================
         /// <summary>
@@ -192,7 +180,7 @@ namespace Contensive.Processor.Controllers {
                 LogController.logTrace(core, "visitCookie [" + visitCookie + "], visitCookie.id [" + visitToken.id + "]");
                 if (!visitToken.id.Equals(0)) {
                     VisitModel visitTest = DbBaseModel.create<VisitModel>(core.cpParent, visitToken.id);
-                    if (!(visitTest is null)) {
+                    if (visitTest is not null) {
                         visit = visitTest;
                         trackVisits = true;
                         // todo - incorrect. This should be visittoken.created, token must be enhanced to support visitStateOK. consider cookie length and other effects
@@ -211,113 +199,113 @@ namespace Contensive.Processor.Controllers {
                         visitor = visitorTest;
                     }
                 }
-                bool authenticationProcessSuccess = false;
-                //
-                // -- authentication from form/querystring, authAction=login, authUsername+authPassword
-                //
-                if (core.docProperties.containsKey("authAction") && core.docProperties.getText("authAction").ToLowerInvariant().Equals("login")) {
-                    string authUsername = core.docProperties.getText("authUsername");
-                    string authPassword = core.docProperties.getText("authPassword");
-                    if ((!string.IsNullOrWhiteSpace(authUsername)) && (!string.IsNullOrWhiteSpace(authPassword))) {
-                        string userErrorMessage = "";
-                        int userId = AuthenticationController.preflightAuthentication_returnUserId(core, this, authUsername, authPassword, false, ref userErrorMessage);
-                        if (userId > 0) {
-                            AuthenticationController.authenticateById(core, this, userId);
-                            authenticationProcessSuccess = true;
-                        }
-                    }
-                }
-                //
-                // -- authentication from authorization header
-                //
-                if (!authenticationProcessSuccess) {
-                    string basicAuthentication = core.docProperties.getText("authorization");
-                    if ((!string.IsNullOrWhiteSpace(basicAuthentication)) && (basicAuthentication.Length > 7) && (basicAuthentication.Substring(0, 6).ToLower(CultureInfo.InvariantCulture) == "basic ")) {
-                        //
-                        // -- Basic authentication
-                        string usernamePasswordEncoded = basicAuthentication.Substring(6);
-                        byte[] usernamePasswordBytes = Convert.FromBase64String(usernamePasswordEncoded);
-                        string[] usernamePassword = Encoding.ASCII.GetString(usernamePasswordBytes).Split(':');
-                        if (usernamePassword.Length == 2) {
-                            string username = usernamePassword[0];
-                            string password = usernamePassword[1];
-                            string userErrorMessage = "";
-                            int userId = AuthenticationController.preflightAuthentication_returnUserId(core, this,username, password, false, ref userErrorMessage);
-                            if (userId > 0) {
-                                AuthenticationController.authenticateById(core, this, userId);
-                                authenticationProcessSuccess = true;
-                            }
-                        }
-                    }
-                }
-                //
-                // -- link authentication
-                //
-                if (!authenticationProcessSuccess) {
-                    string linkEid = core.docProperties.getText("eid");
-                    if (!string.IsNullOrEmpty(linkEid)) {
-                        //
-                        // -- attempt link authentication
-                        var linkToken = SecurityController.decodeToken(core, linkEid);
-                        LogController.logTrace(core, "link authentication, linkEid [" + linkEid + "], linkToken.id [" + linkToken.id + "]");
-                        if (!linkToken.id.Equals(0) && linkToken.expires.CompareTo(core.dateTimeNowMockable) < 0) {
-                            //
-                            // -- valid link token, attempt login/recognize
-                            if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
-                                //
-                                // -- allow Link Login
-                                LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
-                                if (AuthenticationController.authenticateById(core, this, linkToken.id)) {
-                                    trackVisits = true;
-                                    LogController.addActivityCompletedVisit(core, "Login", "Successful link login", user.id);
-                                }
-                            } else if (core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
-                                //
-                                // -- allow Link Recognize
-                                LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
-                                if (AuthenticationController.recognizeById(core, this, linkToken.id)) {
-                                    trackVisits = true;
-                                    LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", user.id);
-                                }
-                            } else {
-                                //
-                                LogController.logTrace(core, "link login unsuccessful, site properties disabled");
-                                //
-                            }
-                        } else {
-                            //
-                            LogController.logTrace(core, "link login unsuccessful, token expired or invalid [" + linkEid + "]");
-                            //
-                        }
-                    }
-                }
+                //bool authenticationProcessSuccess = false;
+                ////
+                //// -- authentication from form/querystring, authAction=login, authUsername+authPassword
+                ////
+                //if (core.docProperties.containsKey("authAction") && core.docProperties.getText("authAction").ToLowerInvariant().Equals("login")) {
+                //    string authUsername = core.docProperties.getText("authUsername");
+                //    string authPassword = core.docProperties.getText("authPassword");
+                //    if ((!string.IsNullOrWhiteSpace(authUsername)) && (!string.IsNullOrWhiteSpace(authPassword))) {
+                //        string userErrorMessage = "";
+                //        int userId = AuthenticationController.preflightAuthentication_returnUserId(core, this, authUsername, authPassword, false, ref userErrorMessage);
+                //        if (userId > 0) {
+                //            AuthenticationController.authenticateById(core, this, userId);
+                //            authenticationProcessSuccess = true;
+                //        }
+                //    }
+                //}
+                ////
+                //// -- authentication from authorization header
+                ////
+                //if (!authenticationProcessSuccess) {
+                //    string basicAuthentication = core.docProperties.getText("authorization");
+                //    if ((!string.IsNullOrWhiteSpace(basicAuthentication)) && (basicAuthentication.Length > 7) && (basicAuthentication.Substring(0, 6).ToLower(CultureInfo.InvariantCulture) == "basic ")) {
+                //        //
+                //        // -- Basic authentication
+                //        string usernamePasswordEncoded = basicAuthentication.Substring(6);
+                //        byte[] usernamePasswordBytes = Convert.FromBase64String(usernamePasswordEncoded);
+                //        string[] usernamePassword = Encoding.ASCII.GetString(usernamePasswordBytes).Split(':');
+                //        if (usernamePassword.Length == 2) {
+                //            string username = usernamePassword[0];
+                //            string password = usernamePassword[1];
+                //            string userErrorMessage = "";
+                //            int userId = AuthenticationController.preflightAuthentication_returnUserId(core, this,username, password, false, ref userErrorMessage);
+                //            if (userId > 0) {
+                //                AuthenticationController.authenticateById(core, this, userId);
+                //                authenticationProcessSuccess = true;
+                //            }
+                //        }
+                //    }
+                //}
+                ////
+                //// -- link authentication
+                ////
+                //if (!authenticationProcessSuccess) {
+                //    string linkEid = core.docProperties.getText("eid");
+                //    if (!string.IsNullOrEmpty(linkEid)) {
+                //        //
+                //        // -- attempt link authentication
+                //        var linkToken = SecurityController.decodeToken(core, linkEid);
+                //        LogController.logTrace(core, "link authentication, linkEid [" + linkEid + "], linkToken.id [" + linkToken.id + "]");
+                //        if (!linkToken.id.Equals(0) && linkToken.expires.CompareTo(core.dateTimeNowMockable) < 0) {
+                //            //
+                //            // -- valid link token, attempt login/recognize
+                //            if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
+                //                //
+                //                // -- allow Link Login
+                //                LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
+                //                if (AuthenticationController.authenticateById(core, this, linkToken.id)) {
+                //                    trackVisits = true;
+                //                    LogController.addActivityCompletedVisit(core, "Login", "Successful link login", user.id);
+                //                }
+                //            } else if (core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
+                //                //
+                //                // -- allow Link Recognize
+                //                LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
+                //                if (AuthenticationController.recognizeById(core, this, linkToken.id)) {
+                //                    trackVisits = true;
+                //                    LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", user.id);
+                //                }
+                //            } else {
+                //                //
+                //                LogController.logTrace(core, "link login unsuccessful, site properties disabled");
+                //                //
+                //            }
+                //        } else {
+                //            //
+                //            LogController.logTrace(core, "link login unsuccessful, token expired or invalid [" + linkEid + "]");
+                //            //
+                //        }
+                //    }
+                //}
                 bool resultSessionContect_visitor_changes = false;
                 bool resultSessionContext_user_changes = false;
-                //
-                // -- auto recognize/login authentication
-                // -- always overrides trackVisits, only valid on first hit of new visit by returning user with valid visit cookie)
-                //
-                if (!authenticationProcessSuccess) {
-                    if (!visitor.memberId.Equals(0) && visit.pageVisits.Equals(0)) {
-                        if (core.siteProperties.allowAutoLogin) {
-                            //
-                            // -- login by the visitor.memberid
-                            if (AuthenticationController.authenticateById(core, this, visitor.memberId, true)) {
-                                LogController.addActivityCompletedVisit(core, "Login", "auto-login", user.id);
-                                resultSessionContect_visitor_changes = true;
-                                resultSessionContext_user_changes = true;
-                            }
-                        } else if (core.siteProperties.allowAutoRecognize) {
-                            //
-                            // -- recognize by the visitor.memberid
-                            if (AuthenticationController.recognizeById(core, this, visitor.memberId, true)) {
-                                LogController.addActivityCompletedVisit(core, "Recognize", "auto-recognize", user.id);
-                                resultSessionContect_visitor_changes = true;
-                                resultSessionContext_user_changes = true;
-                            }
-                        }
-                    }
-                }
+                ////
+                //// -- auto recognize/login authentication
+                //// -- always overrides trackVisits, only valid on first hit of new visit by returning user with valid visit cookie)
+                ////
+                //if (!authenticationProcessSuccess) {
+                //    if (!visitor.memberId.Equals(0) && visit.pageVisits.Equals(0)) {
+                //        if (core.siteProperties.allowAutoLogin) {
+                //            //
+                //            // -- login by the visitor.memberid
+                //            if (AuthenticationController.authenticateById(core, this, visitor.memberId, true)) {
+                //                LogController.addActivityCompletedVisit(core, "Login", "auto-login", user.id);
+                //                resultSessionContect_visitor_changes = true;
+                //                resultSessionContext_user_changes = true;
+                //            }
+                //        } else if (core.siteProperties.allowAutoRecognize) {
+                //            //
+                //            // -- recognize by the visitor.memberid
+                //            if (AuthenticationController.recognizeById(core, this, visitor.memberId, true)) {
+                //                LogController.addActivityCompletedVisit(core, "Recognize", "auto-recognize", user.id);
+                //                resultSessionContect_visitor_changes = true;
+                //                resultSessionContext_user_changes = true;
+                //            }
+                //        }
+                //    }
+                //}
                 //
                 // -- setup session from user,visit,visitor
                 //

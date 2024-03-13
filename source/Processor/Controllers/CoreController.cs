@@ -449,7 +449,7 @@ namespace Contensive.Processor.Controllers {
                     serverConfig.programFilesPath = "c:\\Program Files\\Contensive\\";
                 } else {
                     serverConfig.programFilesPath = "c:\\Program Files (x86)\\Contensive\\";
-                } 
+                }
                 serverConfig.save(this);
                 _programFiles = new FileController(this, serverConfig.programFilesPath);
                 return _programFiles;
@@ -572,14 +572,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="cp"></param>
         /// <remarks></remarks>
-        public CoreController(CPClass cp) {
-            cpParent = cp;
-            cpParent.core = this;
-            cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
-            //
-            coreController_Initialize(null, null, false);
-        }
+        public CoreController(CPClass cp) : this(cp, null, null, false) {}
         //
         //====================================================================================================
         /// <summary>
@@ -589,14 +582,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="appName"></param>
         /// <remarks></remarks>
-        public CoreController(CPClass cp, string appName) {
-            cpParent = cp;
-            cpParent.core = this;
-            cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
-            //
-            coreController_Initialize(appName, null, false);
-        }
+        public CoreController(CPClass cp, string appName) : this(cp, appName, null, false) {}
         //
         //====================================================================================================
         /// <summary>
@@ -607,44 +593,29 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="appName"></param>
         /// <remarks></remarks>
-        public CoreController(CPClass cp, string appName, bool allowSession) {
-            cpParent = cp;
-            cpParent.core = this;
-            cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-            cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
-            //
-            coreController_Initialize(appName, null, allowSession);
-        }
+        public CoreController(CPClass cp, string appName, bool allowSession) : this(cp, appName, null, allowSession) {}
         //
         //====================================================================================================
         /// <summary>
         /// coreClass constructor for a web request/response environment. coreClass is the primary object internally, created by cp.
         /// </summary>
-        public CoreController(CPClass cp, string appName, HttpContextModel httpContext) {
-            try {
-                cpParent = cp;
-                cpParent.core = this;
-                cacheRuntime.metaDataDictionary = new Dictionary<string, ContentMetadataModel>();
-                cacheRuntime.tableSchemaDictionary = new Dictionary<string, TableSchemaModel>();
-                //
-                coreController_Initialize(appName, httpContext, true);
-            } catch (Exception ex) {
-                LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
-                throw;
-            }
-        }
+        public CoreController(CPClass cp, string appName, HttpContextModel httpContext) : this(cp, appName, httpContext, true) {}
         //
         //====================================================================================================
         /// <summary>
-        /// coreClass constructor common tasks.
+        /// coreClass constructor for a web request/response environment, if you need to block visit tracking programmatically. coreClass is the primary object internally, created by cp.
         /// </summary>
-        /// <param name="appName"></param>
-        /// <param name="allowVisit"></param>
-        /// <param name="httpContext"></param>
         /// <param name="cp"></param>
-        /// <remarks></remarks>
-        private void coreController_Initialize(string appName, HttpContextModel httpContext, bool allowVisit) {
+        /// <param name="appName"></param>
+        /// <param name="httpContext"></param>
+        /// <param name="allowVisit"></param>
+        public CoreController(CPClass cp, string appName, HttpContextModel httpContext, bool allowVisit) {
             try {
+                //
+                cpParent = cp;
+                cpParent.core = this;
+                cacheRuntime.metaDataDictionary = [];
+                cacheRuntime.tableSchemaDictionary = [];
                 //
                 // -- clear mock datetime
                 _mockNow = null;
@@ -677,11 +648,10 @@ namespace Contensive.Processor.Controllers {
                 doc.allowDebugLog = true;
                 doc.profileStartTime = dateTimeNowMockable;
                 doc.visitPropertyAllowDebugging = false;
-                //
-                // -- allow exception reporing
                 doc.blockExceptionReporting = false;
                 //
                 // -- session
+                //
                 deleteSessionOnExit = (httpContext == null);
                 if (appConfig == null) {
                     //
@@ -696,8 +666,15 @@ namespace Contensive.Processor.Controllers {
                     // -- initialize session
                     session = new(this, allowVisit && siteProperties.allowVisitTracking);
                 }
+                //
+                // -- authentication event if appName is valid
+                //
+                if (string.IsNullOrEmpty(appName)) { return;  }
+                //
+                AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this);
+                EventController.throwEvent(this, "authentication event");
             } catch (Exception ex) {
-                LogController.logShortLine("CoreController coreController_Initialize, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+                LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
             }
         }

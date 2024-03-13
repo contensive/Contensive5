@@ -1,4 +1,5 @@
 ﻿
+using Amazon.CloudWatchLogs.Model;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
@@ -64,6 +65,13 @@ namespace Contensive.Processor {
         public override bool SendSystem(string systemTextMessageGuid, string additionalCopy, int additionalUserID) {
             try {
                 SystemTextMessageModel textMessage = DbBaseModel.create<SystemTextMessageModel>(cp, systemTextMessageGuid);
+                if (textMessage == null) {
+                    textMessage = DbBaseModel.addDefault<SystemTextMessageModel>(cp);
+                    textMessage.body = "";
+                    textMessage.name = $"Text Message {textMessage.id}, created {textMessage.dateAdded}, for guid {systemTextMessageGuid}";
+                    textMessage.ccguid = systemTextMessageGuid;
+                    textMessage.save(cp);
+                }
                 string userErrorMessage = "";
                 return TextMessageController.queueSystemTextMessage(cp.core, textMessage, additionalCopy, additionalUserID, ref userErrorMessage);
             } catch (Exception ex) {

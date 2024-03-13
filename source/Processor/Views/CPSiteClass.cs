@@ -453,7 +453,7 @@ namespace Contensive.Processor {
         /// <param name="eventNameIdOrGuid"></param>
         /// <returns></returns>
         public override string ThrowEvent(string eventNameIdOrGuid)
-            => cp.core.addon.throwEvent(eventNameIdOrGuid);
+            => EventController.throwEvent(cp.core, eventNameIdOrGuid);
         //
         //====================================================================================================
         // Deprecated

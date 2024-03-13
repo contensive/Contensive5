@@ -140,10 +140,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool tryAuthenticate(CoreController core, SessionController session, string requestUsername, string requestPassword, bool setUserAutoLogin, ref string userErrorMessage) {
             try {
-                userErrorMessage = "";
-                //
                 LogController.logTrace(core, "AuthenticationController.authenticate enter");
                 //
+                userErrorMessage = "";
                 int userId = preflightAuthentication_returnUserId(core, session, requestUsername, requestPassword, false, ref userErrorMessage);
                 if (!userId.Equals(0) && authenticateById(core, session, userId)) {
                     //
@@ -155,7 +154,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- failed to authenticate
-                ErrorController.addUserError(core, loginFailedError);
+                ErrorController.addUserError(core, userErrorMessage);
                 //
                 // -- pause to make brute force attempt more expensive
                 Thread.Sleep(3000);
@@ -363,6 +362,17 @@ namespace Contensive.Processor.Controllers {
                             return 0;
                         }
                         //
+                        // -- check for password age (over 180 days) force mfa/fail
+                        if ((core.session.user.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                            //
+                            // -- fail, password must be updated
+                            // -- this should exit with mfa requirement
+                            userErrorMessage = "Password has not been updated and must be changed.";
+                            LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
+                            processLoginFail(core, record.id);
+                            return 0;
+                        }
+                        //
                         // -- success, password match
                         LogController.logTrace(core, "preflightAuthentication_returnUserId success, pw match");
                         processLoginSuccess(core, record.id);
@@ -417,6 +427,17 @@ namespace Contensive.Processor.Controllers {
                                 return 0;
                             }
                             //
+                            // -- check for password age (over 180 days) force mfa/fail
+                            if ((core.session.user.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                                //
+                                // -- fail, password must be updated
+                                // -- this should exit with mfa requirement
+                                userErrorMessage = "Password has not been updated and must be changed.";
+                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
+                                processLoginFail(core, record.id);
+                                return 0;
+                            }
+                            //
                             // -- success, passwordHash match, return success
                             LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
                             processLoginSuccess(core, record.id);
@@ -440,6 +461,18 @@ namespace Contensive.Processor.Controllers {
                                 // -- fail, lockout
                                 LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-no-version, fail account lockout, memberId [{record.id}]");
                                 userErrorMessage = "Too many login attempts. Please wait and try again.";
+                                processLoginFail(core, record.id);
+                                return 0;
+                            }
+                            //
+                            // -- check for password age (over 180 days) force mfa/fail
+                            if ((core.session.user.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                                //if ((core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
+                                //
+                                // -- fail, password must be updated
+                                // -- this should exit with mfa requirement
+                                userErrorMessage = "Password has not been updated and must be changed.";
+                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
                                 processLoginFail(core, record.id);
                                 return 0;
                             }

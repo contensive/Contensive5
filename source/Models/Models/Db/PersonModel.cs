@@ -140,7 +140,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// The last time the passwordwas updated
         /// </summary>
-        public DateTime passwordModifiedDate { get; set; }
+        public DateTime? passwordModifiedDate { get; set; }
         //
         //====================================================================================================
         /// <summary>
