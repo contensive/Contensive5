@@ -406,6 +406,7 @@ namespace Contensive.Processor.Controllers {
         /// Send the text messages in the current Queue
         /// </summary>
         public static void sendTextMessageQueue(CoreController core) {
+            string sendSerialNumber = GenericController.getGUID();
             try {
                 //
                 // -- return if no messages
@@ -417,7 +418,6 @@ namespace Contensive.Processor.Controllers {
                 core.db.executeNonQuery("delete from ccTextMessageQueue where (attempts>=3)");
                 //
                 // -- mark the next 100 texts with this processes serial number. Then select them back to verify no other process tries to send them
-                string sendSerialNumber = GenericController.getGUID();
                 core.db.executeNonQuery("update ccTextMessageQueue set sendSerialNumber=" + DbController.encodeSQLText(sendSerialNumber) + " where id in (select top 100 id from ccTextMessageQueue where (sendSerialNumber is null) order by immediate,id)");
                 //
                 foreach (TextMessageQueueModel textMessage in DbBaseModel.createList<TextMessageQueueModel>(core.cpParent, "sendSerialNumber=" + DbController.encodeSQLText(sendSerialNumber), "immediate,id")) {
@@ -445,6 +445,8 @@ namespace Contensive.Processor.Controllers {
                 }
             } catch (Exception ex) {
                 LogController.logError(core, ex);
+            } finally {
+                core.db.executeNonQuery($"update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null where sendSerialNumber={DbController.encodeSQLText(sendSerialNumber)}");
             }
         }
         //

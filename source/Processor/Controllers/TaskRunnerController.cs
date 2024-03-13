@@ -113,13 +113,15 @@ namespace Contensive.Processor.Controllers {
                         long privateMemory = System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64;
                         LogController.log(cpServerGroup.core, "TaskRunner exit, workingSetMemory [" + workingSetMemory + "], virtualMemory [" + virtualMemory + "], privateMemory [" + privateMemory + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
                     }
-                    processTimerInProcess = false;
                 }
             } catch (Exception ex) {
-                using CPClass cp = new(); 
+                using CPClass cp = new();
                 LogController.logError(cp.core, ex);
-            }
+            } finally { 
+                processTimerInProcess = false; 
+            }            
         }
+    
         //
         //====================================================================================================
         /// <summary>

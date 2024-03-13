@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-s",
+      "commandLineArgs": "--tasks run",
       "workingDirectory": "c:\\tmp",
       "jsWebView2Debugging": false
     }

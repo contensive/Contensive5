@@ -49,7 +49,7 @@ namespace Contensive.Processor {
             => core.secrets.awsAccessKey;
         //
         public override string AwsSecretAccessKey
-            => core.secrets.awsAccessKey;
+            => core.secrets.awsSecretAccessKey;
         //
         public override string DefaultDataSourceAddress 
             => core.secrets.defaultDataSourceAddress;
