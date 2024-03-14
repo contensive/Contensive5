@@ -1934,8 +1934,6 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isValidPathFilename(string pathFilename) {
             if (string.IsNullOrEmpty(pathFilename)) { return false; }
-            // path cannot contain .., but a file might
-            //if (pathFilename.Contains("..")) { return false; }
             // -- create string with only path segment and filename characters
             pathFilename = convertLocalAbsToRelativePath(pathFilename);
             pathFilename = pathFilename.Replace("/", "").Replace("\\", "");

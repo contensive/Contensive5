@@ -1,10 +1,8 @@
 
+using Contensive.BaseClasses;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Contensive.BaseClasses;
-using Contensive.Processor;
-using Contensive.Processor.LayoutBuilder;
 
 
 namespace Contensive.Processor.LayoutBuilder {
@@ -161,11 +159,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public string GetHtml(CPBaseClass cp) {
             int hint = 0;
             try {
-                ////
-                //// -- set the optional title of the portal subnav
-                //if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
-                //
-                StringBuilder rowBuilder = new StringBuilder("");
+                StringBuilder rowBuilder = new("");
                 string columnSort = cp.Doc.GetText("columnSort");
                 string csvDownloadContent = "";
                 DateTime rightNow = DateTime.Now;

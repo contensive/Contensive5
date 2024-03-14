@@ -658,10 +658,6 @@ namespace Contensive.Processor.Controllers {
                                                         }
                                                 }
                                             }
-                                            //if (dataRecordList.Count > 0) {
-                                            //    collection.dataRecordList = string.Join(Environment.NewLine, dataRecordList);
-                                            //    collection.save(core.cpParent);
-                                            //}
                                         }
                                     }
                                     //

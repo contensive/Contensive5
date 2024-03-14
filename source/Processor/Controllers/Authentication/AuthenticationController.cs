@@ -467,7 +467,6 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- check for password age (over 180 days) force mfa/fail
                             if ((core.session.user.passwordModifiedDate is not null) && (core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
-                                //if ((core.siteProperties.passwordAgeLockoutDays > 0) && (core.session.user.passwordModifiedDate < DateTime.Now.AddDays(-core.siteProperties.passwordAgeLockoutDays))) {
                                 //
                                 // -- fail, password must be updated
                                 // -- this should exit with mfa requirement

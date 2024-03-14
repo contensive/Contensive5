@@ -1,11 +1,9 @@
 ﻿
 using Contensive.BaseClasses;
-using Contensive.Models.Db;
 using System;
-using System.Data;
 
 namespace Contensive.Processor.Controllers {
-    public class EventController {
+    public static class EventController {
         //
         //====================================================================================================
         /// <summary>

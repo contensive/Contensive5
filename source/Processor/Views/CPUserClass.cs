@@ -1,8 +1,7 @@
 ﻿
-using System;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
-using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor {
@@ -78,8 +77,6 @@ namespace Contensive.Processor {
         public override int IdInSession {
             get {
                 if (cp?.core?.session?.user == null) { return 0; }
-                //if (cp.core.session.user.id > 0) { return cp.core.session.user.id; }
-                //if (!cp.core.siteProperties.allowVisitTracking) { return 0; }
                 return cp.core.session.user.id;
             }
         }

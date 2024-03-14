@@ -967,11 +967,6 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-                //
-                //if(keyHash is null ) {
-                //    logger.Trace("storeCacheDocument, keyHash null");
-                //    return;
-                //}
                 if (cacheDocument is null) {
                     logger.Trace("storeCacheDocument, cacheDocument null, key [{1}]", keyHash.key);
                     return;

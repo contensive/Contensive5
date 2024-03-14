@@ -71,7 +71,6 @@ namespace Contensive.Processor.Controllers {
                         // -- allow Link Login
                         LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
                         if (AuthenticationController.authenticateById(core, core.session, linkToken.id)) {
-                            //trackVisits = true;
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link login", core.session.user.id);
                             return true;
                         }
@@ -80,7 +79,6 @@ namespace Contensive.Processor.Controllers {
                         // -- allow Link Recognize
                         LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
                         if (AuthenticationController.recognizeById(core, core.session, linkToken.id)) {
-                            //trackVisits = true;
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", core.session.user.id);
                             return true;
                         }

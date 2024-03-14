@@ -179,36 +179,10 @@ namespace Tests {
                 // -- addon collection
                 const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
-                ////
-                //// -- test addon returns testString
-                //AddonModel testPageAddon = DbBaseModel.addDefault<AddonModel>(cp);
-                //testPageAddon.name = cp.Utils.GetRandomInteger().ToString();
-                //testPageAddon.dotNetClass = "Contensive.Processor.Addons.TestAddon";
-                //testPageAddon.remoteMethod = true;
-                //testPageAddon.collectionId = baseCollection.id;
-                //testPageAddon.htmlDocument = true;
-                //testPageAddon.save(cp);
+                //
                 //
                 string renderPageContent = cp.Utils.GetRandomInteger().ToString();
                 cp.Doc.SetProperty("test-in", renderPageContent);
-                ////
-                //// -- addonList for page
-                //List<AddonListItemModel_Dup> testAddonList = new();
-                //testAddonList.Add(new AddonListItemModel_Dup() {
-                //    designBlockTypeGuid = renderPageAddon.ccguid,
-                //    designBlockTypeName = "test addon"
-                //});
-                //// -- page to render
-                //PageContentModel testPage = DbBaseModel.addDefault<PageContentModel>(cp);
-                //testPage.name = cp.Utils.GetRandomInteger().ToString();
-                //testPage.addonList = cp.JSON.Serialize(testAddonList);
-                //testPage.save(cp);
-                ////
-                //// -- link alias for render page
-                //LinkAliasModel renderLinkAlias = DbBaseModel.addDefault<LinkAliasModel>(cp);
-                //renderLinkAlias.name = testPage.name;
-                //renderLinkAlias.pageId = testPage.id;
-                //renderLinkAlias.save(cp);
                 //
                 // -- login form addon
                 AddonModel loginAddon = DbBaseModel.addDefault<AddonModel>(cp);
