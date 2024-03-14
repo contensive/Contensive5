@@ -159,7 +159,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public string GetHtml(CPBaseClass cp) {
             int hint = 0;
             try {
-                StringBuilder rowBuilder = new("");
+                StringBuilder rowBuilder;
                 string columnSort = cp.Doc.GetText("columnSort");
                 string csvDownloadContent = "";
                 DateTime rightNow = DateTime.Now;
