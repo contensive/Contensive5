@@ -77,14 +77,14 @@ namespace Contensive.Processor.Controllers {
                     try {
                         string[] pathPage = httpContext.Request.RawUrl.Split('?');
                         pathPage = pathPage[0].Split('#');
-                        _requestPathPage =  pathPage[0];
+                        _requestPathPage = pathPage[0];
                         return _requestPathPage;
                     } catch (Exception) {
                         //
                     }
                 }
                 if (httpContext.Request.ServerVariables == null) { return string.Empty; }
-                _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? core.webServer.httpContext.Request.ServerVariables["SCRIPT_NAME"] : "";
+                _requestPathPage = httpContext.Request.ServerVariables.ContainsKey("SCRIPT_NAME") ? httpContext.Request.ServerVariables["SCRIPT_NAME"] : "";
                 return _requestPathPage;
             }
         }
@@ -98,7 +98,7 @@ namespace Contensive.Processor.Controllers {
         public string requestReferrer {
             get {
                 if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
-                return (httpContext.Request.ServerVariables.ContainsKey("HTTP_REFERER")) ? core.webServer.httpContext.Request.ServerVariables["HTTP_REFERER"] : "";
+                return (httpContext.Request.ServerVariables.ContainsKey("HTTP_REFERER")) ? httpContext.Request.ServerVariables["HTTP_REFERER"] : "";
             }
         }
         //
@@ -115,7 +115,7 @@ namespace Contensive.Processor.Controllers {
                     return local_requestDomain;
                 }
                 //
-                local_requestDomain = core.webServer.httpContext.Request.ServerVariables.ContainsKey("SERVER_NAME") ? core.webServer.httpContext.Request.ServerVariables["SERVER_NAME"] : "";
+                local_requestDomain = httpContext.Request.ServerVariables.ContainsKey("SERVER_NAME") ? httpContext.Request.ServerVariables["SERVER_NAME"] : "";
                 return local_requestDomain;
             }
         }
@@ -133,7 +133,7 @@ namespace Contensive.Processor.Controllers {
                     local_requestSecure = false;
                     return false;
                 }
-                var serverVariables = core.webServer.httpContext.Request.ServerVariables;
+                var serverVariables = httpContext.Request.ServerVariables;
                 local_requestSecure = serverVariables.ContainsKey("SERVER_PORT_SECURE") && encodeBoolean(serverVariables["SERVER_PORT_SECURE"]);
                 return (bool)local_requestSecure;
             }
@@ -146,8 +146,10 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string requestRemoteIP {
             get {
-                if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
-                return (core.webServer.httpContext.Request.ServerVariables.ContainsKey("REMOTE_ADDR")) ? core.webServer.httpContext.Request.ServerVariables["REMOTE_ADDR"] : "";
+                if (httpContext?.Request?.ServerVariables == null) { return string.Empty; }
+                if (httpContext.Request.ServerVariables.ContainsKey("HTTP_X_FORWARDED_FOR")) { return httpContext.Request.ServerVariables["HTTP_X_FORWARDED_FOR"]; };
+                if (httpContext.Request.ServerVariables.ContainsKey("REMOTE_ADDR")) { return httpContext.Request.ServerVariables["REMOTE_ADDR"]; };
+                return "";
             }
         }
         //
@@ -158,7 +160,7 @@ namespace Contensive.Processor.Controllers {
         public string requestBrowser {
             get {
                 if ((httpContext == null) || (httpContext.Request == null) || (httpContext.Request.ServerVariables == null)) { return string.Empty; }
-                return (core.webServer.httpContext.Request.ServerVariables.ContainsKey("HTTP_USER_AGENT")) ? core.webServer.httpContext.Request.ServerVariables["HTTP_USER_AGENT"] : "";
+                return (httpContext.Request.ServerVariables.ContainsKey("HTTP_USER_AGENT")) ? httpContext.Request.ServerVariables["HTTP_USER_AGENT"] : "";
             }
         }
         //
@@ -975,7 +977,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getBrowserAcceptLanguage() {
             try {
-                string AcceptLanguageString = (core.webServer.httpContext.Request.ServerVariables.ContainsKey("HTTP_ACCEPT_LANGUAGE")) ? core.webServer.httpContext.Request.ServerVariables["HTTP_ACCEPT_LANGUAGE"] : "";
+                string AcceptLanguageString = (httpContext.Request.ServerVariables.ContainsKey("HTTP_ACCEPT_LANGUAGE")) ? httpContext.Request.ServerVariables["HTTP_ACCEPT_LANGUAGE"] : "";
                 int CommaPosition = GenericController.strInstr(1, AcceptLanguageString, ",");
                 while (CommaPosition != 0) {
                     string AcceptLanguage = (AcceptLanguageString.left(CommaPosition - 1)).Trim(' ');
