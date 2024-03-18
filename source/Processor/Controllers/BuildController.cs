@@ -190,9 +190,9 @@ namespace Contensive.Processor.Controllers {
                     core.siteProperties.getText("DefaultFormInputTextHeight", "1");
                     core.siteProperties.getText("DefaultFormInputWidth", "60");
                     core.siteProperties.getText("EditLockTimeout", "5");
-                    core.siteProperties.getText("EmailAdmin", "webmaster@" + core.appConfig.domainList[0]);
-                    core.siteProperties.getText("EmailFromAddress", "webmaster@" + core.appConfig.domainList[0]);
-                    core.siteProperties.getText("EmailPublishSubmitFrom", "webmaster@" + core.appConfig.domainList[0]);
+                    core.siteProperties.getText("EmailAdmin", "");
+                    core.siteProperties.getText("EmailFromAddress", "");
+                    core.siteProperties.getText("EmailPublishSubmitFrom", "");
                     core.siteProperties.getText("Language", "English");
                     core.siteProperties.getText("PageContentMessageFooter", "Copyright " + core.appConfig.domainList[0]);
                     core.siteProperties.getText("SelectFieldLimit", "4000");

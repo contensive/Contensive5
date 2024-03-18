@@ -1,6 +1,9 @@
 ﻿
+using Amazon;
+using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
 using System;
+using System.Security.Cryptography;
 using System.Xml;
 
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -67,6 +70,12 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     string desc = $"Cache is disabled. This affects performance. To fix this, set Allow Cache in Site Settings.";
                     cp.Site.SetSiteWarning(warn, desc);
                 }
+                //
+                // -- check for valid default email from-address
+                testEmailSiteProperty(cp, "EMAILADMIN");
+                testEmailSiteProperty(cp, "EMAILFROMADDRESS");
+                testEmailSiteProperty(cp, "EMAILPUBLISHSUBMITFROM");
+                //
                 return;
             } catch (Exception ex) {
                 LogController.logError(env.core, ex);
@@ -75,6 +84,14 @@ namespace Contensive.Processor.Addons.Housekeeping {
             }
             //
 
+        }
+        //
+        // ====================================================================================================
+        //
+        private static void testEmailSiteProperty(CPBaseClass cp, string propertyName ) {
+            if (cp.Site.GetText(propertyName).containsCaseInsensative("@www") || string.IsNullOrEmpty(cp.Site.GetText(propertyName))) { 
+                cp.Site.SetSiteWarning($"Invalid email site property [{propertyName}]", "Invalid email site property [{propertyName}]"); 
+            }
         }
         //
         // ====================================================================================================
