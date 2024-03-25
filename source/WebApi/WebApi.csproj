@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>hello_aspnet</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="ContensiveDbModels">
+      <HintPath>..\Models\bin\Debug\net8.0\ContensiveDbModels.dll</HintPath>
+    </Reference>
+    <Reference Include="CPBase">
+      <HintPath>..\CPBase\bin\Debug\net8.0\CPBase.dll</HintPath>
+    </Reference>
+    <Reference Include="Processor">
+      <HintPath>..\Processor\bin\Debug\net8.0\Processor.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -21,7 +21,7 @@ namespace Contensive.Processor.Controllers.Aws {
                     SecretString = secretValue
                 };
                 var client = new AmazonSecretsManagerClient( region);
-                CreateSecretResponse result = client.CreateSecret(secretRequest);
+                CreateSecretResponse result = client.CreateSecretAsync(secretRequest).Result;
                 return;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -44,7 +44,7 @@ namespace Contensive.Processor.Controllers.Aws {
                     SecretId = secretName
                 };
                 var client = new AmazonSecretsManagerClient(region);
-                GetSecretValueResponse result = client.GetSecretValue(secretRequest);
+                GetSecretValueResponse result = client.GetSecretValueAsync(secretRequest).Result;
                 return result.SecretString;
             } catch (Exception ex) {
                 LogController.logError(core, ex);

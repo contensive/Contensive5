@@ -3,7 +3,7 @@ using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
-using System.ServiceModel.Channels;
+//using System.ServiceModel.Channels;
 
 namespace Contensive.Processor {
     public class CPImageClass : BaseClasses.CPImageBaseClass {

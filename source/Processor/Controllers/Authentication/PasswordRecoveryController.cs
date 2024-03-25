@@ -1,11 +1,8 @@
 ﻿
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
-using Microsoft.VisualBasic.ApplicationServices;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Imaging;
-using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 //

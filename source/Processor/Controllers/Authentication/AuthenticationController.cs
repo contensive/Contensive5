@@ -1,10 +1,7 @@
-﻿using Contensive.BaseClasses;
-using Contensive.Models.Db;
+﻿using Contensive.Models.Db;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
 using System.Linq;
-using System.ServiceModel.Security;
 using System.Threading;
 using static Contensive.Processor.Constants;
 //

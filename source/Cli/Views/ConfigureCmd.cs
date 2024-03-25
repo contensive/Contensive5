@@ -83,7 +83,7 @@ namespace Contensive.CLI {
                         } while (string.IsNullOrWhiteSpace(awsSecretAccessKey));
                         try {
                             AmazonSecurityTokenServiceClient tokenServiceClient = new(awsAccessKey, awsSecretAccessKey);
-                            tokenServiceClient.GetCallerIdentity(new Amazon.SecurityToken.Model.GetCallerIdentityRequest());
+                            tokenServiceClient.GetCallerIdentityAsync(new Amazon.SecurityToken.Model.GetCallerIdentityRequest());
                         } catch (Exception) {
                             //
                             // -- this credential failed, retry

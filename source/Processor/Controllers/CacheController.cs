@@ -567,52 +567,52 @@ namespace Contensive.Processor.Controllers {
             storeObject(keyHash, content, core.dateTimeNowMockable.AddDays(invalidationDaysDefault), new List<CacheKeyHashClass> { });
         }
         //
-        //====================================================================================================
-        /// <summary>
-        /// save a Db Model cache.
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <param name="recordId"></param>
-        /// <param name="tableName"></param>
-        /// <param name="datasourceName"></param>
-        /// <param name="content"></param>
-        public void storeRecord(string guid, int recordId, string tableName, string datasourceName, object content) {
-            if (!allowCache) { return; }
-            CacheKeyHashClass keyHash = createRecordKeyHash(recordId, tableName, datasourceName);
-            storeObject(keyHash, content);
-            CacheKeyHashClass keyPtrHash = createRecordGuidPtrKeyHash(guid, tableName, datasourceName);
-            storePtr(keyPtrHash, keyHash);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// future method. To support a cpbase implementation, but wait until BaseModel is exposed
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="guid"></param>
-        /// <param name="recordId"></param>
-        /// <param name="content"></param>
-        public void storeRecord<T>(string guid, int recordId, object content) where T : DbBaseModel {
-            if (!allowCache) { return; }
-            Type derivedType = this.GetType();
-            FieldInfo fieldInfoTable = derivedType.GetField("tableNameLower");
-            if (fieldInfoTable == null) {
-                throw new GenericException("Class [" + derivedType.Name + "] must declare constant [contentTableName].");
-            } else {
-                string tableName = fieldInfoTable.GetRawConstantValue().ToString();
-                FieldInfo fieldInfoDatasource = derivedType.GetField("contentDataSource");
-                if (fieldInfoDatasource == null) {
-                    throw new GenericException("Class [" + derivedType.Name + "] must declare public constant [contentDataSource].");
-                } else {
-                    string datasourceName = fieldInfoDatasource.GetRawConstantValue().ToString();
-                    CacheKeyHashClass keyHash = createRecordKeyHash(recordId, tableName, datasourceName);
-                    storeObject(keyHash, content);
-                    CacheKeyHashClass keyPtrHash = createRecordGuidPtrKeyHash(guid, tableName, datasourceName);
-                    storePtr(keyPtrHash, keyHash);
-                }
-            }
-        }
-        //
+        ////====================================================================================================
+        ///// <summary>
+        ///// save a Db Model cache.
+        ///// </summary>
+        ///// <param name="guid"></param>
+        ///// <param name="recordId"></param>
+        ///// <param name="tableName"></param>
+        ///// <param name="datasourceName"></param>
+        ///// <param name="content"></param>
+        //public void storeRecord(string guid, int recordId, string tableName, string datasourceName, object content) {
+        //    if (!allowCache) { return; }
+        //    CacheKeyHashClass keyHash = createRecordKeyHash(recordId, tableName, datasourceName);
+        //    storeObject(keyHash, content);
+        //    CacheKeyHashClass keyPtrHash = createRecordGuidPtrKeyHash(guid, tableName, datasourceName);
+        //    storePtr(keyPtrHash, keyHash);
+        //}
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// future method. To support a cpbase implementation, but wait until BaseModel is exposed
+        ///// </summary>
+        ///// <typeparam name="T"></typeparam>
+        ///// <param name="guid"></param>
+        ///// <param name="recordId"></param>
+        ///// <param name="content"></param>
+        //public void storeRecord<T>(string guid, int recordId, object content) where T : DbBaseModel {
+        //    if (!allowCache) { return; }
+        //    Type derivedType = this.GetType();
+        //    FieldInfo fieldInfoTable = derivedType.GetField("tableNameLower");
+        //    if (fieldInfoTable == null) {
+        //        throw new GenericException("Class [" + derivedType.Name + "] must declare constant [contentTableName].");
+        //    } else {
+        //        string tableName = fieldInfoTable.GetRawConstantValue().ToString();
+        //        FieldInfo fieldInfoDatasource = derivedType.GetField("contentDataSource");
+        //        if (fieldInfoDatasource == null) {
+        //            throw new GenericException("Class [" + derivedType.Name + "] must declare public constant [contentDataSource].");
+        //        } else {
+        //            string datasourceName = fieldInfoDatasource.GetRawConstantValue().ToString();
+        //            CacheKeyHashClass keyHash = createRecordKeyHash(recordId, tableName, datasourceName);
+        //            storeObject(keyHash, content);
+        //            CacheKeyHashClass keyPtrHash = createRecordGuidPtrKeyHash(guid, tableName, datasourceName);
+        //            storePtr(keyPtrHash, keyHash);
+        //        }
+        //    }
+        //}
+        ////
         //====================================================================================================
         /// <summary>
         /// set a key ptr. A ptr points to a normal key, creating an altername way to get/invalidate a cache.
@@ -770,11 +770,11 @@ namespace Contensive.Processor.Controllers {
         public string createRecordKey(int recordId, string tableName) {
             return createRecordKey(recordId, tableName, "default");
         }
-        //
-        //====================================================================================================
-        public CacheKeyHashClass createRecordKeyHash(int recordId, string tableName) {
-            return createRecordKeyHash(recordId, tableName, "default");
-        }
+        ////
+        ////====================================================================================================
+        //public CacheKeyHashClass createRecordKeyHash(int recordId, string tableName) {
+        //    return createRecordKeyHash(recordId, tableName, "default");
+        //}
         //
         //====================================================================================================
         /// <summary>
@@ -799,29 +799,29 @@ namespace Contensive.Processor.Controllers {
             return createRecordGuidPtrKey(recordGuid, tableName, "default");
         }
         //
-        //====================================================================================================
-        /// <summary>
-        /// return pointer key used in storePtr() to associate a guid to a record cache
-        /// </summary>
-        /// <param name="guid"></param>
-        /// <param name="tableName"></param>
-        /// <param name="dataSourceName"></param>
-        /// <returns></returns>
-        public CacheKeyHashClass createRecordGuidPtrKeyHash(string guid, string tableName, string dataSourceName) {
-            string key = "dbptr/" + dataSourceName + "/" + tableName + "/ccguid/" + guid + "/";
-            return createKeyHash(key);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// return pointer key used in storePtr() to associate a guid to a record cache
-        /// </summary>
-        /// <param name="recordGuid"></param>
-        /// <param name="tableName"></param>
-        /// <returns></returns>
-        public CacheKeyHashClass createRecordGuidPtrKeyHash(string recordGuid, string tableName) {
-            return createRecordGuidPtrKeyHash(recordGuid, tableName, "default");
-        }
+        ////====================================================================================================
+        ///// <summary>
+        ///// return pointer key used in storePtr() to associate a guid to a record cache
+        ///// </summary>
+        ///// <param name="guid"></param>
+        ///// <param name="tableName"></param>
+        ///// <param name="dataSourceName"></param>
+        ///// <returns></returns>
+        //public CacheKeyHashClass createRecordGuidPtrKeyHash(string guid, string tableName, string dataSourceName) {
+        //    string key = "dbptr/" + dataSourceName + "/" + tableName + "/ccguid/" + guid + "/";
+        //    return createKeyHash(key);
+        //}
+        //////
+        ////====================================================================================================
+        ///// <summary>
+        ///// return pointer key used in storePtr() to associate a guid to a record cache
+        ///// </summary>
+        ///// <param name="recordGuid"></param>
+        ///// <param name="tableName"></param>
+        ///// <returns></returns>
+        //public CacheKeyHashClass createRecordGuidPtrKeyHash(string recordGuid, string tableName) {
+        //    return createRecordGuidPtrKeyHash(recordGuid, tableName, "default");
+        //}
         //
         //====================================================================================================
         /// <summary>
@@ -845,19 +845,19 @@ namespace Contensive.Processor.Controllers {
         public string createRecordNamePtrKey(string recordName, string tableName) {
             return createRecordNamePtrKey(recordName, tableName, "default");
         }
-        //
-        //====================================================================================================
-        //
-        public CacheKeyHashClass createRecordNamePtrKeyHash(string recordName, string tableName, string datasourceName) {
-            string key = createRecordNamePtrKey(recordName, tableName, datasourceName);
-            return createKeyHash(key);
-        }
-        //
-        //====================================================================================================
-        //
-        public CacheKeyHashClass createRecordNamePtrKeyHash(string recordName, string tableName) {
-            return createRecordNamePtrKeyHash(recordName, tableName, "default");
-        }
+        ////
+        ////====================================================================================================
+        ////
+        //public CacheKeyHashClass createRecordNamePtrKeyHash(string recordName, string tableName, string datasourceName) {
+        //    string key = createRecordNamePtrKey(recordName, tableName, datasourceName);
+        //    return createKeyHash(key);
+        //}
+        ////
+        ////====================================================================================================
+        ////
+        //public CacheKeyHashClass createRecordNamePtrKeyHash(string recordName, string tableName) {
+        //    return createRecordNamePtrKeyHash(recordName, tableName, "default");
+        //}
         //
         //====================================================================================================
         /// <summary>
@@ -1034,29 +1034,29 @@ namespace Contensive.Processor.Controllers {
         public string createTableDependencyKey(string tableName) {
             return createTableDependencyKey(tableName, "default");
         }
-        //
-        //====================================================================================================
-        //
-        private static TData DeserializeFromString<TData>(string settings) {
-            byte[] b = Convert.FromBase64String(settings);
-            using (var stream = new MemoryStream(b)) {
-                var formatter = new BinaryFormatter();
-                stream.Seek(0, SeekOrigin.Begin);
-                return (TData)formatter.Deserialize(stream);
-            }
-        }
-        //
-        //====================================================================================================
-        //
-        private static string SerializeToString<TData>(TData settings) {
-            using (var stream = new MemoryStream()) {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(stream, settings);
-                stream.Flush();
-                stream.Position = 0;
-                return Convert.ToBase64String(stream.ToArray());
-            }
-        }
+        ////
+        ////====================================================================================================
+        ////
+        //private static TData DeserializeFromString<TData>(string settings) {
+        //    byte[] b = Convert.FromBase64String(settings);
+        //    using (var stream = new MemoryStream(b)) {
+        //        var formatter = new BinaryFormatter();
+        //        stream.Seek(0, SeekOrigin.Begin);
+        //        return (TData)formatter.Deserialize(stream);
+        //    }
+        //}
+        ////
+        ////====================================================================================================
+        ////
+        //private static string SerializeToString<TData>(TData settings) {
+        //    using (var stream = new MemoryStream()) {
+        //        var formatter = new BinaryFormatter();
+        //        formatter.Serialize(stream, settings);
+        //        stream.Flush();
+        //        stream.Position = 0;
+        //        return Convert.ToBase64String(stream.ToArray());
+        //    }
+        //}
         //
         //====================================================================================================
         //
