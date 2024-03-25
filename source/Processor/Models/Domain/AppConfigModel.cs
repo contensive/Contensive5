@@ -24,11 +24,11 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public override AppStatusEnum appStatus { get; set; } // = AppStatusEnum.maintenance;
         /// <summary>
-        /// when false, app throws exception
+        /// Set to false to disable the app. Attempt to use it will fail. Listing applicaitons will skip it.
         /// </summary>
         public override bool enabled { get; set; }  //= false;
         /// <summary>
-        /// key used for all encoding, two=way and one-way encoding. 
+        /// key used for all encryption, one-way (hash) and two-way (encrypt)
         /// </summary>
         public override string privateKey { get; set; } // = "";
         /// <summary>
