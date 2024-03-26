@@ -153,7 +153,7 @@ rem
 c:
 copy "C:\Git\Contensive5\xsd\*.xsd" "%deploymentFolderRoot%%versionNumber%\"
 
-pause
+rem pause
 
 rem ==============================================================
 rem
@@ -272,7 +272,7 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
-rem pause
+ pause
 
 
 rem ==============================================================
