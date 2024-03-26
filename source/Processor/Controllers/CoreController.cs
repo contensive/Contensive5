@@ -572,7 +572,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="cp"></param>
         /// <remarks></remarks>
-        public CoreController(CPClass cp) : this(cp, null, null, false) {}
+        public CoreController(CPClass cp) : this(cp, null, null, false) { }
         //
         //====================================================================================================
         /// <summary>
@@ -582,7 +582,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="appName"></param>
         /// <remarks></remarks>
-        public CoreController(CPClass cp, string appName) : this(cp, appName, null, false) {}
+        public CoreController(CPClass cp, string appName) : this(cp, appName, null, false) { }
         //
         //====================================================================================================
         /// <summary>
@@ -593,13 +593,13 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="appName"></param>
         /// <remarks></remarks>
-        public CoreController(CPClass cp, string appName, bool allowSession) : this(cp, appName, null, allowSession) {}
+        public CoreController(CPClass cp, string appName, bool allowSession) : this(cp, appName, null, allowSession) { }
         //
         //====================================================================================================
         /// <summary>
         /// coreClass constructor for a web request/response environment. coreClass is the primary object internally, created by cp.
         /// </summary>
-        public CoreController(CPClass cp, string appName, HttpContextModel httpContext) : this(cp, appName, httpContext, true) {}
+        public CoreController(CPClass cp, string appName, HttpContextModel httpContext) : this(cp, appName, httpContext, true) { }
         //
         //====================================================================================================
         /// <summary>
@@ -665,14 +665,14 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- initialize session
                     session = new(this, allowVisit && siteProperties.allowVisitTracking);
+                    //
+                    // -- authentication event if appName is valid
+                    //
+                    if (string.IsNullOrEmpty(appName)) { return; }
+                    //
+                    _ = AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this);
+                    _ = EventController.throwEvent(this, "authentication event");
                 }
-                //
-                // -- authentication event if appName is valid
-                //
-                if (string.IsNullOrEmpty(appName)) { return;  }
-                //
-                AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this);
-                EventController.throwEvent(this, "authentication event");
             } catch (Exception ex) {
                 LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
                 throw;
