@@ -115,7 +115,8 @@ public class ConfigurationClass {
             // -- setup request
             httpContext.Request.EnableBuffering();
             using (StreamReader reader= new StreamReader(httpContext.Request.Body, Encoding.UTF8, true, 1024, true)) {
-                context.Request.requestBody = reader.ReadToEnd();
+                context.Request.requestBody = reader.ReadToEndAsync().Result;
+                //context.Request.requestBody = reader.ReadToEnd();
             }
             httpContext.Request.Body.Position = 0;
 
@@ -125,7 +126,9 @@ public class ConfigurationClass {
                 AbsoluteUri = requestUri.Scheme + "://" + requestUri.Host + requestUri.PathAndQuery,
                 Port = requestUri.Port
             };
-            context.Request.UrlReferrer = new Uri(httpContext.Request.Headers["Referer"].ToString());
+            string uriString = httpContext.Request.Headers["Referer"].ToString();
+            context.Request.UrlReferrer = null;
+            context.Request.UrlReferrer = string.IsNullOrEmpty(uriString) ? new Uri() : new Uri(uriString);
             // 
             context.Request.RawUrl = httpContext.Request.GetEncodedUrl();
             // 
