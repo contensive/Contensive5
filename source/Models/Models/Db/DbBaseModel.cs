@@ -1042,11 +1042,17 @@ namespace Contensive.Models.Db {
                 Type instanceType = this.GetType();
                 string tableName = derivedTableName(instanceType);
                 string datasourceName = derivedDataSourceName(instanceType);
+                List<string> usedFieldList = new();
                 //
                 // -- create all the sql update pairs for every property set
                 var sqlPairs = new NameValueCollection();
                 foreach (PropertyInfo instanceProperty in this.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public)) {
-                    switch (instanceProperty.Name.ToLowerInvariant()) {
+                    string fieldNameNormalized = instanceProperty.Name.ToLowerInvariant();
+                    if (usedFieldList.Contains(fieldNameNormalized)) {
+                        throw new Exception($"Database Model {tableName} contains two properties that differ only by case [{fieldNameNormalized}]");
+                    }
+                    usedFieldList.Add(fieldNameNormalized);
+                    switch (fieldNameNormalized) {
                         case "id": {
                                 break;
                             }
@@ -1182,7 +1188,7 @@ namespace Contensive.Models.Db {
                                                 //
                                                 // -- save content
                                                 if (string.IsNullOrEmpty(fileFieldFilename)) {
-                                                    fileFieldFilename = cp.Db.CreateFieldPathFilename(tableName, instanceProperty.Name.ToLowerInvariant(), id, fieldTypeId);
+                                                    fileFieldFilename = cp.Db.CreateFieldPathFilename(tableName, fieldNameNormalized, id, fieldTypeId);
                                                     fileFieldFilenameProperty.SetValue(textFileProperty, fileFieldFilename);
                                                 }
                                                 cp.CdnFiles.Save(fileFieldFilename, fileFieldContent);
