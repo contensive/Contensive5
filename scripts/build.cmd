@@ -153,7 +153,7 @@ rem
 c:
 copy "C:\Git\Contensive5\xsd\*.xsd" "%deploymentFolderRoot%%versionNumber%\"
 
-pause
+rem pause
 
 rem ==============================================================
 rem
@@ -179,7 +179,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-pause
+rem pause
 
 
 rem asssembly product version was set 20.0.0.0, properties, package, packageid was
@@ -204,7 +204,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-pause
+rem pause
 
 dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
@@ -275,7 +275,7 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
-rem pause
+pause
 
 
 rem ==============================================================

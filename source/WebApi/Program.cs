@@ -1,4 +1,7 @@
+using Contensive.Processor.Models.Domain;
+using Microsoft.Web.Administration;
 using System.Diagnostics;
+using System.Text;
 
 internal class Program {
     private static void Main(string[] args) {
@@ -31,20 +34,43 @@ internal class Program {
         //app.MapGet("/customers/{id}", (int id, string option) => $"customer route that is an integer segment, {id}, and option querystring {option}");
         app.MapGet("/customers/{id}/{thing}", (int id, string thing) => $"customer route with an integer then string segment,  {id}, {thing}");
         //
-        app.MapGet("/admin", () => {
-            string appName = "c5test";
-            Contensive.Processor.Models.Domain.HttpContextModel context = new();
-            string content = "";
-            using (Contensive.Processor.CPClass cp = new(appName, context)) {
-                content = cp.executeRoute("/admin");
-            }
-            return content;
+        app.MapGet("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
+            return adminRoute(request, response, iisContext);
         });
-
+        app.MapPost("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
+            return adminRoute(request, response, iisContext);
+        });
         app.Run("http://localhost:5099");
     }
-
     public static string someRoute() {
         return "method test";
     }
+    public static IResult adminRoute(HttpRequest request, HttpResponse response, HttpContext iisContext) {
+
+        string appName = "c5test";
+        HttpContextModel context = ConfigurationClass.buildContext(appName, iisContext);
+        //HttpContextModel context = new();
+        string content = "";
+        using (Contensive.Processor.CPClass cp = new(appName, context)) {
+            //
+            // need to add request and set response -- ?middleware
+            //
+            content = cp.executeRoute("/admin");
+        }
+        //return content;
+        return Results.Content(content, "text/html");
+    }
+    ////
+    // // middleware
+
+    //public async Task InvokeAsync(HttpContext httpContext) {
+    //    try {
+    //        httpContext.Request.EnableBuffering();
+    //        string requestBody = await new StreamReader(httpContext.Request.Body, Encoding.UTF8).ReadToEndAsync();
+    //        httpContext.Request.Body.Position = 0;
+    //        Console.WriteLine($"Request body: {requestBody}");
+    //    } catch (Exception ex) {
+    //        Console.WriteLine($"Exception reading request: {ex.Message}");
+    //    }
+    //}
 }

@@ -8,6 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\CPBase\CPBase.csproj" />
+    <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\Processor\Processor.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="ContensiveDbModels">
       <HintPath>..\Models\bin\Debug\net8.0\ContensiveDbModels.dll</HintPath>
     </Reference>
