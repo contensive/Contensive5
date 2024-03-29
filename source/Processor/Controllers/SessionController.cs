@@ -257,19 +257,18 @@ namespace Contensive.Processor.Controllers {
                         // -- setup referrer
                         if (!string.IsNullOrEmpty(core.webServer.requestReferrer)) {
                             string WorkingReferer = core.webServer.requestReferrer;
-                            int SlashPosition = GenericController.strInstr(1, WorkingReferer, "//");
+                            int SlashPosition = strInstr(1, WorkingReferer, "//");
                             if ((SlashPosition != 0) && (WorkingReferer.Length > (SlashPosition + 2))) {
                                 WorkingReferer = WorkingReferer.Substring(SlashPosition + 1);
                             }
                             SlashPosition = strInstr(1, WorkingReferer, "/");
                             if (SlashPosition == 0) {
                                 visit.refererPathPage = "";
-                                visit.http_referer = WorkingReferer;
+                                visit.http_referer = WorkingReferer.substringSafe(0, 254);
                             } else {
-                                visit.refererPathPage = WorkingReferer.Substring(SlashPosition - 1);
-                                visit.http_referer = WorkingReferer.left(SlashPosition - 1);
+                                visit.refererPathPage = WorkingReferer.Substring(SlashPosition - 1).substringSafe(0, 254);
+                                visit.http_referer = WorkingReferer.left(SlashPosition - 1).substringSafe(0, 254);
                             }
-                            visit.refererPathPage = visit.refererPathPage.substringSafe(0, 240);
                         }
                         //
                         // -- setup browser
