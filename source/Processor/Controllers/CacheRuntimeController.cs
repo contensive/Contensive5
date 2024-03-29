@@ -1,6 +1,7 @@
 ﻿using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Contensive.Processor.Controllers {
@@ -138,22 +139,22 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// A dictionary of addon collection.namespace.class and the file assembly where it was found. Built during execution, stored in cache
         /// </summary>
-        public Dictionary<string, AssemblyFileDetails> assemblyFileDict {
+        public ConcurrentDictionary<string, AssemblyFileDetails> assemblyFileDict {
             get {
                 if (_assemblyFileDict != null) { return _assemblyFileDict; }
                 //
                 // -- if remote-mode collections.xml file is updated, invalidate cache
                 if (!core.privateFiles.localFileStale(AddonController.getPrivateFilesAddonPath() + "Collections.xml")) {
-                    _assemblyFileDict = core.cache.getObject<Dictionary<string, AssemblyFileDetails>>(AssemblyFileDictCacheName);
+                    _assemblyFileDict = core.cache.getObject<ConcurrentDictionary<string, AssemblyFileDetails>>(AssemblyFileDictCacheName);
                 }
                 if (_assemblyFileDict == null) {
-                    _assemblyFileDict = new Dictionary<string, AssemblyFileDetails>();
+                    _assemblyFileDict = new ConcurrentDictionary<string, AssemblyFileDetails>();
                 }
                 return _assemblyFileDict;
             }
         }
         //
-        private Dictionary<string, AssemblyFileDetails> _assemblyFileDict;
+        private ConcurrentDictionary<string, AssemblyFileDetails> _assemblyFileDict;
         private const string AssemblyFileDictCacheName = "assemblyFileDict";
         //
         private void assemblyFileDict_Clear() {

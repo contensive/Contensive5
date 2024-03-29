@@ -76,7 +76,7 @@ public class ConfigurationClass {
     //            HttpContext.Current.Application["routeMapDateCreated"] = cp.routeMap.dateCreated;
     //            // 
     //            RouteTable.Routes.Clear();
-    //            foreach (var newRouteKeyValuePair in cp.routeMap.routeDictionary) {
+    //            foreach (var newRouteKeyValuePair in cp.routeMap.routeConcurrentDictionary) {
     //                try {
     //                    RouteTable.Routes.Remove(RouteTable.Routes[newRouteKeyValuePair.Key]);
     //                    RouteTable.Routes.MapPageRoute(newRouteKeyValuePair.Value.virtualRoute, newRouteKeyValuePair.Value.virtualRoute, newRouteKeyValuePair.Value.physicalRoute);
@@ -127,8 +127,7 @@ public class ConfigurationClass {
                 Port = requestUri.Port
             };
             string uriString = httpContext.Request.Headers["Referer"].ToString();
-            context.Request.UrlReferrer = null;
-            context.Request.UrlReferrer = string.IsNullOrEmpty(uriString) ? new Uri() : new Uri(uriString);
+            context.Request.UrlReferrer = string.IsNullOrEmpty(uriString) ? null : new Uri(uriString);
             // 
             context.Request.RawUrl = httpContext.Request.GetEncodedUrl();
             // 
@@ -205,10 +204,10 @@ public class ConfigurationClass {
     /// <param name="store"></param>
     public static void storeNameValues(NameValueCollection nameValues, Dictionary<string, string> store, bool skipEmptyValues) {
         for (int i = 0, loopTo = nameValues.Count - 1; i <= loopTo; i++) {
-            string value = nameValues.Get(i);
+            string value = nameValues.Get(i) ?? "";
             if (skipEmptyValues && string.IsNullOrWhiteSpace(value))
                 continue;
-            string key = nameValues.GetKey(i);
+            string key = nameValues.GetKey(i) ?? "";
             if (string.IsNullOrWhiteSpace(key))
                 continue;
             if (store.ContainsKey(key))

@@ -1,7 +1,4 @@
 using Contensive.Processor.Models.Domain;
-using Microsoft.Web.Administration;
-using System.Diagnostics;
-using System.Text;
 
 internal class Program {
     private static void Main(string[] args) {

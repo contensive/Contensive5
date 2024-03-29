@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using System.Collections.Concurrent;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -349,7 +350,7 @@ namespace Contensive.Processor.Controllers {
                 _requestCookies = new Dictionary<string, CookieClass>();
                 if (httpContext?.Request?.Cookies == null) { return _requestCookies; }
                 //
-                // -- add httpContet request cookies to the local simple name/value request cookies dictionary
+                // -- add httpContet request cookies to the local simple name/value request cookies ConcurrentDictionary
                 foreach (var kvp in httpContext.Request.Cookies) {
                     if (!_requestCookies.ContainsKey(kvp.Key)) {
                         //

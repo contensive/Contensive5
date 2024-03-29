@@ -1082,7 +1082,7 @@ namespace Contensive.Processor.Controllers {
                                                 TabHeading = xml_GetAttribute(IsFound, SettingNode, "heading", "");
                                                 TabCell = new StringBuilderLegacyController();
                                                 foreach (XmlNode TabNode in SettingNode.ChildNodes) {
-                                                    if(TabNode.NodeType==XmlNodeType.Comment) { continue; }
+                                                    if (TabNode.NodeType == XmlNodeType.Comment) { continue; }
                                                     //
                                                     int SQLPageSize = 0;
                                                     int ErrorNumber = 0;
@@ -1122,7 +1122,7 @@ namespace Contensive.Processor.Controllers {
                                                                     if (!string.IsNullOrEmpty(FieldAddon)) {
                                                                         //
                                                                         // Use Editor Addon
-                                                                        Dictionary<string, string> arguments = new Dictionary<string, string> {
+                                                                        Dictionary<string, string> arguments = new() {
                                                                             { "FieldName", fieldName },
                                                                             { "FieldValue", core.siteProperties.getText(fieldName, FieldDefaultValue) }
                                                                         };
@@ -1528,17 +1528,10 @@ namespace Contensive.Processor.Controllers {
                     if (addonFound) {
                         //
                         // -- addon found, save addonsFound list and return the addon result
-                        // -- lock to prevent change between containsKey and add
-                        object lockObj = new object();
-                        lock (lockObj) {
-                            if (!core.cacheRuntime.assemblyFileDict.ContainsKey(assemblyFileDictKey)) {
-                                core.cacheRuntime.assemblyFileDict.Add(assemblyFileDictKey, new AssemblyFileDetails {
-                                    pathFilename = testDosAbsPathFilename,
-                                    path = ""
-                                });
-                                core.cacheRuntime.assemblyFileDict_save();
-                            }
-                        }
+                        if (core.cacheRuntime.assemblyFileDict.TryAdd(assemblyFileDictKey, new AssemblyFileDetails {
+                            pathFilename = testDosAbsPathFilename,
+                            path = ""
+                        })) { core.cacheRuntime.assemblyFileDict_save(); }
                         return returnValue;
                     }
                 }
@@ -1724,7 +1717,7 @@ namespace Contensive.Processor.Controllers {
         /// Execute the addon in a background process.
         /// </summary>
         /// <param name="addon"></param>
-        public void executeAsProcess(AddonModel addon) => executeAsProcess(addon, new Dictionary<string, string>());
+        public void executeAsProcess(AddonModel addon) => executeAsProcess(addon, []);
         //
         //====================================================================================================================
         /// <summary>
@@ -1961,7 +1954,7 @@ namespace Contensive.Processor.Controllers {
         public string xml_GetAttribute(bool found, XmlNode Node, string Name, string defaultIfNotFound) {
             try {
                 found = false;
-                if (Node?.Attributes == null) {  return defaultIfNotFound; }
+                if (Node?.Attributes == null) { return defaultIfNotFound; }
                 //
                 XmlNode ResultNode = Node.Attributes.GetNamedItem(Name);
                 if (ResultNode != null) {
