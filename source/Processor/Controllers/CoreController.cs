@@ -670,8 +670,9 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (string.IsNullOrEmpty(appName)) { return; }
                     //
-                    _ = AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this);
-                    _ = EventController.throwEvent(this, "authentication event");
+                    if (!AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this)) {
+                        _ = EventController.throwEvent(this, "authentication event");
+                    }
                 }
             } catch (Exception ex) {
                 LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);

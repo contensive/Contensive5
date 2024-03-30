@@ -1559,6 +1559,21 @@ namespace Contensive.Processor.Controllers {
                 //
                 Assembly testAssembly = null;
                 addonFound = false;
+                // -- trap out system assemblies (.net 8 sql assembly throws structure error)
+                string assemblyFilename = System.IO.Path.GetFileName(assemblyPrivateAbsPathFilename);
+                if (assemblyFilename is null) { return ""; }
+                if (assemblyFilename.substringSafe(0, 7).ToLowerInvariant().Equals("system.")) {
+                    if (!core.assemblyList_NonAddonsInstalled.Contains(assemblyPrivateAbsPathFilename.ToLowerInvariant())) {
+                        core.assemblyList_NonAddonsInstalled.Add(assemblyPrivateAbsPathFilename.ToLowerInvariant());
+                    }
+                    return "";
+                }
+                if (assemblyFilename.substringSafe(0, 10).ToLowerInvariant().Equals("microsoft.")) {
+                    if (!core.assemblyList_NonAddonsInstalled.Contains(assemblyPrivateAbsPathFilename.ToLowerInvariant())) {
+                        core.assemblyList_NonAddonsInstalled.Add(assemblyPrivateAbsPathFilename.ToLowerInvariant());
+                    }
+                    return "";
+                }
                 try {
                     //
                     // -- "once an assembly is loaded into an appdomain, it's there for the life of the appdomain."

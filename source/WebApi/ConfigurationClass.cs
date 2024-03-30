@@ -114,7 +114,7 @@ public class ConfigurationClass {
             // 
             // -- setup request
             httpContext.Request.EnableBuffering();
-            using (StreamReader reader= new StreamReader(httpContext.Request.Body, Encoding.UTF8, true, 1024, true)) {
+            using (StreamReader reader = new StreamReader(httpContext.Request.Body, Encoding.UTF8, true, 1024, true)) {
                 context.Request.requestBody = reader.ReadToEndAsync().Result;
                 //context.Request.requestBody = reader.ReadToEnd();
             }
@@ -140,23 +140,29 @@ public class ConfigurationClass {
             }
             // 
             // -- request querystring
-            if (!string.IsNullOrEmpty( httpContext.Request.QueryString.Value)) {
-                foreach (var qs in httpContext.Request.QueryString.Value.Split('&')) {
-                    string[] keyValue = qs.Split('=');
-                    if(string.IsNullOrEmpty(keyValue[0])) { continue;  }
-                    if(keyValue.Length > 1) {
-                        context.Request.QueryString.Add(keyValue[0], keyValue[1]);
-                    } else {
-                        context.Request.QueryString.Add(keyValue[0], "");
+            if (!string.IsNullOrEmpty(httpContext.Request.QueryString.Value)) {
+                string qs = httpContext.Request.QueryString.Value;
+                if (qs.Substring(0, 1).Equals("?")) { qs = qs.Substring(1); }
+                if (!string.IsNullOrEmpty(qs)) {
+                    foreach (var nvPair in qs.Split('&')) {
+                        string[] keyValue = nvPair.Split('=');
+                        if (string.IsNullOrEmpty(keyValue[0])) { continue; }
+                        if (keyValue.Length > 1) {
+                            context.Request.QueryString.Add(keyValue[0], keyValue[1]);
+                        } else {
+                            context.Request.QueryString.Add(keyValue[0], "");
+                        }
                     }
                 }
             }
             // 
             // -- request form
-            if(context.Request.Headers.ContainsKey("content-type")) {
+            if (context.Request.Headers.ContainsKey("content-type")) {
                 if (httpContext.Request.Form is not null) {
                     foreach (var fc in httpContext.Request.Form) {
-                        context.Request.Form.Add(fc.Key, fc.Value);
+                        if (!string.IsNullOrEmpty(fc.Key)) {
+                            if (!context.Request.Form.ContainsKey(fc.Key)) { context.Request.Form.Add(fc.Key, fc.Value); }
+                        }
                     }
                 }
             }
