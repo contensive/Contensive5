@@ -197,6 +197,8 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+rem dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber%
+rem dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building common solution
@@ -206,12 +208,18 @@ if errorlevel 1 (
 
 rem pause
 
+rem dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber%
 dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building common solution
    pause
    exit /b %errorlevel%
 )
+
+rem hack - taskservice net472 is not sdk project and project dependency does not copy exe into bin
+xcopy TaskService\bin\Debug\taskservice.exe Cli\bin\Debug\net472\taskservice.exe
+
+pause
 
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472

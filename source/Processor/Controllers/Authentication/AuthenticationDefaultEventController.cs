@@ -18,6 +18,14 @@ namespace Contensive.Processor.Controllers {
         /// <returns>Return true if successful authentication.</returns>
         public static bool processAuthenticationDefaultEvent(CoreController core) {
             //
+            // -- default username/password login
+            string requestUsername = core.docProperties.getText("username");
+            string requestPassword = core.docProperties.getText("password");
+            bool passwordRequestValid = !string.IsNullOrEmpty(core.docProperties.getText("password"));
+            if (LoginController.processLoginPage_Default(core, requestUsername, requestPassword, passwordRequestValid)) {
+                return true;
+            }
+            //
             // -- authentication from form/querystring, authAction=login, authUsername+authPassword
             //
             bool authenticationProcessSuccess = false;

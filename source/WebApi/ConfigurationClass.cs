@@ -140,17 +140,24 @@ public class ConfigurationClass {
             }
             // 
             // -- request querystring
-            if (httpContext.Request.QueryString.Value != null) {
+            if (!string.IsNullOrEmpty( httpContext.Request.QueryString.Value)) {
                 foreach (var qs in httpContext.Request.QueryString.Value.Split('&')) {
                     string[] keyValue = qs.Split('=');
-                    context.Request.QueryString.Add(keyValue[0], keyValue[1]);
+                    if(string.IsNullOrEmpty(keyValue[0])) { continue;  }
+                    if(keyValue.Length > 1) {
+                        context.Request.QueryString.Add(keyValue[0], keyValue[1]);
+                    } else {
+                        context.Request.QueryString.Add(keyValue[0], "");
+                    }
                 }
             }
             // 
             // -- request form
-            if (httpContext.Request.Form  != null) {
-                foreach (var fc in httpContext.Request.Form) {
-                    context.Request.QueryString.Add(fc.Key, fc.Value);
+            if(context.Request.Headers.ContainsKey("content-type")) {
+                if (httpContext.Request.Form is not null) {
+                    foreach (var fc in httpContext.Request.Form) {
+                        context.Request.Form.Add(fc.Key, fc.Value);
+                    }
                 }
             }
             //// 
