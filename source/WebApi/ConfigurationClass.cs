@@ -121,7 +121,7 @@ public class ConfigurationClass {
             httpContext.Request.Body.Position = 0;
 
             context.Request.ContentType = httpContext.Request.ContentType;
-            Uri requestUri = new Uri(httpContext.Request.GetEncodedUrl());
+            Uri requestUri = new(httpContext.Request.GetEncodedUrl());
             context.Request.Url = new HttpContentRequestUrl() {
                 AbsoluteUri = requestUri.Scheme + "://" + requestUri.Host + requestUri.PathAndQuery,
                 Port = requestUri.Port

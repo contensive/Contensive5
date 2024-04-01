@@ -1,0 +1,220 @@
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/*
+  modifications for mobile view
+*/
+ @media only screen and (max-width: 500px) {
+  .split.left, .split.left .left {
+    display: none;
+  }  
+  .split.right, .split.right .right {
+    width: 100%;
+	background-color: white;
+  }
+  header {
+	display:none;
+  }
+}
+
+
+/* form labels */
+label {
+	color: black;
+}
+
+/* Split the screen in half */
+/* duplicate style
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+*/
+/* Control the left side
+.left {
+  left: 0;
+  background-color: #111;
+}
+*/
+/* Control the right side
+.right {
+  right: 0;
+  background-color: red;
+}
+*/
+ .form {
+        max-width: 400px;
+        margin: 60px auto;
+    }
+
+    .grey800 {
+        color: #343a40;
+    }
+    .warnMessage p {
+      margin:0;
+    }
+
+/* If you want the content centered horizontally and vertically */
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+/* Style the image inside the centered container, if needed */
+.centered img {
+  width: 150px;
+  border-radius: 50%;
+}
+body {
+  font-family: Arial;
+  color: white;
+}
+
+.split {
+  height: 100%;
+  width: 50%;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  overflow-x: hidden;
+  padding-top: 20px;
+}
+
+.left {
+  left: 0;
+  background-color: red;
+    background: url(https://cjx.09a.myftpupload.com/menucrm_reg-bkg.png) no-repeat center top; 
+     background-size: cover; 
+     height:100vh;    
+}
+
+.right {
+  right: 0;
+  background-color: #fff;
+}
+
+.centered {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: left;
+}
+
+.centered img {
+  width: 150px;
+  border-radius: 50%;
+}
+
+h2 {
+	padding-left: 20px;
+	color: black;
+	font-family: "Open Sans"
+}
+
+p {
+	padding-left: 20px;
+	color: black;
+	font-family: "Open Sans"
+}
+
+.button-container {
+  display: flex;
+  /*width: 65%; !important;*/
+  justify-content: space-between;
+  padding:25px;
+}
+
+.left-button {
+  /* styles for left button */
+    background-color: #000000;
+  	width: 45%; !important;
+	font-size: 16px;
+	color: #fff;
+	padding-right; 20px;
+	border-radius: 8px;
+	height: 42px;
+}
+
+.right-button {
+  /* styles for right button */
+    background-color: #f70d0d;
+  	width: 45%; !important;
+	font-size: 16px;
+	color: #fff;
+	padding-right; 10px;
+	border-radius: 8px;
+	height: 42px;
+}
+
+
+
+.w-100 {
+	width: 65%; !important;
+	font-size: 16px;
+	color: #fff;
+	background-color: #0d6efd;
+	padding; 8px;
+	border-radius: 8px;
+	height: 42px;
+}
+
+
+</style>
+
+<form action="{{formAction}}" enctype="multipart/form-data" method="post" style="display:inline">
+	<div class="split left">
+	  <div class="centered">
+		<!--<img src="img_avatar2.png" alt="Avatar woman">
+		<h2>Jane Flex</h2>
+		<p>Some text.</p>-->
+	  </div>
+	</div>
+
+	<div class="split right">
+		<div class="right">
+			<!--<img src="img_avatar.png" alt="Avatar man">-->
+			<img style="left" src="https://www.menucrm.com/img/text-logo.png" alt="menucrm logo">
+			<div class="outer">
+				<div class="p-4 inner">
+					<h2 class="text-left mb-4">Create Free Account</h2> 
+					<p class="text-center mb-4">To get started, let us know which digital service you would like to trial for FREE. <!--Plans start at just $29 per month.--></p>
+					<!--<p class="text-center mb-4">Already signed up? <a href="/v1/dashboard">Log in here.</a></p>-->
+					{{#warningMessage}}
+						<div class="warnMessage p-3 mb-4 bg-danger text-white"><p>{{warningMessage}}</p></div>
+					{{/warningMessage}}
+					<div class="form">
+						<div>{{#items}}
+							<div class="mb-4 form-check">
+								<input class="form-check-input" name="item{{itemKey}}" value="1" type="checkbox" id="itemLabel{{itemKey}}" aria-describedby="MenuManagerHelp" {{#itemselected}}checked{{/itemselected}}="">
+								<label class="form-check-label" for="itemLabel{{itemKey}}">
+								  <b>{{itemName}}</b>
+								</label>
+								<div id="MenuManagerHelp" class="form-text grey800">{{{itemDescription}}}</div>
+							</div>    
+								
+								
+						{{/items}}</div>
+						<div>      
+						<!--<button type="submit" name="button" value="{{buttonContinueValue}}" class="mb-4 p-2 btn btn-primary w-100">Continue</button>-->
+						<input type="hidden" name="registrationKey" value="{{registrationKey}}">
+						<input type="hidden" name="srcViewId" value="{{srcViewId}}">
+					  </div>
+					</div>
+				</div>
+			</div>
+			<div class="button-container">
+			   <!-- <button name="button" value="continue" class="left-button">Button 1</button> -->
+			   <button type="submit" name="button" value="continue" class="right-button">Continue</button>
+			</div>
+		</div>
+	</div>
+</form>        
+     
