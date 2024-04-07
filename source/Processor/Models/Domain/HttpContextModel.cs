@@ -114,6 +114,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public Dictionary<string, string> Headers { get; set; }
         //
+        // -- 240407
         //====================================================================================================
         /// <summary>
         /// 
@@ -149,13 +150,13 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// port
         /// </summary>
-        public int Port;
+        public int Port {  get; set; }
         //
         //====================================================================================================
         /// <summary>
         /// 
         /// </summary>
-        public string AbsoluteUri;
+        public string AbsoluteUri {  get; set; }
     }
     //
     //====================================================================================================
@@ -168,13 +169,13 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// 
         /// </summary>
-        public string Name;
+        public string Name { get; set; }
         //
         //====================================================================================================
         /// <summary>
         /// 
         /// </summary>
-        public string Value;
+        public string Value { get; set; }
     }
     //
     //====================================================================================================

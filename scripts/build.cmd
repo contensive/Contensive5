@@ -217,9 +217,9 @@ if errorlevel 1 (
 )
 
 rem hack - taskservice net472 is not sdk project and project dependency does not copy exe into bin
-xcopy TaskService\bin\Debug\taskservice.exe Cli\bin\Debug\net472\taskservice.exe
+xcopy TaskService\bin\Debug\taskservice.exe Cli\bin\Debug\net472\
 
-pause
+rem pause
 
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
@@ -283,7 +283,7 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
-pause
+rem pause
 
 
 rem ==============================================================

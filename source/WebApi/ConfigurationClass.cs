@@ -10,11 +10,14 @@
 //using Microsoft.VisualBasic.CompilerServices;
 
 using Amazon.Runtime.Internal.Transform;
+using Amazon.SimpleEmail;
 using Contensive.Processor.Models.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.ClearScript;
 using System.Collections.Specialized;
 using System.IO;
+using System.Net;
 using System.Text;
 
 public class ConfigurationClass {
@@ -131,12 +134,24 @@ public class ConfigurationClass {
             context.Request.UrlReferrer = string.IsNullOrEmpty(uriString) ? null : new Uri(uriString);
             // 
             context.Request.RawUrl = httpContext.Request.GetEncodedUrl();
-            // 
-            // -- server variables
-            foreach (var header in httpContext.ser .GetServerVariable) {
-                context.Request.ServerVariables.Add(header.Key, header.Value);
-            }
-            //storeNameValues(httpContext.GetServerVariable(), context.Request.ServerVariables, true);
+            //
+            // todo - map these to their own request arguments, remove servervariables
+            //
+            int? requestPort = httpContext.Request.Host.Port;
+            Uri? referrerUri = httpContext.Request.GetTypedHeaders().Referer;
+            string requestReferrer = referrerUri == null ? "" : "";
+            var requestBrowserLang = httpContext.Request.Headers["Accept-Language"].ToString().Split(";").FirstOrDefault()?.Split(",").FirstOrDefault();
+            IPAddress? remoteIPAddressObj =  httpContext.Connection.RemoteIpAddress;
+            string remoteIPAddress = remoteIPAddressObj == null ? "" : remoteIPAddressObj.ToString();
+            //
+            context.Request.ServerVariables.Add("SCRIPT_NAME", httpContext.Request.Path);
+            context.Request.ServerVariables.Add("SERVER_NAME", httpContext.Request.Host.Host);
+            context.Request.ServerVariables.Add("HTTP_REFERER", requestReferrer);
+            context.Request.ServerVariables.Add("SERVER_PORT_SECURE", (requestPort ?? 0) == 443 ? "true" : "false");
+            context.Request.ServerVariables.Add("HTTP_X_FORWARDED_FOR", httpContext.GetServerVariable("HTTP_X_FORWARDED_FOR"));
+            context.Request.ServerVariables.Add("REMOTE_ADDR", remoteIPAddress);
+            context.Request.ServerVariables.Add("HTTP_USER_AGENT", httpContext.Request.Headers["User-Agent"].ToString());
+            context.Request.ServerVariables.Add("HTTP_ACCEPT_LANGUAGE", requestBrowserLang);
             // 
             // -- request headers
             foreach (var header in httpContext.Request.Headers) {
