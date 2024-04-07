@@ -14,6 +14,7 @@ using Contensive.Processor.Models.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Collections.Specialized;
+using System.IO;
 using System.Text;
 
 public class ConfigurationClass {
@@ -132,6 +133,9 @@ public class ConfigurationClass {
             context.Request.RawUrl = httpContext.Request.GetEncodedUrl();
             // 
             // -- server variables
+            foreach (var header in httpContext.ser .GetServerVariable) {
+                context.Request.ServerVariables.Add(header.Key, header.Value);
+            }
             //storeNameValues(httpContext.GetServerVariable(), context.Request.ServerVariables, true);
             // 
             // -- request headers
