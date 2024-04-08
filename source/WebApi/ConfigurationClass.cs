@@ -210,7 +210,7 @@ public class ConfigurationClass {
             //}
             // 
             // -- transfer cookies
-            foreach (string cookieKey in httpContext.Request.Cookies.Keys) {
+             foreach (string cookieKey in httpContext.Request.Cookies.Keys) {
                 if (string.IsNullOrWhiteSpace(cookieKey))
                     continue;
                 if (context.Request.Cookies.ContainsKey(cookieKey))
