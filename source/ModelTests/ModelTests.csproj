@@ -102,11 +102,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="ContensiveDbModels, Version=20.0.0.0, Culture=neutral, PublicKeyToken=c014b235a9c6bb22">
-      <HintPath>..\packages\Contensive.DbModels.24.4.7.2\lib\net472\ContensiveDbModels.dll</HintPath>
+      <HintPath>..\packages\Contensive.DbModels.24.4.10.1\lib\net472\ContensiveDbModels.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CPBase, Version=4.1.2.0, Culture=neutral, PublicKeyToken=10b3c53389b845fb">
-      <HintPath>..\packages\Contensive.CPBaseClass.24.4.7.2\lib\net472\CPBase.dll</HintPath>
+      <HintPath>..\packages\Contensive.CPBaseClass.24.4.10.1\lib\net472\CPBase.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Enyim.Caching, Version=2.16.0.0, Culture=neutral, PublicKeyToken=cec98615db04012e, processorArchitecture=MSIL">
@@ -225,8 +225,8 @@
       <HintPath>..\packages\Pipelines.Sockets.Unofficial.2.2.0\lib\net472\Pipelines.Sockets.Unofficial.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Processor, Version=24.4.7.2, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
-      <HintPath>..\packages\Contensive.Processor.24.4.7.2\lib\net472\Processor.dll</HintPath>
+    <Reference Include="Processor, Version=24.4.10.1, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
+      <HintPath>..\packages\Contensive.Processor.24.4.10.1\lib\net472\Processor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="StackExchange.Redis, Version=2.0.0.0, Culture=neutral, PublicKeyToken=c219ff1ca8c2ce46">

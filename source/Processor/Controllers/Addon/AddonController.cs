@@ -1576,8 +1576,24 @@ namespace Contensive.Processor.Controllers {
                 }
                 try {
                     //
-                    // -- "once an assembly is loaded into an appdomain, it's there for the life of the appdomain."
                     testAssembly = Assembly.LoadFrom(assemblyPrivateAbsPathFilename);
+                } catch (System.IO.FileLoadException ex) {
+                    //
+                    // -- core throws System.IO.FileLoadException: 'Assembly with same name is already loaded'
+                    // -- if older version of assembly is already loaded, exception is throws
+                    // -- if newer version is loaded, it still loads, but uses the newer version
+                    // -- "once an assembly is loaded into an appdomain, it's there for the life of the appdomain."
+                    // -- https://stackoverflow.com/questions/35418131/how-to-find-a-type-that-is-not-loaded-yet-in-appdomain
+                    // ---- try AppDomain.GetAssemblies() tells you the loaded assemblies
+                    // ---- try loadfrom or use getAssemblies to search what we have.
+                    // ---- try loadfile, then GetReferencedAssemblies() and check .getAssemblies, or loadfile them before calling execute
+                    // -- https://stackoverflow.com/questions/51738633/strange-behavior-when-loading-assemblies-and-its-dependencies-programatically
+                    // ---- explains and sample code implementation
+                    // -- https://stackoverflow.com/questions/658498/how-to-load-an-assembly-to-appdomain-with-all-references-recursively
+                    // ---- load code in another AppDomain.
+                    // -- see if it can be found in the appdomain and run it
+
+                    // -- 
                 } catch (System.BadImageFormatException) {
                     //
                     // -- file is not an assembly, return addonFound false
