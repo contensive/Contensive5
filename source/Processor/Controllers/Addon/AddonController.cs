@@ -1592,13 +1592,15 @@ namespace Contensive.Processor.Controllers {
                     // -- https://stackoverflow.com/questions/658498/how-to-load-an-assembly-to-appdomain-with-all-references-recursively
                     // ---- load code in another AppDomain.
                     // -- see if it can be found in the appdomain and run it
-
                     // -- 
+                    LogController.logError(core, ex, "execute_dotNetClass_assembly, 1a, [" + assemblyPrivateAbsPathFilename + "]");
+                    addonFound = false;
+                    return string.Empty;
                 } catch (System.BadImageFormatException) {
                     //
                     // -- file is not an assembly, return addonFound false
                     //
-                    LogController.logTrace(core, "execute_dotNetClass_assembly, 1, [" + assemblyPrivateAbsPathFilename + "]");
+                    LogController.logTrace(core, "execute_dotNetClass_assembly, 1b, [" + assemblyPrivateAbsPathFilename + "]");
                     addonFound = false;
                     //
                     // -- MS says BadImageFormatException is how you detect non-assembly DLLs
