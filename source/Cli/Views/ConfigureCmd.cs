@@ -76,18 +76,21 @@ namespace Contensive.CLI {
                             break;
                         }
                         //
+#if NETCOREAPP
+#else
                         do {
                             awsSecretAccessKey = GenericController.promptForReply("Enter the AWS Access Secret", awsSecretAccessKey);
                         } while (string.IsNullOrWhiteSpace(awsSecretAccessKey));
                         try {
                             AmazonSecurityTokenServiceClient tokenServiceClient = new(awsAccessKey, awsSecretAccessKey);
-                            tokenServiceClient.GetCallerIdentity(new Amazon.SecurityToken.Model.GetCallerIdentityRequest());
+                            tokenServiceClient.GetCallerIdentityAsync(new Amazon.SecurityToken.Model.GetCallerIdentityRequest());
                         } catch (Exception) {
                             //
                             // -- this credential failed, retry
                             Console.WriteLine("The credentials entered are not valid AWS credentails. If you will not use AWS services, enter a blank AWS Access Key.");
                             credentialValid = false;
                         }
+#endif
                     } while (!credentialValid);
                     core.serverConfig.awsAccessKey = awsAccessKey;
                     core.serverConfig.awsSecretAccessKey = awsSecretAccessKey;

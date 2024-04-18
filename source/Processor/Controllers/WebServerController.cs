@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using System.Collections.Concurrent;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -46,9 +47,135 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// The context of the optional http client that may have created this object.
+        /// Ths object passes in the request AND passes out the response
         /// </summary>
-        public HttpContextModel httpContext { get; set; } = null;
+        public HttpContextModel httpContext { get; } = null;
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="core"></param>
+        public WebServerController(CoreController core, HttpContextModel httpContext) {
+            this.core = core;
+            requestHeaders = [];
+            requestForm = [];
+            this.httpContext = httpContext;
+
+            //
+            LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+            //
+            // -- must have valid context, else non http 
+            if (httpContext == null) { return; }
+            if (!core.appConfig.appStatus.Equals(BaseModels.AppConfigBaseModel.AppStatusEnum.ok)) { return; }
+            //
+            // -- initialize doc properties from httpContext
+            var httpContextRequest = httpContext.Request;
+            var coreDocProperties = core.docProperties;
+            // -- 240407, this can be removed
+            foreach (KeyValuePair<string, string> kvp in httpContextRequest.ServerVariables) {
+                coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.serverVariable);
+            }
+            // -- /240407
+            foreach (KeyValuePair<string, string> kvp in httpContextRequest.Headers) {
+                coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.header);
+            }
+            foreach (KeyValuePair<string, string> kvp in httpContextRequest.QueryString) {
+                coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.queryString);
+            }
+            foreach (KeyValuePair<string, string> kvp in httpContextRequest.Form) {
+                coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.form);
+            }
+            //
+            // -- add uploaded files to docproperties. windowsTempFiles should be disposed by parent object who created them and provided the context
+            foreach (DocPropertyModel fileProperty in httpContextRequest.Files) {
+                coreDocProperties.setProperty(fileProperty.name, fileProperty);
+            }
+            //
+            // -- setup response 
+            responseContentType = "text/html";
+            //
+            //   javascript cookie detect on page1 of all visits
+            string CookieDetectKey = coreDocProperties.getText(rnCookieDetect);
+            if (!string.IsNullOrEmpty(CookieDetectKey)) {
+                //
+                SecurityController.TokenData visitToken = SecurityController.decodeToken(core, CookieDetectKey);
+                if (visitToken.id != 0) {
+                    string sql = "update ccvisits set CookieSupport=1 where id=" + visitToken.id;
+                    core.db.executeNonQuery(sql);
+                    core.doc.continueProcessing = false;
+                    return;
+                }
+            }
+            //
+            // -- assign domain
+            // -- find match in domain table, else check for match in app.domains and verify domain table record, else verify wildcard match "*" domain record
+            DomainModel testDomain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, requestDomain.ToLowerInvariant());
+            if (testDomain == null) {
+                //
+                // -- domain not found, if a match is in app.config list, add the record
+                if (core.appConfig.domainList.Count > 0) {
+                    //
+                    // -- find match to an app-config domain
+                    foreach (var appDomain in core.appConfig.domainList) {
+                        if (appDomain.ToLowerInvariant() == requestDomain.ToLowerInvariant()) {
+                            //
+                            // -- matching domain found, add it to the domains table and go with it
+                            testDomain = DbBaseModel.addDefault<DomainModel>(core.cpParent);
+                            testDomain.name = appDomain;
+                            testDomain.save(core.cpParent);
+                            break;
+                        }
+                    }
+                }
+            }
+            if (testDomain == null) {
+                //
+                // -- request domain not in domains table  and not in app.config - use the wildcard domain
+                testDomain = DomainModel.getWildcardDomain(core.cpParent);
+                LogController.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
+            }
+            core.domain = testDomain;
+            //
+            // -- act on domain
+            if (!core.domain.visited) {
+                //
+                // set visited true
+                //
+                core.db.executeNonQuery("update ccdomains set visited=1 where id=" + core.domain.id);
+                core.cache.invalidate("domainContentList");
+            }
+            if (core.domain.typeId == 1) {
+                //
+                // normal domain, leave it
+                //
+            } else if (GenericController.strInstr(1, requestPathPage, "/" + core.appConfig.adminRoute, 1) != 0) {
+                //
+                // forwarding does not work in the admin site
+                //
+            } else if (core.domain.typeId.Equals(2) && !string.IsNullOrEmpty(core.domain.forwardUrl)) {
+                //
+                // forward to a URL
+                if (GenericController.strInstr(1, core.domain.forwardUrl, "://") == 0) {
+                    core.domain.forwardUrl = "http://" + core.domain.forwardUrl;
+                }
+                redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this URL", false, false);
+                return ;
+            } else if ((core.domain.typeId == 3) && (core.domain.forwardDomainId != 0) && (core.domain.forwardDomainId != core.domain.id)) {
+                //
+                // forward to a replacement domain
+                //
+                string forwardDomain = MetadataController.getRecordName(core, "domains", core.domain.forwardDomainId);
+                if (!string.IsNullOrEmpty(forwardDomain)) {
+                    int pos = requestUrlSource.IndexOf(requestDomain, StringComparison.InvariantCultureIgnoreCase);
+                    if (pos > 0) {
+                        core.domain.forwardUrl = requestUrlSource.left(pos) + forwardDomain + requestUrlSource.Substring((pos + requestDomain.Length));
+                        redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this replacement domain", false, false);
+                        return;
+                    }
+                }
+            }
+        }
         //
         //====================================================================================================
         /// <summary>
@@ -349,7 +476,7 @@ namespace Contensive.Processor.Controllers {
                 _requestCookies = new Dictionary<string, CookieClass>();
                 if (httpContext?.Request?.Cookies == null) { return _requestCookies; }
                 //
-                // -- add httpContet request cookies to the local simple name/value request cookies dictionary
+                // -- add httpContet request cookies to the local simple name/value request cookies ConcurrentDictionary
                 foreach (var kvp in httpContext.Request.Cookies) {
                     if (!_requestCookies.ContainsKey(kvp.Key)) {
                         //
@@ -397,22 +524,13 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// 
         /// </summary>
-        public Dictionary<string, string> requestHeaders { get; set; } = new Dictionary<string, string>();
+        public Dictionary<string, string> requestHeaders { get; }
         //
         // ====================================================================================================
         /// <summary>
         /// 
         /// </summary>
-        public Dictionary<string, string> requestForm { get; set; } = new Dictionary<string, string>();
-        //
-        // ====================================================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="core"></param>
-        public WebServerController(CoreController core) {
-            this.core = core;
-        }
+        public Dictionary<string, string> requestForm { get; }
         //
         //=======================================================================================
         /// <summary>
@@ -451,137 +569,139 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
-        //   
-        //==================================================================================
-        /// <summary>
-        /// Initialize httpcontext.
-        /// </summary>
-        /// <returns></returns>
-        public bool initHttpContext() {
-            try {
-                //
-                LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                //
-                // -- must have valid context, else non http 
-                if (httpContext == null) { return false; }
-                if (!core.appConfig.appStatus.Equals(BaseModels.AppConfigBaseModel.AppStatusEnum.ok)) { return false; }
-                //
-                // -- initialize doc properties from httpContext
-                var httpContextRequest = httpContext.Request;
-                var coreDocProperties = core.docProperties;
-                foreach (KeyValuePair<string, string> kvp in httpContextRequest.ServerVariables) {
-                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.serverVariable);
-                }
-                foreach (KeyValuePair<string, string> kvp in httpContextRequest.Headers) {
-                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.header);
-                }
-                foreach (KeyValuePair<string, string> kvp in httpContextRequest.QueryString) {
-                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.queryString);
-                }
-                foreach (KeyValuePair<string, string> kvp in httpContextRequest.Form) {
-                    coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.form);
-                }
-                //
-                // -- add uploaded files to docproperties. windowsTempFiles should be disposed by parent object who created them and provided the context
-                foreach (DocPropertyModel fileProperty in httpContextRequest.Files) {
-                    coreDocProperties.setProperty(fileProperty.name, fileProperty);
-                }
-                //
-                // -- setup response 
-                core.webServer.responseContentType = "text/html";
-                //
-                //   javascript cookie detect on page1 of all visits
-                string CookieDetectKey = coreDocProperties.getText(rnCookieDetect);
-                if (!string.IsNullOrEmpty(CookieDetectKey)) {
-                    //
-                    SecurityController.TokenData visitToken = SecurityController.decodeToken(core, CookieDetectKey);
-                    if (visitToken.id != 0) {
-                        string sql = "update ccvisits set CookieSupport=1 where id=" + visitToken.id;
-                        core.db.executeNonQuery(sql);
-                        core.doc.continueProcessing = false;
-                        return core.doc.continueProcessing;
-                    }
-                }
-                //
-                // -- assign domain
-                // -- find match in domain table, else check for match in app.domains and verify domain table record, else verify wildcard match "*" domain record
-                DomainModel testDomain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, requestDomain.ToLowerInvariant());
-                if (testDomain == null) {
-                    //
-                    // -- domain not found, if a match is in app.config list, add the record
-                    if (core.appConfig.domainList.Count > 0) {
-                        //
-                        // -- find match to an app-config domain
-                        foreach (var appDomain in core.appConfig.domainList) {
-                            if (appDomain.ToLowerInvariant() == requestDomain.ToLowerInvariant()) {
-                                //
-                                // -- matching domain found, add it to the domains table and go with it
-                                testDomain = DbBaseModel.addDefault<DomainModel>(core.cpParent);
-                                testDomain.name = appDomain;
-                                testDomain.save(core.cpParent);
-                                break;
-                            }
-                        }
-                    }
-                }
-                if (testDomain == null) {
-                    //
-                    // -- request domain not in domains table  and not in app.config - use the wildcard domain
-                    testDomain = DomainModel.getWildcardDomain(core.cpParent);
-                    LogController.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
-                }
-                core.domain = testDomain;
-                //
-                // -- act on domain
-                if (!core.domain.visited) {
-                    //
-                    // set visited true
-                    //
-                    core.db.executeNonQuery("update ccdomains set visited=1 where id=" + core.domain.id);
-                    core.cache.invalidate("domainContentList");
-                }
-                if (core.domain.typeId == 1) {
-                    //
-                    // normal domain, leave it
-                    //
-                } else if (GenericController.strInstr(1, requestPathPage, "/" + core.appConfig.adminRoute, 1) != 0) {
-                    //
-                    // forwarding does not work in the admin site
-                    //
-                } else if (core.domain.typeId.Equals(2) && !string.IsNullOrEmpty(core.domain.forwardUrl)) {
-                    //
-                    // forward to a URL
-                    if (GenericController.strInstr(1, core.domain.forwardUrl, "://") == 0) {
-                        core.domain.forwardUrl = "http://" + core.domain.forwardUrl;
-                    }
-                    redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this URL", false, false);
-                    return core.doc.continueProcessing;
-                } else if ((core.domain.typeId == 3) && (core.domain.forwardDomainId != 0) && (core.domain.forwardDomainId != core.domain.id)) {
-                    //
-                    // forward to a replacement domain
-                    //
-                    string forwardDomain = MetadataController.getRecordName(core, "domains", core.domain.forwardDomainId);
-                    if (!string.IsNullOrEmpty(forwardDomain)) {
-                        int pos = requestUrlSource.IndexOf(requestDomain, StringComparison.InvariantCultureIgnoreCase);
-                        if (pos > 0) {
-                            core.domain.forwardUrl = requestUrlSource.left(pos) + forwardDomain + requestUrlSource.Substring((pos + requestDomain.Length));
-                            redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this replacement domain", false, false);
-                            return core.doc.continueProcessing;
-                        }
-                    }
-                }
-                //
-                LogController.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                //
-            } catch (Exception ex) {
-                //
-                LogController.logShortLine("initHttpContext, exception", BaseClasses.CPLogBaseClass.LogLevel.Trace);
-                //
-                LogController.logError(core, ex);
-                throw;
-            }
-            return core.doc.continueProcessing;
-        }
+        ////   
+        ////==================================================================================
+        ///// <summary>
+        ///// Initialize httpcontext.
+        ///// </summary>
+        ///// <returns></returns>
+        //public bool initHttpContext() {
+        //    try {
+        //        //
+        //        LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+        //        //
+        //        // -- must have valid context, else non http 
+        //        if (httpContext == null) { return false; }
+        //        if (!core.appConfig.appStatus.Equals(BaseModels.AppConfigBaseModel.AppStatusEnum.ok)) { return false; }
+        //        //
+        //        // -- initialize doc properties from httpContext
+        //        var httpContextRequest = httpContext.Request;
+        //        var coreDocProperties = core.docProperties;
+        //        // -- 240407, this can be removed
+        //        foreach (KeyValuePair<string, string> kvp in httpContextRequest.ServerVariables) {
+        //            coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.serverVariable);
+        //        }
+        //        // -- /240407
+        //        foreach (KeyValuePair<string, string> kvp in httpContextRequest.Headers) {
+        //            coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.header);
+        //        }
+        //        foreach (KeyValuePair<string, string> kvp in httpContextRequest.QueryString) {
+        //            coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.queryString);
+        //        }
+        //        foreach (KeyValuePair<string, string> kvp in httpContextRequest.Form) {
+        //            coreDocProperties.setProperty(kvp.Key, kvp.Value, DocPropertyModel.DocPropertyTypesEnum.form);
+        //        }
+        //        //
+        //        // -- add uploaded files to docproperties. windowsTempFiles should be disposed by parent object who created them and provided the context
+        //        foreach (DocPropertyModel fileProperty in httpContextRequest.Files) {
+        //            coreDocProperties.setProperty(fileProperty.name, fileProperty);
+        //        }
+        //        //
+        //        // -- setup response 
+        //        core.webServer.responseContentType = "text/html";
+        //        //
+        //        //   javascript cookie detect on page1 of all visits
+        //        string CookieDetectKey = coreDocProperties.getText(rnCookieDetect);
+        //        if (!string.IsNullOrEmpty(CookieDetectKey)) {
+        //            //
+        //            SecurityController.TokenData visitToken = SecurityController.decodeToken(core, CookieDetectKey);
+        //            if (visitToken.id != 0) {
+        //                string sql = "update ccvisits set CookieSupport=1 where id=" + visitToken.id;
+        //                core.db.executeNonQuery(sql);
+        //                core.doc.continueProcessing = false;
+        //                return core.doc.continueProcessing;
+        //            }
+        //        }
+        //        //
+        //        // -- assign domain
+        //        // -- find match in domain table, else check for match in app.domains and verify domain table record, else verify wildcard match "*" domain record
+        //        DomainModel testDomain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, requestDomain.ToLowerInvariant());
+        //        if (testDomain == null) {
+        //            //
+        //            // -- domain not found, if a match is in app.config list, add the record
+        //            if (core.appConfig.domainList.Count > 0) {
+        //                //
+        //                // -- find match to an app-config domain
+        //                foreach (var appDomain in core.appConfig.domainList) {
+        //                    if (appDomain.ToLowerInvariant() == requestDomain.ToLowerInvariant()) {
+        //                        //
+        //                        // -- matching domain found, add it to the domains table and go with it
+        //                        testDomain = DbBaseModel.addDefault<DomainModel>(core.cpParent);
+        //                        testDomain.name = appDomain;
+        //                        testDomain.save(core.cpParent);
+        //                        break;
+        //                    }
+        //                }
+        //            }
+        //        }
+        //        if (testDomain == null) {
+        //            //
+        //            // -- request domain not in domains table  and not in app.config - use the wildcard domain
+        //            testDomain = DomainModel.getWildcardDomain(core.cpParent);
+        //            LogController.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
+        //        }
+        //        core.domain = testDomain;
+        //        //
+        //        // -- act on domain
+        //        if (!core.domain.visited) {
+        //            //
+        //            // set visited true
+        //            //
+        //            core.db.executeNonQuery("update ccdomains set visited=1 where id=" + core.domain.id);
+        //            core.cache.invalidate("domainContentList");
+        //        }
+        //        if (core.domain.typeId == 1) {
+        //            //
+        //            // normal domain, leave it
+        //            //
+        //        } else if (GenericController.strInstr(1, requestPathPage, "/" + core.appConfig.adminRoute, 1) != 0) {
+        //            //
+        //            // forwarding does not work in the admin site
+        //            //
+        //        } else if (core.domain.typeId.Equals(2) && !string.IsNullOrEmpty(core.domain.forwardUrl)) {
+        //            //
+        //            // forward to a URL
+        //            if (GenericController.strInstr(1, core.domain.forwardUrl, "://") == 0) {
+        //                core.domain.forwardUrl = "http://" + core.domain.forwardUrl;
+        //            }
+        //            redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this URL", false, false);
+        //            return core.doc.continueProcessing;
+        //        } else if ((core.domain.typeId == 3) && (core.domain.forwardDomainId != 0) && (core.domain.forwardDomainId != core.domain.id)) {
+        //            //
+        //            // forward to a replacement domain
+        //            //
+        //            string forwardDomain = MetadataController.getRecordName(core, "domains", core.domain.forwardDomainId);
+        //            if (!string.IsNullOrEmpty(forwardDomain)) {
+        //                int pos = requestUrlSource.IndexOf(requestDomain, StringComparison.InvariantCultureIgnoreCase);
+        //                if (pos > 0) {
+        //                    core.domain.forwardUrl = requestUrlSource.left(pos) + forwardDomain + requestUrlSource.Substring((pos + requestDomain.Length));
+        //                    redirect(core.domain.forwardUrl, "Forwarding to [" + core.domain.forwardUrl + "] because the current domain [" + requestDomain + "] is in the domain content set to forward to this replacement domain", false, false);
+        //                    return core.doc.continueProcessing;
+        //                }
+        //            }
+        //        }
+        //        //
+        //        LogController.logShortLine("initHttpContext, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+        //        //
+        //    } catch (Exception ex) {
+        //        //
+        //        LogController.logShortLine("initHttpContext, exception", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+        //        //
+        //        LogController.logError(core, ex);
+        //        throw;
+        //    }
+        //    return core.doc.continueProcessing;
+        //}
         //
         //====================================================================================================
         /// <summary>

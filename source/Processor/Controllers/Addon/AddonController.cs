@@ -1082,7 +1082,7 @@ namespace Contensive.Processor.Controllers {
                                                 TabHeading = xml_GetAttribute(IsFound, SettingNode, "heading", "");
                                                 TabCell = new StringBuilderLegacyController();
                                                 foreach (XmlNode TabNode in SettingNode.ChildNodes) {
-                                                    if(TabNode.NodeType==XmlNodeType.Comment) { continue; }
+                                                    if (TabNode.NodeType == XmlNodeType.Comment) { continue; }
                                                     //
                                                     int SQLPageSize = 0;
                                                     int ErrorNumber = 0;
@@ -1122,7 +1122,7 @@ namespace Contensive.Processor.Controllers {
                                                                     if (!string.IsNullOrEmpty(FieldAddon)) {
                                                                         //
                                                                         // Use Editor Addon
-                                                                        Dictionary<string, string> arguments = new Dictionary<string, string> {
+                                                                        Dictionary<string, string> arguments = new() {
                                                                             { "FieldName", fieldName },
                                                                             { "FieldValue", core.siteProperties.getText(fieldName, FieldDefaultValue) }
                                                                         };
@@ -1528,17 +1528,10 @@ namespace Contensive.Processor.Controllers {
                     if (addonFound) {
                         //
                         // -- addon found, save addonsFound list and return the addon result
-                        // -- lock to prevent change between containsKey and add
-                        object lockObj = new object();
-                        lock (lockObj) {
-                            if (!core.cacheRuntime.assemblyFileDict.ContainsKey(assemblyFileDictKey)) {
-                                core.cacheRuntime.assemblyFileDict.Add(assemblyFileDictKey, new AssemblyFileDetails {
-                                    pathFilename = testDosAbsPathFilename,
-                                    path = ""
-                                });
-                                core.cacheRuntime.assemblyFileDict_save();
-                            }
-                        }
+                        if (core.cacheRuntime.assemblyFileDict.TryAdd(assemblyFileDictKey, new AssemblyFileDetails {
+                            pathFilename = testDosAbsPathFilename,
+                            path = ""
+                        })) { core.cacheRuntime.assemblyFileDict_save(); }
                         return returnValue;
                     }
                 }
@@ -1566,15 +1559,48 @@ namespace Contensive.Processor.Controllers {
                 //
                 Assembly testAssembly = null;
                 addonFound = false;
+                // -- trap out system assemblies (.net 8 sql assembly throws structure error)
+                string assemblyFilename = System.IO.Path.GetFileName(assemblyPrivateAbsPathFilename);
+                if (assemblyFilename is null) { return ""; }
+                if (assemblyFilename.substringSafe(0, 7).ToLowerInvariant().Equals("system.")) {
+                    if (!core.assemblyList_NonAddonsInstalled.Contains(assemblyPrivateAbsPathFilename.ToLowerInvariant())) {
+                        core.assemblyList_NonAddonsInstalled.Add(assemblyPrivateAbsPathFilename.ToLowerInvariant());
+                    }
+                    return "";
+                }
+                if (assemblyFilename.substringSafe(0, 10).ToLowerInvariant().Equals("microsoft.")) {
+                    if (!core.assemblyList_NonAddonsInstalled.Contains(assemblyPrivateAbsPathFilename.ToLowerInvariant())) {
+                        core.assemblyList_NonAddonsInstalled.Add(assemblyPrivateAbsPathFilename.ToLowerInvariant());
+                    }
+                    return "";
+                }
                 try {
                     //
-                    // -- "once an assembly is loaded into an appdomain, it's there for the life of the appdomain."
                     testAssembly = Assembly.LoadFrom(assemblyPrivateAbsPathFilename);
+                } catch (System.IO.FileLoadException ex) {
+                    //
+                    // -- core throws System.IO.FileLoadException: 'Assembly with same name is already loaded'
+                    // -- if older version of assembly is already loaded, exception is throws
+                    // -- if newer version is loaded, it still loads, but uses the newer version
+                    // -- "once an assembly is loaded into an appdomain, it's there for the life of the appdomain."
+                    // -- https://stackoverflow.com/questions/35418131/how-to-find-a-type-that-is-not-loaded-yet-in-appdomain
+                    // ---- try AppDomain.GetAssemblies() tells you the loaded assemblies
+                    // ---- try loadfrom or use getAssemblies to search what we have.
+                    // ---- try loadfile, then GetReferencedAssemblies() and check .getAssemblies, or loadfile them before calling execute
+                    // -- https://stackoverflow.com/questions/51738633/strange-behavior-when-loading-assemblies-and-its-dependencies-programatically
+                    // ---- explains and sample code implementation
+                    // -- https://stackoverflow.com/questions/658498/how-to-load-an-assembly-to-appdomain-with-all-references-recursively
+                    // ---- load code in another AppDomain.
+                    // -- see if it can be found in the appdomain and run it
+                    // -- 
+                    LogController.logError(core, ex, "execute_dotNetClass_assembly, 1a, [" + assemblyPrivateAbsPathFilename + "]");
+                    addonFound = false;
+                    return string.Empty;
                 } catch (System.BadImageFormatException) {
                     //
                     // -- file is not an assembly, return addonFound false
                     //
-                    LogController.logTrace(core, "execute_dotNetClass_assembly, 1, [" + assemblyPrivateAbsPathFilename + "]");
+                    LogController.logTrace(core, "execute_dotNetClass_assembly, 1b, [" + assemblyPrivateAbsPathFilename + "]");
                     addonFound = false;
                     //
                     // -- MS says BadImageFormatException is how you detect non-assembly DLLs
@@ -1724,7 +1750,7 @@ namespace Contensive.Processor.Controllers {
         /// Execute the addon in a background process.
         /// </summary>
         /// <param name="addon"></param>
-        public void executeAsProcess(AddonModel addon) => executeAsProcess(addon, new Dictionary<string, string>());
+        public void executeAsProcess(AddonModel addon) => executeAsProcess(addon, []);
         //
         //====================================================================================================================
         /// <summary>
@@ -1961,7 +1987,7 @@ namespace Contensive.Processor.Controllers {
         public string xml_GetAttribute(bool found, XmlNode Node, string Name, string defaultIfNotFound) {
             try {
                 found = false;
-                if (Node?.Attributes == null) {  return defaultIfNotFound; }
+                if (Node?.Attributes == null) { return defaultIfNotFound; }
                 //
                 XmlNode ResultNode = Node.Attributes.GetNamedItem(Name);
                 if (ResultNode != null) {

@@ -309,15 +309,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// persistent object with methods to control the web server features
         /// </summary>
-        public WebServerController webServer {
-            get {
-                if (_webServer == null) {
-                    _webServer = new WebServerController(this);
-                }
-                return _webServer;
-            }
-        }
-        private WebServerController _webServer;
+        public WebServerController webServer;
         //
         //===================================================================================================
         //
@@ -636,12 +628,7 @@ namespace Contensive.Processor.Controllers {
                         return;
                     }
                 }
-                if (httpContext != null) {
-                    //
-                    // -- initialize http context
-                    webServer.httpContext = httpContext;
-                    webServer.initHttpContext();
-                }
+                webServer = new WebServerController(this, httpContext);
                 //
                 // -- initialize document
                 doc.docGuid = GenericController.getGUID();
@@ -670,8 +657,9 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (string.IsNullOrEmpty(appName)) { return; }
                     //
-                    AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this);
-                    string authResult = EventController.throwEvent(this, "authentication event");
+                    if (!AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this)) {
+                        _ = EventController.throwEvent(this, "authentication event");
+                    }
                 }
             } catch (Exception ex) {
                 LogController.logShortLine("CoreController constructor-4, exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
@@ -849,7 +837,7 @@ namespace Contensive.Processor.Controllers {
                         _siteProperties = null;
                         _domain = null;
                         _docProperties = null;
-                        _webServer = null;
+                        webServer = null;
                         _visitProperty = null;
                         _visitorProperty = null;
                         _userProperty = null;

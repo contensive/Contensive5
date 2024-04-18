@@ -62,7 +62,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 request.MessageAttributes["AWS.SNS.SMS.SMSType"] = new MessageAttributeValue { StringValue = "Transactional", DataType = "String" };
 //#if NET472
-                PublishResponse awsResponse = snsClient.Publish(request);
+                PublishResponse awsResponse = snsClient.PublishAsync(request).Result;
                 if(awsResponse.HttpStatusCode == HttpStatusCode.OK) { return true;  }
                 userError = "Error sending";
                 return false;

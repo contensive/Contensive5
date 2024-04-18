@@ -48,7 +48,7 @@ namespace Contensive.Processor.Addons {
                         //
                         // -- download a message from queue, process and repeat until no more
                         while (true) {
-                            ReceiveMessageResponse receiveMessageResponse = sqsClient.ReceiveMessage(receiveMessageRequest);
+                            ReceiveMessageResponse receiveMessageResponse = sqsClient.ReceiveMessageAsync(receiveMessageRequest).Result;
                             if (receiveMessageResponse.Messages.Count == 0) {
                                 //
                                 // -- no message, exit loop
@@ -77,7 +77,7 @@ namespace Contensive.Processor.Addons {
                                     QueueUrl = awsSQSBounceEmailQueueEndpoint,
                                     ReceiptHandle = msg.ReceiptHandle
                                 };
-                                sqsClient.DeleteMessage(deleteMessageRequest);
+                                sqsClient.DeleteMessageAsync(deleteMessageRequest);
                             }
                         }
                     }

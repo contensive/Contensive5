@@ -3,8 +3,8 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFrameworks>net472</TargetFrameworks>
-    <RootNamespace>Contensive.Processor</RootNamespace>
+	  <TargetFrameworks>net472;net8.0</TargetFrameworks>
+	  <RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
@@ -147,7 +147,7 @@
     <PackageReference Include="Handlebars.Net" Version="2.0.9" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     <PackageReference Include="M2Mqtt" Version="4.3.0" />
-    <PackageReference Include="Microsoft.ClearScript" Version="7.1.7" />
+    <PackageReference Include="Microsoft.ClearScript" Version="7.4.5" />
     <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
     <PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
     <PackageReference Include="MimeMapping" Version="1.0.1.37" />
@@ -157,9 +157,10 @@
     <PackageReference Include="SharpZipLib" Version="1.4.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.7" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.88" />
-    <PackageReference Include="StrongNamer" Version="0.2.5" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="System.IO.Pipelines" Version="6.0.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
     <PackageReference Include="Twilio" Version="5.77.0" />
     <PackageReference Include="UAParser" Version="3.1.47" />

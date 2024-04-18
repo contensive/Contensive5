@@ -18,6 +18,20 @@ namespace Contensive.Processor.Controllers {
         /// <returns>Return true if successful authentication.</returns>
         public static bool processAuthenticationDefaultEvent(CoreController core) {
             //
+            // -- default username/password login (? /mfa-otp/reset-password)
+            string authType = core.docProperties.getText("type");
+            if(!string.IsNullOrEmpty(authType)) {
+                if(authType.Equals("login", StringComparison.InvariantCultureIgnoreCase)) {
+                    string requestPassword = core.docProperties.getText("password");
+                    if (LoginController.processLoginPage_Default(core, 
+                        core.docProperties.getText("username"), 
+                        requestPassword,
+                        !string.IsNullOrEmpty(requestPassword))) {
+                        return true;
+                    }
+                }
+            }
+            //
             // -- authentication from form/querystring, authAction=login, authUsername+authPassword
             //
             bool authenticationProcessSuccess = false;
