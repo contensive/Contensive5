@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Modal</title>
+    <meta name="layout" content="Edit Dialog Modal">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  </head>
+  <body>
+    <style>
+        #widgetEditModal .editBtn {
+            
+        }
+
+        a.editBtn {
+            display: flex;
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 0%;
+            background-color: #297de2 !important;
+            border: 0 !important;
+        }
+
+        a.editBtn:hover {
+            background-color: #1f74c9 !important;
+        }
+
+        .btn-group .widgetName {
+            background-color: #0955d2;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 5px 10px;
+            min-width: 120px;
+            border-top-right-radius: 8px;
+        }
+
+        .editBtn img {
+            width: 16px;
+            position: relative;
+        }
+       
+        #widgetEditModal .modal-content{
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        #widgetEditModal .sctnWrpr {
+            border: 1.5px solid #b4b6b9;
+            padding: 10px 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        #widgetEditModal img.output {
+            width: 110px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1.5px dashed #b4b6b9;
+            margin-right: 20px;
+       
+        }
+        /* #widgetEditModal img:before {
+            content: "";
+            position: relative;
+            border: 5px dashed #b4b6b9;
+            top: -3px;
+            bottom: -3px;
+            left: -3px;
+            right: -3px;
+            display: block;
+        } */
+
+        #widgetEditModal .rightSideAccordion .accordion-button{
+            padding: 10px !important;
+            border-top-right-radius: 8px;
+            border-top-left-radius: 8px;
+        }
+
+        #widgetEditModal .rightSideAccordion:hover {
+            cursor: pointer;
+            /* background-color: #b4b6b9; */
+        }
+
+        #widgetEditModal .btn-primary {
+            background-color: #0955d2!important;
+        }
+        #widgetEditModal .btn-primary:hover {
+            background-color: #0b50b5!important;
+        }
+
+        #widgetEditModal .accordion-body {
+            padding: 0;
+            padding-top: 20px;
+        }
+
+        #widgetEditModal .accordion-button:not(.collapsed) {
+            background-color: #eeeeee;
+        }
+
+        #widgetEditModal a.helpIcon img.icon{
+            width: 16px;
+            display: flex;
+        }  
+        #widgetEditModal .openLink {
+            color: #297de2;
+            font-weight: 500;
+        }
+        #widgetEditModal .openLink .icon {
+            width: 14px;
+            margin-left: 8px;
+        }
+
+        #widgetEditModal .modal-title {
+            display: flex;
+            align-items: center;
+
+        }
+
+        #widgetEditModal .modal-title .icon {
+            width: 32px;
+            margin-right: 20px;
+        }
+
+        .custom-tooltip {
+            --bs-tooltip-color: var(--bs-white);
+            /* border: 1px solid #b4b6b9;
+            border-radius: 8px; */
+        }
+
+        .ccEditWrapper { 
+            border: 2px dashed #0955d2;
+            margin-bottom: 5px;
+            padding: 5px;   
+        }
+
+    </style>
+    
+        {{#isEditing}}
+        <div class="btn-group {{#isEditing}}ccRecordLinkCon{{/isEditing}}" role="group">
+          
+            <a type="button" class="btn editBtn" data-bs-toggle="modal" data-bs-target="#widgetEditModal"><img src="img/light-edit-pencil.svg" alt=""></a>
+            <div class="widgetName">{{dialogCaption}}</div>
+        </div>
+        {{/isEditing}}
+        <!-- {{^isEditing}}owl-carousel owl-theme{{/isEditing}} {{#isEditing}} row {{/isEditing}} -->
+        <div class="{{#isEditing}} ccEditWrapper {{/isEditing}}">
+            <div class="row">
+                <div class="col-md-4">
+                    <div>{{#isEditing}}{{{testimonialEditTag}}}{{/isEditing}}</div>
+                    <div class="card m-4 shadow border-0">
+                        <div class="card-body">
+                            <i class="fa-solid fa-quote-left" style="font-size: 36px; color: lightgray;"></i>
+                            <p class="tesimonialText">{{text}}</p>
+                            <div class="">
+                                <div>
+                                    <ul class="list-inline mb-0 stars">        
+                                        {{#stars}}                
+                                        {{#isFullStar}}
+                                        <li class="list-inline-item"><i class="fas fa-star text-warning"></i></li>
+                                        {{/isFullStar}}   
+                                        {{#isEmptyStar}}
+                                        <li class="list-inline-item"><i class="far fa-star text-warning"></i></li>
+                                        {{/isEmptyStar}}
+                                        {{#isHalfStar}}
+                                        <li class="list-inline-item"><i class="fas fa-star-half-alt text-warning"></i></li>
+                                        {{/isHalfStar}}
+                                        {{/stars}}
+                                        <li class="list-inline-item text-muted"><i data-mustache-variable="averageRating">(2.6)</i></li>
+                                        <li class="list-inline-item text-muted"><i data-mustache-variable="totalRatings">(39)</i></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer border-0">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3">
+                                    <img class="testimonialAvatar" src="{{avatar}}" alt="{{imageAlt}}">
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold pb-0">{{userName}}</h6>
+                                    <p class="fw-light text-muted mb-0" data-delete>{{companyName}}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+               
+                </div>
+            </div>
+            {{#isEditing}}
+            <div class="d-flex justify-content-center">
+                <div>{{{testimonialAddTag}}}</div>
+            </div>
+            {{/isEditing}}
+        </div>
+  
+  
+        <div class="modal fade" id="widgetEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header d-flex justify-content-between border-0">
+                        <h2 class="modal-title" id="widgetEditModalLabel"><img src="img/pencil.svg" alt="edit pencil" class="icon">{{dialogCaption}}</h2>
+                        <div class="ccRecordEditLink"><a href="" class="openLink">Edit in Admin <img src="img/arrow-up-right-from-square.svg" alt="" class="icon"></a> </div>
+                    </div>
+                    <div class="modal-body">
+                    <div class="row">
+                        {{#leftFields}}
+                        <div class="col-md-8">
+                         
+                            <div class="sctnWrpr">
+                                <div class="mb-3">
+                                    <label for="sectionHeadline" class="form-label d-flex align-items-center">
+                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                        </a>
+                                        {{caption}}
+                                    </label>
+                                    <input type="text" class="form-control" id="sectionHeadline" value="{{currentValue}}">
+                                </div>
+                            </div>
+                            <div  class="sctnWrpr">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label d-flex align-items-center">
+                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                        </a>
+                                        {{caption}}
+                                    </label>
+                                    <textarea class="form-control" id="description" rows="5" value="{{currentValue}}" maxlength="{{textMaxLength}}"></textarea>
+                                </div>
+                            </div>
+                            <div class="sctnWrpr" data-delete>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex mt-1">
+                                        <div class="position-relative">
+                                            <a type="button" class="helpIcon position-absolute top-25 start-0 translate-middle" data-bs-custom-class="custom-tooltip" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="{{help}}">
+                                                <img src="img/circle-info.svg" alt="info icon" class="icon">
+                                            </a>
+                                            <img src="img/picturePlaceholder.jpg" alt="placeholder image" class="output">
+                                        </div>
+                                        
+                                        <div class="mb-3">
+                                            <label for="formFile" class="form-label">Default file input example</label>
+                                            <input class="form-control" type="file" id="formFile">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <a href=""><i class="fa-regular fa-trash-can text-danger me-3"></i></a>
+                                        <button class="btn btn-primary">Choose file</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sctnWrpr" data-delete> 
+                                <div class="mb-3">
+                                    <label for="sectionHeadline" class="form-label">Headline</label>
+                                    <input type="text" class="form-control" id="sectionHeadline" placeholder="(optional)">
+                                </div>
+                            </div>
+                            <div class="sctnWrpr " data-delete> 
+                                <div class="mb-3">
+                                    <label for="description" class="form-label">Description</label>
+                                    <textarea class="form-control" id="description" cols="20" rows="10"></textarea>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        {{/leftFields}}
+
+                        {{#rightFields}}
+                        <div class="col-md-4">
+                            <div class="sctnWrpr">
+                                <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-1">
+                                    <div class="accordion-item">
+                                    <div class="accordion-header">
+                                        <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-1" aria-expanded="false" aria-controls="stylesCollapse-1">
+                                        
+                                            <a type="button" class="helpIcon" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                            </a>
+                                            <h6 class="pb-0 ps-2">Image Styles</h6>
+                                        
+                                        </div>
+                                    </div>
+                                    <div id="stylesCollapse-1" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-1">
+                                        <div class="accordion-body">
+                                            <input type="text" class="form-control mb-3" id="" placeholder="Image alt text (optional)" value="{{currentValue}}">
+                                            <input type="text" class="form-control mb-3" id="" placeholder="Select Image Aspect Ratio...">
+                                            <input type="text" class="form-control mb-3" id="" placeholder="Image width pixels (optional)" value="{{currentValue}}">
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sctnWrpr" data-delete>
+                                <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-2">
+                                    <div class="accordion-item">
+                                    <div class="accordion-header">
+                                        <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-2" aria-expanded="false" aria-controls="stylesCollapse-2">
+                                            <a type="button" class="helpIcon" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="This top tooltip is themed via CSS variables.">
+                                                <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                            </a>
+                                            <h6 class="pb-0 ps-2">Button Styles</h6>
+                                        </div>
+                                    </div>
+                                    <div id="stylesCollapse-2" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-2">
+                                        <div class="accordion-body">
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="sctnWrpr" data-delete>
+                                <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-3">
+                                    <div class="accordion-item">
+                                    <div class="accordion-header">
+                                        <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-3" aria-expanded="false" aria-controls="stylesCollapse-3">
+                                            <a type="button" class="helpIcon" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="This top tooltip is themed via CSS variables.">
+                                                <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                            </a> 
+                                            <h6 class="pb-0 ps-2">Container Styles</h6>
+                                        </div>
+                                    </div>
+                                    <div id="stylesCollapse-3" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-2">
+                                        <div class="accordion-body">
+                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                        
+                        </div>
+                        {{/rightFields}}
+                    </div>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-between border-0">
+                        <div>
+                            <button type="button" class="btn btn-outline-danger">Delete Widget</button>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary">Save Changes</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+     </script>
+  </body>
+</html>

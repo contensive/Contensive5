@@ -140,7 +140,7 @@ div.ccDialogPageNotFound {
     Edit Wrapper
 */
 .ccEditWrapper { 
-    border: 1px dashed #808080;
+    border: 2px dashed #0955d2;
     margin: 1px;   
 }
 .ccEditWrapperCaption {
