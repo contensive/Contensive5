@@ -137,7 +137,7 @@
 
     </style>
     
-        {{#isEditing}}
+        {{^isEditing}}
         <div class="btn-group {{#isEditing}}ccRecordLinkCon{{/isEditing}}" role="group">
           
             <a type="button" class="btn editBtn" data-bs-toggle="modal" data-bs-target="#widgetEditModal"><img src="img/light-edit-pencil.svg" alt=""></a>
@@ -204,33 +204,11 @@
                         <div class="ccRecordEditLink"><a href="" class="openLink">Edit in Admin <img src="img/arrow-up-right-from-square.svg" alt="" class="icon"></a> </div>
                     </div>
                     <div class="modal-body">
-                    <div class="row">
-                        {{#leftFields}}
+                    <div class="row"> 
                         <div class="col-md-8">
-                         
+                        {{#leftFields}}
+                            {{#isFile}}
                             <div class="sctnWrpr">
-                                <div class="mb-3">
-                                    <label for="sectionHeadline" class="form-label d-flex align-items-center">
-                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                        </a>
-                                        {{caption}}
-                                    </label>
-                                    <input type="text" class="form-control" id="sectionHeadline" value="{{currentValue}}">
-                                </div>
-                            </div>
-                            <div  class="sctnWrpr">
-                                <div class="mb-3">
-                                    <label for="description" class="form-label d-flex align-items-center">
-                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                        </a>
-                                        {{caption}}
-                                    </label>
-                                    <textarea class="form-control" id="description" rows="5" value="{{currentValue}}" maxlength="{{textMaxLength}}"></textarea>
-                                </div>
-                            </div>
-                            <div class="sctnWrpr" data-delete>
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div class="d-flex mt-1">
                                         <div class="position-relative">
@@ -251,6 +229,34 @@
                                     </div>
                                 </div>
                             </div>
+                            {{/isFile}}
+                            {{#isText}}
+                            <div class="sctnWrpr">
+                                <div class="mb-3">
+                                    <label for="sectionHeadline" class="form-label d-flex align-items-center">
+                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                        </a>
+                                        {{caption}}
+                                    </label>
+                                    <input type="text" class="form-control" id="sectionHeadline" value="{{currentValue}}">
+                                </div>
+                            </div>
+                            {{/isText}}
+                            {{#isTextLong}}
+                            <div  class="sctnWrpr">
+                                <div class="mb-3">
+                                    <label for="description" class="form-label d-flex align-items-center">
+                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                        </a>
+                                        {{caption}}
+                                    </label>
+                                    <textarea class="form-control" id="description" rows="5" value="{{currentValue}}" maxlength="{{textMaxLength}}"></textarea>
+                                </div>
+                            </div>
+                            {{/isTextLong}}
+
                             <div class="sctnWrpr" data-delete> 
                                 <div class="mb-3">
                                     <label for="sectionHeadline" class="form-label">Headline</label>
@@ -263,30 +269,38 @@
                                     <textarea class="form-control" id="description" cols="20" rows="10"></textarea>
                                 </div>
                             </div>
-                            
+                            {{/leftFields}}  
                         </div>
-                        {{/leftFields}}
+                      
 
-                        {{#rightFields}}
+                        
                         <div class="col-md-4">
+                            {{#rightFields}}
                             <div class="sctnWrpr">
                                 <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-1">
                                     <div class="accordion-item">
                                     <div class="accordion-header">
-                                        <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-1" aria-expanded="false" aria-controls="stylesCollapse-1">
+                                        <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{id}}" aria-expanded="false" aria-controls="stylesCollapse-1">
                                         
                                             <a type="button" class="helpIcon" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                 <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                             </a>
-                                            <h6 class="pb-0 ps-2">Image Styles</h6>
+                                            <h6 class="pb-0 ps-2">{{caption}}</h6>
                                         
                                         </div>
                                     </div>
-                                    <div id="stylesCollapse-1" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-1">
+                                    <div id="stylesCollapse-{{id}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{id}}">
                                         <div class="accordion-body">
-                                            <input type="text" class="form-control mb-3" id="" placeholder="Image alt text (optional)" value="{{currentValue}}">
-                                            <input type="text" class="form-control mb-3" id="" placeholder="Select Image Aspect Ratio...">
-                                            <input type="text" class="form-control mb-3" id="" placeholder="Image width pixels (optional)" value="{{currentValue}}">
+                                            {{#sectionStyles}}
+                                            {{#isText}}
+                                                <input type="text" class="form-control mb-3" id="" placeholder="{{placeholder}}" value="{{currentValue}}">
+                                            {{/isText}}
+                                            {{#isSelect}}
+                                                <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
+                                                    <option value="" selected>{{currentValue}}</option>
+                                                </select>
+                                            {{/isSelect}}
+                                            {{/sectionStyles}}
                                         </div>
                                     </div>
                                     </div>
@@ -330,9 +344,9 @@
                                     </div>
                                 </div>
                             </div>
-                        
+                            {{/rightFields}}
                         </div>
-                        {{/rightFields}}
+                        
                     </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-between border-0">
@@ -347,7 +361,7 @@
                 </div>
             </div>
         </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" data-delete=""></script>
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
