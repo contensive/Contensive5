@@ -135,69 +135,89 @@
             padding: 5px;   
         }
 
+        /* //////// testimonial css ///////// */
+        .testimonialAvatar {
+            width: 60px !important;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        p.tesimonialText {
+            font-size: 14px;
+            line-height: 19px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 4; /* number of lines to show */
+                    line-clamp: 4; 
+            -webkit-box-orient: vertical;
+        }
+
+        .testimonialItem {
+        transition: transform 0.6s ease-in-out;
+        }
+
+
     </style>
     
-        {{^isEditing}}
-        <div class="btn-group {{#isEditing}}ccRecordLinkCon{{/isEditing}}" role="group">
-          
+    <!-- <div class='btn-group ccRecordLinkCon' role='group'><a type='button' class='btn editBtn' data-bs-toggle='modal' data-bs-target='#widgetEditModal'><img src='img/light-edit-pencil.svg'></a><div class='widgetName'>{{dialogCaption}}</div></div>  -->
+        <!-- <div class="btn-group {{#isEditing}}ccRecordLinkCon{{/isEditing}}" role="group">
             <a type="button" class="btn editBtn" data-bs-toggle="modal" data-bs-target="#widgetEditModal"><img src="img/light-edit-pencil.svg" alt=""></a>
             <div class="widgetName">{{dialogCaption}}</div>
-        </div>
-        {{/isEditing}}
-        <!-- {{^isEditing}}owl-carousel owl-theme{{/isEditing}} {{#isEditing}} row {{/isEditing}} -->
+        </div> -->
+
+        <div>{{{editTag}}}</div>
+     
         <div class="{{#isEditing}} ccEditWrapper {{/isEditing}}">
             <div class="row">
                 <div class="col-md-4">
-                    <div>{{#isEditing}}{{{testimonialEditTag}}}{{/isEditing}}</div>
-                    <div class="card m-4 shadow border-0">
-                        <div class="card-body">
-                            <i class="fa-solid fa-quote-left" style="font-size: 36px; color: lightgray;"></i>
-                            <p class="tesimonialText">{{text}}</p>
-                            <div class="">
-                                <div>
-                                    <ul class="list-inline mb-0 stars">        
-                                        {{#stars}}                
-                                        {{#isFullStar}}
-                                        <li class="list-inline-item"><i class="fas fa-star text-warning"></i></li>
-                                        {{/isFullStar}}   
-                                        {{#isEmptyStar}}
-                                        <li class="list-inline-item"><i class="far fa-star text-warning"></i></li>
-                                        {{/isEmptyStar}}
-                                        {{#isHalfStar}}
-                                        <li class="list-inline-item"><i class="fas fa-star-half-alt text-warning"></i></li>
-                                        {{/isHalfStar}}
-                                        {{/stars}}
-                                        <li class="list-inline-item text-muted"><i data-mustache-variable="averageRating">(2.6)</i></li>
-                                        <li class="list-inline-item text-muted"><i data-mustache-variable="totalRatings">(39)</i></li>
-                                    </ul>
+                    <div>{{{editTag}}}</div>
+                    <div class="{{#isEditing}} ccEditWrapper {{/isEditing}}">
+                        {{#carouselTestimonials}}
+                        <div class="card m-4 shadow border-0">
+                            <div class="card-body">
+                                <i class="fa-solid fa-quote-left" style="font-size: 36px; color: lightgray;"></i>
+                                <p class="tesimonialText">{{text}}</p>
+                                <div class="">
+                                    <div>
+                                        <ul class="list-inline mb-0 stars">        
+                                            {{#stars}}                
+                                            {{#isFullStar}}
+                                            <li class="list-inline-item"><i class="fas fa-star text-warning"></i></li>
+                                            {{/isFullStar}}   
+                                            {{#isEmptyStar}}
+                                            <li class="list-inline-item"><i class="far fa-star text-warning"></i></li>
+                                            {{/isEmptyStar}}
+                                            {{#isHalfStar}}
+                                            <li class="list-inline-item"><i class="fas fa-star-half-alt text-warning"></i></li>
+                                            {{/isHalfStar}}
+                                            {{/stars}}
+                                            <li class="list-inline-item text-muted"><i data-mustache-variable="averageRating">(2.6)</i></li>
+                                            <li class="list-inline-item text-muted"><i data-mustache-variable="totalRatings">(39)</i></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer border-0">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <img class="testimonialAvatar" src="{{avatar}}" alt="{{imageAlt}}">
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold pb-0">{{userName}}</h6>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="card-footer border-0">
-                            <div class="d-flex align-items-center">
-                                <div class="me-3">
-                                    <img class="testimonialAvatar" src="{{avatar}}" alt="{{imageAlt}}">
-                                </div>
-                                <div>
-                                    <h6 class="fw-bold pb-0">{{userName}}</h6>
-                                    <p class="fw-light text-muted mb-0" data-delete>{{companyName}}</p>
-                                </div>
-                            </div>
-                        </div>
+                        {{/carouselTestimonials}}
                     </div>
-               
                 </div>
             </div>
-            {{#isEditing}}
-            <div class="d-flex justify-content-center">
-                <div>{{{testimonialAddTag}}}</div>
-            </div>
-            {{/isEditing}}
+   
         </div>
   
   
         <div class="modal fade" id="widgetEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header d-flex justify-content-between border-0">
                         <h2 class="modal-title" id="widgetEditModalLabel"><img src="img/pencil.svg" alt="edit pencil" class="icon">{{dialogCaption}}</h2>
@@ -219,8 +239,10 @@
                                         </div>
                                         
                                         <div class="mb-3">
-                                            <label for="formFile" class="form-label">Default file input example</label>
-                                            <input class="form-control" type="file" id="formFile">
+                                            <h5 class="pb-0">Upload Image</h5>
+                                            <a href="" src="" class="text-primary mb-2">No File Chosen...</a>
+                                            <h6 class="fw-light">File Type: PNG or JPEG</h6>
+                                            <input class="form-control d-none" type="file" id="formFile">
                                         </div>
                                     </div>
                                     <div class="d-flex align-items-center">
@@ -277,54 +299,63 @@
                         <div class="col-md-4">
                             {{#rightFields}}
                             <div class="sctnWrpr">
-                                <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-1">
+                                <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-{{id}}">
                                     <div class="accordion-item">
-                                    <div class="accordion-header">
-                                        <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{id}}" aria-expanded="false" aria-controls="stylesCollapse-1">
-                                        
-                                            <a type="button" class="helpIcon" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                            </a>
-                                            <h6 class="pb-0 ps-2">{{caption}}</h6>
-                                        
+                                        <div class="accordion-header">
+                                            <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{id}}" aria-expanded="false" aria-controls="stylesCollapse-{{id}}">
+                                            
+                                                <a type="button" class="helpIcon" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                    <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                </a>
+                                                <h6 class="pb-0 ps-2">{{caption}}</h6>
+                                            
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div id="stylesCollapse-{{id}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{id}}">
-                                        <div class="accordion-body">
-                                            {{#sectionStyles}}
-                                            {{#isText}}
-                                                <input type="text" class="form-control mb-3" id="" placeholder="{{placeholder}}" value="{{currentValue}}">
-                                            {{/isText}}
-                                            {{#isSelect}}
-                                                <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
-                                                    <option value="" selected>{{currentValue}}</option>
-                                                </select>
-                                            {{/isSelect}}
-                                            {{/sectionStyles}}
+                                        <div id="stylesCollapse-{{id}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{id}}">
+                                            <div class="accordion-body">
+                                                {{#sectionStyles}}
+                                                {{#isText}}
+                                                    <input type="text" class="form-control mb-3" id="" placeholder="{{placeholder}}" value="{{currentValue}}">
+                                                {{/isText}}
+                                                {{#isSelect}}
+                                                    <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
+                                                        <option value="" selected>{{currentValue}}</option>
+                                                    </select>
+                                                {{/isSelect}}
+                                                {{#isCheckboxList}}
+                                                <div class="form-check form-check-inline mb-3">
+                                                    <input class="form-check-input" type="checkbox" value="" id="checkbox{{id}}" checked>
+                                                    <label class="form-check-label" for="checkbox{{id}}">
+                                                        {{caption}}
+                                                        {{#isHelp}}
+                                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                        </a>
+                                                        {{/isHelp}}
+                                                      
+                                                    </label>
+                                                  </div>
+                                                {{/isCheckboxList}}
+                                                {{#isFile}}
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <div class="mb-3">
+                                                            <label for="formFile" class="form-label d-flex align-items-center">
+                                                                <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                                    <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                                </a>
+                                                                {{caption}}
+                                                            </label>
+                                                            <input class="form-control" type="file" id="formFile">
+                                                        </div>
+                                                    </div>
+                                                {{/isFile}}
+                                                {{/sectionStyles}}
+                                            </div>
                                         </div>
-                                    </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="sctnWrpr" data-delete>
-                                <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-2">
-                                    <div class="accordion-item">
-                                    <div class="accordion-header">
-                                        <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-2" aria-expanded="false" aria-controls="stylesCollapse-2">
-                                            <a type="button" class="helpIcon" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="This top tooltip is themed via CSS variables.">
-                                                <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                            </a>
-                                            <h6 class="pb-0 ps-2">Button Styles</h6>
-                                        </div>
-                                    </div>
-                                    <div id="stylesCollapse-2" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-2">
-                                        <div class="accordion-body">
-                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-                                        </div>
-                                    </div>
-                                    </div>
-                                </div>
-                            </div>
+                           
                             <div class="sctnWrpr" data-delete>
                                 <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-3">
                                     <div class="accordion-item">
@@ -361,7 +392,7 @@
                 </div>
             </div>
         </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" data-delete=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" data-delete></script>
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
