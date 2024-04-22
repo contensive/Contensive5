@@ -27,6 +27,8 @@ namespace Tests {
                 string result = ContentCmdController.executeContentCommands(cp.core, cmd, context);
                 // assert
                 Assert.AreEqual("<div>foo</div>", result);
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addon.id);
             }
         }
         //
@@ -52,6 +54,9 @@ namespace Tests {
                 string result = ContentCmdController.executeContentCommands(cp.core, cmd, context);
                 // assert
                 Assert.AreEqual("<div>fooBar+foo\nBar</div>", result);
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addonBar.id);
+                DbBaseModel.delete<AddonModel>(cp, addonFoo.id);
             }
         }
         //
@@ -77,6 +82,9 @@ namespace Tests {
                 string result = ContentCmdController.executeContentCommands(cp.core, cmd, context);
                 // assert
                 Assert.AreEqual("<div>foo</div>", result);
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addonFoo.id);
+                DbBaseModel.delete<AddonModel>(cp, addonBar.id);
             }
         }
         //
@@ -102,6 +110,9 @@ namespace Tests {
                 string result = ContentCmdController.executeContentCommands(cp.core, cmd, context);
                 // assert
                 Assert.AreEqual("<div>fooBar</div>", result);
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addonFoo.id);
+                DbBaseModel.delete<AddonModel>(cp, addonBar.id);
             }
         }
         //
@@ -122,6 +133,8 @@ namespace Tests {
                 string result = ContentCmdController.executeContentCommands(cp.core, cmd, context);
                 // assert
                 Assert.AreEqual("<div class=\"sample\">foo</div>", result);
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addonFoo.id);
             }
         }
         //
@@ -142,6 +155,8 @@ namespace Tests {
                 string result = ContentCmdController.executeContentCommands(cp.core, cmd, context);
                 // assert
                 Assert.AreEqual("<div class=\"sample\">fooBAR</div>", result);
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addonFoo.id);
             }
         }
         //
@@ -162,6 +177,8 @@ namespace Tests {
                 string result = ContentCmdController.executeContentCommands(cp.core, cmd, context);
                 // assert
                 Assert.AreEqual("<div class=\"sample\">foobar</div>", result);
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addon.id);
             }
         }
 
