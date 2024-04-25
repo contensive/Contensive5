@@ -1,0 +1,55 @@
+*note: all field types also have an optional 
+	- readonly
+	- required
+
+To see how the field in the admin site are setup, edit any record and click the button in the upper-right [Modify Form]. That shows the field type for each field.
+
+integer
+	integer
+text
+	text up to 255 characters
+longtext
+	text infinitely long
+boolean
+	editor is a checkbox
+date
+	a date and a time component. This is tricky. To see what I have done, edit a person and in permissions see the password expiration field.
+file
+	an upload file. The trick here is to upload the file, the user adds a file, but a blank entry should not delete the file (like lext would do). 
+	See what I did in admin, this is what people have needed over the years, a link so they can download it, and a checkbox so they can delete. 
+lookup
+	a select list with currentValue, htmlName, htmlValue and htmlCaption.
+redirect
+	you can ignore this type for now
+currency
+	a float number displayed as currency
+textfile 
+	treat the same as longtext
+image
+	a file upload, but display the image if it has been uploaded, and add a delete checkbox
+float
+	a number with decimal points
+autoincrement
+	same as an integer, but will always be read only
+manytomany
+	this results in a checkbox list. 
+member select
+	a select just like lookup
+css file
+	a long text field that will always have css data
+xml file
+	a long text field that will always have xml data
+javascript file
+	a long text field that will always have javascript data
+link
+	a 255 character text field that will be a link. The user should be able edit it, or click it to see what it does 
+resource link
+	same as link
+html
+	a wysiwyg editor
+html file
+	same as html field
+html code
+	a text editor and the content will be html code
+html code file
+	same as 'html code'
