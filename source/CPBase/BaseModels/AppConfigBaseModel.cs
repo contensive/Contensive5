@@ -105,6 +105,12 @@ namespace Contensive.BaseModels {
         /// values stored in secrets override properties in server and app config.
         /// </summary>
         public abstract List<NameValueBaseModel> secrets { get; set; }
+        /// <summary>
+        /// Internal cookies are named cookiePrefix+'visit' and 'visitor'
+        /// cookiePrefix if blank is set to appName
+        /// Update cookie name at any time to reset cookies, voiding older cookies, logging out
+        /// </summary>
+        public abstract string cookiePrefix { get; set; }
         //
         //====================================================================================================
         /// <summary>

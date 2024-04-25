@@ -236,7 +236,7 @@ namespace Contensive.Processor.Controllers {
             string resultImage = HtmlController.a(HtmlController.img(thumbnail_encodedLink, "", 0, 0, "w-100"), image_encodedLink, "", "", "", "_blank");
             string resultAnchor = HtmlController.a("[" + fieldValuefilename + "]", image_encodedLink, "", "", "", "_blank");
             return ""
-                + HtmlController.div(resultImage, "d-table-cell", "", "width:100px;max-height:200px;")
+                + HtmlController.div(resultImage, "mr-5 me-5 d-table-cell", "", "width:100px;max-height:200px;")
                 + HtmlController.div(resultAnchor + deleteCheckbox + uploadControl, "d-table-cell pl-4 align-top");
         }
         //

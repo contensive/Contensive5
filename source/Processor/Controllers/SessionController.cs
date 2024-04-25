@@ -12,6 +12,7 @@ using UAParser;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using System.Text;
+using System.Xml.Linq;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -385,12 +386,30 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
+        //
         /// <summary>
         /// The prefix for visit and visitor cookes
         /// </summary>
-        public string appNameCookiePrefix {
+        [Obsolete("Use cookiePrefix",false)] public string appNameCookiePrefix {
             get {
-                return encodeCookieName(core.appConfig.name);
+                return cookiePrefix;
+            }
+        }
+        //
+        /// <summary>
+        /// The prefix for visit and visitor cookes
+        /// </summary>
+        public string cookiePrefix {
+            get {
+                string cookiePrefix = core.appConfig.cookiePrefix;
+                if(string.IsNullOrEmpty(cookiePrefix)) { 
+                    //
+                    // -- unset, default to legacy appName
+                    cookiePrefix = core.appConfig.name;
+                    core.appConfig.cookiePrefix = cookiePrefix;
+                    core.appConfig.save(core);
+                }
+                return encodeCookieName(cookiePrefix);
             }
         }
         //
@@ -432,7 +451,7 @@ namespace Contensive.Processor.Controllers {
             //
             LogController.logTrace(core, "SessionController.getVisitCookie, enter");
             //
-            return core.webServer.requestCookie(appNameCookiePrefix + cookieNameVisit);
+            return core.webServer.requestCookie(cookiePrefix + cookieNameVisit);
         }
         //
         //========================================================================
@@ -444,7 +463,7 @@ namespace Contensive.Processor.Controllers {
             //
             LogController.logTrace(core, "SessionController.getVisitorCookie, enter");
             //
-            return core.webServer.requestCookie(appNameCookiePrefix + cookieNameVisitor);
+            return core.webServer.requestCookie(cookiePrefix + cookieNameVisitor);
         }
         //
         //========================================================================
@@ -461,7 +480,7 @@ namespace Contensive.Processor.Controllers {
             DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddMinutes(60);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visit.id, expirationDate);
             LogController.logTrace(core, "set visit cookie, visitId [" + sessionContext.visit.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
-            core.webServer.addResponseCookie(sessionContext.appNameCookiePrefix + Constants.cookieNameVisit, cookieValue);
+            core.webServer.addResponseCookie(sessionContext.cookiePrefix + Constants.cookieNameVisit, cookieValue);
         }
         //
         //========================================================================
@@ -478,7 +497,7 @@ namespace Contensive.Processor.Controllers {
             DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddYears(1);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visitor.id, expirationDate);
             LogController.logTrace(core, "set visitor cookie, visitorId [" + sessionContext.visitor.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
-            core.webServer.addResponseCookie(sessionContext.appNameCookiePrefix + cookieNameVisitor, cookieValue, expirationDate);
+            core.webServer.addResponseCookie(sessionContext.cookiePrefix + cookieNameVisitor, cookieValue, expirationDate);
         }
         //
         //========================================================================
