@@ -401,15 +401,15 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string cookiePrefix {
             get {
-                string cookiePrefix = core.appConfig.cookiePrefix;
-                if(string.IsNullOrEmpty(cookiePrefix)) { 
+                string cookiePrefixWorking = core.appConfig.cookiePrefix;
+                if(string.IsNullOrEmpty(cookiePrefixWorking)) { 
                     //
                     // -- unset, default to legacy appName
-                    cookiePrefix = core.appConfig.name;
-                    core.appConfig.cookiePrefix = cookiePrefix;
+                    cookiePrefixWorking = core.appConfig.name;
+                    core.appConfig.cookiePrefix = cookiePrefixWorking;
                     core.appConfig.save(core);
                 }
-                return encodeCookieName(cookiePrefix);
+                return encodeCookieName(cookiePrefixWorking);
             }
         }
         //

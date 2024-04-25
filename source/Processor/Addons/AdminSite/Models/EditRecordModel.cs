@@ -321,10 +321,9 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                                 //
                                                 // Date
                                                 //
-                                                if (cp.core.docProperties.getBoolean(fieldName + ".clearFlag")) {
-                                                    recordChanged = true;
-                                                    csData.set(fieldName, null);
-                                                } else  if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
+                                                if (cp.core.docProperties.getBoolean(fieldName + ".clearFlag") || string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
+                                                    //
+                                                    // -- blank field, or clear checkbox checked
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
                                                 } else if (encodeDate(fieldValueObject) != csData.getDate(fieldName)) {
