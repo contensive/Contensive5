@@ -321,7 +321,10 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                                 //
                                                 // Date
                                                 //
-                                                if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
+                                                if (cp.core.docProperties.getBoolean(fieldName + ".clearFlag")) {
+                                                    recordChanged = true;
+                                                    csData.set(fieldName, null);
+                                                } else  if (string.IsNullOrWhiteSpace(encodeText(fieldValueObject))) {
                                                     recordChanged = true;
                                                     csData.set(fieldName, null);
                                                 } else if (encodeDate(fieldValueObject) != csData.getDate(fieldName)) {

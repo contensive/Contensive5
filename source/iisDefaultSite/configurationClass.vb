@@ -4,6 +4,7 @@ Imports Contensive
 Imports Contensive.Processor
 Imports Contensive.Processor.Controllers
 Imports Contensive.Processor.Models.Domain
+Imports Newtonsoft.Json.Serialization
 
 Public Class ConfigurationClass
     '
@@ -145,7 +146,21 @@ Public Class ConfigurationClass
             ' -- transfer cookies
             For Each cookieKey As String In iisContext.Request.Cookies.Keys
                 If String.IsNullOrWhiteSpace(cookieKey) Then Continue For
-                If (context.Request.Cookies.ContainsKey(cookieKey)) Then context.Request.Cookies.Remove(cookieKey)
+                If (context.Request.Cookies.ContainsKey(cookieKey)) Then
+                    '
+                    ' -- duplicate cookie. issue is there can be mulitple cookies with different paths and different domains if they all qualify.
+                    ' -- when there are multiple cookies with the same name, we should use the first
+                    ' -- rfc0000 5.4.2 -
+                    ' ' -- Cookies with longer paths are listed before cookies with shorter paths. (contensive cookies are the root path)
+                    ' ' -- (contradictory, inconsistently implemented) Among cookies that have equal-length path fields, cookies with earlier creation-times are listed before cookies with later creation-times.
+                    ' -- the first rule implies the first is the most relevent, but the second rule implies second cookie
+                    ' -- http returns longest path first, but paths match and this issue is likely old www.domain.com vs newer .domain.com, and request does not have domain
+                    ' -- chrome seems to fail selecting last one, (but edge works?)
+                    ' -- keep first
+                    Continue For
+                    ' -- keep last
+                    'context.Request.Cookies.Remove(cookieKey)
+                End If
                 context.Request.Cookies.Add(cookieKey, New HttpContextRequestCookie() With {
                     .Name = cookieKey,
                     .Value = iisContext.Request.Cookies(cookieKey).Value

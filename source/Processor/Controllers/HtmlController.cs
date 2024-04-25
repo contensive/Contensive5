@@ -245,6 +245,8 @@ namespace Contensive.Processor.Controllers {
                 const string NoneCaptionFPO = "<NoneCaption>";
                 string LcaseCriteria = toLCase(lookupContentEditor);
                 return_IsEmptyList = true;
+                if (string.IsNullOrEmpty(MenuName)) { return $"Selection html name cannot be blank."; }
+                if (string.IsNullOrEmpty(ContentName)) { return $"Selection content cannot be blank."; }
                 //
                 string CurrentValueText = CurrentValue.ToString();
                 string SelectRaw = "";
@@ -260,6 +262,9 @@ namespace Contensive.Processor.Controllers {
                     //
                     // Build the SelectRaw, Test selection size
                     ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
+                    if(metaData is null ) {
+                        return $"Selection content [{ContentName}] is not valid.";
+                    }
                     string ContentControlCriteria = metaData.legacyContentControlCriteria;
                     string SQL = "select count(*) as cnt from " + metaData.tableName + " where " + ContentControlCriteria;
                     if (!string.IsNullOrEmpty(null)) {

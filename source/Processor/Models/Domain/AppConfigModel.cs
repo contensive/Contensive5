@@ -119,6 +119,8 @@ namespace Contensive.Processor.Models.Domain {
         }
         private List<NameValueBaseModel> _secrets;
         //
+        public override string cookiePrefix { get; set; }
+        //
         //====================================================================================================
         /// <summary>
         /// Create an empty object. needed for deserialization. Use newModel() method as constructor, includes cache

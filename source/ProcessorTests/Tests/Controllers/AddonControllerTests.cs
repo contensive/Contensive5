@@ -51,6 +51,8 @@ namespace Tests {
             string result = cp.core.addon.executeOnBodyStart();
             Assert.IsTrue(result.Contains(testString), "result should have been [" + testString + "], but was [" + result + "]");
             DbBaseModel.delete<AddonModel>(cp, a.id);
+            // clean up
+            DbBaseModel.delete<AddonModel>(cp, a.id);
         }
         /// <summary>
         /// create an onbodyend addon, run all and test the result
@@ -70,6 +72,8 @@ namespace Tests {
             string result = cp.core.addon.executeOnBodyEnd();
             Assert.IsTrue(result.Contains(testString));
             DbBaseModel.delete<AddonModel>(cp, a.id);
+            // clean up
+            DbBaseModel.delete<AddonModel>(cp, a.id);
         }
         /// <summary>
         /// execute dependency test
@@ -86,6 +90,8 @@ namespace Tests {
             result += cp.core.addon.executeDependency(a, new CPUtilsBaseClass.addonExecuteContext { });
             Assert.IsTrue(result.Contains(testString));
             Assert.IsFalse(result.Contains(testString + testString));
+            DbBaseModel.delete<AddonModel>(cp, a.id);
+            // clean up
             DbBaseModel.delete<AddonModel>(cp, a.id);
         }
         /// <summary>
@@ -178,6 +184,7 @@ namespace Tests {
             a.copyText = aTestString;
             a.ccguid = "{addon-a}";
             a.scriptingCode = ""
+
                 + "\n\rfunction m"
                 + "\n\rm = cp.addon.execute(\"{addon-b}\")"
                 + "\n\rend function";
@@ -535,6 +542,8 @@ namespace Tests {
                 Assert.AreEqual(0, cp.core.doc.htmlMetaContent_TitleList.Count);
                 //
                 localPropertyToFoolCodacyStaticMethodRequirement = true;
+                // clean up
+                DbBaseModel.delete<AddonModel>(cp, addon.id);
             }
         }
     }

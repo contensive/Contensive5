@@ -272,7 +272,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     // ----- date, readonly
                                     editorEnv.formFieldList += "," + field.nameLc;
                                     EditorString = AdminUIEditorController.getDateTimeEditor(core, field.nameLc, encodeDate(fieldValueObject), editorReadOnly, fieldHtmlId, field.required);
-                                    editorWrapperSyle = "max-width:400px";
+                                    editorWrapperSyle = "max-width:500px";
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {
@@ -453,7 +453,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     // ----- Date
                                     editorEnv.formFieldList += "," + field.nameLc;
                                     EditorString = AdminUIEditorController.getDateTimeEditor(core, field.nameLc, GenericController.encodeDate(fieldValueObject), field.readOnly, fieldHtmlId, field.required);
-                                    editorWrapperSyle = "max-width:400px";
+                                    editorWrapperSyle = "max-width:500px";
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.MemberSelect: {

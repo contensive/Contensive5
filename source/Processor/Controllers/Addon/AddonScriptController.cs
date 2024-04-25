@@ -27,6 +27,14 @@ namespace Contensive.Processor.Controllers {
             try {
                 // todo - move locals
                 hint += "enter";
+                // -- error in core 8, 
+                // -- System.TypeLoadException: 'Could not load type 'System.Windows.Threading.Dispatcher' from assembly 'WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.'
+                // 
+                // https://stackoverflow.com/questions/76864510/how-to-resolve-could-not-load-type-system-windows-threading-dispatchertimer
+                //
+                // -- https://docs.telerik.com/devtools/document-processing/knowledge-base/troubleshooting-windowsbase-error
+                // implies assemblies not named windows, but namespaces are still windows
+                //
                 using (var engine = new Microsoft.ClearScript.Windows.VBScriptEngine()) {
                     string entryPoint = addon.scriptingEntryPoint;
                     if (string.IsNullOrEmpty(entryPoint)) {
