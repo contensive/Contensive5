@@ -72,13 +72,20 @@ namespace Contensive.Processor.Controllers {
             string inputTime = HtmlController.inputTime(core, fieldName + "-time", FieldValueTime, "component-" + htmlId + "-time", "form-control", readOnly, fieldRequired, false);
             string dateTimeString = (FieldValueDate != null) ? ((DateTime)FieldValueDate).ToString("o", CultureInfo.InvariantCulture) : "";
             string inputDateTime = HtmlController.inputHidden(fieldName, dateTimeString, "", htmlId);
+            string clearCheck = readOnly? "" : "" +
+                "<div class=\"ms-4 mt-2\">" +
+                "<div class=\"form-check\">" +
+                $"<input type=\"checkbox\" id=\"{fieldName}.clearFlag\" name=\"{fieldName}.clearFlag\" value=\"1\" class=\"form-check-input\"><label for=\"deleteCheckbox1608141220\" class=\"form-check-label\">Clear</label>" +
+                "</div>" +
+                "</div>";
             // todo move to adminUI script
             string js = HtmlController.scriptCode(core, ""
                 + "document.addEventListener('DOMContentLoaded', function(){"
                 + "$('body').on('change','#component-" + htmlId + "-date,#component-" + htmlId + "-time',function(e){console.log('date/time change');setDateTimeEditorHidden('" + htmlId + "');});"
+                + $"$('body').on('change','#{fieldName}.clearFlag',function(e){{console.log('date/time clear');}});"
                 + "});"
                 + "");
-            return HtmlController.div(HtmlController.div(inputDate + inputTime, "input-group") + inputDateTime + js);
+            return HtmlController.div(HtmlController.div(inputDate + inputTime + clearCheck, "input-group") + inputDateTime + js);
         }
         //
         // ====================================================================================================
@@ -236,8 +243,8 @@ namespace Contensive.Processor.Controllers {
             string resultImage = HtmlController.a(HtmlController.img(thumbnail_encodedLink, "", 0, 0, "w-100"), image_encodedLink, "", "", "", "_blank");
             string resultAnchor = HtmlController.a("[" + fieldValuefilename + "]", image_encodedLink, "", "", "", "_blank");
             return ""
-                + HtmlController.div(resultImage, "mr-5 me-5 d-table-cell", "", "width:100px;max-height:200px;")
-                + HtmlController.div(resultAnchor + deleteCheckbox + uploadControl, "d-table-cell pl-4 align-top");
+                + HtmlController.div(resultImage, "d-table-cell", "", "width:100px;max-height:200px;")
+                + HtmlController.div(resultAnchor + deleteCheckbox + uploadControl, "d-table-cell pl-4 ps-4 align-top");
         }
         //
         // ====================================================================================================

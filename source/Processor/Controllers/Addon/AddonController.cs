@@ -892,7 +892,9 @@ namespace Contensive.Processor.Controllers {
                                                                     }
                                                                 case "date": {
                                                                         //
-                                                                        if (encodeDateMinValue(encodeDate(fieldValue)).Equals(DateTime.MinValue)) {
+                                                                        if (core.docProperties.getBoolean(fieldName + ".clearFlag")) {
+                                                                            fieldValue = "";
+                                                                        } else if (encodeDateMinValue(encodeDate(fieldValue)).Equals(DateTime.MinValue)) {
                                                                             //
                                                                             // -- value is not a valid date, save empty
                                                                             fieldValue = "";
