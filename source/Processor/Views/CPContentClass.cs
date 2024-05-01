@@ -64,7 +64,7 @@ namespace Contensive.Processor {
         //
         public override string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing, bool includechildContent) {
             string result = "";
-            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, allowPaste, isEditing, includechildContent)) {
+            foreach (var link in AdminUIEditButtonController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, allowPaste, isEditing, includechildContent)) {
                 result += link;
             }
             return result;
@@ -74,7 +74,7 @@ namespace Contensive.Processor {
         //
         public override string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing) {
             string result = "";
-            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, allowPaste, isEditing, false)) {
+            foreach (var link in AdminUIEditButtonController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, allowPaste, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -85,7 +85,7 @@ namespace Contensive.Processor {
         public override string GetAddLink(string contentName, string presetNameValueList) {
             string result = "";
             bool isEditing = cp.core.session.isEditing(contentName);
-            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, false, isEditing, false)) {
+            foreach (var link in AdminUIEditButtonController.getRecordAddAnchorTag(cp.core, contentName, presetNameValueList, false, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -96,7 +96,7 @@ namespace Contensive.Processor {
         public override string GetAddLink(string contentName) {
             string result = "";
             bool isEditing = cp.core.session.isEditing(contentName);
-            foreach (var link in AdminUIController.getRecordAddAnchorTag(cp.core, contentName, "", false, isEditing, false)) {
+            foreach (var link in AdminUIEditButtonController.getRecordAddAnchorTag(cp.core, contentName, "", false, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -149,21 +149,21 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetEditLink(string contentName, string recordID, bool allowCut, string recordName, bool isEditing) {
-            return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName);
+            return AdminUIEditButtonController.getRecordEditAndCutAnchorTag(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName);
         }
         //
         public override string GetEditLink(string contentName, string recordID, bool allowCut, string recordName, bool isEditing, string customCaption) {
-            return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName, customCaption);
+            return AdminUIEditButtonController.getRecordEditAndCutAnchorTag(cp.core, contentName, GenericController.encodeInteger(recordID), allowCut, recordName, customCaption);
         }
         //
         //====================================================================================================
         //
         public override string GetEditLink(string contentName, int recordId) {
-            return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, recordId, false, "");
+            return AdminUIEditButtonController.getRecordEditAndCutAnchorTag(cp.core, contentName, recordId, false, "");
         }
         //
         public override string GetEditLink(string contentName, int recordId, string customCaption) {
-            return AdminUIController.getRecordEditAndCutAnchorTag(cp.core, contentName, recordId, false, "",  customCaption);
+            return AdminUIEditButtonController.getRecordEditAndCutAnchorTag(cp.core, contentName, recordId, false, "",  customCaption);
         }
         //
         //====================================================================================================
@@ -171,13 +171,13 @@ namespace Contensive.Processor {
         public override string GetEditLink(string contentName, string recordGuid) {
             var contentMetadata = ContentMetadataModel.createByUniqueName(cp.core, contentName);
             if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
-            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
+            return AdminUIEditButtonController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
         }
         //
         public override string GetEditLink(string contentName, string recordGuid, string customCaption) {
             var contentMetadata = ContentMetadataModel.createByUniqueName(cp.core, contentName);
             if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
-            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
+            return AdminUIEditButtonController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
         }
         //
         //====================================================================================================
@@ -185,13 +185,13 @@ namespace Contensive.Processor {
         public override string GetEditLink(int contentId, int recordId) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
             if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordId);
+            return AdminUIEditButtonController.getRecordEditAnchorTag(cp.core, contentMetadata, recordId);
         }
         //
         public override string GetEditLink(int contentId, int recordId, string customCaption) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
             if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordId,  customCaption);
+            return AdminUIEditButtonController.getRecordEditAnchorTag(cp.core, contentMetadata, recordId,  customCaption);
         }
         //
         //====================================================================================================
@@ -199,13 +199,13 @@ namespace Contensive.Processor {
         public override string GetEditLink(int contentId, string recordGuid) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
             if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
+            return AdminUIEditButtonController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
         }
         //
         public override string GetEditLink(int contentId, string recordGuid, string customCaption) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
             if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            return AdminUIController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
+            return AdminUIEditButtonController.getRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
         }
         //
         //====================================================================================================
@@ -217,55 +217,55 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, string contentName, int recordId) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentName, recordId);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentName, recordId);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, string contentName, int recordId, string customCaption) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentName, recordId,  customCaption);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentName, recordId,  customCaption);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, string contentName, string recordGuid) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentName, recordGuid);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentName, recordGuid);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, string contentName, string recordGuid, string customCaption) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentName, recordGuid,  customCaption);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentName, recordGuid,  customCaption);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, int contentId, int recordId) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentId, recordId);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentId, recordId);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, int contentId, int recordId, string customCaption) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentId, recordId,  customCaption);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentId, recordId,  customCaption);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, int contentId, string recordGuid) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentId, recordGuid);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentId, recordGuid);
         }
         //
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml, int contentId, string recordGuid, string customCaption) {
-            return AdminUIController.getEditWrapper(cp.core, innerHtml, contentId, recordGuid, customCaption);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, innerHtml, contentId, recordGuid, customCaption);
         }
         //
         //====================================================================================================
@@ -440,7 +440,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetListLink(string contentName) {
-            return AdminUIController.getRecordEditAnchorTag(cp.core, Models.Domain.ContentMetadataModel.createByUniqueName(cp.core, contentName));
+            return AdminUIEditButtonController.getRecordEditAnchorTag(cp.core, Models.Domain.ContentMetadataModel.createByUniqueName(cp.core, contentName));
         }
         //
         //====================================================================================================
@@ -512,19 +512,19 @@ namespace Contensive.Processor {
         }
 
         public override string GetEditUrl(string contentName, int recordId) {
-            return AdminUIController.getRecordEditUrl(cp.core, GetID(contentName), recordId);
+            return AdminUIEditButtonController.getRecordEditUrl(cp.core, GetID(contentName), recordId);
         }
 
         public override string GetEditUrl(string contentName, string recordGuid) {
-            return AdminUIController.getRecordEditUrl(cp.core, GetID(contentName), recordGuid);
+            return AdminUIEditButtonController.getRecordEditUrl(cp.core, GetID(contentName), recordGuid);
         }
 
         public override string GetEditUrl(int contentId, int recordId) {
-            return AdminUIController.getRecordEditUrl(cp.core, contentId, recordId);
+            return AdminUIEditButtonController.getRecordEditUrl(cp.core, contentId, recordId);
         }
 
         public override string GetEditUrl(int contentId, string recordGuid) {
-            return AdminUIController.getRecordEditUrl(cp.core, contentId, recordGuid);
+            return AdminUIEditButtonController.getRecordEditUrl(cp.core, contentId, recordGuid);
         }
     }
 }

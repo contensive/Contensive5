@@ -26,6 +26,7 @@ namespace Contensive.Processor {
                             // -- body found, set the htmlDoc to the body
                             var layoutDoc = new HtmlDocument();
                             layoutDoc.LoadHtml(node.InnerHtml);
+                            htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
                             //
                             // -- process the layout 
                             DataDeleteController.process(layoutDoc);
