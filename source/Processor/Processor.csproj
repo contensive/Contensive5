@@ -137,13 +137,13 @@
 
   <ItemGroup>
     <PackageReference Include="AWS.Logger.NLog" Version="3.3.1" />
-    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.305.25" />
-    <PackageReference Include="AWSSDK.Core" Version="3.7.303.24" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.307.25" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.305.26" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.303.25" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.307.26" />
     <PackageReference Include="AWSSDK.SecretsManager.Caching" Version="1.0.6" />
-    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.300.84" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.301.32" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.7.300.84" />
+    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.300.85" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.301.33" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.300.85" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
     <PackageReference Include="M2Mqtt" Version="4.3.0" />

@@ -217,7 +217,7 @@ if errorlevel 1 (
 )
 
 rem hack - taskservice net472 is not sdk project and project dependency does not copy exe into bin
-xcopy TaskService\bin\Debug\taskservice.exe Cli\bin\Debug\net472\
+rem xcopy TaskService\bin\Debug\taskservice.exe Cli\bin\Debug\net472\
 
 rem pause
 
@@ -283,31 +283,31 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
- pause
+rem  pause
 
 
 rem ==============================================================
 rem
 rem web.config must be manually updated from processor.dll.config
 rem
-@echo off
-cls
-
-@echo +++++++++++++++++++++++++++++
-@echo Manually update web.config if there were nuget package changes
-@echo 
-@echo nuget packages automatically update Processor project appconfig, but not the iisDefault web.config file. It must be manually updated if there were any nuget changes.
-@echo 
-@echo edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
-@echo copy the assembly redirect section
-@echo 
-@echo edit C:\Git\Contensive5\source\iisDefaultSite\Web.config
-@echo replace the assembly redirect section
-@echo 
-@echo +++++++++++++++++++++++++++++
-pause
-
-echo on
+rem @echo off
+rem cls
+rem 
+rem @echo +++++++++++++++++++++++++++++
+rem @echo Manually update web.config if there were nuget package changes
+rem @echo 
+rem @echo nuget packages automatically update Processor project appconfig, but not the iisDefault web.config file. It must be manually updated if there were any nuget changes.
+rem @echo 
+rem @echo edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
+rem @echo copy the assembly redirect section
+rem @echo 
+rem @echo edit C:\Git\Contensive5\source\iisDefaultSite\Web.config
+rem @echo replace the assembly redirect section
+rem @echo 
+rem @echo +++++++++++++++++++++++++++++
+rem pause
+rem 
+rem echo on
 
 rem ==============================================================
 rem
