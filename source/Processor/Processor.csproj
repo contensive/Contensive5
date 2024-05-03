@@ -3,7 +3,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-	  <TargetFrameworks>net472;net8.0</TargetFrameworks>
+	  <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
 	  <RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -136,33 +136,34 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWS.Logger.NLog" Version="3.1.0" />
-    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.2.104" />
-    <PackageReference Include="AWSSDK.Core" Version="3.7.13.7" />
-    <PackageReference Include="AWSSDK.S3" Version="3.7.9.56" />
-    <PackageReference Include="AWSSDK.SecretsManager.Caching" Version="1.0.5" />
-    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.0.209" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.4.9" />
-    <PackageReference Include="AWSSDK.SQS" Version="3.7.2.106" />
-    <PackageReference Include="Handlebars.Net" Version="2.0.9" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+    <PackageReference Include="AWS.Logger.NLog" Version="3.3.1" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.305.26" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.303.25" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.307.26" />
+    <PackageReference Include="AWSSDK.SecretsManager.Caching" Version="1.0.6" />
+    <PackageReference Include="AWSSDK.SimpleEmail" Version="3.7.300.85" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.301.33" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.7.300.85" />
+    <PackageReference Include="Handlebars.Net" Version="2.1.6" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
     <PackageReference Include="M2Mqtt" Version="4.3.0" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.4.5" />
     <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />
     <PackageReference Include="Microsoft.Win32.Primitives" Version="4.3.0" />
-    <PackageReference Include="MimeMapping" Version="1.0.1.37" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageReference Include="NLog" Version="4.7.12" />
-    <PackageReference Include="NUglify" Version="1.20.0" />
-    <PackageReference Include="SharpZipLib" Version="1.4.1" />
+    <PackageReference Include="MimeMapping" Version="3.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NLog" Version="5.3.2" />
+    <PackageReference Include="NUglify" Version="1.21.7" />
+    <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.8" />
-    <PackageReference Include="StackExchange.Redis" Version="2.2.88" />
+    <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
-    <PackageReference Include="System.IO.Pipelines" Version="6.0.0" />
+    <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />
     <PackageReference Include="System.Runtime.Caching" Version="8.0.0" />
-    <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
-    <PackageReference Include="Twilio" Version="5.77.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="8.0.0" />
+    <PackageReference Include="Twilio" Version="7.0.5" />
     <PackageReference Include="UAParser" Version="3.1.47" />
   </ItemGroup>
 

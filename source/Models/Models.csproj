@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFrameworks>net472;net8.0</TargetFrameworks>
+	<TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
 	<LangVersion>latest</LangVersion>
     <RootNamespace>Contensive.Models</RootNamespace>
     <AssemblyName>ContensiveDbModels</AssemblyName>
@@ -58,6 +58,10 @@
       https://docs.microsoft.com/en-us/nuget/reference/msbuild-targets
     -->
     <None Include="LogoBalls.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

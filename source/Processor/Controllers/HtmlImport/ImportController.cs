@@ -55,6 +55,7 @@ namespace Contensive.Processor {
                             htmlFileFound = true;
                             HtmlDocument htmlDoc = new HtmlDocument();
                             htmlDoc.Load(cp.TempFiles.PhysicalFilePath + tempPath + file.Name, Encoding.UTF8);
+                            htmlDoc.OptionCheckSyntax = false;
                             if (htmlDoc == null) {
                                 //
                                 // -- body tag not found, import the whole document
@@ -117,8 +118,10 @@ namespace Contensive.Processor {
                                         return false;
                                     }
                                     if (layoutFrameworkId == 5) {
+                                        //layout.layoutPlatform5.content = htmlDoc.ParsedText;
                                         layout.layoutPlatform5.content = htmlDoc.DocumentNode.OuterHtml;
                                     } else {
+                                        //layout.layout.content = htmlDoc.ParsedText;
                                         layout.layout.content = htmlDoc.DocumentNode.OuterHtml;
                                     }
                                     layout.save(cp);

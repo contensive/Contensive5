@@ -696,10 +696,10 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // Edit Icon
                                 var editSegmentList = new List<string> {
-                                            AdminUIController.getAddonEditSegment(core, addon.id, addon.name)
+                                            AdminUIEditButtonController.getAddonEditSegment(core, addon.id, addon.name)
                                         };
-                                result = new StringBuilder(AdminUIController.getAddonEditAnchorTag(core, editSegmentList) + result.ToString());
-                                result = new StringBuilder(AdminUIController.getEditWrapper(core, result.ToString()));
+                                result = new StringBuilder(AdminUIEditButtonController.getAddonEditAnchorTag(core, editSegmentList) + result.ToString());
+                                result = new StringBuilder(AdminUIEditButtonController.getEditWrapper(core, result.ToString()));
                             }
                         }
                         //
@@ -1459,8 +1459,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- try to find addon in current executing path (built in addons)
                 bool AddonFound = false;
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
+                string codeLocation = Assembly.GetExecutingAssembly().Location;
+                UriBuilder uri = new(codeLocation);
                 string path = Uri.UnescapeDataString(uri.Path);
                 string appPath = Path.GetDirectoryName(path);
                 result = execute_dotNetClass_byPath(addon, assemblyFileDictKey, appPath, ref AddonFound);

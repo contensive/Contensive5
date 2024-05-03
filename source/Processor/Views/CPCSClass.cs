@@ -384,7 +384,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override string GetEditWrapper(string innerHtml) {
-            return AdminUIController.getEditWrapper(cp.core, "", GetEditLink() + innerHtml);
+            return AdminUIEditButtonController.getEditWrapper(cp.core, "", GetEditLink() + innerHtml);
         }
         //
         //====================================================================================================

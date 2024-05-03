@@ -1761,7 +1761,7 @@ namespace Contensive.Processor {
             try {
                 if (!ok()) { throw (new GenericException("Cannot create edit link because data set is not valid.")); }
                 string ContentName = MetadataController.getContentNameByID(core, getInteger("contentcontrolid"));
-                if (!string.IsNullOrEmpty(ContentName)) { return AdminUIController.getRecordEditAndCutAnchorTag(core, ContentName, getInteger("ID"), allowCut, getText("Name")); }
+                if (!string.IsNullOrEmpty(ContentName)) { return AdminUIEditButtonController.getRecordEditAndCutAnchorTag(core, ContentName, getInteger("ID"), allowCut, getText("Name")); }
                 return string.Empty;
             } catch (Exception ex) {
                 LogController.logError(core, ex);
@@ -1861,7 +1861,7 @@ namespace Contensive.Processor {
             var result = new StringBuilder();
             try {
                 if (string.IsNullOrEmpty(this.contentName)) { throw new GenericException("getRecordAddLink was called with a ContentSet that was created with an SQL statement. The function requires a ContentSet opened with an OpenCSContent."); }
-                foreach (var AddLink in AdminUIController.getRecordAddAnchorTag(core, this.contentName, PresetNameValueList, AllowPaste)) {
+                foreach (var AddLink in AdminUIEditButtonController.getRecordAddAnchorTag(core, this.contentName, PresetNameValueList, AllowPaste)) {
                     result.Append(AddLink);
                 }
             } catch (Exception ex) {
