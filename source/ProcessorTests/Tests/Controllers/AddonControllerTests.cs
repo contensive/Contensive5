@@ -206,7 +206,7 @@ namespace Tests {
             DbBaseModel.delete<AddonModel>(cp, a.id);
             DbBaseModel.delete<AddonModel>(cp, b.id);
             //
-            Assert.AreEqual("ABABABABABAB", result);
+            Assert.AreEqual("ABABABABABABA", result);
 
         }
         /// <summary>

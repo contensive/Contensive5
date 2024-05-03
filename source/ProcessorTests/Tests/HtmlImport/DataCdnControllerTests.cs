@@ -18,7 +18,7 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
+            //htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
             DataCdnController.process(cp, htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //
@@ -40,7 +40,7 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
+            //htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
             DataCdnController.process(cp, htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //
