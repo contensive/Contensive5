@@ -433,7 +433,6 @@ namespace Contensive.Processor.Controllers {
                         userHasAccess = true;
                         contentAllowAdd = true;
                         groupRulesAllowAdd = true;
-                        memberRulesDateExpires = DateTime.MinValue;
                         memberRulesAllow = true;
                     } else {
                         //

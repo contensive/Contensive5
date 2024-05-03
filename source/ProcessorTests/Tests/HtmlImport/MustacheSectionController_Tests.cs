@@ -14,7 +14,6 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            //htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
             MustacheSectionController.process(htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //
@@ -30,7 +29,6 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            //htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
             MustacheSectionController.process(htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //

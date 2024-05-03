@@ -55,7 +55,6 @@ namespace Contensive.Processor {
                             htmlFileFound = true;
                             HtmlDocument htmlDoc = new HtmlDocument();
                             htmlDoc.Load(cp.TempFiles.PhysicalFilePath + tempPath + file.Name, Encoding.UTF8);
-                            //htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
                             htmlDoc.OptionCheckSyntax = false;
                             if (htmlDoc == null) {
                                 //
@@ -271,7 +270,6 @@ namespace Contensive.Processor {
             public static string processHtml(CPBaseClass cp, string html, ImporttypeEnum importTypeId, ref List<string> userMessageList) {
                 HtmlDocument htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(html);
-                //htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
                 if (htmlDoc == null) {
                     //
                     // -- body tag not found, import the whole document

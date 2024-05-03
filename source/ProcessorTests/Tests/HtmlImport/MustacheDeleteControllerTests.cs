@@ -12,7 +12,6 @@ namespace Tests {
             //
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(test1Src);
-            //htmlDoc.GlobalAttributeValueQuote = AttributeValueQuote.Initial;
             DataDeleteController.process(htmlDoc);
             string test1Result = htmlDoc.DocumentNode.OuterHtml;
             //
