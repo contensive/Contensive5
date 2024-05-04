@@ -3023,7 +3023,6 @@
 			</Tab>
 			<Tab name="App" heading="Application Settings" description="Settings that affect the entire application.">
 				<SiteProperty caption="Database Upgrade Level" name="BuildVersion" ReadOnly="1" Type="Text" Selector="" Description="This is the version of your data, not the version of the Contensive software on your server. If this version number is lower then the software version, your may need to run a software upgrade."></SiteProperty>
-				<SiteProperty caption="Allow Cache" name="AllowBake" ReadOnly="0" Type="boolean" Selector="" Description="Uncheck to disable caching. Checking this box helps performance. Uncheck this box if pages or menus do not reflect recent changes">true</SiteProperty>
 			</Tab>
 			<Tab name="Email" heading="Email Settings" description="Settings that affect how Contensive sends email.">
 				<SiteProperty caption="Admin Email Address" name="EmailAdmin" ReadOnly="0" Type="text" Selector="" Description="The email address that will be used when the system emails the administrator."></SiteProperty>

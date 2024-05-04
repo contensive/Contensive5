@@ -856,26 +856,6 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// allowCache site property, not cached (to make it available to the cache process)
-        /// </summary>
-        /// <returns></returns>
-        public bool allowCache_notCached {
-            get {
-                if (_allowCache_notCached != null) { return (bool)_allowCache_notCached; }
-                // -- special case, allowCache referenced in nameValueDict load
-                if (_nameValueDict != null) {
-                    return getPropertyBase("AllowBake", true, ref _allowCache_notCached);
-                }
-                if (dbNotReady) { return false; }
-                bool propertyFound = false;
-                _allowCache_notCached = GenericController.encodeBoolean(getTextFromDb("AllowBake", "true", ref propertyFound));
-                return (bool)_allowCache_notCached;
-            }
-        }
-        private bool? _allowCache_notCached = null;
-        //
-        //====================================================================================================
-        /// <summary>
         /// The code version used to update the database last
         /// </summary>
         /// <returns></returns>

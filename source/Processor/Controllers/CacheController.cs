@@ -116,7 +116,7 @@ namespace Contensive.Processor.Controllers {
         private bool allowCache {
             get {
                 if (_allowCache != null) { return (bool)_allowCache; }
-                _allowCache = core.siteProperties.allowCache_notCached;
+                _allowCache = core.serverConfig.enableLocalFileCache || core.serverConfig.enableLocalMemoryCache || core.serverConfig.enableRemoteCache;
                 return (bool)_allowCache;
             }
         }

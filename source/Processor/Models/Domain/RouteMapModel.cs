@@ -259,15 +259,6 @@ namespace Contensive.Processor.Models.Domain {
         private static RouteMapModel getCache(CoreController core) {
             return core.cache.getObject<RouteMapModel>(cacheNameRouteMap);
         }
-        ////
-        ////====================================================================================================
-        ///// <summary>
-        ///// invalidate cache if anything is modified
-        ///// </summary>
-        ///// <param name="core"></param>
-        //public static void invalidateCache(CoreController core) {
-        //    core.cache.invalidate(cacheNameRouteMap);
-        //}
     }
 }
 

@@ -19,8 +19,9 @@ namespace Tests {
         [TestMethod]
         public void views_cpCache_TableInvalidationKey() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
-                cp.core.siteProperties.setProperty("AllowBake", true);
                 //
                 // save a new record using model, this should create the cache 
                 //
@@ -52,7 +53,8 @@ namespace Tests {
         public void views_cpCache_LegacySaveRead() {
             // arrange
             using (CPClass cp = new(testAppName)) {
-                cp.core.siteProperties.setProperty("AllowBake", true);
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // act
                 cp.Cache.Store("testString", "testValue");
                 // assert
@@ -67,8 +69,9 @@ namespace Tests {
         public void views_cpCache_SetGet_integration() {
             // arrange
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 DateTime testDate = new DateTime(1990, 8, 7);
-                cp.core.siteProperties.setProperty("AllowBake", true);
                 // act
                 cp.Cache.Store("testString", "testValue");
                 cp.Cache.Store("testInt", 12345);
@@ -91,8 +94,9 @@ namespace Tests {
         public void views_cpCache_InvalidateAll_integration() {
             // arrange
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 DateTime testDate = new DateTime(1990, 8, 7);
-                cp.core.siteProperties.setProperty("AllowBake", true);
                 // act
                 cp.Cache.Store("testString", "testValue", "a");
                 cp.Cache.Store("testInt", 12345, "a");
@@ -124,7 +128,8 @@ namespace Tests {
         public void views_cpCache_InvalidateList_integration() {
             // arrange
             using (CPClass cp = new(testAppName)) {
-                cp.core.siteProperties.setProperty("AllowBake", true);
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 DateTime testDate = new DateTime(1990, 8, 7);
                 List<string> tagList = new List<string> {
                     "a",
@@ -164,8 +169,9 @@ namespace Tests {
         public void views_cpCache_TagInvalidationListString() {
             // reviewed 20190107
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
-                cp.core.siteProperties.setProperty("AllowBake", true);
                 var dependentKeyList = new List<string>() { { "a" }, { "b" }, { "c" }, { "d" }, { "e" }, };
                 // act
                 cp.Cache.Store("keyA", "testValue1", dependentKeyList);
@@ -189,8 +195,9 @@ namespace Tests {
         public void views_cpCache_TagInvalidationCommaString() {
             // reviewed 20190107
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
-                cp.core.siteProperties.setProperty("AllowBake", true);
                 string dependentKeyCommaList = "a,b,c,d,e";
                 // act
                 cp.Cache.Store("keyA", "testValue1", dependentKeyCommaList);

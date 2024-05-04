@@ -171,7 +171,6 @@ namespace Contensive.Processor.Controllers {
                     //
                     // todo remove site properties not used, put all in preferences
                     core.siteProperties.getText("AllowAutoLogin", "False");
-                    core.siteProperties.getText("AllowBake", "True");
                     core.siteProperties.getText("AllowChildMenuHeadline", "True");
                     core.siteProperties.getText("AllowContentAutoLoad", "True");
                     core.siteProperties.getText("AllowContentSpider", "False");
