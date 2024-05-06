@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -7,6 +8,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Housekeep this content
     /// </summary>
     public static class LinkAliasClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -19,7 +23,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, LinkAlias");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
@@ -58,7 +62,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 if (recordsAffectedTotal > 0) { Contensive.Models.Db.DbBaseModel.invalidateCacheOfTable<Contensive.Models.Db.LinkAliasModel>(env.core.cpParent); }
 
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
             }
 
         }

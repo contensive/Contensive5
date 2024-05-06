@@ -2,6 +2,7 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -9,6 +10,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Housekeep this content
     /// </summary>
     public class EmailBounceListClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -21,7 +25,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, EmailBounceList");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
@@ -55,7 +59,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.core.cpParent.Db.ExecuteNonQuery("update ccmembers set allowbulkemail=0 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }

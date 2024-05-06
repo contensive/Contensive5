@@ -656,7 +656,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -737,7 +737,7 @@ namespace Contensive.Processor.Controllers {
                 return_propertyFound = true;
                 return DefaultValue;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -795,7 +795,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(cacheName, DefaultValue);
                 return DefaultValue;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

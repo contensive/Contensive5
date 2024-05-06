@@ -46,7 +46,7 @@ namespace Contensive.Processor.Controllers {
             bool result = false;
             try {
                 //
-                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", downloading collection [" + collectionGuid + "]");
+                logger.Info($"{core.logCommonMessage}, downloading collection [" + collectionGuid + "]");
                 //
                 // Request the Download file for this collection
                 XmlDocument Doc = new XmlDocument();
@@ -74,7 +74,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // this error could be data related, and may not be critical. log issue and continue
                         downloadDelay += 2000;
-                        LogController.logInfo(core, errorPrefix + "There was a parse error for collection [" + collectionGuid + "] reading the response [" + ex + "]");
+                        logger.Info($"{core.logCommonMessage},{errorPrefix},There was a parse error for collection [" + collectionGuid + "] reading the response [" + ex + "]");
                         result = true;
                     }
                     downloadRetry += 1;
@@ -84,14 +84,14 @@ namespace Contensive.Processor.Controllers {
                     // continue if no errors
                     if (Doc.DocumentElement.Name.ToLowerInvariant() != GenericController.toLCase(DownloadFileRootNode)) {
                         // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
-                        LogController.logInfo(core, errorPrefix + "The response has a basename [" + Doc.DocumentElement.Name + "] but [" + DownloadFileRootNode + "] was expected.");
+                        logger.Info($"{core.logCommonMessage},{errorPrefix},The response has a basename [" + Doc.DocumentElement.Name + "] but [" + DownloadFileRootNode + "] was expected.");
                         result = true;
                     } else {
                         //
                         // Parse the Download File and download each file into the working folder
                         if (Doc.DocumentElement.ChildNodes.Count == 0) {
                             // -- dont exit upgrade. There is nothing the installer can do. Log the issue.
-                            LogController.logInfo(core, errorPrefix + $"The collection library status file from the server has a valid basename, but no childnodes. The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
+                            logger.Info($"{core.logCommonMessage},{errorPrefix},The collection library status file from the server has a valid basename, but no childnodes. The collection was not found at [{URL}]. The guid may be incorrect, or no valid download was available for this version [{CoreController.codeVersion()}].");
                             result = true;
                         } else {
                             //
@@ -141,7 +141,7 @@ namespace Contensive.Processor.Controllers {
                                                         if ((Pos <= 0) && (Pos < CollectionFileLink.Length)) {
                                                             //
                                                             // Skip this file because the collecion file link has no slash (no file)
-                                                            LogController.logInfo(core, errorPrefix + "Collection [" + Collectionname + "] was not installed because the Collection File Link does not point to a valid file [" + CollectionFileLink + "]");
+                                                            logger.Info($"{core.logCommonMessage},{errorPrefix},Collection [" + Collectionname + "] was not installed because the Collection File Link does not point to a valid file [" + CollectionFileLink + "]");
                                                         } else {
                                                             string CollectionFilePath = tempFilesDownloadPath + CollectionFileLink.Substring(Pos);
                                                             core.tempFiles.saveHttpRequestToFile(CollectionFileLink, CollectionFilePath);
@@ -166,7 +166,7 @@ namespace Contensive.Processor.Controllers {
                                                     }
                                                     if (string.IsNullOrEmpty(ResourceLink)) {
                                                         UserError = "There was an error processing a collection in the download file [" + Collectionname + "]. An ActiveXDll node with filename [" + ResourceFilename + "] contained no 'Link' attribute.";
-                                                        LogController.logInfo(core, errorPrefix + UserError);
+                                                        logger.Info($"{core.logCommonMessage},{errorPrefix},{UserError}");
                                                     } else {
                                                         if (string.IsNullOrEmpty(ResourceFilename)) {
                                                             //
@@ -178,7 +178,7 @@ namespace Contensive.Processor.Controllers {
                                                         }
                                                         if (string.IsNullOrEmpty(ResourceFilename)) {
                                                             UserError = "There was an error processing a collection in the download file [" + Collectionname + "]. The ActiveX filename attribute was empty, and the filename could not be read from the link [" + ResourceLink + "].";
-                                                            LogController.logInfo(core, errorPrefix + UserError);
+                                                            logger.Info($"{core.logCommonMessage},{errorPrefix},{UserError}");
                                                         } else {
                                                             core.tempFiles.saveHttpRequestToFile(ResourceLink, tempFilesDownloadPath + ResourceFilename);
                                                         }
@@ -190,7 +190,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                             if (CollectionFileCnt == 0) {
-                                LogController.logInfo(core, errorPrefix + "The collection was requested and downloaded, but was not installed because the download file did not have a collection root node.");
+                                logger.Info($"{core.logCommonMessage},{errorPrefix},The collection was requested and downloaded, but was not installed because the download file did not have a collection root node.");
                             }
                         }
                     }
@@ -199,7 +199,7 @@ namespace Contensive.Processor.Controllers {
                     core.cache.invalidateAll();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;
@@ -230,7 +230,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 collectionGuid = GenericController.normalizeGuid(collectionGuid);
                 if (string.IsNullOrWhiteSpace(collectionGuid)) {
-                    LogController.logWarn(core, "installCollectionFromRemoteRepo, collectionGuid is null");
+                    logger.Warn($"{core.logCommonMessage}, installCollectionFromRemoteRepo, collectionGuid is null");
                 } else if (!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) {
                     //
                     // Download all files for this collection and build the collection folder(s)
@@ -253,7 +253,7 @@ namespace Contensive.Processor.Controllers {
                     core.cache.invalidateAll();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             } finally {
                 contextLog.Pop();

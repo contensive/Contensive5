@@ -155,7 +155,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return null;
             }
         }

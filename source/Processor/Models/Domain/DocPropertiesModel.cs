@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,6 +14,9 @@ namespace Contensive.Processor.Models.Domain {
     /// doc properties are properties limited in scope to this single hit, or viewing
     /// </summary>
     public class DocPropertiesModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         private readonly CoreController core;
         //
@@ -132,7 +136,7 @@ namespace Contensive.Processor.Models.Domain {
                     value = value
                 });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -145,7 +149,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="value">See DocPropertyModel for details.</param>
         public void setProperty(string key, DocPropertyModel value) {
             //
-            LogController.logTrace(core, "docPropertyModel.setProperty, nameValue [" + value.nameValue + "], propertyType [" + (int)value.propertyType + "]");
+            logger.Trace($"{core.logCommonMessage},docPropertyModel.setProperty, nameValue [" + value.nameValue + "], propertyType [" + (int)value.propertyType + "]");
             //
             string propKey = encodeDocPropertyKey(key);
             if (!string.IsNullOrEmpty(propKey)) {
@@ -189,7 +193,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 return GenericController.encodeNumber(getProperty(RequestName).value);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -204,7 +208,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 return GenericController.encodeInteger(getProperty(RequestName).value);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -219,7 +223,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 return GenericController.encodeText(getProperty(RequestName).value);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -234,7 +238,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 return ContentRenderController.processWysiwygResponseForSave(core, GenericController.encodeText(getProperty(key).value));
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -249,7 +253,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 return GenericController.encodeBoolean(getProperty(RequestName).value);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -260,7 +264,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 return GenericController.encodeDate(getProperty(RequestName).value);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -276,7 +280,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return new DocPropertyModel();
@@ -322,7 +326,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

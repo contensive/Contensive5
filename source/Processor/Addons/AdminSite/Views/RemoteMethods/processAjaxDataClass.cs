@@ -2,10 +2,14 @@
 using System;
 using Contensive.Processor.Controllers;
 using Contensive.Exceptions;
+using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
     //
     public class ProcessAjaxDataClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -36,7 +40,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string processAjaxData(CoreController core) {
             string result = "";
             try {
-                LogController.logError(core, new GenericException("executeRoute_ProcessAjaxData deprecated"));
+                logger.Error($"{core.logCommonMessage}", new GenericException("executeRoute_ProcessAjaxData deprecated"));
             } catch (Exception ex) {
                 throw (ex);
             }

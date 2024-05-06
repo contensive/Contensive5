@@ -203,7 +203,7 @@ namespace Contensive.Processor.Controllers {
                     result.Add("<div class=\"ccTestPointMessageCon\">" + core.doc.testPointMessage + "</div>");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return string.Join("\r", result);
@@ -287,7 +287,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- Selection is too big
                         ErrorController.addUserError(core, "The drop down list for " + ContentName + " called " + MenuName + " is too long to display. The site administrator has been notified and the problem will be resolved shortly. To fix this issue temporarily, go to the admin tab of the Preferences page and set the Select Field Limit larger than " + RowCnt + ".");
-                        LogController.logError(core, new Exception("Error creating select list from content [" + ContentName + "] called [" + MenuName + "]. Selection of [" + RowCnt + "] records exceeds [" + core.siteProperties.selectFieldLimit + "], the current Site Property SelectFieldLimit."));
+                        logger.Error($"{core.logCommonMessage}", new Exception("Error creating select list from content [" + ContentName + "] called [" + MenuName + "]. Selection of [" + RowCnt + "] records exceeds [" + core.siteProperties.selectFieldLimit + "], the current Site Property SelectFieldLimit."));
                         result += inputHidden(MenuNameFPO, CurrentValue);
                         if (CurrentValue == 0) {
                             result = inputText_Legacy(core, MenuName, "0");
@@ -366,7 +366,7 @@ namespace Contensive.Processor.Controllers {
                             DropDownFieldCount = DropDownFieldCount + 1;
                         }
                         if (DropDownFieldCount == 0) {
-                            LogController.logError(core, new Exception("No drop down field names found for content [" + ContentName + "]."));
+                            logger.Error($"{core.logCommonMessage}", new Exception("No drop down field names found for content [" + ContentName + "]."));
                         } else {
                             int[] DropDownFieldPointer = new int[DropDownFieldCount];
                             string SelectFields = "ID";
@@ -498,7 +498,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 result = SelectRaw;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -549,7 +549,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Selection is too big
                         //
-                        LogController.logError(core, new Exception("While building a group members list for group [" + GroupController.getGroupName(core, GroupID) + "], too many rows were selected. [" + RowMax + "] records exceeds [" + core.siteProperties.selectFieldLimit + "], the current Site Property app.SiteProperty_SelectFieldLimit."));
+                        logger.Error($"{core.logCommonMessage}", new Exception("While building a group members list for group [" + GroupController.getGroupName(core, GroupID) + "], too many rows were selected. [" + RowMax + "] records exceeds [" + core.siteProperties.selectFieldLimit + "], the current Site Property app.SiteProperty_SelectFieldLimit."));
                         result += inputHidden(MenuNameFPO, currentValue);
                         if (currentValue != 0) {
                             using (var csData = new CsModel(core)) {
@@ -626,7 +626,7 @@ namespace Contensive.Processor.Controllers {
                             DropDownFieldCount = DropDownFieldCount + 1;
                         }
                         if (DropDownFieldCount == 0) {
-                            LogController.logError(core, new Exception("No drop down field names found for content [" + GroupID + "]."));
+                            logger.Error($"{core.logCommonMessage}", new Exception("No drop down field names found for content [" + GroupID + "]."));
                         } else {
                             int[] DropDownFieldPointer = new int[DropDownFieldCount];
                             string SelectFields = "P.ID";
@@ -737,7 +737,7 @@ namespace Contensive.Processor.Controllers {
                 SelectRaw = GenericController.strReplace(SelectRaw, NoneCaptionFPO, noneCaption);
                 result = SelectRaw;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -780,7 +780,7 @@ namespace Contensive.Processor.Controllers {
                 FastString.Append("</select>");
                 return FastString.ToString();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -822,7 +822,7 @@ namespace Contensive.Processor.Controllers {
                     result += "</td></tr></table>";
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1075,7 +1075,7 @@ namespace Contensive.Processor.Controllers {
                     core.doc.formInputTextCnt += 1;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1098,7 +1098,7 @@ namespace Contensive.Processor.Controllers {
                 result = "<input TYPE=\"Text\" value=\"" + defaultValue + "\"" + attrList + ">";
                 core.doc.formInputTextCnt += 1;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1132,7 +1132,7 @@ namespace Contensive.Processor.Controllers {
                 result = "<textarea" + attrList + ">" + defaultValue + "</textarea>";
                 core.doc.formInputTextCnt += 1;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1153,7 +1153,7 @@ namespace Contensive.Processor.Controllers {
                 result += (!required) ? "" : " required";
                 result += ">";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1172,7 +1172,7 @@ namespace Contensive.Processor.Controllers {
                 result += (!required) ? "" : " required";
                 result += ">";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1302,7 +1302,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 if (!fieldFound) {
-                    LogController.logError(core, new Exception("Field [" + fieldName + "] was not found in Content Definition [" + contentName + "]"));
+                    logger.Error($"{core.logCommonMessage}", new Exception("Field [" + fieldName + "] was not found in Content Definition [" + contentName + "]"));
                 } else {
                     //
                     // main_Get the current value if the record was found
@@ -1462,7 +1462,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnResult;
@@ -1694,7 +1694,7 @@ namespace Contensive.Processor.Controllers {
                     core.doc.wysiwygAddonList.Add(contentType, result);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1923,7 +1923,7 @@ namespace Contensive.Processor.Controllers {
                     result += "[" + list + "]" + SrcSelectorSuffix;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1981,7 +1981,7 @@ namespace Contensive.Processor.Controllers {
                     });
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnHtml;
@@ -2042,7 +2042,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -2214,14 +2214,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // ----- Public Site call, must have contentname and recordid
                 //
-                LogController.logError(core, new Exception("invalid content [" + ContentName + "], RecordID [" + RecordID + "]"));
+                logger.Error($"{core.logCommonMessage}", new Exception("invalid content [" + ContentName + "], RecordID [" + RecordID + "]"));
             } else {
                 //
                 // ----- Normal Content Edit - find instance in the content
                 //
                 using (var csData = new CsModel(core)) {
                     if (!csData.openRecord(ContentName, RecordID)) {
-                        LogController.logError(core, new Exception("No record found with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
+                        logger.Error($"{core.logCommonMessage}", new Exception("No record found with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
                     } else {
                         if (!string.IsNullOrEmpty(FieldName)) {
                             //
@@ -2265,7 +2265,7 @@ namespace Contensive.Processor.Controllers {
                         // Parse out the Addon Name
                         //
                         if (PosACInstanceId == 0) {
-                            LogController.logError(core, new Exception("AC Instance [" + ACInstanceId + "] not found in record with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
+                            logger.Error($"{core.logCommonMessage}", new Exception("AC Instance [" + ACInstanceId + "] not found in record with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
                         } else {
                             Copy = ContentRenderController.updateLibraryFilesInHtmlContent(core, Copy);
                             ParseOK = false;
@@ -2364,7 +2364,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                             if (!ParseOK) {
-                                LogController.logError(core, new Exception("There was a problem parsing AC Instance [" + ACInstanceId + "] record with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
+                                logger.Error($"{core.logCommonMessage}", new Exception("There was a problem parsing AC Instance [" + ACInstanceId + "] record with content [" + ContentName + "] and RecordID [" + RecordID + "]"));
                             }
                         }
                     }
@@ -2480,17 +2480,17 @@ namespace Contensive.Processor.Controllers {
                 // ----- argument validate
                 captionFieldName = encodeEmpty(captionFieldName, "name");
                 if (string.IsNullOrEmpty(primaryContentName) || string.IsNullOrEmpty(secondaryContentName) || string.IsNullOrEmpty(rulesContentName) || string.IsNullOrEmpty(rulesPrimaryFieldname) || string.IsNullOrEmpty(rulesSecondaryFieldName)) {
-                    LogController.logError(core, new Exception("Creating checklist, all required fields were not supplied, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    logger.Error($"{core.logCommonMessage}", new Exception("Creating checklist, all required fields were not supplied, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
                     return "[Checklist not configured]";
                 }
                 var secondaryMeta = ContentMetadataModel.createByUniqueName(core, secondaryContentName);
                 if (secondaryMeta == null) {
-                    LogController.logError(core, new Exception("Creating checklist, secondary content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    logger.Error($"{core.logCommonMessage}", new Exception("Creating checklist, secondary content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
                     return "[Checklist not configured]";
                 }
                 var rulesMeta = ContentMetadataModel.createByUniqueName(core, rulesContentName);
                 if (rulesMeta == null) {
-                    LogController.logError(core, new Exception("Creating checklist, rule content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
+                    logger.Error($"{core.logCommonMessage}", new Exception("Creating checklist, rule content was not valid, Caption=[" + captionFieldName + "], PrimaryContentName=[" + primaryContentName + "], SecondaryContentName=[" + secondaryContentName + "], RulesContentName=[" + rulesContentName + "], RulesPrimaryFieldName=[" + rulesPrimaryFieldname + "], RulesSecondaryFieldName=[" + rulesSecondaryFieldName + "]"));
                     return "[Checklist not configured]";
                 }
                 //
@@ -2693,7 +2693,7 @@ namespace Contensive.Processor.Controllers {
                 core.doc.checkListCnt = core.doc.checkListCnt + 1;
                 return result.ToString();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -2858,7 +2858,7 @@ namespace Contensive.Processor.Controllers {
                     + Environment.NewLine + "</html>"
                     + "";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -2990,7 +2990,7 @@ namespace Contensive.Processor.Controllers {
                     headList.Add(asset.content);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return string.Join(Environment.NewLine, headList);
         }
@@ -3008,7 +3008,7 @@ namespace Contensive.Processor.Controllers {
                     });
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3037,7 +3037,7 @@ namespace Contensive.Processor.Controllers {
                     sourceAddonId = sourceAddonId
                 });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3083,7 +3083,7 @@ namespace Contensive.Processor.Controllers {
                     sourceAddonId = sourceAddonId
                 });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3115,7 +3115,7 @@ namespace Contensive.Processor.Controllers {
                     });
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3130,7 +3130,7 @@ namespace Contensive.Processor.Controllers {
                     });
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3167,7 +3167,7 @@ namespace Contensive.Processor.Controllers {
                     content = link
                 });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3184,7 +3184,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3201,7 +3201,7 @@ namespace Contensive.Processor.Controllers {
                     });
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -3245,7 +3245,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnCopy;
@@ -3301,14 +3301,14 @@ namespace Contensive.Processor.Controllers {
                 // -- get additional rule fields 
                 var ruleMetadata = ContentMetadataModel.createByUniqueName(core, rulesContentName);
                 if (ruleMetadata == null) {
-                    LogController.logWarn(core, "processCheckList called and ruleContentName not found [" + rulesContentName + "]");
+                    logger.Warn($"{core.logCommonMessage}, processCheckList called and ruleContentName not found [" + rulesContentName + "]");
                     return;
                 }
                 var ruleEditFields = getRuleEditFields(ruleMetadata, rulesPrimaryFieldname, rulesSecondaryFieldName);
                 //
                 var secondaryMetadata = ContentMetadataModel.createByUniqueName(core, secondaryContentName);
                 if (secondaryMetadata == null) {
-                    LogController.logWarn(core, "processCheckList called and secondaryContentName not found [" + secondaryContentName + "]");
+                    logger.Warn($"{core.logCommonMessage}, processCheckList called and secondaryContentName not found [" + secondaryContentName + "]");
                     return;
                 }
                 //
@@ -3832,7 +3832,7 @@ namespace Contensive.Processor.Controllers {
                 result += (!required) ? "" : " required";
                 result += ">";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -3855,7 +3855,7 @@ namespace Contensive.Processor.Controllers {
                 result += (!required) ? "" : " required";
                 result += ">";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -3878,7 +3878,7 @@ namespace Contensive.Processor.Controllers {
                 result += (!required) ? "" : " required";
                 result += ">";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -3908,7 +3908,7 @@ namespace Contensive.Processor.Controllers {
                     + "\n" + code
                     + "\n</script>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -3920,7 +3920,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrWhiteSpace(src)) { return string.Empty; }
                 return "<script src=\"" + src + "\"></script>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }

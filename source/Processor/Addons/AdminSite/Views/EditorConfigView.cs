@@ -3,9 +3,13 @@ using System;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
+using NLog;
 //
 namespace Contensive.Processor.Addons.AdminSite {
     public class EditorConfigView {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //========================================================================
         //   Editor features are stored in the \config\EditorFeatures.txt file
@@ -144,7 +148,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

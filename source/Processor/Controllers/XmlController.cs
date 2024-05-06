@@ -949,7 +949,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return DefaultIfNotFound;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

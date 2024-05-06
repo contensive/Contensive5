@@ -1,11 +1,15 @@
 ﻿
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor {
     public class CPUserClass : BaseClasses.CPUserBaseClass, IDisposable {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -221,7 +225,7 @@ namespace Contensive.Processor {
                 }
                 return IsInGroupList(groupId.ToString(), userId);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 return false;
             }
         }

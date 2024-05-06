@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -7,6 +8,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// exeute housekeep tasks hourly
     /// </summary>
     public static class HousekeepHourlyTasksClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -70,7 +74,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 env.log("executeHourlyTasks, done");
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             } finally {

@@ -29,7 +29,7 @@ namespace Contensive.Processor.Controllers {
                 if (meta != null) { return meta.tableName; }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -47,7 +47,7 @@ namespace Contensive.Processor.Controllers {
                 if (meta != null) { return meta.name; }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -62,7 +62,7 @@ namespace Contensive.Processor.Controllers {
                 if (meta == null) { return string.Empty; }
                 return meta.getRecordName(core, recordID);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -82,7 +82,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -106,7 +106,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -226,7 +226,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(originalFilename)) { return FileController.getVirtualRecordUnixPathFilename(meta.tableName, fieldName, recordId, meta.fields[fieldName.ToLowerInvariant()].fieldTypeId); }
                 return FileController.getVirtualRecordUnixPathFilename(meta.tableName, fieldName, recordId, originalFilename);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -310,7 +310,7 @@ namespace Contensive.Processor.Controllers {
                         break;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 //
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -9,6 +10,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// housekeep environment, to facilitate argument passing
     /// </summary>
     public class HouseKeepEnvironmentModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         public readonly CoreController core;
         //
@@ -20,7 +24,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
         public void log( string message ) {
             //
             // -- add to the info log
-            LogController.logInfo(core, message);
+            logger.Info($"{core.logCommonMessage},{message}");
         }
         //
         //====================================================================================================
@@ -179,7 +183,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
             try {
                 this.core = core;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -7,6 +8,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Activity Log
     /// </summary>
     public static class TasksClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -19,7 +23,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, TasksClass");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
@@ -44,7 +48,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     env.core.db.executeNonQuery("delete from cctasks where (cmdRunner is not null)or(DateAdded<DATEADD(day,-1,CAST(GETDATE() AS DATE)))");
                 }
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 

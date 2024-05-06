@@ -3,10 +3,14 @@ using System;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class ContentFileManagerToolClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -38,7 +42,7 @@ namespace Contensive.Processor.Addons.Tools {
                 string ButtonList = ButtonApply + "," + ButtonCancel;
                 result = AdminUIController.getToolBody(core, "Content File Manager", ButtonList, "", false, false, Description, "", 0, Content);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

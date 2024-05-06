@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 using Contensive.Processor.Controllers;
+using NLog;
 //
 namespace Contensive.Processor.Models.Domain {
     /// <summary>
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     //
     public class TableSchemaModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         public class ColumnSchemaModel {
             public string COLUMN_NAME;
@@ -110,7 +114,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return tableSchema;

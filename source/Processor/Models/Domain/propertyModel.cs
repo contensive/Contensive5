@@ -4,6 +4,7 @@ using System.Data;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 using System.Globalization;
+using NLog;
 //
 namespace Contensive.Processor.Models.Domain {
     /// <summary>
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     //
     public class PropertyModelClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         private readonly CoreController core;
         /// <summary>
@@ -187,7 +191,7 @@ namespace Contensive.Processor.Models.Domain {
                 string SQLNow = DbController.encodeSQLDate(core.dateTimeNowMockable);
                 core.db.executeNonQuery("update ccProperties set FieldValue=" + DbController.encodeSQLText(propertyValue) + ",ModifiedDate=" + SQLNow + " where id=" + RecordId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -331,7 +335,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return returnString;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -375,7 +379,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 localCacheCnt = dt.Rows.Count;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

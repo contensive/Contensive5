@@ -4,10 +4,14 @@ using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class FindAndReplaceToolClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -123,7 +127,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonCancel + "," + ButtonFindAndReplace);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Contensive.BaseModels;
 using Contensive.Exceptions;
 using Contensive.Processor.Controllers;
+using NLog;
 //
 namespace Contensive.Processor.Models.Domain {
     //
@@ -15,6 +16,9 @@ namespace Contensive.Processor.Models.Domain {
     /// - saveObject( cp ) - saves instance properties, returns the record id
     /// </summary>
     public class AppConfigModel : Contensive.BaseModels.AppConfigBaseModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// name for the app. Must be unique within the server group. Difficulate to change later.
         /// </summary>
@@ -152,7 +156,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logFatal(core, ex, "exception in serverConfigModel.getObject");
+                logger.Fatal(ex, $"{core.logCommonMessage},exception in serverConfigModel.getObject");
                 throw;
             }
             return returnModel;
@@ -175,7 +179,7 @@ namespace Contensive.Processor.Models.Domain {
                     core.serverConfig.save(core);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
     }

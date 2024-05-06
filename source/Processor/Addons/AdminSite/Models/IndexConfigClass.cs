@@ -3,10 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Contensive.Processor.Controllers;
+using NLog;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Addons.AdminSite {
     public class IndexConfigClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         internal const int groupListCntMax = 10;
         //
@@ -238,7 +242,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnIndexConfig;

@@ -44,7 +44,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 return encryptTwoWay(core, keyInteger.ToString() + "\t" + expiresDate.ToString("yyyy-MM-dd'T'HH:mm:ss"));
             } catch (Exception ex) {
-                LogController.logError(core, ex, "EncodeToken failure. Returning blank result for keyInteger [" + keyInteger + "], keyDate [" + expiresDate + "]");
+                logger.Error($"{core.logCommonMessage}", ex, "EncodeToken failure. Returning blank result for keyInteger [" + keyInteger + "], keyDate [" + expiresDate + "]");
                 return "";
             }
         }
@@ -66,7 +66,7 @@ namespace Contensive.Processor.Controllers {
                     result.expires = GenericController.encodeDate(parts[1]);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "DecodeToken failure. Returning blank result for token [" + token + "]");
+                logger.Error($"{core.logCommonMessage}", ex, "DecodeToken failure. Returning blank result for token [" + token + "]");
             }
             return result;
         }
@@ -93,7 +93,7 @@ namespace Contensive.Processor.Controllers {
                 byte[] saltBytes = Encoding.ASCII.GetBytes(salt);
                 return HashEncode.computeHash(password, "SHA512", saltBytes);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -110,7 +110,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 returnResult = HashEncode.verifyHash(sourceToTest, "SHA512", encryptedToken);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnResult;
@@ -201,7 +201,7 @@ namespace Contensive.Processor.Controllers {
                     returnResult = Convert.ToBase64String(Buffer);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnResult;
@@ -236,12 +236,12 @@ namespace Contensive.Processor.Controllers {
                     try {
                         returnResult = System.Text.ASCIIEncoding.ASCII.GetString(DESDecrypt.TransformFinalBlock(buffer, 0, buffer.Length));
                     } catch (Exception ex) {
-                        LogController.logError(core, ex);
+                        logger.Error(ex, $"{core.logCommonMessage}");
                         throw;
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnResult;

@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,6 +14,10 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     //
     public class CollectionLibraryModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
         public string name;
         public string guid;
         /// <summary>
@@ -37,14 +42,12 @@ namespace Contensive.Processor.Models.Domain {
                     LibCollections.Load("http://support.contensive.com/GetCollectionList?iv=" + CoreController.codeVersion() + "&includeSystem=1&includeNonPublic=1");
                 } catch (Exception) {
                     string UserError = "There was an error reading the Collection Library. The site may be unavailable.";
-                    LogController.logInfo(core, UserError);
-                    ErrorController.addUserError(core, UserError);
+                    logger.Info($"{core.logCommonMessage},{UserError}");
                     return null;
                 }
                 if (GenericController.toLCase(LibCollections.DocumentElement.Name) != GenericController.toLCase(Constants.CollectionListRootNode)) {
                     string UserError = "There was an error reading the Collection Library file. The '" + Constants.CollectionListRootNode + "' element was not found.";
-                    LogController.logInfo(core, UserError);
-                    ErrorController.addUserError(core, UserError);
+                    logger.Info($"{core.logCommonMessage},{UserError}");
                     return null;
                 }
                 foreach (XmlNode collectionNode in LibCollections.DocumentElement.ChildNodes) {

@@ -5,10 +5,14 @@ using static Contensive.Processor.Constants;
 using System.Collections.Generic;
 using System.Threading;
 using Contensive.Models.Db;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class IISResetToolClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -48,7 +52,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 return AdminUIController.getToolForm(core, result_reset.text, ButtonCancel + "," + ButtonIISReset);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }

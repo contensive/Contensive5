@@ -1,5 +1,6 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using NLog;
 using System;
 using System.Collections.Generic;
 
@@ -8,6 +9,9 @@ namespace Contensive.Processor.Controllers {
     /// Simple layout methods frequently used
     /// </summary>
     public static class LayoutController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         // 
         // ====================================================================================================
         /// <summary>
@@ -86,7 +90,7 @@ namespace Contensive.Processor.Controllers {
                 var layout = cp.core.cacheRuntime.layoutIdDict[layoutId];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -105,7 +109,7 @@ namespace Contensive.Processor.Controllers {
                 var layout = cp.core.cacheRuntime.layoutGuidDict[layoutGuid];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -124,7 +128,7 @@ namespace Contensive.Processor.Controllers {
                 var layout = cp.core.cacheRuntime.layoutNameDict[layoutName];
                 return ((cp.core.siteProperties.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) ? layout.layoutPlatform5.content : layout.layout.content;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -160,7 +164,7 @@ namespace Contensive.Processor.Controllers {
                     return defaultLayout;
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

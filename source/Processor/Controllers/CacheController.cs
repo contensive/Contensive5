@@ -167,11 +167,11 @@ namespace Contensive.Processor.Controllers {
             } catch (RedisConnectionException ex) {
                 //
                 // -- could not connect
-                logger.Error(ex, LogController.processLogMessage(core, "Exception initializing Redis connection, will continue with cache disabled.", true));
+                logger.Error(ex, $"{core.logCommonMessage},Exception initializing Redis connection, will continue with cache disabled.");
             } catch (Exception ex) {
                 //
                 // -- mystery except, but cannot let a connection error take down the application
-                logger.Error(ex, LogController.processLogMessage(core, "Exception initializing remote cache, will continue with cache disabled.", true));
+                logger.Error(ex, $"{core.logCommonMessage},Exception initializing remote cache, will continue with cache disabled.");
             }
         }
         //
@@ -241,7 +241,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return cacheHit;
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return true;
             }
         }
@@ -289,7 +289,7 @@ namespace Contensive.Processor.Controllers {
                     return default;
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return default;
             }
         }
@@ -357,7 +357,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //result = cacheClientMemCacheD.Get<CacheDocumentClass>(keyHash.hash);
                     } catch (Exception ex) {
-                        logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                        logger.Error(ex, $"{core.logCommonMessage}");
                         throw;
                     }
                 }
@@ -409,7 +409,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -471,7 +471,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 storeCacheDocument(keyHash, cacheDocument);
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -632,7 +632,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 storeCacheDocument(keyPtrHash, cacheDocument);
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -662,7 +662,7 @@ namespace Contensive.Processor.Controllers {
                 storeCacheDocument(keyHash, new CacheDocumentClass(core.dateTimeNowMockable) { saveDate = core.dateTimeNowMockable });
                 _globalInvalidationDate = null;
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -708,7 +708,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -736,7 +736,7 @@ namespace Contensive.Processor.Controllers {
                     invalidate(key);
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -977,7 +977,7 @@ namespace Contensive.Processor.Controllers {
                 //logger.Trace(LogController.processLogMessage(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to key [" + string.Join(",", cacheDocument.keyPtrHash.key) + "]", false));
                 //
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception, ex [" + ex.ToString() + "]", true));
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

@@ -110,7 +110,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -134,7 +134,7 @@ namespace Contensive.Processor.Controllers {
                 if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
                 return getRecordEditAndCutAnchorTag(core, contentMetadata, recordId, allowCut, recordName, customCaption);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -173,7 +173,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -187,7 +187,7 @@ namespace Contensive.Processor.Controllers {
                 };
                 return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -265,7 +265,7 @@ namespace Contensive.Processor.Controllers {
                 if (addonId < 1) { throw (new GenericException("RecordID [" + addonId + "] is invalid")); }
                 return getAddonEditAnchorTag(core, addonId, "Edit Add-on" + ((string.IsNullOrEmpty(addonName)) ? "" : " '" + addonName + "'"));
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -287,7 +287,7 @@ namespace Contensive.Processor.Controllers {
                 if (contentMetadata == null) { throw new GenericException("getRecordEditLink called with contentName [" + contentName + "], but no content metadata found with this name."); }
                 return getRecordEditSegment(core, contentMetadata, recordId, recordName, customCaption);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }
@@ -392,7 +392,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return new List<string>();
             }
         }

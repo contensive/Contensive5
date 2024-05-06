@@ -28,7 +28,7 @@ namespace Contensive.Processor.Controllers {
         public static string getLoginPage(CoreController core, bool forceDefaultLoginForm, bool blockNoPasswordMode) {
             try {
                 //
-                LogController.logTrace(core, "loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + blockNoPasswordMode + "]");
+                logger.Trace($"{core.logCommonMessage},loginController.getLoginForm, forceDefaultLoginForm [" + forceDefaultLoginForm + "], requirePassword [" + blockNoPasswordMode + "]");
                 //
                 if (forceDefaultLoginForm || core.siteProperties.loginPageAddonId == 0) {
                     //
@@ -59,7 +59,7 @@ namespace Contensive.Processor.Controllers {
                 qs = GenericController.modifyQueryString(qs, "RequestBinary", "");
                 return core.webServer.redirect("?" + qs, "Login form success");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -74,7 +74,7 @@ namespace Contensive.Processor.Controllers {
         private static string getLoginPage_Default(CoreController core, bool blockNoPasswordMode) {
             try {
                 //
-                LogController.logTrace(core, "loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
+                logger.Trace($"{core.logCommonMessage},loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
                 //
                 string processFormType = core.docProperties.getText("type");
                 if (processFormType == FormTypeLogin) {
@@ -180,7 +180,7 @@ namespace Contensive.Processor.Controllers {
                     + "</div>"
                     + "</div>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -198,7 +198,7 @@ namespace Contensive.Processor.Controllers {
         public static bool processLoginPage_Default(CoreController core, string requestUsername, string requestPassword, bool requestIncludesPassword) {
             try {
                 //
-                LogController.logTrace(core, "loginController.processLoginFormDefault, requestUsername [" + requestUsername + "], requestPassword [" + requestPassword + "], requestIncludesPassword [" + requestIncludesPassword + "]");
+                logger.Trace($"{core.logCommonMessage},loginController.processLoginFormDefault, requestUsername [" + requestUsername + "], requestPassword [" + requestPassword + "], requestIncludesPassword [" + requestIncludesPassword + "]");
                 //
                 if ((!core.session.visit.cookieSupport) && (core.session.visit.pageVisits > 1)) {
                     //
@@ -216,7 +216,7 @@ namespace Contensive.Processor.Controllers {
                     // -- if login fails, do not logout. Current issue where a second longin process is running, fails, 
                     // -- and logs out because there is a 'username' collision with another addon which overwrites the global-space username variable
                     // -- informal survey of trusted sites leave you logged in if sign-on fails. 
-                    ErrorController.addUserError(core, UserErrorMessage);
+                    logger.Info($"{core.logCommonMessage},{UserErrorMessage}");
                     return false;
                 }
                 if (!AuthenticationController.authenticateById(core, core.session, userId)) {
@@ -235,7 +235,7 @@ namespace Contensive.Processor.Controllers {
                 LogController.addActivityCompletedVisit(core, "Login", "successful username/password login", core.session.user.id);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

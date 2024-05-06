@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using static Contensive.Processor.Controllers.GenericController;
 
@@ -8,6 +9,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Housekeep the temp file system
     /// </summary>
     public static class TempFilesClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -22,7 +26,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 deleteOldFilesReturnFilesRemaining(env, "\\");
 
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
@@ -62,7 +66,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 return filesRemaining;
 
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }

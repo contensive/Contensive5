@@ -1,11 +1,15 @@
 ﻿
 using System;
 using Contensive.Processor.Controllers;
+using NLog;
 using static Contensive.Processor.Constants;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class LogFileToolClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -34,7 +38,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 tempGetForm_LogFiles = AdminUIController.getToolForm(core, tempGetForm_LogFiles, ButtonList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return tempGetForm_LogFiles;
         }
@@ -171,7 +175,7 @@ namespace Contensive.Processor.Addons.Tools {
                     result += GetTableEnd;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

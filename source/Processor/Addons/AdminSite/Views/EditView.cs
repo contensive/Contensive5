@@ -1,16 +1,19 @@
 ﻿//
+using Contensive.BaseClasses;
+using Contensive.Models.Db;
+using Contensive.Processor.Addons.AdminSite.Models;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
-using static Contensive.Processor.Controllers.GenericController;
-using Contensive.BaseClasses;
-using static Contensive.Processor.Constants;
-using Contensive.Models.Db;
+using NLog;
 using System;
-using System.Globalization;
-using Contensive.Processor.Addons.AdminSite.Models;
+using static Contensive.Processor.Constants;
+using static Contensive.Processor.Controllers.GenericController;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public static class EditView {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         // ====================================================================================================
         /// <summary>
@@ -257,7 +260,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 return wrapForm(core, Stream.text, adminData, AdminFormEdit);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -278,7 +281,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     autocomplete = false
                 });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

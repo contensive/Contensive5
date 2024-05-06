@@ -11,6 +11,7 @@ using System.Globalization;
 using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using NLog;
 //
 namespace Contensive.Processor.Models.Domain {
     //
@@ -19,6 +20,9 @@ namespace Contensive.Processor.Models.Domain {
     /// content definitions - meta data
     /// </summary>
     public class ContentMetadataModel : ICloneable {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -393,7 +397,7 @@ namespace Contensive.Processor.Models.Domain {
                             } else {
                                 Models.Domain.ContentMetadataModel parentMetaData = create(core, result.parentId, loadInvalidFields, forceDbLoad);
                                 if (parentMetaData == null) {
-                                    LogController.logError(core, new GenericException("ContentMetadataModel error, loading content [" + content.id + ", " + content.name + "], parentId [" + result.parentId + "] but no parent content found."));
+                                    logger.Error($"{core.logCommonMessage}", new GenericException("ContentMetadataModel error, loading content [" + content.id + ", " + content.name + "], parentId [" + result.parentId + "] but no parent content found."));
                                 } else {
                                     foreach (var keyvaluepair in parentMetaData.fields) {
                                         Models.Domain.ContentFieldMetadataModel parentField = keyvaluepair.Value;
@@ -611,7 +615,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 core.cacheRuntime.metaDataDictionary.Add(content.id.ToString(), result);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -707,7 +711,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return returnCriteria;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -771,7 +775,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -819,7 +823,7 @@ namespace Contensive.Processor.Models.Domain {
             try {
                 return core.cache.getObject<ContentMetadataModel>(createKeyHash(core, contentId));
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -896,7 +900,7 @@ namespace Contensive.Processor.Models.Domain {
                 if ((!fieldMetadata.isBaseField) && (RecordIsBaseField)) {
                     //
                     // This update is not allowed
-                    LogController.logDebug(core, "Warning, updating base field from non-base collection, context [" + logMsgContext + "], content [" + name + "], field [" + fieldMetadata.nameLc + "]");
+                    logger.Debug($"{core.logCommonMessage},Warning, updating base field from non-base collection, context [" + logMsgContext + "], content [" + name + "], field [" + fieldMetadata.nameLc + "]");
                 }
                 using var db = new DbController(core, dataSourceName);
                 //
@@ -977,7 +981,7 @@ namespace Contensive.Processor.Models.Domain {
                             LookupContentId = ContentMetadataModel.getContentId(core, LookupContentName);
                             if (LookupContentId <= 0) {
                                 string errMsg = "Could not create lookup field [" + fieldMetadata.nameLc + "] for content definition [" + name + "] because no content definition was found For lookup-content [" + LookupContentName + "].";
-                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+                                Logger.Error($"{core.logCommonMessage},{errMsg}");
                             }
                         }
                         sqlList.Add("LOOKUPCONTENTID", DbController.encodeSQLNumber(LookupContentId));
@@ -991,7 +995,7 @@ namespace Contensive.Processor.Models.Domain {
                             int ManyToManyContentId = getContentId(core, ManyToManyContent);
                             if (ManyToManyContentId <= 0) {
                                 string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-content [" + ManyToManyContent + "].";
-                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+                                Logger.Error($"{core.logCommonMessage},{errMsg}");
 
                             }
                             sqlList.Add("MANYTOMANYCONTENTID", DbController.encodeSQLNumber(ManyToManyContentId));
@@ -1002,7 +1006,7 @@ namespace Contensive.Processor.Models.Domain {
                             int ManyToManyRuleContentId = getContentId(core, ManyToManyRuleContent);
                             if (ManyToManyRuleContentId <= 0) {
                                 string errMsg = "Could not create many-to-many field [" + fieldMetadata.nameLc + "] for [" + name + "] because no content definition was found For many-to-many-rule-content [" + ManyToManyRuleContent + "].";
-                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+                                Logger.Error($"{core.logCommonMessage},{errMsg}");
                             }
                             sqlList.Add("MANYTOMANYRULECONTENTID", DbController.encodeSQLNumber(ManyToManyRuleContentId));
                         }
@@ -1018,7 +1022,7 @@ namespace Contensive.Processor.Models.Domain {
                             RedirectContentId = getContentId(core, RedirectContentName);
                             if (RedirectContentId <= 0) {
                                 string errMsg = "Could not create redirect field [" + fieldMetadata.nameLc + "] for Content Definition [" + name + "] because no content definition was found For redirect-content [" + RedirectContentName + "].";
-                                Logger.Error(LogController.processLogMessage(core, errMsg, true));
+                                Logger.Error($"{core.logCommonMessage},{errMsg}");
                             }
                         }
                         sqlList.Add("REDIRECTCONTENTID", DbController.encodeSQLNumber(RedirectContentId));
@@ -1045,7 +1049,7 @@ namespace Contensive.Processor.Models.Domain {
                 db.update("ccFields", "ID=" + fieldMetadata.id, sqlList);
                 ContentFieldModel.invalidateCacheOfRecord<ContentFieldModel>(core.cpParent, fieldMetadata.id);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1347,7 +1351,7 @@ namespace Contensive.Processor.Models.Domain {
                 core.cacheRuntime.clear();
                 core.cache.invalidateAll();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return contentMetadata.id;
@@ -1437,7 +1441,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return contentMetadata;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1539,7 +1543,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return false;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1593,7 +1597,7 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 return create(core, childContent);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return null;
             }
         }
@@ -1637,7 +1641,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1655,7 +1659,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1671,7 +1675,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

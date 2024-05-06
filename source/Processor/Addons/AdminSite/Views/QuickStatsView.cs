@@ -1,10 +1,14 @@
 ﻿
 using System;
 using Contensive.Processor.Controllers;
+using NLog;
 using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public class QuickStatsView {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         //
@@ -139,7 +143,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

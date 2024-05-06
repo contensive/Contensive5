@@ -1,10 +1,7 @@
-﻿
-using Contensive.BaseClasses;
-using Contensive.Models.Db;
-using Contensive.Processor.Addons.AdminSite.Models;
+﻿using Contensive.Processor.Addons.AdminSite.Models;
 using Contensive.Processor.Controllers;
-using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -16,6 +13,9 @@ namespace Contensive.Processor.Addons.AdminSite {
     /// object that contains the context for the admin site, like recordsPerPage, etc. Should eventually include the loadContext and be its own document
     /// </summary>
     public class AdminDataModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         //
@@ -295,7 +295,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return tempIsVisibleUserField;
         }
@@ -318,7 +318,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     return core.session.isAuthenticatedContentManager(cdef.name);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return false;
         }
@@ -480,7 +480,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //

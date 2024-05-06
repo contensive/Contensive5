@@ -6,12 +6,16 @@ using System.Collections.Generic;
 using static Newtonsoft.Json.JsonConvert;
 using Contensive.Processor.Models.Domain;
 using Contensive.Models.Db;
+using NLog;
 //
 namespace Contensive.Processor.Controllers {
     /// <summary>
     /// taskRunner polls the task queue and runs commands when found
     /// </summary>
     public class TaskRunnerController : IDisposable {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// set in constructor. used to tag tasks assigned to this runner
         /// </summary>
@@ -102,7 +106,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     using (CPClass cpServerGroup = new CPClass()) {
                         if (!cpServerGroup.core.serverConfig.allowTaskRunnerService) {
-                            LogController.logTrace(cpServerGroup.core, "taskRunner.processTimerTick, skip -- allowTaskRunnerService false");
+                            logger.Trace($"{cpServerGroup.core.logCommonMessage},taskRunner.processTimerTick, skip -- allowTaskRunnerService false");
                         } else {
                             runTasks(cpServerGroup.core);
                         }
@@ -116,7 +120,7 @@ namespace Contensive.Processor.Controllers {
                 }
             } catch (Exception ex) {
                 using CPClass cp = new();
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             } finally { 
                 processTimerInProcess = false; 
             }            
@@ -139,7 +143,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         using (CPClass cpApp = new CPClass(appKVP.Value.name)) {
                             //
-                            LogController.logTrace(cpApp.core, "runTasks, appname=[" + appKVP.Value.name + "]");
+                            logger.Trace($"{cpApp.core.logCommonMessage},runTasks, appname=[" + appKVP.Value.name + "]");
                             //
                             try {
                                 int recordsAffected = 0;
@@ -156,7 +160,7 @@ namespace Contensive.Processor.Controllers {
                                     if (recordsAffected == 0) {
                                         //
                                         // -- no tasks found
-                                        LogController.logTrace(cpApp.core, "runTasks, appname=[" + appKVP.Value.name + "], no tasks");
+                                        logger.Trace($"{cpApp.core.logCommonMessage},runTasks, appname=[" + appKVP.Value.name + "], no tasks");
                                     } else {
                                         //
                                         // -- select task to get timeout
@@ -168,7 +172,7 @@ namespace Contensive.Processor.Controllers {
                                             //
                                             // -- track multiple executions
                                             if (sequentialTaskCount > 0) {
-                                                LogController.logTrace(cpApp.core, "runTasks, appname=[" + appKVP.Value.name + "], multiple tasks run in a single cycle, sequentialTaskCount [" + sequentialTaskCount + "]");
+                                                logger.Trace($"{cpApp.core.logCommonMessage},runTasks, appname=[" + appKVP.Value.name + "], multiple tasks run in a single cycle, sequentialTaskCount [" + sequentialTaskCount + "]");
                                             }
                                             //
                                             // -- two execution methods, 1) run task here, 2) start process and wait (so bad addon code does not memory link)
@@ -177,7 +181,7 @@ namespace Contensive.Processor.Controllers {
                                             if (!runInServiceProcess && !System.IO.File.Exists(cliPathFilename)) {
                                                 runInServiceProcess = true;
                                                 string errMsg = "TaskRunner cannot run out of process because command line program cc.exe not found in program files folder [" + cpApp.core.programFiles.localAbsRootPath + "]";
-                                                Logger.Error(LogController.processLogMessage(cpApp.core, errMsg, true));
+                                                Logger.Error( cpApp.core.logCommonMessage + "," + errMsg);
                                             }
                                             if (runInServiceProcess) {
                                                 //
@@ -189,7 +193,7 @@ namespace Contensive.Processor.Controllers {
                                                 string filename = "cc.exe";
                                                 string workingDirectory = cpApp.core.programFiles.localAbsRootPath;
                                                 string arguments = "-a \"" + appKVP.Value.name + "\" --runTask \"" + runnerGuid + "\"";
-                                                LogController.logInfo(cpApp.core, "TaskRunner starting process to execute task for filename [" + filename + "], workingDirectory [" + workingDirectory + "], arguments [" + arguments + "]");
+                                                logger.Info($"{cpApp.core.logCommonMessage},TaskRunner starting process to execute task for filename [" + filename + "], workingDirectory [" + workingDirectory + "], arguments [" + arguments + "]");
                                                 //
                                                 // todo manage multiple executing processes
                                                 using (Process process = new Process()) {
@@ -217,20 +221,20 @@ namespace Contensive.Processor.Controllers {
                                                     }
                                                     if (!process.HasExited) {
                                                         string errMsg = "TaskRunner Killing process, process timed out, app [" + appKVP.Value.name + "].";
-                                                        Logger.Error(LogController.processLogMessage(cpApp.core, errMsg, true));
+                                                        Logger.Error(cpApp.core.logCommonMessage + "," + errMsg);
                                                         process.Kill();
                                                         process.WaitForExit();
                                                     }
                                                     process.Close();
                                                 }
                                             }
-                                            LogController.logTrace(cpApp.core, "runTasks, app [" + appKVP.Value.name + "], task complete (" + swTask.ElapsedMilliseconds + "ms)");
+                                            logger.Trace($"{cpApp.core.logCommonMessage},runTasks, app [" + appKVP.Value.name + "], task complete (" + swTask.ElapsedMilliseconds + "ms)");
                                         }
                                     }
                                     sequentialTaskCount++;
                                 } while (recordsAffected > 0);
                             } catch (Exception ex) {
-                                LogController.logError(cpApp.core, ex);
+                                logger.Error(ex, $"{cpApp.core.logCommonMessage}");
                             }
                         }
                     }
@@ -238,7 +242,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- trace log without core
             } catch (Exception ex) {
-                LogController.logError(serverCore, ex);
+                logger.Error(ex, $"{serverCore.logCommonMessage}");
             }
         }
         //
@@ -275,14 +279,14 @@ namespace Contensive.Processor.Controllers {
                                     string result = cp.core.addon.execute(addon, context);
                                     if (!string.IsNullOrEmpty(result)) {
                                         //
-                                        LogController.logTrace(cp.core, "executeRunnerTasks, result not empty, downloadId [" + task.resultDownloadId + "], result first 100 [" + (result.Length > 100 ? result.Substring(0, 100) : result) + "]");
+                                        logger.Trace($"{cp.core.logCommonMessage},executeRunnerTasks, result not empty, downloadId [" + task.resultDownloadId + "], result first 100 [" + (result.Length > 100 ? result.Substring(0, 100) : result) + "]");
                                         //
                                         // -- save output
                                         if (task.resultDownloadId > 0) {
                                             var download = DbBaseModel.create<DownloadModel>(cp, task.resultDownloadId);
                                             if (download != null) {
                                                 //
-                                                LogController.logTrace(cp.core, "executeRunnerTasks, download found, [id" + download.id + ", name:" + download.name + ", filename:" + download.filename + "]");
+                                                logger.Trace($"{cp.core.logCommonMessage},executeRunnerTasks, download found, [id" + download.id + ", name:" + download.name + ", filename:" + download.filename + "]");
                                                 //
                                                 if (string.IsNullOrEmpty(download.name)) {
                                                     download.name = "Download";

@@ -1,9 +1,13 @@
 ﻿
 using System;
 using Contensive.Processor.Controllers;
+using NLog;
 //
 namespace Contensive.Processor.Addons.PageManager {
     public class SeeAlsoClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -63,7 +67,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 if (SeeAlsoCount == 0) { return string.Empty; }
                 return HtmlController.div(HtmlController.h4("See Also") + HtmlController.ul(result, "ccList"), "ccSeeAlso");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }

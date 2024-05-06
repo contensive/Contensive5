@@ -1,24 +1,25 @@
 ﻿
 using Contensive.BaseClasses;
+using Contensive.Exceptions;
 using Contensive.Models.Db;
+using Contensive.Processor.Addons.AdminSite.Controllers;
 using Contensive.Processor.Addons.Tools;
 using Contensive.Processor.Controllers;
-using Contensive.Exceptions;
-using Contensive.Processor.Models.Domain;
+using NLog;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
-using Contensive.Processor.Addons.AdminSite.Controllers;
-using Contensive.Processor.Addons.AdminSite.Models;
 
 namespace Contensive.Processor.Addons.AdminSite {
     /// <summary>
     /// create admin header
     /// </summary>
     public static class AdminContentController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -100,11 +101,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 string buildVersion = cp.core.siteProperties.dataBuildVersion;
                 if (versionIsOlder(buildVersion, cp.Version)) {
-                    LogController.logWarn(cp.core, new GenericException("Application code (v" + cp.Version + ") is newer than database (v" + buildVersion + "). Upgrade the database with the command line 'cc.exe -a " + cp.core.appConfig.name + " -u'."));
+                    logger.Warn($"{cp.core.logCommonMessage}", new GenericException("Application code (v" + cp.Version + ") is newer than database (v" + buildVersion + "). Upgrade the database with the command line 'cc.exe -a " + cp.core.appConfig.name + " -u'."));
                 }
                 //
                 if (versionIsOlder(cp.Version, buildVersion)) {
-                    LogController.logWarn(cp.core, new GenericException("Database upgrade (v" + buildVersion + ") is newer than the Application code (v" + cp.Version + "). Upgrade the website code."));
+                    logger.Warn($"{cp.core.logCommonMessage}", new GenericException("Database upgrade (v" + buildVersion + ") is newer than the Application code (v" + cp.Version + "). Upgrade the website code."));
                 }
                 //
                 // Process SourceForm/Button into Action/Form, and process
@@ -444,7 +445,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // -- create the body html
                 return content;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -514,7 +515,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
             return addonHelp;
@@ -578,7 +579,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + "</div>";
                 return returnHelp;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -618,7 +619,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

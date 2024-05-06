@@ -45,7 +45,7 @@ namespace Contensive.Processor.Controllers {
                 result = HtmlController.div(result, "p-2");
                 return HtmlController.section(result);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -57,7 +57,7 @@ namespace Contensive.Processor.Controllers {
         public static string getSectionButtonBarForEdit(CoreController core, EditButtonBarInfoClass info) {
             try {
                 //
-                LogController.logTrace(core, "getSectionButtonBarForEdit, enter");
+                logger.Trace($"{core.logCommonMessage},getSectionButtonBarForEdit, enter");
                 //
                 string buttonsLeft = "";
                 string buttonsRight = "";
@@ -85,11 +85,11 @@ namespace Contensive.Processor.Controllers {
                     buttonsRight += getButtonDanger(ButtonModifyEditForm, "window.location='?af=105&button=select&contentid=" + info.contentId + "';return false;", info.contentId.Equals(0));
                 }
                 //
-                LogController.logTrace(core, "getButtonBarForEdit, exit");
+                logger.Trace($"{core.logCommonMessage},getButtonBarForEdit, exit");
                 //
                 return getSectionButtonBar(core, buttonsLeft, buttonsRight);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -138,7 +138,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result.ToString();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -275,7 +275,7 @@ namespace Contensive.Processor.Controllers {
                     + cr2 + "</ul>"
                     + cr + "</div>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -301,7 +301,7 @@ namespace Contensive.Processor.Controllers {
                 // -- assemble form
                 return getToolForm(core, body, ButtonCommaListLeft, ButtonCommaListRight);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return toolExceptionMessage;
             }
         }
@@ -330,7 +330,7 @@ namespace Contensive.Processor.Controllers {
                 result.Append((!string.IsNullOrEmpty(PanelDescription)) ? "<p class=\"p-2 ccAdminEditDescription\">" + PanelDescription + "</p>" : "");
                 result.Append(PanelBody + "</div>");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result.ToString();
         }
@@ -418,7 +418,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 result = Environment.NewLine + "<td style=\"" + Style + "\" class=\"" + ClassStyle + "\">" + Copy + "</td>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -475,7 +475,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 result = getReport2(core, RowCount, ColCaption, ColAlign, ColWidth, Cells, PageSize, PageNumber, PreTableCopy, PostTableCopy, DataRowCount, ClassStyle, ColSortable, 0);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -617,7 +617,7 @@ namespace Contensive.Processor.Controllers {
                 + result + "</td></tr></table>"
                 + PostTableCopy + "";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }

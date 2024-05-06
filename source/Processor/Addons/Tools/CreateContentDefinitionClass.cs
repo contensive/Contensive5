@@ -4,10 +4,14 @@ using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class CreateContentDefinitionClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -105,7 +109,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add("</SPAN>");
                 result = AdminUIController.getToolBody(core, Caption, ButtonList, "", false, false, Description, "", 10, Stream.text);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

@@ -2,11 +2,15 @@
 using System;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using NLog;
 using static Contensive.Processor.Constants;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class ContentChildToolClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -168,7 +172,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Description = "<div>This tool is used to create child table metadata (child content definitions) that help segregate your content into authorable segments.</div>" + Description;
                 result = AdminUIController.getToolBody(cp.core, Caption, ButtonList, "", false, false, Description, "", 0, Content.text);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
             return result;
         }
@@ -206,7 +210,7 @@ namespace Contensive.Processor.Addons.Tools {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
             return returnOptions;

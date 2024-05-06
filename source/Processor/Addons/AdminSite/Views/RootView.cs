@@ -3,6 +3,7 @@ using System;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
+using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
     //
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Addons.AdminSite {
     /// Root page view
     /// </summary>
     public static class RootView {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //========================================================================
         /// <summary>
@@ -110,7 +114,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + "";
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnHtml;

@@ -133,7 +133,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- request domain not in domains table  and not in app.config - use the wildcard domain
                 testDomain = DomainModel.getWildcardDomain(core.cpParent);
-                LogController.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
+                logger.Warn($"{core.logCommonMessage}, domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
             }
             core.domain = testDomain;
             //
@@ -543,7 +543,7 @@ namespace Contensive.Processor.Controllers {
                 string arg = "";
                 string stdOut = runProcess(core, cmd, arg, true);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -560,12 +560,12 @@ namespace Contensive.Processor.Controllers {
                     if (appPool.Name.ToLowerInvariant() == core.appConfig.name.ToLowerInvariant()) {
                         if (appPool.Start() == ObjectState.Started) {
                             appPool.Recycle();
-                            LogController.logInfo(core, "iis recycle, app [" + core.appConfig.name + "]");
+                            logger.Info($"{core.logCommonMessage},iis recycle, app [" + core.appConfig.name + "]");
                         }
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -648,7 +648,7 @@ namespace Contensive.Processor.Controllers {
         //            //
         //            // -- request domain not in domains table  and not in app.config - use the wildcard domain
         //            testDomain = DomainModel.getWildcardDomain(core.cpParent);
-        //            LogController.logWarn(core, "domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
+        //            logger.Warn($"{core.logCommonMessage}, domain [" + requestDomain + "] not found in config.json or in the domains table, using wildcard [*]. This requires an extra query. If this domain is required, manually add it to the config.json configuration file.");
         //        }
         //        core.domain = testDomain;
         //        //
@@ -697,7 +697,7 @@ namespace Contensive.Processor.Controllers {
         //        //
         //        LogController.logShortLine("initHttpContext, exception", BaseClasses.CPLogBaseClass.LogLevel.Trace);
         //        //
-        //        LogController.logError(core, ex);
+        //        logger.Error(ex, $"{core.logCommonMessage}");
         //        throw;
         //    }
         //    return core.doc.continueProcessing;
@@ -755,7 +755,7 @@ namespace Contensive.Processor.Controllers {
                     httpContext.Response.cookies[name].secure = secure;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -876,7 +876,7 @@ namespace Contensive.Processor.Controllers {
                     value = HeaderValue
                 });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -921,14 +921,14 @@ namespace Contensive.Processor.Controllers {
                     //
                     // Link is not valid
                     //
-                    LogController.logError(core, new GenericException("Redirect was called with a blank Link. Redirect Reason [" + redirectReason + "]"));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("Redirect was called with a blank Link. Redirect Reason [" + redirectReason + "]"));
                     return result;
                 }
                 if ((requestForm.Count == 0) && (requestUrlSource == fullLink)) {
                     //
                     // Loop redirect error, throw trap and block redirect to prevent loop
                     //
-                    LogController.logError(core, new GenericException("Redirect was called to the same URL, requestUrl is [" + requestUrl + "], requestUrlSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("Redirect was called to the same URL, requestUrl is [" + requestUrl + "], requestUrlSource is [" + requestUrlSource + "]. This redirect is only allowed if either the form or querystring has change to prevent cyclic redirects. Redirect Reason [" + redirectReason + "]"));
                     return result;
                 }
                 LogController.setSiteWarning(core, "Page Not Found Redirect", "Page Not Found Redirect [" + requestUrlSource + "]", isPageNotFound);
@@ -954,7 +954,7 @@ namespace Contensive.Processor.Controllers {
                     core.doc.continueProcessing = false;
                     return result;
                 }
-                LogController.logInfo(core, "Redirect called, from [" + requestUrl + "], to [" + nonEncodedLink + "], reason [" + redirectReason + "]");
+                logger.Info($"{core.logCommonMessage},Redirect called, from [" + requestUrl + "], to [" + nonEncodedLink + "], reason [" + redirectReason + "]");
                 if (allowDebugMessage && core.doc.visitPropertyAllowDebugging) {
                     //
                     // -- Verbose - do not redirect, just print the link
@@ -971,7 +971,7 @@ namespace Contensive.Processor.Controllers {
                 core.doc.continueProcessing = false;
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1085,7 +1085,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1116,7 +1116,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return "";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1142,7 +1142,7 @@ namespace Contensive.Processor.Controllers {
                 verifyAppPool(appName);
                 verifyWebsite(appName, DomainName, rootPublicFilesPath, appName);
             } catch (Exception ex) {
-                LogController.logError(core, ex, "verifySite");
+                logger.Error($"{core.logCommonMessage}", ex, "verifySite");
                 throw;
             }
         }
@@ -1173,7 +1173,7 @@ namespace Contensive.Processor.Controllers {
                 appPool.ManagedPipelineMode = ManagedPipelineMode.Integrated;
                 serverManager.CommitChanges();
             } catch (Exception ex) {
-                LogController.logError(core, ex, "verifyAppPool");
+                logger.Error($"{core.logCommonMessage}", ex, "verifyAppPool");
                 throw;
             }
         }
@@ -1194,7 +1194,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "verifyWebsite");
+                logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite");
                 throw;
             }
         }
@@ -1242,7 +1242,7 @@ namespace Contensive.Processor.Controllers {
                 // -- commit any changes
                 iisManager.CommitChanges();
             } catch (Exception ex) {
-                LogController.logError(core, ex, "verifyWebsite");
+                logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite");
                 throw;
             }
         }
@@ -1273,7 +1273,7 @@ namespace Contensive.Processor.Controllers {
                     iisManager.CommitChanges();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "verifyWebsite_Binding");
+                logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite_Binding");
                 throw;
             }
         }
@@ -1306,7 +1306,7 @@ namespace Contensive.Processor.Controllers {
                     iisManager.CommitChanges();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1357,7 +1357,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "verifyWebsite_VirtualDirectory");
+                logger.Error($"{core.logCommonMessage}", ex, "verifyWebsite_VirtualDirectory");
                 throw;
             }
         }

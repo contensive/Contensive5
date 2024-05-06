@@ -67,7 +67,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 };
                 try {
-                    LogController.logInfo(core, "Sending SES email" + logShortDetail);
+                    logger.Info($"{core.logCommonMessage},Sending SES email" + logShortDetail);
                     var response = core.sesClient.SendEmailAsync(sendRequest).waitSynchronously();
                     return true;
                 } catch (Exception ex) {
@@ -76,13 +76,13 @@ namespace Contensive.Processor.Controllers {
                         reasonForFail += $", {ex.InnerException.Message}";
                     }
                     string errMsg = "Unexpected exception during SES send" + logLongDetail + "";
-                    logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
+                    logger.Error($"{core.logCommonMessage},{errMsg}");
                     return false;
                 }
             } catch (Exception ex) {
                 reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
                 string errMsg = "Unexpected exception during SES configure" + logLongDetail + "";
-                logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
+                logger.Error($"{core.logCommonMessage},{errMsg}");
                 return false;
             }
         }

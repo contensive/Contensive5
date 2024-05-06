@@ -76,14 +76,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- attempt link authentication
                 var linkToken = SecurityController.decodeToken(core, linkEid);
-                LogController.logTrace(core, "link authentication, linkEid [" + linkEid + "], linkToken.id [" + linkToken.id + "]");
+                logger.Trace($"{core.logCommonMessage},link authentication, linkEid [" + linkEid + "], linkToken.id [" + linkToken.id + "]");
                 if (!linkToken.id.Equals(0) && linkToken.expires.CompareTo(core.dateTimeNowMockable) > 0) {
                     //
                     // -- valid link token, attempt login/recognize
                     if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
                         //
                         // -- allow Link Login
-                        LogController.logTrace(core, "attempt link Login, userid [" + linkToken.id + "]");
+                        logger.Trace($"{core.logCommonMessage},attempt link Login, userid [" + linkToken.id + "]");
                         if (AuthenticationController.authenticateById(core, core.session, linkToken.id)) {
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link login", core.session.user.id);
                             return true;
@@ -91,19 +91,19 @@ namespace Contensive.Processor.Controllers {
                     } else if (core.siteProperties.getBoolean("AllowLinkRecognize", true)) {
                         //
                         // -- allow Link Recognize
-                        LogController.logTrace(core, "attempt link recognize, userid [" + linkToken.id + "]");
+                        logger.Trace($"{core.logCommonMessage},attempt link recognize, userid [" + linkToken.id + "]");
                         if (AuthenticationController.recognizeById(core, core.session, linkToken.id)) {
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", core.session.user.id);
                             return true;
                         }
                     } else {
                         //
-                        LogController.logTrace(core, "link login unsuccessful, site properties disabled");
+                        logger.Trace($"{core.logCommonMessage},link login unsuccessful, site properties disabled");
                         //
                     }
                 } else {
                     //
-                    LogController.logTrace(core, "link login unsuccessful, token expired or invalid [" + linkEid + "]");
+                    logger.Trace($"{core.logCommonMessage},link login unsuccessful, token expired or invalid [" + linkEid + "]");
                     //
                 }
             }

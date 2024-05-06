@@ -5,7 +5,7 @@ using Contensive.BaseClasses;
 using Contensive.Exceptions;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
-
+using NLog;
 using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Models.Domain {
@@ -19,6 +19,9 @@ namespace Contensive.Processor.Models.Domain {
     /// that content. This model has the content 'name'
     /// </summary>
     public class ContentFieldMetadataModel : ICloneable, IComparable {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// Create a content metadata field with all default values
         /// </summary>
@@ -462,7 +465,7 @@ namespace Contensive.Processor.Models.Domain {
                 var groupByGuid = DbBaseModel.create<GroupModel>(core.cpParent, _memberSelectGroupName);
                 if ( groupByGuid == null ) {
                     core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
-                    LogController.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
                     _memberSelectGroupId = 0;
                     return 0;
                 }
@@ -484,7 +487,7 @@ namespace Contensive.Processor.Models.Domain {
             }
             //
             // -- memberSelectGroupName was not valid
-            LogController.logError(core, new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
+            logger.Error($"{core.logCommonMessage}", new GenericException("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group."));
             core.doc.userErrorList.Add("Content Definition [" + contentName + "] includes a field [" + fieldName + "] with MemberSelectGroup set to a guid, but site does not include this group.");
             _memberSelectGroupId = 0;
             return 0;
@@ -709,7 +712,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 contentMetadata.verifyContentField(core, field, true, logMsgContext);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -807,7 +810,7 @@ namespace Contensive.Processor.Models.Domain {
                         break;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex); // "Unexpected exception")
+                logger.Error(ex, $"{core.logCommonMessage}"); // "Unexpected exception")
                 throw;
             }
             return returnFieldTypeName;

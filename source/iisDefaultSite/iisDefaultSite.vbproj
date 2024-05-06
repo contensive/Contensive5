@@ -112,11 +112,11 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="ContensiveDbModels, Version=20.0.0.0, Culture=neutral, PublicKeyToken=c014b235a9c6bb22">
-      <HintPath>..\packages\Contensive.DbModels.24.5.4.1\lib\net472\ContensiveDbModels.dll</HintPath>
+      <HintPath>..\packages\Contensive.DbModels.24.5.6.1\lib\net472\ContensiveDbModels.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="CPBase, Version=4.1.2.0, Culture=neutral, PublicKeyToken=10b3c53389b845fb">
-      <HintPath>..\packages\Contensive.CPBaseClass.24.5.4.1\lib\net472\CPBase.dll</HintPath>
+      <HintPath>..\packages\Contensive.CPBaseClass.24.5.6.1\lib\net472\CPBase.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Handlebars, Version=2.1.6.0, Culture=neutral, PublicKeyToken=22225d0bf33cd661, processorArchitecture=MSIL">
@@ -202,8 +202,8 @@
     <Reference Include="Pipelines.Sockets.Unofficial, Version=1.0.0.0, Culture=neutral, PublicKeyToken=42ea0a778e13fbe2, processorArchitecture=MSIL">
       <HintPath>..\packages\Pipelines.Sockets.Unofficial.2.2.8\lib\net472\Pipelines.Sockets.Unofficial.dll</HintPath>
     </Reference>
-    <Reference Include="Processor, Version=24.5.4.1, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
-      <HintPath>..\packages\Contensive.Processor.24.5.4.1\lib\net472\Processor.dll</HintPath>
+    <Reference Include="Processor, Version=24.5.6.1, Culture=neutral, PublicKeyToken=0777f439e33f89f3">
+      <HintPath>..\packages\Contensive.Processor.24.5.6.1\lib\net472\Processor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="SixLabors.ImageSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=d998eea7b14cab13, processorArchitecture=MSIL">

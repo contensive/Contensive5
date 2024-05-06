@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Exceptions;
+using NLog;
 //
 namespace Contensive.Processor.Models.Domain {
     /// <summary>
     /// Dictionary of Routes, addons marked remote method, link forwards and link aliases
     /// </summary>
     public class RouteMapModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// cache object name
         /// </summary>
@@ -110,7 +114,7 @@ namespace Contensive.Processor.Models.Domain {
                     string localRoute = GenericController.normalizeRoute(remoteMethod.name);
                     if (!string.IsNullOrWhiteSpace(localRoute)) {
                         if (result.routeDictionary.ContainsKey(localRoute)) {
-                            LogController.logWarn(core, new GenericException("Route [" + localRoute + "] cannot be added because it matches the Admin Route or another Remote Method."));
+                            logger.Warn($"{core.logCommonMessage}", new GenericException("Route [" + localRoute + "] cannot be added because it matches the Admin Route or another Remote Method."));
                         } else {
                             //
                             // -- add routeSuffix wildcard to all remote methods that do not have a wildcard so /a/b/c will match addons a, or a/b, or a/b/c
@@ -229,7 +233,7 @@ namespace Contensive.Processor.Models.Domain {
                 return result;
             } catch (Exception ex) {
                 // -- log error but return what you can. Without routes the application fails hard.
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 if (result == null) { return new RouteMapModel(); }
                 return result;
             }

@@ -155,8 +155,8 @@ namespace Contensive.Processor.Controllers {
             visitStateOk = true;
             //
             Logger.Trace("SessionController.create, enter-1");
-            Logger.Trace(LogController.processLogMessage(core, "SessionController.create, enter-2", false));
-            LogController.logTrace(core, "SessionController.create, enter-3");
+            Logger.Trace( core.logCommonMessage + "," +  "SessionController.create, enter-2");
+            logger.Trace($"{core.logCommonMessage},SessionController.create, enter-3");
             //
             try {
                 //
@@ -164,13 +164,13 @@ namespace Contensive.Processor.Controllers {
                 if (core.serverConfig == null) {
                     //
                     // -- application error if no server config
-                    LogController.logError(core, new GenericException("authorization context cannot be created without a server configuration."));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("authorization context cannot be created without a server configuration."));
                     return;
                 }
                 if (core.appConfig == null) {
                     //
                     // -- no application, this is a server-only call not related to a 
-                    LogController.logTrace(core, "app.config null, create server session");
+                    logger.Trace($"{core.logCommonMessage},app.config null, create server session");
                     return;
                 }
                 //
@@ -178,7 +178,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 string visitCookie = getVisitCookie();
                 SecurityController.TokenData visitToken = (string.IsNullOrEmpty(visitCookie)) ? new SecurityController.TokenData() : SecurityController.decodeToken(core, visitCookie);
-                LogController.logTrace(core, "visitCookie [" + visitCookie + "], visitCookie.id [" + visitToken.id + "]");
+                logger.Trace($"{core.logCommonMessage},visitCookie [" + visitCookie + "], visitCookie.id [" + visitToken.id + "]");
                 if (!visitToken.id.Equals(0)) {
                     VisitModel visitTest = DbBaseModel.create<VisitModel>(core.cpParent, visitToken.id);
                     if (visitTest is not null) {
@@ -193,7 +193,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 string visitorCookie = getVisitorCookie();
                 var visitorToken = (string.IsNullOrEmpty(visitorCookie)) ? new SecurityController.TokenData() : SecurityController.decodeToken(core, visitorCookie);
-                LogController.logTrace(core, "visitorCookie [" + visitorCookie + "], visitorCookie.id [" + visitorToken.id + "]");
+                logger.Trace($"{core.logCommonMessage},visitorCookie [" + visitorCookie + "], visitorCookie.id [" + visitorToken.id + "]");
                 if (!visitorToken.id.Equals(0)) {
                     VisitorModel visitorTest = DbBaseModel.create<VisitorModel>(core.cpParent, visitorToken.id);
                     if (!(visitorTest is null)) {
@@ -238,12 +238,12 @@ namespace Contensive.Processor.Controllers {
                     if ((visit == null) || (visit.id.Equals(0))) {
                         //
                         // -- visit record is missing, create a new visit
-                        LogController.logTrace(core, "visit invalid, create a new visit");
+                        logger.Trace($"{core.logCommonMessage},visit invalid, create a new visit");
                         createNewVisit = true;
                     } else if ((visit.lastVisitTime != null) && (encodeDate(visit.lastVisitTime).AddHours(1) < core.doc.profileStartTime)) {
                         //
                         // -- visit has expired, create new visit
-                        LogController.logTrace(core, "visit expired, create new visit");
+                        logger.Trace($"{core.logCommonMessage},visit expired, create new visit");
                         createNewVisit = true;
                     }
                     if (createNewVisit) {
@@ -368,7 +368,7 @@ namespace Contensive.Processor.Controllers {
                 // -- execute onNewVisit addons
                 //
                 if (AllowOnNewVisitEvent) {
-                    LogController.logTrace(core, "execute NewVisit Event");
+                    logger.Trace($"{core.logCommonMessage},execute NewVisit Event");
                     foreach (var addon in core.cacheRuntime.addonCache.getOnNewVisitAddonList()) {
                         CPUtilsBaseClass.addonExecuteContext executeContext = new() {
                             addonType = CPUtilsBaseClass.addonContext.ContextOnNewVisit,
@@ -382,7 +382,7 @@ namespace Contensive.Processor.Controllers {
                 setVisitCookie(core, this);
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -422,7 +422,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static PersonModel createGuest(CoreController core, bool exitWithoutSave) {
             //
-            LogController.logTrace(core, "SessionController.createGuest, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.createGuest, enter");
             //
             PersonModel user = DbBaseModel.addEmpty<PersonModel>(core.cpParent);
             user.createdByVisit = true;
@@ -449,7 +449,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getVisitCookie() {
             //
-            LogController.logTrace(core, "SessionController.getVisitCookie, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.getVisitCookie, enter");
             //
             return core.webServer.requestCookie(cookiePrefix + cookieNameVisit);
         }
@@ -461,7 +461,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getVisitorCookie() {
             //
-            LogController.logTrace(core, "SessionController.getVisitorCookie, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.getVisitorCookie, enter");
             //
             return core.webServer.requestCookie(cookiePrefix + cookieNameVisitor);
         }
@@ -474,12 +474,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sessionContext"></param>
         public static void setVisitCookie(CoreController core, SessionController sessionContext) {
             //
-            LogController.logTrace(core, "SessionController.setVisitCookie, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.setVisitCookie, enter");
             //
             if (sessionContext.visit.id.Equals(0)) { return; }
             DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddMinutes(60);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visit.id, expirationDate);
-            LogController.logTrace(core, "set visit cookie, visitId [" + sessionContext.visit.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
+            logger.Trace($"{core.logCommonMessage},set visit cookie, visitId [" + sessionContext.visit.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
             core.webServer.addResponseCookie(sessionContext.cookiePrefix + Constants.cookieNameVisit, cookieValue);
         }
         //
@@ -491,12 +491,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="sessionContext"></param>
         public static void setVisitorCookie(CoreController core, SessionController sessionContext) {
             //
-            LogController.logTrace(core, "SessionController.setVisitorCookie, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.setVisitorCookie, enter");
             //
             if (sessionContext.visitor.id.Equals(0)) { return; }
             DateTime expirationDate = encodeDate(sessionContext.visit.startTime).AddYears(1);
             string cookieValue = SecurityController.encodeToken(core, sessionContext.visitor.id, expirationDate);
-            LogController.logTrace(core, "set visitor cookie, visitorId [" + sessionContext.visitor.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
+            logger.Trace($"{core.logCommonMessage},set visitor cookie, visitorId [" + sessionContext.visitor.id + "], expirationDate [" + expirationDate.ToString() + "], cookieValue [" + cookieValue + "]");
             core.webServer.addResponseCookie(sessionContext.cookiePrefix + cookieNameVisitor, cookieValue, expirationDate);
         }
         //
@@ -509,11 +509,11 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedAdmin() {
             try {
                 //
-                LogController.logTrace(core, "SessionController.isAuthenticatedAdmin, enter");
+                logger.Trace($"{core.logCommonMessage},SessionController.isAuthenticatedAdmin, enter");
                 //
                 return visit.visitAuthenticated && (user.admin || user.developer);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -527,11 +527,11 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedDeveloper() {
             try {
                 //
-                LogController.logTrace(core, "SessionController.isAuthenticatedDeveloper, enter");
+                logger.Trace($"{core.logCommonMessage},SessionController.isAuthenticatedDeveloper, enter");
                 //
                 return visit.visitAuthenticated && user.developer;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -546,7 +546,7 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedContentManager(ContentMetadataModel contentMetadata) {
             try {
                 //
-                LogController.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
+                logger.Trace($"{core.logCommonMessage},SessionController.isAuthenticatedContentManager, enter");
                 //
                 if (core.session.isAuthenticatedAdmin()) { return true; }
                 if (!isAuthenticated) { return false; }
@@ -554,7 +554,7 @@ namespace Contensive.Processor.Controllers {
                 // -- for specific Content
                 return PermissionController.getUserContentPermissions(core, contentMetadata).allowEdit;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return false;
             }
         }
@@ -569,7 +569,7 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedContentManager(string ContentName) {
             try {
                 //
-                LogController.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
+                logger.Trace($"{core.logCommonMessage},SessionController.isAuthenticatedContentManager, enter");
                 //
                 if (core.session.isAuthenticatedAdmin()) { return true; }
                 //
@@ -584,7 +584,7 @@ namespace Contensive.Processor.Controllers {
                     return PermissionController.getUserContentPermissions(core, cdef).allowEdit;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -599,7 +599,7 @@ namespace Contensive.Processor.Controllers {
         public bool isAuthenticatedContentManager() {
             try {
                 //
-                LogController.logTrace(core, "SessionController.isAuthenticatedContentManager, enter");
+                logger.Trace($"{core.logCommonMessage},SessionController.isAuthenticatedContentManager, enter");
                 //
                 if (core.session.isAuthenticatedAdmin()) { return true; }
                 if (_isAuthenticatedContentManagerAnything_loaded && _isAuthenticatedContentManagerAnything_userId.Equals(user.id)) { return _isAuthenticatedContentManagerAnything; }
@@ -623,7 +623,7 @@ namespace Contensive.Processor.Controllers {
                 _isAuthenticatedContentManagerAnything_loaded = true;
                 return _isAuthenticatedContentManagerAnything;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -644,7 +644,7 @@ namespace Contensive.Processor.Controllers {
         public bool isNewCredentialOK(string Username, string Password, ref string returnErrorMessage, ref int returnErrorCode) {
             try {
                 //
-                LogController.logTrace(core, "SessionController.isNewCredentialOK enter");
+                logger.Trace($"{core.logCommonMessage},SessionController.isNewCredentialOK enter");
                 //
                 bool returnOk = false;
                 if (string.IsNullOrEmpty(Username)) {
@@ -671,7 +671,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return returnOk;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -683,7 +683,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isAuthenticatedMember() {
             //
-            LogController.logTrace(core, "SessionController.isAuthenticatedMember, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.isAuthenticatedMember, enter");
             //
             var userPeopleMetadata = ContentMetadataModel.create(core, user.contentControlId);
             if (userPeopleMetadata == null) { return false; }
@@ -699,7 +699,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isGuest() {
             //
-            LogController.logTrace(core, "SessionController.isGuest, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.isGuest, enter");
             //
             return !isRecognized();
         }
@@ -711,7 +711,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isRecognized() {
             //
-            LogController.logTrace(core, "SessionController.isRecognized, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.isRecognized, enter");
             //
             return !visit.memberNew;
         }
@@ -734,7 +734,7 @@ namespace Contensive.Processor.Controllers {
                 isEditingLocal = editingSiteProperty && (core.session.user.admin || core.session.user.developer);
                 return (bool)isEditingLocal;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -749,7 +749,7 @@ namespace Contensive.Processor.Controllers {
         public bool isEditing_ContentId(int contentId) {
             try {
                 //
-                LogController.logTrace(core, "SessionController.isEditing, contentid [" + contentId + "]");
+                logger.Trace($"{core.logCommonMessage},SessionController.isEditing, contentid [" + contentId + "]");
                 //
                 if (contentId <= 0) { return false; }
                 if (!isAuthenticated) { return false; }
@@ -757,7 +757,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(contentName)) { return false; }
                 return isEditing_ContentName(contentName);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -772,7 +772,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 if (string.IsNullOrEmpty(contentName)) { return isEditing(); }
                 //
-                LogController.logTrace(core, "SessionController.isEditing [" + contentName + "]");
+                logger.Trace($"{core.logCommonMessage},SessionController.isEditing [" + contentName + "]");
                 //
                 // -- if empty contentid or contentName, return true if admin and editing is turned on
                 if (!isAuthenticated) { return false; }
@@ -791,7 +791,7 @@ namespace Contensive.Processor.Controllers {
                 core.doc.contentNotEditingList.Add(contentNameLc);
                 return false;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -808,7 +808,7 @@ namespace Contensive.Processor.Controllers {
                 if (contentNameOrId.isNumeric()) { return isEditing_ContentId(encodeInteger(contentNameOrId)); }
                 return isEditing_ContentName(contentNameOrId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -820,7 +820,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isTemplateEditing() {
             //
-            LogController.logTrace(core, "SessionController.isTemplateEditing, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.isTemplateEditing, enter");
             //
             if (!isAuthenticatedAdmin()) { return false; }
             return core.visitProperty.getBoolean("AllowTemplateEditing", false) || core.visitProperty.getBoolean("AllowAdvancedEditor", false);
@@ -833,7 +833,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isPageBuilderEditing() {
             //
-            LogController.logTrace(core, "SessionController.isPageBuilderEditing, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.isPageBuilderEditing, enter");
             //
             if (!isAuthenticatedAdmin()) { return false; }
             return core.visitProperty.getBoolean("AllowQuickEditor", false);
@@ -846,7 +846,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isDebugging() {
             //
-            LogController.logTrace(core, "SessionController.IsDebugging, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.IsDebugging, enter");
             //
             if (!isAuthenticatedDeveloper()) { return false; }
             return core.visitProperty.getBoolean("AllowDebugging", false);
@@ -862,13 +862,13 @@ namespace Contensive.Processor.Controllers {
             bool returnResult = false;
             try {
                 //
-                LogController.logTrace(core, "SessionController.isQuickEditing, enter");
+                logger.Trace($"{core.logCommonMessage},SessionController.isQuickEditing, enter");
                 //
                 if (isAuthenticatedContentManager(ContentName)) {
                     returnResult = core.visitProperty.getBoolean("AllowQuickEditor");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnResult;
@@ -883,7 +883,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public bool isAdvancedEditing() {
             //
-            LogController.logTrace(core, "SessionController.isAdvancedEditing, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.isAdvancedEditing, enter");
             //
             // -- todo consider advancedEditing only for developers
             if ((!user.admin) && (!user.developer)) { return false; }
@@ -894,7 +894,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static bool isMobile(CoreController core, string browserUserAgent) {
             //
-            LogController.logTrace(core, "SessionController.isMobile, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.isMobile, enter");
             //
             Regex b = new(@"(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino", RegexOptions.IgnoreCase | RegexOptions.Multiline);
             Regex v = new(@"1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-", RegexOptions.IgnoreCase | RegexOptions.Multiline);
@@ -906,7 +906,7 @@ namespace Contensive.Processor.Controllers {
         //
         public string getAuthoringStatusMessage(bool RecordEditLocked, string main_EditLockName, DateTime main_EditLockExpires) {
             //
-            LogController.logTrace(core, "SessionController.getAuthoringStatusMessage, enter");
+            logger.Trace($"{core.logCommonMessage},SessionController.getAuthoringStatusMessage, enter");
             //
             if (!RecordEditLocked) { return Msg_WorkflowDisabled; }
             //

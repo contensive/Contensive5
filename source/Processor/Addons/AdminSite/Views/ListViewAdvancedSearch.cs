@@ -6,12 +6,16 @@ using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
 using Contensive.Processor.Models.Domain;
 using Contensive.BaseClasses;
+using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
     /// <summary>
     /// list view advanced search
     /// </summary>
     public static class ListViewAdvancedSearch {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //=================================================================================
         /// <summary>
@@ -316,7 +320,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 returnForm = HtmlController.form(core, Stream.text);
                 core.html.addTitle(adminData.adminContent.name + " Advanced Search", "admin advanced search" );
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnForm;

@@ -2,6 +2,7 @@
 using Amazon;
 using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Security.Cryptography;
 using System.Xml;
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Software updates
     /// </summary>
     public static class SiteWarningsClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //====================================================================================================
         /// <summary>
         /// Daily, download software updates. This is a legacy process but is preserved to force
@@ -71,7 +75,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 return;
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, SiteWarningsClass, ex [" + ex + "]");
                 throw;
             }

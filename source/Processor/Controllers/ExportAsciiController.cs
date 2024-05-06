@@ -164,7 +164,7 @@ namespace Contensive.Processor.Controllers {
                 result = core.wwwFiles.readFileText(TestFilename);
                 core.wwwFiles.deleteFile(TestFilename);
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

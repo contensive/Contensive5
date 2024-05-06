@@ -1,11 +1,15 @@
 ﻿//
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Data;
 //
 namespace Contensive.Processor.Addons.ExportSql {
     //
     public class ExportCsvClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -17,7 +21,7 @@ namespace Contensive.Processor.Addons.ExportSql {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
-                LogController.logTrace(core, "ExportCsvClass.execute, sql [" + cp.Doc.GetText("sql") + "]");
+                logger.Trace($"{core.logCommonMessage},ExportCsvClass.execute, sql [" + cp.Doc.GetText("sql") + "]");
                 //
                 string dataSource = cp.Doc.GetText("datasource");
                 using ( var db = cp.DbNew(dataSource)) {
@@ -27,7 +31,7 @@ namespace Contensive.Processor.Addons.ExportSql {
                     using (DataTable dt = db.ExecuteQuery(cp.Doc.GetText("sql"))) {
                         string result = dt.toCsv();
                         //
-                        LogController.logTrace(core, "ExportCsvClass.execute, result [" + (result.Length>100 ? result.Substring(0,100) : result) + "]");
+                        logger.Trace($"{core.logCommonMessage},ExportCsvClass.execute, result [" + (result.Length>100 ? result.Substring(0,100) : result) + "]");
                         //
                         return result;
                     }

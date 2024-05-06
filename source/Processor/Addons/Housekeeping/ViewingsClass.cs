@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -7,6 +8,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Housekeep this content
     /// </summary>
     public static class ViewingsClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -19,7 +23,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, Viewings");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
@@ -42,7 +46,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     env.core.db.sqlCommandTimeout = 1800;
                     env.core.db.executeNonQuery("delete from ccviewings where (dateadded < DATEADD(day,-" + env.archiveAgeDays + ",CAST(GETDATE() AS DATE)))");
                 } catch (Exception) {
-                    LogController.logWarn(env.core, "exception deleting old viewings");
+                    logger.Warn($"{env.core.logCommonMessage}, exception deleting old viewings");
                 }
                 //
                 if (env.archiveDeleteNoCookie) {
@@ -55,7 +59,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         env.core.db.sqlCommandTimeout = 1800;
                         env.core.db.executeNonQuery(sql);
                     } catch (Exception) {
-                        LogController.logWarn(env.core, "exception deleting viewings with no cookie");
+                        logger.Warn($"{env.core.logCommonMessage}, exception deleting viewings with no cookie");
                     }
                 }
                 //
@@ -66,10 +70,10 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     env.core.db.sqlCommandTimeout = 1800;
                     env.core.db.executeNonQuery(sql);
                 } catch (Exception) {
-                    LogController.logWarn(env.core, "exception deleting viewings with invalid visits");
+                    logger.Warn($"{env.core.logCommonMessage}, exception deleting viewings with invalid visits");
                 }
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }

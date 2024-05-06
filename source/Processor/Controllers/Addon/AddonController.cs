@@ -122,15 +122,15 @@ namespace Contensive.Processor.Controllers {
             //
             if (addon == null) {
                 if (executeContext == null) {
-                    LogController.logWarn(core, "executeDependency argument error, addon null, executeContext is null");
+                    logger.Warn($"{core.logCommonMessage}, executeDependency argument error, addon null, executeContext is null");
                     return "";
                 }
-                LogController.logWarn(core, "executeDependency argument error, addon null, executeContext [" + executeContext.errorContextMessage + "]");
+                logger.Warn($"{core.logCommonMessage}, executeDependency argument error, addon null, executeContext [" + executeContext.errorContextMessage + "]");
                 return "";
             }
             if (executeContext == null) { executeContext = new CPUtilsBaseClass.addonExecuteContext(); };
             //
-            LogController.logDebug(core, "AddonController.executeDependency [" + addon.name + "], executeContext [" + executeContext.errorContextMessage + "]");
+            logger.Debug($"{core.logCommonMessage}", "AddonController.executeDependency [" + addon.name + "], executeContext [" + executeContext.errorContextMessage + "]");
             //
             // -- no, cannot exit because for ex, if JQ has been added, then it is added again but the js needs to be in the head,
             // -- then it needs to run so it's js is moved to head.
@@ -170,10 +170,10 @@ namespace Contensive.Processor.Controllers {
             AddonModel addon = core.cacheRuntime.addonCache.create(addonGuid);
             if (addon == null) {
                 if (executeContext == null) {
-                    LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext is null");
+                    logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext is null");
                     return "";
                 }
-                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext [" + executeContext.errorContextMessage + "]");
+                logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonGuid [" + addonGuid + "], executeContext [" + executeContext.errorContextMessage + "]");
                 return "";
             }
             return execute(addon, executeContext);
@@ -190,10 +190,10 @@ namespace Contensive.Processor.Controllers {
             AddonModel addon = core.cacheRuntime.addonCache.create(addonId);
             if (addon == null) {
                 if (executeContext == null) {
-                    LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonId [" + addonId + "], executeContext is null");
+                    logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonId [" + addonId + "], executeContext is null");
                     return "";
                 }
-                LogController.logWarn(core, "cp.addon.execute argument error, no addon found with addonId [" + addonId + "], executeContext [" + executeContext.errorContextMessage + "]");
+                logger.Warn($"{core.logCommonMessage}, cp.addon.execute argument error, no addon found with addonId [" + addonId + "], executeContext [" + executeContext.errorContextMessage + "]");
                 return "";
             }
             return execute(addon, executeContext);
@@ -211,25 +211,25 @@ namespace Contensive.Processor.Controllers {
             Stopwatch sw = new();
             sw.Start();
             //
-            LogController.logDebug(core, "AddonController.execute [" + ((addon == null) ? "null" : addon.id.ToString() + ", " + addon.name) + "], context [" + (executeContext == null ? "null" : executeContext.addonType) + "], context [" + (executeContext == null ? "null" : executeContext.errorContextMessage) + "]");
+            logger.Debug($"{core.logCommonMessage}", "AddonController.execute [" + ((addon == null) ? "null" : addon.id.ToString() + ", " + addon.name) + "], context [" + (executeContext == null ? "null" : executeContext.addonType) + "], context [" + (executeContext == null ? "null" : executeContext.errorContextMessage) + "]");
             //
             // -- verify arguments
             if (addon == null) {
                 if (executeContext == null) {
                     //
                     // -- no addon and no context
-                    LogController.logWarn(core, new ArgumentException("AddonController.execute called with null addon and null executeContext."));
+                    logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon and null executeContext."));
                     return "";
                 }
                 //
                 // -- no addon
-                LogController.logWarn(core, new ArgumentException("AddonController.execute called with null addon, executeContext [" + executeContext.errorContextMessage + "]."));
+                logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon, executeContext [" + executeContext.errorContextMessage + "]."));
                 return "";
             }
             if (executeContext == null) {
                 //
                 // -- no context
-                LogController.logError(core, new ArgumentException("AddonController.execute call with invalid executeContext,  was not configured for addon [#" + addon.id + ", " + addon.name + "]."));
+                logger.Error($"{core.logCommonMessage}", new ArgumentException("AddonController.execute call with invalid executeContext,  was not configured for addon [#" + addon.id + ", " + addon.name + "]."));
                 return "";
             }
             //
@@ -243,7 +243,7 @@ namespace Contensive.Processor.Controllers {
                     recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
                 }
                 recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
-                LogController.logError(core, new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
+                logger.Error($"{core.logCommonMessage}", new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
                 return "";
             }
             //
@@ -259,7 +259,7 @@ namespace Contensive.Processor.Controllers {
                     recursionTraceMsg += "[" + addonInStack.id + ", " + addonInStack.name + "], called by ";
                 }
                 recursionTraceMsg = recursionTraceMsg.substringSafe(0, recursionTraceMsg.Length - 12);
-                LogController.logError(core, new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
+                logger.Error($"{core.logCommonMessage}", new GenericException("AddonController.execute, Addon appears in its own recursion path, addon [" + addon.id + ", " + addon.name + "], recursion [" + recursionTraceMsg + "]"));
                 return "";
             }
             //
@@ -293,7 +293,7 @@ namespace Contensive.Processor.Controllers {
                     // -- run included add-ons before their parent
                     foreach (var dependentAddon in core.cacheRuntime.addonCache.getDependsOnList(addon.id)) {
                         if (dependentAddon == null) {
-                            LogController.logWarn(core, new GenericException("Dependent addon not found. An included addon of [" + addon.name + "] was not found. The included addon may have been deleted. Recreate or reinstall the missing addon, then reinstall [" + addon.name + "] or manually correct the included addon selection."));
+                            logger.Warn($"{core.logCommonMessage}", new GenericException("Dependent addon not found. An included addon of [" + addon.name + "] was not found. The included addon may have been deleted. Recreate or reinstall the missing addon, then reinstall [" + addon.name + "] or manually correct the included addon selection."));
                             continue;
                         }
                         executeContext.errorContextMessage = "adding dependent addon [" + dependentAddon.name + "] for addon [" + addon.name + "] called within context [" + executeContext.errorContextMessage + "]";
@@ -614,7 +614,7 @@ namespace Contensive.Processor.Controllers {
                             } catch (Exception ex) {
                                 //
                                 // -- exeption in outside code
-                                LogController.logError(core, ex, "Exception in script component of addon [" + getAddonDescription(core, addon) + "]");
+                                logger.Error($"{core.logCommonMessage}", ex, "Exception in script component of addon [" + getAddonDescription(core, addon) + "]");
                             }
                         }
                         //
@@ -628,7 +628,7 @@ namespace Contensive.Processor.Controllers {
                             } catch (Exception ex) {
                                 //
                                 // -- exeption in outside code
-                                LogController.logError(core, ex, "Exception in dotnet component of addon [" + getAddonDescription(core, addon) + "]");
+                                logger.Error($"{core.logCommonMessage}", ex, "Exception in dotnet component of addon [" + getAddonDescription(core, addon) + "]");
                             }
                         }
                         //
@@ -735,7 +735,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "hint [" + hint + "]");
+                logger.Error(ex, $"hint [{hint}], {core.logCommonMessage}");
             } finally {
                 //
                 // -- this completes the execute of this core.addon. remove it from the 'running' list
@@ -780,7 +780,7 @@ namespace Contensive.Processor.Controllers {
                 if (addon.remoteMethod) {
                     StackFrame frame = new(1);
                     MethodBase method = frame.GetMethod();
-                    LogController.logTrace(core, "addon [" + addon.id + "." + addon.name + "], method [" + method.ReflectedType.Name + "." + method.Name + "], visit [" + core.session.visit.id + "], payload [" + result.Length + "], time [" + sw.ElapsedMilliseconds + "ms]");
+                    logger.Trace($"{core.logCommonMessage},addon [" + addon.id + "." + addon.name + "], method [" + method.ReflectedType.Name + "." + method.Name + "], visit [" + core.session.visit.id + "], payload [" + result.Length + "], time [" + sw.ElapsedMilliseconds + "ms]");
                 }
                 //
                 // -- remove this addon from the recursion test stack
@@ -826,7 +826,7 @@ namespace Contensive.Processor.Controllers {
                         try {
                             Doc.LoadXml(FormXML);
                         } catch (Exception ex) {
-                            LogController.logError(core, ex);
+                            logger.Error(ex, $"{core.logCommonMessage}");
                             ButtonList = ButtonCancel;
                             Content.add("<div class=\"ccError\" style=\"margin:10px;padding:10px;background-color:white;\">There was a problem with the Setting Page you requested.</div>");
                             loadOK = false;
@@ -1317,7 +1317,7 @@ namespace Contensive.Processor.Controllers {
                                                                         using var db = new DbController(core, FieldDataSource);
                                                                         dt = core.db.executeQuery(FieldSQL, 0, SQLPageSize);
                                                                     } catch (Exception ex) {
-                                                                        LogController.logError(core, ex);
+                                                                        logger.Error(ex, $"{core.logCommonMessage}");
                                                                         ErrorNumber = 0;
                                                                         loadOK = false;
                                                                     }
@@ -1429,7 +1429,7 @@ namespace Contensive.Processor.Controllers {
                 result = AdminUIController.getToolBody(core, Name, ButtonList, "", true, true, Description, "", 0, Content.text);
                 Content = null;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1445,7 +1445,7 @@ namespace Contensive.Processor.Controllers {
         private string execute_dotNetClass(AddonModel addon, AddonCollectionModel addonCollection) {
             string result = "";
             try {
-                LogController.logTrace(core, "execute_assembly dotNetClass [" + addon.dotNetClass + "], enter");
+                logger.Trace($"{core.logCommonMessage},execute_assembly dotNetClass [" + addon.dotNetClass + "], enter");
                 //
                 // -- purpose is to have a repository where addons can be stored for web and non-web apps, and allow permissions to be installed with online upload
                 string warningMessage = "The addon [" + addon.name + "] dotnet code could not be executed because no assembly was found with namespace [" + addon.dotNetClass + "].";
@@ -1475,10 +1475,10 @@ namespace Contensive.Processor.Controllers {
                     throw new GenericException(warningMessage + ", not found in application path [" + appPath + "] or collection path [" + appAddonPath + "].");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             } finally {
-                LogController.logTrace(core, "execute_assembly dotNetClass [" + addon.dotNetClass + "], exit");
+                logger.Trace($"{core.logCommonMessage},execute_assembly dotNetClass [" + addon.dotNetClass + "], exit");
             }
             return result;
         }
@@ -1541,7 +1541,7 @@ namespace Contensive.Processor.Controllers {
             } catch (Exception ex) {
                 //
                 // -- this exception should interrupt the caller
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1557,7 +1557,7 @@ namespace Contensive.Processor.Controllers {
         private string execute_dotNetClass_assembly(AddonModel addon, string assemblyPrivateAbsPathFilename, ref bool addonFound) {
             try {
                 //
-                LogController.logTrace(core, "execute_dotNetClass_assembly, enter, [" + assemblyPrivateAbsPathFilename + "]");
+                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, enter, [" + assemblyPrivateAbsPathFilename + "]");
                 //
                 Assembly testAssembly = null;
                 addonFound = false;
@@ -1595,14 +1595,14 @@ namespace Contensive.Processor.Controllers {
                     // ---- load code in another AppDomain.
                     // -- see if it can be found in the appdomain and run it
                     // -- 
-                    LogController.logError(core, ex, "execute_dotNetClass_assembly, 1a, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Error($"{core.logCommonMessage}", ex, "execute_dotNetClass_assembly, 1a, [" + assemblyPrivateAbsPathFilename + "]");
                     addonFound = false;
                     return string.Empty;
                 } catch (System.BadImageFormatException) {
                     //
                     // -- file is not an assembly, return addonFound false
                     //
-                    LogController.logTrace(core, "execute_dotNetClass_assembly, 1b, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 1b, [" + assemblyPrivateAbsPathFilename + "]");
                     addonFound = false;
                     //
                     // -- MS says BadImageFormatException is how you detect non-assembly DLLs
@@ -1613,7 +1613,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- file is not an assembly, return addonFound false
                     //
-                    LogController.logError(core, ex, "execute_dotNetClass_assembly, 2, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Error($"{core.logCommonMessage}", ex, "execute_dotNetClass_assembly, 2, [" + assemblyPrivateAbsPathFilename + "]");
                     addonFound = false;
                     return string.Empty;
                 }
@@ -1637,26 +1637,26 @@ namespace Contensive.Processor.Controllers {
                 } catch (ArgumentException ex) {
                     //
                     // -- argument exception
-                    LogController.logWarn(core, ex, "Argument Exception while enumerating classes for addon [" + addon.id + "," + addon.name + "], assembly [" + assemblyPrivateAbsPathFilename + "]. Typically these are when the assembly has two classes that differ only by the case of the class name or namespace.");
+                    logger.Warn(ex, $"{core.logCommonMessage},Argument Exception while enumerating classes for addon [" + addon.id + "," + addon.name + "], assembly [" + assemblyPrivateAbsPathFilename + "]. Typically these are when the assembly has two classes that differ only by the case of the class name or namespace.");
                     addonFound = false;
                     return string.Empty;
                 } catch (ReflectionTypeLoadException ex) {
                     //
                     // -- loader error, one of the types listed could not be loaded. Could be bad or missing dependency
                     foreach (var loaderException in ex.LoaderExceptions) {
-                        LogController.logError(core, ex, "Loader Exception [" + loaderException.Message + "] while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
+                        logger.Error($"{core.logCommonMessage}", ex, "Loader Exception [" + loaderException.Message + "] while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
                     }
                     addonFound = false;
                     return string.Empty;
                 } catch (Exception ex) {
                     //
                     // -- unknown error. Better to log and continue
-                    LogController.logError(core, ex, "Exception while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Error($"{core.logCommonMessage}", ex, "Exception while enumerating classes for addon [" + addon.id + "," + addon.name + "],  assembly [" + assemblyPrivateAbsPathFilename + "]");
                     addonFound = false;
                     return string.Empty;
                 }
                 //
-                LogController.logTrace(core, "execute_dotNetClass_assembly, 4, [" + assemblyPrivateAbsPathFilename + "]");
+                logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 4, [" + assemblyPrivateAbsPathFilename + "]");
                 //
                 // -- if not addon found, exit now
                 if (!addonFound) { return string.Empty; }
@@ -1665,7 +1665,7 @@ namespace Contensive.Processor.Controllers {
                 AddonBaseClass AddonObj = null;
                 try {
                     //
-                    LogController.logTrace(core, "execute_dotNetClass_assembly, 5, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 5, [" + assemblyPrivateAbsPathFilename + "]");
                     //
                     // -- Create an object from the Assembly
                     AddonObj = (AddonBaseClass)testAssembly.CreateInstance(addonType.FullName);
@@ -1673,18 +1673,18 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- exception thrown out of application bin folder when xunit library included -- ignore
                     //
-                    LogController.logWarn(core, "execute_dotNetClass_assembly, 6, Assembly matches addon pattern but caused a ReflectionTypeLoadException. Return blank. addon [" + addon.name + "], [" + assemblyPrivateAbsPathFilename + "], exception [" + ex + "]");
+                    logger.Warn($"{core.logCommonMessage}, execute_dotNetClass_assembly, 6, Assembly matches addon pattern but caused a ReflectionTypeLoadException. Return blank. addon [" + addon.name + "], [" + assemblyPrivateAbsPathFilename + "], exception [" + ex + "]");
                     return string.Empty;
                 } catch (Exception ex) {
                     //
                     // -- problem loading types
                     //
-                    LogController.logWarn(core, "execute_dotNetClass_assembly, 6, Assembly matches addon pattern but caused a load exception. Return blank. addon [" + addon.name + "], [" + assemblyPrivateAbsPathFilename + "], exception [" + ex + "]");
+                    logger.Warn($"{core.logCommonMessage}, execute_dotNetClass_assembly, 6, Assembly matches addon pattern but caused a load exception. Return blank. addon [" + addon.name + "], [" + assemblyPrivateAbsPathFilename + "], exception [" + ex + "]");
                     return string.Empty;
                 }
                 try {
                     //
-                    LogController.logTrace(core, "execute_dotNetClass_assembly, 8, [" + assemblyPrivateAbsPathFilename + "]");
+                    logger.Trace($"{core.logCommonMessage},execute_dotNetClass_assembly, 8, [" + assemblyPrivateAbsPathFilename + "]");
                     //
                     // -- Call Execute
                     object AddonObjResult = AddonObj.Execute(core.cpParent);
@@ -1693,13 +1693,13 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- error in the addon
                     //
-                    LogController.logError(core, ex, "execute_dotNetClass_assembly, 9, [" + assemblyPrivateAbsPathFilename + "]. There was an error in the addon [" + addon.name + "]. It could not be executed because there was an error in the addon assembly [" + assemblyPrivateAbsPathFilename + "], in class [" + addonType.FullName.Trim().ToLowerInvariant() + "]. The error was [" + ex + "]");
+                    logger.Error($"{core.logCommonMessage}", ex, "execute_dotNetClass_assembly, 9, [" + assemblyPrivateAbsPathFilename + "]. There was an error in the addon [" + addon.name + "]. It could not be executed because there was an error in the addon assembly [" + assemblyPrivateAbsPathFilename + "], in class [" + addonType.FullName.Trim().ToLowerInvariant() + "]. The error was [" + ex + "]");
                     return string.Empty;
                 }
             } catch (Exception ex) {
                 //
                 // -- this exception should interrupt the caller
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1728,7 +1728,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- addon not found
                     string errMsg = "executeAsProcess called with null addon model.";
-                    logger.Error(LogController.processLogMessage(core, errMsg, true));
+                    logger.Error($"{core.logCommonMessage},{errMsg}");
                     return;
                 }
                 //
@@ -1743,7 +1743,7 @@ namespace Contensive.Processor.Controllers {
                     args = compositeArgs
                 }, false);
             } catch (Exception ex) {
-                LogController.logError(core, ex, "executeAsProcess");
+                logger.Error($"{core.logCommonMessage}", ex, "executeAsProcess");
             }
         }
         //
@@ -1898,7 +1898,7 @@ namespace Contensive.Processor.Controllers {
                     addonArgumentListPassToBubbleEditor = addonArgumentListPassToBubbleEditor.Substring(2);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -1978,7 +1978,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 csData.close();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -2005,7 +2005,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return defaultIfNotFound;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return defaultIfNotFound;
             }
         }
@@ -2155,11 +2155,11 @@ namespace Contensive.Processor.Controllers {
                         });
                     }
                 } catch (Exception ex) {
-                    LogController.logError(core, new Exception("Error calling ExecuteAddon with AddonManagerGuid, will attempt Safe Mode Addon Manager. Exception=[" + ex + "]"));
+                    logger.Error($"{core.logCommonMessage}", new Exception("Error calling ExecuteAddon with AddonManagerGuid, will attempt Safe Mode Addon Manager. Exception=[" + ex + "]"));
                     AddonStatusOK = false;
                 }
                 if (string.IsNullOrEmpty(result)) {
-                    LogController.logError(core, new Exception("AddonManager returned blank, calling Safe Mode Addon Manager."));
+                    logger.Error($"{core.logCommonMessage}", new Exception("AddonManager returned blank, calling Safe Mode Addon Manager."));
                     AddonStatusOK = false;
                 }
                 if (!AddonStatusOK) {
@@ -2167,7 +2167,7 @@ namespace Contensive.Processor.Controllers {
                     result = AddonMan.getForm_SafeModeAddonManager();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;

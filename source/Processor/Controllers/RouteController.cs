@@ -34,7 +34,7 @@ namespace Contensive.Processor.Controllers {
                 if (core?.appConfig?.enabled == null || !core.appConfig.enabled) {
                     if (core == null) { throw new GenericException("executeRoute failed because coreController null"); }
                     if (core?.appConfig == null) { throw new GenericException("executeRoute failed because core.appConfig null"); }
-                    LogController.logDebug(core, "executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
+                    logger.Debug($"{core.logCommonMessage},executeRoute returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
                 LogController.log(core, "CoreController executeRoute, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
@@ -132,10 +132,10 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- unrecognized route and no default route
-                LogController.logWarn(core, "executeRoute called with an unknown route [" + normalizedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
+                logger.Warn($"{core.logCommonMessage}, executeRoute called with an unknown route [" + normalizedRoute + "], and no default route is set to handle it. Go to the admin site, open preferences and set a detault route. Typically this is Page Manager for websites or an authorization error for remote applications.");
                 return "Unknown command";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return "";
             } finally {
                 LogController.log(core, "CoreController executeRoute, exit", BaseClasses.CPLogBaseClass.LogLevel.Trace);
@@ -179,7 +179,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             AddonModel addon = core.cacheRuntime.addonCache.create(addonGuidAdminSite);
                             if (addon == null) {
-                                LogController.logError(core, new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."));
+                                logger.Error($"{core.logCommonMessage}", new GenericException("The admin site addon could not be found by guid [" + addonGuidAdminSite + "]."));
                                 returnResult = "The default admin site addon could not be found. Please run an upgrade on this application to restore default services (command line> cc -a appName -r )";
                                 return true;
                             } else {
@@ -195,7 +195,7 @@ namespace Contensive.Processor.Controllers {
                             // -- remote method
                             AddonModel addon = core.cacheRuntime.addonCache.create(route.remoteMethodAddonId);
                             if (addon == null) {
-                                LogController.logError(core, new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
+                                logger.Error($"{core.logCommonMessage}", new GenericException("The addon for remoteMethodAddonId [" + route.remoteMethodAddonId + "] could not be opened."));
                                 return true;
                             }
                             CPUtilsBaseClass.addonExecuteContext executeContext = new CPUtilsBaseClass.addonExecuteContext {
@@ -241,7 +241,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -354,7 +354,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -419,7 +419,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -482,7 +482,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

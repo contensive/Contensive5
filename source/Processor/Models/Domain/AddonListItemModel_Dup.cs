@@ -2,6 +2,7 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,6 +17,9 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     //
     public class AddonListItemModel_Dup {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// The guid of the design block addon that is in this position
         /// </summary>
@@ -75,7 +79,7 @@ namespace Contensive.Processor.Models.Domain {
                     addonType = CPUtilsBaseClass.addonContext.ContextPage
                 });
             } catch (Exception) {
-                LogController.logWarn(core, "The addonList for page [" + core.doc.pageController.page.id + ", " + core.doc.pageController.page.name + "] was not empty, but deserialized to null, addonList '" + core.doc.pageController.page.addonList + "'");
+                logger.Warn($"{core.logCommonMessage}, The addonList for page [" + core.doc.pageController.page.id + ", " + core.doc.pageController.page.name + "] was not empty, but deserialized to null, addonList '" + core.doc.pageController.page.addonList + "'");
                 throw;
             }
         }

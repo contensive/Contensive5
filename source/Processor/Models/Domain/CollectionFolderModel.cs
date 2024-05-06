@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml;
 using static Contensive.BaseClasses.CPFileSystemBaseClass;
+using NLog;
 //
 namespace Contensive.Processor.Models.Domain {
     /// <summary>
@@ -15,6 +16,9 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     //
     public class CollectionFolderModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public string name { get; set; }
         public string guid { get; set; }
         public string path { get; set; }
@@ -31,11 +35,11 @@ namespace Contensive.Processor.Models.Domain {
                 try {
                     doc.LoadXml(getCollectionFolderConfigXml(core));
                 } catch (Exception) {
-                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", Error loading CollectionFolderConfig file.");
+                    logger.Info($"{core.logCommonMessage}, Error loading CollectionFolderConfig file.");
                     return null;
                 }
                 if (doc.DocumentElement.Name.ToLower(CultureInfo.InvariantCulture) != GenericController.toLCase(Constants.CollectionListRootNode)) {
-                    LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", The Collections.xml file has an invalid root node");
+                    logger.Info($"{core.logCommonMessage}, The Collections.xml file has an invalid root node");
                     return null;
                 }
                 foreach (XmlNode configNode in doc.DocumentElement.ChildNodes) {
@@ -71,7 +75,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return null;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -94,11 +98,11 @@ namespace Contensive.Processor.Models.Domain {
                 returnXml = core.privateFiles.readFileText(collectionFilePathFilename);
                 if (string.IsNullOrWhiteSpace(returnXml)) {
                     //
-                    LogController.logInfo(core, "Collection Folder XML is blank, rebuild start");
+                    logger.Info($"{core.logCommonMessage},Collection Folder XML is blank, rebuild start");
                     //                     
                     List<FolderDetail> FolderList = core.privateFiles.getFolderList(AddonController.getPrivateFilesAddonPath());
                     //
-                    LogController.logInfo(core, "Collection Folder XML rebuild, FolderList.count [" + FolderList.Count + "]");
+                    logger.Info($"{core.logCommonMessage},Collection Folder XML rebuild, FolderList.count [" + FolderList.Count + "]");
                     //                     
                     if (FolderList.Count > 0) {
                         var collectionsFound = new List<string>();
@@ -113,7 +117,7 @@ namespace Contensive.Processor.Models.Domain {
                                     if (collectionsFound.Contains(CollectionGuid)) {
                                         //
                                         // -- folder with duplicate Guid not allowed. throw;ception and block the folder
-                                        LogController.logError(core, new GenericException("Add-on Collection Folder contains a mulitple collection folders with the same guid, [" + CollectionGuid + "], duplicate folder ignored [" + folder.Name + "]. Remove or Combine the mulitple instances. Then delete the collections.xml file and it will regenerate without the duplicate."));
+                                        logger.Error($"{core.logCommonMessage}", new GenericException("Add-on Collection Folder contains a mulitple collection folders with the same guid, [" + CollectionGuid + "], duplicate folder ignored [" + folder.Name + "]. Remove or Combine the mulitple instances. Then delete the collections.xml file and it will regenerate without the duplicate."));
                                     } else {
                                         collectionsFound.Add(CollectionGuid);
                                         List<FolderDetail> SubFolderList = core.privateFiles.getFolderList(AddonController.getPrivateFilesAddonPath() + FolderName + "\\");
@@ -139,11 +143,11 @@ namespace Contensive.Processor.Models.Domain {
                     returnXml = "<CollectionList>" + returnXml + Environment.NewLine + "</CollectionList>";
                     core.privateFiles.saveFile(collectionFilePathFilename, returnXml);
                     //
-                    LogController.logInfo(core, "Collection Folder XML is blank, rebuild finished and saved");
+                    logger.Info($"{core.logCommonMessage},Collection Folder XML is blank, rebuild finished and saved");
                     //                     
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnXml;
@@ -169,14 +173,14 @@ namespace Contensive.Processor.Models.Domain {
                         LocalCollections.LoadXml(localCollectionStoreListXml);
                     } catch (Exception) {
                         string Copy = "Error loading privateFiles\\addons\\Collections.xml";
-                        LogController.logInfo(core, Copy);
+                        logger.Info($"{core.logCommonMessage},{Copy}");
                         return_ErrorMessage += "<P>" + Copy + "</P>";
                         returnOk = false;
                     }
                     if (returnOk) {
                         if (GenericController.toLCase(LocalCollections.DocumentElement.Name) != GenericController.toLCase(Constants.CollectionListRootNode)) {
                             string Copy = "The addons\\Collections.xml has an invalid root node, [" + LocalCollections.DocumentElement.Name + "] was received and [" + Constants.CollectionListRootNode + "] was expected.";
-                            LogController.logInfo(core, Copy);
+                            logger.Info($"{core.logCommonMessage},{Copy}");
                             return_ErrorMessage += "<P>" + Copy + "</P>";
                             returnOk = false;
                         } else {
@@ -208,7 +212,7 @@ namespace Contensive.Processor.Models.Domain {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnOk;

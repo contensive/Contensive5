@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Xml;
 using static Contensive.Processor.Controllers.GenericController;
@@ -9,6 +10,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Housekeep this content
     /// </summary>
     public static class ViewingSummaryClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -21,7 +25,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, ViewingSummary");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
@@ -57,7 +61,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //    pageViewSummary(core, datePtr, env.yesterday, 24, env.core.siteProperties.dataBuildVersion, env.oldestVisitSummaryWeCareAbout);
                 //}
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }
@@ -279,7 +283,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 return;
             } catch (Exception ex) {
-                LogController.logError(env.core, ex, "hint [" + hint + "]");
+                logger.Error($"{env.core.logCommonMessage}, hint [" + hint + "]", ex);
             }
         }
         //

@@ -3,10 +3,14 @@ using System;
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using NLog;
 using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public class DownloadManagerAddon : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -163,7 +167,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 core.html.addTitle(Caption,"Download Manager");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return tempGetForm_Downloads;
         }

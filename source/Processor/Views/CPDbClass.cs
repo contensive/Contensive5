@@ -5,6 +5,7 @@ using Contensive.Processor.Controllers;
 using Contensive.BaseClasses;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
+using NLog;
 
 namespace Contensive.Processor {
     //
@@ -14,6 +15,9 @@ namespace Contensive.Processor {
     /// Other datasources are implemented with CP.DbNew(datasourceName)
     /// </summary>
     public class CPDbClass : CPDbBaseClass, IDisposable {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// dependencies
         /// </summary>
@@ -98,7 +102,7 @@ namespace Contensive.Processor {
                     //
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
             return returnKey;
         }
@@ -424,7 +428,7 @@ namespace Contensive.Processor {
                     //
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
             return returnKey;
         }

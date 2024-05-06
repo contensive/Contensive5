@@ -37,7 +37,7 @@ namespace Contensive.Processor.Controllers {
                 logTextMessage(core, request, result, userError, logName);
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
 
@@ -114,7 +114,7 @@ namespace Contensive.Processor.Controllers {
                 if (needToSend) { AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask); }
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -251,7 +251,7 @@ namespace Contensive.Processor.Controllers {
                 queueTextMessage(core, Immediate, contextMessage, textMessageSendRequest);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -294,7 +294,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
 
@@ -364,7 +364,7 @@ namespace Contensive.Processor.Controllers {
                 // -- set the text message task to run now
                 if (needToSend) { AddonModel.setRunNow(core.cpParent, addonGuidTextMessageSendTask); }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return true;
         }
@@ -397,7 +397,7 @@ namespace Contensive.Processor.Controllers {
                 queue.attempts = textMessage.attempts;
                 queue.save(core.cpParent);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -425,7 +425,7 @@ namespace Contensive.Processor.Controllers {
                     if (request == null) {
                         //
                         // -- bugfix, if data does not deserialize, skip message
-                        LogController.logError(core, new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"));
+                        logger.Error($"{core.logCommonMessage}", new ArgumentNullException("TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]"));
                         core.db.executeNonQuery("delete from ccTextMessageQueue where (id=" + textMessage.id + ")");
                         logTextMessage(core, request, false, "TextMessage read from TextMessageQueue has content that serialized to null, message skipped, textmessage.content [" + textMessage.content + "]", "Failed, message error");
                         continue;
@@ -444,7 +444,7 @@ namespace Contensive.Processor.Controllers {
                     core.db.executeNonQuery("update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null  where ccguid=" + DbController.encodeSQLText(textMessage.ccguid) + "");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             } finally {
                 core.db.executeNonQuery($"update ccTextMessageQueue set attempts=attempts+1,sendSerialNumber=null where sendSerialNumber={DbController.encodeSQLText(sendSerialNumber)}");
             }

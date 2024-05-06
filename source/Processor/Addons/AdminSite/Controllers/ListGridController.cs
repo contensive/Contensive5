@@ -9,12 +9,16 @@ using Contensive.Models.Db;
 using System.Collections.Generic;
 using Contensive.BaseClasses;
 using System.Linq;
+using NLog;
 //
 namespace Contensive.Processor.Addons.AdminSite {
     /// <summary>
     /// Create the List Grid in the List View
     /// </summary>
     public static class ListGridController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //===========================================================================
         /// <summary>
@@ -280,7 +284,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + DataTable_HdrRow + dataTableRows + DataTable_FindRow + "</table>";
                 return grid;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -412,7 +416,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 return HtmlController.encodeHtml(Stream.text);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

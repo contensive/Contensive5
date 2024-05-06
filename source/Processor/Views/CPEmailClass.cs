@@ -2,12 +2,15 @@
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using NLog;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Contensive.Processor {
     public class CPEmailClass : BaseClasses.CPEmailBaseClass, IDisposable {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// dependencies
         /// </summary>
@@ -46,7 +49,7 @@ namespace Contensive.Processor {
                 int personalizeAddonId = 0;
                 EmailController.sendAdHocEmail(cp.core, "Ad Hoc email from api", 0, toAddress, fromAddress, subject, body, fromAddress, fromAddress, "", sendImmediately, bodyIsHTML, 0, ref adminErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -79,7 +82,7 @@ namespace Contensive.Processor {
                 EmailController.trySendFormEmail(cp.core, toAddress, fromAddress, subject, out string errorMessage);
                 adminErrorMessage = errorMessage;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

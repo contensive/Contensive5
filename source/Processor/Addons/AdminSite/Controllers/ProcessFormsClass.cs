@@ -1,5 +1,6 @@
 ﻿using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using NLog;
 using System;
 using static Contensive.Processor.Constants;
 
@@ -9,7 +10,10 @@ namespace Contensive.Processor.Addons.AdminSite {
     /// </summary>
     public static class ProcessFormController {
         //
-        public  static void processForms(CPClass cp, AdminDataModel adminData) {
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
+        public static void processForms(CPClass cp, AdminDataModel adminData) {
             try {
                 if (adminData.srcFormId != 0) {
                     string EditorStyleRulesFilename = null;
@@ -334,7 +338,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

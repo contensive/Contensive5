@@ -1,11 +1,15 @@
 ﻿
 using Contensive.Processor.Models.Domain;
+using NLog;
 using System;
 using System.Net.Mail;
 using System.Net.Mime;
 //
 namespace Contensive.Processor.Controllers {
     public class EmailSmtpController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -57,17 +61,17 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- send email
                     try {
-                        LogController.logInfo(core, "sendSmtp, to [" + email.toAddress + "], from [" + email.fromAddress + "], subject [" + email.subject + "], BounceAddress [" + email.bounceAddress + "], replyTo [" + email.replyToAddress + "]");
+                        logger.Info($"{core.logCommonMessage},sendSmtp, to [" + email.toAddress + "], from [" + email.fromAddress + "], subject [" + email.subject + "], BounceAddress [" + email.bounceAddress + "], replyTo [" + email.replyToAddress + "]");
                         client.Send(mailMessage);
                         status = true;
                     } catch (Exception ex) {
                         returnErrorMessage = "There was an smtp error sending the email";
-                        Logger.Error(ex, LogController.processLogMessage(core, returnErrorMessage, true));
+                        Logger.Error(ex, core.logCommonMessage + "," + returnErrorMessage);
                     }
                 }
             } catch (Exception ex) {
                 string errMsg = "There was an error configuring the smtp server";
-                Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
+                Logger.Error(ex, $"{core.logCommonMessage},{errMsg}");
                 throw;
             }
             return status;
