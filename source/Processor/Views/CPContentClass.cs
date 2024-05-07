@@ -7,9 +7,13 @@ using Contensive.Processor.Models.Domain;
 using Contensive.Exceptions;
 using Contensive.Models.Db;
 using Contensive.CPBase.BaseModels;
+using NLog;
 
 namespace Contensive.Processor {
     public class CPContentClass : CPContentBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         private readonly CPClass cp;
 
@@ -369,7 +373,7 @@ namespace Contensive.Processor {
                 }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -384,7 +388,7 @@ namespace Contensive.Processor {
                 }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

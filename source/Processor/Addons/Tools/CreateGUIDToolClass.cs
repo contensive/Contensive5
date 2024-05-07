@@ -1,11 +1,15 @@
 ﻿
 using System;
 using Contensive.Processor.Controllers;
+using NLog;
 using static Contensive.Processor.Constants;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class CreateGUIDToolClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -32,7 +36,7 @@ namespace Contensive.Processor.Addons.Tools {
                 // Display form
                 return AdminUIController.getToolForm(core, result_guid.text, ButtonCancel + "," + ButtonCreateGUId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }

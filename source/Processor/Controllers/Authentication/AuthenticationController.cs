@@ -1,4 +1,5 @@
 ﻿using Contensive.Models.Db;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,9 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class AuthenticationController {
         //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
         //========================================================================
         /// <summary>
         /// Recognize the current member to be non-authenticated, but recognized.  Static method because it runs in constructor.
@@ -35,7 +39,7 @@ namespace Contensive.Processor.Controllers {
         public static bool recognizeById(CoreController core, SessionController session, int userId, bool requireUserAutoLogin) {
             try {
                 //
-                LogController.logTrace(core, "AuthenticationController.recognizeById, enter");
+                logger.Trace($"{core.logCommonMessage},AuthenticationController.recognizeById, enter");
                 //
                 // -- argument validation
                 if (userId.Equals(0)) { return false; }
@@ -72,7 +76,7 @@ namespace Contensive.Processor.Controllers {
                 session.user.save(core.cpParent);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -121,7 +125,7 @@ namespace Contensive.Processor.Controllers {
                 session.visitor.memberId = session.user.id;
                 session.visitor.save(core.cpParent);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -137,7 +141,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool tryAuthenticate(CoreController core, SessionController session, string requestUsername, string requestPassword, bool setUserAutoLogin, ref string userErrorMessage) {
             try {
-                LogController.logTrace(core, "AuthenticationController.authenticate enter");
+                logger.Trace($"{core.logCommonMessage},AuthenticationController.authenticate enter");
                 //
                 userErrorMessage = "";
                 int userId = preflightAuthentication_returnUserId(core, session, requestUsername, requestPassword, false, ref userErrorMessage);
@@ -151,14 +155,14 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- failed to authenticate
-                ErrorController.addUserError(core, userErrorMessage);
+                logger.Info($"{core.logCommonMessage},{userErrorMessage}");
                 //
                 // -- pause to make brute force attempt more expensive
                 Thread.Sleep(3000);
                 //
                 return false;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -175,7 +179,7 @@ namespace Contensive.Processor.Controllers {
         public static bool authenticateById(CoreController core, SessionController session, int userId, bool requestUserAutoLogin) {
             try {
                 //
-                LogController.logTrace(core, "AuthenticationController.authenticateById, enter, userid [" + userId + "]");
+                logger.Trace($"{core.logCommonMessage},AuthenticationController.authenticateById, enter, userid [" + userId + "]");
                 //
                 if (userId == 0) { return false; }
                 if (!recognizeById(core, session, userId, requestUserAutoLogin)) {
@@ -195,7 +199,7 @@ namespace Contensive.Processor.Controllers {
                 session.visit.save(core.cpParent);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -212,7 +216,7 @@ namespace Contensive.Processor.Controllers {
                 if (userId == 0) { return; }
                 AuthenticationLogModel.log(core.cpParent, userId, false);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -228,7 +232,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 AuthenticationLogModel.log(core.cpParent, userId, true);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -246,7 +250,7 @@ namespace Contensive.Processor.Controllers {
         public static int preflightAuthentication_returnUserId(CoreController core, SessionController session, string requestUsername, string requestPassword, bool requestIncludesPassword, ref string userErrorMessage) {
             try {
                 //
-                LogController.logTrace(core, "preflightAuthentication_returnUserId enter");
+                logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId enter");
                 //
                 // -- track the visit attempt
                 core.session.visit.loginAttempts = core.session.visit.loginAttempts + 1;
@@ -257,7 +261,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- username blank, stop here
                     userErrorMessage = "Username is required.";
-                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, username blank");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, username blank");
                     return 0;
                 }
                 bool allowNoPassword = !requestIncludesPassword && core.siteProperties.getBoolean(sitePropertyName_AllowNoPasswordLogin);
@@ -265,7 +269,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- password blank, stop here
                     userErrorMessage = "Password is required.";
-                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, password blank");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, password blank");
                     return 0;
                 }
                 string Criteria;
@@ -273,12 +277,12 @@ namespace Contensive.Processor.Controllers {
                 if (allowEmailLogin) {
                     //
                     // -- login by username or email
-                    LogController.logTrace(core, "preflightAuthentication_returnUserId, attempt email login");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, attempt email login");
                     Criteria = "((username=" + DbController.encodeSQLText(requestUsername) + ")or(email=" + DbController.encodeSQLText(requestUsername) + "))";
                 } else {
                     //
                     // -- login by username only
-                    LogController.logTrace(core, "preflightAuthentication_returnUserId, attempt username login");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, attempt username login");
                     Criteria = "(username=" + DbController.encodeSQLText(requestUsername) + ")";
                 }
                 Criteria += "and((dateExpires is null)or(dateExpires>" + DbController.encodeSQLDate(core.dateTimeNowMockable) + "))";
@@ -288,14 +292,14 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- fail, username not found, stop here
                     userErrorMessage = "Username or password incorrect.";
-                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, user record not found");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, user record not found");
                     return 0;
                 }
                 if (records.Count > 1) {
                     //
                     // -- fail, multiple matches
                     userErrorMessage = "Username is not valid.";
-                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, multiple users found");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, multiple users found");
                     return 0;
                 }
                 var record = records[0];
@@ -306,7 +310,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- fail, admin/dev cannot be no-password-mode
                         userErrorMessage = "Admin users require password login.";
-                        LogController.logTrace(core, "preflightAuthentication_returnUserId fail, no-pw mode matched admin/dev");
+                        logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, no-pw mode matched admin/dev");
                         return 0;
                     }
                     //
@@ -326,7 +330,7 @@ namespace Contensive.Processor.Controllers {
                     if (!csRules.openSql(SQL)) {
                         //
                         // -- success, match is not content manager
-                        LogController.logTrace(core, "preflightAuthentication_returnUserId fail, no-pw mode did not match content manager");
+                        logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, no-pw mode did not match content manager");
                         return record.id;
                     }
 
@@ -338,7 +342,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- fail, no password
                     userErrorMessage = "Password is required.";
-                    LogController.logTrace(core, "preflightAuthentication_returnUserId fail, blank requestPassword");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId fail, blank requestPassword");
                     processLoginFail(core, record.id);
                     return 0;
                 }
@@ -354,7 +358,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- fail, lockout
                             userErrorMessage = "Too many login attempts. Please wait and try again.";
-                            LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, fail account lockout, memberId [{record.id}]");
+                            logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, allowPlainTextPassword, fail account lockout, memberId [{record.id}]");
                             processLoginFail(core, record.id);
                             return 0;
                         }
@@ -365,19 +369,19 @@ namespace Contensive.Processor.Controllers {
                             // -- fail, password must be updated
                             // -- this should exit with mfa requirement
                             userErrorMessage = "Password has not been updated and must be changed.";
-                            LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
+                            logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
                             processLoginFail(core, record.id);
                             return 0;
                         }
                         //
                         // -- success, password match
-                        LogController.logTrace(core, "preflightAuthentication_returnUserId success, pw match");
+                        logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId success, pw match");
                         processLoginSuccess(core, record.id);
                         return record.id;
                     }
                     // 
                     // -- fail, plain text
-                    LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, fail password mismatch, attempt hashpassword (for hashed site that enables plain-text)");
+                    logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, allowPlainTextPassword, fail password mismatch, attempt hashpassword (for hashed site that enables plain-text)");
                 }
                 //
                 // -- hash password mode
@@ -418,7 +422,7 @@ namespace Contensive.Processor.Controllers {
                             if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
                                 //
                                 // -- fail, account lockout
-                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-231226, fail account lockout, memberId [{record.id}]");
+                                logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, hash-231226, fail account lockout, memberId [{record.id}]");
                                 userErrorMessage = "Too many login attempts. Please wait and try again.";
                                 processLoginFail(core, record.id);
                                 return 0;
@@ -430,13 +434,13 @@ namespace Contensive.Processor.Controllers {
                                 // -- fail, password must be updated
                                 // -- this should exit with mfa requirement
                                 userErrorMessage = "Password has not been updated and must be changed.";
-                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
+                                logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
                                 processLoginFail(core, record.id);
                                 return 0;
                             }
                             //
                             // -- success, passwordHash match, return success
-                            LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
+                            logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
                             processLoginSuccess(core, record.id);
                             return record.id;
                         }
@@ -456,7 +460,7 @@ namespace Contensive.Processor.Controllers {
                             if (!AuthenticationLogModel.allowLoginForLockoutPolicy(core.cpParent, record.id)) {
                                 //
                                 // -- fail, lockout
-                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, hash-no-version, fail account lockout, memberId [{record.id}]");
+                                logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, hash-no-version, fail account lockout, memberId [{record.id}]");
                                 userErrorMessage = "Too many login attempts. Please wait and try again.";
                                 processLoginFail(core, record.id);
                                 return 0;
@@ -468,20 +472,20 @@ namespace Contensive.Processor.Controllers {
                                 // -- fail, password must be updated
                                 // -- this should exit with mfa requirement
                                 userErrorMessage = "Password has not been updated and must be changed.";
-                                LogController.logTrace(core, $"preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
+                                logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, allowPlainTextPassword, password has not been updated and must be changed., memberId [{record.id}]");
                                 processLoginFail(core, record.id);
                                 return 0;
                             }
                             //
                             // -- success, passwordHash match, try upgrde to current password hasher and return success
-                            LogController.logTrace(core, "preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
+                            logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, success, passwordHash match, !allowPlainTextPassword");
                             trySetPassword(core.cpParent, requestPassword, record, ref userErrorMessage);
                             processLoginSuccess(core, record.id);
                             return record.id;
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -502,7 +506,7 @@ namespace Contensive.Processor.Controllers {
             if (string.IsNullOrEmpty(recordPassword)) {
                 //
                 // -- fail, blank record password
-                LogController.logTrace(core, "getUserIdForUsernameCredential, !allowPlainTextPassword, migration-mode, plain-text password blank");
+                logger.Trace($"{core.logCommonMessage},getUserIdForUsernameCredential, !allowPlainTextPassword, migration-mode, plain-text password blank");
                 return 0;
             }
             if (requestPassword.Equals(recordPassword, StringComparison.InvariantCultureIgnoreCase)) {
@@ -513,12 +517,12 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     core.db.executeNonQuery($"update ccmembers set passwordhash={requestPasswordHash.text} where id={userId}");
                 }
-                LogController.logTrace(core, "migrateToPasswordHash success, !allowPlainTextPassword, migration-mode, matched plain text pw, setup passwordhash, cleared password.");
+                logger.Trace($"{core.logCommonMessage},migrateToPasswordHash success, !allowPlainTextPassword, migration-mode, matched plain text pw, setup passwordhash, cleared password.");
                 return userId;
             }
             //
             // -- fail, hash password
-            LogController.logTrace(core, "migrateToPasswordHash fail, !allowPlainTextPassword, migration-mode, migration failed because plain-text password mismatch");
+            logger.Trace($"{core.logCommonMessage},migrateToPasswordHash fail, !allowPlainTextPassword, migration-mode, migration failed because plain-text password mismatch");
             return 0;
 
         }
@@ -606,7 +610,7 @@ namespace Contensive.Processor.Controllers {
                 DbBaseModel.invalidateCacheOfRecord<PersonModel>(cp, user.id);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -697,7 +701,7 @@ namespace Contensive.Processor.Controllers {
                 // -- success
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -780,7 +784,7 @@ namespace Contensive.Processor.Controllers {
                 // -- success
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

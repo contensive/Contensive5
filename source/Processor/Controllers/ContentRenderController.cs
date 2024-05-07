@@ -404,7 +404,7 @@ namespace Contensive.Processor.Controllers {
                     result = Stream.text;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 // throw;
             }
             return result;
@@ -488,7 +488,7 @@ namespace Contensive.Processor.Controllers {
                             LineEnd = GenericController.strInstr(LineStart, result, EndFlag);
                             string Copy = "";
                             if (LineEnd == 0) {
-                                LogController.logWarn(core, "csv_EncodeContent9, Addon could not be inserted into content because the HTML comment holding the position is not formated correctly");
+                                logger.Warn($"{core.logCommonMessage}, csv_EncodeContent9, Addon could not be inserted into content because the HTML comment holding the position is not formated correctly");
                                 break;
                             } else {
                                 hint = "53";
@@ -555,7 +555,7 @@ namespace Contensive.Processor.Controllers {
                 } catch (Exception ex) {
                     //
                     // -- handle error, but don't abort encode
-                    LogController.logError(core, ex, "hint [" + hint + "]");
+                    logger.Error(ex, $"hint [{hint}], {core.logCommonMessage}");
                 }
                 //
                 // process out text block comments inserted by addons
@@ -603,7 +603,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "hint [" + hint + "]");
+                logger.Error(ex, $"hint [{hint}], {core.logCommonMessage}");
             }
             return result;
         }
@@ -1068,7 +1068,7 @@ namespace Contensive.Processor.Controllers {
                                                     //                                                    //        //
                                                     //                                                    //        // image load failed, use raw filename
                                                     //                                                    //        //
-                                                    //                                                    //        LogController.logWarn(core, new GenericException("ImageEditController failed to load filename [" + RecordVirtualFilename + "]"));
+                                                    //                                                    //        logger.Warn($"{core.logCommonMessage}", new GenericException("ImageEditController failed to load filename [" + RecordVirtualFilename + "]"));
                                                     //                                                    //    } else {
                                                     //                                                    //        //
                                                     //                                                    //        //
@@ -1161,7 +1161,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
             //
@@ -1222,7 +1222,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return htmlContentUpdated;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return htmlContent;
             }
         }

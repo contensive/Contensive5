@@ -1,19 +1,22 @@
 ﻿
+using Contensive.BaseClasses;
+using Contensive.Models.Db;
+using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
+using NLog;
 using System;
 using System.Collections.Generic;
-using Contensive.Processor.Controllers;
+using System.Globalization;
+using System.Text;
+using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.AdminUIController;
 using static Contensive.Processor.Controllers.GenericController;
-using static Contensive.Processor.Constants;
-using Contensive.Processor.Models.Domain;
-using Contensive.BaseClasses;
-using System.Text;
-using Contensive.Models.Db;
-using System.Globalization;
-using System.Linq;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public static class ListView {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //========================================================================
         /// <summary>
@@ -252,7 +255,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 result = HtmlController.form(core, Stream.text, "", "adminForm");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;
@@ -665,7 +668,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -806,7 +809,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     adminData.adminContent.id = adminData.adminContent.id;
                     int SubContentCnt = 0;
                     if (!string.IsNullOrEmpty(list)) {
-                        LogController.logInfo(core, "appendlog - adminContext.adminContext.content.contentControlCriteria=" + list);
+                        logger.Info($"{core.logCommonMessage},appendlog - adminContext.adminContext.content.contentControlCriteria=" + list);
                         string[] ListSplit = list.Split('=');
                         int Cnt = ListSplit.GetUpperBound(0) + 1;
                         if (Cnt > 0) {
@@ -1159,7 +1162,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     orderByDelim = ",";
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1464,7 +1467,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 returnContent = "<div style=\"padding-left:10px;padding-right:10px;\">" + returnContent + "</div>";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnContent;

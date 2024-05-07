@@ -6,10 +6,14 @@ using static Contensive.Processor.Constants;
 using System.Collections.Generic;
 using Contensive.Models.Db;
 using System.Data;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class DbSchemaToolClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -257,7 +261,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

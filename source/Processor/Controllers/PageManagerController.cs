@@ -488,7 +488,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -506,7 +506,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- If no domain, block content with message
                     string errMsg = "Domain not recognized:" + core.webServer.requestUrlSource;
-                    logger.Error(LogController.processLogMessage(core, errMsg, true));
+                    logger.Error($"{core.logCommonMessage},{errMsg}");
                     return HtmlController.div("This domain name is not configured for this site.", "ccDialogPageNotFound");
                 }
                 //
@@ -555,7 +555,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;
@@ -571,7 +571,7 @@ namespace Contensive.Processor.Controllers {
                 if (core.doc.pageController.page.id == 0) {
                     //
                     // -- landing page is not valid -- display error
-                    LogController.logInfo(core, "Requested page/document not found:" + core.webServer.requestUrlSource);
+                    logger.Info($"{core.logCommonMessage},Requested page/document not found:" + core.webServer.requestUrlSource);
                     core.doc.redirectBecausePageNotFound = true;
                     core.doc.redirectReason = "Redirecting because the page selected could not be found.";
                     core.doc.redirectLink = PageManagerController.getPageNotFoundRedirectLink(core, core.doc.redirectReason, "", "", 0);
@@ -1006,7 +1006,7 @@ namespace Contensive.Processor.Controllers {
                     return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1171,7 +1171,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result.ToString();
         }
@@ -1209,7 +1209,7 @@ namespace Contensive.Processor.Controllers {
                 copyRecord.save(core.cpParent);
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1241,7 +1241,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 result = Copy;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1276,7 +1276,7 @@ namespace Contensive.Processor.Controllers {
                 if (domain == null) {
                     //
                     // -- domain is not valid
-                    LogController.logError(core, new GenericException("Page could not be determined because the domain was not recognized."));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("Page could not be determined because the domain was not recognized."));
                     return "";
                 }
                 //
@@ -1434,7 +1434,7 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("Open Graph Image", (string.IsNullOrEmpty(core.doc.pageController.page.imageFilename.filename)) ? string.Empty : core.webServer.requestProtocol + core.appConfig.domainList.First() + core.appConfig.cdnFileUrl + core.doc.pageController.page.imageFilename);
                 return "";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1456,7 +1456,7 @@ namespace Contensive.Processor.Controllers {
                 if (domain == null) {
                     //
                     // -- domain not available
-                    LogController.logError(core, new GenericException("Landing page could not be determined because the domain was not recognized."));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("Landing page could not be determined because the domain was not recognized."));
                 } else {
                     //
                     // -- attempt domain landing page
@@ -1495,7 +1495,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return landingPage;
@@ -1590,7 +1590,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 result = Link;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1689,7 +1689,7 @@ namespace Contensive.Processor.Controllers {
                 // -- assemble
                 result = linkprotocol + linkDomain + linkPathPage;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -1869,7 +1869,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1965,7 +1965,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -2063,7 +2063,7 @@ namespace Contensive.Processor.Controllers {
                     + ErrorController.getUserError(core)
                     + HtmlController.formMultipart(core, innerHtml, core.doc.refreshQueryString, "", "ccForm");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -2181,7 +2181,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -2224,7 +2224,7 @@ namespace Contensive.Processor.Controllers {
                     result = AdminUIEditButtonController.getEditWrapper(core, result);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -2394,7 +2394,7 @@ namespace Contensive.Processor.Controllers {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -2443,7 +2443,7 @@ namespace Contensive.Processor.Controllers {
                 DataTable dt = core.db.executeQuery(sql, 0, 1, ref recordsReturned);
                 return !recordsReturned.Equals(0);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

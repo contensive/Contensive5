@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 //
 namespace Contensive.Processor.Addons.Housekeeping {
@@ -8,6 +9,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// support for housekeeping functions
     /// </summary>
     public class HousekeepTask : AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -46,7 +50,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, done");
                 return "";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 LogController.logAlarm(core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
             }

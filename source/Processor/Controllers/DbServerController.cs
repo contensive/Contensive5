@@ -26,7 +26,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 this.core = core;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -65,7 +65,7 @@ namespace Contensive.Processor.Controllers {
                     returnConnString += "Encrypt=yes;";
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnConnString;
@@ -80,7 +80,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 executeQuery("create database " + catalogName);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -98,7 +98,7 @@ namespace Contensive.Processor.Controllers {
                 executeQuery("DROP DATABASE " + catalogName);
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -120,7 +120,7 @@ namespace Contensive.Processor.Controllers {
                 returnOk = (dt.Rows.Count > 0);
                 dt.Dispose();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnOk;
@@ -161,7 +161,7 @@ namespace Contensive.Processor.Controllers {
                 adptSQL.Fill(returnData);
             } catch (Exception ex) {
                 var newEx = new GenericException("Exception [" + ex.Message + "] executing master sql [" + sql + "]", ex);
-                LogController.logError(core, newEx);
+                logger.Error($"{core.logCommonMessage}", newEx);
             }
             return returnData;
         }

@@ -21,9 +21,9 @@ namespace Contensive.Processor.Controllers {
         public DocController(CoreController core) {
             this.core = core;
             //
-            errorList = new List<string>();
-            pageController = new PageManagerController();
-            wysiwygAddonList = new Dictionary<CPHtml5BaseClass.EditorContentType, string>();
+            errorList = [];
+            pageController = new();
+            wysiwygAddonList = [];
         }
         //
         //====================================================================================================
@@ -55,7 +55,14 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// this documents unique guid (created on the fly)
         /// </summary>
-        public string docGuid { get; set; }
+        public string docGuid {
+            get {
+                if(_docGuid!=null) { return _docGuid; }
+                _docGuid = GenericController.getGUID();
+                return _docGuid;
+            }
+        }
+        private string _docGuid;
         //
         //====================================================================================================
         /// <summary>
@@ -400,7 +407,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -441,7 +448,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -467,7 +474,7 @@ namespace Contensive.Processor.Controllers {
                     refreshQueryString = GenericController.modifyQueryString(core.doc.refreshQueryString, Name, Value, true);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
 

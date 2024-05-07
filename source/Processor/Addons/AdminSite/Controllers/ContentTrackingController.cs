@@ -1,14 +1,14 @@
 ﻿using Contensive.Exceptions;
 using Contensive.Processor.Addons.AdminSite.Models;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Contensive.Processor.Addons.AdminSite.Controllers {
     internal class ContentTrackingController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //========================================================================
         //
@@ -40,7 +40,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             csData.set("clicks", 0);
                         }
                         if (!csData.ok()) {
-                            LogController.logError(cp.core, new GenericException("SaveContentTracking, can Not create New record"));
+                            logger.Error($"{cp.core.logCommonMessage}", new GenericException("SaveContentTracking, can Not create New record"));
                         } else {
                             int ContentWatchId = csData.getInteger("ID");
                             csData.set("LinkLabel", adminData.contentWatchLinkLabel);
@@ -76,7 +76,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -110,7 +110,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -151,7 +151,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     csData.close();
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
     }

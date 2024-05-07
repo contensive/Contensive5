@@ -40,11 +40,11 @@ namespace Contensive.Processor.Controllers {
             try {
                 processTimer.Enabled = false;
                 using (CPClass cp = new CPClass()) {
-                    LogController.logTrace(cp.core, "stopTimerEvents");
+                    logger.Trace($"{cp.core.logCommonMessage},stopTimerEvents");
                 }
             } catch (Exception ex) {
                 using (CPClass cp = new CPClass()) {
-                    LogController.logError(cp.core, ex);
+                    logger.Error(ex, $"{cp.core.logCommonMessage}");
                 }
             }
         }
@@ -67,11 +67,11 @@ namespace Contensive.Processor.Controllers {
                     StartServiceInProgress = false;
                 }
                 using (CPClass cp = new CPClass()) {
-                    LogController.logTrace(cp.core, "stopTimerEvents");
+                    logger.Trace($"{cp.core.logCommonMessage},stopTimerEvents");
                 }
             } catch (Exception ex) {
                 using (CPClass cp = new CPClass()) {
-                    LogController.logError(cp.core, ex);
+                    logger.Error(ex, $"{cp.core.logCommonMessage}");
                 }
             }
             return returnStartedOk;
@@ -100,7 +100,7 @@ namespace Contensive.Processor.Controllers {
                 }
             } catch (Exception ex) {
                 using (CPClass cp = new CPClass()) {
-                    LogController.logError(cp.core, ex);
+                    logger.Error(ex, $"{cp.core.logCommonMessage}");
                 }
             } finally {
                 ProcessTimerInProcess = false;
@@ -117,7 +117,7 @@ namespace Contensive.Processor.Controllers {
                 // -- run tasks for each app
                 foreach (var appKvp in core.serverConfig.apps) {
                     if (appKvp.Value.enabled && appKvp.Value.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
-                        LogController.logTrace(core, "scheduleTasks, app=[" + appKvp.Value.name + "]");
+                        logger.Trace($"{core.logCommonMessage},scheduleTasks, app=[" + appKvp.Value.name + "]");
                         using CPClass cpApp = new(appKvp.Value.name);
                         //
                         // -- execute processes
@@ -146,7 +146,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (addon.processNextRun <= core.dateTimeNowMockable) {
                                     //
-                                    LogController.logInfo(cpApp.core, "scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
+                                    logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
                                     //
                                     // -- add task to queue for runner
                                     addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
@@ -167,14 +167,14 @@ namespace Contensive.Processor.Controllers {
                                 addon.save(cpApp);
                             }
                         } catch (Exception ex) {
-                            LogController.logTrace(cpApp.core, "scheduleTasks, exception [" + ex + "]");
-                            LogController.logError(cpApp.core, ex);
+                            logger.Trace($"{cpApp.core.logCommonMessage},scheduleTasks, exception [" + ex + "]");
+                            logger.Error(ex, $"{cpApp.core.logCommonMessage}");
                         }
                     }
                 }
             } catch (Exception ex) {
-                LogController.logTrace(core, "scheduleTasks, exeception [" + ex + "]");
-                LogController.logError(core, ex);
+                logger.Trace($"{core.logCommonMessage},scheduleTasks, exeception [" + ex + "]");
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -224,13 +224,13 @@ namespace Contensive.Processor.Controllers {
                     task.cmdDetail = cmdDetailJson;
                     task.resultDownloadId = downloadId;
                     task.save(core.cpParent);
-                    LogController.logTrace(core, "addTaskToQueue, task added, cmdDetailJson [" + cmdDetailJson + "]");
+                    logger.Trace($"{core.logCommonMessage},addTaskToQueue, task added, cmdDetailJson [" + cmdDetailJson + "]");
                     return true;
                 }
-                LogController.logTrace(core, "addTaskToQueue, task blocked because duplicate found, cmdDetailJson [" + cmdDetailJson + "]");
+                logger.Trace($"{core.logCommonMessage},addTaskToQueue, task blocked because duplicate found, cmdDetailJson [" + cmdDetailJson + "]");
                 return false;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return false;
             }
         }

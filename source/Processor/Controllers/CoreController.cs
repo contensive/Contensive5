@@ -26,6 +26,29 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         internal CPClass cpParent { get; set; }
         //
+        /// <summary>
+        /// message to be added to log messages, created once during core construction.
+        /// doc cache if session is valid
+        /// </summary>
+        public string logCommonMessage {
+            get {
+                if (_logEnvironmentMessage != null && userId != null && visitId != null) return _logEnvironmentMessage;
+                userId = session?.user?.id;
+                visitId = session?.visit?.id;
+                _logEnvironmentMessage = $"" +
+                    $"app[{((appConfig == null) ? "no-app" : appConfig.name)}]" +
+                    $",doc[{(doc == null ? "unset" : doc.docGuid)}]" +
+                    $",user[{(userId == null ? "0" : userId.ToString() + ":" + session.user.name)}]" +
+                    $",visit[{(visitId == null ? "0" : visitId.ToString())}]" +
+                    $",thread[{Environment.CurrentManagedThreadId:000}]" +
+                    $",url[{((webServer == null) ? "non-web" : string.IsNullOrEmpty(webServer.requestPathPage) ? "empty" : webServer.requestPathPage)}]";
+                return _logEnvironmentMessage;
+            }
+        }
+        private string _logEnvironmentMessage;
+        private int? userId;
+        private int? visitId;
+        //
         //====================================================================================================
         /// <summary>
         /// The route map is a dictionary of route names plus route details that tell how to execute the route.
@@ -424,7 +447,7 @@ namespace Contensive.Processor.Controllers {
                 if (executePath.ToLowerInvariant().IndexOf("\\git\\") > -1) {
                     //
                     //  -- developer execution, do not use saved path, use the git path but do not save
-                    LogController.logWarn(this, "Execution path includes GIT, use it and do not update serverConfig.ProgramFilesPath.");
+                    logger.Warn($"{this.logCommonMessage},Execution path includes GIT, use it and do not update serverConfig.ProgramFilesPath.");
                     _programFiles = new FileController(this, executePath);
                     return _programFiles;
                 }
@@ -436,7 +459,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 //  -- developer, fake a path
-                LogController.logWarn(this, "serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
+                logger.Warn($"{this.logCommonMessage},serverConfig.ProgramFilesPath is blank. Current executable path does NOT includes \\git\\ so assumed program files path environment set.");
                 if (System.IO.File.Exists("c:\\Program Files\\Contensive\\Processor.dll")) {
                     serverConfig.programFilesPath = "c:\\Program Files\\Contensive\\";
                 } else {
@@ -612,7 +635,8 @@ namespace Contensive.Processor.Controllers {
                 // -- clear mock datetime
                 _mockNow = null;
                 //
-                LogController.log(this, "coreController_Initialize, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+                logger.Trace($"{cp.core.logCommonMessage},coreController_Initialize, enter");
+
                 //
                 serverConfig = ServerConfigModel.create(this);
                 serverConfig.defaultDataSourceType = ServerConfigBaseModel.DataSourceTypeEnum.sqlServer;
@@ -631,7 +655,6 @@ namespace Contensive.Processor.Controllers {
                 webServer = new WebServerController(this, httpContext);
                 //
                 // -- initialize document
-                doc.docGuid = GenericController.getGUID();
                 doc.allowDebugLog = true;
                 doc.profileStartTime = dateTimeNowMockable;
                 doc.visitPropertyAllowDebugging = false;

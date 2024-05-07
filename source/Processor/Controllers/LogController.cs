@@ -16,54 +16,58 @@ namespace Contensive.Processor.Controllers {
     /// static class controller
     /// nlog: http://nlog-project.org/
     /// base configuration from: https://brutaldev.com/post/logging-setup-in-5-minutes-with-nlog
+    /// example: https://betterstack.com/community/guides/logging/how-to-start-logging-with-nlog/
     /// </summary>
     public static class LogController {
         //
-        //=============================================================================
-        /// <summary>
-        /// configure target "aws" for AWS CloudWatch
-        /// </summary>
-        /// <param name="core"></param>
-        public static void awsConfigure(CoreController core) {
-            if (core.serverConfig == null) { return; }
-            if (string.IsNullOrWhiteSpace(core.serverConfig.awsCloudWatchLogGroup)) { return; }
-            var awsTarget = new AWSTarget {
-                Layout = "${longdate}|${level:uppercase=true}|${callsite}|${message}",
-                LogGroup = core.serverConfig.awsCloudWatchLogGroup,
-                Region = core.serverConfig.awsRegionName,
-                Credentials = new Amazon.Runtime.BasicAWSCredentials(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey),
-                LogStreamNamePrefix = core.appConfig.name,
-                LogStreamNameSuffix = "NLog",
-                MaxQueuedMessages = 5000
-            };
-            var config = new LoggingConfiguration();
-            config.AddTarget("aws", awsTarget);
-            config.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, awsTarget));
-            LogManager.Configuration = config;
-        }
-        //
-        //=============================================================================
-        /// <summary>
-        /// create the error log message with core
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <param name="addtoUI">Iftrue, the message will be appended to the doc object, and if applicable, added to the UI/</param>
-        /// <returns></returns>
-        public static string processLogMessage(CoreController core, string message, bool addtoUI) {
-            string result = "app [" + ((core.appConfig != null) ? core.appConfig.name : "no-app") + "]";
-            result += ", thread [" + System.Threading.Thread.CurrentThread.ManagedThreadId.ToString("000") + "]";
-            result += ", url [" + ((core.webServer == null) ? "non-web" : string.IsNullOrEmpty(core.webServer.requestPathPage) ? "empty" : core.webServer.requestPathPage) + "]";
-            result += ", " + message.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", " ");
-            //
-            // -- add to doc exception list to display at top of webpage
-            if (!addtoUI) { return result; }
-            if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
-            if (core.doc.errorList.Count == 10) { core.doc.errorList.Add("Exception limit exceeded"); }
-            if (core.doc.errorList.Count >= 10) { return result; }
-            core.doc.errorList.Add(result);
-            return result;
-        }
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        ////
+        ////=============================================================================
+        ///// <summary>
+        ///// configure target "aws" for AWS CloudWatch
+        ///// </summary>
+        ///// <param name="core"></param>
+        //public static void awsConfigure(CoreController core) {
+        //    if (core.serverConfig == null) { return; }
+        //    if (string.IsNullOrWhiteSpace(core.serverConfig.awsCloudWatchLogGroup)) { return; }
+        //    var awsTarget = new AWSTarget {
+        //        Layout = "${longdate}|${level:uppercase=true}|${callsite}|${message}",
+        //        LogGroup = core.serverConfig.awsCloudWatchLogGroup,
+        //        Region = core.serverConfig.awsRegionName,
+        //        Credentials = new Amazon.Runtime.BasicAWSCredentials(core.secrets.awsAccessKey, core.secrets.awsSecretAccessKey),
+        //        LogStreamNamePrefix = core.appConfig.name,
+        //        LogStreamNameSuffix = "NLog",
+        //        MaxQueuedMessages = 5000
+        //    };
+        //    var config = new LoggingConfiguration();
+        //    config.AddTarget("aws", awsTarget);
+        //    config.LoggingRules.Add(new LoggingRule("*", LogLevel.Trace, awsTarget));
+        //    LogManager.Configuration = config;
+        //}
+        ////
+        ////=============================================================================
+        ///// <summary>
+        ///// create the error log message with core
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="message"></param>
+        ///// <param name="addtoUI">Iftrue, the message will be appended to the doc object, and if applicable, added to the UI/</param>
+        ///// <returns></returns>
+        //public static string processLogMessage(CoreController core, string message, bool addtoUI) {
+        //    string result = "app [" + ((core.appConfig != null) ? core.appConfig.name : "no-app") + "]";
+        //    result += ", thread [" + System.Threading.Thread.CurrentThread.ManagedThreadId.ToString("000") + "]";
+        //    result += ", url [" + ((core.webServer == null) ? "non-web" : string.IsNullOrEmpty(core.webServer.requestPathPage) ? "empty" : core.webServer.requestPathPage) + "]";
+        //    result += ", " + message.Replace(Environment.NewLine, " ").Replace("\n", " ").Replace("\r", " ");
+        //    //
+        //    // -- add to doc exception list to display at top of webpage
+        //    if (!addtoUI) { return result; }
+        //    if (core.doc.errorList == null) { core.doc.errorList = new List<string>(); }
+        //    if (core.doc.errorList.Count == 10) { core.doc.errorList.Add("Exception limit exceeded"); }
+        //    if (core.doc.errorList.Count >= 10) { return result; }
+        //    core.doc.errorList.Add(result);
+        //    return result;
+        //}
         //
         //=============================================================================
         /// <summary>
@@ -107,125 +111,125 @@ namespace Contensive.Processor.Controllers {
         /// <param name="level"></param>
         public static void log(CoreController core, string message, BaseClasses.CPLogBaseClass.LogLevel level) {
             try {
-                string messageLine = processLogMessage(core, message, level >= BaseClasses.CPLogBaseClass.LogLevel.Warn);
+                string messageLine = core.logCommonMessage + "," + message;
                 logger.Log(typeof(LogController), new LogEventInfo(getNLogLogLevel(level), logger.Name, messageLine));
             } catch (Exception) {
                 // -- throw away errors in error-handling
             }
         }
-        //
-        //=============================================================================
-        /// <summary>
-        /// log highest level, most important messages
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        [Obsolete("Use nlog instance in each class", false)]
-        public static void logFatal(CoreController core, string message)
-            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Fatal);
-        //
-        //=============================================================================
-        /// <summary>
-        /// Normal behavior like mail sent, user updated profile etc
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>        
-        public static void logInfo(CoreController core, string message)
-            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Info);
-        //
-        //=============================================================================
-        /// <summary>
-        /// log begin method, end method, etc
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logTrace(CoreController core, string message)
-            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Trace);
-        //
-        //=============================================================================
-        /// <summary>
-        /// log for special cases, debugging
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        public static void logDebug(CoreController core, string message)
-            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Debug);
-        //
-        //=============================================================================
-        /// <summary>
-        /// log incorrect behavior but the application can continue
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="message"></param>
-        /// <remarks></remarks>
-        public static void logWarn(CoreController core, string message)
-            => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Warn);
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Standard log
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="ex"></param>
-        /// <param name="cause"></param>
-        public static void logError(CoreController core, Exception ex, string cause) {
-            log(core, cause + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Standard log
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="ex"></param>
-        public static void logError(CoreController core, Exception ex) {
-            log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Standard log
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="ex"></param>
-        /// <param name="cause"></param>
-        public static void logWarn(CoreController core, Exception ex, string cause) {
-            log(core, cause + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Warn);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Standard log
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="ex"></param>
-        public static void logWarn(CoreController core, Exception ex) {
-            log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Warn);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Standard log
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="ex"></param>
-        /// <param name="cause"></param>
-        public static void logFatal(CoreController core, Exception ex, string cause) {
-            log(core, cause + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
-        }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// Standard log
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="ex"></param>
-        public static void logFatal(CoreController core, Exception ex) {
-            log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
-        }
+        ////
+        ////=============================================================================
+        ///// <summary>
+        ///// log highest level, most important messages
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="message"></param>
+        ///// <remarks></remarks>
+        //[Obsolete("Use nlog instance in each class", false)]
+        //public static void logFatal(CoreController core, string message)
+        //    => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+        ////
+        ////=============================================================================
+        ///// <summary>
+        ///// Normal behavior like mail sent, user updated profile etc
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="message"></param>
+        ///// <remarks></remarks>        
+        //public static void logInfo(CoreController core, string message)
+        //    => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Info);
+        ////
+        ////=============================================================================
+        ///// <summary>
+        ///// log begin method, end method, etc
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="message"></param>
+        ///// <remarks></remarks>
+        //public static void logTrace(CoreController core, string message)
+        //    => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Trace);
+        ////
+        ////=============================================================================
+        ///// <summary>
+        ///// log for special cases, debugging
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="message"></param>
+        //public static void logDebug(CoreController core, string message)
+        //    => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Debug);
+        ////
+        ////=============================================================================
+        ///// <summary>
+        ///// log incorrect behavior but the application can continue
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="message"></param>
+        ///// <remarks></remarks>
+        //public static void logWarn(CoreController core, string message)
+        //    => log(core, message, BaseClasses.CPLogBaseClass.LogLevel.Warn);
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// Standard log
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="ex"></param>
+        ///// <param name="cause"></param>
+        //public static void logError(CoreController core, Exception ex, string cause) {
+        //    log(core, cause + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+        //}
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// Standard log
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="ex"></param>
+        //public static void logError(CoreController core, Exception ex) {
+        //    log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
+        //}
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// Standard log
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="ex"></param>
+        ///// <param name="cause"></param>
+        //public static void logWarn(CoreController core, Exception ex, string cause) {
+        //    log(core, cause + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Warn);
+        //}
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// Standard log
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="ex"></param>
+        //public static void logWarn(CoreController core, Exception ex) {
+        //    log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Warn);
+        //}
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// Standard log
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="ex"></param>
+        ///// <param name="cause"></param>
+        //public static void logFatal(CoreController core, Exception ex, string cause) {
+        //    log(core, cause + ", exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+        //}
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// Standard log
+        ///// </summary>
+        ///// <param name="core"></param>
+        ///// <param name="ex"></param>
+        //public static void logFatal(CoreController core, Exception ex) {
+        //    log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Fatal);
+        //}
         //
         //================================================================================================
         /// <summary>
@@ -238,7 +242,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- set off alarm
             DateTime now = DateTime.Now;
-            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000", CultureInfo.InvariantCulture) + now.Month.ToString("00", CultureInfo.InvariantCulture) + now.Day.ToString("00", CultureInfo.InvariantCulture) + "-alarms.log", "\r\n" + processLogMessage(core, now.ToString(CultureInfo.InvariantCulture) + ", [" + cause + "]", true));
+            core.programDataFiles.appendFile("Alarms/" + now.Year.ToString("0000", CultureInfo.InvariantCulture) + now.Month.ToString("00", CultureInfo.InvariantCulture) + now.Day.ToString("00", CultureInfo.InvariantCulture) + "-alarms.log", "\r\n" + core.logCommonMessage + ", [" + cause + "]");
         }
         //
         //=====================================================================================================
@@ -424,11 +428,5 @@ namespace Contensive.Processor.Controllers {
             }
             //
         }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// nlog class instance
-        /// </summary>
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

@@ -140,7 +140,7 @@ namespace Contensive.Processor.Controllers {
                 connectionStringDict.Add(key, returnConnString);
                 return returnConnString;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -214,7 +214,7 @@ namespace Contensive.Processor.Controllers {
                             // network related error, retry once
                             try {
                                 string errMsg = "executeQuery SqlException, retries left [" + retryCnt.ToString() + "], ex [" + exSql.ToString() + "]";
-                                Logger.Error(exSql, LogController.processLogMessage(core, errMsg, true));
+                                Logger.Error(exSql, $"{core.logCommonMessage},{errMsg}");
                             } catch (Exception) {
                                 // -- swallow logging internal errors
                             }
@@ -222,7 +222,7 @@ namespace Contensive.Processor.Controllers {
                             if (retryCnt <= 0) { throw; }
                             retryCnt--;
                         } catch (Exception ex) {
-                            LogController.logError(core, ex);
+                            logger.Error(ex, $"{core.logCommonMessage}");
                             throw;
                         }
                     } while (!success && (retryCnt >= 0));
@@ -239,15 +239,15 @@ namespace Contensive.Processor.Controllers {
                 try {
                     string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
-                        Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
+                        Logger.Warn($"{core.logCommonMessage},Slow SQL Query{logMsg}");
                     } else {
-                        Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                        Logger.Debug($"{core.logCommonMessage},SQL Query{logMsg}");
                     }
                 } catch (Exception) {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], startRecord [" + startRecord + "], maxRecords [" + maxRecords + "], recordsReturned [" + recordsAffected + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], startRecord [" + startRecord + "], maxRecords [" + maxRecords + "], recordsReturned [" + recordsAffected + "]", ex));
                 throw;
             }
             return returnData;
@@ -284,17 +284,17 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 try {
-                    string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [" + recordsAffected + "], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    string logMsg = ",duration[" + sw.ElapsedMilliseconds + "ms],recordsAffected[" + recordsAffected + "],sql[" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
-                        Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
+                        Logger.Warn($"{core.logCommonMessage},Slow SQL NonQuery{logMsg}");
                     } else {
-                        Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                        Logger.Debug($"{core.logCommonMessage},SQL NonQuery{logMsg}");
                     }
                 } catch (Exception) {
                     // -- swallow logging internal errors
                 }
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "], recordsAffected [" + recordsAffected + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("exception[" + ex.Message + "] executing sql[" + sql + "],datasource[" + dataSourceName + "],recordsAffected[" + recordsAffected + "]", ex));
                 throw;
             }
         }
@@ -320,18 +320,18 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 try {
-                    string logMsg = ", duration [" + sw.ElapsedMilliseconds + "ms], recordsAffected [n/a], sql [" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
+                    string logMsg = ", duration[" + sw.ElapsedMilliseconds + "ms],recordsAffected[n/a],sql[" + sql.Replace("\r", " ").Replace("\n", " ") + "]";
                     if (sw.ElapsedMilliseconds > sqlSlowThreshholdMsec) {
-                        Logger.Warn(LogController.processLogMessage(core, "Slow Query " + logMsg, true));
+                        Logger.Warn(core.logCommonMessage + ",Slow Query " + logMsg);
                     } else {
-                        Logger.Debug(LogController.processLogMessage(core, logMsg, false));
+                        Logger.Debug(core.logCommonMessage + "," + logMsg);
                     }
                 } catch (Exception) {
                     // -- swallow logging internal errors
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] executing sql [" + sql + "], datasource [" + dataSourceName + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("exception[" + ex.Message + "] executing sql[" + sql + "],datasource[" + dataSourceName + "]", ex));
                 throw;
             }
         }
@@ -347,7 +347,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 executeNonQuery("update " + tableName + " set " + sqlList.getNameValueList() + " where " + criteria + ";");
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] updating table [" + tableName + "], criteria [" + criteria + "], dataSourceName [" + dataSourceName + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "] updating table[" + tableName + "],criteria[" + criteria + "], dataSourceName[" + dataSourceName + "]", ex));
                 throw;
             }
         }
@@ -366,7 +366,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] inserting table [" + tableName + "], dataSourceName [" + dataSourceName + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "] inserting table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
                 throw;
             }
         }
@@ -400,7 +400,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 return insert(tableName, new NameValueCollection(), createdByUserId);
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "] inserting table [" + tableName + "], dataSourceName [" + dataSourceName + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "] inserting table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
                 throw;
             }
         }
@@ -431,7 +431,7 @@ namespace Contensive.Processor.Controllers {
                 string sql = "insert into " + tableName + "(" + nameList + ") output inserted.* values(" + valueList + ")";
                 return core.db.executeQuery(sql);
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "], inserting table [" + tableName + "], dataSourceName [" + dataSourceName + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "], inserting table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
                 throw;
             }
         }
@@ -464,7 +464,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return executeQuery(sql, getStartRecord(pageSize, pageNumber), pageSize);
             } catch (Exception ex) {
-                LogController.logError(core, new GenericException("Exception [" + ex.Message + "], opening table [" + tableName + "], dataSourceName [" + dataSourceName + "]", ex));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Exception[" + ex.Message + "], opening table[" + tableName + "], dataSourceName[" + dataSourceName + "]", ex));
                 throw;
             }
         }
@@ -482,7 +482,7 @@ namespace Contensive.Processor.Controllers {
                 if (tableSchema == null) { return false; }
                 return null != tableSchema.columns.Find(x => x.COLUMN_NAME.ToLowerInvariant() == fieldName.ToLowerInvariant());
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -497,7 +497,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 return null != TableSchemaModel.getTableSchema(core, tableName, dataSourceName);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -529,7 +529,7 @@ namespace Contensive.Processor.Controllers {
                 bool isNewTable = TableSchemaModel.getTableSchema(core, tableName, dataSourceName) == null;
                 if (isNewTable) {
                     //
-                    LogController.logInfo(core, "creating sql table [" + tableName + "], datasource [" + dataSourceName + "]");
+                    logger.Info($"{core.logCommonMessage},creating sql table[" + tableName + "], datasource[" + dataSourceName + "]");
                     //
                     executeNonQuery("Create Table " + tableName + "(ID " + getSQLAlterColumnType(CPContentBaseClass.FieldTypeIdEnum.AutoIdIncrement) + ");");
                 }
@@ -560,7 +560,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 TableSchemaModel.tableSchemaListClear(core);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -577,12 +577,12 @@ namespace Contensive.Processor.Controllers {
             try {
                 if ((fieldType == CPContentBaseClass.FieldTypeIdEnum.Redirect) || (fieldType == CPContentBaseClass.FieldTypeIdEnum.ManyToMany)) { return; }
                 if (string.IsNullOrEmpty(tableName)) { throw new ArgumentException("Table Name cannot be blank."); }
-                if (fieldType == 0) { throw new ArgumentException("invalid fieldtype [" + fieldType + "]"); }
+                if (fieldType == 0) { throw new ArgumentException("invalid fieldtype[" + fieldType + "]"); }
                 if (GenericController.strInstr(1, tableName, ".") != 0) { throw new ArgumentException("Table name cannot include a period(.)"); }
                 if (string.IsNullOrEmpty(fieldName)) { throw new ArgumentException("Field name cannot be blank"); }
                 if (!isSQLTableField(tableName, fieldName)) {
                     //
-                    LogController.logInfo(core, "creating sql table field [" + fieldName + "],table [" + tableName + "], datasource [" + dataSourceName + "]");
+                    logger.Info($"{core.logCommonMessage},creating sql table field[" + fieldName + "],table[" + tableName + "], datasource[" + dataSourceName + "]");
                     //
                     executeNonQuery("ALTER TABLE " + tableName + " ADD " + fieldName + " " + getSQLAlterColumnType(fieldType));
                     TableSchemaModel.tableSchemaListClear(core);
@@ -593,7 +593,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -609,7 +609,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -635,7 +635,7 @@ namespace Contensive.Processor.Controllers {
                 foreach (Models.Domain.TableSchemaModel.ColumnSchemaModel column in tableSchema.columns) {
                     if ((column.COLUMN_NAME.ToLowerInvariant() == fieldName.ToLowerInvariant())) {
                         //
-                        LogController.logInfo(core, "deleteTableField, dropping conversion required, field [" + column.COLUMN_NAME + "], table [" + tableName + "]");
+                        logger.Info($"{core.logCommonMessage},deleteTableField, dropping conversion required, field[" + column.COLUMN_NAME + "], table[" + tableName + "]");
                         //
                         // these can be very long queries for big tables 
                         int sqlTimeout = core.cpParent.Db.SQLTimeout;
@@ -645,29 +645,29 @@ namespace Contensive.Processor.Controllers {
                         foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
                             if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
                                 //
-                                LogController.logInfo(core, "deleteTableField, dropping index [" + index.index_name + "], because it contains this field");
+                                logger.Info($"{core.logCommonMessage},deleteTableField, dropping index[" + index.index_name + "], because it contains this field");
                                 //
                                 try {
                                     core.db.deleteIndex(tableName, index.index_name);
                                 } catch (Exception ex) {
-                                    LogController.logWarn(core, "deleteTableField, error dropping index, [" + ex + "]");
+                                    logger.Warn($"{core.logCommonMessage}, deleteTableField, error dropping index,[" + ex + "]");
                                 }
                             }
                         }
                         //
-                        LogController.logInfo(core, "deleteTableField, dropping field");
+                        logger.Info($"{core.logCommonMessage},deleteTableField, dropping field");
                         //
                         try {
                             executeNonQuery("ALTER TABLE " + tableName + " DROP COLUMN " + fieldName + ";");
                         } catch (Exception exDrop) {
-                            LogController.logWarn(core, exDrop, "deleteTableField, error dropping field");
+                            logger.Warn(exDrop, $"{core.logCommonMessage},deleteTableField, error dropping field");
                         }
                         //
                         core.cpParent.Db.SQLTimeout = sqlTimeout;
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -699,7 +699,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -785,7 +785,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -814,7 +814,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -861,7 +861,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -967,7 +967,7 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1109,7 +1109,7 @@ namespace Contensive.Processor.Controllers {
                 if (recordId <= 0) { throw new GenericException("record id is not valid [" + recordId + "]"); }
                 executeNonQuery("delete from " + tableName + " where id=" + recordId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1133,7 +1133,7 @@ namespace Contensive.Processor.Controllers {
                 // -- allow for non-guid formated guid values (can just be unique)
                 executeNonQuery("delete from " + tableName + " where ccguid=" + encodeSQLText(guid));
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1150,7 +1150,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrEmpty(criteria)) { throw new ArgumentException("Criteria cannot be blank"); }
                 executeNonQuery("delete from " + tableName + " where " + criteria);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1231,7 +1231,7 @@ namespace Contensive.Processor.Controllers {
                 connSQL.Open();
                 return connSQL.GetSchema("Tables", new[] { core.appConfig.name, null, tableName, null });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1250,7 +1250,7 @@ namespace Contensive.Processor.Controllers {
                 connSQL.Open();
                 return connSQL.GetSchema("Columns", new[] { core.appConfig.name, null, tableName, null });
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1266,7 +1266,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrWhiteSpace(tableName.Trim())) { throw new ArgumentException("tablename cannot be blank"); }
                 return executeQuery("sys.sp_helpindex @objname = N'" + tableName + "'");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1283,7 +1283,7 @@ namespace Contensive.Processor.Controllers {
                 if (isGuid(nameIdOrGuid)) { return "ccGuid=" + encodeSQLText(nameIdOrGuid); }
                 return "name=" + encodeSQLText(nameIdOrGuid);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1317,7 +1317,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return rows;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1380,12 +1380,12 @@ namespace Contensive.Processor.Controllers {
                 //
                 // records did not delete
                 //
-                LogController.logError(core, new GenericException("Error deleting record chunks. No records were deleted and the process was not complete."));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Error deleting record chunks. No records were deleted and the process was not complete."));
             } else if (LoopCount >= iChunkCount) {
                 //
                 // records did not delete
                 //
-                LogController.logError(core, new GenericException("Error deleting record chunks. The maximum chunk count was exceeded while deleting records."));
+                logger.Error($"{core.logCommonMessage}", new GenericException("Error deleting record chunks. The maximum chunk count was exceeded while deleting records."));
             }
         }
         //
@@ -1466,7 +1466,7 @@ namespace Contensive.Processor.Controllers {
                     result = executeQuery(remoteQuery.sqlQuery);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 result = null;
             }
             return result;

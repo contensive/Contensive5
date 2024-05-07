@@ -60,7 +60,7 @@ namespace Contensive.Processor.Controllers {
                                 try {
                                     core.db.executeNonQuery("alter table " + table.name + " add primary key (ID)");
                                 } catch (Exception ex) {
-                                    LogController.logError(core, ex, "Content Table [" + table.name + "] does not include column ID. Exception happened while adding column and setting it primarykey.");
+                                    logger.Error($"{core.logCommonMessage}", ex, "Content Table [" + table.name + "] does not include column ID. Exception happened while adding column and setting it primarykey.");
                                 }
                             }
                         }
@@ -154,7 +154,7 @@ namespace Contensive.Processor.Controllers {
                                                 menu.classTopList = cs.getText("classTopList");
                                                 menu.classTopWrapper = cs.getText("classTopWrapper");
                                             } catch (Exception ex) {
-                                                LogController.logError(core, ex, "migrateData error populating menu from dynamic menu.");
+                                                logger.Error($"{core.logCommonMessage}", ex, "migrateData error populating menu from dynamic menu.");
                                             }
                                             menu.save(cp);
                                         }
@@ -368,7 +368,7 @@ namespace Contensive.Processor.Controllers {
                             try {
                                 MinifyController.minifyAddon(core, addon);
                             } catch (Exception ex) {
-                                LogController.logWarn(core, ex, "Warning during upgrade, data migration, build addon css and js minification, addon [" + addon.id + ", " + addon.name + "]");
+                                logger.Warn(ex, $"{core.logCommonMessage},Warning during upgrade, data migration, build addon css and js minification, addon [" + addon.id + ", " + addon.name + "]");
                             }
                         }
                     }
@@ -419,7 +419,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();
             } catch (Exception ex) {
-                LogController.logError(core, ex, "Warning during upgrade, data migration");
+                logger.Error($"{core.logCommonMessage}", ex, "Warning during upgrade, data migration");
             }
         }
         //

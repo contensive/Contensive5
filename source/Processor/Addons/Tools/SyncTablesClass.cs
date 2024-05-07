@@ -2,11 +2,15 @@
 using System;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using NLog;
 using static Contensive.Processor.Constants;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class SyncTablesClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -68,7 +72,7 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 returnValue = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnValue;

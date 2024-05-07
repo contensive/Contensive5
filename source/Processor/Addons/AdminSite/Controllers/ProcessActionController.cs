@@ -1,19 +1,22 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Globalization;
-using Contensive.BaseClasses;
 using Contensive.Exceptions;
 using Contensive.Models.Db;
 using Contensive.Processor.Addons.AdminSite.Models;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using NLog;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Addons.AdminSite.Controllers {
     public static class ProcessActionController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //========================================================================
         /// <summary>
@@ -372,7 +375,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
             } catch (GenericException) {
             } catch (Exception ex) {
                 ErrorController.addUserError(cp.core, "There was an unknown error processing this page at " + cp.core.doc.profileStartTime + ". Please try again, Or report this error To the site administrator.");
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -462,7 +465,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     adminData.admin_Action = Constants.AdminActionNop;
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -585,7 +588,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                 }
                 adminData.admin_Action = Constants.AdminActionNop;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -655,7 +658,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -671,7 +674,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     LoadAndSaveGroupRules_ForContentAndChildren(cp, adminData.editRecord.id, "");
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -700,7 +703,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //   
@@ -785,7 +788,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     GroupRuleModel.invalidateCacheOfTable<GroupRuleModel>(cp);
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -832,7 +835,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         // 
@@ -915,7 +918,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                     GroupRuleModel.invalidateCacheOfTable<GroupRuleModel>(cp);
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //

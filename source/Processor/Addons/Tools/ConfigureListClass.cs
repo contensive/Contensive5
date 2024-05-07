@@ -8,10 +8,14 @@ using System.Data;
 using Contensive.BaseClasses;
 using System.Linq;
 using Contensive.Exceptions;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class ConfigureListClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -451,7 +455,7 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add(Controllers.HtmlController.inputHidden("ReloadCDef", ReloadCDef));
                 result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -472,7 +476,7 @@ namespace Contensive.Processor.Addons.Tools {
                     tempLocal_GetContentNameById = GenericController.encodeText(dt.Rows[0][0]);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return tempLocal_GetContentNameById;
         }
@@ -594,7 +598,7 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //

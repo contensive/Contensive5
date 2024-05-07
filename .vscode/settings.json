@@ -1,4 +1,4 @@
 {
     "dotnet.preferCSharpExtension": true,
-    "liveServer.settings.port": 5501
+    "dotnet.defaultSolution": "disable"
 }

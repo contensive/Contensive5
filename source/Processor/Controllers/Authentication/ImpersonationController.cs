@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Models.Db;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Controllers {
     /// methods to manager impersonation -- the process an administrator can use to take on another user's identity with just thier id or username
     /// </summary>
     public static class ImpersonationController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// attempt impersonation. If true, it was successful. If false, the user-displayable reason in the the userError argument.
         /// </summary>
@@ -54,7 +58,7 @@ namespace Contensive.Processor.Controllers {
                 core.visitProperty.setProperty("adminImpersonation", userIdToRestore);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -81,7 +85,7 @@ namespace Contensive.Processor.Controllers {
                 core.visitProperty.clearProperty("adminImpersonation");
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

@@ -65,7 +65,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 cs.close();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return returnString;
         }

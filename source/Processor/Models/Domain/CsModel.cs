@@ -18,6 +18,11 @@ namespace Contensive.Processor {
     /// A layer on top of DbController that accesses data using the 'content' metadata
     /// </summary>
     public class CsModel : IDisposable {
+        //
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
         /// <summary>
         /// dependencies
         /// </summary>
@@ -85,12 +90,6 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
-        /// nlog class instance
-        /// </summary>
-        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-        //
-        //====================================================================================================
-        /// <summary>
         /// constructor
         /// </summary>
         /// <param name="core"></param>
@@ -122,8 +121,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, LogController.processLogMessage(core, "exception", true));
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -198,7 +196,7 @@ namespace Contensive.Processor {
                 }
 
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -253,7 +251,7 @@ namespace Contensive.Processor {
                 }
                 MetadataController.deleteContentRules(core, contentMeta, recordId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -430,7 +428,7 @@ namespace Contensive.Processor {
                 }
                 return ok();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -522,7 +520,7 @@ namespace Contensive.Processor {
                 this.writeCache = new Dictionary<string, string>();
                 this.readCacheRowPtr += 1;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -542,7 +540,7 @@ namespace Contensive.Processor {
                 this.writeCache = new Dictionary<string, string>();
                 this.readCacheRowPtr = 0;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -601,7 +599,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnValue;
@@ -618,7 +616,7 @@ namespace Contensive.Processor {
                 this.fieldPointer = 0;
                 return getNextFieldName();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -637,7 +635,7 @@ namespace Contensive.Processor {
                 }
                 return "";
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -653,7 +651,7 @@ namespace Contensive.Processor {
                 if (ok() && this.createdWithMetaData && !string.IsNullOrEmpty(this.contentMeta.name)) { return this.contentMeta.fields[fieldName.ToLowerInvariant()].fieldTypeId; }
                 return 0;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -674,7 +672,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnResult;
@@ -690,7 +688,7 @@ namespace Contensive.Processor {
                 if (ok()) { return string.Join(",", this.fieldNames); }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -707,7 +705,7 @@ namespace Contensive.Processor {
                 if (!ok()) { throw new ArgumentException("dataset is not valid"); }
                 return GenericController.isInDelimitedString(getSelectFieldList(), fieldName, ",");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -830,7 +828,7 @@ namespace Contensive.Processor {
                 }
                 return returnFilename;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -877,7 +875,7 @@ namespace Contensive.Processor {
                 }
                 this.writeCache.Add(fieldName.ToLowerInvariant(), filename);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -914,7 +912,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -933,7 +931,7 @@ namespace Contensive.Processor {
                 // -- normal open
                 return this.isOpen && (this.readCacheRowPtr >= 0) && (this.readCacheRowPtr < this.readCacheRowCnt);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -948,7 +946,7 @@ namespace Contensive.Processor {
                 if (!ok()) { throw new ArgumentException("the dataset is not valid"); }
                 return this.sqlSource;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1064,7 +1062,7 @@ namespace Contensive.Processor {
                             // -- this code treates the rawData is a filename. If not valid file log error and continue
                             if (string.IsNullOrWhiteSpace(rawData)) { return string.Empty; }
                             if (!core.cdnFiles.isValidPathFilename(rawData)) {
-                                LogController.logError(core, new ArgumentException($"cs.getText error, file-content type but data not valid filename [{rawData}]"));
+                                logger.Error($"{core.logCommonMessage}", new ArgumentException($"cs.getText error, file-content type but data not valid filename [{rawData}]"));
                                 return string.Empty;
                             }
                             return core.cdnFiles.readFileText(GenericController.encodeText(rawData));
@@ -1102,7 +1100,7 @@ namespace Contensive.Processor {
                         }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1210,7 +1208,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1320,7 +1318,7 @@ namespace Contensive.Processor {
                 if (!ok()) { throw new ArgumentException("dataset is not valid"); }
                 this.writeCache.Clear();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1336,9 +1334,9 @@ namespace Contensive.Processor {
                 if (!ok()) { return; }
                 if (this.writeCache.Count == 0) { return; }
                 if (contentMeta == null) {
-                    Controllers.LogController.logTrace(core, "save, contentMeta NULL, sqlSource [" + sqlSource + "]");
+                    logger.Trace($"{core.logCommonMessage},save, contentMeta NULL, sqlSource [" + sqlSource + "]");
                 } else {
-                    Controllers.LogController.logTrace(core, "save, enter, contentMeta.name [" + contentMeta.name + "], contentMeta.tableName [" + contentMeta.tableName + "], contentMeta.dataSourceName [" + contentMeta.dataSourceName + "], asyncSave [" + asyncSave + "], blockClearCache [" + blockClearCache + "]");
+                    logger.Trace($"{core.logCommonMessage},save, enter, contentMeta.name [" + contentMeta.name + "], contentMeta.tableName [" + contentMeta.tableName + "], contentMeta.dataSourceName [" + contentMeta.dataSourceName + "], asyncSave [" + asyncSave + "], blockClearCache [" + blockClearCache + "]");
                 }
                 //
                 if (!(this.createdWithMetaData)) { throw new ArgumentException("The dataset cannot be updated because it was created with a query and not a content table."); }
@@ -1536,12 +1534,12 @@ namespace Contensive.Processor {
                         //
                         // -- unique violation
                         if (dtRecords.Rows.Count > 0) {
-                            LogController.logError(core, new GenericException("Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]"));
+                            logger.Error($"{core.logCommonMessage}", new GenericException("Can not save record to content [" + this.contentMeta.name + "] because it would create a non-unique record for one or more of the following field(s) [" + UniqueViolationFieldList + "]"));
                             return;
                         }
                     }
                     //
-                    Controllers.LogController.logTrace(core, "save, FieldFoundCount [" + FieldFoundCount + "], sqlUpdate [" + sqlUpdate + "]");
+                    logger.Trace($"{core.logCommonMessage},save, FieldFoundCount [" + FieldFoundCount + "], sqlUpdate [" + sqlUpdate + "]");
                     //
                     if (FieldFoundCount > 0) {
                         //
@@ -1569,10 +1567,10 @@ namespace Contensive.Processor {
                     }
                 }
                 //
-                logger.Trace(LogController.processLogMessage(core, "save, exit", false));
+                logger.Trace(core.logCommonMessage + ",save, exit");
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1608,7 +1606,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1666,7 +1664,7 @@ namespace Contensive.Processor {
                     return openSql(SQL, "Default", pageSize, pageNumber);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return false;
@@ -1746,7 +1744,7 @@ namespace Contensive.Processor {
             try {
                 return this.contentName;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1764,7 +1762,7 @@ namespace Contensive.Processor {
                 if (!string.IsNullOrEmpty(ContentName)) { return AdminUIEditButtonController.getRecordEditAndCutAnchorTag(core, ContentName, getInteger("ID"), allowCut, getText("Name")); }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1865,7 +1863,7 @@ namespace Contensive.Processor {
                     result.Append(AddLink);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result.ToString();
         }
@@ -1885,7 +1883,7 @@ namespace Contensive.Processor {
             try {
                 return openContentWatchList("What's New", SortFieldList);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1957,7 +1955,7 @@ namespace Contensive.Processor {
                 }
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -2101,7 +2099,7 @@ namespace Contensive.Processor {
                     return true;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;
@@ -2153,7 +2151,7 @@ namespace Contensive.Processor {
                 initAfterOpen();
                 return ok();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

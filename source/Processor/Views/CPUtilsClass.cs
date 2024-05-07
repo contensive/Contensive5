@@ -7,12 +7,16 @@ using Contensive.BaseClasses;
 using Contensive.Exceptions;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
+using NLog;
 
 namespace Contensive.Processor {
     //
     // ====================================================================================================
     //
     public class CPUtilsClass : BaseClasses.CPUtilsBaseClass, IDisposable {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         /// <summary>
         /// dependencies
@@ -135,7 +139,7 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override void AppendLog(string Text) {
-            LogController.logInfo(cp.core, Text);
+            logger.Info($"{cp.core.logCommonMessage},{Text}");
         }
         //
         // ====================================================================================================
@@ -358,7 +362,7 @@ namespace Contensive.Processor {
             try {
                 var ExportCSVAddon = cp.core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
-                    LogController.logError(cp.core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
+                    logger.Error($"{cp.core.logCommonMessage}", new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
                 } else {
                     var cmdDetail = new TaskModel.CmdDetailClass {
                         addonId = ExportCSVAddon.id,
@@ -415,7 +419,7 @@ namespace Contensive.Processor {
                 throw new GenericException("Installation upgrade through the cp interface is deprecated. Please use the command line tool.");
                 // Controllers.appBuilderController.upgrade(CP.core, isNewApp)
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
         }
         //
@@ -489,14 +493,14 @@ namespace Contensive.Processor {
                     cp.core.addon.executeAsProcess(addon);
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
             return string.Empty;
         }
         //
         [Obsolete("Deprecated, use AppendLog")]
         public override void AppendLogFile(string Text) {
-            LogController.logInfo(cp.core, Text);
+            logger.Info($"{cp.core.logCommonMessage},{Text}");
         }
         //
         [Obsolete("Deprecated, file logging is no longer supported. Use AppendLog(message) to log Info level messages")]
@@ -504,7 +508,7 @@ namespace Contensive.Processor {
             if ((!string.IsNullOrWhiteSpace(pathFilename)) && (!string.IsNullOrWhiteSpace(Text))) {
                 pathFilename = FileController.convertToDosSlash(pathFilename);
                 string[] parts = pathFilename.Split('\\');
-                LogController.logInfo(cp.core, "legacy logFile: [" + pathFilename + "], " + Text);
+                logger.Info($"{cp.core.logCommonMessage},legacy logFile: [" + pathFilename + "], " + Text);
             }
         }
         //

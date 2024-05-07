@@ -1,5 +1,6 @@
 ﻿
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -13,6 +14,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// </summary>
     public static class AddonFolderClass {
         //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
         //====================================================================================================
         /// <summary>
         /// execute hourly tasks
@@ -24,7 +28,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, executeHourlyTasks, AddonFolder");
                 //
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 
@@ -49,7 +53,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     string collectionFileContent = env.core.privateFiles.readFileText(collectionFileFilename);
                     Doc.LoadXml(collectionFileContent);
                 } catch (Exception ex) {
-                    LogController.logError(env.core, ex);
+                    logger.Error(ex, $"{env.core.logCommonMessage}");
                     LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                     throw;
                 }
@@ -93,7 +97,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                                 lastChangeDate = GenericController.encodeDate(CollectionNode.InnerText);
                                                 break;
                                             default:
-                                                LogController.logWarn(env.core, "Collection node contains unrecognized child [" + CollectionNode.Name.ToLower(CultureInfo.InvariantCulture) + "]");
+                                                logger.Warn($"{env.core.logCommonMessage}, Collection node contains unrecognized child [" + CollectionNode.Name.ToLower(CultureInfo.InvariantCulture) + "]");
                                                 break;
                                         }
                                     }
@@ -165,7 +169,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 env.log("Exiting RegisterAddonFolder");
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, exception, ex [" + ex + "]");
                 throw;
 

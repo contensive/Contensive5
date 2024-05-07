@@ -6,12 +6,16 @@ using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
 using System.Collections.Generic;
 using System.Text;
+using NLog;
 //
 namespace Contensive.Processor.Addons.PageManager {
     /// <summary>
     /// addon interface
     /// </summary>
     public class GetChildPageList : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -233,7 +237,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }

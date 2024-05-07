@@ -75,7 +75,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 tempGetForm_Edit_LinkAliases = AdminUIController.getEditPanel(core, true, "Link Aliases", TabDescription, tabContent);
                 adminData.editSectionPanelCount += 1;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return tempGetForm_Edit_LinkAliases;
         }

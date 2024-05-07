@@ -4,6 +4,7 @@ using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
 using System.Threading.Tasks;
+using Amazon.Runtime.Internal.Util;
 
 namespace Contensive.Processor {
     //
@@ -443,8 +444,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="message"></param>
         public override void TestPoint(string message)
-            => Logger.Trace(LogController.processLogMessage(cp.core, "testpoint:" + message, false));
-
+            => Logger.Trace(cp.core.logCommonMessage + "," + message);
         //
         //====================================================================================================
         /// <summary>

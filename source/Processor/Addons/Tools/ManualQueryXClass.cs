@@ -9,10 +9,14 @@ using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
 using Contensive.BaseModels;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class ManualQueryXClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -210,7 +214,7 @@ namespace Contensive.Processor.Addons.Tools {
                 // -- assemble form
                 returnHtml = AdminUIController.getToolForm(core, Stream.text, ButtonCancel + "," + ButtonRun);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnHtml;

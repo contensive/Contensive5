@@ -78,16 +78,16 @@ namespace Contensive.Processor.Controllers {
             string hint = "";
             try {
                 //
-                LogController.logTrace(core, "addLinkAlias, enter, linkAlias [" + linkAlias + "], pageID [" + pageId + "], queryStringSuffix [" + queryStringSuffix + "], overRideDuplicate [" + overRideDuplicate + "], dupCausesWarning [" + dupCausesWarning + "]");
+                logger.Trace($"{core.logCommonMessage},addLinkAlias, enter, linkAlias [" + linkAlias + "], pageID [" + pageId + "], queryStringSuffix [" + queryStringSuffix + "], overRideDuplicate [" + overRideDuplicate + "], dupCausesWarning [" + dupCausesWarning + "]");
                 //
                 string normalizedLinkAlias = LinkAliasModel.normalizeLinkAlias(core.cpParent, linkAlias);
                 if (string.IsNullOrEmpty(normalizedLinkAlias)) {
                     //
-                    LogController.logTrace(core, "addLinkAlias exit, blank linkalias");
+                    logger.Trace($"{core.logCommonMessage},addLinkAlias exit, blank linkalias");
                     return ""; 
                 }
                 //
-                LogController.logTrace(core, "addLinkAlias, normalized normalizedLinkAlias [" + normalizedLinkAlias + "]");
+                logger.Trace($"{core.logCommonMessage},addLinkAlias, normalized normalizedLinkAlias [" + normalizedLinkAlias + "]");
                 //
                 // Make sure there is not a folder or page in the wwwroot that matches this Alias
                 //
@@ -128,7 +128,7 @@ namespace Contensive.Processor.Controllers {
                         csData.open("Link Aliases", "name=" + DbController.encodeSQLText(normalizedLinkAlias), "", false, 0, "Name,PageID,QueryStringSuffix");
                         if (!csData.ok()) {
                             //
-                            LogController.logTrace(core, "addLinkAlias, not found in Db, add");
+                            logger.Trace($"{core.logCommonMessage},addLinkAlias, not found in Db, add");
                             //
                             // Alias not found, create a Link Aliases
                             //
@@ -144,7 +144,7 @@ namespace Contensive.Processor.Controllers {
                             int recordPageId = csData.getInteger("pageID");
                             string recordQss = csData.getText("QueryStringSuffix").ToLowerInvariant();
                             //
-                            LogController.logTrace(core, "addLinkAlias, linkalias record found by its name, record recordPageId [" + recordPageId + "], record QueryStringSuffix [" + recordQss + "]");
+                            logger.Trace($"{core.logCommonMessage},addLinkAlias, linkalias record found by its name, record recordPageId [" + recordPageId + "], record QueryStringSuffix [" + recordQss + "]");
                             //
                             // Alias found, verify the pageid & QueryStringSuffix
                             //
@@ -153,7 +153,7 @@ namespace Contensive.Processor.Controllers {
                             if ((recordQss == queryStringSuffix.ToLowerInvariant()) && (pageId == recordPageId)) {
                                 CurrentLinkAliasId = csData.getInteger("id");
                                 //
-                                LogController.logTrace(core, "addLinkAlias, linkalias matches name, pageid, and querystring of linkalias [" + CurrentLinkAliasId + "]");
+                                logger.Trace($"{core.logCommonMessage},addLinkAlias, linkalias matches name, pageid, and querystring of linkalias [" + CurrentLinkAliasId + "]");
                                 //
                                 // it maches a current entry for this link alias, if the current entry is not the highest number id,
                                 //   remove it and add this one
@@ -168,7 +168,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (resaveLinkAlias) {
                                     //
-                                    LogController.logTrace(core, "addLinkAlias, another link alias matches this pageId and QS. Move this to the top position");
+                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, another link alias matches this pageId and QS. Move this to the top position");
                                     //
                                     core.db.executeNonQuery("delete from ccLinkAliases where id=" + CurrentLinkAliasId);
                                     using (var CS3 = new CsModel(core)) {
@@ -182,13 +182,13 @@ namespace Contensive.Processor.Controllers {
                                 }
                             } else {
                                 //
-                                LogController.logTrace(core, "addLinkAlias, linkalias matches name, but pageid and querystring are different. Add this a newest linkalias");
+                                logger.Trace($"{core.logCommonMessage},addLinkAlias, linkalias matches name, but pageid and querystring are different. Add this a newest linkalias");
                                 //
                                 // link alias matches, but id/qs does not -- this is either a change, or a duplicate that needs to be blocked
                                 //
                                 if (overRideDuplicate) {
                                     //
-                                    LogController.logTrace(core, "addLinkAlias, overRideDuplicate true, change the Link Alias to the new link");
+                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, overRideDuplicate true, change the Link Alias to the new link");
                                     //
                                     // change the Link Alias to the new link
                                     csData.set("Pageid", pageId);
@@ -196,7 +196,7 @@ namespace Contensive.Processor.Controllers {
                                     invalidateLinkAliasTableCache = true;
                                 } else if (dupCausesWarning) {
                                     //
-                                    LogController.logTrace(core, "addLinkAlias, overRideDuplicate false, dupCausesWarning true, just return user warning if this is from admin");
+                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, overRideDuplicate false, dupCausesWarning true, just return user warning if this is from admin");
                                     //
                                     if (recordPageId == 0) {
                                         int PageContentCId = Models.Domain.ContentMetadataModel.getContentId(core, "Page Content");
@@ -225,11 +225,11 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                LogController.logTrace(core, "addLinkAlias, exit");
+                logger.Trace($"{core.logCommonMessage},addLinkAlias, exit");
                 //
                 return normalizedLinkAlias;
             } catch (Exception ex) {
-                LogController.logError(core, ex, "addLinkAlias exception, hint [" + hint + "]");
+                logger.Error($"{core.logCommonMessage}", ex, "addLinkAlias exception, hint [" + hint + "]");
                 throw;
             }
         }

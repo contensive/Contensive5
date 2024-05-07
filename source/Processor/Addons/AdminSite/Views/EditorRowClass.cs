@@ -8,9 +8,13 @@ using static Contensive.Processor.Constants;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Linq;
+using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public static class EditorRowClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         public static string getEditorRow(CoreController core, ContentFieldMetadataModel field, AdminDataModel adminData, EditorEnvironmentModel editorEnv) {
             int hint = 0;
             string hintField = field.nameLc;
@@ -21,7 +25,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!editRecord.fieldsLc.ContainsKey(field.nameLc)) {
                     //
                     // -- field not found in edit record. Report and exit with blank editor
-                    LogController.logError(core, new GenericException("getEditorRow, field [" + field.nameLc + "] not found in editRecord collection for content [" + adminData.adminContent.name + "]"));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("getEditorRow, field [" + field.nameLc + "] not found in editRecord collection for content [" + adminData.adminContent.name + "]"));
                     return "<!-- no editor row available because field not found -->";
                 }
                 //
@@ -208,7 +212,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 field_LookupContentSqlFilter.replace($"{{{contentLookupFieldName}}}", encodeText(adminData.editRecord.fieldsLc[contentLookupFieldName].value_content), StringComparison.CurrentCultureIgnoreCase);
                             } else {
                                 // -- field not found, remove entire filter
-                                LogController.logWarn(core, $"Admin Edit View, LookupContentSqlFilter contains mustache replacement but field was not found, content [{adminData.adminContent.name}], field [{field.nameLc}], LookupContentSqlFilter [{field.LookupContentSqlFilter}]");
+                                logger.Warn($"{core.logCommonMessage},Admin Edit View, LookupContentSqlFilter contains mustache replacement but field was not found, content [{adminData.adminContent.name}], field [{field.nameLc}], LookupContentSqlFilter [{field.LookupContentSqlFilter}]");
                                 field_LookupContentSqlFilter = "";
                             }
                         }
@@ -262,7 +266,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     } else {
                                         //
                                         // -- log exception but dont throw
-                                        LogController.logWarn(core, new GenericException("Field [" + adminData.adminContent.name + "." + field.nameLc + "] is a Lookup field, but no LookupContent or LookupList has been configured"));
+                                        logger.Warn($"{core.logCommonMessage}", new GenericException("Field [" + adminData.adminContent.name + "." + field.nameLc + "] is a Lookup field, but no LookupContent or LookupList has been configured"));
                                         EditorString += "[Selection not configured]";
                                     }
                                     break;
@@ -443,7 +447,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     } else {
                                         //
                                         // -- log exception but dont throw
-                                        LogController.logWarn(core, new GenericException("Field [" + adminData.adminContent.name + "." + field.nameLc + "] is a Lookup field, but no LookupContent or LookupList has been configured"));
+                                        logger.Warn($"{core.logCommonMessage}", new GenericException("Field [" + adminData.adminContent.name + "." + field.nameLc + "] is a Lookup field, but no LookupContent or LookupList has been configured"));
                                         EditorString += "[Selection not configured]";
                                     }
                                     break;
@@ -641,7 +645,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // assemble the editor row
                 return AdminUIController.getEditRow(core, EditorString, fieldCaption, field.helpDefault, field.required, false, fieldHtmlId, editorWrapperSyle);
             } catch (Exception ex) {
-                LogController.logError(core, ex, "getEditorRow, hint[" + hint + "], field [" + hintField + "]");
+                logger.Error($"{core.logCommonMessage}", ex, "getEditorRow, hint[" + hint + "], field [" + hintField + "]");
                 throw;
             }
         }

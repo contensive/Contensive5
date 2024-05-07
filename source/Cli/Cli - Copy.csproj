@@ -31,10 +31,12 @@
     <None Include="app.ico" Pack="true" PackagePath="" />
   </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.301.11" />
-		<PackageReference Include="AWSSDK.SecurityToken" Version="3.7.300.86" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.301.11" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.300.86" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.61" />
+    <PackageReference Include="System.Net.Primitives" Version="4.3.1" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />

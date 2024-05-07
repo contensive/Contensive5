@@ -1354,7 +1354,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static string runProcess(CoreController core, string Cmd, string Arguments, bool WaitForReturn) {
             //
-            LogController.logInfo(core, "runProcess, cmd=[" + Cmd + "], Arguments=[" + Arguments + "], WaitForReturn=[" + WaitForReturn + "]");
+            logger.Info($"{core.logCommonMessage},runProcess, cmd=[" + Cmd + "], Arguments=[" + Arguments + "], WaitForReturn=[" + WaitForReturn + "]");
             //
             using (Process p = new Process()) {
                 p.StartInfo.FileName = Cmd;
@@ -1999,7 +1999,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnList;
@@ -2036,7 +2036,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnList;
@@ -2113,7 +2113,7 @@ namespace Contensive.Processor.Controllers {
                             }
                         }
                     } catch (Exception ex) {
-                        LogController.logError(core, ex);
+                        logger.Error(ex, $"{core.logCommonMessage}");
                         throw;
                     }
                 }

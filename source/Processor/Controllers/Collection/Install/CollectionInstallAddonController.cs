@@ -59,7 +59,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // Update the Addon
                             //
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                            logger.Info($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, GUID match with existing Add-on, Updating Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                         } else {
                             //
                             // not found by GUID - search name against name to update legacy Add-ons
@@ -68,7 +68,7 @@ namespace Contensive.Processor.Controllers {
                             Criteria = "(name=" + DbController.encodeSQLText(addonName) + ")and(" + AddonGuidFieldName + " is null)";
                             cs.open(AddonModel.tableMetadata.contentName, Criteria, "", false);
                             if (cs.ok()) {
-                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on name matched an existing Add-on that has no GUID, Updating legacy Aggregate Function to Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                                logger.Info($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, Add-on name matched an existing Add-on that has no GUID, Updating legacy Aggregate Function to Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                             }
                         }
                         if (!cs.ok()) {
@@ -78,14 +78,14 @@ namespace Contensive.Processor.Controllers {
                             cs.close();
                             cs.insert(AddonModel.tableMetadata.contentName);
                             if (cs.ok()) {
-                                LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Creating new Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                                logger.Info($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, Creating new Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                             }
                         }
                         if (!cs.ok()) {
                             //
                             // Could not create new Add-on
                             //
-                            LogController.logInfo(core, MethodInfo.GetCurrentMethod().Name + ", UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
+                            logger.Info($"{core.logCommonMessage}, UpgradeAppFromLocalCollection, Add-on could not be created, skipping Add-on [" + addonName + "], Guid [" + addonGuid + "]");
                         } else {
                             addonId = cs.getInteger("ID");
                             MetadataController.deleteContentRecords(core, "Add-on Include Rules", "addonid=" + addonId);
@@ -424,7 +424,7 @@ namespace Contensive.Processor.Controllers {
                                                         //
                                                         // Bad field name - need to report it somehow
                                                         //
-                                                        LogController.logWarn(core, new InvalidOperationException("bad field found [" + fieldName + "], in addon node [" + addonName + "], of collection [" + MetadataController.getRecordName(core, "add-on collections", CollectionID) + "]"));
+                                                        logger.Warn(new InvalidOperationException("bad field found [" + fieldName + "], in addon node [" + addonName + "], of collection [" + MetadataController.getRecordName(core, "add-on collections", CollectionID) + "]"), $"{core.logCommonMessage}");
                                                     } else {
                                                         cs.set(fieldName, FieldValue);
                                                     }
@@ -449,7 +449,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

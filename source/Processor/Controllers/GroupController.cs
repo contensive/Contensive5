@@ -66,7 +66,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -121,7 +121,7 @@ namespace Contensive.Processor.Controllers {
             if (groupNameIdOrGuid.isNumeric()) {
                 group = DbBaseModel.create<GroupModel>(core.cpParent, GenericController.encodeInteger(groupNameIdOrGuid));
                 if (group == null) {
-                    LogController.logError(core, new GenericException("addUser called with invalid groupId [" + groupNameIdOrGuid + "]"));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("addUser called with invalid groupId [" + groupNameIdOrGuid + "]"));
                     return;
                 }
             } else if (GenericController.isGuid(groupNameIdOrGuid)) {
@@ -269,7 +269,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 result = isInGroupList(core, "," + GroupController.getGroupId(core, GroupName), userId, true);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;
@@ -289,7 +289,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 result = isInGroupList(core, checkMemberId, core.session.isAuthenticated, GroupIDList, adminReturnsTrue);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;
@@ -394,7 +394,7 @@ namespace Contensive.Processor.Controllers {
 
                 return returnResult;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

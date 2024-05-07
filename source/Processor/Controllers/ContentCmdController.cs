@@ -290,7 +290,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return result.ToString();
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -342,7 +342,7 @@ namespace Contensive.Processor.Controllers {
                         try {
                             cmdDictionary = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, object>>(cmdSrc);
                         } catch (Exception ex) {
-                            LogController.logError(core, ex);
+                            logger.Error(ex, $"{core.logCommonMessage}");
                             throw;
                         }
                         //
@@ -714,7 +714,7 @@ namespace Contensive.Processor.Controllers {
                                         errorContextMessage = "calling Addon [" + addonName + "] during content cmd execution"
                                     };
                                     if (addon == null) {
-                                        LogController.logError(core, new GenericException("Add-on [" + addonName + "] could not be found executing command in content [" + cmdSrc + "]"));
+                                        logger.Error($"{core.logCommonMessage}", new GenericException("Add-on [" + addonName + "] could not be found executing command in content [" + cmdSrc + "]"));
                                     } else {
                                         CmdAccumulator = core.addon.execute(addon, executeContext);
                                     }
@@ -752,7 +752,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return CmdAccumulator;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

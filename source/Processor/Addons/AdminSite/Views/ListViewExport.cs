@@ -5,9 +5,13 @@ using Contensive.Processor.Controllers;
 using static Contensive.Processor.Constants;
 using Contensive.Exceptions;
 using Contensive.Models.Db;
+using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public class ListViewExport {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //=============================================================================
         //   Export the Admin List form results
@@ -133,7 +137,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 var ExportCSVAddon = core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                                 if (ExportCSVAddon == null) {
-                                    LogController.logError(core, new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
+                                    logger.Error($"{core.logCommonMessage}", new GenericException("ExportCSV addon not found. Task could not be added to task queue."));
                                 } else {
                                     var docProperties = new Dictionary<string, string> {
                                                 { "sql", SQL },
@@ -193,7 +197,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     result = AdminUIController.getToolBody(core, adminData.adminContent.name + " Export", ButtonCommaList, "", false, false, Description, "", 10, Content);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

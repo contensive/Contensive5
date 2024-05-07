@@ -8,9 +8,13 @@ using static Contensive.Processor.Constants;
 using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
 using Contensive.Models.Db;
+using NLog;
 //
 namespace Contensive.Processor.Addons.SafeAddonManager {
     public class AddonManagerClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         // constructor sets cp from argument for use in calls to other objects, then core because cp cannot be uses since that would be a circular depenancy
         //
@@ -304,11 +308,11 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         try {
                             LibCollections.Load("http://support.contensive.com/GetCollectionList?iv=" + CoreController.codeVersion() + "&includeSystem=1&includeNonPublic=1");
                         } catch (Exception ex) {
-                            LogController.logError(core, ex);
+                            logger.Error(ex, $"{core.logCommonMessage}");
                             UserError = "There was an error reading the Collection Library. The site may be unavailable.";
                             HandleClassAppendLog("AddonManager", UserError);
                             status += "<br>" + UserError;
-                            ErrorController.addUserError(core, UserError);
+                            logger.Info($"{core.logCommonMessage},{UserError}");
                             parseError = true;
                         }
                         Ptr = 0;
@@ -317,7 +321,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                 UserError = "There was an error reading the Collection Library file. The '" + CollectionListRootNode + "' element was not found.";
                                 HandleClassAppendLog("AddonManager", UserError);
                                 status += "<br>" + UserError;
-                                ErrorController.addUserError(core, UserError);
+                                logger.Info($"{core.logCommonMessage},{UserError}");
                             } else {
                                 //
                                 // Go through file to validate the XML, and build status message -- since service process can not communicate to user
@@ -596,7 +600,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                     core.html.addTitle("Add-on Manager", "Add-on Manager");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return addonManager;
@@ -631,7 +635,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                     MetadataController.deleteContentRecord(core, NavigatorEntryModel.tableMetadata.contentName, EntryID);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -670,7 +674,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             HandleClassTrapError("GetXMLAttribute");
             return tempGetXMLAttribute;
@@ -679,7 +683,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
         //
         //
         private void HandleClassAppendLog(string MethodName, string Context) {
-            LogController.logTrace(core, "addonManager: " + Context);
+            logger.Trace($"{core.logCommonMessage},addonManager: " + Context);
         }
         //
         //===========================================================================
@@ -732,7 +736,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                 // ----- Error Trap
                 //
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             HandleClassTrapError("GetParentIDFromNameSpace");
             return tempGetParentIDFromNameSpace;

@@ -32,6 +32,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetString() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 string key = "test" + GenericController.getRandomInteger().ToString();
                 string value = "value" + GenericController.getRandomInteger().ToString();
@@ -56,6 +58,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetObjectDefault() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 var srcTest = new cacheTestClass();
                 string key = "test" + GenericController.getRandomInteger().ToString();
@@ -70,6 +74,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetObjectNonDefault() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 var srcTest = new cacheTestClass {
                     prop1 = "b",
@@ -90,6 +96,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithDependency() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTest = "test" + GenericController.getRandomInteger().ToString();
@@ -112,6 +120,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithDependencyList() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTest = cp.Cache.CreateKey("test" + GenericController.getRandomInteger().ToString());
@@ -137,6 +147,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithInvalidationDate() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTestWithDate = "testWithDate" + GenericController.getRandomInteger().ToString();
@@ -157,6 +169,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetObjectWithInvalidate() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 var originalObject = new cacheTestClass();
                 string keyTest = "test" + GenericController.getRandomInteger().ToString();
@@ -179,6 +193,8 @@ namespace Tests {
         [TestMethod]
         public void Controllers_cache_SetGetAlias() {
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 // arrange
                 var originalObject = new cacheTestClass();
                 string testKey = "test" + GenericController.getRandomInteger().ToString();
@@ -243,6 +259,8 @@ namespace Tests {
             // -- pretent this key is from table TestTable
             // -- set dependency on AnyRecord of the table
             using (CPClass cp = new(testAppName)) {
+                // test result only valid if cache enabled
+                if (!cp.ServerConfig.enableLocalFileCache && !cp.ServerConfig.enableLocalMemoryCache & !cp.ServerConfig.enableRemoteCache) { return; }
                 string value = "12345";
                 string key = cp.Cache.CreateKey("testKey");
                 string fakeTableName = "testTable";

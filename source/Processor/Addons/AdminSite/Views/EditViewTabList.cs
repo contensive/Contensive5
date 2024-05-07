@@ -5,12 +5,16 @@ using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
     /// <summary>
     /// Create tabs in edit view
     /// </summary>
     public static class EditViewTabList {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         // ====================================================================================================
         /// <summary>
@@ -33,7 +37,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     hint = 10;
                     //
                     // There are no visible fiels, return empty
-                    LogController.logError(core, new GenericException("There is no metadata for this field."));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("There is no metadata for this field."));
                 } else {
                     hint = 20;
                     //
@@ -86,7 +90,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     hint = 160;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex, "hint [" + hint + "]");
+                logger.Error(ex, $"hint [{hint}], {core.logCommonMessage}");
                 throw;
             }
             return returnHtml;
@@ -154,7 +158,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -173,7 +177,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (string.IsNullOrEmpty(Content)) { return; }
                 editTabs.addEntry(Caption.Replace(" ", "&nbsp;"), "", "", Content, false, "ccAdminTab");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
     }

@@ -46,7 +46,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return trySendSystemEmail(core, true, email.id, $"<p>If this was you, <a href=\"{resetUrl}\">click here to reset your password.</a></p>", user.id);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -214,7 +214,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -266,7 +266,7 @@ namespace Contensive.Processor.Controllers {
                 if ((SplitArray[0].Length > 0) && (SplitArray[1].Length > 0)) { return true; }
                 return false;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -281,25 +281,25 @@ namespace Contensive.Processor.Controllers {
                 // -- validate arguments
                 if (!verifyEmailSubject(core, subject)) {
                     userErrorMessage = "Email not sent because the subject is not valid.";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, toAddress)) {
                     //
                     userErrorMessage = "Email not sent because the to-address is not valid [" + toAddress + "].";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, fromAddress)) {
                     //
                     userErrorMessage = "Email not sent because the from-address is not valid [" + fromAddress + "].";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (isOnBlockedList(core, toAddress)) {
                     //
                     userErrorMessage = "Email not sent because the address [" + toAddress + "] is blocked by this application.";
-                    LogController.logInfo(core, "queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 //
@@ -312,19 +312,19 @@ namespace Contensive.Processor.Controllers {
                         //
                         fromAddress = toAddress;
                         userErrorMessage = "The from-address is blank. This email was sent, but may be blocked by spam filtering.";
-                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        logger.Info($"{core.logCommonMessage},queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     } else if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
                         //
                         //
                         //
                         userErrorMessage = "The from-address matches the to-address [" + fromAddress + "] . This email was sent, but may be blocked by spam filtering.";
-                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        logger.Info($"{core.logCommonMessage},queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     } else {
                         //
                         //
                         //
                         userErrorMessage = "The from-address matches the to-address. The from-address was changed to [" + fromAddress + "] to prevent it from being blocked by spam filtering.";
-                        LogController.logInfo(core, "queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        logger.Info($"{core.logCommonMessage},queueAdHocEmail, sent with warning [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     }
                 }
                 object bodyRenderData = getRenderData(core, personalizeAddonId);
@@ -351,7 +351,7 @@ namespace Contensive.Processor.Controllers {
                 queueEmail(core, false, sendRequest);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -381,29 +381,29 @@ namespace Contensive.Processor.Controllers {
                 // -- validate arguments
                 if (recipient == null) {
                     userErrorMessage = "The email was not sent because the recipient is not valid [empty], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "]";
-                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [null], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [null], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailSubject(core, subject)) {
                     userErrorMessage = "Email not sent because the subject is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
-                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, recipient.email)) {
                     userErrorMessage = "Email not sent because the to-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
-                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, fromAddress)) {
                     //
                     userErrorMessage = "Email not sent because the from-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
-                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (isOnBlockedList(core, recipient.email)) {
                     //
                     userErrorMessage = "Email not sent because the to-address requested email block. See the Email Bounce List, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
-                    LogController.logInfo(core, "tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                    logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 object bodyRenderData = getRenderData(core, personalizeAddonId);
@@ -457,7 +457,7 @@ namespace Contensive.Processor.Controllers {
                 queueEmail(core, false, sendRequest);
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -531,7 +531,7 @@ namespace Contensive.Processor.Controllers {
                         email.subject = emailName;
                         email.fromAddress = core.siteProperties.getText("EmailAdmin", "webmaster@" + core.appConfig.domainList[0]);
                         email.save(core.cpParent);
-                        LogController.logError(core, new GenericException("No system email was found with the name [" + emailName + "]. A new email blank was created but not sent."));
+                        logger.Error($"{core.logCommonMessage}", new GenericException("No system email was found with the name [" + emailName + "]. A new email blank was created but not sent."));
                     }
                 }
                 return trySendSystemEmail(core, immediate, email, appendedCopy, additionalMemberID, ref userErrorMessage);
@@ -589,7 +589,7 @@ namespace Contensive.Processor.Controllers {
             SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailid);
             if (email == null) {
                 userErrorMessage = "The notification email could not be sent.";
-                LogController.logError(core, new GenericException("No system email was found with the id [" + emailid + "]"));
+                logger.Error($"{core.logCommonMessage}", new GenericException("No system email was found with the id [" + emailid + "]"));
                 return false;
             }
             return trySendSystemEmail(core, immediate, email, appendedCopy, additionalMemberID, ref userErrorMessage);
@@ -648,7 +648,7 @@ namespace Contensive.Processor.Controllers {
                 if (!verifyEmailAddress(core, email.fromAddress)) {
                     //
                     userErrorMessage = "Email not sent because the from-address is not valid.";
-                    LogController.logInfo(core, "tryQueueSystemEmail, NOT SENT [" + userErrorMessage + "], email [" + email.name + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
+                    logger.Info($"{core.logCommonMessage},tryQueueSystemEmail, NOT SENT [" + userErrorMessage + "], email [" + email.name + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
                     return false;
                 }
                 string BounceAddress = core.siteProperties.emailBounceAddress;
@@ -751,7 +751,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return true;
         }
@@ -893,7 +893,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -945,7 +945,7 @@ namespace Contensive.Processor.Controllers {
                 int personalizeAddonId = 0;
                 return sendAdHocEmail(core, "Form Submission Email", core.session.user.id, toAddress, fromAddress, emailSubjectWorking, Message, "", "", "", false, false, 0, ref userErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -967,7 +967,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrWhiteSpace(groupCommaList)) { return true; }
                 return trySendGroupEmail(core, groupCommaList.Split(',').ToList<string>().FindAll(t => !string.IsNullOrWhiteSpace(t)), fromAddress, subject, body, isImmediate, isHtml, ref userErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 userErrorMessage = "There was an unknown error sending the email;";
                 return false;
             }
@@ -1009,7 +1009,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 userErrorMessage = "There was an unknown error sending the email;";
                 return false;
             }
@@ -1036,7 +1036,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return true;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 userErrorMessage = "There was an unknown error sending the email;";
                 return false;
             }
@@ -1060,9 +1060,9 @@ namespace Contensive.Processor.Controllers {
                 emailQueue.content = SerializeObject(email);
                 emailQueue.attempts = email.attempts;
                 emailQueue.save(core.cpParent);
-                LogController.logInfo(core, "queueEmail, toAddress [" + email.toAddress + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
+                logger.Info($"{core.logCommonMessage},queueEmail, toAddress [" + email.toAddress + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
         //
@@ -1146,21 +1146,21 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- to address is reasonForFail
                     userErrorMessage = $"email to-address is invalid [{sendRequest.toAddress}]";
-                    LogController.logInfo(core, "FAIL send emai:" + userErrorMessage);
+                    logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
                     return false;
                 }
                 if (!verifyEmailSubject(core, sendRequest.subject)) {
                     //
                     // -- from address is reasonForFail
                     userErrorMessage = $"email subject is invalid [{sendRequest.subject}]";
-                    LogController.logInfo(core, "FAIL send emai:" + userErrorMessage);
+                    logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
                     return false;
                 }
                 if (!verifyEmailAddress(core, sendRequest.fromAddress)) {
                     //
                     // -- from address is reasonForFail
                     userErrorMessage = $"email from-address is invalid [{sendRequest.fromAddress}]";
-                    LogController.logInfo(core, "FAIL send emai:" + userErrorMessage);
+                    logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
                     return false;
                 }
                 bool sendWithSES = core.siteProperties.getBoolean(Constants.sitePropertyName_SendEmailWithAmazonSES);
@@ -1189,7 +1189,7 @@ namespace Contensive.Processor.Controllers {
                     log.memberId = sendRequest.toMemberId;
                     log.emailDropId = sendRequest.emailDropId;
                     log.save(core.cpParent);
-                    LogController.logInfo(core, "sendEmailInQueue, send successful, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "]");
+                    logger.Info($"{core.logCommonMessage},sendEmailInQueue, send successful, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "]");
                     return true;
                 }
                 //
@@ -1210,7 +1210,7 @@ namespace Contensive.Processor.Controllers {
                     log.emailId = sendRequest.emailId;
                     log.memberId = sendRequest.toMemberId;
                     log.save(core.cpParent);
-                    LogController.logInfo(core, "sendEmailInQueue, send FAILED [" + userErrorMessage + "], NOT resent because too many retries, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "], attempts [" + sendRequest.attempts + "]");
+                    logger.Info($"{core.logCommonMessage},sendEmailInQueue, send FAILED [" + userErrorMessage + "], NOT resent because too many retries, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "], attempts [" + sendRequest.attempts + "]");
                     return false;
                 }
                 //
@@ -1231,11 +1231,11 @@ namespace Contensive.Processor.Controllers {
                     log.memberId = sendRequest.toMemberId;
                     log.save(core.cpParent);
                     queueEmail(core, false, sendRequest);
-                    LogController.logInfo(core, "sendEmailInQueue, failed attempt (" + sendRequest.attempts + " of 3), reason [" + userErrorMessage + "], added to end of queue, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "], attempts [" + sendRequest.attempts + "]");
+                    logger.Info($"{core.logCommonMessage},sendEmailInQueue, failed attempt (" + sendRequest.attempts + " of 3), reason [" + userErrorMessage + "], added to end of queue, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "], attempts [" + sendRequest.attempts + "]");
                     return false;
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -1432,7 +1432,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw (new GenericException("Unexpected exception"));
             }
         }
@@ -1455,7 +1455,7 @@ namespace Contensive.Processor.Controllers {
                 sql = sql.Replace("{{sqldatenow}}", core.sqlDateTimeMockable);
                 //
                 // -- almost impossible to debug without a log entry
-                LogController.logInfo(core, "processConditional_DaysAfterjoining, select emails to send to users, sql [" + sql + "]");
+                logger.Info($"{core.logCommonMessage},processConditional_DaysAfterjoining, select emails to send to users, sql [" + sql + "]");
                 //
                 csEmailList.openSql(sql);
                 while (csEmailList.ok()) {
@@ -1503,7 +1503,7 @@ namespace Contensive.Processor.Controllers {
                 sql = sql.Replace("{{sqldatenow}}", core.sqlDateTimeMockable);
                 //
                 // -- almost impossible to debug without a log entry
-                LogController.logInfo(core, "processConditional_DaysBeforeExpiration, select emails to send to users, sql [" + sql + "]");
+                logger.Info($"{core.logCommonMessage},processConditional_DaysBeforeExpiration, select emails to send to users, sql [" + sql + "]");
                 //
                 csList.openSql(sql);
                 while (csList.ok()) {
@@ -1571,7 +1571,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 return emailsEffected;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return emailsEffected;
             }
         }
@@ -1679,7 +1679,7 @@ namespace Contensive.Processor.Controllers {
                     EmailController.trySendPersonEmail(core, person, EmailFrom, "Email confirmation from " + HttpController.getWebAddressProtocolDomain(core), ConfirmBody, "", "", true, true, EmailDropID, EmailTemplate, EmailAllowLinkEID, ref sendStatus, queryStringForLinkAppend, emailContextMessage, personalizeAddonId);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

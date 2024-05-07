@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using NLog;
+using System.Reflection;
+using NLog.LayoutRenderers;
 
 namespace Contensive.Processor.Addons.AdminSite {
     //
@@ -18,6 +21,9 @@ namespace Contensive.Processor.Addons.AdminSite {
     /// Admin site addon
     /// </summary>
     public class AdminAddon : AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -28,6 +34,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public override object Execute(CPBaseClass cpBase) {
             CPClass cp = (CPClass)cpBase;
             try {
+                logger.Trace($"AdminAddon Enter, {cp.core.logCommonMessage}");
                 //
                 // -- block search engines. This should be blocked anyway.
                 cp.Doc.AddHeadTag("<meta name=\"robots\" content=\"noindex,nofollow\">");
@@ -60,7 +67,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (string.IsNullOrEmpty(layout)) { layout = Processor.Properties.Resources.AdminSiteLayoutBackup; }
                 return cp.Mustache.Render(layout, new AdminSiteViewModel(cp));
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

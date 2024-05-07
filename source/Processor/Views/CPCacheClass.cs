@@ -4,9 +4,13 @@ using System.Linq;
 using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using NLog;
 
 namespace Contensive.Processor {
     public class CPCacheClass : BaseClasses.CPCacheBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         private readonly CPClass cp;
         //
@@ -320,7 +324,7 @@ namespace Contensive.Processor {
                     cp.core.cache.storeObject(key, Value, invalidationDate, invalidatationKeyHashList);
                 }
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

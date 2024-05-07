@@ -3,12 +3,16 @@ using System;
 using System.Collections.Generic;
 using Contensive.Processor.Controllers;
 using Contensive.BaseClasses;
+using NLog;
 
 namespace Contensive.Processor {
     /// <summary>
     /// The implementation of the CPCSBaseClass interface. Base interface is exposed to addons, and this implementation is passed during run-time
     /// </summary>
     public class CPCSClass : CPCSBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// dependancies
         /// </summary>
@@ -38,7 +42,7 @@ namespace Contensive.Processor {
             try {
                 return cs.insert(contentName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -59,7 +63,7 @@ namespace Contensive.Processor {
                 cs.close();
                 return false;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -101,7 +105,7 @@ namespace Contensive.Processor {
                 cs.close();
                 return false;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
 
@@ -134,7 +138,7 @@ namespace Contensive.Processor {
             try {
                 return cs.open(contentName, sqlCriteria, sortFieldList, activeOnly, 0, selectFieldList, pageSize, pageNumber);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -176,7 +180,7 @@ namespace Contensive.Processor {
             try {
                 return cs.openGroupUsers(groupList, sqlCriteria, sortFieldList, activeOnly, pageSize, pageNumber);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -243,12 +247,12 @@ namespace Contensive.Processor {
                 if (((string.IsNullOrEmpty(sql)) || (sql.ToLowerInvariant() == "default")) && (!string.IsNullOrEmpty(dataSourcename)) && (dataSourcename.ToLowerInvariant() != "default")) {
                     //
                     // -- arguments reversed from legacy api mistake, datasource has the query, sql has the datasource
-                    LogController.logWarn(cp.core, "Call to cs with arguments reversed, datasource [" + dataSourcename + "], sql [" + sql + "]");
+                    logger.Warn($"{cp.core.logCommonMessage},Call to cs with arguments reversed, datasource [" + dataSourcename + "], sql [" + sql + "]");
                     return cs.openSql(dataSourcename, sql, pageSize, pageNumber);
                 }
                 return cs.openSql(sql, dataSourcename, pageSize, pageNumber);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -274,7 +278,7 @@ namespace Contensive.Processor {
             try {
                 cs.close();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -300,7 +304,7 @@ namespace Contensive.Processor {
             try {
                 cs.deleteRecord();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -311,7 +315,7 @@ namespace Contensive.Processor {
             try {
                 return cs.isFieldSupported(fieldName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -322,7 +326,7 @@ namespace Contensive.Processor {
             try {
                 cs.goFirst(false);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -333,7 +337,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getRecordAddLink(presetNameValueList, allowPaste);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -350,7 +354,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getBoolean(FieldName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -361,7 +365,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getDate(FieldName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -372,7 +376,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getRecordEditLink(allowCut);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -393,7 +397,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getFilename(fieldName, originalFilename, contentName, 0);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -402,7 +406,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getFilename(fieldName, originalFilename);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -411,7 +415,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getFilename(fieldName, "");
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -422,7 +426,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getInteger(FieldName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -433,7 +437,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getNumber(FieldName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -444,7 +448,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getRowCount();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -455,7 +459,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getSql();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -466,7 +470,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getText(fieldName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -477,7 +481,7 @@ namespace Contensive.Processor {
             try {
                 return cs.getText(fieldName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -488,7 +492,7 @@ namespace Contensive.Processor {
             try {
                 cs.goNext();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -500,7 +504,7 @@ namespace Contensive.Processor {
                 cs.goNext();
                 return cs.ok();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -511,7 +515,7 @@ namespace Contensive.Processor {
             try {
                 return cs.ok();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -522,7 +526,7 @@ namespace Contensive.Processor {
             try {
                 cs.save();
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -552,7 +556,7 @@ namespace Contensive.Processor {
                 }
                 cs.set(fieldName, fieldValue.ToString());
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -579,7 +583,7 @@ namespace Contensive.Processor {
             try {
                 cs.setFormInput(cp.core, fieldName, requestName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -658,7 +662,7 @@ namespace Contensive.Processor {
             try {
                 cs.setTextFile(FieldName, Copy, ContentName);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

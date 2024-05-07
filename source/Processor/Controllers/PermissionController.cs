@@ -50,7 +50,7 @@ namespace Contensive.Processor.Controllers {
                     result = getUserAuthoringPermissions_ContentManager(core, cdef, new List<int>());
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }
@@ -147,7 +147,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;

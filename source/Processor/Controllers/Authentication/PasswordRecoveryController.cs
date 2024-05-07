@@ -53,7 +53,7 @@ namespace Contensive.Processor.Controllers {
                     returnResult = HtmlController.form(core, returnResult, QueryString);
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnResult;
@@ -79,7 +79,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 EmailController.trySendPasswordReset(core, users[0], authTokenInfo,  ref returnUserMessage);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

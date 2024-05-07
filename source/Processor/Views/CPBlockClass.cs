@@ -4,9 +4,13 @@ using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
+using NLog;
 
 namespace Contensive.Processor {
     public class CPBlockClass : BaseClasses.CPBlockBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         private readonly CPClass cp;
         private string accum { get; set; }
@@ -17,18 +21,18 @@ namespace Contensive.Processor {
         /// Constructor - Initialize the Main and Csv objects
         /// </summary>
         /// <param name="cp"></param>
-        public CPBlockClass( CPClass cp) {
+        public CPBlockClass(CPClass cp) {
             try {
                 accum = "";
                 this.cp = cp;
                 try {
                     htmlDoc = new Controllers.HtmlController(cp.core);
                 } catch (Exception ex) {
-                    LogController.logError( cp.core,ex, "Error creating object Controllers.htmlToolsController during cp.block constructor.");
+                    logger.Error($"{cp.core.logCommonMessage}, Error creating object Controllers.htmlToolsController during cp.block constructor.", ex);
                     throw;
                 }
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -39,7 +43,7 @@ namespace Contensive.Processor {
             try {
                 accum = htmlString;
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -50,25 +54,25 @@ namespace Contensive.Processor {
             try {
                 accum += htmlString;
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
         //
         //====================================================================================================
         //
-        public override void Clear()  {
+        public override void Clear() {
             try {
                 accum = "";
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
         //
         //====================================================================================================
         //
-        public override string GetHtml()  {
+        public override string GetHtml() {
             return accum;
         }
         //
@@ -102,7 +106,7 @@ namespace Contensive.Processor {
                     if (!string.IsNullOrEmpty(accum)) {
                         headTags = HtmlParseStaticController.getTagInnerHTML(accum, "head", false);
                         if (!string.IsNullOrEmpty(headTags)) {
-                            foreach (string asset in stringSplit( headTags, Environment.NewLine )) {
+                            foreach (string asset in stringSplit(headTags, Environment.NewLine)) {
                                 cp.core.doc.htmlMetaContent_OtherTags.Add(new HtmlMetaClass {
                                     addedByMessage = "block.importFile",
                                     content = asset
@@ -113,7 +117,7 @@ namespace Contensive.Processor {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -137,11 +141,11 @@ namespace Contensive.Processor {
                     // -- record name
                     copy = DbBaseModel.createByUniqueName<CopyContentModel>(cp, copyRecordNameOrGuid);
                 }
-                if (copy != null ) {
+                if (copy != null) {
                     accum = copy.copy;
                 }
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -155,7 +159,7 @@ namespace Contensive.Processor {
                     accum = cp.WwwFiles.Read(wwwFileName);
                 }
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -183,7 +187,7 @@ namespace Contensive.Processor {
                     accum = layout.layout.content;
                 }
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -194,7 +198,7 @@ namespace Contensive.Processor {
             try {
                 accum = htmlString + accum;
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -205,7 +209,7 @@ namespace Contensive.Processor {
             try {
                 accum = HtmlParseStaticController.setInner(cp.core, accum, findSelector, htmlString);
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -216,7 +220,7 @@ namespace Contensive.Processor {
             try {
                 accum = HtmlParseStaticController.setOuter(cp.core, accum, findSelector, htmlString);
             } catch (Exception ex) {
-                LogController.logError( cp.core,ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }
@@ -244,12 +248,12 @@ namespace Contensive.Processor {
         //
         // Do not change or add Overridable to these methods.
         // Put cleanup code in Dispose(ByVal disposing As Boolean).
-        public override void Dispose()  {
+        public override void Dispose() {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
         //
-        ~CPBlockClass()  {
+        ~CPBlockClass() {
             Dispose(false);
         }
         #endregion

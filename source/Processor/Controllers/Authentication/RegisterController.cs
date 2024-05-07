@@ -50,7 +50,7 @@ namespace Contensive.Processor.Controllers {
                     if (!csPerson.open("people", "ID=" + core.session.user.id)) {
                         //
                         // -- user record not valid
-                        LogController.logError(core, new Exception("Could not open the current members account to set the username and password."));
+                        logger.Error($"{core.logCommonMessage}", new Exception("Could not open the current members account to set the username and password."));
                         return;
                     }
                     if ((!string.IsNullOrEmpty(csPerson.getText("username"))) || !string.IsNullOrEmpty(csPerson.getText("password")) || csPerson.getBoolean("admin") || csPerson.getBoolean("developer")) {
@@ -70,7 +70,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 DbBaseModel.invalidateCacheOfRecord<PersonModel>(core.cpParent, core.session.user.id);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

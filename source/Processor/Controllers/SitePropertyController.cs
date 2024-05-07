@@ -656,7 +656,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -737,7 +737,7 @@ namespace Contensive.Processor.Controllers {
                 return_propertyFound = true;
                 return DefaultValue;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -795,7 +795,7 @@ namespace Contensive.Processor.Controllers {
                 setProperty(cacheName, DefaultValue);
                 return DefaultValue;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -853,26 +853,6 @@ namespace Contensive.Processor.Controllers {
         public DateTime getDate(string PropertyName, DateTime DefaultValue = default) {
             return encodeDate(getText(PropertyName, DefaultValue.ToString()));
         }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// allowCache site property, not cached (to make it available to the cache process)
-        /// </summary>
-        /// <returns></returns>
-        public bool allowCache_notCached {
-            get {
-                if (_allowCache_notCached != null) { return (bool)_allowCache_notCached; }
-                // -- special case, allowCache referenced in nameValueDict load
-                if (_nameValueDict != null) {
-                    return getPropertyBase("AllowBake", true, ref _allowCache_notCached);
-                }
-                if (dbNotReady) { return false; }
-                bool propertyFound = false;
-                _allowCache_notCached = GenericController.encodeBoolean(getTextFromDb("AllowBake", "true", ref propertyFound));
-                return (bool)_allowCache_notCached;
-            }
-        }
-        private bool? _allowCache_notCached = null;
         //
         //====================================================================================================
         /// <summary>

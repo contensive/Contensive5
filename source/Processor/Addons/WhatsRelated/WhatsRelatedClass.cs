@@ -2,9 +2,13 @@
 using System;
 using Contensive.Processor.Controllers;
 using System.Text;
+using NLog;
 //
 namespace Contensive.Processor.Addons.PageManager {
     public class WhatsRelatedClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -67,7 +71,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 }
                 return string.Empty;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
         }

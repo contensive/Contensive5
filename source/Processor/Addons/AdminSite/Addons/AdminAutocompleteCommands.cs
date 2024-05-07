@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Collections.Generic;
 
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Addons.AdminSite {
     /// search for addons or content
     /// </summary>
     public class AdminAutocompleteCommands : AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -62,7 +66,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;
             }
         }

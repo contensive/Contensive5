@@ -5,6 +5,7 @@ using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using NLog;
 
 namespace Contensive.Processor {
     //
@@ -12,6 +13,9 @@ namespace Contensive.Processor {
     // always have the model at the save version as the addon code - this cp interface will match the database, but not the addon.
     // not sure which is better
     public class CPAddonClass : CPAddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         // ====================================================================================================
         /// <summary>
@@ -83,7 +87,7 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName) {
             AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
+                logger.Warn($"{cp.core.logCommonMessage},cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
             }
             return cp.core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext());
@@ -94,7 +98,7 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName, Dictionary<string, string> argumentKeyValuePairs) {
             AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
+                logger.Warn($"{cp.core.logCommonMessage},cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "]. No executeContext provided.");
                 return "";
             }
             return cp.core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
@@ -107,7 +111,7 @@ namespace Contensive.Processor {
         public override string ExecuteByUniqueName(string addonName, CPUtilsBaseClass.addonExecuteContext executeContext) {
             AddonModel addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonName);
             if (addon == null) {
-                LogController.logWarn(cp.core, "cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "], executeContext [" + executeContext.errorContextMessage + "].");
+                logger.Warn($"{cp.core.logCommonMessage},cp.addon.ExecuteByUniqueName argument error, no addon found with addonName [" + addonName + "], executeContext [" + executeContext.errorContextMessage + "].");
                 return "";
             }
             return cp.core.addon.execute(addon, executeContext);

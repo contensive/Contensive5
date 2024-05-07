@@ -16,7 +16,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 result = AdminUIController.getEditPanel(core, true, "Group Membership", "", editorRow);
                 adminData.editSectionPanelCount += 1;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

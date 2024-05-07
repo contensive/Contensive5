@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Contensive.BaseModels;
 using Contensive.Processor.Controllers;
+using NLog;
 using static Newtonsoft.Json.JsonConvert;
 
 namespace Contensive.Processor.Models.Domain {
@@ -15,6 +16,9 @@ namespace Contensive.Processor.Models.Domain {
     /// -- saveObject( cp ) - saves instance properties, returns the record id
     /// </summary>
     public class ServerConfigModel : ServerConfigBaseModel {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         private CoreController core;
         //
@@ -252,7 +256,7 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 return returnModel;
             } catch (Exception ex) {
-                LogController.logError(core, ex, "exception in serverConfigModel.getObject");
+                logger.Error($"{core.logCommonMessage}", ex, "exception in serverConfigModel.getObject");
                 throw;
             }
         }
@@ -268,7 +272,7 @@ namespace Contensive.Processor.Models.Domain {
                 string jsonTemp = SerializeObject(this);
                 core.programDataFiles.saveFile("config.json", jsonTemp);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return 0;
         }

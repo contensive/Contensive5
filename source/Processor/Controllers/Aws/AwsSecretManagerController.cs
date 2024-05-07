@@ -1,9 +1,13 @@
 ﻿using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
+using NLog;
 using System;
 //
 namespace Contensive.Processor.Controllers.Aws {
     public class AwsSecretManagerController {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //========================================================================
         /// <summary>
@@ -14,7 +18,7 @@ namespace Contensive.Processor.Controllers.Aws {
         public static void setSecret(CoreController core, Amazon.RegionEndpoint region, string secretName, string secretValue) {
             try {
                 //
-                LogController.logDebug(core, "AwsSecretManagerController.setSecret()");
+                logger.Debug($"{core.logCommonMessage},AwsSecretManagerController.setSecret()");
                 //
                 CreateSecretRequest secretRequest = new() {
                     Name = secretName,
@@ -24,7 +28,7 @@ namespace Contensive.Processor.Controllers.Aws {
                 CreateSecretResponse result = client.CreateSecretAsync(secretRequest).Result;
                 return;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -38,7 +42,7 @@ namespace Contensive.Processor.Controllers.Aws {
         public static string getSecret(CoreController core, Amazon.RegionEndpoint region, string secretName) {
             try {
                 //
-                LogController.logDebug(core, $"AwsSecretManagerController.getSecret( region [{region}], secretName [{secretName}])");
+                logger.Debug($"{core.logCommonMessage},AwsSecretManagerController.getSecret( region [{region}], secretName [{secretName}])");
                 //
                 GetSecretValueRequest secretRequest = new() {
                     SecretId = secretName
@@ -47,7 +51,7 @@ namespace Contensive.Processor.Controllers.Aws {
                 GetSecretValueResponse result = client.GetSecretValueAsync(secretRequest).Result;
                 return result.SecretString;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }

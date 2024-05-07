@@ -16,25 +16,25 @@ namespace Contensive.Services {
             using (CPClass cp = new CPClass()) {
                 try {
                     //
-                    LogController.logTrace(cp.core, "Services.OnStart enter");
+                    cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStart enter");
                     //
                     if (true) {
                         //
                         // -- start scheduler
-                        LogController.logTrace(cp.core, "Services.OnStart, call taskScheduler.startTimerEvents");
+                        cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStart, call taskScheduler.startTimerEvents");
                         taskScheduler = new TaskSchedulerController();
                         taskScheduler.startTimerEvents();
                     }
                     if (true) {
                         //
                         // -- start runner
-                        LogController.logTrace(cp.core, "Services.OnStart, call taskRunner.startTimerEvents");
+                        cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStart, call taskRunner.startTimerEvents");
                         taskRunner = new TaskRunnerController();
                         taskRunner.startTimerEvents();
                     }
-                    LogController.logTrace(cp.core, "Services.OnStart exit");
+                    cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStart exit");
                 } catch (Exception ex) {
-                    LogController.logError(cp.core, ex, "taskService.OnStart Exception");
+                    cp.Log.Error(ex);
                 }
             }
         }
@@ -43,13 +43,13 @@ namespace Contensive.Services {
             using (CPClass cp = new CPClass()) {
                 try {
                     //
-                    LogController.logTrace(cp.core, "Services.OnStop enter");
+                    cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStop enter");
                     //
                     if (taskScheduler != null) {
                         //
                         // stop taskscheduler
                         //
-                        LogController.logTrace(cp.core, "Services.OnStop, call taskScheduler.stopTimerEvents");
+                        cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStop, call taskScheduler.stopTimerEvents");
                         taskScheduler.stopTimerEvents();
                         taskScheduler.Dispose();
                     }
@@ -57,13 +57,13 @@ namespace Contensive.Services {
                         //
                         // stop taskrunner
                         //
-                        LogController.logTrace(cp.core, "Services.OnStop, call taskRunner.stopTimerEvents");
+                        cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStop, call taskRunner.stopTimerEvents");
                         taskRunner.stopTimerEvents();
                         taskRunner.Dispose();
                     }
-                    LogController.logTrace(cp.core, "Services.OnStop exit");
+                    cp.Log.Trace($"{cp.core.logCommonMessage},Services.OnStop exit");
                 } catch (Exception ex) {
-                    LogController.logError(cp.core, ex, "taskService.OnStop Exception");
+                    cp.Log.Error(ex);
                 }
             }
         }

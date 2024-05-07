@@ -38,7 +38,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnValue;
@@ -73,7 +73,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnValue;
@@ -115,7 +115,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnValue;
@@ -150,7 +150,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return result;
@@ -314,7 +314,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnValue;
@@ -489,13 +489,13 @@ namespace Contensive.Processor.Controllers {
                     //
                     //
                     if (LoopPtr >= 10000) {
-                        LogController.logError( core,new GenericException("Tag limit of 10000 tags per block reached."));
+                        logger.Error($"{core.logCommonMessage}",new GenericException("Tag limit of 10000 tags per block reached."));
                     }
                 }
                 //
                 return returnPos;
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -612,7 +612,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError( core,ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnValue;

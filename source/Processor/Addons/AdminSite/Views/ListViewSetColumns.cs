@@ -8,9 +8,13 @@ using static Contensive.Processor.Constants;
 using Contensive.Processor.Models.Domain;
 using Contensive.BaseClasses;
 using System.Text;
+using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public class ListViewSetColumns {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //=============================================================================
         //   Print the Configure Index Form
@@ -459,7 +463,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 result = AdminUIController.getToolForm(core, Content, ButtonOK + "," + ButtonReset);
                 core.html.addTitle(Title, "admin list view set columns");
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
         }

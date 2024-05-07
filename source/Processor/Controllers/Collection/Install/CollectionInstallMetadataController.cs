@@ -10,6 +10,7 @@ using System.Text;
 using System.Xml;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using NLog;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -19,6 +20,9 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class CollectionInstallMetadataController {
         //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
         //======================================================================================================
         //
         internal static void installMetaDataMiniCollectionFromXml(CoreController core, string srcXml, bool isNewBuild, bool reinstallDependencies, bool isBaseCollection, string logPrefix) {
@@ -26,7 +30,7 @@ namespace Contensive.Processor.Controllers {
                 MetadataMiniCollectionModel newCollection = loadXML(core, srcXml, isBaseCollection, true, isNewBuild, logPrefix);
                 installMetaDataMiniCollection_BuildDb(core, isBaseCollection, newCollection, isNewBuild, reinstallDependencies, logPrefix);
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -39,7 +43,7 @@ namespace Contensive.Processor.Controllers {
         public static MetadataMiniCollectionModel loadXML(CoreController core, string srcCollecionXml, bool isBaseCollection, bool setAllDataChanged, bool IsNewBuild, string logPrefix) {
             try {
                 //
-                LogController.logInfo(core, "Application: " + core.appConfig.name + ", Upgrademetadata_LoadDataToCollection");
+                logger.Info($"{core.logCommonMessage},Application: " + core.appConfig.name + ", Upgrademetadata_LoadDataToCollection");
                 //
                 var result = new MetadataMiniCollectionModel();
                 if (string.IsNullOrEmpty(srcCollecionXml)) {
@@ -54,13 +58,13 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- xml load error
                     string errMsg = "Upgrademetadata_LoadDataToCollection Error reading xml archive";
-                    Logger.Error(ex, LogController.processLogMessage(core, errMsg, true));
+                    Logger.Error(ex, $"{core.logCommonMessage},{errMsg}");
                     throw new GenericException("Error in Upgrademetadata_LoadDataToCollection, during doc.loadXml()", ex);
                 }
                 if ((srcXmlDom.DocumentElement.Name.ToLowerInvariant() != CollectionFileRootNode) && (srcXmlDom.DocumentElement.Name.ToLowerInvariant() != "contensivecdef")) {
                     //
                     // -- root node must be collection (or legacy contensivemetadata)
-                    LogController.logError(core, new GenericException("the archive file has a syntax error. Application name must be the first node."));
+                    logger.Error($"{core.logCommonMessage}", new GenericException("the archive file has a syntax error. Application name must be the first node."));
                 } else {
                     result.isBaseCollection = isBaseCollection;
                     //
@@ -68,7 +72,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     string collectionName = XmlController.getXMLAttribute(core, srcXmlDom.DocumentElement, "name", "");
                     if (string.IsNullOrEmpty(collectionName)) {
-                        LogController.logInfo(core, "Upgrademetadata_LoadDataToCollection, Application: " + core.appConfig.name + ", Collection has no name");
+                        logger.Info($"{core.logCommonMessage},Upgrademetadata_LoadDataToCollection, Application: " + core.appConfig.name + ", Collection has no name");
                     }
                     result.name = collectionName;
                     //
@@ -230,7 +234,7 @@ namespace Contensive.Processor.Controllers {
                                                 // -- allow typo where "memberselectgroupid" is set to the name
                                                 memberSelectGroup = XmlController.getXMLAttribute(core, MetaDataChildNode, "MemberSelectGroupId", "");
                                                 if (!string.IsNullOrEmpty(memberSelectGroup) && (memberSelectGroup != "0") && encodeInteger(memberSelectGroup) == 0) {
-                                                    LogController.logWarn(core, new GenericException("CollectionInstallMetadataController.loadXML, error in collection file [" + collectionName + "], the content field [" + targetMetaData.name + "." + DefaultMetaDataField.nameLc + "], attribute name 'MemberSelectGroupId' should be 'MemberSelectGroup'"));
+                                                    logger.Warn($"{core.logCommonMessage}", new GenericException("CollectionInstallMetadataController.loadXML, error in collection file [" + collectionName + "], the content field [" + targetMetaData.name + "." + DefaultMetaDataField.nameLc + "], attribute name 'MemberSelectGroupId' should be 'MemberSelectGroup'"));
                                                     metaDataField.memberSelectGroupName_set(core, memberSelectGroup);
                                                 }
                                             }
@@ -424,7 +428,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 return result;
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -437,22 +441,22 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 string logMsgContext = "installing MetaDataMiniCollection BuildDb, collection [" + Collection.name + "]";
-                LogController.logInfo(core, "Application: " + core.appConfig.name + ", Upgrademetadata_BuildDbFromCollection");
+                logger.Info($"{core.logCommonMessage},Application: " + core.appConfig.name + ", Upgrademetadata_BuildDbFromCollection");
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 1: create SQL tables in default datasource");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 1: create SQL tables in default datasource");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 {
                     foreach (KeyValuePair<string, ContentMetadataModel> metaKvp in Collection.metaData) {
                         if (string.IsNullOrWhiteSpace(metaKvp.Value.tableName)) {
-                            LogController.logWarn(core, "Content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the content tablename is empty.");
+                            logger.Warn($"{core.logCommonMessage}, Content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the content tablename is empty.");
                             continue;
                         }
                         core.db.createSQLTable(metaKvp.Value.tableName);
                         foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in metaKvp.Value.fields) {
                             if (string.IsNullOrWhiteSpace(fieldKvp.Value.nameLc)) {
-                                LogController.logWarn(core, "Field [# " + fieldKvp.Value.id + "] in content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the content tablename is empty.");
+                                logger.Warn($"{core.logCommonMessage}, Field [# " + fieldKvp.Value.id + "] in content [" + metaKvp.Value.name + "] in collection [" + Collection.name + "] cannot be added because the content tablename is empty.");
                                 continue;
                             }
                             core.db.createSQLTableField(metaKvp.Value.tableName, fieldKvp.Value.nameLc, fieldKvp.Value.fieldTypeId);
@@ -463,7 +467,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 2: if baseCollection, reset isBaseContent and isBaseField");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 2: if baseCollection, reset isBaseContent and isBaseField");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 if (isBaseCollection) {
@@ -472,7 +476,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 3: Verify all metadata names in ccContent so GetContentID calls will succeed");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 3: Verify all metadata names in ccContent so GetContentID calls will succeed");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 List<string> installedContentList = new List<string>();
@@ -484,7 +488,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 foreach (var keypairvalue in Collection.metaData) {
                     if (keypairvalue.Value.dataChanged) {
-                        LogController.logInfo(core, "adding metadata name [" + keypairvalue.Value.name + "]");
+                        logger.Info($"{core.logCommonMessage},adding metadata name [" + keypairvalue.Value.name + "]");
                         if (!installedContentList.Contains(keypairvalue.Value.name.ToLowerInvariant())) {
                             core.db.executeNonQuery("Insert into ccContent (name,ccguid,active,createkey)values(" + DbController.encodeSQLText(keypairvalue.Value.name) + "," + DbController.encodeSQLText(keypairvalue.Value.guid) + ",1,0);");
                             installedContentList.Add(keypairvalue.Value.name.ToLowerInvariant());
@@ -495,7 +499,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 4: Verify content records required for Content Server");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 4: Verify content records required for Content Server");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 BuildController.verifySortMethods(core);
@@ -504,7 +508,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 5: verify 'Content' content definition");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 5: verify 'Content' content definition");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 foreach (var keypairvalue in Collection.metaData) {
@@ -517,7 +521,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 6: Verify all definitions and fields");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 6: Verify all definitions and fields");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 foreach (var keypairvalue in Collection.metaData) {
@@ -537,7 +541,7 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 7: Verify all field help");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 7: Verify all field help");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 int FieldHelpCId = MetadataController.getRecordIdByUniqueName(core, "content", "Content Field Help");
@@ -553,7 +557,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                             if (fieldId == 0) {
-                                LogController.logWarn(core, "Field help specified for a field that cannot be found, field [" + workingField.nameLc + "], content [" + workingMetaData.name + "]");
+                                logger.Warn($"{core.logCommonMessage}, Field help specified for a field that cannot be found, field [" + workingField.nameLc + "], content [" + workingMetaData.name + "]");
                             } else {
                                 int FieldHelpId = 0;
                                 using (var rs = core.db.executeQuery("select id from ccfieldhelp where fieldid=" + fieldId + " order by id")) {
@@ -576,12 +580,12 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 8: create SQL indexes");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 8: create SQL indexes");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 foreach (MetadataMiniCollectionModel.MiniCollectionSQLIndexModel index in Collection.sqlIndexes) {
                     using (var db = new DbController(core, index.dataSourceName)) {
-                        LogController.logInfo(core, "creating index [" + index.indexName + "], fields [" + index.fieldNameList + "], on table [" + index.tableName + "]");
+                        logger.Info($"{core.logCommonMessage},creating index [" + index.indexName + "], fields [" + index.fieldNameList + "], on table [" + index.tableName + "]");
                         db.createSQLIndex(index.tableName, index.indexName, index.fieldNameList);
                     }
                 }
@@ -589,19 +593,19 @@ namespace Contensive.Processor.Controllers {
                 core.cache.invalidateAll();
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 9: Verify All Menu Names, then all Menus");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 9: Verify All Menu Names, then all Menus");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 foreach (var kvp in Collection.menus) {
                     var menu = kvp.Value;
                     if (menu.dataChanged) {
-                        LogController.logInfo(core, "creating navigator entry [" + menu.name + "], namespace [" + menu.menuNameSpace + "], guid [" + menu.guid + "]");
+                        logger.Info($"{core.logCommonMessage},creating navigator entry [" + menu.name + "], namespace [" + menu.menuNameSpace + "], guid [" + menu.guid + "]");
                         BuildController.verifyNavigatorEntry(core, menu, 0);
                     }
                 }
                 //
                 //----------------------------------------------------------------------------------------------------------------------
-                LogController.logInfo(core, "metadata Load, stage 9: Verify Styles");
+                logger.Info($"{core.logCommonMessage},metadata Load, stage 9: Verify Styles");
                 //----------------------------------------------------------------------------------------------------------------------
                 //
                 if (Collection.styleCnt > 0) {
@@ -672,7 +676,7 @@ namespace Contensive.Processor.Controllers {
                     core.siteProperties.setProperty("StylesheetSerialNumber", "-1");
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -685,7 +689,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 //
                 logMsgContext += ", updating db metadata for content [" + contentMetadata.name + "]";
-                LogController.logInfo(core, logMsgContext);
+                logger.Info($"{core.logCommonMessage},{logMsgContext}");
                 //
                 // -- get contentid and protect content with IsBaseContent true
                 {
@@ -731,7 +735,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
@@ -767,7 +771,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
             } catch (Exception ex) {
-                LogController.logError(core, ex);
+                logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
             return returnAttr;

@@ -3,10 +3,14 @@ using System;
 using Contensive.Processor.Controllers;
 using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.Processor.Constants;
+using NLog;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
     public class HouseKeepingControlClass : Contensive.BaseClasses.AddonBaseClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //
         //====================================================================================================
         /// <summary>
@@ -155,7 +159,7 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 cp.core.html.addTitle(Caption,Caption);
             } catch (Exception ex) {
-                LogController.logError(cp.core, ex);
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
             }
             return tempGetForm_HouseKeepingControl;
         }

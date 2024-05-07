@@ -2,6 +2,7 @@
 using Amazon;
 using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
+using NLog;
 using System;
 using System.Security.Cryptography;
 using System.Xml;
@@ -11,6 +12,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
     /// Software updates
     /// </summary>
     public static class SiteWarningsClass {
+        //
+        // static logger
+        private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //====================================================================================================
         /// <summary>
         /// Daily, download software updates. This is a legacy process but is preserved to force
@@ -64,13 +68,6 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     cp.Site.SetSiteWarning($"html doctype is not html5 doctype html", $"html doctype is not html5 doctype html. This effects how browsers display html and styles. To fix this, make sure all templates are html5 compatible, then set DocType Declaration to '<!DOCTYPE HTML>' in the Templates tab of Site Settings, available from the Settings icon in the admin site.");
                 }
                 //
-                // -- set warning of allowbake is off
-                if (!cp.Site.GetBoolean("allowbake", true)) {
-                    string warn = $"Cache is disabled.";
-                    string desc = $"Cache is disabled. This affects performance. To fix this, set Allow Cache in Site Settings.";
-                    cp.Site.SetSiteWarning(warn, desc);
-                }
-                //
                 // -- check for valid default email from-address
                 testEmailSiteProperty(cp, "EMAILADMIN");
                 testEmailSiteProperty(cp, "EMAILFROMADDRESS");
@@ -78,7 +75,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 return;
             } catch (Exception ex) {
-                LogController.logError(env.core, ex);
+                logger.Error(ex, $"{env.core.logCommonMessage}");
                 LogController.logAlarm(env.core, "Housekeep, SiteWarningsClass, ex [" + ex + "]");
                 throw;
             }
