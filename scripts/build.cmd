@@ -1,8 +1,30 @@
-rem 
+rem ==============================================================
+rem
 rem Must be run from the projects git\project\scripts folder - everything is relative
 rem run >build [versionNumber]
-rem versionNumber is 5.YYMM.DD.build-number, like 5.1908.24.5
 rem
+@echo off
+cls
+ 
+@echo +++++++++++++++++++++++++++++
+@echo Build Process
+@echo .
+@echo Manually update nuget packages. (IISDefault and TaskService to not update automatically)
+@echo .
+@echo If there were any nuget package updates --
+@echo .
+@echo 1) Open VS and build Processor
+@echo 2) Edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
+@echo 3) Copy the <runtime> node
+@echo 4) Paste into TaskService App.Config
+@echo 5) Paste into IISDefault Web.Config
+@echo .
+@echo When ready, hit any key to continue
+@echo .
+@echo +++++++++++++++++++++++++++++
+pause
+rem 
+rem echo on
 
 c:
 cd \Git\Contensive5\scripts
@@ -313,13 +335,21 @@ rem ==============================================================
 rem
 rem update aspx site nuget packages 
 rem
-cd ..\source\iisdefaultsite
-nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.CPBaseClass
-nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.DbModels
-nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
-cd ..\..\scripts
+cd ..\source
+dotnet restore ContensiveAspx.sln
+cd ..\scripts
 
-rem pause
+rem cd ..\source\iisdefaultsite
+rem uget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.CPBaseClass
+rem nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.DbModels
+rem nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
+rem cd ..\..\scripts
+
+cls
+@echo IISDefault project needs to be restored somehow
+@echo Open the project in Visual Studio and build
+@echo When done, hit any key to continue
+pause 
 
 rem ==============================================================
 rem

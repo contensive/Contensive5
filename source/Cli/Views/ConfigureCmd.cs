@@ -75,12 +75,12 @@ namespace Contensive.CLI {
                             core.serverConfig.awsSecretAccessKey = "";
                             break;
                         }
-                        //
-#if NETCOREAPP
-#else
                         do {
                             awsSecretAccessKey = GenericController.promptForReply("Enter the AWS Access Secret", awsSecretAccessKey);
                         } while (string.IsNullOrWhiteSpace(awsSecretAccessKey));
+                        //
+#if NETCOREAPP
+#else
                         try {
                             AmazonSecurityTokenServiceClient tokenServiceClient = new(awsAccessKey, awsSecretAccessKey);
                             tokenServiceClient.GetCallerIdentityAsync(new Amazon.SecurityToken.Model.GetCallerIdentityRequest());

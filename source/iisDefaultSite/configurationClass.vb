@@ -4,7 +4,6 @@ Imports Contensive
 Imports Contensive.Processor
 Imports Contensive.Processor.Controllers
 Imports Contensive.Processor.Models.Domain
-Imports Newtonsoft.Json.Serialization
 
 Public Class ConfigurationClass
     '
