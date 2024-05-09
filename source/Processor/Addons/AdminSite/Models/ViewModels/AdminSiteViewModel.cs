@@ -54,7 +54,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         public string siteWarningLink {
             get {
-                if(string.IsNullOrEmpty(siteWarningCount)) { return ""; }
+                if (string.IsNullOrEmpty(siteWarningCount)) { return ""; }
                 return $"{cp.GetAppConfig().adminRoute}?cid={cp.Content.GetID("site warnings")}";
             }
         }
@@ -66,7 +66,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         public List<NavCategoryList> categoryList {
             get {
-                if (_categoryList != null) { return _categoryList;  }
+                if (_categoryList != null) { return _categoryList; }
                 if (cp.User.Id == 0) { return new List<NavCategoryList>(); }
                 if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavCategoryList>(); }
                 //
@@ -81,7 +81,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         listIcon = "fas fa-user fa-lg",
                         listCategoryList = new List<NavCategory>() { navProfileCategoryList }
                     });
-                    return _categoryList; 
+                    return _categoryList;
                 }
                 //
                 cacheData = new() {
@@ -448,7 +448,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 navDomainList_Local = new List<NavItem>();
                 foreach (DomainModel domain in DbBaseModel.createList<DomainModel>(cp, "(name<>'*')")) {
-                    string navItemHref = domain.name.Contains("://") ? domain.name : "https://" + domain.name;
+                    string navItemHref = (domain.name.Contains("://") ? domain.name : (cp.Request.Secure ? "https://" : "http://") + domain.name);
                     navDomainList_Local.Add(new NavItem {
                         navDivider = false,
                         navItemHref = navItemHref,

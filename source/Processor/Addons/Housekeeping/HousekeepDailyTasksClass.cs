@@ -30,9 +30,6 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 // -- people (must be before visits to delete users from bot visits
                 PersonClass.executeDailyTasks(env);
                 //
-                // -- Download Updates
-                SoftwareUpdatesClass.downloadAndInstall(env);
-                //
                 // -- Addon folder
                 AddonFolderClass.executeDailyTasks(env);
                 //

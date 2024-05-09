@@ -1135,6 +1135,11 @@ namespace Contensive.Processor {
         //
         // from portal framework, for layoutbuilders
         //
+        public const string layoutEditModelGuid = "{696D98A6-1454-45CD-B478-2D40B96940D9}";
+        public const string defaultEditModelLayoutName = "Admin Edit Record Edit Modal";
+        public const string defaultEditModelLayoutCdnPathFilename = "baseAssets\\editModal.html";
+        public const string platform5LayoutCdnPathFilename = "baseAssets\\editModal.html";
+        //
         public const string guidLayoutPageWithNav = "{7B4BEE74-A4A1-4641-9745-25960AFD398F}";
         public const string nameLayoutPageWithNav = "AdminUI Page With Nav Layout";
         public const string pathFilenameLayoutAdminUIPageWithNav = "portalframework\\AdminUIPageWithNavLayout.html";

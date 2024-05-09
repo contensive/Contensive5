@@ -19,6 +19,19 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// 
+        /// </summary>
+        public bool allowEditModel {
+            get {
+                if(_allowEditModel is not null) { return (bool)_allowEditModel; }
+                _allowEditModel = getBoolean("allow edit modal beta", false);
+                return (bool)_allowEditModel;
+            }
+        }
+        bool? _allowEditModel;
+        //
+        //====================================================================================================
+        /// <summary>
         /// new
         /// </summary>
         /// <param name="core"></param>

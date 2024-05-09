@@ -99,16 +99,27 @@ namespace Contensive.Processor.Controllers {
         //
         public static string getRecordEditAndCutAnchorTag(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption) {
             try {
-                if (!core.session.isEditing()) { return string.Empty; }
-                if (contentMetadata == null) { throw new GenericException("contentMetadata null."); }
-                var editSegmentList = new List<string> {
-                    getRecordEditSegment(core, contentMetadata, recordId, recordName, customCaption)
-                };
-                if (allowCut) {
-                    string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, rnPageCut, GenericController.encodeText(contentMetadata.id) + "." + GenericController.encodeText(recordId), true);
-                    editSegmentList.Add("<a class=\"ccRecordCutLink\" TabIndex=\"-1\" href=\"" + HtmlController.encodeHtml(WorkingLink) + "\">&nbsp;" + iconContentCut.Replace("content cut", getEditSegmentRecordCaption(core, "Cut", contentMetadata.name, customCaption)) + "</a>");
+                if (core.siteProperties.allowEditModel) {
+                    //
+                    // -- legacy edit tag
+                    if (!core.session.isEditing()) { return string.Empty; }
+                    if (contentMetadata == null) { throw new GenericException("contentMetadata null."); }
+                    var editSegmentList = new List<string> {
+                        getRecordEditSegment(core, contentMetadata, recordId, recordName, customCaption)
+                    };
+                    if (allowCut) {
+                        string WorkingLink = GenericController.modifyLinkQuery(core.webServer.requestPage + "?" + core.doc.refreshQueryString, rnPageCut, GenericController.encodeText(contentMetadata.id) + "." + GenericController.encodeText(recordId), true);
+                        editSegmentList.Add("<a class=\"ccRecordCutLink\" TabIndex=\"-1\" href=\"" + HtmlController.encodeHtml(WorkingLink) + "\">&nbsp;" + iconContentCut.Replace("content cut", getEditSegmentRecordCaption(core, "Cut", contentMetadata.name, customCaption)) + "</a>");
+                    }
+                    return getRecordEditAnchorTag(core, editSegmentList);
+                } else {
+                    //
+                    // -- edit modal
+                    string layout = LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModelLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+                    object dataSet = new EditModalModel( core,  contentMetadata,  recordId,  allowCut,  recordName,  customCaption);
+                    string result = MustacheController.renderStringToString("", dataSet);
+                    return result;
                 }
-                return getRecordEditAnchorTag(core, editSegmentList);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
