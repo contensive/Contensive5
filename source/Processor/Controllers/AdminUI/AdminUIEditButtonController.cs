@@ -99,7 +99,7 @@ namespace Contensive.Processor.Controllers {
         //
         public static string getRecordEditAndCutAnchorTag(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption) {
             try {
-                if (core.siteProperties.allowEditModel) {
+                if (!core.siteProperties.allowEditModel) {
                     //
                     // -- legacy edit tag
                     if (!core.session.isEditing()) { return string.Empty; }
@@ -116,8 +116,8 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- edit modal
                     string layout = LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModelLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
-                    object dataSet = new EditModalModel( core,  contentMetadata,  recordId,  allowCut,  recordName,  customCaption);
-                    string result = MustacheController.renderStringToString("", dataSet);
+                    EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, customCaption);
+                    string result = MustacheController.renderStringToString(layout, dataSet);
                     return result;
                 }
             } catch (Exception ex) {

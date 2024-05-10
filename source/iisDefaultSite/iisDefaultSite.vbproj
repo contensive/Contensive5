@@ -236,7 +236,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Contensive.Processor">
-      <Version>24.5.6.3</Version>
+      <Version>24.5.9.2</Version>
     </PackageReference>
   </ItemGroup>
   <PropertyGroup>

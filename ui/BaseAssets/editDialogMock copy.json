@@ -1,6 +1,7 @@
 {
     "dialogCaption":"Testimonial Widget",
-    "adminEditUrl" : "",
+    "anythingElseYouNeedForDialog": "",
+    "editTag" : "",
     "isEditing": "true",
     "leftFields": [
         
@@ -656,5 +657,42 @@
                 }
             ]
         }
+    ],
+    "carouselTestimonials": [
+    	{
+			"testimonialNumber": 1,
+      		"activeTestimonial": "active",
+      		"stars": [
+            	{
+                  "isFullStar": true,
+                  "isEmptyStar" : false,
+                  "isHalfStar" : false
+                },
+            	{
+                  "isFullStar": true,
+                  "isEmptyStar" : false,
+                  "isHalfStar" : false
+                },
+            	{
+                  "isFullStar": true,
+                  "isEmptyStar" : false,
+                  "isHalfStar" : false
+                },
+            	{
+                  "isFullStar": true,
+                  "isEmptyStar" : false,
+                  "isHalfStar" : true
+                },
+            	{
+                  "isFullStar": false,
+                  "isEmptyStar" : true,
+                  "isHalfStar" : false
+                }
+            ],
+            "text":"This is the text for the testimonial 1",
+            "userName":"Bob Leedy 1",
+            "avatar" : "https://s3.amazonaws.com/cdn.jaydev.contensive.com/menucrm0210/files/cclibraryfiles/filename/000000000002/captain.PNG",
+            "imageAlt" : "Bob Leedy Avatar"
+       	}
     ]
 }
