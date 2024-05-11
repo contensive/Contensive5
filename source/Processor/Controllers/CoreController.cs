@@ -8,7 +8,6 @@ using System.Data.Entity.Design.PluralizationServices;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using static Contensive.Processor.Constants;
 //
 // todo implement #nullable enable
 //
@@ -32,22 +31,34 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public string logCommonMessage {
             get {
-                if (_logEnvironmentMessage != null && userId != null && visitId != null) return _logEnvironmentMessage;
+                if (_logCommonMessage != null && userId != null && visitId != null) return _logCommonMessage;
                 userId = session?.user?.id;
                 visitId = session?.visit?.id;
-                _logEnvironmentMessage = $"" +
+                _logCommonMessage = $"" +
                     $"app[{((appConfig == null) ? "no-app" : appConfig.name)}]" +
                     $",doc[{(doc == null ? "unset" : doc.docGuid)}]" +
                     $",user[{(userId == null ? "0" : userId.ToString() + ":" + session.user.name)}]" +
                     $",visit[{(visitId == null ? "0" : visitId.ToString())}]" +
                     $",thread[{Environment.CurrentManagedThreadId:000}]" +
                     $",url[{((webServer == null) ? "non-web" : string.IsNullOrEmpty(webServer.requestPathPage) ? "empty" : webServer.requestPathPage)}]";
-                return _logEnvironmentMessage;
+                return _logCommonMessage;
             }
         }
-        private string _logEnvironmentMessage;
+        private string _logCommonMessage;
         private int? userId;
         private int? visitId;
+        //
+        /// <summary>
+        /// message for logs, curly braces escaped to be used in structured logging
+        /// </summary>
+        public string logCpommonMessage_forStructuredLogging {
+            get {
+                if (_logCpommonMessage_forStructuredLogging != null && userId != null && visitId != null) return _logCpommonMessage_forStructuredLogging;
+                _logCpommonMessage_forStructuredLogging= logCommonMessage.replace("{", "{{", StringComparison.CurrentCulture).replace("}", "}}",StringComparison.CurrentCulture);
+                return _logCpommonMessage_forStructuredLogging;
+            }
+        }
+        private string _logCpommonMessage_forStructuredLogging;
         //
         //====================================================================================================
         /// <summary>

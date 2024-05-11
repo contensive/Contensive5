@@ -1,7 +1,7 @@
 ﻿<script runat="server">
     Sub Page_Load()
         '
-        ' -- DO NOT edit. This file is replaced duing upgrade
+        ' -- DO NOT edit. This file is replaced during upgrade
         '
         Contensive.Processor.Controllers.LogController.logShortLine("Page_Load", Contensive.BaseClasses.CPLogBaseClass.LogLevel.Trace)
         Try

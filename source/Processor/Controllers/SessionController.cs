@@ -154,7 +154,7 @@ namespace Contensive.Processor.Controllers {
             user = new PersonModel();
             visitStateOk = true;
             //
-            Logger.Trace("SessionController.create, enter-1");
+            logger.Trace(core.logCommonMessage + ",SessionController.create, enter-1");
             Logger.Trace( core.logCommonMessage + "," +  "SessionController.create, enter-2");
             logger.Trace($"{core.logCommonMessage},SessionController.create, enter-3");
             //

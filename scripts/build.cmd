@@ -305,51 +305,23 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
-rem  pause
-
-
-rem ==============================================================
-rem
-rem web.config must be manually updated from processor.dll.config
-rem
-rem @echo off
-rem cls
-rem 
-rem @echo +++++++++++++++++++++++++++++
-rem @echo Manually update web.config if there were nuget package changes
-rem @echo 
-rem @echo nuget packages automatically update Processor project appconfig, but not the iisDefault web.config file. It must be manually updated if there were any nuget changes.
-rem @echo 
-rem @echo edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
-rem @echo copy the assembly redirect section
-rem @echo 
-rem @echo edit C:\Git\Contensive5\source\iisDefaultSite\Web.config
-rem @echo replace the assembly redirect section
-rem @echo 
-rem @echo +++++++++++++++++++++++++++++
-rem pause
-rem 
-rem echo on
-
 rem ==============================================================
 rem
 rem update aspx site nuget packages 
 rem
-cd ..\source
-dotnet restore ContensiveAspx.sln
-cd ..\scripts
 
-rem cd ..\source\iisdefaultsite
-rem uget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.CPBaseClass
-rem nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.DbModels
-rem nuget update iisdefaultsite.vbproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
-rem cd ..\..\scripts
+cd ..\source\iisdefaultsite
+dotnet remove package Contensive.CPBaseClass
+dotnet add package Contensive.CPBaseClass --source c:\NuGetLocalPackages
 
-cls
-@echo IISDefault project needs to be restored somehow
-@echo Open the project in Visual Studio and build
-@echo When done, hit any key to continue
-pause 
+dotnet remove package Contensive.DbModels
+dotnet add package Contensive.DbModels --source c:\NuGetLocalPackages
+
+dotnet remove package Contensive.Processor
+dotnet add package Contensive.Processor --source c:\NuGetLocalPackages
+cd ..\..\scripts
+
+rem pause 
 
 rem ==============================================================
 rem

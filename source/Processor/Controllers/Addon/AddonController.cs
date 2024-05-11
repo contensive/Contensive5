@@ -130,7 +130,7 @@ namespace Contensive.Processor.Controllers {
             }
             if (executeContext == null) { executeContext = new CPUtilsBaseClass.addonExecuteContext(); };
             //
-            logger.Debug($"{core.logCommonMessage}", "AddonController.executeDependency [" + addon.name + "], executeContext [" + executeContext.errorContextMessage + "]");
+            logger.Debug($"{core.logCommonMessage},AddonController.executeDependency [" + addon.name + "], executeContext [" + executeContext.errorContextMessage + "]");
             //
             // -- no, cannot exit because for ex, if JQ has been added, then it is added again but the js needs to be in the head,
             // -- then it needs to run so it's js is moved to head.
@@ -211,7 +211,7 @@ namespace Contensive.Processor.Controllers {
             Stopwatch sw = new();
             sw.Start();
             //
-            logger.Debug($"{core.logCommonMessage}", "AddonController.execute [" + ((addon == null) ? "null" : addon.id.ToString() + ", " + addon.name) + "], context [" + (executeContext == null ? "null" : executeContext.addonType) + "], context [" + (executeContext == null ? "null" : executeContext.errorContextMessage) + "]");
+            logger.Debug($"{core.logCommonMessage},[" + ((addon == null) ? "null" : addon.id.ToString() + ", " + addon.name) + "], context [" + (executeContext == null ? "null" : executeContext.addonType) + "], context [" + (executeContext == null ? "null" : executeContext.errorContextMessage) + "]");
             //
             // -- verify arguments
             if (addon == null) {
@@ -321,7 +321,7 @@ namespace Contensive.Processor.Controllers {
                     if (!addon.onBodyStart) {
                         result.Append(core.addon.executeOnBodyStart());
                     } else {
-                        logger.Warn("Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyStart. onBodyStart was ignored.");
+                        logger.Warn(core.logCommonMessage + ",Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyStart. onBodyStart was ignored.");
                     }
                 }
                 //
@@ -763,7 +763,7 @@ namespace Contensive.Processor.Controllers {
                             string addonResult = core.addon.executeOnBodyEnd();
                             result = new StringBuilder(core.doc.body + addonResult);
                         } else {
-                            logger.Warn("Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyEnd. onBodyEnd was ignored.");
+                            logger.Warn(core.logCommonMessage + ",Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyEnd. onBodyEnd was ignored.");
                         }
                         //
                         // -- create html document from returned body

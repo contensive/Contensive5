@@ -790,12 +790,25 @@ namespace Contensive.Models.Db {
         public static T createByUniqueName<T>(CPBaseClass cp, string recordName, ref List<string> callersCacheNameList) where T : DbBaseModel {
             try {
                 if (string.IsNullOrEmpty(recordName)) { return null; }
+                //
+                // -- attempt cache read
                 T result = (allowRecordCaching(cp, typeof(T)) && derivedNameFieldIsUnique(typeof(T))) ? readRecordCacheByUniqueNamePtr<T>(cp, recordName) : null;
                 if (result != null) { return result; }
+                //
+                // -- attempt sql read
                 using var dt = cp.Db.ExecuteQuery(getSelectSql<T>(cp, null, "(name=" + cp.Db.EncodeSQLText(recordName) + ")", "id"));
                 if (dt?.Rows == null) { return null; }
                 if (dt.Rows.Count == 0) { return null; }
-                return create<T>(cp, dt.Rows[0], ref callersCacheNameList);
+                result = create<T>(cp, dt.Rows[0], ref callersCacheNameList);
+                //
+                // -- store cache
+                string tableName = derivedTableName(typeof(T));
+                string cacheKey = cp.Cache.CreateRecordKey(result.id, tableName);
+                callersCacheNameList.Add(cacheKey);
+                cp.Cache.Store(cacheKey, result);
+                //
+                // -- return result
+                return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "create by name");
                 throw;

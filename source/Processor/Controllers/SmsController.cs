@@ -37,7 +37,7 @@ namespace Contensive.Processor.Controllers {
                     default: {
                             //
                             // -- disabled
-                            logger.Warn("Attempt to send a text message but not SMS provider is configured in site settings.");
+                            logger.Warn(core.logCommonMessage + ",Attempt to send a text message but not SMS provider is configured in site settings.");
                             userError = "Text messaging is disabled because no text message provider is configured.";
                             return false;
                         }

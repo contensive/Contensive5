@@ -211,8 +211,7 @@ namespace Contensive.Processor.Controllers {
                 if (dateCompare >= 0) {
                     //
                     // -- global invalidation
-                    logger.Trace("keyHash [{0}], invalidated because cacheObject saveDate [{1}] is before the globalInvalidationDate [{2}]", keyHash.key, cacheDocument.saveDate, globalInvalidationDate);
-                    //logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because cacheObject saveDate [" + cacheDocument.saveDate + "] is before the globalInvalidationDate [" + globalInvalidationDate + "]", false));
+                    logger.Trace($"{core.logCommonMessage},keyHash [{keyHash.key}], invalidated because cacheObject saveDate [{cacheDocument.saveDate}] is before the globalInvalidationDate [{globalInvalidationDate}]");
                     return false;
                 }
                 //
@@ -233,9 +232,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             // -- invalidate because a dependent document was changed after the cacheDocument was saved
                             cacheHit = false;
-                            logger.Trace("keyHash [{0}], invalidated because the dependentKeyHash [{1}] was modified [{2}] after the cacheDocument's saveDate [{3}]", keyHash.key, dependentKeyHash.key, dependantCacheDocument.saveDate, cacheDocument.saveDate);
-                            //logger.Trace(LogController.processLogMessage(core, "keyHash [" + keyHash + "], invalidated because the dependentKeyHash [" + dependentKeyHash + "] was modified [" + dependantCacheDocument.saveDate + "] after the cacheDocument's saveDate [" + cacheDocument.saveDate + "]", false));
-                            //break;
+                            logger.Trace($"{core.logCommonMessage},keyHash [{keyHash.key}], invalidated because the dependentKeyHash [{dependentKeyHash.key}] was modified [{dependantCacheDocument.saveDate}] after the cacheDocument's saveDate [{cacheDocument.saveDate}]");
                         }
                     }
                 }
@@ -284,8 +281,7 @@ namespace Contensive.Processor.Controllers {
                 } catch (Exception ex) {
                     //
                     // -- object value did not match. return as miss
-                    logger.Warn("cache getObject failed to cast value as type, keyHash [{0}], type requested [{1}], ex [{2}]", keyHash, typeof(TData).FullName, ex.ToString());
-                    //logger.Warn(LogController.processLogMessage(core, "cache getObject failed to cast value as type, keyHash [" + keyHash + "], type requested [" + typeof(TData).FullName + "], ex [" + ex + "]", true));
+                    logger.Warn(ex, $"{core.logCommonMessage},cache getObject failed to cast value as type, keyHash [{keyHash}], type requested [{typeof(TData).FullName}]");
                     return default;
                 }
             } catch (Exception ex) {
@@ -385,17 +381,15 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- log result
                 if (result == null) {
-                    logger.Trace("miss, cacheType [{0}], key [{1}]", typeMessage, keyHash.key);
+                    logger.Trace($"{core.logCommonMessage},invalidate, keyHash [key:{typeMessage}], recursionLimit [{keyHash.key}]");
                     //logger.Trace(LogController.processLogMessage(core, "miss, cacheType [" + typeMessage + "], key [" + keyHash.key + "]", false));
                 } else {
                     if (result.content == null) {
-                        logger.Trace("hit, cacheType [{0}], key [{1}], saveDate [{2}], content [null]", typeMessage, keyHash.key, result.saveDate);
-                        //logger.Trace(LogController.processLogMessage(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [null]", false));
+                        logger.Trace($"{core.logCommonMessage},cache hit, cacheType [{typeMessage}], key [{ keyHash.key}], saveDate [{ result.saveDate}], content [null]");
                     } else {
                         string content = result.content.ToString();
                         content = (content.Length > 50) ? (content.left(50) + "...") : content;
-                        logger.Trace("hit, cacheType [{0}], key [{1}], saveDate [{2}], content [{3}]", typeMessage, keyHash.key, result.saveDate, content);
-                        //logger.Trace(LogController.processLogMessage(core, "hit, cacheType [" + typeMessage + "], key [" + keyHash.key + "], saveDate [" + result.saveDate + "], content [" + content + "]", false));
+                        logger.Trace($"{core.logCommonMessage},cache hit, cacheType [{typeMessage}], key [{keyHash.key}], saveDate [{result.saveDate}], content [{content}]");
                     }
                 }
                 //
@@ -685,8 +679,7 @@ namespace Contensive.Processor.Controllers {
         public void invalidate(CacheKeyHashClass keyHash, int recursionLimit = 5) {
             try {
                 if (!allowCache) { return; }
-                logger.Trace("invalidate, keyHash [key:{0}], recursionLimit [{1}]", keyHash.key, recursionLimit);
-                //logger.Trace(LogController.processLogMessage(core, "invalidate, keyHash [key:" + keyHash.key + "], recursionLimit [" + recursionLimit + "]", false));
+                logger.Trace($"{core.logCommonMessage},invalidate, keyHash [key:{keyHash.key}], recursionLimit [{recursionLimit}]");
                 if ((recursionLimit > 0) && (keyHash != null)) {
                     //
                     // if key is a ptr, we need to invalidate the real key
@@ -968,13 +961,12 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 if (cacheDocument is null) {
-                    logger.Trace("storeCacheDocument, cacheDocument null, key [{1}]", keyHash.key);
+                    logger.Trace(core.logCommonMessage + ",storeCacheDocument, cacheDocument null, key [{1}]", keyHash.key);
                     return;
                 }
                 string depKey = cacheDocument?.keyPtrHash?.key is null ? "" : cacheDocument.keyPtrHash.key;
                 string dependentKeyHashList = cacheDocument?.dependentKeyHashList is null ? "" : cacheDocument.dependentKeyHashList.Count == 0 ? "" : string.Join(",", cacheDocument.dependentKeyHashList);
-                logger.Trace("cacheType [{0}], key [{1}], invalidationDate [{2}], depends on [{3}], points to key [{4}]", cacheTypeMsg, keyHash.key, cacheDocument.invalidationDate, dependentKeyHashList, depKey);
-                //logger.Trace(LogController.processLogMessage(core, "cacheType [" + typeMessage + "], key [" + keyHash.key + "], expires [" + cacheDocument.invalidationDate + "], depends on [" + string.Join(",", cacheDocument.dependentKeyHashList) + "], points to key [" + string.Join(",", cacheDocument.keyPtrHash.key) + "]", false));
+                logger.Trace($"{core.logCommonMessage},cacheType [{cacheTypeMsg}], key [{keyHash.key}], invalidationDate [{cacheDocument.invalidationDate}], depends on [{dependentKeyHashList}], points to key [{depKey}]");
                 //
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

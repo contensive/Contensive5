@@ -34,7 +34,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public override object Execute(CPBaseClass cpBase) {
             CPClass cp = (CPClass)cpBase;
             try {
-                logger.Trace($"AdminAddon Enter, {cp.core.logCommonMessage}");
+                logger.Trace($"{cp.core.logCommonMessage},AdminAddon Enter");
                 //
                 // -- block search engines. This should be blocked anyway.
                 cp.Doc.AddHeadTag("<meta name=\"robots\" content=\"noindex,nofollow\">");
