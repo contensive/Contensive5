@@ -9,13 +9,13 @@ cls
 @echo +++++++++++++++++++++++++++++
 @echo Build Process
 @echo .
-@echo Manually update nuget packages. (IISDefault and TaskService to not update automatically)
+@echo Add manual assembly redirects to processor project app.config (it will propogate to all projects)
 @echo .
-@echo If there were any nuget package updates --
+@echo If there were manual app.config changes OR nuget package updates --
 @echo .
 @echo 1) Open VS and build Processor
 @echo 2) Edit C:\Git\Contensive5\source\Processor\bin\Debug\net472\Processor.dll.config
-@echo 3) Copy the <runtime> node
+@echo 3) Copy the runtime node
 @echo 4) Paste into TaskService App.Config
 @echo 5) Paste into IISDefault Web.Config
 @echo .
@@ -61,6 +61,8 @@ rem ==============================================================
 rem
 rem clean build folders
 rem
+
+@echo on
 
 del /s /q  "..\source\cli\bin"
 rd /s /q  "..\source\cli\bin"
@@ -120,6 +122,12 @@ del /s /q  "..\source\taskservice\obj"
 rd /s /q  "..\source\taskservice\obj"
 
 del /q "..\WebDeploymentPackage\*.*"
+
+del /s /q "C:\Git\Contensive5\source\Cli.Installer\bin"
+rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\bin"
+
+del /s /q "C:\Git\Contensive5\source\Cli.Installer\obj"
+rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\obj"
 
 rem pause
 

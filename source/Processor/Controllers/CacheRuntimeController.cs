@@ -1,4 +1,6 @@
-﻿using Contensive.Models.Db;
+﻿using Amazon.Runtime.Internal.Util;
+using Amazon.SimpleEmail;
+using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Concurrent;
@@ -22,6 +24,9 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="tableName"></param>
         public void clearTable(string tableName) {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.clearTable [{tableName}]");
+            //
             switch (tableName.ToLowerInvariant()) {
                 case "ccaggregatefunctions": {
                         clearAddon();
@@ -43,6 +48,9 @@ namespace Contensive.Processor.Controllers {
         /// Clear all data from the metaData current instance. Next request will load from cache.
         /// </summary>
         public void clear() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.clear");
+            //
             clearLinkAlias();
             clearLayout();
             clearAddon();
@@ -80,17 +88,21 @@ namespace Contensive.Processor.Controllers {
             get {
                 if (_addonCache != null) { return _addonCache; }
                 //
+                logger.Trace($"{core.logCommonMessage},CacheRuntime.addonCache constuctor");
+                //
                 // -- populate local version from cache
                 _addonCache = core.cache.getObject<CacheStore_AddonModel>(cacheName_addonCache);
-                if (_addonCache == null || _addonCache.isEmpty) {
-                    // -- cache empty (should not be possible since cache miss was covered)
-                    _addonCache = new CacheStore_AddonModel(core);
-                    List<CacheKeyHashClass> dependencyList = new List<CacheKeyHashClass> {
-                            core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
-                            core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
-                        };
-                    core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
-                }
+                if(_addonCache != null && !_addonCache.isEmpty) { return _addonCache; }
+                //
+                // -- rebuild cache
+                _addonCache = new CacheStore_AddonModel(core);
+                List<CacheKeyHashClass> dependencyList = [
+                    core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
+                    core.cache.createTableDependencyKeyHash(AddonIncludeRuleModel.tableMetadata.tableNameLower)
+                ];
+                //
+                // -- save cache
+                core.cache.storeObject(cacheName_addonCache, _addonCache, dependencyList);
                 return _addonCache;
             }
         }
@@ -101,6 +113,9 @@ namespace Contensive.Processor.Controllers {
         /// method to clear the core instance of routeMap. Explained in routeMap.
         /// </summary>
         public void clearAddon() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.clearAddon");
+            //
             core.cache.invalidate(cacheName_addonCache);
             _addonCache = null;
         }
@@ -166,6 +181,9 @@ namespace Contensive.Processor.Controllers {
         /// update cache for assemblyList_AddonsFound
         /// </summary>
         public void assemblyFileDict_save() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.assemblyFileDict_save");
+            //
             var dependentKeyList = new List<CacheKeyHashClass> {
                 core.cache.createTableDependencyKeyHash(AddonModel.tableMetadata.tableNameLower),
                 core.cache.createTableDependencyKeyHash(AddonCollectionModel.tableMetadata.tableNameLower)
@@ -204,6 +222,9 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <returns></returns>
         private LayoutDict getLayoutDict() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.getLayoutDict");
+            //
             string cacheKey = "layoutDict";
             LayoutDict layoutDict = core.cache.getObject<LayoutDict>(cacheKey);
             if (layoutDict != null) { return layoutDict; }
@@ -286,6 +307,9 @@ namespace Contensive.Processor.Controllers {
         /// clear store
         /// </summary>
         public void clearLinkAlias() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.clearLinkAlias");
+            //
             linkAliasIdDict_Local = null;
             linkAliasGuidDict_Local = null;
             linkAliasNameDict_Local = null;
@@ -297,9 +321,15 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <returns></returns>
         private LinkAliasStoreModel getLinkAliasStore() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.getLinkAliasStore");
+            //
             string cacheKey = "LinkAliasStore";
             LinkAliasStoreModel linkAliasStore = core.cache.getObject<LinkAliasStoreModel>(cacheKey);
             if (linkAliasStore != null) { return linkAliasStore; }
+            //
+            // -- verify all page records have linkalias
+            PageContentModel.verifyLinkAlias(core.cpParent);
             //
             // -- load from db
             linkAliasStore = new LinkAliasStoreModel();
@@ -398,6 +428,9 @@ namespace Contensive.Processor.Controllers {
         /// clear store
         /// </summary>
         private void content_Clear() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.content_Clear");
+            //
             ContentIdDict_Local = null;
             ContentGuidDict_Local = null;
             ContentNameDict_Local = null;
@@ -408,6 +441,9 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <returns></returns>
         private ContentStoreModel getContentStore() {
+            //
+            logger.Trace($"{core.logCommonMessage},CacheRuntime.getContentStore");
+            //
             string cacheKey = "ContentStore";
             ContentStoreModel ContentStore = core.cache.getObject<ContentStoreModel>(cacheKey);
             if (ContentStore != null) { return ContentStore; }
@@ -479,5 +515,11 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Dictionary<string, ContentModel> ContentGuidDict_Local;
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

@@ -1,6 +1,7 @@
 ﻿
 using Contensive.BaseClasses;
 using System;
+using System.Data;
 
 namespace Contensive.Models.Db {
     //
@@ -94,6 +95,46 @@ namespace Contensive.Models.Db {
                 }
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// verify all page content has link alias.
+        /// Link alias runs out of a cache. If a link alias is requested by pageId that is no in linkalis cache, it reloads the addoncache which is expensive.
+        /// </summary>
+        /// <param name="cp"></param>
+        public static void verifyLinkAlias( CPBaseClass cp ) {
+            string sql = "" +
+                "select " +
+                    "p.id,p.name,p.linkalias " +
+                "from " +
+                    "ccPageContent p " +
+                    "left join ccLinkAliases a on a.pageid=p.id " +
+                "where 1=1 " +
+                    "and(a.id is null) " +
+                    "and(p.active>0) " +
+                "";
+            //"and(p.linkalias is null) " +
+    DataTable dt = cp.Db.ExecuteQuery(sql);
+            if(dt == null || dt.Rows.Count == 0) { return;  }
+            foreach (DataRow dr in dt.Rows) {
+                // -- normalize new linkalis
+                string pageLinkAlias = cp.Utils.EncodeText(dr[2]);
+                string pageName = cp.Utils.EncodeText(dr[1]);
+                int pageId = cp.Utils.EncodeInteger(dr[0]);
+                if (string.IsNullOrEmpty(pageLinkAlias)) { pageLinkAlias = pageName.ToLowerInvariant(); }
+                if (string.IsNullOrEmpty(pageLinkAlias)) { pageLinkAlias = $"page{pageId}"; }
+                string linkAliasNormalized = LinkAliasModel.normalizeLinkAlias(cp, pageLinkAlias);
+                // -- save back to page record
+                int recordsAffected = 0;
+                cp.Db.ExecuteNonQuery($"update ccpagecontent set linkalias={cp.Db.EncodeSQLText(pageLinkAlias)} where id={pageId}", ref recordsAffected);
+                // -- create link alias record
+                LinkAliasModel asdf = addDefault<LinkAliasModel>(cp);
+                if(asdf ==null) { continue; }
+                asdf.name = linkAliasNormalized;
+                asdf.pageId = pageId;
+                asdf.save(cp);
             }
         }
         //

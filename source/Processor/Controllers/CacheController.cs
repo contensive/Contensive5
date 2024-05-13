@@ -381,15 +381,16 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- log result
                 if (result == null) {
-                    logger.Trace($"{core.logCommonMessage},invalidate, keyHash [key:{typeMessage}], recursionLimit [{keyHash.key}]");
-                    //logger.Trace(LogController.processLogMessage(core, "miss, cacheType [" + typeMessage + "], key [" + keyHash.key + "]", false));
+                    logger.Trace($"{core.logCommonMessage},cache miss, cacheType [{typeMessage}], key [{keyHash.key}]");
                 } else {
-                    if (result.content == null) {
-                        logger.Trace($"{core.logCommonMessage},cache hit, cacheType [{typeMessage}], key [{ keyHash.key}], saveDate [{ result.saveDate}], content [null]");
-                    } else {
-                        string content = result.content.ToString();
-                        content = (content.Length > 50) ? (content.left(50) + "...") : content;
-                        logger.Trace($"{core.logCommonMessage},cache hit, cacheType [{typeMessage}], key [{keyHash.key}], saveDate [{result.saveDate}], content [{content}]");
+                    if (logger.IsTraceEnabled) {
+                        if (result.content == null) {
+                            logger.Trace($"{core.logCommonMessage},cache hit, cacheType [{typeMessage}], key [{keyHash.key}], saveDate [{result.saveDate}], content [null]");
+                        } else {
+                            string content = result.content.ToString();
+                            content = ((content.Length > 50) ? (content.left(50) + "...") : content).Replace("\n", "").Replace("\r", "");
+                            logger.Trace($"{core.logCommonMessage},cache hit, cacheType [{typeMessage}], key [{keyHash.key}], saveDate [{result.saveDate}], content [{content}]");
+                        }
                     }
                 }
                 //

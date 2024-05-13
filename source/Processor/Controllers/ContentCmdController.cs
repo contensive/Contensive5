@@ -714,7 +714,7 @@ namespace Contensive.Processor.Controllers {
                                         errorContextMessage = "calling Addon [" + addonName + "] during content cmd execution"
                                     };
                                     if (addon == null) {
-                                        logger.Error($"{core.logCommonMessage}", new GenericException("Add-on [" + addonName + "] could not be found executing command in content [" + cmdSrc + "]"));
+                                        logger.Error(new GenericException("Add-on [" + addonName + "] could not be found executing command in content [" + cmdSrc + "]"), $"{core.logCommonMessage}");
                                     } else {
                                         CmdAccumulator = core.addon.execute(addon, executeContext);
                                     }
