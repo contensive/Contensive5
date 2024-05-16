@@ -1,4 +1,5 @@
 ﻿
+using Amazon.Runtime.Internal.Util;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using System;
@@ -17,19 +18,19 @@ namespace Contensive.Processor.Models.Domain {
             get {
                 return dictIdAddon.Count == 0;
             }
-        }   
-        private Dictionary<int, AddonModel> dictIdAddon { get; set; } = new Dictionary<int, AddonModel>();
-        private Dictionary<string, int> dictGuidId { get; set; } = new Dictionary<string, int>();
-        private Dictionary<string, int> dictNameId { get; set; } = new Dictionary<string, int>();
+        }
+        public Dictionary<int, AddonModel> dictIdAddon { get; set; } = [];
+        public Dictionary<string, int> dictGuidId { get; set; } = [];
+        public Dictionary<string, int> dictNameId { get; set; } = [];
         //
-        private Dictionary<int, List<int>> dependencyDictionary { get; set; } = new Dictionary<int, List<int>>();
+        public Dictionary<int, List<int>> dependencyDictionary { get; set; } = [];
         //
-        private List<int> onBodyEndIdList { get; set; } = new();
-        private List<int> onBodyStartIdList { get; set; } = new();
-        private List<int> onNewVisitIdList { get; set; } = new();
-        private List<int> OnPageEndIdList { get; set; } = new();
-        private List<int> OnPageStartIdList { get; set; } = new();
-        private List<int> remoteMethodIdList { get; set; } = new();
+        public List<int> onBodyEndIdList { get; set; } = [];
+        public List<int> onBodyStartIdList { get; set; } = [];
+        public List<int> onNewVisitIdList { get; set; } = [];
+        public List<int> onPageEndIdList { get; set; } = [];
+        public List<int> onPageStartIdList { get; set; } = [];
+        public List<int> remoteMethodIdList { get; set; } = [];
         /// <summary>
         /// Each addon includes text to be added to the robots.txt response.
         /// </summary>
@@ -47,6 +48,9 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="core"></param>
         public CacheStore_AddonModel(CoreController core) {
+            //
+            if (logger.IsTraceEnabled) { logger.Trace($"{core.logCommonMessage},CacheStore_AddonModel(core)-enter"); }
+            //
             foreach (AddonModel addon in DbBaseModel.createList<AddonModel>(core.cpParent, "")) {
                 add(core, addon);
             }
@@ -54,6 +58,9 @@ namespace Contensive.Processor.Models.Domain {
                 if (!dependencyDictionary.ContainsKey(includeRule.addonId)) dependencyDictionary.Add(includeRule.addonId, new List<int>());
                 dependencyDictionary[includeRule.addonId].Add(includeRule.includedAddonId);
             }
+            //
+            if (logger.IsTraceEnabled) { logger.Trace($"{core.logCommonMessage},CacheStore_AddonModel(core)-exit"); }
+            //
         }
         //
         //====================================================================================================
@@ -63,6 +70,9 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <param name="addon"></param>
         private void add(CoreController core, AddonModel addon) {
+            //
+            if (logger.IsTraceEnabled) { logger.Trace($"{core.logCommonMessage},CacheStore_AddonModel.add-enter"); }
+            //
             if (!dictIdAddon.ContainsKey(addon.id)) {
                 dictIdAddon.Add(addon.id, addon);
                 if (string.IsNullOrEmpty(addon.ccguid)) {
@@ -90,10 +100,13 @@ namespace Contensive.Processor.Models.Domain {
             if (addon.onBodyEnd && (!onBodyEndIdList.Contains(addon.id))) onBodyEndIdList.Add(addon.id);
             if (addon.onBodyStart && (!onBodyStartIdList.Contains(addon.id))) onBodyStartIdList.Add(addon.id);
             if (addon.onNewVisitEvent && (!onNewVisitIdList.Contains(addon.id)))onNewVisitIdList.Add(addon.id);
-            if (addon.onPageEndEvent && (!OnPageEndIdList.Contains(addon.id))) OnPageEndIdList.Add(addon.id);
-            if (addon.onPageStartEvent && (!OnPageStartIdList.Contains(addon.id))) OnPageStartIdList.Add(addon.id);
+            if (addon.onPageEndEvent && (!onPageEndIdList.Contains(addon.id))) onPageEndIdList.Add(addon.id);
+            if (addon.onPageStartEvent && (!onPageStartIdList.Contains(addon.id))) onPageStartIdList.Add(addon.id);
             if (addon.remoteMethod && (!remoteMethodIdList.Contains(addon.id))) remoteMethodIdList.Add(addon.id);
             if (!string.IsNullOrWhiteSpace(addon.robotsTxt)) robotsTxt += Environment.NewLine + addon.robotsTxt;
+            //
+            if (logger.IsTraceEnabled) { logger.Trace($"{core.logCommonMessage},CacheStore_AddonModel.add-exit"); }
+            //
         }
         //
         //====================================================================================================
@@ -184,7 +197,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <returns></returns>
         public List<AddonModel> getOnPageEndAddonList()  {
-            return getAddonList(OnPageEndIdList);
+            return getAddonList(onPageEndIdList);
         }
         //
         //====================================================================================================
@@ -193,7 +206,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <returns></returns>
         public List<AddonModel> getOnPageStartAddonList()  {
-            return getAddonList(OnPageStartIdList);
+            return getAddonList(onPageStartIdList);
         }
         //
         //====================================================================================================
@@ -218,5 +231,11 @@ namespace Contensive.Processor.Models.Domain {
                 return getAddonList(dependencyDictionary[AddonId]);
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// nlog class instance
+        /// </summary>
+        private static readonly NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
     }
 }

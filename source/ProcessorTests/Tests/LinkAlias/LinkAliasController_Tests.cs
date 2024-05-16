@@ -113,6 +113,8 @@ namespace Tests {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
+                // -- also have to delete pages created, because link-alias are automatically created for pages
+                core.db.executeNonQuery($"delete from {PageContentModel.tableMetadata.tableNameLower}");
                 // act
                 LinkAliasController.addLinkAlias(core, "test1", 1, "a=1");
                 LinkAliasController.addLinkAlias(core, "test2", 1, "a=2");
@@ -140,6 +142,8 @@ namespace Tests {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
+                // -- also have to delete pages created, because link-alias are automatically created for pages
+                core.db.executeNonQuery($"delete from {PageContentModel.tableMetadata.tableNameLower}");
                 // act
                 LinkAliasController.addLinkAlias(core, "test1", 1, "a=1");
                 LinkAliasController.addLinkAlias(core, "test2", 1, "a=1");
@@ -166,6 +170,9 @@ namespace Tests {
                 // arrange
                 CoreController core = cp.core;
                 core.db.executeNonQuery("delete from " + LinkAliasModel.tableMetadata.tableNameLower);
+                //
+                // -- also have to delete pages created, because link-alias are automatically created for pages
+                core.db.executeNonQuery($"delete from {PageContentModel.tableMetadata.tableNameLower}");
                 // act
                 LinkAliasController.addLinkAlias(core, "test1", 1, "a=1");
                 LinkAliasController.addLinkAlias(core, "test2", 1, "a=1");

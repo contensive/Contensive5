@@ -5,6 +5,7 @@
     "leftFields": [
         
         {
+            "id":"1",
             "htmlName": "starrating",
             "caption": "Star Rating",
             "help": "The number of stars this review includes.",
@@ -32,6 +33,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "name",
             "caption": "Name",
             "help": "The name of the user who provided the testimonial.",
@@ -59,6 +61,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "imageUpload",
             "caption": "",
             "help": "Image of user",
@@ -86,6 +89,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "testimonialDescription",
             "caption": "Testimonial Description",
             "help": "Testimonial provided by the user",
@@ -113,6 +117,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "number",
             "caption": "Amount",
             "help": "enter a number",
@@ -140,6 +145,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "date",
             "caption": "Date",
             "help": "",
@@ -168,6 +174,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "html",
             "caption": "Html",
             "help": "",
@@ -196,6 +203,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "htmlCode",
             "caption": "Embed Code",
             "help": "",
@@ -224,6 +232,7 @@
             "imageDeleteName":""
         },
         {
+            "id":"1",
             "htmlName": "urlLink",
             "caption": "URL Link",
             "help": "",

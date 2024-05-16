@@ -209,7 +209,7 @@ namespace Contensive.Processor {
         internal const int addonRecursionLimit = 5;
         //
         internal const string defaultLandingPageName = "Home";
-        internal const string defaultLandingPageGuid = "{925F4A57-32F7-44D9-9027-A91EF966FB0D}";
+        public const string defaultLandingPageGuid = "{925F4A57-32F7-44D9-9027-A91EF966FB0D}";
         internal const string defaultLandingPageHtml = ""
             + "<h1>Welcome {% \"personalization-name\" %}</h1>"
             + "<p>This is the landing page initially created for this domain. To edit this page, login as the administrator and click Quick Edit on the tool bar at the top. To edit page features, turn on Edit mode by clicking the Edit icon on the toolbar. Click the green edit icon in the upper left corner of this dotted region.</p>"

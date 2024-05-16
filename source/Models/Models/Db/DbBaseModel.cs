@@ -333,13 +333,13 @@ namespace Contensive.Models.Db {
                     if (stackFrame == null) { return false; }
                     //
                     MethodBase stackMethod = stackFrame.GetMethod();
-                    if(stackMethod == null) { return false; }
+                    if (stackMethod == null) { return false; }
                     hint = 30;
                     Type stackClass = stackMethod.ReflectedType;
-                    if(stackClass?.Namespace == null) { return false; }
+                    if (stackClass?.Namespace == null) { return false; }
                     hint = 40;
                     string stackNamespace = stackClass.Namespace.ToLowerInvariant();
-                    if(stackNamespace == null) { return false; }
+                    if (stackNamespace == null) { return false; }
                     hint = 50;
                     //
                     // -- return false if calling method is outside of dbmodels and processor or tests
@@ -975,24 +975,31 @@ namespace Contensive.Models.Db {
                             }
                     }
                 }
-                if (allowRecordCaching(cp, instanceType) && (this != null)) {
-                    //
-                    // -- set primary cache to the object created
-                    // -- set secondary caches to the primary cache
-                    // -- add all cachenames to the injected cachenamelist
-                    if (this is DbBaseModel) {
-                        string cacheKey = cp.Cache.CreateRecordKey(id, tableName, datasourceName);
-                        callersCacheKeyList.Add(cacheKey);
-                        cp.Cache.Store(cacheKey, this);
+                //
+                // -- time consuming for cachestore_addonModel, when reading all addons.
+                // -- test remove
+                //
+                if (false) {
+                    if (allowRecordCaching(cp, instanceType) && (this != null)) {
                         //
-                        string cachePtr = cp.Cache.CreatePtrKeyforDbRecordGuid(ccguid, tableName, datasourceName);
-                        cp.Cache.StorePtr(cachePtr, cacheKey);
-                        //
-                        if (derivedNameFieldIsUnique(instanceType)) {
-                            cachePtr = cp.Cache.CreatePtrKeyforDbRecordUniqueName(name, tableName, datasourceName);
+                        // -- set primary cache to the object created
+                        // -- set secondary caches to the primary cache
+                        // -- add all cachenames to the injected cachenamelist
+                        if (this is DbBaseModel) {
+                            string cacheKey = cp.Cache.CreateRecordKey(id, tableName, datasourceName);
+                            callersCacheKeyList.Add(cacheKey);
+                            cp.Cache.Store(cacheKey, this);
+                            //
+                            string cachePtr = cp.Cache.CreatePtrKeyforDbRecordGuid(ccguid, tableName, datasourceName);
                             cp.Cache.StorePtr(cachePtr, cacheKey);
+                            //
+                            if (derivedNameFieldIsUnique(instanceType)) {
+                                cachePtr = cp.Cache.CreatePtrKeyforDbRecordUniqueName(name, tableName, datasourceName);
+                                cp.Cache.StorePtr(cachePtr, cacheKey);
+                            }
                         }
                     }
+
                 }
                 return;
             } catch (Exception ex) {
@@ -1478,7 +1485,7 @@ namespace Contensive.Models.Db {
         /// <returns></returns>
         public static int getRecordIdByUniqueName<T>(CPBaseClass cp, string recordName) where T : DbBaseModel {
             try {
-                if(string.IsNullOrEmpty(recordName.Trim())) { return 0; }
+                if (string.IsNullOrEmpty(recordName.Trim())) { return 0; }
                 string tableName = derivedTableName(typeof(T));
                 using DataTable dt = cp.Db.ExecuteQuery($"select top 1 id from {tableName} where name={cp.Db.EncodeSQLText(recordName)} order by id");
                 if (dt == null || dt.Rows.Count == 0) { return 0; }
