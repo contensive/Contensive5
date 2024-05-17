@@ -114,8 +114,9 @@ namespace Contensive.Processor.Controllers {
                     return getRecordEditAnchorTag(core, editSegmentList);
                 } else {
                     //
-                    // -- edit modal
-                    string layout = LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModelLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+                    // -- edit record plus edit modal
+                    string layout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                    layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
                     EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, customCaption);
                     string result = MustacheController.renderStringToString(layout, dataSet);
                     return result;

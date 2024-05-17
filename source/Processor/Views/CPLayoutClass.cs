@@ -97,7 +97,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override string Transform(string sourceHtml) {
             var ignoreErrors = new List<string>();
-            return ImportController.processHtml(cp, sourceHtml, ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+            return ImportController.processHtml(cp, sourceHtml, ImporttypeEnum.LayoutForAddon, ref ignoreErrors, "");
         }
         //
         //====================================================================================================

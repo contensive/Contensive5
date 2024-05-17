@@ -99,7 +99,7 @@ namespace Contensive.Processor {
                             }
                             //
                             // -- process the document html
-                            if (!processHtmlDoc(cp, htmlDoc, importTypeId, ref userMessageList)) {
+                            if (!processHtmlDoc(cp, htmlDoc, importTypeId, ref userMessageList, "")) {
                                 return false;
                             }
                             //
@@ -267,7 +267,7 @@ namespace Contensive.Processor {
             /// <param name="importTypeId"></param>
             /// <param name="userMessageList"></param>
             /// <returns></returns>
-            public static string processHtml(CPBaseClass cp, string html, ImporttypeEnum importTypeId, ref List<string> userMessageList) {
+            public static string processHtml(CPBaseClass cp, string html, ImporttypeEnum importTypeId, ref List<string> userMessageList, string layoutNameFilter) {
                 HtmlDocument htmlDoc = new HtmlDocument();
                 htmlDoc.LoadHtml(html);
                 if (htmlDoc == null) {
@@ -276,7 +276,7 @@ namespace Contensive.Processor {
                     userMessageList.Add("The file is empty.");
                     return "";
                 }
-                processHtmlDoc(cp, htmlDoc, importTypeId, ref userMessageList);
+                processHtmlDoc(cp, htmlDoc, importTypeId, ref userMessageList, layoutNameFilter);
                 return htmlDoc.DocumentNode.OuterHtml;
             }
             //
@@ -289,7 +289,7 @@ namespace Contensive.Processor {
             /// <param name="importTypeId"></param>
             /// <param name="userMessageList"></param>
             /// <returns></returns>
-            private static bool processHtmlDoc(CPBaseClass cp, HtmlDocument htmlDoc, ImporttypeEnum importTypeId, ref List<string> userMessageList) {
+            private static bool processHtmlDoc(CPBaseClass cp, HtmlDocument htmlDoc, ImporttypeEnum importTypeId, ref List<string> userMessageList, string layoutNameFilter) {
                 //
                 // -- get body (except email template because it uses the full html document
                 if (importTypeId != ImporttypeEnum.EmailTemplate) {
@@ -329,7 +329,7 @@ namespace Contensive.Processor {
                 }
                 //
                 // -- process data-layout nodes. Within each node found, run all other controllers inddividually then save
-                DataLayoutController.process(cp, htmlDoc, ref userMessageList);
+                DataLayoutController.processFilter(cp, htmlDoc, ref userMessageList, layoutNameFilter);
                 //
                 // -- process the body
                 MustacheSectionController.process(htmlDoc);

@@ -56,13 +56,18 @@ namespace Contensive.Processor.Controllers {
                 // -- layout record not found. Delete old record in case it was marked inactive
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutGuid);
                 //
-                // -- create a layout
+                // -- create a layout if a layout is found
                 List<string> ignoreErrors = new();
+                string layout1 = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
+                string layout5 = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
+                if (string.IsNullOrEmpty(layout1 + layout5)) {
+                    return "";
+                }
                 layout = DbBaseModel.addDefault<LayoutModel>(cp);
                 layout.name = defaultLayoutName;
                 layout.ccguid = layoutGuid;
-                layout.layout.content = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
-                layout.layoutPlatform5.content = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors);
+                layout.layout.content = layout1;
+                layout.layoutPlatform5.content = layout5;
                 layout.save(cp);
                 //
                 // -- flush caches aftre insert
