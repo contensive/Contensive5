@@ -1,5 +1,6 @@
 ﻿using Contensive.Processor.Controllers;
 using System.Collections.Generic;
+using System.Linq;
 //
 namespace Contensive.Processor.Models.Domain {
     //
@@ -13,22 +14,31 @@ namespace Contensive.Processor.Models.Domain {
             isEditing = !core.session.isEditing();
             leftFields = getFieldList(core, contentMetadata);
             rightFields = [];
+            this.recordId = recordId;
         }
+        //
         public string dialogCaption { get; }
+        //
         public string adminEditUrl { get; }
+        //
         public bool isEditing { get; }
+        //
         public List<EditModalModel_FieldListItem> leftFields { get; }
+        //
         public EditModalModel_Rightfield[] rightFields { get; }
         //
+        public int  recordId { get; }
+        //
         private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, ContentMetadataModel contentMetadata) {
-            List<EditModalModel_FieldListItem> result = new();
+            List<EditModalModel_FieldListItem> result = [];
             foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                 string fieldName = fieldKvp.Key;
                 ContentFieldMetadataModel field = fieldKvp.Value;
-                if (field.authorable) {
+                if (field.authorable && string.IsNullOrEmpty( field.editTabName)) {
                     result.Add(new EditModalModel_FieldListItem(field));
                 }
             }
+            List<EditModalModel_FieldListItem> sortedResult = result.OrderBy(o => o.sort).ToList();
             return result;
         }
     }
@@ -65,8 +75,9 @@ namespace Contensive.Processor.Models.Domain {
             numberMax = 2147483647;
             imageDeleteName = $"field-{field.id}-delete";
             placeholder = $"{field.caption}";
-            id = $"field-{field.id}";
-            isChecked = isBoolean ? GenericController.encodeBoolean(field.defaultValue) : false;
+            fieldId = $"field-{field.id}";
+            isChecked = isBoolean && GenericController.encodeBoolean(field.defaultValue);
+            sort = field.editSortPriority;
         }
 
         public string htmlName { get; }
@@ -95,8 +106,9 @@ namespace Contensive.Processor.Models.Domain {
         public int numberMax { get; }
         public string imageDeleteName { get; }
         public string placeholder { get; }
-        public string id { get; }
+        public string fieldId { get; }
         public bool isChecked { get; }
+        public int sort { get; }
     }
 
     public class EditModalModel_Rightfield {

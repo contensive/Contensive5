@@ -14,22 +14,22 @@
     </head>
     <body>
         <style>
-            #widgetEditModal .custom-tooltip {
+            .widgetEditModal .custom-tooltip {
                 --bs-tooltip-color: var(--bs-white);
                 /* border: 1px solid #b4b6b9;
                 border-radius: 8px; */
             }       
-            #widgetEditModal .modal-content{
+            .widgetEditModal .modal-content{
                 padding: 10px;
                 border-radius: 12px;
             }
-            #widgetEditModal .sctnWrpr {
+            .widgetEditModal .sctnWrpr {
                 border: 1.5px solid #b4b6b9;
                 padding: 10px 15px;
                 border-radius: 12px;
                 margin-bottom: 20px;
             }
-            #widgetEditModal img.output {
+            .widgetEditModal img.output {
                 width: 110px;
                 height: 90px;
                 object-fit: cover;
@@ -38,7 +38,7 @@
                 margin-right: 20px;
             
             }
-            /* #widgetEditModal img:before {
+            /* .widgetEditModal img:before {
                 content: "";
                 position: relative;
                 border: 5px dashed #b4b6b9;
@@ -48,52 +48,52 @@
                 right: -3px;
                 display: block;
             } */
-            #widgetEditModal .rightSideAccordion .accordion-button{
+            .widgetEditModal .rightSideAccordion .accordion-button{
                 padding: 10px !important;
                 border-top-right-radius: 8px;
                 border-top-left-radius: 8px;
             }
 
-            #widgetEditModal .rightSideAccordion:hover {
+            .widgetEditModal .rightSideAccordion:hover {
                 cursor: pointer;
                 /* background-color: #b4b6b9; */
             }
-            #widgetEditModal .btn-primary {
+            .widgetEditModal .btn-primary {
                 background-color: #0955d2!important;
             }
-            #widgetEditModal .btn-primary:hover {
+            .widgetEditModal .btn-primary:hover {
                 background-color: #0b50b5!important;
             }
-            #widgetEditModal .accordion-body {
+            .widgetEditModal .accordion-body {
                 padding: 0;
                 padding-top: 20px;
             }
-            #widgetEditModal .accordion-button:not(.collapsed) {
+            .widgetEditModal .accordion-button:not(.collapsed) {
                 background-color: #eeeeee;
             }
-            #widgetEditModal a.helpIcon img.icon{
+            .widgetEditModal a.helpIcon img.icon{
                 width: 16px;
                 display: flex;
             }  
-            #widgetEditModal .openLink {
+            .widgetEditModal .openLink {
                 color: #297de2;
                 font-weight: 500;
             }
-            #widgetEditModal .openLink .icon {
+            .widgetEditModal .openLink .icon {
                 width: 14px;
                 margin-left: 8px;
             }
-            #widgetEditModal .modal-title {
+            .widgetEditModal .modal-title {
                 display: flex;
                 align-items: center;
 
             }
-            #widgetEditModal .modal-title .icon {
+            .widgetEditModal .modal-title .icon {
                 width: 32px;
                 margin-right: 20px;
             }
         </style>  
-        <div class="modal fade" id="widgetEditModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
+        <div class="modal fade widgetEditModal" id="widgetEditModal{{recordId}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">
                 <form class="modal-content">
                     <div class="modal-header d-flex justify-content-between border-0">
@@ -123,9 +123,9 @@
                                                     <h5 class="pb-0">Upload Image</h5>
                                                     <a href="" src="" class="text-primary mb-2">No File Chosen...</a>
                                                     <h6 class="fw-light">File Type: PNG or JPEG</h6>
-                                                    <input class="form-control d-none" type="file" id="field{{id}}" name="{{htmlName}}">
-                                                    {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                                    {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                                    <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
+                                                    {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                    {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center">
@@ -144,7 +144,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{id}}" class="form-label d-flex align-items-center">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -152,9 +152,9 @@
                                                 {{/isHelp}}
                                                 {{caption}}
                                             </label>
-                                            <input type="text" class="form-control" id="field{{id}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                            {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="text" class="form-control" id="field{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isText}}
@@ -164,7 +164,7 @@
                                     -->
                                     <div  class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{id}}" class="form-label d-flex align-items-center">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -173,9 +173,9 @@
 
                                                 {{caption}}
                                             </label>
-                                            <textarea class="form-control" id="field{{id}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}"></textarea>
-                                            {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}"></textarea>
+                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isTextLong}}
@@ -185,7 +185,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{id}}" class="form-label d-flex align-items-center">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -194,9 +194,9 @@
 
                                                 {{caption}}
                                             </label>
-                                            <input type="number" class="form-control" placeholder="{{placeholder}}" id="field{{id}}" value="{{currentValue}}" name="{{htmlName}}" >
-                                            {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="number" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isInteger}}
@@ -217,13 +217,13 @@
                                             </label>
                                             <div class="input-group">
                                                 <!-- date part-->
-                                                <input type="date" name="{{htmlName}}-date" class="form-control" id="field{{id}}-date">
-                                                {{#isRequired}}<script>document.getElementById("field{{id}}-date").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{id}}-date").readOnly = true;</script>{{/isReadOnly}}
+                                                <input type="date" name="{{htmlName}}-date" class="form-control" id="field{{fieldId}}-date">
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}-date").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}-date").readOnly = true;</script>{{/isReadOnly}}
                                                 <!-- time part-->
-                                                <input type="time" name="{{htmlName}}-time" class="form-control" id="field{{id}}-time">
-                                                {{#isRequired}}<script>document.getElementById("field{{id}}-time").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{id}}-time").readOnly = true;</script>{{/isReadOnly}}
+                                                <input type="time" name="{{htmlName}}-time" class="form-control" id="field{{fieldId}}-time">
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}-time").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}-time").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>
                                         </div>
                                     </div>
@@ -234,7 +234,7 @@
                                     -->
                                     <div  class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{id}}" class="form-label d-flex align-items-center">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -245,9 +245,9 @@
                                             </label>
                                             <div>
                                                 <div class="" id=""></div>
-                                                <textarea class="form-control" id="field{{id}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}" name="{{htmlName}}"></textarea>
-                                                {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                                <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}" name="{{htmlName}}"></textarea>
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>
                                         </div>
                                     </div>
@@ -258,7 +258,7 @@
                                     -->
                                     <div  class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{id}}" class="form-label d-flex align-items-center">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -269,9 +269,9 @@
                                             </label>
                                             <div>
                                                 <div class="" id="">                                                    
-                                                    <textarea class="form-control" id="field{{id}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}" name="{{htmlName}}"> </textarea>
-                                                    {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                                    {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                                    <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}" name="{{htmlName}}"> </textarea>
+                                                    {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                    {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>
                                             </div>
                                         </div>
@@ -283,7 +283,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{id}}" class="form-label d-flex align-items-center">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -292,9 +292,9 @@
 
                                                 {{caption}}
                                             </label>
-                                            <input type="text" class="form-control" id="field{{id}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                            {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="text" class="form-control" id="field{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isLink}}
@@ -304,10 +304,10 @@
                                             -->
                                             <div class="form-check form-check-inline mb-3">
                                                 <b>need {checkboxlist)</b>
-                                                <input class="form-check-input" type="checkbox" value="1" id="field{{id}}" name="{{htmlName}}>
-                                                {{#isChecked}}<script>document.getElementById("field{{id}}").checked = true;</script>{{/isChecked}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
-                                                <label class="form-check-label" for="checkbox{{id}}">
+                                                <input class="form-check-input" type="checkbox" value="1" id="field{{fieldId}}" name="{{htmlName}}>
+                                                {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                <label class="form-check-label" for="checkbox{{fieldId}}">
                                                     {{caption}}
                                                     {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
@@ -324,10 +324,10 @@
                             <div class="col-md-4">
                                 {{#rightFields}}
                                 <div class="sctnWrpr">
-                                    <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-{{id}}">
+                                    <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-{{fieldId}}">
                                         <div class="accordion-item">
                                             <div class="accordion-header">
-                                                <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{id}}" aria-expanded="false" aria-controls="stylesCollapse-{{id}}">
+                                                <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{fieldId}}" aria-expanded="false" aria-controls="stylesCollapse-{{fieldId}}">
                                                 
                                                     {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
@@ -339,16 +339,16 @@
                                                 
                                                 </div>
                                             </div>
-                                            <div id="stylesCollapse-{{id}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{id}}">
+                                            <div id="stylesCollapse-{{fieldId}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{fieldId}}">
                                                 <div class="accordion-body">
                                                     {{#rightSectionAccordion}}
                                                         {{#isText}}
                                                             <!--
                                                                 text field
                                                             -->
-                                                            <input type="text" class="form-control mb-3" id="field{{id}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                                            {{#isChecked}}<script>document.getElementById("field{{id}}").checked = true;</script>{{/isChecked}}
-                                                            {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                                            <input type="text" class="form-control mb-3" id="field{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                                            {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                         {{/isText}}
                                                         {{#isSelect}}
                                                             <!--
@@ -365,10 +365,10 @@
                                                             -->
                                                             <div class="form-check form-check-inline mb-3">
                                                                 <b>need {checkboxlist)</b>
-                                                                <input class="form-check-input" type="checkbox" value="" id="field{{id}}" name="{{htmlName}}">
-                                                                {{#isChecked}}<script>document.getElementById("field{{id}}").checked = true;</script>{{/isChecked}}
-                                                                {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
-                                                                <label class="form-check-label" for="checkbox{{id}}">
+                                                                <input class="form-check-input" type="checkbox" value="" id="field{{fieldId}}" name="{{htmlName}}">
+                                                                {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                <label class="form-check-label" for="checkbox{{fieldId}}">
                                                                     {{caption}}
                                                                     {{#isHelp}}
                                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
@@ -394,9 +394,9 @@
 
                                                                         {{caption}}
                                                                     </label>
-                                                                    <input class="form-control" type="file" id="field{{id}}" name="{{htmlName}}">
-                                                                    {{#isRequired}}<script>document.getElementById("field{{id}}").required = true;</script>{{/isRequired}}
-                                                                    {{#isReadOnly}}<script>document.getElementById("field{{id}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                    <input class="form-control" type="file" id="field{{fieldId}}" name="{{htmlName}}">
+                                                                    {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                                    {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                                 </div>
                                                             </div>
                                                         {{/isFile}}
@@ -414,7 +414,7 @@
 
                                                                     {{caption}}
                                                                 </label>
-                                                                <input type="number" step="any"  name="{{htmlName}}" value="{{currentValue}}" id="{{id}}" class="form-control">
+                                                                <input type="number" step="any"  name="{{htmlName}}" value="{{currentValue}}" id="{{fieldId}}" class="form-control">
 
                                                             </div>
                                                         {{/isCurrency}}
@@ -442,10 +442,11 @@
             </div>
         </div>
         <script>
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            document.addEventListener("DOMContentLoaded", function(event) { 
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
+            })});
         </script>
     </body>
 </html>

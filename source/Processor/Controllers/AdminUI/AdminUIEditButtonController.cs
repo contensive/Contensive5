@@ -115,7 +115,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     //
                     // -- edit record plus edit modal
-                    string layout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                    string layout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditRecordLayoutCdnPathFilename, defaultEditRecordLayoutCdnPathFilename);
                     layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
                     EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, customCaption);
                     string result = MustacheController.renderStringToString(layout, dataSet);

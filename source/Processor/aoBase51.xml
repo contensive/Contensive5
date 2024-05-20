@@ -3122,6 +3122,9 @@
 				<SiteProperty caption="(legacy) AWS Access Key Id" name="AWS Access Key Id" ReadOnly="1" Type="text" Selector="" Description="This key is deprecated. It had been used for AWS SES email. Use the AWS credentials in the server configuration file in d:\contensive\config.json managed with the cc.exe command line program. Give this credentials the permissions for any resource needed on the site. Access the credentials programmatically with cp.ServerConfig."></SiteProperty>
 				<SiteProperty caption="(legacy) AWS Secret Access Key" name="AWS Secret Access Key" ReadOnly="1" Type="text" Selector="" Description="This key is deprecated. It had been used for AWS SES email. Use the AWS credentials in the server configuration file in d:\contensive\config.json managed with the cc.exe command line program. Give this credentials the permissions for any resource needed on the site. Access the credentials programmatically with cp.ServerConfig."></SiteProperty>
 			</Tab>
+			<Tab name="Beta" heading="Beta features" description="Settings the affect unreleased and soft-released features. Only enable/disable if you understand the affects.">
+				<SiteProperty caption="Website Edit/Add Enhancements" name="allow edit modal beta" ReadOnly="0" Type="Boolean" Description="When checked, the website edit and add tags change appearance and use the edit modal.">0</SiteProperty>
+			</Tab>
 		</Form>
 		]]></FormXML>
 		<Admin>Yes</Admin>
