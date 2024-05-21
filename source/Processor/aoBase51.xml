@@ -2969,6 +2969,11 @@
     Tools
 
   -->  
+  <Addon name="saveEditModal" guid="{9DEA7E70-C75C-43A5-81E9-8DD5CDFEB363}" type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.SaveEditModalRemote]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
+  </Addon>
+
   <Addon name="Download Manager" guid="{55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}" type="Tool">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.DownloadManagerAddon]]></DotNetClass>
     <Admin>Yes</Admin>

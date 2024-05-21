@@ -95,7 +95,9 @@
         </style>  
         <div class="modal fade widgetEditModal" id="widgetEditModal{{recordId}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">
-                <form class="modal-content">
+                <form action="/saveEditModal" method="post" enctype="multipart/form-data" class="modal-content">
+                    <input type="hidden" name="recordId" value="{{recordId}}">
+                    <input type="hidden" name="contentGuid" value="{{contentGuid}}">
                     <div class="modal-header d-flex justify-content-between border-0">
                         <h2 class="modal-title" id="widgetEditModalLabel"><img src="img/pencil.svg" alt="edit pencil" class="icon">{{dialogCaption}}</h2>
                         <div class="ccRecordEditLink"><a href="{{adminEditUrl}}" class="openLink">Edit in Admin <img src="img/arrow-up-right-from-square.svg" alt="" class="icon"></a> </div>

@@ -339,6 +339,7 @@ namespace Contensive.Processor.Models.Domain {
                         + ", c.AllowTopicRules as AllowTopicRules"
                         + ", ccAddonCollections.ccguid as addonCollectionGuid"
                         + ", c.isBaseContent"
+                        + ", c.ccGuid"
                         + "";
                     //
                     sql += ""
@@ -387,7 +388,8 @@ namespace Contensive.Processor.Models.Domain {
                                 aliasId = "ID",
                                 aliasName = "NAME",
                                 installedByCollectionGuid = encodeText(contentRow[21]),
-                                isBaseContent = encodeBoolean(contentRow[22])
+                                isBaseContent = encodeBoolean(contentRow[22]),
+                                guid = encodeText(contentRow[23])
                             };
                             //
                             // load parent metadata fields first so we can overlay the current metadata field

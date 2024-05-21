@@ -15,6 +15,7 @@ namespace Contensive.Processor.Models.Domain {
             leftFields = getFieldList(core, contentMetadata);
             rightFields = [];
             this.recordId = recordId;
+            contentGuid = contentMetadata.guid;
         }
         //
         public string dialogCaption { get; }
@@ -27,7 +28,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         public EditModalModel_Rightfield[] rightFields { get; }
         //
-        public int  recordId { get; }
+        public int recordId { get; }
+        //
+        public string contentGuid { get; }
         //
         private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, ContentMetadataModel contentMetadata) {
             List<EditModalModel_FieldListItem> result = [];
@@ -49,7 +52,7 @@ namespace Contensive.Processor.Models.Domain {
         /// constructor
         /// </summary>
         public EditModalModel_FieldListItem(ContentFieldMetadataModel field) {
-            htmlName = $"field-{field.id}-name";
+            htmlName = $"field-{field.nameLc}";
             caption = field.caption;
             help = field.helpMessage;
             currentValue = field.defaultValue;
