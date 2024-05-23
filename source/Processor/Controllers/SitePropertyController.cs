@@ -21,7 +21,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// 
         /// </summary>
-        public bool allowEditModel {
+        public bool allowEditModal {
             get {
                 if(_allowEditModel is not null) { return (bool)_allowEditModel; }
                 _allowEditModel = getBoolean("allow edit modal beta", false);

@@ -550,7 +550,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- add template edit link
                     if (core.session.isTemplateEditing()) {
-                        result = AdminUIEditButtonController.getRecordEditAndCutAnchorTag(core, "Page Templates", core.doc.pageController.template.id, false, templateName) + result;
+                        result = AdminUIEditButtonController.getEditTab(core, "Page Templates", core.doc.pageController.template.id, false, templateName) + result;
                         result = AdminUIEditButtonController.getEditWrapper(core, result);
                     }
                 }
@@ -962,7 +962,7 @@ namespace Contensive.Processor.Controllers {
                 bool allowEdit = core.siteProperties.allowPageSettingsEdit;
                 if (allowEdit && core.session.isEditing()) {
                     bool allowCut = core.doc.pageController.pageToRootList.Count != 1;
-                    result = AdminUIEditButtonController.getRecordEditAndCutAnchorTag(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, allowCut, core.doc.pageController.page.name, "Edit Page Settings") + result;
+                    result = AdminUIEditButtonController.getEditTab(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, allowCut, core.doc.pageController.page.name, "Edit Page Settings") + result;
                     result = AdminUIEditButtonController.getEditWrapper(core, result);
                 }
                 //
@@ -972,7 +972,7 @@ namespace Contensive.Processor.Controllers {
                 // -- display Admin Warnings with Edits for record errors
                 if (core.doc.adminWarning != "") {
                     if (core.doc.adminWarningPageID != 0) {
-                        core.doc.adminWarning = core.doc.adminWarning + "</p>" + AdminUIEditButtonController.getRecordEditAndCutAnchorTag(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
+                        core.doc.adminWarning = core.doc.adminWarning + "</p>" + AdminUIEditButtonController.getEditTab(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
                         core.doc.adminWarningPageID = 0;
                     }
                     result = AdminUIEditButtonController.getAdminHintWrapper(core, core.doc.adminWarning) + result + "";
@@ -994,7 +994,7 @@ namespace Contensive.Processor.Controllers {
                 // -- Add admin warning to the top of the content
                 if (core.session.isAuthenticatedAdmin() && core.doc.adminWarning != "") {
                     if (core.doc.adminWarningPageID != 0) {
-                        core.doc.adminWarning += "</p>" + AdminUIEditButtonController.getRecordEditAndCutAnchorTag(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
+                        core.doc.adminWarning += "</p>" + AdminUIEditButtonController.getEditTab(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
                         core.doc.adminWarningPageID = 0;
                     }
                     result = AdminUIEditButtonController.getAdminHintWrapper(core, core.doc.adminWarning) + result;
@@ -1106,7 +1106,7 @@ namespace Contensive.Processor.Controllers {
                         string pageLink = getPageLink(core, page.id, "", true, false);
                         string pageName = (!string.IsNullOrWhiteSpace(page.name)) ? page.name : "Page " + page.id;
                         string pageMenuHeadline = (!string.IsNullOrWhiteSpace(page.menuHeadline)) ? page.menuHeadline : pageName;
-                        string editAnchorTag = AdminUIEditButtonController.getRecordEditAndCutAnchorTag(core, contentMetadata, page.id, true, pageName, "");
+                        string editAnchorTag = AdminUIEditButtonController.getEditTab(core, contentMetadata, page.id, true, pageName, "");
                         string pageAnchorTag = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(pageLink) + "\">", pageMenuHeadline);
                         editItemList.Append("\r<li name=\"page" + page.id + "\"  id=\"page" + page.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
                         if (!string.IsNullOrEmpty(editAnchorTag)) {
@@ -1116,7 +1116,7 @@ namespace Contensive.Processor.Controllers {
                         editItemList.Append("</li>");
                     }
                     var addItemList = new StringBuilder();
-                    foreach (var addItem in AdminUIEditButtonController.getRecordAddAnchorTag(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
+                    foreach (var addItem in AdminUIEditButtonController.getLegacyAddTab(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
                         if (!string.IsNullOrEmpty(addItem)) { addItemList.Append("\r<li class=\"ccEditWrapper ccListItemNoBullet\">" + addItem + "</LI>"); }
                     }
                     //

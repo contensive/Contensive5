@@ -89,6 +89,43 @@ namespace Contensive.Processor.Controllers {
         //
         //=============================================================
         /// <summary>
+        /// get the lowest recordId based on its guid.
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordGuid"></param>
+        /// <returns></returns>
+        public static int getRecordId(CoreController core, string contentName, string recordGuid) {
+            try {
+                if (string.IsNullOrWhiteSpace(recordGuid) || string.IsNullOrWhiteSpace(contentName)) { return 0; }
+                var meta = ContentMetadataModel.createByUniqueName(core, contentName);
+                return getRecordId(core, meta, recordGuid);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //=============================================================
+        /// <summary>
+        /// get the lowest recordId based on its guid.
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordGuid"></param>
+        /// <returns></returns>
+        public static int getRecordId(CoreController core, ContentMetadataModel meta, string recordGuid) {
+            try {
+                if (string.IsNullOrWhiteSpace(recordGuid) || (meta == null) || string.IsNullOrWhiteSpace(meta.tableName)) { return 0; }
+                using DataTable dt = core.db.executeQuery("select top 1 id from " + meta.tableName + " where ccguid=" + DbController.encodeSQLText(recordGuid) + " order by id");
+                if(dt?.Rows==null || dt.Rows.Count==0) { return 0; }
+                return DbController.getDataRowFieldInteger(dt.Rows[0], "id");
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //
+        //=============================================================
+        /// <summary>
         /// get the lowest recordId based on its name. If no record is found, 0 is returned
         /// </summary>
         /// <param name="contentName"></param>

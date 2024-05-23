@@ -26,7 +26,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         //========================================================================
         //
         public static string get(CoreController core) {
-            string tempGetForm_Downloads = null;
+            string result = null;
             try {
                 //
                 string Button = core.docProperties.getText(RequestNameButton);
@@ -137,13 +137,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                             Cells[RowPointer, 2] = (requestedBy == null) ? "unknown" : requestedBy.name;
                             Cells[RowPointer, 3] = download.dateRequested.ToString();
                             if ( string.IsNullOrEmpty(download.resultMessage)) {
-                                Cells[RowPointer, 4] = "\r\n<div id=\"pending" + RowPointer + "\">Pending <img src=\"https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/images/ajax-loader-small.gif\" width=16 height=16></div>";
+                                Cells[RowPointer, 4] = "\r\n<div data-id=\"" + download.id + "\" class=\"downloadPending\" id=\"pending" + RowPointer + "\">Pending <img src=\"https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/images/ajax-loader-small.gif\" width=16 height=16></div>";
                             } else if (!string.IsNullOrEmpty(download.filename.filename)) {
                                 Cells[RowPointer, 4] = "<div id=\"pending" + RowPointer + "\">" + LinkPrefix + download.filename.filename + LinkSuffix + "</div>";
                             } else {
                                 Cells[RowPointer, 4] = "<div id=\"pending" + RowPointer + "\">error</div>";
                             }
-                            RowPointer = RowPointer + 1;
+                            RowPointer++;
                         }
                     }
                     StringBuilderLegacyController Tab0 = new StringBuilderLegacyController();
@@ -155,7 +155,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     Content = Tab0.text;
                     ButtonListLeft = ButtonCancel + "," + ButtonRefresh + "," + ButtonDelete;
                     ButtonListRight = "";
-                    Content = Content + HtmlController.inputHidden(rnAdminSourceForm, AdminFormDownloads);
+                    Content += HtmlController.inputHidden(rnAdminSourceForm, AdminFormDownloads);
                 }
                 //
                 string Caption = "Download Manager";
@@ -163,13 +163,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                 + "<p>The Download Manager lists downloads requested from anywhere on the website. To add a new download of any content in Contensive, click Export on the filter tab of the content listing page. To add a new download from a SQL statement, use Custom Reports under Reports on the Navigator.</p>";
                 int ContentPadding = 0;
                 string ContentSummary = "";
-                tempGetForm_Downloads = AdminUIController.getToolBody(core, Caption, ButtonListLeft, ButtonListRight, true, true, Description, ContentSummary, ContentPadding, Content);
+                result = AdminUIController.getToolBody(core, Caption, ButtonListLeft, ButtonListRight, true, true, Description, ContentSummary, ContentPadding, Content);
+                result += $"<script>{core.cpParent.PrivateFiles.Read("downloadmanager/client.js")}</script>";
                 //
                 core.html.addTitle(Caption,"Download Manager");
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
-            return tempGetForm_Downloads;
+            return result;
         }
     }
 }

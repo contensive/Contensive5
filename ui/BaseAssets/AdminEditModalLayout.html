@@ -175,7 +175,7 @@
 
                                                 {{caption}}
                                             </label>
-                                            <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}"></textarea>
+                                            <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
                                             {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                             {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
@@ -246,8 +246,9 @@
                                                 {{caption}}
                                             </label>
                                             <div>
+                                                <div>(convert to wysiwyg editor)</div>
                                                 <div class="" id=""></div>
-                                                <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}" name="{{htmlName}}"></textarea>
+                                                <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}" name="{{htmlName}}">{{{currentValue}}}</textarea>
                                                 {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                                 {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>
@@ -271,7 +272,7 @@
                                             </label>
                                             <div>
                                                 <div class="" id="">                                                    
-                                                    <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" value="{{currentValue}}" maxlength="{{textMaxLength}}" name="{{htmlName}}"> </textarea>
+                                                    <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}" name="{{htmlName}}">{{{currentValue}}}</textarea>
                                                     {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                                     {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>

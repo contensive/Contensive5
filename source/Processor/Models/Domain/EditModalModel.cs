@@ -1,4 +1,5 @@
-﻿using Contensive.Processor.Controllers;
+﻿using Contensive.BaseClasses;
+using Contensive.Processor.Controllers;
 using System.Collections.Generic;
 using System.Linq;
 //
@@ -10,9 +11,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         public EditModalModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption) {
             dialogCaption = string.IsNullOrEmpty(customCaption) ? "Edit" : customCaption;
-            adminEditUrl = AdminUIEditButtonController.getRecordEditUrl(core, contentMetadata.id, recordId);
+            adminEditUrl = AdminUIEditButtonController.getEditUrl(core, contentMetadata.id, recordId);
             isEditing = !core.session.isEditing();
-            leftFields = getFieldList(core, contentMetadata);
+            leftFields = getFieldList(core, contentMetadata, recordId);
             rightFields = [];
             this.recordId = recordId;
             contentGuid = contentMetadata.guid;
@@ -32,13 +33,20 @@ namespace Contensive.Processor.Models.Domain {
         //
         public string contentGuid { get; }
         //
-        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, ContentMetadataModel contentMetadata) {
+        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, ContentMetadataModel contentMetadata, int recordId) {
             List<EditModalModel_FieldListItem> result = [];
-            foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
-                string fieldName = fieldKvp.Key;
-                ContentFieldMetadataModel field = fieldKvp.Value;
-                if (field.authorable && string.IsNullOrEmpty( field.editTabName)) {
-                    result.Add(new EditModalModel_FieldListItem(field));
+            //
+            // -- create cs pointing to current record
+            using (CPCSBaseClass cs = core.cpParent.CSNew()) {
+                if (!cs.OpenRecord(contentMetadata.name, recordId)) {
+                    return result;
+                }
+                foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
+                    string fieldName = fieldKvp.Key;
+                    ContentFieldMetadataModel field = fieldKvp.Value;
+                    if (field.authorable && string.IsNullOrEmpty(field.editTabName)) {
+                        result.Add(new EditModalModel_FieldListItem(field, cs.GetText(field.nameLc)));
+                    }
                 }
             }
             List<EditModalModel_FieldListItem> sortedResult = result.OrderBy(o => o.sort).ToList();
@@ -51,11 +59,11 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// constructor
         /// </summary>
-        public EditModalModel_FieldListItem(ContentFieldMetadataModel field) {
+        public EditModalModel_FieldListItem(ContentFieldMetadataModel field, string currentValue) {
             htmlName = $"field-{field.nameLc}";
             caption = field.caption;
             help = field.helpMessage;
-            currentValue = field.defaultValue;
+            this.currentValue = currentValue;
             isHelp = !string.IsNullOrEmpty(field.helpMessage);
             isRequired = field.required;
             isReadOnly = field.readOnly;
@@ -73,7 +81,7 @@ namespace Contensive.Processor.Models.Domain {
             isLink = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Link) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.ResourceLink);
             isHtml = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.HTML) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTML);
             isHtmlCode = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.HTMLCode) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode);
-            textMaxLength = (isText ? 255 : isTextLong ? 65353 : 0);
+            textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
             numberMax = 2147483647;
             imageDeleteName = $"field-{field.id}-delete";

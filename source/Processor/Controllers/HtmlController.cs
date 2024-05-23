@@ -2592,7 +2592,8 @@ namespace Contensive.Processor.Controllers {
                             bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
                             string DivName = htmlNamePrefix + ".All";
                             bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
-                            string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getRecordEditAnchorTag(core, secondaryMeta, -1, "", "");
+                            string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getEditTab(core,secondaryMeta.name, -1);
+                            //string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getLegacyRecordEditAnchorTag(core, secondaryMeta, -1, "", "");
                             while (csData.ok()) {
                                 string OptionName = csData.getText("OptionName");
                                 if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {

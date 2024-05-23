@@ -174,7 +174,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                             dataTableRows.Append("<td align=right " + rowColor + ">" + (rowNumber + 1) + "</td>");
                             //
                             // --- edit column
-                            dataTableRows.Append("<td align=center " + rowColor + ">" + AdminUIEditButtonController.getRecordEditAnchorTag(adminUrlBase + "&id=" + recordId) + "</td>");
+                            string editUrl = AdminUIEditButtonController.getEditUrl(core, adminData.adminContent.id, recordId);
+                            dataTableRows.Append("<td align=center " + rowColor + ">" + AdminUIEditButtonController.getEditIcon(core, editUrl, "", "") + "</td>");
+                            // dataTableRows.Append("<td align=center " + rowColor + ">" + AdminUIEditButtonController.getLegacyRecordEditAnchorTag(adminUrlBase + "&id=" + recordId) + "</td>");
                             //
                             // --- Delete Checkbox Columns
                             if (allowDelete) {
@@ -239,7 +241,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (indexConfig.allowAddRow) {
                     //
                     // optional AddRow
-                    foreach (var addTag in AdminUIEditButtonController.getRecordAddAnchorTag(core, adminData.adminContent.name, adminEditPresetArgQsList, false, userContentPermissions.allowAdd, true)) {
+                    foreach (var addTag in AdminUIEditButtonController.getLegacyAddTab(core, adminData.adminContent.name, adminEditPresetArgQsList, false, userContentPermissions.allowAdd, true)) {
                         dataTableRows.Append(blankRow.Replace("{msg}", addTag));
                     }
                 }

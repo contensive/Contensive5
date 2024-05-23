@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Contensive.Processor {
     /// <summary>
@@ -1134,6 +1135,10 @@ namespace Contensive.Processor {
         public const string loginFailedError = "Incorrect login. Please try again.";
         //
         // Edit Modal layouts, all come from the same file
+        //
+        public const string guidLayoutAdminEditIcon = "{36ECF05A-C1B8-4E79-8449-5AA6CB7DC623}";
+        public const string nameLayoutAdminEditIcon = "Admin Edit Icon Layout";
+        public const string pathFilenameLayoutAdminEditIcon = "baseAssets\\AdminEditIconLayout.html";
         //
         public const string layoutEditRecordGuid = "{696D98A6-1454-45CD-B478-2D40B96940D9}";
         public const string defaultEditRecordLayoutName = "Admin Edit Record Layout";
