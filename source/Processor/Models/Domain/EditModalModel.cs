@@ -1,6 +1,8 @@
-﻿using Contensive.BaseClasses;
+﻿using Amazon.SimpleEmail;
+using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 //
 namespace Contensive.Processor.Models.Domain {
@@ -8,15 +10,25 @@ namespace Contensive.Processor.Models.Domain {
     //====================================================================================================
     //
     public class EditModalModel {
-        //
-        public EditModalModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="contentMetadata"></param>
+        /// <param name="recordId"></param>
+        /// <param name="allowCut"></param>
+        /// <param name="recordName"></param>
+        /// <param name="customCaption"></param>
+        /// <param name="presetNameValuePairs">Comma separated list of field name=value to prepopulate fields. Add hiddens if these fields are not visible in the edit.</param>
+        public EditModalModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
             dialogCaption = string.IsNullOrEmpty(customCaption) ? "Edit" : customCaption;
             adminEditUrl = AdminUIEditButtonController.getEditUrl(core, contentMetadata.id, recordId);
             isEditing = !core.session.isEditing();
-            leftFields = getFieldList(core, contentMetadata, recordId);
+            leftFields = getFieldList(core, contentMetadata, recordId, presetNameValuePairs);
             rightFields = [];
             this.recordId = recordId;
             contentGuid = contentMetadata.guid;
+            editId = GenericController.getRandomString(5);
         }
         //
         public string dialogCaption { get; }
@@ -33,19 +45,47 @@ namespace Contensive.Processor.Models.Domain {
         //
         public string contentGuid { get; }
         //
-        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, ContentMetadataModel contentMetadata, int recordId) {
+        public string editId { get; }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="contentMetadata"></param>
+        /// <param name="recordId"></param>
+        /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
+        /// <returns></returns>
+        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, ContentMetadataModel contentMetadata, int recordId, string presetNameValuePairs) {
             List<EditModalModel_FieldListItem> result = [];
+            Dictionary<string, string> prepopulateValue = [];
+            if (!string.IsNullOrEmpty(presetNameValuePairs)) {
+                foreach (var keyValuePair in presetNameValuePairs.Split(',')) {
+                    if (!string.IsNullOrEmpty(keyValuePair)) {
+                        string[] keyValue = keyValuePair.Split('=');
+                        if (keyValue.Length == 2 && !prepopulateValue.ContainsKey(keyValue[0].ToLowerInvariant())) {
+                            prepopulateValue.Add(keyValue[0].ToLowerInvariant(), keyValue[1]);
+                        }
+                    }
+                }
+            }
             //
             // -- create cs pointing to current record
             using (CPCSBaseClass cs = core.cpParent.CSNew()) {
-                if (!cs.OpenRecord(contentMetadata.name, recordId)) {
-                    return result;
-                }
+                if (recordId > 0) { cs.OpenRecord(contentMetadata.name, recordId); }
                 foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                     string fieldName = fieldKvp.Key;
                     ContentFieldMetadataModel field = fieldKvp.Value;
                     if (field.authorable && string.IsNullOrEmpty(field.editTabName)) {
-                        result.Add(new EditModalModel_FieldListItem(field, cs.GetText(field.nameLc)));
+                        string currentValue = "";
+                        if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
+                            currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
+                        } else if (cs.OK()) {
+                            currentValue = cs.GetText(field.nameLc);
+                        }
+                        result.Add(new EditModalModel_FieldListItem(field, currentValue));
+                    } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
+                        //
+                        // -- else add a hidden for the prepopulate value
+                        result.Add(new EditModalModel_FieldListItem(field, prepopulateValue[fieldName.ToLowerInvariant()]));
                     }
                 }
             }
@@ -67,20 +107,22 @@ namespace Contensive.Processor.Models.Domain {
             isHelp = !string.IsNullOrEmpty(field.helpMessage);
             isRequired = field.required;
             isReadOnly = field.readOnly;
-            isInteger = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Integer;
+            //
+            isFile = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.File || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML);
             isText = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Text;
             isTextLong = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.LongText) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileText);
-            isBoolean = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Boolean;
+            isInteger = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Integer;
             isDate = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Date;
-            isFile = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.File || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML);
+            isHtml = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.HTML) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTML);
+            isHtmlCode = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.HTMLCode) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode);
+            isLink = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Link) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.ResourceLink);
+            isCheckboxList = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.ManyToMany;
+
+            isBoolean = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Boolean;
             isSelect = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Lookup) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.MemberSelect);
             isCurrency = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Currency;
             isImage = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage;
             isFloat = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Float;
-            isCheckboxList = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.ManyToMany;
-            isLink = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Link) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.ResourceLink);
-            isHtml = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.HTML) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTML);
-            isHtmlCode = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.HTMLCode) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode);
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
             numberMax = 2147483647;

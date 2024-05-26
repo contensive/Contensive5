@@ -144,7 +144,7 @@ namespace Contensive.Processor.Controllers {
                     string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
                     string layout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditRecordLayoutCdnPathFilename, defaultEditRecordLayoutCdnPathFilename);
                     layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
-                    EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, caption);
+                    EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, caption,"");
                     string result = MustacheController.renderStringToString(layout, dataSet);
                     return result;
                 }
@@ -298,63 +298,78 @@ namespace Contensive.Processor.Controllers {
         /// <param name="allowPaste"></param>
         /// <param name="allowUserAdd"></param>
         /// <returns></returns>
-        public static List<string> getLegacyAddTab(CoreController core, string contentName, string presetNameValueList, bool allowPaste, bool allowUserAdd, bool includeChildContent) {
+        public static List<string> getAddTab(CoreController core, string contentName, string presetNameValueList, bool allowPaste, bool allowUserAdd, bool includeChildContent) {
+            List<string> result = [];
             try {
-                List<string> result = [];
                 if (!allowUserAdd) { return result; }
-                if (string.IsNullOrWhiteSpace(contentName)) { throw (new GenericException("ContentName [" + contentName + "] is invalid")); }
-                //
-                // -- convert older QS format to command delimited format
-                presetNameValueList = presetNameValueList.Replace("&", ",");
-                var content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
-                result.AddRange(getLegacyAddTab_GetChildContentLinks(core, content, presetNameValueList, includeChildContent, new List<int>()));
-                //
-                // -- Add in the paste entry, if needed
-                if (!allowPaste) { return result; }
-                string ClipBoard = core.visitProperty.getText("Clipboard", "");
-                if (string.IsNullOrEmpty(ClipBoard)) { return result; }
-                int Position = GenericController.strInstr(1, ClipBoard, ".");
-                if (Position == 0) { return result; }
-                string[] ClipBoardArray = ClipBoard.Split('.');
-                if (ClipBoardArray.GetUpperBound(0) == 0) { return result; }
-                int ClipboardContentId = GenericController.encodeInteger(ClipBoardArray[0]);
-                int ClipChildRecordId = GenericController.encodeInteger(ClipBoardArray[1]);
-                if (content.isParentOf<ContentModel>(core.cpParent, ClipboardContentId)) {
-                    int ParentId = 0;
-                    if (GenericController.strInstr(1, presetNameValueList, "PARENTID=", 1) != 0) {
-                        //
-                        // must test for main_IsChildRecord
-                        //
-                        string BufferString = presetNameValueList;
-                        BufferString = BufferString.Replace("(", "");
-                        BufferString = BufferString.Replace(")", "");
-                        BufferString = BufferString.Replace(",", "&");
-                        ParentId = encodeInteger(GenericController.main_GetNameValue_Internal(core, BufferString, "Parentid"));
+                if (string.IsNullOrWhiteSpace(contentName)) { return result; }
+                if (!core.session.isEditing()) { return result; }
+                if (!core.siteProperties.allowEditModal) {
+                    //
+                    // -- legacy
+                    // -- convert older QS format to command delimited format
+                    presetNameValueList = presetNameValueList.Replace("&", ",");
+                    var content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
+                    result.AddRange(getLegacyAddTab_GetChildContentLinks(core, content, presetNameValueList, includeChildContent, new List<int>()));
+                    //
+                    // -- Add in the paste entry, if needed
+                    if (!allowPaste) { return result; }
+                    string ClipBoard = core.visitProperty.getText("Clipboard", "");
+                    if (string.IsNullOrEmpty(ClipBoard)) { return result; }
+                    int Position = GenericController.strInstr(1, ClipBoard, ".");
+                    if (Position == 0) { return result; }
+                    string[] ClipBoardArray = ClipBoard.Split('.');
+                    if (ClipBoardArray.GetUpperBound(0) == 0) { return result; }
+                    int ClipboardContentId = GenericController.encodeInteger(ClipBoardArray[0]);
+                    int ClipChildRecordId = GenericController.encodeInteger(ClipBoardArray[1]);
+                    if (content.isParentOf<ContentModel>(core.cpParent, ClipboardContentId)) {
+                        int ParentId = 0;
+                        if (GenericController.strInstr(1, presetNameValueList, "PARENTID=", 1) != 0) {
+                            //
+                            // must test for main_IsChildRecord
+                            //
+                            string BufferString = presetNameValueList;
+                            BufferString = BufferString.Replace("(", "");
+                            BufferString = BufferString.Replace(")", "");
+                            BufferString = BufferString.Replace(",", "&");
+                            ParentId = encodeInteger(GenericController.main_GetNameValue_Internal(core, BufferString, "Parentid"));
+                        }
+                        if ((ParentId != 0) && (!DbBaseModel.isChildOf<PageContentModel>(core.cpParent, ParentId, 0, new List<int>()))) {
+                            //
+                            // Can not paste as child of itself
+                            string PasteLink = core.webServer.requestPage + "?" + core.doc.refreshQueryString;
+                            PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePaste, "1", true);
+                            PasteLink = GenericController.modifyLinkQuery(PasteLink, rnPasteParentContentId, content.id.ToString(), true);
+                            PasteLink = GenericController.modifyLinkQuery(PasteLink, rnPasteParentRecordId, ParentId.ToString(), true);
+                            PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePasteFieldList, presetNameValueList, true);
+                            string pasteLinkAnchor = HtmlController.a(iconContentPaste_Green + "&nbsp;Paste Record", PasteLink, "ccRecordPasteLink", "", "-1");
+                            result.Add(HtmlController.div(pasteLinkAnchor + HtmlController.div("&nbsp;", "ccEditLinkEndCap"), "ccRecordLinkCon"));
+                        }
                     }
-                    if ((ParentId != 0) && (!DbBaseModel.isChildOf<PageContentModel>(core.cpParent, ParentId, 0, new List<int>()))) {
-                        //
-                        // Can not paste as child of itself
-                        string PasteLink = core.webServer.requestPage + "?" + core.doc.refreshQueryString;
-                        PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePaste, "1", true);
-                        PasteLink = GenericController.modifyLinkQuery(PasteLink, rnPasteParentContentId, content.id.ToString(), true);
-                        PasteLink = GenericController.modifyLinkQuery(PasteLink, rnPasteParentRecordId, ParentId.ToString(), true);
-                        PasteLink = GenericController.modifyLinkQuery(PasteLink, RequestNamePasteFieldList, presetNameValueList, true);
-                        string pasteLinkAnchor = HtmlController.a(iconContentPaste_Green + "&nbsp;Paste Record", PasteLink, "ccRecordPasteLink", "", "-1");
-                        result.Add(HtmlController.div(pasteLinkAnchor + HtmlController.div("&nbsp;", "ccEditLinkEndCap"), "ccRecordLinkCon"));
-                    }
+                    return result;
+                } else {
+                    //
+                    // -- layout based link
+                    string customCaption = "";
+                    string caption = getEditCaption(core, "Add", contentName, customCaption);
+                    string layout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, defaultAddRecordLayoutName, defaultAddRecordLayoutCdnPathFilename, defaultAddRecordLayoutCdnPathFilename);
+                    layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                    var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
+                    EditModalModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
+                    result.Add(MustacheController.renderStringToString(layout, dataSet));
+                    return result;
                 }
-                return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
-                return new List<string>();
+                return result;
             }
         }
         //
         public static List<string> getLegacyAddTab(CoreController core, string ContentName, string PresetNameValueList, bool AllowPaste)
-            => getLegacyAddTab(core, ContentName, PresetNameValueList, AllowPaste, core.session.isEditing(ContentName), false);
+            => getAddTab(core, ContentName, PresetNameValueList, AllowPaste, core.session.isEditing(ContentName), false);
         //
         public static List<string> getLegacyAddTab(CoreController core, string ContentName, string PresetNameValueList)
-            => getLegacyAddTab(core, ContentName, PresetNameValueList, false, core.session.isEditing(ContentName), false);
+            => getAddTab(core, ContentName, PresetNameValueList, false, core.session.isEditing(ContentName), false);
         //
         //====================================================================================================
         /// <summary>
@@ -475,6 +490,27 @@ namespace Contensive.Processor.Controllers {
                 }
             }
             return result;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// UI Edit Record, with url
+        /// </summary>
+        public static string getEditIcon(CoreController core, int contentId, int recordId) {
+            return getEditIcon(core, contentId, recordId, "", "");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// UI Edit Record, with url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="caption"></param>
+        /// <param name="htmlClass"></param>
+        /// <returns></returns>
+        public static string getEditIcon(CoreController core, int contentId, int recordId, string caption, string htmlClass) {
+            string url = getEditUrl(core, contentId, recordId);
+            return getEditIcon(core, url, caption, htmlClass);
         }
         //
         //====================================================================================================

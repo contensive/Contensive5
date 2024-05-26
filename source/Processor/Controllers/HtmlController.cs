@@ -262,7 +262,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // Build the SelectRaw, Test selection size
                     ContentMetadataModel metaData = ContentMetadataModel.createByUniqueName(core, ContentName);
-                    if(metaData is null ) {
+                    if (metaData is null) {
                         return $"Selection content [{ContentName}] is not valid.";
                     }
                     string ContentControlCriteria = metaData.legacyContentControlCriteria;
@@ -2592,7 +2592,8 @@ namespace Contensive.Processor.Controllers {
                             bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
                             string DivName = htmlNamePrefix + ".All";
                             bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
-                            string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getEditTab(core,secondaryMeta.name, -1);
+                            string editLink = AdminUIEditButtonController.getEditUrl(core, secondaryMeta.id, -1);
+                            string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getEditIcon(core, editLink,"","");
                             //string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getLegacyRecordEditAnchorTag(core, secondaryMeta, -1, "", "");
                             while (csData.ok()) {
                                 string OptionName = csData.getText("OptionName");

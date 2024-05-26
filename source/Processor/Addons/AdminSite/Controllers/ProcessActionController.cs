@@ -77,7 +77,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                                                 cp.core.cache.invalidateRecordKey(deleteRecordId, adminData.adminContent.tableName);
                                                 cp.Db.ExecuteQuery($"delete from {adminContent.tableName} where id={deleteRecordId}");
                                                 cp.core.cache.invalidateTableDependencyKey(adminData.adminContent.tableName);
-                                                ContentController.processAfterSave(cp.core, true, adminData.editRecord.contentControlId_Name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
+                                                ContentController.processAfterSave(cp.core, true, adminData.adminContent.name, adminData.editRecord.id, adminData.editRecord.nameLc, adminData.editRecord.parentId, useContentWatchLink);
                                                 //
                                                 // -- Page Content special cases
                                                 if (GenericController.toLCase(adminData.adminContent.tableName) == "ccpagecontent") {

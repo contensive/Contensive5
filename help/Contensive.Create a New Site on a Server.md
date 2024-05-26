@@ -42,7 +42,7 @@ Install Sql Server Express.
 - go to d:\contensive\ and edit the config.json. (use the plug-in JSTool to JSFormat), find the site you added and change the app's "domainList" to the (sitename).sitefpo.com
 - open IIS which by now has the new site. update binding to just be http (sitename).sitefpo.com
 - in IIS, enable the url-rewrite filters to remove-slash and forward http to https
-- in a command window at c:/program files x86\win-acme, run wacs and add the https to the one binding on this iis site
+- in a command window at c:\program files (x86)\win-acme, run wacs and add the https to the one binding on this iis site
 - in a command prompt, run cc -a (sitename) --addroot
 - in a browser, log into the admin site with root/C0ntensive!
 - edit the root profile and make it yours (name, username, password, clear the password-expires-date)

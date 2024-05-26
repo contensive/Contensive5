@@ -244,8 +244,8 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Returns the edit-tab (icon plus caption) that should appear over the region to be edited.
         /// Use GetEditUrl for simple anchor tag href to the edit page for this record.
-        /// Get the system edit link, including the design graphic
         /// </summary>
         /// <param name="contentName"></param>
         /// <param name="recordId"></param>
@@ -256,7 +256,7 @@ namespace Contensive.BaseClasses {
         /// <remarks></remarks>
         public abstract string GetEditLink(string contentName, string recordId, bool allowCut, string recordLabel, bool IsEditing);
         /// <summary>
-        /// Get the system edit link
+        /// Returns the edit-tab that should appear over the region to be edited.
         /// </summary>
         /// <param name="contentName"></param>
         /// <param name="recordId"></param>
@@ -359,13 +359,13 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// wrap content in system editing region style.
+        /// wrap content in system editing region style without an edit link. This is just the dotted border
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentName"></param>
@@ -373,7 +373,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, string contentName, int recordId);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentName"></param>
@@ -382,7 +382,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, string contentName, int recordId, string editCaption);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentName"></param>
@@ -390,7 +390,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, string contentName, string recordGuid);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentName"></param>
@@ -399,7 +399,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, string contentName, string recordGuid, string editCaption);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentId"></param>
@@ -407,7 +407,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, int contentId, int recordId);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentId"></param>
@@ -416,7 +416,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, int contentId, int recordId, string editCaption);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentId"></param>
@@ -424,7 +424,7 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetEditWrapper(string innerHtml, int contentId, string recordGuid);
         /// <summary>
-        /// wrap content in system editing region style with an edit link.
+        /// Wrap content in system editing region style and the edit link (edit icon and caption)
         /// </summary>
         /// <param name="innerHtml"></param>
         /// <param name="contentId"></param>

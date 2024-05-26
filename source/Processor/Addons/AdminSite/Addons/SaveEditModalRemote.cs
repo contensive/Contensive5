@@ -34,9 +34,6 @@ namespace Contensive.Processor.Addons {
                     // --- not authorized
                     return result;
                 }
-                int recordId = cp.Request.GetInteger("recordId");
-                if (recordId==0) { return getErrorResponse("The data could not be saved. The content requested is not valid."); }
-                //
                 string contentGuid = cp.Request.GetText("contentGuid");
                 if (string.IsNullOrEmpty(contentGuid)) { return getErrorResponse("The data could not be saved. The content requested is not valid."); }
                 //
@@ -47,7 +44,19 @@ namespace Contensive.Processor.Addons {
                 if (contentMetaData == null) { return getErrorResponse("The data could not be saved. The content requested is not valid."); }
                 //
                 using (CPCSBaseClass cs = cp.CSNew()) {
-                    if (!cs.OpenRecord(contentMetaData.name, recordId)) { return getErrorResponse("The data could not be saved. The record id was not valid."); }
+                    int recordId = cp.Request.GetInteger("recordId");
+                    if (recordId == 0) {
+                        //
+                        // -- add record
+                        cs.Insert(contentMetaData.name);
+                    } else {
+                        //
+                        // -- edit record
+                        if (!cs.OpenRecord(contentMetaData.name, recordId)) { 
+                            return getErrorResponse("The data could not be saved. The record could not be found."); 
+                        }
+                    }
+                    //
                     foreach ( var fieldKvp in contentMetaData.fields ) {
                         ContentFieldMetadataModel field = fieldKvp.Value;
                         string requestFieldName = $"field-{field.nameLc}";

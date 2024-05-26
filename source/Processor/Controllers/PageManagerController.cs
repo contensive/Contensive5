@@ -1106,7 +1106,7 @@ namespace Contensive.Processor.Controllers {
                         string pageLink = getPageLink(core, page.id, "", true, false);
                         string pageName = (!string.IsNullOrWhiteSpace(page.name)) ? page.name : "Page " + page.id;
                         string pageMenuHeadline = (!string.IsNullOrWhiteSpace(page.menuHeadline)) ? page.menuHeadline : pageName;
-                        string editAnchorTag = AdminUIEditButtonController.getEditTab(core, contentMetadata, page.id, true, pageName, "");
+                        string editAnchorTag = AdminUIEditButtonController.getEditIcon(core, contentMetadata.id, page.id);
                         string pageAnchorTag = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(pageLink) + "\">", pageMenuHeadline);
                         editItemList.Append("\r<li name=\"page" + page.id + "\"  id=\"page" + page.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
                         if (!string.IsNullOrEmpty(editAnchorTag)) {

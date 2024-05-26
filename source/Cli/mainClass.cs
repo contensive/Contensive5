@@ -193,7 +193,8 @@ namespace Contensive.CLI {
                                 //
                                 // -- start the new app wizard
                                 appName = getNextCmdArg(args, ref argPtr);
-                                await NewAppCmd.executeAsync(appName);
+                                string domainName = getNextCmdArg(args, ref argPtr);
+                                await NewAppCmd.executeAsync(appName, domainName);
                                 break;
                             case "--status":
                             case "-s":

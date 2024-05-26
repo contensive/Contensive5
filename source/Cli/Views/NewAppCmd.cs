@@ -25,20 +25,19 @@ namespace Contensive.CLI {
         /// </summary>
         internal static readonly string helpText = ""
             + Environment.NewLine
-            + Environment.NewLine + "--newapp (-n)"
-            + Environment.NewLine + "    new application wizard";
+            + Environment.NewLine + "--newapp (-n) [appName] [primary domain name]"
+            + Environment.NewLine + "    Create a new application (website) on this server. If appName is omitted this command acts as a wizard and prompts for all options. If primary domain name is omitted, the domain www.appname.com will be used.";
         //
         // ====================================================================================================
         /// <summary>
         /// create a new app. If appname is provided, create the app with defaults. if not appname, prompt for defaults
         /// </summary>
         /// <param name="appName"></param>
-        public static async System.Threading.Tasks.Task executeAsync(string appName) {
+        public static async System.Threading.Tasks.Task executeAsync(string appName, string domainName) {
             try {
                 const string iisDefaultDoc = "default.aspx";
                 string authTokenDefault = "909903";
                 string authToken = authTokenDefault;
-                string domainName = "";
                 //
                 string allowableNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 if (!appName.All(x => allowableNameCharacters.Contains(x))) {

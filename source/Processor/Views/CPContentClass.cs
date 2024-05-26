@@ -68,7 +68,7 @@ namespace Contensive.Processor {
         //
         public override string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing, bool includechildContent) {
             string result = "";
-            foreach (var link in AdminUIEditButtonController.getLegacyAddTab(cp.core, contentName, presetNameValueList, allowPaste, isEditing, includechildContent)) {
+            foreach (var link in AdminUIEditButtonController.getAddTab(cp.core, contentName, presetNameValueList, allowPaste, isEditing, includechildContent)) {
                 result += link;
             }
             return result;
@@ -78,7 +78,7 @@ namespace Contensive.Processor {
         //
         public override string GetAddLink(string contentName, string presetNameValueList, bool allowPaste, bool isEditing) {
             string result = "";
-            foreach (var link in AdminUIEditButtonController.getLegacyAddTab(cp.core, contentName, presetNameValueList, allowPaste, isEditing, false)) {
+            foreach (var link in AdminUIEditButtonController.getAddTab(cp.core, contentName, presetNameValueList, allowPaste, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -89,7 +89,7 @@ namespace Contensive.Processor {
         public override string GetAddLink(string contentName, string presetNameValueList) {
             string result = "";
             bool isEditing = cp.core.session.isEditing(contentName);
-            foreach (var link in AdminUIEditButtonController.getLegacyAddTab(cp.core, contentName, presetNameValueList, false, isEditing, false)) {
+            foreach (var link in AdminUIEditButtonController.getAddTab(cp.core, contentName, presetNameValueList, false, isEditing, false)) {
                 result += link;
             }
             return result;
@@ -100,7 +100,7 @@ namespace Contensive.Processor {
         public override string GetAddLink(string contentName) {
             string result = "";
             bool isEditing = cp.core.session.isEditing(contentName);
-            foreach (var link in AdminUIEditButtonController.getLegacyAddTab(cp.core, contentName, "", false, isEditing, false)) {
+            foreach (var link in AdminUIEditButtonController.getAddTab(cp.core, contentName, "", false, isEditing, false)) {
                 result += link;
             }
             return result;
