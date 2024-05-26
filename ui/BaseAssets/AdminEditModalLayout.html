@@ -321,7 +321,115 @@
                                         </label>
                                     </div>
                                     {{/isCheckboxList}}
-                                {{/leftFields}}  
+                                    {{#isBoolean}}
+                                    <!--
+                                        boolean field
+                                    -->
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                    {{caption}}
+                                                {{/isHelp}}                                                
+                                            </label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="1" id="field{{fieldId}}" name="{{htmlName}}">
+                                                {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").onclick="return false;";</script>{{/isReadOnly}}
+                                              </div>
+                                        </div>
+                                    </div>
+                                    {{/isBoolean}}
+                                    
+                                    {{#isSelect}}
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}                                                
+                                                {{caption}}
+                                            </label>
+                                            <div class="form-check">
+                                                <div>isSelect</div>
+                                                <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
+                                                    {{selectOptionList}}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {{/isSelect}}
+                                    
+                                    {{#isCurrency}}
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}                                                
+                                            </label>
+                                            <div class="form-check">
+                                                <div>isCurrency</div>
+                                                <label class="form-check-label" for="field{{fieldId}}">
+                                                    {{caption}}
+                                                </label>
+                                              </div>
+                                        </div>
+                                    </div>
+                                    {{/isCurrency}}
+                                    
+                                    {{#isImage}}
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}                                                
+                                            </label>
+                                            <div class="form-check">
+                                                <div>isImage</div>
+                                                <label class="form-check-label" for="field{{fieldId}}">
+                                                    {{caption}}
+                                                </label>
+                                              </div>
+                                        </div>
+                                    </div>
+                                    {{/isImage}}
+                                    
+                                    {{#isFloat}}
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}                                                
+                                            </label>
+                                            <div class="form-check">
+                                                <div>isFloat</div>
+                                                <label class="form-check-label" for="field{{fieldId}}">
+                                                    {{caption}}
+                                                </label>
+                                              </div>
+                                        </div>
+                                    </div>
+                                    {{/isFloat}}
+
+
+
+
+
+                                    {{/leftFields}}  
                             </div>
 
                             <div class="col-md-4">

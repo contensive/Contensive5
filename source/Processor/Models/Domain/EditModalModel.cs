@@ -1,5 +1,6 @@
 ﻿using Amazon.SimpleEmail;
 using Contensive.BaseClasses;
+using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using System.Collections.Generic;
 using System.Configuration;
@@ -47,7 +48,7 @@ namespace Contensive.Processor.Models.Domain {
         //
         public string editId { get; }
         /// <summary>
-        /// 
+        /// Get the list of fields to be edited
         /// </summary>
         /// <param name="core"></param>
         /// <param name="contentMetadata"></param>
@@ -58,6 +59,8 @@ namespace Contensive.Processor.Models.Domain {
             List<EditModalModel_FieldListItem> result = [];
             Dictionary<string, string> prepopulateValue = [];
             if (!string.IsNullOrEmpty(presetNameValuePairs)) {
+                //
+                // -- create dictionary of name/values that should be prepopulated during an add
                 foreach (var keyValuePair in presetNameValuePairs.Split(',')) {
                     if (!string.IsNullOrEmpty(keyValuePair)) {
                         string[] keyValue = keyValuePair.Split('=');
@@ -71,21 +74,23 @@ namespace Contensive.Processor.Models.Domain {
             // -- create cs pointing to current record
             using (CPCSBaseClass cs = core.cpParent.CSNew()) {
                 if (recordId > 0) { cs.OpenRecord(contentMetadata.name, recordId); }
+                //
+                // -- iterate through all the fields in the content, adding the ones needed/allowed
                 foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                     string fieldName = fieldKvp.Key;
                     ContentFieldMetadataModel field = fieldKvp.Value;
-                    if (field.authorable && string.IsNullOrEmpty(field.editTabName)) {
+                    if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core,field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
                         string currentValue = "";
                         if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
                             currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
                         } else if (cs.OK()) {
                             currentValue = cs.GetText(field.nameLc);
                         }
-                        result.Add(new EditModalModel_FieldListItem(field, currentValue));
+                        result.Add(new EditModalModel_FieldListItem(core, field, currentValue));
                     } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
                         //
                         // -- else add a hidden for the prepopulate value
-                        result.Add(new EditModalModel_FieldListItem(field, prepopulateValue[fieldName.ToLowerInvariant()]));
+                        result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()]));
                     }
                 }
             }
@@ -99,7 +104,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// constructor
         /// </summary>
-        public EditModalModel_FieldListItem(ContentFieldMetadataModel field, string currentValue) {
+        public EditModalModel_FieldListItem(CoreController core, ContentFieldMetadataModel field, string currentValue) {
             htmlName = $"field-{field.nameLc}";
             caption = field.caption;
             help = field.helpMessage;
@@ -117,12 +122,12 @@ namespace Contensive.Processor.Models.Domain {
             isHtmlCode = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.HTMLCode) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode);
             isLink = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Link) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.ResourceLink);
             isCheckboxList = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.ManyToMany;
-
             isBoolean = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Boolean;
             isSelect = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Lookup) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.MemberSelect);
             isCurrency = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Currency;
             isImage = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage;
             isFloat = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Float;
+
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
             numberMax = 2147483647;
@@ -131,6 +136,10 @@ namespace Contensive.Processor.Models.Domain {
             fieldId = $"field-{field.id}";
             isChecked = isBoolean && GenericController.encodeBoolean(field.defaultValue);
             sort = field.editSortPriority;
+            if (isSelect) {
+                selectOptionList = getSelectOptionList(core, field, currentValue);
+            }
+
         }
 
         public string htmlName { get; }
@@ -162,6 +171,43 @@ namespace Contensive.Processor.Models.Domain {
         public string fieldId { get; }
         public bool isChecked { get; }
         public int sort { get; }
+        public string selectOptionList { get; }
+        //
+        /// <summary>
+        /// create the select input option list for lookup field types using AdminUI, and remove the select wrapper
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="field"></param>
+        /// <param name="fieldValueObject"></param>
+        /// <returns></returns>
+        public static string getSelectOptionList(CoreController core, ContentFieldMetadataModel field, string fieldValueObject) {
+            string EditorString = "";
+            bool IsEmptyList = false;
+            string whyReadOnlyMsg = "";
+            string fieldHtmlId = "not used";
+            if (!field.lookupContentId.Equals(0)) {
+                EditorString = AdminUIEditorController.getLookupContentEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), field.lookupContentId, ref IsEmptyList, field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required, field.LookupContentSqlFilter);
+                EditorString = removeOptionsFromSelect(EditorString);
+                return EditorString;
+            }
+            if (!string.IsNullOrEmpty(field.lookupList)) {
+                EditorString = AdminUIEditorController.getLookupListEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), field.lookupList.Split(',').ToList(), field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required);
+                EditorString = removeOptionsFromSelect(EditorString);
+                return EditorString;
+            }
+            return EditorString;
+        }
+        //
+        public static string removeOptionsFromSelect( string selectTag ) {
+            string result = selectTag;
+            int pos = result.IndexOf("<option", 0, System.StringComparison.InvariantCultureIgnoreCase);
+            if (pos < 0) { return ""; }
+            result = result.Substring(pos);
+            pos = result.IndexOf("</select", 0, System.StringComparison.InvariantCultureIgnoreCase);
+            if (pos < 0) { return ""; }
+            result = result.Substring(pos);
+            return result;
+        }
     }
 
     public class EditModalModel_Rightfield {
