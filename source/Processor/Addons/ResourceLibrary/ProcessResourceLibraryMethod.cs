@@ -37,8 +37,9 @@ namespace Contensive.Processor.Addons.Primitives {
                         + GenericController.nop(core.html.getHtmlBodyEnd(false, false)) + "\r</td></tr></table>"
                         + "\r<script language=javascript type=\"text/javascript\">fixDialog();</script>"
                         + "";
-                    string htmlBodyTag = "<body class=\"container-fluid ccBodyAdmin ccCon\" style=\"overflow:scroll\">";
-                    result = core.html.getHtmlDoc(htmlBody, htmlBodyTag, false, false);
+                    core.doc.bodyClassList.Add("container-fluid ccBodyAdmin ccCon");
+                    core.doc.bodyStyleList.Add("overflow:scroll");
+                    result = core.html.getHtmlDoc(htmlBody, false, false);
                     core.doc.continueProcessing = false;
                 } else if (!string.IsNullOrEmpty(LinkObjectName)) {
                     //
@@ -51,8 +52,9 @@ namespace Contensive.Processor.Addons.Primitives {
                         + core.html.getResourceLibrary("", true, EditorObjectName, LinkObjectName, true) + "\r</td></tr></table>"
                         + "\r<script language=javascript type=text/javascript>fixDialog();</script>"
                         + "";
-                    string htmlBodyTag = "<body class=\"container-fluid ccBodyAdmin ccCon\" style=\"overflow:scroll\">";
-                    result = core.html.getHtmlDoc(htmlBody, htmlBodyTag, false, false);
+                    core.doc.bodyClassList.Add("container-fluid ccBodyAdmin ccCon");
+                    core.doc.bodyStyleList.Add("overflow:scroll");
+                    result = core.html.getHtmlDoc(htmlBody, false, false);
                     core.doc.continueProcessing = false;
                 }
             } catch (Exception ex) {

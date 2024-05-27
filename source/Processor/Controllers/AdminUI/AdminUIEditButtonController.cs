@@ -209,22 +209,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getEditCaption(CoreController core, string verb, string contentName, string customCaption) {
             if (!string.IsNullOrEmpty(customCaption)) { return customCaption; }
-            string result = verb + "&nbsp;";
-            switch (contentName.ToLower(CultureInfo.InvariantCulture)) {
-                case "page content": {
-                        result += "Page";
-                        break;
-                    }
-                case "page templates": {
-                        result += "Template";
-                        break;
-                    }
-                default: {
-                        result += core.pluralizationService.Singularize(contentName);
-                        break;
-                    }
-            }
-            return result;
+            return verb + "&nbsp;" + GenericController.getSingular_Sortof(core, contentName);
         }
         //
         //====================================================================================================
@@ -461,17 +446,7 @@ namespace Contensive.Processor.Controllers {
                                 Link = Link + "&wc=" + GenericController.encodeRequestVariable(PresetNameValueList);
                             }
                         }
-                        string shortName;
-                        switch (content.name.ToLower()) {
-                            case "page content": {
-                                    shortName = "Page";
-                                    break;
-                                }
-                            default: {
-                                    shortName = core.pluralizationService.Singularize(content.name);
-                                    break;
-                                }
-                        }
+                        string shortName = GenericController.getSingular_Sortof(core, content.name);
                         result.Add(HtmlController.div(HtmlController.a(iconAdd_Green + "&nbsp;Add " + shortName, Link, "ccRecordAddLink", "", "-1") + HtmlController.div("&nbsp;", "ccEditLinkEndCap"), "ccRecordLinkCon"));
                         //
                         // -- exit now if no child content

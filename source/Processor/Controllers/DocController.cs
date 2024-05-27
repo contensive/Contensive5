@@ -75,31 +75,43 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// head tags, script tags, style tags, etc
         /// </summary>
-        public List<CPDocBaseClass.HtmlAssetClass> htmlAssetList { get; set; } = new List<CPDocBaseClass.HtmlAssetClass>();
+        public List<CPDocBaseClass.HtmlAssetClass> htmlAssetList { get; set; } = [];
+        //
+        //====================================================================================================
+        /// <summary>
+        /// list of classes to be added to the body tag, added with space delimiter
+        /// </summary>
+        public List<string> bodyClassList { get; set; } = [];
+        //
+        //====================================================================================================
+        /// <summary>
+        /// list of styles to be added to the body tag, added with semicolon delimiter
+        /// </summary>
+        public List<string> bodyStyleList { get; set; } = [];
         //
         //====================================================================================================
         /// <summary>
         /// head meta tag list (convert to list object)
         /// </summary>
-        public List<HtmlMetaClass> htmlMetaContent_OtherTags { get; set; } = new List<HtmlMetaClass>();
+        public List<HtmlMetaClass> htmlMetaContent_OtherTags { get; set; } = [];
         //
         //====================================================================================================
         /// <summary>
         /// html title elements
         /// </summary>
-        public List<HtmlMetaClass> htmlMetaContent_TitleList { get; set; } = new List<HtmlMetaClass>();
+        public List<HtmlMetaClass> htmlMetaContent_TitleList { get; set; } = [];
         //
         //====================================================================================================
         /// <summary>
         /// html meta description
         /// </summary>
-        public List<HtmlMetaClass> htmlMetaContent_Description { get; set; } = new List<HtmlMetaClass>();
+        public List<HtmlMetaClass> htmlMetaContent_Description { get; set; } = [];
         //
         //====================================================================================================
         /// <summary>
         /// html meta keywords
         /// </summary>
-        public List<HtmlMetaClass> htmlMetaContent_KeyWordList { get; set; } = new List<HtmlMetaClass>();
+        public List<HtmlMetaClass> htmlMetaContent_KeyWordList { get; set; } = [];
         //
         //====================================================================================================
         /// <summary>

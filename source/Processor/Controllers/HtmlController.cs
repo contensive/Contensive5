@@ -2510,7 +2510,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 contentControlIdList.Add(secondaryMeta.id);
                 contentControlIdList.AddRange(secondaryMeta.childIdList(core));
-                string singularPrefixHtmlEncoded = HtmlController.encodeHtml(GenericController.getSingular_Sortof(secondaryContentName)) + "&nbsp;";
+                string singularPrefixHtmlEncoded = encodeHtml(GenericController.getSingular_Sortof(core, secondaryContentName)) + "&nbsp;";
                 //
                 if ((!string.IsNullOrEmpty(secondaryMeta.tableName)) && (!string.IsNullOrEmpty(rulesMeta.tableName))) {
                     string jsLegacy = "var OldFolder" + core.doc.checkListCnt + ";";
@@ -2838,16 +2838,23 @@ namespace Contensive.Processor.Controllers {
         /// <param name="blockNonContentExtras"></param>
         /// <param name="isAdminSite"></param>
         /// <returns></returns>
-        public string getHtmlDoc(string htmlBody, string htmlBodyTag, bool allowLogin = true, bool allowTools = true) {
+        public string getHtmlDoc(string htmlBody, bool allowLogin = true, bool allowTools = true) {
             string result = "";
             try {
                 string htmlHead = getHtmlHead();
                 string htmlBeforeEndOfBody = getHtmlBodyEnd(allowLogin, allowTools);
                 //
+                // -- add beta-mode classes
+                if (core.siteProperties.allowEditModal) { core.doc.bodyClassList.Add("ccBetaEditModal");  }
+                //
                 // -- add user errors that were not handled during page process
                 if (!core.doc.userErrorList.Count.Equals(0)) {
                     htmlBody = HtmlController.div(ErrorController.getUserError(core), "ccAdminMsg") + htmlBody;
                 }
+                string htmlBodyTag = $"<body";
+                htmlBodyTag += core.doc.bodyClassList.Count == 0 ? "" : " class=\"" + string.Join(" ", core.doc.bodyClassList) + "\"";
+                htmlBodyTag += core.doc.bodyStyleList.Count == 0 ? "" : " style=\"" + string.Join(" ", core.doc.bodyStyleList) + "\"";
+                htmlBodyTag += ">";
                 //
                 // -- assemble html document
                 result = ""

@@ -30,6 +30,7 @@ namespace Contensive.Processor.Models.Domain {
             this.recordId = recordId;
             contentGuid = contentMetadata.guid;
             editId = GenericController.getRandomString(5);
+            addItemName = GenericController.getSingular_Sortof(core, contentMetadata.name);
         }
         //
         public string dialogCaption { get; }
@@ -47,6 +48,11 @@ namespace Contensive.Processor.Models.Domain {
         public string contentGuid { get; }
         //
         public string editId { get; }
+        /// <summary>
+        /// for the add item layout, this is the name added to the "Add New {{addItemName}}"
+        /// It is the singular of the content name
+        /// </summary>
+        public string addItemName { get; }
         /// <summary>
         /// Get the list of fields to be edited
         /// </summary>
@@ -84,7 +90,7 @@ namespace Contensive.Processor.Models.Domain {
                         if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
                             currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
                         } else if (cs.OK()) {
-                            currentValue = cs.GetText(field.nameLc);
+                            currentValue = cs.GetValue(field.nameLc);
                         }
                         result.Add(new EditModalModel_FieldListItem(core, field, currentValue));
                     } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
@@ -205,7 +211,7 @@ namespace Contensive.Processor.Models.Domain {
             result = result.Substring(pos);
             pos = result.IndexOf("</select", 0, System.StringComparison.InvariantCultureIgnoreCase);
             if (pos < 0) { return ""; }
-            result = result.Substring(pos);
+            result = result.Substring(0, pos);
             return result;
         }
     }

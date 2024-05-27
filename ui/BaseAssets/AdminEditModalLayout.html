@@ -175,7 +175,7 @@
 
                                                 {{caption}}
                                             </label>
-                                            <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                            <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
                                             {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                             {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
@@ -196,7 +196,7 @@
 
                                                 {{caption}}
                                             </label>
-                                            <input type="number" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                            <input type="number" step="1" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
                                             {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                             {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
@@ -343,7 +343,9 @@
                                         </div>
                                     </div>
                                     {{/isBoolean}}
-                                    
+                                    <!--
+                                        select
+                                    -->
                                     {{#isSelect}}
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
@@ -355,16 +357,15 @@
                                                 {{/isHelp}}                                                
                                                 {{caption}}
                                             </label>
-                                            <div class="form-check">
-                                                <div>isSelect</div>
-                                                <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
-                                                    {{selectOptionList}}
-                                                </select>
-                                            </div>
+                                            <select id="field{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
+                                                {{{selectOptionList}}}
+                                            </select>
                                         </div>
                                     </div>
                                     {{/isSelect}}
-                                    
+                                    <!--
+                                        currency
+                                    -->
                                     {{#isCurrency}}
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
@@ -384,7 +385,9 @@
                                         </div>
                                     </div>
                                     {{/isCurrency}}
-                                    
+                                    <!--
+                                        image
+                                    -->
                                     {{#isImage}}
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
@@ -404,8 +407,13 @@
                                         </div>
                                     </div>
                                     {{/isImage}}
-                                    
+                                    <!-- 
+                                        float
+                                    -->
                                     {{#isFloat}}
+                                    <!--
+                                        float field
+                                    -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
                                             <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
@@ -413,23 +421,17 @@
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
-                                                {{/isHelp}}                                                
+                                                {{/isHelp}}
+                                                {{caption}}
                                             </label>
-                                            <div class="form-check">
-                                                <div>isFloat</div>
-                                                <label class="form-check-label" for="field{{fieldId}}">
-                                                    {{caption}}
-                                                </label>
-                                              </div>
+                                            <!-- number input hack to allow floating point-->
+                                            <input type="number" step="0.01" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isFloat}}
-
-
-
-
-
-                                    {{/leftFields}}  
+                                {{/leftFields}}  
                             </div>
 
                             <div class="col-md-4">

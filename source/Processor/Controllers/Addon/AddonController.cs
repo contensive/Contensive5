@@ -767,7 +767,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // -- create html document from returned body
-                        result = new StringBuilder(core.html.getHtmlDoc(result.ToString(), "<body>"));
+                        result = new StringBuilder(core.html.getHtmlDoc(result.ToString()));
                         //
                         // -- minify results
                         if ((!core.doc.visitPropertyAllowDebugging) && (core.siteProperties.getBoolean("Allow Html Minify", true))) {

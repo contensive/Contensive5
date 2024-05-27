@@ -34,13 +34,15 @@ namespace Tests {
         //
         [TestMethod]
         public void getSingular_test() {
-            // arrange
-            // act
-            // assert
-            Assert.AreEqual("toy", GenericController.getSingular_Sortof("toys"));
-            Assert.AreEqual("toy", GenericController.getSingular_Sortof("toies"));
-            Assert.AreEqual("TOY", GenericController.getSingular_Sortof("TOYS"));
-            Assert.AreEqual("TOY", GenericController.getSingular_Sortof("TOIES"));
+            using (CPClass cp = new CPClass()) {
+                // arrange
+                // act
+                // assert
+                Assert.AreEqual("toy", GenericController.getSingular_Sortof(cp.core, "toys"));
+                Assert.AreEqual("toy", GenericController.getSingular_Sortof(cp.core, "toies"));
+                Assert.AreEqual("TOY", GenericController.getSingular_Sortof(cp.core, "TOYS"));
+                Assert.AreEqual("TOY", GenericController.getSingular_Sortof(cp.core, "TOIES"));
+            }
         }
         //
         [TestMethod]

@@ -1167,21 +1167,15 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="PluralSource"></param>
         /// <returns></returns>
-        public static string getSingular_Sortof(string PluralSource) {
-            string result = PluralSource;
-            bool UpperCase = false;
-            if (result.Length > 1) {
-                string LastCharacter = result.Substring(result.Length - 1);
-                UpperCase = (LastCharacter == LastCharacter.ToUpper());
-                if (toUCase(result.Substring(result.Length - 3)) == "IES") {
-                    result = result.left(result.Length - 3) + (UpperCase ? "Y" : "y");
-                } else if (toUCase(result.Substring(result.Length - 2)) == "SS") {
-                    // nothing
-                } else if (toUCase(result.Substring(result.Length - 1)) == "S") {
-                    result = result.left(result.Length - 1);
-                }
+        public static string getSingular_Sortof(CoreController core, string PluralSource) {
+            switch (PluralSource.ToLower()) {
+                case "page content": {
+                        return PluralSource.Substring(0,4);
+                    }
+                default: {
+                        return core.pluralizationService.Singularize(PluralSource);
+                    }
             }
-            return result;
         }
         //
         // ====================================================================================================

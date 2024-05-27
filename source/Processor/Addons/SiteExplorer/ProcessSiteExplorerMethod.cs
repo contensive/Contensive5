@@ -32,12 +32,13 @@ namespace Contensive.Processor.Addons.Primitives {
                         errorContextMessage = "processing site explorer response"
                     });
                     core.html.addScriptCode_onLoad("document.body.style.overflow='scroll';", "Site Explorer");
-                    string htmlBodyTag = "<body class=\"container-fluid ccBodyAdmin ccCon\" style=\"overflow:scroll\">";
                     string htmlBody = ""
                         + GenericController.nop(core.html.getPanelHeader("Contensive Site Explorer")) + "\r<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"100%\"><tr><td>"
                         + GenericController.nop(copy) + "\r</td></tr></table>"
                         + "";
-                    result = core.html.getHtmlDoc(htmlBody, htmlBodyTag, false, false);
+                    core.doc.bodyClassList.Add("container-fluid ccBodyAdmin ccCon");
+                    core.doc.bodyStyleList.Add("overflow:scroll");
+                    result = core.html.getHtmlDoc(htmlBody, false, false);
                     core.doc.continueProcessing = false;
                 }
             } catch (Exception ex) {
