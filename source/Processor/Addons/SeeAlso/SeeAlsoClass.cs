@@ -58,7 +58,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 }
                 if (core.session.isEditing()) {
                     SeeAlsoCount += 1;
-                    foreach (var AddLink in AdminUIEditButtonController.getLegacyAddTab(core, "See Also", "RecordID=" + core.doc.pageController.page.id)) {
+                    foreach (var AddLink in AdminUIEditButtonController.getAddTabList(core, "See Also", "RecordID=" + core.doc.pageController.page.id)) {
                         if (!string.IsNullOrEmpty(AddLink)) {
                             result += HtmlController.li(AddLink, "ccEditWrapper ccListItem");
                         }

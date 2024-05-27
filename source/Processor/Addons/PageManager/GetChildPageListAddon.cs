@@ -221,7 +221,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 // ----- Add Link
                 //
                 if (!ArchivePages && isAuthoring) {
-                    foreach (var AddLink in AdminUIEditButtonController.getLegacyAddTab(core, contentName, "parentid=" + parentPageID + ",ParentListName=" + UcaseRequestedListName, true)) {
+                    foreach (var AddLink in AdminUIEditButtonController.getAddTabList(core, contentName, "parentid=" + parentPageID + ",ParentListName=" + UcaseRequestedListName, true)) {
                         if (!string.IsNullOrEmpty(AddLink)) { inactiveList.Append("\r<li class=\"ccEditWrapper ccListItemNoBullet\">" + AddLink + "</LI>"); }
                     }
                 }

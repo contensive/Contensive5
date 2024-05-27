@@ -7,6 +7,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Twilio.Base;
 
 namespace Contensive.Processor.Addons {
     //
@@ -57,14 +58,22 @@ namespace Contensive.Processor.Addons {
                         }
                     }
                     //
+                    string recordName = "";
+                    int parentId = 0;
                     foreach ( var fieldKvp in contentMetaData.fields ) {
                         ContentFieldMetadataModel field = fieldKvp.Value;
+                        if (field.nameLc == "name") { recordName = cs.GetText("name"); }
+                        if (field.nameLc == "parentid") { parentId = cs.GetInteger("parentid"); }
                         string requestFieldName = $"field-{field.nameLc}";
                         if (cp.Doc.IsProperty(requestFieldName)) {
                             cs.SetFormInput(field.nameLc, requestFieldName);
                         }
                     }
                     cs.Save();
+                    //
+                    // -- call admin aftersave
+                    ContentController.processAfterSave(cp.core, false, contentMetaData.name, recordId, recordName, parentId, false);
+                    DbBaseModel.invalidateCacheOfRecord<PageContentModel>(cp, recordId);
                 }
                 //
                 // -- return to last page with updated content

@@ -241,7 +241,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (indexConfig.allowAddRow) {
                     //
                     // optional AddRow
-                    foreach (var addTag in AdminUIEditButtonController.getAddTab(core, adminData.adminContent.name, adminEditPresetArgQsList, false, userContentPermissions.allowAdd, true)) {
+                    foreach (var addTag in AdminUIEditButtonController.getAddTabList(core, adminData.adminContent.name, adminEditPresetArgQsList, false, userContentPermissions.allowAdd, true)) {
                         dataTableRows.Append(blankRow.Replace("{msg}", addTag));
                     }
                 }

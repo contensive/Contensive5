@@ -283,7 +283,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="allowPaste"></param>
         /// <param name="allowUserAdd"></param>
         /// <returns></returns>
-        public static List<string> getAddTab(CoreController core, string contentName, string presetNameValueList, bool allowPaste, bool allowUserAdd, bool includeChildContent) {
+        public static List<string> getAddTabList(CoreController core, string contentName, string presetNameValueList, bool allowPaste, bool allowUserAdd, bool includeChildContent) {
             List<string> result = [];
             try {
                 if (!allowUserAdd) { return result; }
@@ -350,11 +350,11 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
-        public static List<string> getLegacyAddTab(CoreController core, string ContentName, string PresetNameValueList, bool AllowPaste)
-            => getAddTab(core, ContentName, PresetNameValueList, AllowPaste, core.session.isEditing(ContentName), false);
+        public static List<string> getAddTabList(CoreController core, string ContentName, string PresetNameValueList, bool AllowPaste)
+            => getAddTabList(core, ContentName, PresetNameValueList, AllowPaste, core.session.isEditing(ContentName), false);
         //
-        public static List<string> getLegacyAddTab(CoreController core, string ContentName, string PresetNameValueList)
-            => getAddTab(core, ContentName, PresetNameValueList, false, core.session.isEditing(ContentName), false);
+        public static List<string> getAddTabList(CoreController core, string ContentName, string PresetNameValueList)
+            => getAddTabList(core, ContentName, PresetNameValueList, false, core.session.isEditing(ContentName), false);
         //
         //====================================================================================================
         /// <summary>

@@ -1116,9 +1116,21 @@ namespace Contensive.Processor.Controllers {
                         editItemList.Append(pageAnchorTag);
                         editItemList.Append("</li>");
                     }
+                    //
+                    // -- add new link for each associated content
                     var addItemList = new StringBuilder();
-                    foreach (var addItem in AdminUIEditButtonController.getLegacyAddTab(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
-                        if (!string.IsNullOrEmpty(addItem)) { addItemList.Append("\r<li class=\"ccEditWrapper ccListItemNoBullet\">" + addItem + "</LI>"); }
+                    foreach (var addItem in AdminUIEditButtonController.getAddTabList(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
+                        if (!string.IsNullOrEmpty(addItem)) {
+                            if (core.siteProperties.allowEditModal) {
+                                //
+                                // -- beta add, includes its own edit wrapper
+                                addItemList.Append("<li>" + addItem + "</LI>");
+                            } else {
+                                //
+                                // -- legacy add, add edit wrapper
+                                addItemList.Append("<li class=\"ccEditWrapper ccListItemNoBullet\">" + addItem + "</LI>");
+                            }
+                        }
                     }
                     //
                     // -- build orphan list admin tool here
