@@ -132,7 +132,7 @@
                                             </div>
                                             <div class="d-flex align-items-center">
                                                 <div>  
-                                                    <input type="checkbox" class="btn-check" name="options-outlined" id="danger-outlined" autocomplete="off">
+                                                    <input type="checkbox" class="btn-check" name="{{imageDeleteName}}" value="1" id="danger-outlined" autocomplete="off">
                                                     <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
                                                 </div>
                                                 <button class="btn btn-primary">Choose file</button>
@@ -271,6 +271,7 @@
                                                 {{caption}}
                                             </label>
                                             <div>
+                                                <div>(convert to html code editor)</div>
                                                 <div class="" id="">                                                    
                                                     <textarea class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}" name="{{htmlName}}">{{{currentValue}}}</textarea>
                                                     {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
@@ -374,36 +375,47 @@
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
-                                                {{/isHelp}}                                                
+                                                {{/isHelp}}
+                                                {{caption}}
                                             </label>
-                                            <div class="form-check">
-                                                <div>isCurrency</div>
-                                                <label class="form-check-label" for="field{{fieldId}}">
-                                                    {{caption}}
-                                                </label>
-                                              </div>
+                                            <!-- number input hack to allow floating point-->
+                                            <input type="number" step="0.01" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isCurrency}}
                                     <!--
-                                        image
+                                        image -- not implemented yet
                                     -->
                                     {{#isImage}}
                                     <div class="sctnWrpr">
-                                        <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
-                                                {{#isHelp}}
-                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                                    </a>
-                                                {{/isHelp}}                                                
-                                            </label>
-                                            <div class="form-check">
-                                                <div>isImage</div>
-                                                <label class="form-check-label" for="field{{fieldId}}">
-                                                    {{caption}}
-                                                </label>
-                                              </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div class="d-flex mt-1">
+                                                <div class="position-relative">
+                                                    {{#isHelp}}
+                                                        <a type="button" class="helpIcon position-absolute top-25 start-0 translate-middle" data-bs-custom-class="custom-tooltip" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="{{help}}">
+                                                            <img src="img/circle-info.svg" alt="info icon" class="icon">
+                                                        </a>
+                                                    {{/isHelp}}
+                                                    <img src="img/picturePlaceholder.jpg" alt="placeholder image" class="output">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <h5 class="pb-0">Upload Image</h5>
+                                                    <a href="" src="" class="text-primary mb-2">No File Chosen...</a>
+                                                    <h6 class="fw-light">File Type: PNG or JPEG</h6>
+                                                    <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
+                                                    {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                    {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center">
+                                                <div>  
+                                                    <input type="checkbox" class="btn-check" name="{{imageDeleteName}}" value="1" id="danger-outlined" autocomplete="off">
+                                                    <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
+                                                </div>
+                                                <button class="btn btn-primary">Choose Image</button>
+                                            </div>
                                         </div>
                                     </div>
                                     {{/isImage}}

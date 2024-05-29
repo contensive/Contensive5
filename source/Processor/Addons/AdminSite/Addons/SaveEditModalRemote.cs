@@ -63,7 +63,21 @@ namespace Contensive.Processor.Addons {
                                 return result;
                             }
                             List<AddonListItemModel> addonList = cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
-                            if (!AddonListItemModel.deleteInstance(cp, addonList, contentGuid)) {
+                            if (addonList.Count==0) {
+                                cp.Response.Redirect(cp.Request.Referer);
+                                return result;
+                            }
+                            //
+                            // -- get addonList instanceGuid, which is the settings record ccguid
+                            DataTable dt = cp.Db.ExecuteQuery($"select ccguid from {contentMetaData.tableName} where id={recordId}");
+                            if(dt?.Rows is null || dt.Rows.Count == 0) {
+                                cp.Response.Redirect(cp.Request.Referer);
+                                return result;
+                            }
+                            string widgetSettingsRecordGuid = cp.Utils.EncodeText(dt.Rows[0][0]);
+                            //
+                            // -- remove the widget from the page's addonlist
+                            if (!AddonListItemModel.deleteInstance(cp, addonList, widgetSettingsRecordGuid)) {
                                 cp.Response.Redirect(cp.Request.Referer);
                                 return result;
                             }
