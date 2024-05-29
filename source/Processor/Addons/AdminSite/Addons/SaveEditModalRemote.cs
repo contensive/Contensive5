@@ -2,12 +2,14 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using Twilio.Base;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace Contensive.Processor.Addons {
     //
@@ -44,41 +46,84 @@ namespace Contensive.Processor.Addons {
                 ContentMetadataModel contentMetaData = ContentMetadataModel.create(cp.core, content);
                 if (contentMetaData == null) { return getErrorResponse("The data could not be saved. The content requested is not valid."); }
                 //
-                using (CPCSBaseClass cs = cp.CSNew()) {
-                    int recordId = cp.Request.GetInteger("recordId");
-                    if (recordId == 0) {
-                        //
-                        // -- add record
-                        cs.Insert(contentMetaData.name);
-                    } else {
-                        //
-                        // -- edit record
-                        if (!cs.OpenRecord(contentMetaData.name, recordId)) { 
-                            return getErrorResponse("The data could not be saved. The record could not be found."); 
-                        }
-                    }
-                    //
-                    string recordName = "";
-                    int parentId = 0;
-                    foreach ( var fieldKvp in contentMetaData.fields ) {
-                        ContentFieldMetadataModel field = fieldKvp.Value;
-                        if (field.nameLc == "name") { recordName = cs.GetText("name"); }
-                        if (field.nameLc == "parentid") { parentId = cs.GetInteger("parentid"); }
-                        string requestFieldName = $"field-{field.nameLc}";
-                        if (cp.Doc.IsProperty(requestFieldName)) {
-                            cs.SetFormInput(field.nameLc, requestFieldName);
-                        }
-                    }
-                    cs.Save();
-                    //
-                    // -- call admin aftersave
-                    ContentController.processAfterSave(cp.core, false, contentMetaData.name, recordId, recordName, parentId, false);
-                    DbBaseModel.invalidateCacheOfRecord<PageContentModel>(cp, recordId);
-                }
+                int recordId = cp.Request.GetInteger("recordId");
                 //
-                // -- return to last page with updated content
-                cp.Response.Redirect(cp.Request.Referer);
-                return result;
+                switch (cp.Request.GetText("button")) {
+                    case "deleteWidget": {
+                            //
+                            // -- delete widget. Remove widget from page's addonList
+                            int pageId = cp.Request.GetInteger("pageid");
+                            if (pageId <= 0) {
+                                cp.Response.Redirect(cp.Request.Referer);
+                                return result;
+                            }
+                            PageContentModel page = DbBaseModel.create<PageContentModel>(cp, pageId);
+                            if (page is null) {
+                                cp.Response.Redirect(cp.Request.Referer);
+                                return result;
+                            }
+                            List<AddonListItemModel> addonList = cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
+                            if (!AddonListItemModel.deleteInstance(cp, addonList, contentGuid)) {
+                                cp.Response.Redirect(cp.Request.Referer);
+                                return result;
+                            }
+                            page.addonList = cp.JSON.Serialize(addonList);
+                            page.save(cp);
+                            cp.Response.Redirect(cp.Request.Referer);
+                            return result;
+                        }
+                    case "deleteData": {
+                            //
+                            // -- delete the record
+                            cp.Content.Delete(contentMetaData.name, $"id={recordId}");
+                            cp.Response.Redirect(cp.Request.Referer);
+                            return result;
+                        }
+                    case "saveChanges": {
+                            //
+                            // -- save the record
+                            using (CPCSBaseClass cs = cp.CSNew()) {
+                                if (recordId == 0) {
+                                    //
+                                    // -- add record
+                                    cs.Insert(contentMetaData.name);
+                                } else {
+                                    //
+                                    // -- edit record
+                                    if (!cs.OpenRecord(contentMetaData.name, recordId)) {
+                                        return getErrorResponse("The data could not be saved. The record could not be found.");
+                                    }
+                                }
+                                //
+                                string recordName = "";
+                                int parentId = 0;
+                                foreach (var fieldKvp in contentMetaData.fields) {
+                                    ContentFieldMetadataModel field = fieldKvp.Value;
+                                    if (field.nameLc == "name") { recordName = cs.GetText("name"); }
+                                    if (field.nameLc == "parentid") { parentId = cs.GetInteger("parentid"); }
+                                    string requestFieldName = $"field-{field.nameLc}";
+                                    if (cp.Doc.IsProperty(requestFieldName)) {
+                                        cs.SetFormInput(field.nameLc, requestFieldName);
+                                    }
+                                }
+                                cs.Save();
+                                //
+                                // -- call admin aftersave
+                                ContentController.processAfterSave(cp.core, false, contentMetaData.name, recordId, recordName, parentId, false);
+                                DbBaseModel.invalidateCacheOfRecord<PageContentModel>(cp, recordId);
+                            }
+                            //
+                            // -- return to last page with updated content
+                            cp.Response.Redirect(cp.Request.Referer);
+                            return result;
+                        }
+                    default: {
+                            //
+                            // -- cancel
+                            cp.Response.Redirect(cp.Request.Referer);
+                            return result;
+                        }
+                }
             } catch (Exception ex) {
                 logger.Error(ex, $"{cp.core.logCommonMessage}");
                 throw;

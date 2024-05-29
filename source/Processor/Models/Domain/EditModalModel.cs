@@ -22,15 +22,26 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="customCaption"></param>
         /// <param name="presetNameValuePairs">Comma separated list of field name=value to prepopulate fields. Add hiddens if these fields are not visible in the edit.</param>
         public EditModalModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
-            dialogCaption = string.IsNullOrEmpty(customCaption) ? "Edit" : customCaption;
-            adminEditUrl = AdminUIEditButtonController.getEditUrl(core, contentMetadata.id, recordId);
-            isEditing = !core.session.isEditing();
-            leftFields = getFieldList(core, contentMetadata, recordId, presetNameValuePairs);
-            rightFields = [];
-            this.recordId = recordId;
-            contentGuid = contentMetadata.guid;
-            editId = GenericController.getRandomString(5);
-            addItemName = GenericController.getSingular_Sortof(core, contentMetadata.name);
+            using (CPCSBaseClass currentRecordCs = core.cpParent.CSNew()) {
+                if (recordId > 0) { currentRecordCs.OpenRecord(contentMetadata.name, recordId); }
+                dialogCaption = string.IsNullOrEmpty(customCaption) ? $"Edit {recordName}" : customCaption;
+                adminEditUrl = AdminUIEditButtonController.getEditUrl(core, contentMetadata.id, recordId);
+                isEditing = !core.session.isEditing();
+                leftFields = getFieldList(core, currentRecordCs, contentMetadata, presetNameValuePairs);
+                rightFields = [];
+                this.recordId = recordId;
+                contentGuid = contentMetadata.guid;
+                editId = GenericController.getRandomString(5);
+                contentItemName = GenericController.getSingular_Sortof(core, contentMetadata.name);
+                pageId = core.doc.pageController.page.id;
+                string instanceId = core.docProperties.getText("instanceId");
+                bool isWidget = false;
+                if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID")==instanceId ) {
+                    isWidget = true;
+                }
+                allowDeleteData = !isWidget;
+                allowDeleteWidget = isWidget;
+            }
         }
         //
         public string dialogCaption { get; }
@@ -52,16 +63,32 @@ namespace Contensive.Processor.Models.Domain {
         /// for the add item layout, this is the name added to the "Add New {{addItemName}}"
         /// It is the singular of the content name
         /// </summary>
-        public string addItemName { get; }
+        public string contentItemName { get; }
+        /// <summary>
+        /// True if this addon is executed from the pagemanagers addonList.
+        /// Detect this if the instanceId is guid, and it matches the current records guid.
+        /// if true, the delete widget button appears. 
+        /// Clicking this button removes this widget from the pages addon list
+        /// </summary>
+        public bool allowDeleteWidget { get; }
+        /// <summary>
+        /// if true, the delete data button appears. Clicking it deletes this data record
+        /// </summary>
+        public bool allowDeleteData { get; }
+        /// <summary>
+        /// if delete-widget, this is the page to be updated
+        /// </summary>
+        public int pageId { get; }
         /// <summary>
         /// Get the list of fields to be edited
         /// </summary>
         /// <param name="core"></param>
+        /// <param name="currentRecordCs"></param>
         /// <param name="contentMetadata"></param>
         /// <param name="recordId"></param>
         /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
         /// <returns></returns>
-        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, ContentMetadataModel contentMetadata, int recordId, string presetNameValuePairs) {
+        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs) {
             List<EditModalModel_FieldListItem> result = [];
             Dictionary<string, string> prepopulateValue = [];
             if (!string.IsNullOrEmpty(presetNameValuePairs)) {
@@ -77,27 +104,22 @@ namespace Contensive.Processor.Models.Domain {
                 }
             }
             //
-            // -- create cs pointing to current record
-            using (CPCSBaseClass cs = core.cpParent.CSNew()) {
-                if (recordId > 0) { cs.OpenRecord(contentMetadata.name, recordId); }
-                //
-                // -- iterate through all the fields in the content, adding the ones needed/allowed
-                foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
-                    string fieldName = fieldKvp.Key;
-                    ContentFieldMetadataModel field = fieldKvp.Value;
-                    if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core,field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
-                        string currentValue = "";
-                        if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
-                            currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
-                        } else if (cs.OK()) {
-                            currentValue = cs.GetValue(field.nameLc);
-                        }
-                        result.Add(new EditModalModel_FieldListItem(core, field, currentValue));
-                    } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
-                        //
-                        // -- else add a hidden for the prepopulate value
-                        result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()]));
+            // -- iterate through all the fields in the content, adding the ones needed/allowed
+            foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
+                string fieldName = fieldKvp.Key;
+                ContentFieldMetadataModel field = fieldKvp.Value;
+                if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
+                    string currentValue = "";
+                    if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
+                        currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
+                    } else if (currentRecordCs.OK()) {
+                        currentValue = currentRecordCs.GetValue(field.nameLc);
                     }
+                    result.Add(new EditModalModel_FieldListItem(core, field, currentValue));
+                } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
+                    //
+                    // -- else add a hidden for the prepopulate value
+                    result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()]));
                 }
             }
             List<EditModalModel_FieldListItem> sortedResult = result.OrderBy(o => o.sort).ToList();
@@ -204,7 +226,7 @@ namespace Contensive.Processor.Models.Domain {
             return EditorString;
         }
         //
-        public static string removeOptionsFromSelect( string selectTag ) {
+        public static string removeOptionsFromSelect(string selectTag) {
             string result = selectTag;
             int pos = result.IndexOf("<option", 0, System.StringComparison.InvariantCultureIgnoreCase);
             if (pos < 0) { return ""; }
