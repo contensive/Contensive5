@@ -2845,7 +2845,11 @@ namespace Contensive.Processor.Controllers {
                 string htmlBeforeEndOfBody = getHtmlBodyEnd(allowLogin, allowTools);
                 //
                 // -- add beta-mode classes
-                if (core.siteProperties.allowEditModal) { core.doc.bodyClassList.Add("ccBetaEditModal");  }
+                if (core.siteProperties.allowEditModal) { 
+                    // 
+                    // -- add beta style wrapper to add styles
+                    core.doc.bodyClassList.Add("ccBetaEditModal");  
+                }
                 //
                 // -- add user errors that were not handled during page process
                 if (!core.doc.userErrorList.Count.Equals(0)) {

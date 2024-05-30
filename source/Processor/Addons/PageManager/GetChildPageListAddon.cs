@@ -28,7 +28,7 @@ namespace Contensive.Processor.Addons.PageManager {
             try {
                 CoreController core = ((CPClass)cp).core;
                 string listName = cp.Doc.GetText("instanceId");
-                if ( string.IsNullOrWhiteSpace(listName)) {
+                if (string.IsNullOrWhiteSpace(listName)) {
                     listName = cp.Doc.GetText("List Name");
                 }
                 result = getChildPageList(core, listName, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, true);
@@ -97,8 +97,8 @@ namespace Contensive.Processor.Addons.PageManager {
                             }
                         }
                         string pageEditLink = "";
-                        if (core.session.isEditing(contentName)) {
-                            pageEditLink = AdminUIEditButtonController.getEditTab(core, contentName, childPage.id, true, childPage.name);
+                        if (isAuthoring) {
+                            pageEditLink = AdminUIEditButtonController.getEditIcon(core,contentName, childPage.id);
                         }
                         //
                         string link = PageLink;
@@ -121,10 +121,13 @@ namespace Contensive.Processor.Addons.PageManager {
                                 //
                                 // -- child page has not yet displays, if editing show it as an orphan page
                                 if (isAuthoring) {
-                                    inactiveList.Append("\r<li name=\"page" + childPage.id + "\" name=\"page" + childPage.id + "\"  id=\"page" + childPage.id + "\" class=\"ccEditWrapper ccListItemNoBullet\">");
-                                    inactiveList.Append(pageEditLink);
-                                    inactiveList.Append("[from missing child page list '" + childPage.parentListName + "': " + LinkedText + "]");
-                                    inactiveList.Append("</li>");
+                                    string editWrapperClass = "ccEditWrapper";
+                                    //if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
+                                    inactiveList.Append("" +
+                                        $"<li name=\"page{childPage.id}\" name=\"page{childPage.id}\"  id=\"page{childPage.id}\" class=\"{editWrapperClass} ccListItemNoBullet\">" +
+                                        pageEditLink +
+                                        "[from missing child page list '" + childPage.parentListName + "': " + LinkedText + "]" +
+                                        "</li>");
                                 }
                             }
                         } else if ((string.IsNullOrEmpty(UcaseRequestedListName)) && (!allowChildListDisplay) && (!isAuthoring)) {
@@ -140,17 +143,21 @@ namespace Contensive.Processor.Addons.PageManager {
                             // ----- Allow in Child Page Lists is false, display hint to authors
                             //
                             if (isAuthoring) {
-                                inactiveList.Append("\r<li name=\"page" + childPage.id + "\"  id=\"page" + childPage.id + "\" class=\"ccEditWrapper ccListItemNoBullet\">");
-                                inactiveList.Append(pageEditLink);
-                                inactiveList.Append("[Hidden (Allow in Child Lists is not checked): " + LinkedText + "]");
-                                inactiveList.Append("</li>");
+                                string editWrapperClass = "ccEditWrapper";
+                                //if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
+                                inactiveList.Append("" +
+                                    $"<li name=\"page{childPage.id}\"  id=\"page{childPage.id}\" class=\"{editWrapperClass} ccListItemNoBullet\">" +
+                                    pageEditLink +
+                                    $"[Hidden (Allow in Child Lists is not checked): {LinkedText}]" +
+                                    "</li>");
                             }
                         } else if (!childPage.active) {
                             //
                             // ----- Not active record, display hint if authoring
-                            //
                             if (isAuthoring) {
-                                inactiveList.Append("\r<li name=\"page" + childPage.id + "\"  id=\"page" + childPage.id + "\" class=\"ccEditWrapper ccListItemNoBullet\">");
+                                string editWrapperClass = "ccEditWrapper";
+                                //if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
+                                inactiveList.Append($"<li name=\"page{childPage.id}\"  id=\"page{childPage.id}\" class=\"{editWrapperClass} ccListItemNoBullet\">");
                                 inactiveList.Append(pageEditLink);
                                 inactiveList.Append("[Hidden (Inactive): " + LinkedText + "]");
                                 inactiveList.Append("</li>");
@@ -160,7 +167,9 @@ namespace Contensive.Processor.Addons.PageManager {
                             // ----- Child page has not been published
                             //
                             if (isAuthoring) {
-                                inactiveList.Append("\r<li name=\"page" + childPage.id + "\"  id=\"page" + childPage.id + "\" class=\"ccEditWrapper ccListItemNoBullet\">");
+                                string editWrapperClass = "ccEditWrapper";
+                                //if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
+                                inactiveList.Append($"<li name=\"page{childPage.id}\"  id=\"page{childPage.id}\" class=\"{editWrapperClass} ccListItemNoBullet\">");
                                 inactiveList.Append(pageEditLink);
                                 inactiveList.Append("[Hidden (To be published " + childPage.pubDate + "): " + LinkedText + "]");
                                 inactiveList.Append("</li>");
@@ -170,7 +179,9 @@ namespace Contensive.Processor.Addons.PageManager {
                             // ----- Child page has expired
                             //
                             if (isAuthoring) {
-                                inactiveList.Append("\r<li name=\"page" + childPage.id + "\"  id=\"page" + childPage.id + "\" class=\"ccEditWrapper ccListItemNoBullet\">");
+                                string editWrapperClass = "ccEditWrapper";
+                                //if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
+                                inactiveList.Append($"<li name=\"page{childPage.id}\"  id=\"page{childPage.id}\" class=\"{editWrapperClass} ccListItemNoBullet\">");
                                 inactiveList.Append(pageEditLink);
                                 inactiveList.Append("[Hidden (Expired " + childPage.dateExpires + "): " + LinkedText + "]");
                                 inactiveList.Append("</li>");
@@ -180,36 +191,36 @@ namespace Contensive.Processor.Addons.PageManager {
                             // ----- display list (and authoring links)
                             //
                             if (isAuthoring) {
-                                activeList.Append("\r<li name=\"page" + childPage.id + "\"  id=\"page" + childPage.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
-                                if (!string.IsNullOrEmpty(pageEditLink)) { activeList.Append(HtmlController.div(iconGrip, "ccListItemDragHandle") + pageEditLink + "&nbsp;"); }
-                                activeList.Append(LinkedText);
+                                activeList.Append($"<li name=\"page{childPage.id}\"  id=\"page{childPage.id}\" class=\"ccEditWrapper ccListItem allowSort\">");
                                 //
-                                // include authoring mark for content block
+                                // -- edit icon and text
+                                activeList.Append($"{pageEditLink}&nbsp;{LinkedText}");
                                 //
-                                if (childPage.blockContent) {
-                                    activeList.Append("&nbsp;[Content Blocked]");
-                                }
-                                if (childPage.blockPage) {
-                                    activeList.Append("&nbsp;[Page Blocked]");
-                                }
+                                // -- content block notes
+                                if (childPage.blockContent) { activeList.Append("&nbsp;[Content Blocked]"); }
+                                if (childPage.blockPage) { activeList.Append("&nbsp;[Page Blocked]"); }
+                                //
+                                // -- drag-drop icon
+                                activeList.Append(HtmlController.div(iconGrip, "ccListItemDragHandle float-end"));
                             } else {
-                                activeList.Append("\r<li name=\"page" + childPage.id + "\"  id=\"page" + childPage.id + "\" class=\"ccListItem allowSort\">");
-                                activeList.Append(LinkedText);
+                                activeList.Append($"<li name=\"page{childPage.id}\"  id=\"page{childPage.id}\" class=\"ccListItem allowSort\">{LinkedText}");
                             }
                             //
                             // include overview
                             // if AllowBrief is false, BriefFilename is not loaded
                             //
-                            if ((childPage.briefFilename.filename != "") && (childPage.allowBrief)) {
-                                string Brief = encodeText(core.cdnFiles.readFileText(childPage.briefFilename.filename)).Trim(' ');
-                                if (!string.IsNullOrEmpty(Brief)) {
-                                    activeList.Append("<div class=\"ccListCopy\">" + Brief + "</div>");
+                            if (!string.IsNullOrEmpty( childPage.briefFilename.filename) && childPage.allowBrief) {
+                                string brief = encodeText(core.cdnFiles.readFileText(childPage.briefFilename.filename)).Trim(' ');
+                                if (!string.IsNullOrEmpty(brief)) {
+                                    activeList.Append("<div class=\"ccListCopy\">" + brief + "</div>");
                                 }
                             }
                             activeList.Append("</li>");
                             //
                             // -- add child page to childPagesListed list
-                            if (!core.doc.pageController.childPageIdsListed.Contains(childPage.id)) { core.doc.pageController.childPageIdsListed.Add(childPage.id); }
+                            if (!core.doc.pageController.childPageIdsListed.Contains(childPage.id)) { 
+                                core.doc.pageController.childPageIdsListed.Add(childPage.id); 
+                            }
                             ChildListCount += 1;
                         }
                     }
@@ -221,8 +232,12 @@ namespace Contensive.Processor.Addons.PageManager {
                 // ----- Add Link
                 //
                 if (!ArchivePages && isAuthoring) {
+                    string editWrapperClass = "";
+                    if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
                     foreach (var AddLink in AdminUIEditButtonController.getAddTabList(core, contentName, "parentid=" + parentPageID + ",ParentListName=" + UcaseRequestedListName, true)) {
-                        if (!string.IsNullOrEmpty(AddLink)) { inactiveList.Append("\r<li class=\"ccEditWrapper ccListItemNoBullet\">" + AddLink + "</LI>"); }
+                        if (!string.IsNullOrEmpty(AddLink)) { 
+                            inactiveList.Append($"<li class=\"{editWrapperClass} ccListItemNoBullet\">" + AddLink + "</LI>"); 
+                        }
                     }
                 }
                 //
@@ -230,7 +245,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 //
                 string result = activeList + inactiveList.ToString();
                 if (!string.IsNullOrEmpty(result)) {
-                    result = "\r<ul id=\"childPageList_" + parentPageID + "_" + requestedListName + "\" class=\"ccChildList\">" + result + "\r</ul>";
+                    result = "<ul id=\"childPageList_" + parentPageID + "_" + requestedListName + "\" class=\"ccChildList\">" + result + "</ul>";
                 }
                 if ((!string.IsNullOrEmpty(UcaseRequestedListName)) && (ChildListCount == 0) && isAuthoring) {
                     result = "[Child Page List with no pages]</p><p>" + result;

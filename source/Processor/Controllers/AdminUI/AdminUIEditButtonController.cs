@@ -53,15 +53,14 @@ namespace Contensive.Processor.Controllers {
         }
         //
         public static string getEditTabAndWrapper(CoreController core, string innerHtml, string contentName, int recordId, string customCaption) {
-            if (core.siteProperties.allowEditModal) {
+            if (!core.siteProperties.allowEditModal) {
                 //
-                // -- edit icon goes outside wrapper
-                return getEditTab(core, contentName, recordId, false, "", customCaption) + getEditWrapper(core, "", innerHtml);
-            } else {
-                //
-                // -- edit icon goes inside wrapper
+                // -- legacy, tab inside wrapper
                 return getEditWrapper(core, "", getEditTab(core, contentName, recordId, false, "", customCaption) + innerHtml);
             }
+            //
+            // -- tab over wrapper
+            return getEditTab(core, contentName, recordId, false, "", customCaption) + getEditWrapper(core, "", innerHtml);
         }
 
         //
@@ -115,10 +114,13 @@ namespace Contensive.Processor.Controllers {
         //
         public static string getEditTabAndWrapper(CoreController core, string innerHtml, ContentMetadataModel metadata, int recordId, string customCaption) {
             if (!core.siteProperties.allowEditModal) {
-                return getEditTab(core, metadata, recordId, false, "", customCaption) + getEditWrapper(core, "", innerHtml);
-            } else {
+                //
+                // -- legacy, tab inside wrapper
                 return getEditWrapper(core, "", getEditTab(core, metadata, recordId, false, "", customCaption) + innerHtml);
             }
+            //
+            // -- tab over wrapper
+            return getEditTab(core, metadata, recordId, false, "", customCaption) + getEditWrapper(core, "", innerHtml);
         }
         //
         //====================================================================================================
@@ -129,7 +131,7 @@ namespace Contensive.Processor.Controllers {
                 if (contentMetadata == null) { throw new GenericException("contentMetadata null."); }
                 if (!core.siteProperties.allowEditModal) {
                     //
-                    // -- legacy edit tag
+                    // -- legacy edit tag (green pencil)
                     var editSegmentList = new List<string> {
                         getEditIcon(core, getEditUrl(core, contentMetadata.id, recordId), getEditCaption(core, "Edit", contentMetadata.name, customCaption), "ccRecordEditLink")
                     };
@@ -138,16 +140,15 @@ namespace Contensive.Processor.Controllers {
                         editSegmentList.Add("<a class=\"ccRecordCutLink\" TabIndex=\"-1\" href=\"" + HtmlController.encodeHtml(WorkingLink) + "\">&nbsp;" + iconContentCut.Replace("content cut", getEditCaption(core, "Cut", contentMetadata.name, customCaption)) + "</a>");
                     }
                     return joinOldEditSegments(core, editSegmentList);
-                } else {
-                    //
-                    // -- edit record plus edit modal
-                    string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
-                    string layout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditRecordLayoutCdnPathFilename, defaultEditRecordLayoutCdnPathFilename);
-                    layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
-                    EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, caption,"");
-                    string result = MustacheController.renderStringToString(layout, dataSet);
-                    return result;
                 }
+                //
+                // -- edit record plus edit modal (blue pencil)
+                string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
+                string layout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditRecordLayoutCdnPathFilename, defaultEditRecordLayoutCdnPathFilename);
+                layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, caption, "");
+                string result = MustacheController.renderStringToString(layout, dataSet);
+                return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
@@ -291,7 +292,7 @@ namespace Contensive.Processor.Controllers {
                 if (!core.session.isEditing()) { return result; }
                 if (!core.siteProperties.allowEditModal) {
                     //
-                    // -- legacy
+                    // -- legacy green pencil
                     // -- convert older QS format to command delimited format
                     presetNameValueList = presetNameValueList.Replace("&", ",");
                     var content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentName);
@@ -332,18 +333,17 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     return result;
-                } else {
-                    //
-                    // -- layout based link
-                    string customCaption = "";
-                    string caption = getEditCaption(core, "Add", contentName, customCaption);
-                    string layout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, defaultAddRecordLayoutName, defaultAddRecordLayoutCdnPathFilename, defaultAddRecordLayoutCdnPathFilename);
-                    layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
-                    var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
-                    EditModalModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
-                    result.Add(MustacheController.renderStringToString(layout, dataSet));
-                    return result;
                 }
+                //
+                // -- layout based link (blue pencil)
+                string customCaption = "";
+                string caption = getEditCaption(core, "Add", contentName, customCaption);
+                string layout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, defaultAddRecordLayoutName, defaultAddRecordLayoutCdnPathFilename, defaultAddRecordLayoutCdnPathFilename);
+                layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
+                EditModalModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
+                result.Add(MustacheController.renderStringToString(layout, dataSet));
+                return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return result;
@@ -477,7 +477,7 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// UI Edit Record, with url
+        /// UI Edit Record
         /// </summary>
         /// <param name="url"></param>
         /// <param name="caption"></param>
@@ -490,6 +490,25 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// UI Edit Record
+        /// </summary>
+        /// <param name="url"></param>
+        /// <param name="caption"></param>
+        /// <param name="htmlClass"></param>
+        /// <returns></returns>
+        public static string getEditIcon(CoreController core, string contentName, int recordId, string caption, string htmlClass) {
+            string url = getEditUrl(core, core.cpParent.Content.GetID(contentName), recordId);
+            return getEditIcon(core, url, caption, htmlClass);
+        }
+        //
+        public static string getEditIcon(CoreController core, string contentName, int recordId, string caption)
+            => getEditIcon(core, contentName, recordId, caption, "");
+        //
+        public static string getEditIcon(CoreController core, string contentName, int recordId)
+            => getEditIcon(core, contentName, recordId, "", "");
+        //
+        //====================================================================================================
+        /// <summary>
         /// UI Edit Record, with url
         /// </summary>
         /// <param name="url"></param>
@@ -497,14 +516,16 @@ namespace Contensive.Processor.Controllers {
         /// <param name="htmlClass"></param>
         /// <returns></returns>
         public static string getEditIcon(CoreController core, string url, string caption, string htmlClass) {
-            if (core.siteProperties.allowEditModal) {
-                string layout = core.cpParent.Layout.GetLayout(guidLayoutAdminEditIcon, nameLayoutAdminEditIcon, pathFilenameLayoutAdminEditIcon);
-                var dataSet = new { aHref = url, aClass = htmlClass, aCaption = caption };
-                return core.cpParent.Mustache.Render(layout, dataSet);
-                //return HtmlController.a(layout + (string.IsNullOrWhiteSpace(caption) ? "" : "&nbsp;" + caption), url, htmlClass);
-            } else {
+            if (!core.siteProperties.allowEditModal) {
+                //
+                // -- legacy, green pencil
                 return HtmlController.a(iconEdit_Green + ((string.IsNullOrWhiteSpace(caption)) ? "" : "&nbsp;" + caption), url, htmlClass);
             }
+            //
+            // -- blue pencil layout
+            string layout = core.cpParent.Layout.GetLayout(guidLayoutAdminEditIcon, nameLayoutAdminEditIcon, pathFilenameLayoutAdminEditIcon);
+            var dataSet = new { aHref = url, aClass = htmlClass, aCaption = caption };
+            return core.cpParent.Mustache.Render(layout, dataSet);
         }
         //
         //====================================================================================================

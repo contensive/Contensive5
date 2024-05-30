@@ -29,7 +29,15 @@ Container for the default login form
 .ccEditWrapper {
 	border: 1px dashed #808080;
 	margin: 1px;
-    padding: 0;
+    padding: 5px;
+}
+
+.ccEditWrapper .fa-pen-square {
+	font-size: 28px;
+}
+
+.ccEditWrapper .ccRecordLinkCon .fa-pen-square {
+	font-size: 16px;
 }
 
 .ccBetaEditModal .ccEditWrapper {
