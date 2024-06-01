@@ -152,7 +152,7 @@ namespace Contensive.Processor.Models.Domain {
             isRequired = field.required;
             isReadOnly = field.readOnly;
             //
-            isFile = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.File || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML);
+            isFile = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.File;
             isText = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Text;
             isTextLong = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.LongText) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileText);
             isInteger = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Integer;
@@ -166,6 +166,10 @@ namespace Contensive.Processor.Models.Domain {
             isCurrency = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Currency;
             isImage = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage;
             isFloat = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Float;
+            // -- code editor
+            if((field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML)) {
+
+            }
 
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;

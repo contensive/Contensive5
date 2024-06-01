@@ -11,10 +11,23 @@ using System.Linq;
 using NLog;
 
 namespace Contensive.Processor.Addons.AdminSite {
+    /// <summary>
+    /// create editorRows. 
+    /// The editorRow is the editor plus the caption, help and layout that can be sta
+    /// </summary>
     public static class EditorRowClass {
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        /// <summary>
+        /// get the editorRow for this field.
+        /// The editorRow is the editor plus the caption, help and layout that can be sta
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="field"></param>
+        /// <param name="adminData"></param>
+        /// <param name="editorEnv"></param>
+        /// <returns></returns>
         public static string getEditorRow(CoreController core, ContentFieldMetadataModel field, AdminDataModel adminData, EditorEnvironmentModel editorEnv) {
             int hint = 0;
             string hintField = field.nameLc;

@@ -119,10 +119,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                 DataTable dt = core.db.executeQuery("select fieldid,helpdefault,helpcustom from ccfieldhelp where fieldid in (" + IDList + ") order by fieldid,id");
                 string[,] fieldHelpArray = core.db.convertDataTabletoArray(dt);
                 int HelpCnt = 0;
-                int[] HelpIDCache = { };
-                string[] helpDefaultCache = { };
-                string[] HelpCustomCache = { };
-                KeyPtrController helpIdIndex = new KeyPtrController();
+                int[] HelpIDCache = [];
+                string[] helpDefaultCache = [];
+                string[] HelpCustomCache = [];
+                KeyPtrController helpIdIndex = new();
                 if (fieldHelpArray.GetLength(0) > 0) {
                     HelpCnt = fieldHelpArray.GetUpperBound(1) + 1;
                     HelpIDCache = new int[HelpCnt + 1];

@@ -401,9 +401,10 @@
                                                     <img src="{{imageUrl}}" alt="placeholder image" class="output">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <h5 class="pb-0">{{caption}}</h5>
+                                                    {{caption}}
+                                                    <!--<h5 class="pb-0">{{caption}}</h5>-->
                                                     <span id="field-caption-{{fieldId}}" class="text-primary mb-2">No File Chosen...</span>
-                                                    <!--<h6 class="fw-light">File Type: PNG or JPEG</h6>-->
+                                                    <!--<h6 class="fw-light">File Type: WEBP, PNG, GIF, or JPEG</h6>-->
                                                     <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
                                                     {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                                     {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
