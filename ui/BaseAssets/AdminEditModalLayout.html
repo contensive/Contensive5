@@ -398,12 +398,12 @@
                                                             <img src="img/circle-info.svg" alt="info icon" class="icon">
                                                         </a>
                                                     {{/isHelp}}
-                                                    <img src="img/picturePlaceholder.jpg" alt="placeholder image" class="output">
+                                                    <img src="{{imageUrl}}" alt="placeholder image" class="output">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <h5 class="pb-0">Upload Image</h5>
-                                                    <a href="" src="" class="text-primary mb-2">No File Chosen...</a>
-                                                    <h6 class="fw-light">File Type: PNG or JPEG</h6>
+                                                    <h5 class="pb-0">{{caption}}</h5>
+                                                    <span id="field-caption-{{fieldId}}" class="text-primary mb-2">No File Chosen...</span>
+                                                    <!--<h6 class="fw-light">File Type: PNG or JPEG</h6>-->
                                                     <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
                                                     {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                                     {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
@@ -414,10 +414,17 @@
                                                     <input type="checkbox" class="btn-check" name="{{imageDeleteName}}" value="1" id="danger-outlined" autocomplete="off">
                                                     <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
                                                 </div>
-                                                <button class="btn btn-primary">Choose Image</button>
+                                                <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="field{{fieldId}}">Choose File</label>
                                             </div>
                                         </div>
                                     </div>
+                                    <script>
+                                        const actualBtn = document.getElementById('field{{fieldId}}');
+                                        const fileChosen = document.getElementById('field-caption-{{fieldId}}');
+                                        actualBtn.addEventListener('change', function(){
+                                            fileChosen.textContent = this.files[0].name
+                                        })                                        
+                                    </script>
                                     {{/isImage}}
                                     <!-- 
                                         float

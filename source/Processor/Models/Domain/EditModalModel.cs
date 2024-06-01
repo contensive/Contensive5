@@ -36,7 +36,7 @@ namespace Contensive.Processor.Models.Domain {
                 pageId = core.doc.pageController.page.id;
                 string instanceId = core.docProperties.getText("instanceId");
                 bool isWidget = false;
-                if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID")==instanceId ) {
+                if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID") == instanceId) {
                     isWidget = true;
                 }
                 allowDeleteData = !isWidget;
@@ -110,10 +110,17 @@ namespace Contensive.Processor.Models.Domain {
                 ContentFieldMetadataModel field = fieldKvp.Value;
                 if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
                     string currentValue = "";
-                    if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
-                        currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
-                    } else if (currentRecordCs.OK()) {
-                        currentValue = currentRecordCs.GetValue(field.nameLc);
+                    if (field.fieldTypeId==CPContentBaseClass.FieldTypeIdEnum.ManyToMany || field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
+                        // 
+                        // -- these field types have no value
+                    } else {
+                        //
+                        // -- capture current record value
+                        if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
+                            currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
+                        } else if (currentRecordCs.OK()) {
+                            currentValue = currentRecordCs.GetValue(field.nameLc);
+                        }
                     }
                     result.Add(new EditModalModel_FieldListItem(core, field, currentValue));
                 } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
@@ -124,6 +131,10 @@ namespace Contensive.Processor.Models.Domain {
             }
             List<EditModalModel_FieldListItem> sortedResult = result.OrderBy(o => o.sort).ToList();
             return result;
+        }
+        //
+        public static bool isFieldInModal(CoreController core, ContentFieldMetadataModel field, ContentMetadataModel contentMetadata) {
+            return (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName));
         }
     }
 
@@ -162,12 +173,12 @@ namespace Contensive.Processor.Models.Domain {
             imageDeleteName = $"field-{field.id}-delete";
             placeholder = $"{field.caption}";
             fieldId = $"field-{field.id}";
-            isChecked = isBoolean && GenericController.encodeBoolean(field.defaultValue);
+            isChecked = isBoolean && GenericController.encodeBoolean(currentValue);
             sort = field.editSortPriority;
             if (isSelect) {
                 selectOptionList = getSelectOptionList(core, field, currentValue);
             }
-
+            imageUrl = !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "/img/picturePlaceholder.jpg" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
         }
 
         public string htmlName { get; }
@@ -200,6 +211,11 @@ namespace Contensive.Processor.Models.Domain {
         public bool isChecked { get; }
         public int sort { get; }
         public string selectOptionList { get; }
+        /// <summary>
+        /// for image types, this is the image currently loaded, or the default image /img/picturePlaceholder.jpg
+        /// </summary>
+        public string imageUrl { get; }
+
         //
         /// <summary>
         /// create the select input option list for lookup field types using AdminUI, and remove the select wrapper
