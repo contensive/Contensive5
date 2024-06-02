@@ -100,8 +100,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 EditorEnvironmentModel editorEnv = new() {
                     allowHelpMsgCustom = false,
                     editorAddonListJSON = core.html.getWysiwygAddonList(contentType),
-                    isRootPage = adminData.adminContent.tableName.ToLowerInvariant().Equals(PageContentModel.tableMetadata.tableNameLower) && (adminData.editRecord.parentId == 0) && (adminData.editRecord.id != 0),
-                    needUniqueEmailMessage = false,
+                    isContentRootPage = adminData.adminContent.tableName.ToLowerInvariant().Equals(PageContentModel.tableMetadata.tableNameLower) && (adminData.editRecord.parentId == 0) && (adminData.editRecord.id != 0),
                     record_readOnly = adminData.editRecord.userReadOnly,
                     styleList = "",
                     styleOptionList = "",

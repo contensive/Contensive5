@@ -172,12 +172,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// 
         /// </summary>
         public bool userAllowContentEdit { get; set; }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// used to generate labels for form input
-        /// </summary>
-        public int formInputCount { get; set; }
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// used to generate labels for form input
+        ///// </summary>
+        //public int formInputCount { get; set; }
         //
         //====================================================================================================
         /// <summary>

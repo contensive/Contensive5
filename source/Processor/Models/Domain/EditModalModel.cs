@@ -1,10 +1,13 @@
-﻿using Amazon.SimpleEmail;
+﻿using Amazon.SecretsManager.Model;
+using Amazon.SimpleEmail;
+using Amazon.SimpleEmail.Model;
 using Contensive.BaseClasses;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using System.Net.Mime;
 //
 namespace Contensive.Processor.Models.Domain {
     //
@@ -85,7 +88,6 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <param name="currentRecordCs"></param>
         /// <param name="contentMetadata"></param>
-        /// <param name="recordId"></param>
         /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
         /// <returns></returns>
         private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs) {
@@ -105,12 +107,13 @@ namespace Contensive.Processor.Models.Domain {
             }
             //
             // -- iterate through all the fields in the content, adding the ones needed/allowed
+            int editRecordId = currentRecordCs.GetInteger("id");
             foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                 string fieldName = fieldKvp.Key;
                 ContentFieldMetadataModel field = fieldKvp.Value;
                 if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
                     string currentValue = "";
-                    if (field.fieldTypeId==CPContentBaseClass.FieldTypeIdEnum.ManyToMany || field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
+                    if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany || field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
                         // 
                         // -- these field types have no value
                     } else {
@@ -122,11 +125,11 @@ namespace Contensive.Processor.Models.Domain {
                             currentValue = currentRecordCs.GetValue(field.nameLc);
                         }
                     }
-                    result.Add(new EditModalModel_FieldListItem(core, field, currentValue));
+                    result.Add(new EditModalModel_FieldListItem(core, field, currentValue, editRecordId, contentMetadata.fields, contentMetadata));
                 } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
                     //
                     // -- else add a hidden for the prepopulate value
-                    result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()]));
+                    result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata));
                 }
             }
             List<EditModalModel_FieldListItem> sortedResult = result.OrderBy(o => o.sort).ToList();
@@ -143,7 +146,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// constructor
         /// </summary>
-        public EditModalModel_FieldListItem(CoreController core, ContentFieldMetadataModel field, string currentValue) {
+        public EditModalModel_FieldListItem(CoreController core, ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData) {
             htmlName = $"field-{field.nameLc}";
             caption = field.caption;
             help = field.helpMessage;
@@ -166,10 +169,37 @@ namespace Contensive.Processor.Models.Domain {
             isCurrency = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Currency;
             isImage = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage;
             isFloat = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Float;
-            // -- code editor
-            if((field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML)) {
 
-            }
+            // -- cache this or pass from calling method
+            List<FieldTypeEditorAddonModel> fieldTypeDefaultEditors = EditorController.getFieldEditorAddonList(core);
+
+
+
+
+            // -- code editor
+            EditorRowClass.editorResponse editorResponse = EditorRowClass.getEditor(core, new EditorRowClass.EditorRequest() {
+                contentId = field.contentId,
+                contentName = contentMetaData.name,
+                editorAddonListJSON = core.html.getWysiwygAddonList(CPHtml5BaseClass.EditorContentType.contentTypeWeb),
+                editRecordId = editRecordId,
+                editViewTitleSuffix = "",
+                field = field,
+                fieldTypeEditors = fieldTypeDefaultEditors,
+                formFieldList = null,
+                isContentRootPage = false,
+                record_readOnly = field.readOnly,
+                styleList = "",
+                styleOptionList = null,
+                tableName = contentMetaData.tableName,
+                editRecordNameLc = "",
+                editRecordContentControlId = 0,
+                currentValue = currentValue,
+                fields = fields,
+                htmlName = htmlName
+            });
+            editorInput = editorResponse.editorString;
+
+
 
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
@@ -219,6 +249,10 @@ namespace Contensive.Processor.Models.Domain {
         /// for image types, this is the image currently loaded, or the default image /img/picturePlaceholder.jpg
         /// </summary>
         public string imageUrl { get; }
+        /// <summary>
+        /// AdminUI editor input
+        /// </summary>
+        public string editorInput { get; }
 
         //
         /// <summary>

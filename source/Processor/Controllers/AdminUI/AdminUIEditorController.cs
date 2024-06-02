@@ -702,9 +702,8 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         //
-        public static string getRedirectEditor(CoreController core, ContentFieldMetadataModel field, AdminDataModel adminData, string fieldValue, bool readOnly, string htmlId, bool required) {
+        public static string getRedirectEditor(CoreController core, ContentFieldMetadataModel field, int contentId, string editViewTitleSuffix, string editRecordNameLc, int editRecordId, int editRecordContentControlId, string fieldValue, bool readOnly, string htmlId, bool required) {
             try {
-                EditRecordModel editRecord = adminData.editRecord;
                 if (!string.IsNullOrEmpty(field.redirectPath)) {
                     //
                     // -- if hardcoded redirect link, create open-in-new-windows
@@ -752,7 +751,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     //
                     // -- for redirect fields, only include connected records that match the redirect criteria
-                    sqlWhere += (string.IsNullOrEmpty(field.redirectId)) ? "" : "and(" + gridData.adminContent.tableName + "." + field.redirectId + "=" + editRecord.id + ")";
+                    sqlWhere += (string.IsNullOrEmpty(field.redirectId)) ? "" : "and(" + gridData.adminContent.tableName + "." + field.redirectId + "=" + editRecordId + ")";
                     //
                     // Get the total record count
                     string sql = "select count(" + gridData.adminContent.tableName + ".ID) as cnt from " + sqlFrom;
@@ -786,20 +785,20 @@ namespace Contensive.Processor.Controllers {
                         indexConfig.allowFind = false;
                         indexConfig.allowAddRow = true;
                         indexConfig.allowColumnSort = false;
-                        gridData.wherePair.Add(field.redirectId.ToLower(), editRecord.id.ToString());
+                        gridData.wherePair.Add(field.redirectId.ToLower(), editRecordId.ToString());
                         return ListGridController.get(core, gridData, indexConfig, userContentPermissions, sql, datasource, FieldUsedInColumns, IsLookupFieldValid);
                     } else {
                         //
                         // -- too many rows, setup a redirect
-                        if (editRecord.id == 0) {
+                        if (editRecordId == 0) {
                             return "[available after save]";
                         }
                         string RedirectPath = (string.IsNullOrEmpty(field.redirectPath)) ? core.appConfig.adminRoute : field.redirectPath;
-                        RedirectPath += "?" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(" For " + editRecord.nameLc + adminData.editViewTitleSuffix) + "&wl0=" + field.redirectId + "&wr0=" + editRecord.id;
+                        RedirectPath += "?" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(" For " + editRecordNameLc + editViewTitleSuffix) + "&wl0=" + field.redirectId + "&wr0=" + editRecordId;
                         if (field.redirectContentId != 0) {
                             RedirectPath += "&cid=" + field.redirectContentId;
                         } else {
-                            RedirectPath += "&cid=" + ((editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : editRecord.contentControlId);
+                            RedirectPath += "&cid=" + ((editRecordContentControlId.Equals(0)) ? contentId : editRecordContentControlId);
                         }
                         RedirectPath = strReplace(RedirectPath, "'", "\\'");
                         return HtmlController.a("Open in New Window", RedirectPath, "", "", "", "_blank");
