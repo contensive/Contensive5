@@ -119,12 +119,10 @@
                                                             <img src="img/circle-info.svg" alt="info icon" class="icon">
                                                         </a>
                                                     {{/isHelp}}
-                                                    <img src="img/picturePlaceholder.jpg" alt="placeholder image" class="output">
                                                 </div>
                                                 <div class="mb-3">
-                                                    <h5 class="pb-0">Upload Image</h5>
-                                                    <a href="" src="" class="text-primary mb-2">No File Chosen...</a>
-                                                    <h6 class="fw-light">File Type: PNG or JPEG</h6>
+                                                    {{caption}}
+                                                    <span id="field{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>
                                                     <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
                                                     {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
                                                     {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
@@ -135,10 +133,17 @@
                                                     <input type="checkbox" class="btn-check" name="{{imageDeleteName}}" value="1" id="danger-outlined" autocomplete="off">
                                                     <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
                                                 </div>
-                                                <button class="btn btn-primary">Choose file</button>
+                                                <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="field{{fieldId}}">Choose File</label>
                                             </div>
                                         </div>
                                     </div>
+                                    <script>
+                                        const actualBtn{{fieldId}} = document.getElementById('field{{fieldId}}');
+                                        const fileChosen{{fieldId}} = document.getElementById('field{{fieldId}}-caption');
+                                        actualBtn{{fieldId}}.addEventListener('change', function(){
+                                            fileChosen{{fieldId}}.textContent = this.files[0].name
+                                        })                                        
+                                    </script>
                                     {{/isFile}}
                                     {{#isText}}
                                     <!--
@@ -245,7 +250,12 @@
 
                                                 {{caption}}
                                             </label>
-                                            {{{editorInput}}}
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isHtml}}
@@ -253,7 +263,7 @@
                                     <!--
                                         html-code field
                                     -->
-                                    <div  class="sctnWrpr">
+                                    <div class="sctnWrpr">
                                         <div class="mb-3">
                                             <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
@@ -261,13 +271,91 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-
                                                 {{caption}}
                                             </label>
-                                            {{{editorInput}}}
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isHtmlCode}}
+
+                                    {{#isCSS}}
+                                    <!--
+                                        CSSfield
+                                    -->
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}
+                                                {{caption}}
+                                            </label>
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
+                                        </div>
+                                    </div>
+                                    {{/isCSS}}
+
+                                    {{#isJavaScript}}
+                                    <!--
+                                        Javascript
+                                    -->
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}
+                                                {{caption}}
+                                            </label>
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
+                                        </div>
+                                    </div>
+                                    {{/isJavaScript}}
+
+                                    {{#isXML}}
+                                    <!--
+                                        XML
+                                    -->
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}
+                                                {{caption}}
+                                            </label>
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
+                                        </div>
+                                    </div>
+                                    {{/isXML}}
+
+
                                     {{#isLink}}
                                     <!--
                                         link
@@ -390,7 +478,7 @@
                                                 <div class="mb-3">
                                                     {{caption}}
                                                     <!--<h5 class="pb-0">{{caption}}</h5>-->
-                                                    <span id="field-caption-{{fieldId}}" class="text-primary mb-2">No File Chosen...</span>
+                                                    <span id="field{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>
                                                     <!--<h6 class="fw-light">File Type: WEBP, PNG, GIF, or JPEG</h6>-->
                                                     <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
                                                     {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
@@ -407,10 +495,10 @@
                                         </div>
                                     </div>
                                     <script>
-                                        const actualBtn = document.getElementById('field{{fieldId}}');
-                                        const fileChosen = document.getElementById('field-caption-{{fieldId}}');
-                                        actualBtn.addEventListener('change', function(){
-                                            fileChosen.textContent = this.files[0].name
+                                        const actualBtn{{fieldId}} = document.getElementById('field{{fieldId}}');
+                                        const fileChosen{{fieldId}} = document.getElementById('field{{fieldId}}-caption');
+                                        actualBtn{{fieldId}}.addEventListener('change', function(){
+                                            fileChosen{{fieldId}}.textContent = this.files[0].name
                                         })                                        
                                     </script>
                                     {{/isImage}}
@@ -438,6 +526,27 @@
                                         </div>
                                     </div>
                                     {{/isFloat}}
+                                    {{#isCheckboxList}}
+                                    <!--
+                                        many-to-many
+                                    -->
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}
+                                                {{caption}}
+                                            </label>
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                many-to-many list
+                                            {{/customEditor}}
+                                        </div>
+                                    </div>
+                                    {{/isCheckboxList}}
                                 {{/leftFields}}  
                             </div>
 

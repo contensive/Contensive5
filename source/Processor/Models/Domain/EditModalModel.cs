@@ -107,7 +107,7 @@ namespace Contensive.Processor.Models.Domain {
             }
             //
             // -- iterate through all the fields in the content, adding the ones needed/allowed
-            int editRecordId = currentRecordCs.GetInteger("id");
+            int editRecordId = currentRecordCs.OK() ? currentRecordCs.GetInteger("id") : 0;
             foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                 string fieldName = fieldKvp.Key;
                 ContentFieldMetadataModel field = fieldKvp.Value;
@@ -123,6 +123,19 @@ namespace Contensive.Processor.Models.Domain {
                             currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
                         } else if (currentRecordCs.OK()) {
                             currentValue = currentRecordCs.GetValue(field.nameLc);
+                            //
+                            // -- file type fields read the filename, but save the content
+                            switch (field.fieldTypeId) {
+                                case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileText:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
+                                        currentValue = core.cpParent.CdnFiles.Read(currentValue);
+                                        break;
+                                    }
+                            }
                         }
                     }
                     result.Add(new EditModalModel_FieldListItem(core, field, currentValue, editRecordId, contentMetadata.fields, contentMetadata));
@@ -147,7 +160,7 @@ namespace Contensive.Processor.Models.Domain {
         /// constructor
         /// </summary>
         public EditModalModel_FieldListItem(CoreController core, ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData) {
-            htmlName = $"field-{field.nameLc}";
+            htmlName = $"field{field.id}";
             caption = field.caption;
             help = field.helpMessage;
             this.currentValue = currentValue;
@@ -169,6 +182,9 @@ namespace Contensive.Processor.Models.Domain {
             isCurrency = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Currency;
             isImage = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage;
             isFloat = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Float;
+            isCSS = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS;
+            isJavaScript = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript;
+            isXML = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML;
 
             // -- cache this or pass from calling method
             List<FieldTypeEditorAddonModel> fieldTypeDefaultEditors = EditorController.getFieldEditorAddonList(core);
@@ -197,16 +213,16 @@ namespace Contensive.Processor.Models.Domain {
                 fields = fields,
                 htmlName = htmlName
             });
-            editorInput = editorResponse.editorString;
+            customEditor = editorResponse.editorString;
 
 
 
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
             numberMax = 2147483647;
-            imageDeleteName = $"field-{field.id}-delete";
+            imageDeleteName = $"field{field.id}delete";
             placeholder = $"{field.caption}";
-            fieldId = $"field-{field.id}";
+            fieldId = $"field{field.id}";
             isChecked = isBoolean && GenericController.encodeBoolean(currentValue);
             sort = field.editSortPriority;
             if (isSelect) {
@@ -232,6 +248,9 @@ namespace Contensive.Processor.Models.Domain {
         public bool isCurrency { get; }
         public bool isImage { get; }
         public bool isFloat { get; }
+        public bool isCSS { get; }
+        public bool isJavaScript { get; }
+        public bool isXML { get; }
         public bool isCheckboxList { get; }
         public bool isLink { get; }
         public bool isHtml { get; }
@@ -252,7 +271,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// AdminUI editor input
         /// </summary>
-        public string editorInput { get; }
+        public string customEditor { get; }
 
         //
         /// <summary>

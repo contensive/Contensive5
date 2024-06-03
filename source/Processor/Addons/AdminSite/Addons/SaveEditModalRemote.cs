@@ -115,15 +115,14 @@ namespace Contensive.Processor.Addons {
                                     ContentFieldMetadataModel field = fieldKvp.Value;
                                     if (field.nameLc == "name") { recordName = cs.GetText("name"); }
                                     if (field.nameLc == "parentid") { parentId = cs.GetInteger("parentid"); }
-                                    string requestFieldName = $"field-{field.nameLc}";
+                                    string requestFieldName = $"field{field.id}";
                                     if (EditModalModel.isFieldInModal(cp.core, field, contentMetaData)) {
-                                        if(field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage) {
-                                            //
-                                            // -- image
-                                            if (cp.Request.GetBoolean($"field-{field.id}-delete")){
-                                                cs.SetField(field.nameLc, "");
-                                            }
+                                        //
+                                        // -- delete file types
+                                        if (cp.Request.GetBoolean($"field{field.id}delete")) {
+                                            cs.SetField(field.nameLc, "");
                                         }
+                                        //
                                         cs.SetFormInput(field.nameLc, requestFieldName);
                                     }
                                     //if (cp.Doc.IsProperty(requestFieldName)) {
