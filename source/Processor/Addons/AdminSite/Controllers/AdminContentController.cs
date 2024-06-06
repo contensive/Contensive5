@@ -630,12 +630,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="core"></param>
-        /// <param name="IndexConfig"></param>
-        public static void setIndexSQL_SaveIndexConfig(CPClass cp, CoreController core, IndexConfigClass IndexConfig) {
+        /// <param name="gridConfig"></param>
+        public static void setIndexSQL_SaveIndexConfig(CPClass cp, CoreController core, GridConfigClass gridConfig) {
             //
             // --Find words
             string SubList = "";
-            foreach (var kvp in IndexConfig.findWords) {
+            foreach (var kvp in gridConfig.findWords) {
                 IndexConfigFindWordClass findWord = kvp.Value;
                 if ((!string.IsNullOrEmpty(findWord.Name)) && (findWord.MatchOption != FindWordMatchEnum.MatchIgnore)) {
                     SubList += Environment.NewLine + findWord.Name + "\t" + findWord.Value + "\t" + (int)findWord.MatchOption;
@@ -647,17 +647,17 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
             //
             // --CDef List
-            if (IndexConfig.subCDefID > 0) {
-                FilterText += Environment.NewLine + "CDefList\r\n" + IndexConfig.subCDefID + Environment.NewLine;
+            if (gridConfig.subCDefID > 0) {
+                FilterText += Environment.NewLine + "CDefList\r\n" + gridConfig.subCDefID + Environment.NewLine;
             }
             //
             // -- Group List
             SubList = "";
-            if (IndexConfig.groupListCnt > 0) {
+            if (gridConfig.groupListCnt > 0) {
                 //
-                for (int ptr = 0; ptr < IndexConfig.groupListCnt; ptr++) {
-                    if (!string.IsNullOrEmpty(IndexConfig.groupList[ptr])) {
-                        SubList += Environment.NewLine + IndexConfig.groupList[ptr];
+                for (int ptr = 0; ptr < gridConfig.groupListCnt; ptr++) {
+                    if (!string.IsNullOrEmpty(gridConfig.groupList[ptr])) {
+                        SubList += Environment.NewLine + gridConfig.groupList[ptr];
                     }
                 }
             }
@@ -668,44 +668,44 @@ namespace Contensive.Processor.Addons.AdminSite {
             // PageNumber and Records Per Page
             FilterText += Environment.NewLine
                 + Environment.NewLine + "pagenumber"
-                + Environment.NewLine + IndexConfig.pageNumber;
+                + Environment.NewLine + gridConfig.pageNumber;
             FilterText += Environment.NewLine
                 + Environment.NewLine + "recordsperpage"
-                + Environment.NewLine + IndexConfig.recordsPerPage;
+                + Environment.NewLine + gridConfig.recordsPerPage;
             //
             // misc filters
-            if (IndexConfig.activeOnly) {
+            if (gridConfig.activeOnly) {
                 FilterText += Environment.NewLine
                     + Environment.NewLine + "IndexFilterActiveOnly";
             }
-            if (IndexConfig.lastEditedByMe) {
+            if (gridConfig.lastEditedByMe) {
                 FilterText += Environment.NewLine
                     + Environment.NewLine + "IndexFilterLastEditedByMe";
             }
-            if (IndexConfig.lastEditedToday) {
+            if (gridConfig.lastEditedToday) {
                 FilterText += Environment.NewLine
                     + Environment.NewLine + "IndexFilterLastEditedToday";
             }
-            if (IndexConfig.lastEditedPast7Days) {
+            if (gridConfig.lastEditedPast7Days) {
                 FilterText += Environment.NewLine
                     + Environment.NewLine + "IndexFilterLastEditedPast7Days";
             }
-            if (IndexConfig.lastEditedPast30Days) {
+            if (gridConfig.lastEditedPast30Days) {
                 FilterText += Environment.NewLine
                     + Environment.NewLine + "IndexFilterLastEditedPast30Days";
             }
-            if (IndexConfig.open) {
+            if (gridConfig.open) {
                 FilterText += Environment.NewLine
                     + Environment.NewLine + "IndexFilterOpen";
             }
             //
-            cp.core.visitProperty.setProperty(AdminDataModel.IndexConfigPrefix + encodeText(IndexConfig.contentID), FilterText);
+            cp.core.visitProperty.setProperty(AdminDataModel.IndexConfigPrefix + encodeText(gridConfig.contentID), FilterText);
             //
             //   Member Properties (persistant)
             //
             // Save Admin Column
             SubList = "";
-            foreach (var column in IndexConfig.columns) {
+            foreach (var column in gridConfig.columns) {
                 if (!string.IsNullOrEmpty(column.Name)) {
                     SubList += Environment.NewLine + column.Name + "\t" + column.Width;
                 }
@@ -718,7 +718,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             // Sorts
             //
             SubList = "";
-            foreach (var kvp in IndexConfig.sorts) {
+            foreach (var kvp in gridConfig.sorts) {
                 IndexConfigSortClass sort = kvp.Value;
                 if (!string.IsNullOrEmpty(sort.fieldName)) {
                     SubList += Environment.NewLine + sort.fieldName + "\t" + sort.direction;
@@ -727,7 +727,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             if (!string.IsNullOrEmpty(SubList)) {
                 FilterText += Environment.NewLine + "Sorts" + SubList + Environment.NewLine;
             }
-            cp.core.userProperty.setProperty(AdminDataModel.IndexConfigPrefix + encodeText(IndexConfig.contentID), FilterText);
+            cp.core.userProperty.setProperty(AdminDataModel.IndexConfigPrefix + encodeText(gridConfig.contentID), FilterText);
         }
     }
 }

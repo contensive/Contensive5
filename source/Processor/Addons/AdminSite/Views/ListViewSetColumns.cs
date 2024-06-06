@@ -39,7 +39,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // -- Process reset
                     core.userProperty.setProperty(AdminDataModel.IndexConfigPrefix + adminContent.id.ToString(), "");
                 }
-                IndexConfigClass IndexConfig = IndexConfigClass.get(core, adminData);
+                GridConfigClass gridConfig = GridConfigClass.get(core, adminData);
                 int ToolsAction = core.docProperties.getInteger("dta");
                 int TargetFieldId = core.docProperties.getInteger("fi");
                 string TargetFieldName = core.docProperties.getText("FieldName");
@@ -100,7 +100,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // Make sure all fields are not-inherited, if not, create new fields
                         //
-                        foreach (var column in IndexConfig.columns) {
+                        foreach (var column in gridConfig.columns) {
                             ContentFieldMetadataModel field = adminContent.fields[column.Name.ToLowerInvariant()];
                             if (field.inherited) {
                                 SourceContentId = field.contentId;
@@ -119,7 +119,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // get current values for Processing
                         //
-                        foreach (var column in IndexConfig.columns) {
+                        foreach (var column in gridConfig.columns) {
                             ColumnWidthTotal += column.Width;
                         }
                         //
@@ -133,17 +133,17 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (FieldIDToAdd != 0) {
                                         //
                                         // -- add new column to be 20% of width (reduce all by 20%)
-                                        foreach (var columnx in IndexConfig.columns) {
+                                        foreach (var columnx in gridConfig.columns) {
                                             columnx.Width = encodeInteger(columnx.Width * 80.0 / 100.0);
                                         }
                                         IndexConfigColumnClass column = new() {
                                             Name = cp.Content.GetRecordName("Content Fields", FieldIDToAdd),
                                             Width = encodeInteger(ColumnWidthTotal * 0.20)
                                         };
-                                        if (IndexConfig.columns.Find((x) => x.Name.ToLower() == column.Name.ToLower()) == null) {
+                                        if (gridConfig.columns.Find((x) => x.Name.ToLower() == column.Name.ToLower()) == null) {
                                             //
                                             // -- is the column already added (double click or refresh could add it again)
-                                            IndexConfig.columns.Add(column);
+                                            gridConfig.columns.Add(column);
                                             normalizeSaveLoad = true;
                                         }
                                     }
@@ -155,46 +155,46 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     // Remove a field to the index form
                                     int columnWidthTotal = 0;
                                     var dstColumns = new List<IndexConfigColumnClass>();
-                                    foreach (var column in IndexConfig.columns) {
+                                    foreach (var column in gridConfig.columns) {
                                         if (column.Name != TargetFieldName.ToLowerInvariant()) {
                                             dstColumns.Add(column);
                                             columnWidthTotal += column.Width;
                                         }
                                     }
-                                    IndexConfig.columns = dstColumns;
+                                    gridConfig.columns = dstColumns;
                                     normalizeSaveLoad = true;
                                     break;
                                 }
                             case ToolsActionMoveFieldLeft: {
-                                    if (IndexConfig.columns.First().Name != TargetFieldName.ToLowerInvariant()) {
+                                    if (gridConfig.columns.First().Name != TargetFieldName.ToLowerInvariant()) {
                                         int listIndex = 0;
-                                        foreach (var column in IndexConfig.columns) {
+                                        foreach (var column in gridConfig.columns) {
                                             if (column.Name == TargetFieldName.ToLowerInvariant()) {
                                                 break;
                                             }
                                             listIndex += 1;
                                         }
-                                        IndexConfig.columns.swap(listIndex, listIndex - 1);
+                                        gridConfig.columns.swap(listIndex, listIndex - 1);
                                         normalizeSaveLoad = true;
                                     }
                                     break;
                                 }
                             case ToolsActionMoveFieldRight: {
-                                    if (IndexConfig.columns.Last().Name != TargetFieldName.ToLowerInvariant()) {
+                                    if (gridConfig.columns.Last().Name != TargetFieldName.ToLowerInvariant()) {
                                         int listIndex = 0;
-                                        foreach (var column in IndexConfig.columns) {
+                                        foreach (var column in gridConfig.columns) {
                                             if (column.Name == TargetFieldName.ToLowerInvariant()) {
                                                 break;
                                             }
                                             listIndex += 1;
                                         }
-                                        IndexConfig.columns.swap(listIndex, listIndex + 1);
+                                        gridConfig.columns.swap(listIndex, listIndex + 1);
                                         normalizeSaveLoad = true;
                                     }
                                     break;
                                 }
                             case ToolsActionExpand: {
-                                    foreach (var column in IndexConfig.columns) {
+                                    foreach (var column in gridConfig.columns) {
                                         if (column.Name == TargetFieldName.ToLowerInvariant()) {
                                             column.Width = Convert.ToInt32(Convert.ToDouble(column.Width) * 1.1);
                                         } else {
@@ -205,7 +205,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     break;
                                 }
                             case ToolsActionContract: {
-                                    foreach (var column in IndexConfig.columns) {
+                                    foreach (var column in gridConfig.columns) {
                                         if (column.Name != TargetFieldName.ToLowerInvariant()) {
                                             column.Width = Convert.ToInt32(Convert.ToDouble(column.Width) * 1.1);
                                         } else {
@@ -231,14 +231,14 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // Normalize the widths of the remaining columns
                             ColumnWidthTotal = 0;
-                            foreach (var column in IndexConfig.columns) {
+                            foreach (var column in gridConfig.columns) {
                                 ColumnWidthTotal += column.Width;
                             }
-                            foreach (var column in IndexConfig.columns) {
+                            foreach (var column in gridConfig.columns) {
                                 column.Width = encodeInteger((1000 * column.Width) / (double)ColumnWidthTotal);
                             }
-                            AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, IndexConfig);
-                            IndexConfig = IndexConfigClass.get(core, adminData);
+                            AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, gridConfig);
+                            gridConfig = GridConfigClass.get(core, adminData);
                         }
                     }
                     //
@@ -279,11 +279,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                     ColumnWidthTotal = 0;
                     int InheritedFieldCount = 0;
-                    if (IndexConfig.columns.Count > 0) {
+                    if (gridConfig.columns.Count > 0) {
                         //
                         // Calc total width
                         //
-                        foreach (var column in IndexConfig.columns) {
+                        foreach (var column in gridConfig.columns) {
                             ColumnWidthTotal += column.Width;
                         }
                         if (ColumnWidthTotal > 0) {
@@ -294,7 +294,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             int ColumnWidth = 0;
                             int fieldId = 0;
                             string Caption = null;
-                            foreach (var column in IndexConfig.columns) {
+                            foreach (var column in gridConfig.columns) {
                                 //
                                 // print column headers - anchored so they sort columns
                                 //
@@ -312,7 +312,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // -- body
                             Stream.add("<tr>");
-                            foreach (var column in IndexConfig.columns) {
+                            foreach (var column in gridConfig.columns) {
                                 //
                                 // print column headers - anchored so they sort columns
                                 //
@@ -367,7 +367,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         foreach (ContentFieldMetadataModel field in sortList) {
                             //
                             // display the column if it is not in use
-                            if (IndexConfig.columns.Find(x => x.Name == field.nameLc) == null) {
+                            if (gridConfig.columns.Find(x => x.Name == field.nameLc) == null) {
                                 if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.File) {
                                     //
                                     // file can not be search

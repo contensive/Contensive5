@@ -62,11 +62,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Process last form
                 //
                 string Button = core.docProperties.getText("button");
-                IndexConfigClass IndexConfig = null;
+                GridConfigClass gridConfig = null;
                 if (!string.IsNullOrEmpty(Button)) {
                     switch (Button) {
                         case ButtonSearch:
-                            IndexConfig = IndexConfigClass.get(core, adminData);
+                            gridConfig = GridConfigClass.get(core, adminData);
                             FormFieldCnt = core.docProperties.getInteger("fieldcnt");
                             if (FormFieldCnt > 0) {
                                 for (FormFieldPtr = 0; FormFieldPtr < FormFieldCnt; FormFieldPtr++) {
@@ -83,12 +83,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             SearchValue = "";
                                             break;
                                     }
-                                    if (!IndexConfig.findWords.ContainsKey(FieldName)) {
+                                    if (!gridConfig.findWords.ContainsKey(FieldName)) {
                                         //
                                         // fieldname not found, save if not FindWordMatchEnum.MatchIgnore
                                         //
                                         if (MatchOption != FindWordMatchEnum.MatchIgnore) {
-                                            IndexConfig.findWords.Add(FieldName, new IndexConfigFindWordClass {
+                                            gridConfig.findWords.Add(FieldName, new IndexConfigFindWordClass {
                                                 Name = FieldName,
                                                 MatchOption = MatchOption,
                                                 Value = SearchValue
@@ -98,18 +98,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         //
                                         // fieldname was found
                                         //
-                                        IndexConfig.findWords[FieldName].MatchOption = MatchOption;
-                                        IndexConfig.findWords[FieldName].Value = SearchValue;
+                                        gridConfig.findWords[FieldName].MatchOption = MatchOption;
+                                        gridConfig.findWords[FieldName].Value = SearchValue;
                                     }
                                 }
                             }
-                            AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, IndexConfig);
+                            AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, gridConfig);
                             return string.Empty;
                         case ButtonCancel:
                             return string.Empty;
                     }
                 }
-                IndexConfig = IndexConfigClass.get(core, adminData);
+                gridConfig = GridConfigClass.get(core, adminData);
                 Button = "CriteriaSelect";
                 RQS = core.doc.refreshQueryString;
                 //
@@ -166,9 +166,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                     //
                     // set prepoplate value from indexconfig
                     //
-                    if (IndexConfig.findWords.ContainsKey(FieldName)) {
-                        FieldValue[FieldPtr] = IndexConfig.findWords[FieldName].Value;
-                        FieldMatchOptions[FieldPtr] = (int)IndexConfig.findWords[FieldName].MatchOption;
+                    if (gridConfig.findWords.ContainsKey(FieldName)) {
+                        FieldValue[FieldPtr] = gridConfig.findWords[FieldName].Value;
+                        FieldMatchOptions[FieldPtr] = (int)gridConfig.findWords[FieldName].MatchOption;
                     }
                     FieldPtr += 1;
                 }

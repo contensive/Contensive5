@@ -95,7 +95,7 @@
         </style>  
         <div class="modal fade widgetEditModal" id="widgetEditModal{{editId}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">
-                <form action="/saveEditModal" method="post" enctype="multipart/form-data" class="modal-content">
+                <form action="/saveEditModal" method="post" enctype="multipart/form-data" class="modal-content" id="modalForm{{editId}}">
                     <input type="hidden" name="recordId" value="{{recordId}}">
                     <input type="hidden" name="contentGuid" value="{{contentGuid}}">
                     <div class="modal-header d-flex justify-content-between border-0">
@@ -231,7 +231,10 @@
                                                 <input type="time" name="{{htmlName}}-time" class="form-control" id="field{{fieldId}}-time">
                                                 {{#isRequired}}<script>document.getElementById("field{{fieldId}}-time").required = true;</script>{{/isRequired}}
                                                 {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}-time").readOnly = true;</script>{{/isReadOnly}}
-                                                </div>
+                                                <!-- clear both-->
+                                                <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="danger-outlined" autocomplete="off">
+                                                <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
+                                        </div>
                                         </div>
                                     </div>
                                     {{/isDate}}
@@ -382,7 +385,6 @@
                                         checkbox list
                                     -->
                                     <div class="form-check form-check-inline mb-3">
-                                        <b>need {checkboxlist)</b>
                                         <input class="form-check-input" type="checkbox" value="1" id="field{{fieldId}}" name="{{htmlName}}>
                                         {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
                                         {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
@@ -487,7 +489,7 @@
                                             </div>
                                             <div class="d-flex align-items-center">
                                                 <div>  
-                                                    <input type="checkbox" class="btn-check" name="{{imageDeleteName}}" value="1" id="danger-outlined" autocomplete="off">
+                                                    <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="danger-outlined" autocomplete="off">
                                                     <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
                                                 </div>
                                                 <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="field{{fieldId}}">Choose File</label>
@@ -547,6 +549,27 @@
                                         </div>
                                     </div>
                                     {{/isCheckboxList}}
+                                    {{#isRedirect}}
+                                    <!--
+                                        redirect
+                                    -->
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}
+                                                {{caption}}
+                                            </label>
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                redirect-editor
+                                            {{/customEditor}}
+                                        </div>
+                                    </div>
+                                    {{/isRedirect}}
                                 {{/leftFields}}  
                             </div>
 
@@ -583,7 +606,6 @@
                                                             <!--
                                                                 select field
                                                             -->
-                                                            <b>need {selectOptionList)</b>
                                                             <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
                                                                 <option value="{{currentValue}}" selected>{{currentValue}}</option>
                                                             </select>
@@ -593,7 +615,6 @@
                                                                 checkbox list
                                                             -->
                                                             <div class="form-check form-check-inline mb-3">
-                                                                <b>need {checkboxlist)</b>
                                                                 <input class="form-check-input" type="checkbox" value="" id="field{{fieldId}}" name="{{htmlName}}">
                                                                 {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
                                                                 {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
@@ -669,7 +690,7 @@
                             {{/allowDeleteData}}
                         </div>
                         <div>
-                            <button type="button" name="button" value="cancel" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" name="button" value="cancel" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn{{editId}}">Cancel</button>
                             <button type="submit" name="button" value="saveChanges" class="btn btn-primary">Save Changes</button>
                         </div>
                     </div>
@@ -677,7 +698,13 @@
             </div>
         </div>
         <script>
+            console.log('AdminEditModalLayout script');
             document.addEventListener("DOMContentLoaded", function(event) { 
+                console.log('AdminEditModalLayout binding');
+                $('#cancelBtn{{editId}}').on('click',function(){
+                    console.log('form reset, close modal');
+                    document.getElementById("modalForm{{editId}}").reset();
+                })
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)

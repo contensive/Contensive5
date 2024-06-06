@@ -185,6 +185,7 @@ namespace Contensive.Processor.Models.Domain {
             isCSS = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS;
             isJavaScript = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript;
             isXML = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML;
+            isRedirect = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Redirect;
 
             // -- cache this or pass from calling method
             List<FieldTypeEditorAddonModel> fieldTypeDefaultEditors = EditorController.getFieldEditorAddonList(core);
@@ -220,7 +221,7 @@ namespace Contensive.Processor.Models.Domain {
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
             numberMax = 2147483647;
-            imageDeleteName = $"field{field.id}delete";
+            fieldClearName = $"field{field.id}delete";
             placeholder = $"{field.caption}";
             fieldId = $"field{field.id}";
             isChecked = isBoolean && GenericController.encodeBoolean(currentValue);
@@ -255,10 +256,11 @@ namespace Contensive.Processor.Models.Domain {
         public bool isLink { get; }
         public bool isHtml { get; }
         public bool isHtmlCode { get; }
+        public bool isRedirect { get; }
         public int textMaxLength { get; }
         public int numberMin { get; }
         public int numberMax { get; }
-        public string imageDeleteName { get; }
+        public string fieldClearName { get; }
         public string placeholder { get; }
         public string fieldId { get; }
         public bool isChecked { get; }

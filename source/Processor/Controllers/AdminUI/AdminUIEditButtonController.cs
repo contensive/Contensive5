@@ -144,11 +144,14 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- edit record plus edit modal (blue pencil)
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
-                string layout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditRecordLayoutCdnPathFilename, defaultEditRecordLayoutCdnPathFilename);
-                layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                string editRecordLayout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditRecordLayoutCdnPathFilename, defaultEditRecordLayoutCdnPathFilename);
+                string editModalLayout = LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                string delim = getRandomString(10);
                 EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, caption, "");
-                string result = MustacheController.renderStringToString(layout, dataSet);
-                return result;
+                string result = MustacheController.renderStringToString(editRecordLayout + delim + editModalLayout, dataSet);
+                string[] resultParts = result.Split(new string[] { delim }, StringSplitOptions.None);
+                core.cpParent.Doc.AddBodyEnd(resultParts[1]);
+                return resultParts[0];
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
@@ -338,11 +341,18 @@ namespace Contensive.Processor.Controllers {
                 // -- layout based link (blue pencil)
                 string customCaption = "";
                 string caption = getEditCaption(core, "Add", contentName, customCaption);
-                string layout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, defaultAddRecordLayoutName, defaultAddRecordLayoutCdnPathFilename, defaultAddRecordLayoutCdnPathFilename);
-                layout += LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
                 var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
                 EditModalModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
-                result.Add(MustacheController.renderStringToString(layout, dataSet));
+                //
+                string delim = getRandomString(10);
+                string addLayout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, defaultAddRecordLayoutName, defaultAddRecordLayoutCdnPathFilename, defaultAddRecordLayoutCdnPathFilename);
+                string modalLayout = LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                string renderedLayout = MustacheController.renderStringToString(addLayout + delim + modalLayout, dataSet);
+                string[] renderedParts = renderedLayout.Split(new string[] { delim }, StringSplitOptions.None);
+                //
+                // -- add modal to body end and return tag. b/c modal may include an add tag which has its own form, forms cannot be in other forms
+                core.cpParent.Doc.AddBodyEnd(renderedParts[1]);
+                result.Add(renderedParts[0]);
                 return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

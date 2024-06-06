@@ -725,7 +725,7 @@ namespace Contensive.Processor.Controllers {
                     titleExtension = "",
                     wherePairDict = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
                 });
-                IndexConfigClass indexConfig = IndexConfigClass.get(core, gridData);
+                GridConfigClass gridConfig = GridConfigClass.get(core, gridData);
                 var userContentPermissions = PermissionController.getUserContentPermissions(core, ContentMetadataModel.create(core, field.redirectContentId));
                 List<string> tmp = default;
                 DataSourceModel datasource = DataSourceModel.create(core.cpParent, gridData.adminContent.dataSourceId, ref tmp);
@@ -740,7 +740,7 @@ namespace Contensive.Processor.Controllers {
                 string sqlFrom = "";
                 Dictionary<string, bool> FieldUsedInColumns = new Dictionary<string, bool>(); // used to prevent select SQL from being sorted by a field that does not appear
                 Dictionary<string, bool> IsLookupFieldValid = new Dictionary<string, bool>();
-                ListView.setIndexSQL(core, gridData, indexConfig, ref AllowAccessToContent, ref sqlFieldList, ref sqlFrom, ref sqlWhere, ref sqlOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
+                ListView.setIndexSQL(core, gridData, gridConfig, ref AllowAccessToContent, ref sqlFieldList, ref sqlFrom, ref sqlWhere, ref sqlOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
                 bool allowAdd = gridData.adminContent.allowAdd && (!IsLimitedToSubContent) && (userContentPermissions.allowAdd);
                 bool allowDelete = (gridData.adminContent.allowDelete) && (userContentPermissions.allowDelete);
                 if ((!userContentPermissions.allowEdit) || (!AllowAccessToContent)) {
@@ -769,7 +769,7 @@ namespace Contensive.Processor.Controllers {
                         // -- under 100 records, show them here
                         sql = "select";
                         if (datasource.dbTypeId != DataSourceTypeODBCMySQL) {
-                            sql += " Top " + (indexConfig.recordTop + indexConfig.recordsPerPage);
+                            sql += " Top " + (gridConfig.recordTop + gridConfig.recordsPerPage);
                         }
                         sql += " " + sqlFieldList + " From " + sqlFrom;
                         if (!string.IsNullOrEmpty(sqlWhere)) {
@@ -779,14 +779,16 @@ namespace Contensive.Processor.Controllers {
                             sql += " Order By" + sqlOrderBy;
                         }
                         if (datasource.dbTypeId == DataSourceTypeODBCMySQL) {
-                            sql += " Limit " + (indexConfig.recordTop + indexConfig.recordsPerPage);
+                            sql += " Limit " + (gridConfig.recordTop + gridConfig.recordsPerPage);
                         }
-                        indexConfig.allowDelete = false;
-                        indexConfig.allowFind = false;
-                        indexConfig.allowAddRow = true;
-                        indexConfig.allowColumnSort = false;
+                        gridConfig.allowDelete = false;
+                        gridConfig.allowFind = false;
+                        gridConfig.allowAddRow = true;
+                        gridConfig.allowHeaderAtBottom = true;
+                        gridConfig.allowColumnSort = false;
+                        gridConfig.allowHeaderAtBottom = false;
                         gridData.wherePair.Add(field.redirectId.ToLower(), editRecordId.ToString());
-                        return ListGridController.get(core, gridData, indexConfig, userContentPermissions, sql, datasource, FieldUsedInColumns, IsLookupFieldValid);
+                        return ListGridController.get(core, gridData, gridConfig, userContentPermissions, sql, datasource, FieldUsedInColumns, IsLookupFieldValid);
                     } else {
                         //
                         // -- too many rows, setup a redirect

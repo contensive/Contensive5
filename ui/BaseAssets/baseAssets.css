@@ -23,9 +23,48 @@ Container for the default login form
 }
 
 /*
+    Grid
+*/
+.ccGridCaption {
+	padding: 4px;
+	background-color: #666;
+	color: white!important;
+	border-right: 1px solid white;
+	border-bottom: 1px solid black;
+	border-top: 0px solid white;
+	min-width: 40px;
+}
+
+a.ccGridCaption {
+	Display: block;
+	color: white;
+	border: 0px;
+	padding: 0px;
+}
+
+.ccGridCaption input {
+	vertical-align: middle;
+}
+
+.ccGridRowEven {
+	background-color: rgb(248,248,250);
+	padding: 4px;
+	border: 0px;
+	border-right: 1px solid white;
+	vertical-align: middle;
+}
+
+.ccGridRowOdd {
+	background-color: #ffffff;
+	padding: 4px;
+	border: 0px;
+	border-right: 1px solid white;
+	vertical-align: middle;
+}
+
+/*
     Edit Wrapper, ccEditWrapperBeta added to body
 */
-
 .ccEditWrapper {
 	border: 1px dashed #808080;
 	margin: 1px;

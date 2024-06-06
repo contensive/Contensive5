@@ -352,9 +352,9 @@ namespace Contensive.Processor.Controllers {
         //
         private static string getReport_Cell(string Copy, string Align, int Columns, int RowPointer) {
             string iAlign = encodeEmpty(Align, "left");
-            string Style = "ccAdminListRowEven";
+            string Style = "ccGridRowEven";
             if ((RowPointer % 2) > 0) {
-                Style = "ccAdminListRowOdd";
+                Style = "ccGridRowOdd";
             }
             //
             string cell = Environment.NewLine + "<td valign=\"middle\" align=\"" + iAlign + "\" class=\"" + Style + "\"";
@@ -392,19 +392,19 @@ namespace Contensive.Processor.Controllers {
                     case SortingStateEnum.SortableNotSet: {
                             string QS = GenericController.modifyQueryString(RefreshQueryString, "ColSort", ((int)SortingStateEnum.SortableSetAZ).ToString(), true);
                             QS = GenericController.modifyQueryString(QS, "ColPtr", ColumnPtr.ToString(), true);
-                            Copy = "<a href=\"?" + QS + "\" title=\"Sort A-Z\" class=\"ccAdminListCaption\">" + Copy + "</a>";
+                            Copy = "<a href=\"?" + QS + "\" title=\"Sort A-Z\" class=\"ccGridCaption\">" + Copy + "</a>";
                             break;
                         }
                     case SortingStateEnum.SortableSetza: {
                             string QS = GenericController.modifyQueryString(RefreshQueryString, "ColSort", ((int)SortingStateEnum.SortableSetAZ).ToString(), true);
                             QS = GenericController.modifyQueryString(QS, "ColPtr", ColumnPtr.ToString(), true);
-                            Copy = "<a href=\"?" + QS + "\" title=\"Sort A-Z\" class=\"ccAdminListCaption\">" + Copy + "<img src=\"" + cdnPrefix + "images/arrowup.gif\" width=8 height=8 border=0></a>";
+                            Copy = "<a href=\"?" + QS + "\" title=\"Sort A-Z\" class=\"ccGridCaption\">" + Copy + "<img src=\"" + cdnPrefix + "images/arrowup.gif\" width=8 height=8 border=0></a>";
                             break;
                         }
                     case SortingStateEnum.SortableSetAZ: {
                             string QS = GenericController.modifyQueryString(RefreshQueryString, "ColSort", ((int)SortingStateEnum.SortableSetza).ToString(), true);
                             QS = GenericController.modifyQueryString(QS, "ColPtr", ColumnPtr.ToString(), true);
-                            Copy = "<a href=\"?" + QS + "\" title=\"Sort Z-A\" class=\"ccAdminListCaption\">" + Copy + "<img src=\"" + cdnPrefix + "images/arrowdown.gif\" width=8 height=8 border=0></a>";
+                            Copy = "<a href=\"?" + QS + "\" title=\"Sort Z-A\" class=\"ccGridCaption\">" + Copy + "<img src=\"" + cdnPrefix + "images/arrowdown.gif\" width=8 height=8 border=0></a>";
                             break;
                         }
                     default: {
@@ -520,24 +520,24 @@ namespace Contensive.Processor.Controllers {
                 //
                 // ----- Header
                 Content.add(Environment.NewLine + "<tr>");
-                Content.add(getReport_CellHeader(core, 0, "&nbsp", "50px", "Right", "ccAdminListCaption", RQS, SortingStateEnum.NotSortable));
+                Content.add(getReport_CellHeader(core, 0, "&nbsp", "50px", "Right", "ccGridCaption", RQS, SortingStateEnum.NotSortable));
                 for (ColumnPtr = 0; ColumnPtr < ColumnCount; ColumnPtr++) {
                     ColumnWidth = ColWidth[ColumnPtr];
                     if (!ColSortable[ColumnPtr]) {
                         //
                         // not sortable column
                         //
-                        Content.add(getReport_CellHeader(core, ColumnPtr, ColCaption[ColumnPtr], ColumnWidth, ColAlign[ColumnPtr], "ccAdminListCaption", RQS, SortingStateEnum.NotSortable));
+                        Content.add(getReport_CellHeader(core, ColumnPtr, ColCaption[ColumnPtr], ColumnWidth, ColAlign[ColumnPtr], "ccGridCaption", RQS, SortingStateEnum.NotSortable));
                     } else if (ColumnPtr == SortColPtr) {
                         //
                         // This is the current sort column
                         //
-                        Content.add(getReport_CellHeader(core, ColumnPtr, ColCaption[ColumnPtr], ColumnWidth, ColAlign[ColumnPtr], "ccAdminListCaption", RQS, (SortingStateEnum)SortColType));
+                        Content.add(getReport_CellHeader(core, ColumnPtr, ColCaption[ColumnPtr], ColumnWidth, ColAlign[ColumnPtr], "ccGridCaption", RQS, (SortingStateEnum)SortColType));
                     } else {
                         //
                         // Column is sortable, but not selected
                         //
-                        Content.add(getReport_CellHeader(core, ColumnPtr, ColCaption[ColumnPtr], ColumnWidth, ColAlign[ColumnPtr], "ccAdminListCaption", RQS, SortingStateEnum.SortableNotSet));
+                        Content.add(getReport_CellHeader(core, ColumnPtr, ColCaption[ColumnPtr], ColumnWidth, ColAlign[ColumnPtr], "ccGridCaption", RQS, SortingStateEnum.SortableNotSet));
                     }
                 }
                 Content.add(Environment.NewLine + "</tr>");

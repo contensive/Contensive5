@@ -104,7 +104,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     }
                                 }
                             }
-                            string Copy = Environment.NewLine + "<tr class=\"ccAdminListCaption\">"
+                            string Copy = Environment.NewLine + "<tr class=\"ccGridCaption\">"
                                 + "<td align=left style=\"width:200;\">Feature</td>"
                                 + "<td align=center style=\"width:100;\">Administrators</td>"
                                 + "<td align=center style=\"width:100;\">Content&nbsp;Managers</td>"

@@ -37,7 +37,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string ContentAccessLimitMessage = "";
                 Dictionary<string, bool> FieldUsedInColumns = new Dictionary<string, bool>();
                 Dictionary<string, bool> IsLookupFieldValid = new Dictionary<string, bool>();
-                IndexConfigClass IndexConfig = null;
+                GridConfigClass gridConfig = null;
                 string SQL = null;
                 bool IsRecordLimitSet = false;
                 string RecordLimitText = null;
@@ -88,8 +88,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // Get the SQL parts
                         //
-                        IndexConfig = IndexConfigClass.get(core, adminData);
-                        ListView.setIndexSQL(core, adminData, IndexConfig, ref AllowContentAccess, ref sqlFieldList, ref SQLFrom, ref SQLWhere, ref SQLOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
+                        gridConfig = GridConfigClass.get(core, adminData);
+                        ListView.setIndexSQL(core, adminData, gridConfig, ref AllowContentAccess, ref sqlFieldList, ref SQLFrom, ref SQLWhere, ref SQLOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
                         if (!AllowContentAccess) {
                             //
                             // This should be caught with check earlier, but since I added this, and I never make mistakes, I will leave this in case there is a mistake in the earlier code

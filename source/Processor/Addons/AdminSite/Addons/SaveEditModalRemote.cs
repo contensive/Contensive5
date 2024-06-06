@@ -118,7 +118,7 @@ namespace Contensive.Processor.Addons {
                                     string requestFieldName = $"field{field.id}";
                                     if (EditModalModel.isFieldInModal(cp.core, field, contentMetaData)) {
                                         //
-                                        // -- delete file types
+                                        // -- clear field before save
                                         if (cp.Request.GetBoolean($"field{field.id}delete")) {
                                             cs.SetField(field.nameLc, "");
                                         }

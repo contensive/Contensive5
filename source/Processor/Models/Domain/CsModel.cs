@@ -10,6 +10,7 @@ using System.Data;
 using System.Globalization;
 using System.Text;
 using static Contensive.Processor.Controllers.GenericController;
+using System.Linq;
 //
 namespace Contensive.Processor {
     //
@@ -409,7 +410,7 @@ namespace Contensive.Processor {
                                                 //
                                                 // -- create a new file with correct path (including recordid) and move file
                                                 int recordId = GenericController.encodeInteger(dt.Rows[0]["id"]);
-                                                string originalPathFilename = GenericController.encodeText( dt.Rows[0][field.nameLc]);
+                                                string originalPathFilename = GenericController.encodeText(dt.Rows[0][field.nameLc]);
                                                 string pathfilename = FileController.getVirtualRecordUnixPathFilename(metaData.tableName, field.nameLc, recordId, field.fieldTypeId);
                                                 core.cdnFiles.copyFile(originalPathFilename, pathfilename);
                                                 core.cdnFiles.deleteFile(originalPathFilename);
@@ -1798,11 +1799,19 @@ namespace Contensive.Processor {
                 case CPContentBaseClass.FieldTypeIdEnum.Currency:
                 case CPContentBaseClass.FieldTypeIdEnum.Float:
                 case CPContentBaseClass.FieldTypeIdEnum.Integer:
-                case CPContentBaseClass.FieldTypeIdEnum.Lookup:
-                case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
+                case CPContentBaseClass.FieldTypeIdEnum.Lookup: {
                         //
                         // -- Numbers
                         set(fieldName, core.docProperties.getNumber(LocalRequestName));
+                        return;
+
+                    }
+                case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
+                        if (contentMeta is null) { return; }
+                        KeyValuePair<string, ContentFieldMetadataModel> fieldKVP = contentMeta.fields.First((x) => x.Value.nameLc == fieldName);
+                        ContentFieldMetadataModel field = fieldKVP.Value;
+                        int id = getInteger("ID");
+                        core.html.processCheckList("field" + field.id, MetadataController.getContentNameByID(core, field.contentId), encodeText(id), MetadataController.getContentNameByID(core, field.manyToManyContentId), MetadataController.getContentNameByID(core, field.manyToManyRuleContentId), field.manyToManyRulePrimaryField, field.manyToManyRuleSecondaryField);
                         return;
                     }
                 case CPContentBaseClass.FieldTypeIdEnum.Date: {

@@ -7,7 +7,7 @@ using NLog;
 using static Contensive.Processor.Controllers.GenericController;
 //
 namespace Contensive.Processor.Addons.AdminSite {
-    public class IndexConfigClass {
+    public class GridConfigClass {
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -41,6 +41,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public bool allowAddRow { get; set; }
         //
         public bool allowColumnSort { get; set; }
+        public bool allowHeaderAtBottom { get; set; }
         //
         //=================================================================================
         /// <summary>
@@ -49,8 +50,8 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="core"></param>
         /// <param name="adminData"></param>
         /// <returns></returns>
-        public static IndexConfigClass get(CoreController core, AdminDataModel adminData) {
-            IndexConfigClass returnIndexConfig = new() {
+        public static GridConfigClass get(CoreController core, AdminDataModel adminData) {
+            GridConfigClass result = new() {
                 contentID = adminData.adminContent.id,
                 activeOnly = false,
                 lastEditedByMe = false,
@@ -70,7 +71,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 allowDelete = true,
                 allowFind = true,
                 allowAddRow = false,
-                allowColumnSort= true
+                allowColumnSort = true,
+                allowHeaderAtBottom = true
             };
             try {
                 //
@@ -100,7 +102,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         if (!string.IsNullOrWhiteSpace(fieldName)) {
                                             if (adminData.adminContent.fields.ContainsKey(fieldName)) {
                                                 if (adminData.adminContent.fields[fieldName].authorable || fieldsThatAllowNotAuthorable.Contains(fieldName, StringComparer.OrdinalIgnoreCase)) {
-                                                    returnIndexConfig.columns.Add(new IndexConfigColumnClass {
+                                                    result.columns.Add(new IndexConfigColumnClass {
                                                         Name = fieldName,
                                                         Width = encodeInteger(LineSplit[1]),
                                                         SortDirection = 0,
@@ -121,7 +123,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     if (LineSplit.GetUpperBound(0) == 1) {
                                         string fieldName = LineSplit[0].Trim().ToLowerInvariant();
                                         if (!string.IsNullOrWhiteSpace(fieldName)) {
-                                            returnIndexConfig.sorts.Add(fieldName, new IndexConfigSortClass {
+                                            result.sorts.Add(fieldName, new IndexConfigSortClass {
                                                 fieldName = fieldName,
                                                 direction = ((LineSplit[1] == "1") ? 1 : 2),
                                                 order = ++orderPtr
@@ -134,8 +136,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         }
                         Ptr += 1;
                     }
-                    if (returnIndexConfig.recordsPerPage <= 0) {
-                        returnIndexConfig.recordsPerPage = Constants.RecordsPerPageDefault;
+                    if (result.recordsPerPage <= 0) {
+                        result.recordsPerPage = Constants.RecordsPerPageDefault;
                     }
                 }
                 //
@@ -159,7 +161,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         string Line = ConfigListLines[Ptr];
                                         string[] LineSplit = Line.Split('\t');
                                         if (LineSplit.GetUpperBound(0) > 1) {
-                                            returnIndexConfig.findWords.Add(LineSplit[0], new IndexConfigFindWordClass {
+                                            result.findWords.Add(LineSplit[0], new IndexConfigFindWordClass {
                                                 Name = LineSplit[0],
                                                 Value = LineSplit[1],
                                                 MatchOption = (FindWordMatchEnum)GenericController.encodeInteger(LineSplit[2])
@@ -171,54 +173,54 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 case "grouplist":
                                     Ptr += 1;
                                     while ((Ptr < ConfigListLines.GetUpperBound(0)) && !string.IsNullOrEmpty(ConfigListLines[Ptr])) {
-                                        if (returnIndexConfig.groupListCnt < groupListCntMax) {
-                                            returnIndexConfig.groupList[returnIndexConfig.groupListCnt] = ConfigListLines[Ptr];
-                                            returnIndexConfig.groupListCnt += 1;
+                                        if (result.groupListCnt < groupListCntMax) {
+                                            result.groupList[result.groupListCnt] = ConfigListLines[Ptr];
+                                            result.groupListCnt += 1;
                                         }
                                         Ptr += 1;
                                     }
                                     break;
                                 case "cdeflist":
                                     Ptr += 1;
-                                    returnIndexConfig.subCDefID = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    result.subCDefID = GenericController.encodeInteger(ConfigListLines[Ptr]);
                                     break;
                                 case "indexfiltercategoryid":
                                     // -- remove deprecated value
                                     Ptr += 1;
                                     break;
                                 case "indexfilteractiveonly":
-                                    returnIndexConfig.activeOnly = true;
+                                    result.activeOnly = true;
                                     break;
                                 case "indexfilterlasteditedbyme":
-                                    returnIndexConfig.lastEditedByMe = true;
+                                    result.lastEditedByMe = true;
                                     break;
                                 case "indexfilterlasteditedtoday":
-                                    returnIndexConfig.lastEditedToday = true;
+                                    result.lastEditedToday = true;
                                     break;
                                 case "indexfilterlasteditedpast7days":
-                                    returnIndexConfig.lastEditedPast7Days = true;
+                                    result.lastEditedPast7Days = true;
                                     break;
                                 case "indexfilterlasteditedpast30days":
-                                    returnIndexConfig.lastEditedPast30Days = true;
+                                    result.lastEditedPast30Days = true;
                                     break;
                                 case "indexfilteropen":
-                                    returnIndexConfig.open = true;
+                                    result.open = true;
                                     break;
                                 case "recordsperpage":
                                     Ptr += 1;
-                                    returnIndexConfig.recordsPerPage = GenericController.encodeInteger(ConfigListLines[Ptr]);
-                                    if (returnIndexConfig.recordsPerPage <= 0) {
-                                        returnIndexConfig.recordsPerPage = 50;
+                                    result.recordsPerPage = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    if (result.recordsPerPage <= 0) {
+                                        result.recordsPerPage = 50;
                                     }
-                                    returnIndexConfig.recordTop = DbController.getStartRecord(returnIndexConfig.recordsPerPage, returnIndexConfig.pageNumber);
+                                    result.recordTop = DbController.getStartRecord(result.recordsPerPage, result.pageNumber);
                                     break;
                                 case "pagenumber":
                                     Ptr += 1;
-                                    returnIndexConfig.pageNumber = GenericController.encodeInteger(ConfigListLines[Ptr]);
-                                    if (returnIndexConfig.pageNumber <= 0) {
-                                        returnIndexConfig.pageNumber = 1;
+                                    result.pageNumber = GenericController.encodeInteger(ConfigListLines[Ptr]);
+                                    if (result.pageNumber <= 0) {
+                                        result.pageNumber = 1;
                                     }
-                                    returnIndexConfig.recordTop = DbController.getStartRecord(returnIndexConfig.recordsPerPage, returnIndexConfig.pageNumber);
+                                    result.recordTop = DbController.getStartRecord(result.recordsPerPage, result.pageNumber);
                                     break;
                                 default:
                                     break;
@@ -226,16 +228,16 @@ namespace Contensive.Processor.Addons.AdminSite {
                         }
                         Ptr += 1;
                     }
-                    if (returnIndexConfig.recordsPerPage <= 0) {
-                        returnIndexConfig.recordsPerPage = Constants.RecordsPerPageDefault;
+                    if (result.recordsPerPage <= 0) {
+                        result.recordsPerPage = Constants.RecordsPerPageDefault;
                     }
                 }
                 //
                 // Setup defaults if not loaded
                 //
-                if ((returnIndexConfig.columns.Count == 0) && (adminData.adminContent.adminColumns.Count > 0)) {
+                if ((result.columns.Count == 0) && (adminData.adminContent.adminColumns.Count > 0)) {
                     foreach (var keyValuePair in adminData.adminContent.adminColumns) {
-                        returnIndexConfig.columns.Add(new IndexConfigColumnClass {
+                        result.columns.Add(new IndexConfigColumnClass {
                             Name = keyValuePair.Value.Name.ToLowerInvariant(),
                             Width = keyValuePair.Value.Width
                         });
@@ -245,7 +247,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
-            return returnIndexConfig;
+            return result;
         }
     }
     //
