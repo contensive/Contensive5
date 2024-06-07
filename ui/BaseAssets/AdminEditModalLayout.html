@@ -122,10 +122,10 @@
                                                 </div>
                                                 <div class="mb-3">
                                                     {{caption}}
-                                                    <span id="field{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>
-                                                    <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
-                                                    {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                    {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                    <span id="{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>
+                                                    <input class="form-control d-none" type="file" id="{{fieldId}}" name="{{htmlName}}">
+                                                    {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center">
@@ -133,13 +133,13 @@
                                                     <input type="checkbox" class="btn-check" name="{{imageDeleteName}}" value="1" id="danger-outlined" autocomplete="off">
                                                     <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
                                                 </div>
-                                                <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="field{{fieldId}}">Choose File</label>
+                                                <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="{{fieldId}}">Choose File</label>
                                             </div>
                                         </div>
                                     </div>
                                     <script>
-                                        const actualBtn{{fieldId}} = document.getElementById('field{{fieldId}}');
-                                        const fileChosen{{fieldId}} = document.getElementById('field{{fieldId}}-caption');
+                                        const actualBtn{{fieldId}} = document.getElementById('{{fieldId}}');
+                                        const fileChosen{{fieldId}} = document.getElementById('{{fieldId}}-caption');
                                         actualBtn{{fieldId}}.addEventListener('change', function(){
                                             fileChosen{{fieldId}}.textContent = this.files[0].name
                                         })                                        
@@ -151,7 +151,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -159,9 +159,9 @@
                                                 {{/isHelp}}
                                                 {{caption}}
                                             </label>
-                                            <input type="text" class="form-control" id="field{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isText}}
@@ -171,7 +171,7 @@
                                     -->
                                     <div  class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -180,9 +180,9 @@
 
                                                 {{caption}}
                                             </label>
-                                            <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
-                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isTextLong}}
@@ -192,7 +192,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -201,9 +201,9 @@
 
                                                 {{caption}}
                                             </label>
-                                            <input type="number" step="1" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
-                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="number" step="1" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isInteger}}
@@ -224,19 +224,34 @@
                                             </label>
                                             <div class="input-group">
                                                 <!-- date part-->
-                                                <input type="date" name="{{htmlName}}-date" class="form-control" id="field{{fieldId}}-date">
-                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}-date").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}-date").readOnly = true;</script>{{/isReadOnly}}
+                                                <input type="hidden" value="{{currentValue}}" name="{{htmlName}}" id="{{fieldId}}">
+                                                <input type="date" name="{{htmlName}}-date" class="form-control" id="{{fieldId}}-date" value="">
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}-date").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-date").readOnly = true;</script>{{/isReadOnly}}
                                                 <!-- time part-->
-                                                <input type="time" name="{{htmlName}}-time" class="form-control" id="field{{fieldId}}-time">
-                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}-time").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}-time").readOnly = true;</script>{{/isReadOnly}}
+                                                <input type="time" name="{{htmlName}}-time" class="form-control" id="{{fieldId}}-time" value="">
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}-time").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-time").readOnly = true;</script>{{/isReadOnly}}
                                                 <!-- clear both-->
                                                 <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="danger-outlined" autocomplete="off">
                                                 <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
                                         </div>
                                         </div>
                                     </div>
+                                    <script>
+                                    document.addEventListener('DOMContentLoaded', function(){
+                                        var fieldDate = new Date($('#{{fieldId}}').val())
+                                        console.log('date/time load, fieldDate'+fieldDate+', date ['+fieldDate.toLocaleDateString()+'], time ['+fieldDate.toLocaleTimeString()+']');
+                                        $('#{{htmlName}}-date').val(fieldDate.toLocaleDateString());
+                                        $('#{{htmlName}}-time').val(fieldDate.toLocaleTimeString());
+                                        $('body').on('change','#{{htmlName}}-date,#{{htmlName}}-time',function(e){
+                                            console.log('date/time change');
+                                            var dateVal = $("#{{htmlName}}-date").val();
+                                            var timeVal = $("#{{htmlName}}-time").val();
+                                            $('#{{fieldId}}').val(dateVal + ((timeVal) ? "T" + timeVal : "" ));
+                                        });
+                                    });
+                                    </script>
                                     {{/isDate}}
                                     {{#isHtml}}
                                     <!--
@@ -244,7 +259,7 @@
                                     -->
                                     <div  class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -255,9 +270,9 @@
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
-                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
-                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                             {{/customEditor}}
                                         </div>
                                     </div>
@@ -268,7 +283,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -278,9 +293,9 @@
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
-                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
-                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                             {{/customEditor}}
                                         </div>
                                     </div>
@@ -292,7 +307,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -302,9 +317,9 @@
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
-                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
-                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                             {{/customEditor}}
                                         </div>
                                     </div>
@@ -316,7 +331,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -326,9 +341,9 @@
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
-                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
-                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                             {{/customEditor}}
                                         </div>
                                     </div>
@@ -340,7 +355,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -350,9 +365,9 @@
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
-                                                <textarea name="{{htmlName}}" class="form-control" id="field{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
-                                                {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                             {{/customEditor}}
                                         </div>
                                     </div>
@@ -365,7 +380,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -374,9 +389,9 @@
 
                                                 {{caption}}
                                             </label>
-                                            <input type="text" class="form-control" id="field{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isLink}}
@@ -385,9 +400,9 @@
                                         checkbox list
                                     -->
                                     <div class="form-check form-check-inline mb-3">
-                                        <input class="form-check-input" type="checkbox" value="1" id="field{{fieldId}}" name="{{htmlName}}>
-                                        {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                        {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                        <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}>
+                                        {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                        {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         <label class="form-check-label" for="checkbox{{fieldId}}">
                                             {{caption}}
                                             {{#isHelp}}
@@ -405,7 +420,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -414,9 +429,9 @@
                                                 {{/isHelp}}                                                
                                             </label>
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" value="1" id="field{{fieldId}}" name="{{htmlName}}">
-                                                {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").onclick="return false;";</script>{{/isReadOnly}}
+                                                <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
+                                                {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").onclick="return false;";</script>{{/isReadOnly}}
                                               </div>
                                         </div>
                                     </div>
@@ -427,7 +442,7 @@
                                     {{#isSelect}}
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -435,7 +450,7 @@
                                                 {{/isHelp}}                                                
                                                 {{caption}}
                                             </label>
-                                            <select id="field{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
+                                            <select id="{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
                                                 {{{selectOptionList}}}
                                             </select>
                                         </div>
@@ -447,7 +462,7 @@
                                     {{#isCurrency}}
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -456,9 +471,9 @@
                                                 {{caption}}
                                             </label>
                                             <!-- number input hack to allow floating point-->
-                                            <input type="number" step="0.01" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
-                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="number" step="0.01" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isCurrency}}
@@ -480,11 +495,11 @@
                                                 <div class="mb-3">
                                                     {{caption}}
                                                     <!--<h5 class="pb-0">{{caption}}</h5>-->
-                                                    <span id="field{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>
+                                                    <span id="{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>
                                                     <!--<h6 class="fw-light">File Type: WEBP, PNG, GIF, or JPEG</h6>-->
-                                                    <input class="form-control d-none" type="file" id="field{{fieldId}}" name="{{htmlName}}">
-                                                    {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                    {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                    <input class="form-control d-none" type="file" id="{{fieldId}}" name="{{htmlName}}">
+                                                    {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                 </div>
                                             </div>
                                             <div class="d-flex align-items-center">
@@ -492,13 +507,13 @@
                                                     <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="danger-outlined" autocomplete="off">
                                                     <label class="btn btn-outline-danger me-3" for="danger-outlined"><i class="fa-regular fa-trash-can"></i></label>
                                                 </div>
-                                                <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="field{{fieldId}}">Choose File</label>
+                                                <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="{{fieldId}}">Choose File</label>
                                             </div>
                                         </div>
                                     </div>
                                     <script>
-                                        const actualBtn{{fieldId}} = document.getElementById('field{{fieldId}}');
-                                        const fileChosen{{fieldId}} = document.getElementById('field{{fieldId}}-caption');
+                                        const actualBtn{{fieldId}} = document.getElementById('{{fieldId}}');
+                                        const fileChosen{{fieldId}} = document.getElementById('{{fieldId}}-caption');
                                         actualBtn{{fieldId}}.addEventListener('change', function(){
                                             fileChosen{{fieldId}}.textContent = this.files[0].name
                                         })                                        
@@ -513,7 +528,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -522,9 +537,9 @@
                                                 {{caption}}
                                             </label>
                                             <!-- number input hack to allow floating point-->
-                                            <input type="number" step="any" class="form-control" placeholder="{{placeholder}}" id="field{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
-                                            {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            <input type="number" step="any" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         </div>
                                     </div>
                                     {{/isFloat}}
@@ -534,7 +549,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -555,7 +570,7 @@
                                     -->
                                     <div class="sctnWrpr">
                                         <div class="mb-3">
-                                            <label for="field{{fieldId}}" class="form-label d-flex align-items-center">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -598,9 +613,9 @@
                                                             <!--
                                                                 text field
                                                             -->
-                                                            <input type="text" class="form-control mb-3" id="field{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                                            {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                                            {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                            <input type="text" class="form-control mb-3" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                                            {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                         {{/isText}}
                                                         {{#isSelect}}
                                                             <!--
@@ -615,9 +630,9 @@
                                                                 checkbox list
                                                             -->
                                                             <div class="form-check form-check-inline mb-3">
-                                                                <input class="form-check-input" type="checkbox" value="" id="field{{fieldId}}" name="{{htmlName}}">
-                                                                {{#isChecked}}<script>document.getElementById("field{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                                                {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                <input class="form-check-input" type="checkbox" value="" id="{{fieldId}}" name="{{htmlName}}">
+                                                                {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                                 <label class="form-check-label" for="checkbox{{fieldId}}">
                                                                     {{caption}}
                                                                     {{#isHelp}}
@@ -644,9 +659,9 @@
 
                                                                         {{caption}}
                                                                     </label>
-                                                                    <input class="form-control" type="file" id="field{{fieldId}}" name="{{htmlName}}">
-                                                                    {{#isRequired}}<script>document.getElementById("field{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                                    {{#isReadOnly}}<script>document.getElementById("field{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                    <input class="form-control" type="file" id="{{fieldId}}" name="{{htmlName}}">
+                                                                    {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                                 </div>
                                                             </div>
                                                         {{/isFile}}
