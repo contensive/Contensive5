@@ -6,6 +6,7 @@ using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net.Mime;
 //
@@ -230,6 +231,8 @@ namespace Contensive.Processor.Models.Domain {
                 selectOptionList = getSelectOptionList(core, field, currentValue);
             }
             imageUrl = !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "/img/picturePlaceholder.jpg" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
+            fileUrl = !isFile && !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
+            fileName = !isFile && !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "" : Path.GetFileName(currentValue);
         }
 
         public string htmlName { get; }
@@ -274,6 +277,14 @@ namespace Contensive.Processor.Models.Domain {
         /// AdminUI editor input
         /// </summary>
         public string customEditor { get; }
+        /// <summary>
+        /// if isFile or isImage, this is the download path to the file
+        /// </summary>
+        public string fileUrl { get; }
+        /// <summary>
+        /// if isFile or isImage, this is the name of the file without path
+        /// </summary>
+        public string fileName { get; }
 
         //
         /// <summary>

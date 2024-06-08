@@ -120,14 +120,15 @@ namespace Contensive.Processor.Addons {
                                         //
                                         // -- clear field before save
                                         if (cp.Request.GetBoolean($"field{field.id}delete")) {
+                                            //
+                                            // -- clear field
                                             cs.SetField(field.nameLc, "");
+                                        } else {
+                                            //
+                                            // -- set field
+                                            cs.SetFormInput(field.nameLc, requestFieldName);
                                         }
-                                        //
-                                        cs.SetFormInput(field.nameLc, requestFieldName);
                                     }
-                                    //if (cp.Doc.IsProperty(requestFieldName)) {
-                                    //    cs.SetFormInput(field.nameLc, requestFieldName);
-                                    //}
                                 }
                                 cs.Save();
                                 //
