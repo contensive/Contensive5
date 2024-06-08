@@ -228,7 +228,7 @@ namespace Contensive.Processor.Models.Domain {
             isChecked = isBoolean && GenericController.encodeBoolean(currentValue);
             sort = field.editSortPriority;
             if (isSelect) {
-                selectOptionList = getSelectOptionList(core, field, currentValue);
+                selectOptionList = getSelectOptionList(core, field, currentValue, contentMetaData);
             }
             imageUrl = !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "/img/picturePlaceholder.jpg" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
             fileUrl = !isFile && !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
@@ -294,7 +294,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="field"></param>
         /// <param name="fieldValueObject"></param>
         /// <returns></returns>
-        public static string getSelectOptionList(CoreController core, ContentFieldMetadataModel field, string fieldValueObject) {
+        public static string getSelectOptionList(CoreController core, ContentFieldMetadataModel field, string fieldValueObject, ContentMetadataModel contentMetaData) {
             string EditorString = "";
             bool IsEmptyList = false;
             string whyReadOnlyMsg = "";
@@ -306,6 +306,13 @@ namespace Contensive.Processor.Models.Domain {
             }
             if (!string.IsNullOrEmpty(field.lookupList)) {
                 EditorString = AdminUIEditorController.getLookupListEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), field.lookupList.Split(',').ToList(), field.readOnly, fieldHtmlId, whyReadOnlyMsg, field.required);
+                EditorString = removeOptionsFromSelect(EditorString);
+                return EditorString;
+            }
+            if ( field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.MemberSelect ) {
+                int groupId = field.memberSelectGroupId_get(core, contentMetaData.name, field.nameLc);
+                string groupName = core.cpParent.Content.GetRecordName("groups", groupId);
+                EditorString = AdminUIEditorController.getMemberSelectEditor(core,  field.nameLc, GenericController.encodeInteger(fieldValueObject), groupId, groupName,field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
                 EditorString = removeOptionsFromSelect(EditorString);
                 return EditorString;
             }
