@@ -93,7 +93,7 @@
                 margin-right: 20px;
             }
         </style>  
-        <div class="modal fade widgetEditModal" id="widgetEditModal{{editId}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
+        <div class="modal fade widgetEditModal" id="widgetEditModal{{editId}}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">
                 <form action="/saveEditModal" method="post" enctype="multipart/form-data" class="modal-content" id="modalForm{{editId}}">
                     <input type="hidden" name="recordId" value="{{recordId}}">
@@ -121,7 +121,7 @@
                                                     {{/isHelp}}
                                                 </div>
                                                 <div class="mb-3">
-                                                    {{caption}}
+                                                    <h6 class="mb-0">{{caption}}</h6>
                                                     {{#fileName}}<a href="{{fileUrl}}">{{fileName}}</a>{{/fileName}}
                                                     {{^fileName}}<span id="{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>{{/fileName}}
                                                     <input class="form-control d-none" type="file" id="{{fieldId}}" name="{{htmlName}}">
@@ -158,7 +158,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
                                             {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
@@ -179,7 +179,7 @@
                                                     </a>
                                                 {{/isHelp}}
 
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
                                             {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
@@ -200,7 +200,7 @@
                                                     </a>
                                                 {{/isHelp}}
 
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <input type="number" step="1" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
                                             {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
@@ -221,7 +221,7 @@
                                                     </a>
                                                 {{/isHelp}}
 
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <div class="input-group">
                                                 <!-- date part-->
@@ -266,7 +266,7 @@
                                                     </a>
                                                 {{/isHelp}}
 
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
@@ -289,7 +289,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
@@ -313,7 +313,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
@@ -337,7 +337,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
@@ -361,7 +361,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
@@ -387,7 +387,7 @@
                                                     </a>
                                                 {{/isHelp}}
 
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
                                             {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
@@ -404,7 +404,7 @@
                                         {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
                                         {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                         <label class="form-check-label" for="checkbox{{fieldId}}">
-                                            {{caption}}
+                                            <h6 class="mb-0">{{caption}}</h6>
                                             {{#isHelp}}
                                             <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                 <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -425,7 +425,7 @@
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
-                                                    {{caption}}
+                                                    <h6 class="mb-0">{{caption}}</h6>
                                                 {{/isHelp}}                                                
                                             </label>
                                             <div class="form-check">
@@ -448,7 +448,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}                                                
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <select id="{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
                                                 {{{selectOptionList}}}
@@ -468,7 +468,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <!-- number input hack to allow floating point-->
                                             <input type="number" step="0.01" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
@@ -493,8 +493,7 @@
                                                     <img src="{{imageUrl}}" alt="placeholder image" class="output">
                                                 </div>
                                                 <div class="mb-3">
-                                                    {{caption}}
-                                                    <!--<h5 class="pb-0">{{caption}}</h5>-->
+                                                    <h6 class="mb-0">{{caption}}</h6>
                                                     {{#currentValue}}<a href="{{imageUrl}}">{{fileName}}</a>{{/currentValue}}
                                                     {{^currentValue}}<span id="{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>{{/currentValue}}
                                                     <!--<h6 class="fw-light">File Type: WEBP, PNG, GIF, or JPEG</h6>-->
@@ -535,7 +534,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             <!-- number input hack to allow floating point-->
                                             <input type="number" step="any" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
@@ -556,7 +555,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
@@ -577,7 +576,7 @@
                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
-                                                {{caption}}
+                                                <h6 class="mb-0">{{caption}}</h6>
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
@@ -635,7 +634,7 @@
                                                                 {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
                                                                 {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                                 <label class="form-check-label" for="checkbox{{fieldId}}">
-                                                                    {{caption}}
+                                                                    <h6 class="mb-0">{{caption}}</h6>
                                                                     {{#isHelp}}
                                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                                         <img src="img/circle-info.svg" alt="info icon" class="icon"> 
@@ -658,7 +657,7 @@
                                                                             </a>
                                                                         {{/isHelp}}
 
-                                                                        {{caption}}
+                                                                        <h6 class="mb-0">{{caption}}</h6>
                                                                     </label>
                                                                     <input class="form-control" type="file" id="{{fieldId}}" name="{{htmlName}}">
                                                                     {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
@@ -678,7 +677,7 @@
                                                                         </a>
                                                                     {{/isHelp}}
 
-                                                                    {{caption}}
+                                                                    <h6 class="mb-0">{{caption}}</h6>
                                                                 </label>
                                                                 <input type="number" step="any"  name="{{htmlName}}" value="{{currentValue}}" id="{{fieldId}}" class="form-control">
 
