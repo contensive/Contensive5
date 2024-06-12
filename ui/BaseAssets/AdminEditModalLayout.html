@@ -181,9 +181,12 @@
 
                                                 <h6 class="mb-0">{{caption}}</h6>
                                             </label>
-                                            <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
-                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isTextLong}}
@@ -397,21 +400,23 @@
                                     {{/isLink}}
                                     {{#isCheckboxList}}
                                     <!--
-                                        checkbox list
+                                        many-to-many / checkbox list
                                     -->
-                                    <div class="form-check form-check-inline mb-3">
-                                        <input class="form-check-input" type="checkbox" value="1" id="checkbox{{fieldId}}" name="{{htmlName}}>
-                                        {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                        {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
-                                        <label class="form-check-label" for="checkbox{{fieldId}}">
-                                            <h6 class="mb-0">{{caption}}</h6>
-                                            {{#isHelp}}
-                                            <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                            </a>
-                                            {{/isHelp}}
-                                        
-                                        </label>
+                                    <div class="sctnWrpr">
+                                        <div class="mb-3">
+                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
+                                                {{#isHelp}}
+                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                    </a>
+                                                {{/isHelp}}
+                                                <h6 class="mb-0">{{caption}}</h6>
+                                            </label>
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                many-to-many list
+                                            {{/customEditor}}
+                                        </div>
                                     </div>
                                     {{/isCheckboxList}}
                                     {{#isBoolean}}
@@ -543,27 +548,6 @@
                                         </div>
                                     </div>
                                     {{/isFloat}}
-                                    {{#isCheckboxList}}
-                                    <!--
-                                        many-to-many
-                                    -->
-                                    <div class="sctnWrpr">
-                                        <div class="mb-3">
-                                            <label for="{{fieldId}}" class="form-label d-flex align-items-center">
-                                                {{#isHelp}}
-                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                                    </a>
-                                                {{/isHelp}}
-                                                <h6 class="mb-0">{{caption}}</h6>
-                                            </label>
-                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
-                                            {{^customEditor}}
-                                                many-to-many list
-                                            {{/customEditor}}
-                                        </div>
-                                    </div>
-                                    {{/isCheckboxList}}
                                     {{#isRedirect}}
                                     <!--
                                         redirect

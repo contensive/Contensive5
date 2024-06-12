@@ -195,7 +195,9 @@ namespace Contensive.Processor.Controllers {
                         if (returnText == "{}") { return ""; }
                         return returnText;
                     } catch (Microsoft.ClearScript.ScriptEngineException ex) {
-                        string errorMessage = getScriptEngineExceptionMessage(ex, "executing script");
+                        string addonDescription = AddonController.getAddonDescription(core, addon);
+                        string errorMessage = "Error executing addon script, " + addonDescription;
+                        errorMessage = getScriptEngineExceptionMessage(ex, errorMessage);
                         logger.Error(ex, $"{errorMessage}, {core.logCommonMessage}");
                         throw new GenericException(errorMessage, ex);
                     } catch (Exception ex) {

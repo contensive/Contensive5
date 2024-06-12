@@ -28,14 +28,14 @@ namespace Contensive.Processor.Models.Domain {
         public EditModalModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
             using (CPCSBaseClass currentRecordCs = core.cpParent.CSNew()) {
                 if (recordId > 0) { currentRecordCs.OpenRecord(contentMetadata.name, recordId); }
+                editId = GenericController.getRandomString(5);
                 dialogCaption = string.IsNullOrEmpty(customCaption) ? $"Edit {recordName}" : customCaption;
                 adminEditUrl = AdminUIEditButtonController.getEditUrl(core, contentMetadata.id, recordId);
                 isEditing = !core.session.isEditing();
-                leftFields = getFieldList(core, currentRecordCs, contentMetadata, presetNameValuePairs);
+                leftFields = getFieldList(core, currentRecordCs, contentMetadata, presetNameValuePairs, editId);
                 rightFields = [];
                 this.recordId = recordId;
                 contentGuid = contentMetadata.guid;
-                editId = GenericController.getRandomString(5);
                 contentItemName = GenericController.getSingular_Sortof(core, contentMetadata.name);
                 pageId = core.doc.pageController.page.id;
                 string instanceId = core.docProperties.getText("instanceId");
@@ -61,7 +61,9 @@ namespace Contensive.Processor.Models.Domain {
         public int recordId { get; }
         //
         public string contentGuid { get; }
-        //
+        /// <summary>
+        /// value that is unique for each editor instance. Use to prevent collisions when the same addon is used multiple times
+        /// </summary>
         public string editId { get; }
         /// <summary>
         /// for the add item layout, this is the name added to the "Add New {{addItemName}}"
@@ -90,8 +92,9 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="currentRecordCs"></param>
         /// <param name="contentMetadata"></param>
         /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
+        /// <param name="editId">a unique string for the current editor (edit tag plus modal)</param>
         /// <returns></returns>
-        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs) {
+        private static List<EditModalModel_FieldListItem> getFieldList(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editId) {
             List<EditModalModel_FieldListItem> result = [];
             Dictionary<string, string> prepopulateValue = [];
             if (!string.IsNullOrEmpty(presetNameValuePairs)) {
@@ -139,11 +142,11 @@ namespace Contensive.Processor.Models.Domain {
                             }
                         }
                     }
-                    result.Add(new EditModalModel_FieldListItem(core, field, currentValue, editRecordId, contentMetadata.fields, contentMetadata));
+                    result.Add(new EditModalModel_FieldListItem(core, field, currentValue, editRecordId, contentMetadata.fields, contentMetadata, editId));
                 } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
                     //
                     // -- else add a hidden for the prepopulate value
-                    result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata));
+                    result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editId));
                 }
             }
             List<EditModalModel_FieldListItem> sortedResult = result.OrderBy(o => o.sort).ToList();
@@ -160,7 +163,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// constructor
         /// </summary>
-        public EditModalModel_FieldListItem(CoreController core, ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData) {
+        public EditModalModel_FieldListItem(CoreController core, ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData, string editId) {
             htmlName = $"field{field.id}";
             caption = field.caption;
             help = field.helpMessage;
@@ -187,13 +190,10 @@ namespace Contensive.Processor.Models.Domain {
             isJavaScript = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript;
             isXML = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML;
             isRedirect = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Redirect;
-
+            //
             // -- cache this or pass from calling method
             List<FieldTypeEditorAddonModel> fieldTypeDefaultEditors = EditorController.getFieldEditorAddonList(core);
-
-
-
-
+            //
             // -- code editor
             EditorRowClass.editorResponse editorResponse = EditorRowClass.getEditor(core, new EditorRowClass.EditorRequest() {
                 contentId = field.contentId,
@@ -216,20 +216,15 @@ namespace Contensive.Processor.Models.Domain {
                 htmlName = htmlName
             });
             customEditor = editorResponse.editorString;
-
-
-
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
             numberMax = 2147483647;
             fieldClearName = $"field{field.id}delete";
             placeholder = $"{field.caption}";
-            fieldId = $"field{field.id}";
+            fieldId = $"{editId}{field.id}";
             isChecked = isBoolean && GenericController.encodeBoolean(currentValue);
             sort = field.editSortPriority;
-            if (isSelect) {
-                selectOptionList = getSelectOptionList(core, field, currentValue, contentMetaData);
-            }
+            selectOptionList = !isSelect ? "" : getSelectOptionList(core, field, currentValue, contentMetaData);
             imageUrl = !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "/img/picturePlaceholder.jpg" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
             fileUrl = !isFile && !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
             fileName = !isFile && !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "" : Path.GetFileName(currentValue);
