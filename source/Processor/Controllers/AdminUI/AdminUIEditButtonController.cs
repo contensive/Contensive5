@@ -128,7 +128,7 @@ namespace Contensive.Processor.Controllers {
         public static string getEditTab(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption) {
             try {
                 if (!core.session.isEditing()) { return string.Empty; }
-                if (contentMetadata == null) { throw new GenericException("contentMetadata null."); }
+                if (contentMetadata == null) { return ""; }
                 if (!core.siteProperties.allowEditModal) {
                     //
                     // -- legacy edit tag (green pencil)

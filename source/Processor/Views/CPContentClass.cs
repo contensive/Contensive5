@@ -175,60 +175,41 @@ namespace Contensive.Processor {
         public override string GetEditLink(string contentName, string recordGuid) {
             int recordId = MetadataController.getRecordId(cp.core, contentName, recordGuid);
             return AdminUIEditButtonController.getEditTab(cp.core, contentName, recordId, false, "");
-            //
-            //var contentMetadata = ContentMetadataModel.createByUniqueName(cp.core, contentName);
-            //if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
-            //return AdminUIEditButtonController.getLegacyRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
         }
         //
         public override string GetEditLink(string contentName, string recordGuid, string customCaption) {
             int recordId = MetadataController.getRecordId(cp.core, contentName, recordGuid);
             return AdminUIEditButtonController.getEditTab(cp.core, contentName, recordId, false, customCaption);
-            //
-            //var contentMetadata = ContentMetadataModel.createByUniqueName(cp.core, contentName);
-            //if (contentMetadata == null) { throw new GenericException("ContentName [" + contentName + "], but no content metadata found with this name."); }
-            //return AdminUIEditButtonController.getLegacyRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
         }
         //
         //====================================================================================================
         //
         public override string GetEditLink(int contentId, int recordId) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
+            if (contentMetadata == null) { return ""; }
             return AdminUIEditButtonController.getEditTab(cp.core, contentMetadata, recordId, false, "", "");
-            //
-            //if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            //return AdminUIEditButtonController.getLegacyRecordEditAnchorTag(cp.core, contentMetadata, recordId);
         }
         //
         public override string GetEditLink(int contentId, int recordId, string customCaption) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
+            if (contentMetadata == null) { return ""; }
             return AdminUIEditButtonController.getEditTab(cp.core, contentMetadata, recordId, false, "", customCaption);
-            //
-            //var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
-            //if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            //return AdminUIEditButtonController.getLegacyRecordEditAnchorTag(cp.core, contentMetadata, recordId,  customCaption);
         }
         //
         //====================================================================================================
         //
         public override string GetEditLink(int contentId, string recordGuid) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
+            if (contentMetadata == null) { return ""; }
             int recordId = MetadataController.getRecordId(cp.core, contentMetadata.name, recordGuid);
             return AdminUIEditButtonController.getEditTab(cp.core, contentMetadata, recordId, false, "", "");
-            //
-            //var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
-            //if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            //return AdminUIEditButtonController.getLegacyRecordEditAnchorTag(cp.core, contentMetadata, recordGuid);
         }
         //
         public override string GetEditLink(int contentId, string recordGuid, string customCaption) {
             var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
+            if (contentMetadata == null) { return ""; }
             int recordId = MetadataController.getRecordId(cp.core, contentMetadata.name, recordGuid);
             return AdminUIEditButtonController.getEditTab(cp.core, contentMetadata, recordId, false, "", "");
-            //
-            //var contentMetadata = ContentMetadataModel.create(cp.core, contentId);
-            //if (contentMetadata == null) { throw new GenericException("contentId [" + contentId + "], but no content metadata found."); }
-            //return AdminUIEditButtonController.getLegacyRecordEditAnchorTag(cp.core, contentMetadata, recordGuid, customCaption);
         }
         //
         //====================================================================================================
