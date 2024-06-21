@@ -19,14 +19,14 @@
                 margin-bottom: 5px;
                 padding: 5px;   
             }
-            a.editBtn {
+            .editBtn {
                 display: flex;
                 border-top-left-radius: 8px;
                 border-bottom-left-radius: 0% !important;
                 background-color: #297de2 !important;
                 border: 0 !important;
             }
-            a.editBtn:hover {
+            .editBtn:hover {
                 background-color: #1f74c9 !important;
             }
             .editBtn img {
@@ -52,9 +52,11 @@
                 border-bottom-right-radius: 0 !important;
             }
         </style>    
-        <div class="btn-group editModalBtn ccRecordLinkCon" role="group">
-            <a type="button" class="btn editBtn" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editId}}"><img src="BaseAssets/light-edit-pencil.svg" alt=""></a>
-            <div class="widgetName">{{{dialogCaption}}}</div>
-        </div>
+        <a type="button" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editId}}">
+            <div class="btn-group editModalBtn ccRecordLinkCon" role="group">
+                <div class="btn editBtn" ><img src="img/light-edit-pencil.svg" alt=""></div>
+                <div class="widgetName">{{{dialogCaption}}}</div>
+            </div>
+        </a>
     </body>
 </html>
