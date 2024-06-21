@@ -144,8 +144,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- edit record plus edit modal (blue pencil)
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
-                string editRecordLayout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, defaultEditRecordLayoutName, defaultEditRecordLayoutCdnPathFilename, defaultEditRecordLayoutCdnPathFilename);
-                string editModalLayout = LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                string editRecordLayout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, layoutEditRecordName, layoutEditRecordGuidCdnPathFilename, layoutEditRecordGuidCdnPathFilename);
+                string editModalLayout = LayoutController.getLayout(core.cpParent, layoutEditModalGuid, layoutEditModalName, layoutEditModalCdnPathFilename, layoutEditModalCdnPathFilename);
                 string delim = getRandomString(10);
                 EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, caption, "");
                 string result = MustacheController.renderStringToString(editRecordLayout + delim + editModalLayout, dataSet);
@@ -345,8 +345,8 @@ namespace Contensive.Processor.Controllers {
                 EditModalModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
                 //
                 string delim = getRandomString(10);
-                string addLayout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, defaultAddRecordLayoutName, defaultAddRecordLayoutCdnPathFilename, defaultAddRecordLayoutCdnPathFilename);
-                string modalLayout = LayoutController.getLayout(core.cpParent, layoutEditModelGuid, defaultEditModelLayoutName, defaultEditModalLayoutCdnPathFilename, defaultEditModalLayoutCdnPathFilename);
+                string addLayout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, layoutAddRecordName, layoutAddRecordCdnPathFilename, layoutAddRecordCdnPathFilename);
+                string modalLayout = LayoutController.getLayout(core.cpParent, layoutEditModalGuid, layoutEditModalName, layoutEditModalCdnPathFilename, layoutEditModalCdnPathFilename);
                 string renderedLayout = MustacheController.renderStringToString(addLayout + delim + modalLayout, dataSet);
                 string[] renderedParts = renderedLayout.Split(new string[] { delim }, StringSplitOptions.None);
                 //
@@ -533,7 +533,7 @@ namespace Contensive.Processor.Controllers {
             }
             //
             // -- blue pencil layout
-            string layout = core.cpParent.Layout.GetLayout(guidLayoutAdminEditIcon, nameLayoutAdminEditIcon, pathFilenameLayoutAdminEditIcon);
+            string layout = core.cpParent.Layout.GetLayout(layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename);
             var dataSet = new { aHref = url, aClass = htmlClass, aCaption = caption };
             return core.cpParent.Mustache.Render(layout, dataSet);
         }

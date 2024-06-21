@@ -1782,6 +1782,8 @@ namespace Contensive.Processor {
         /// <param name="requestName"></param>
         public void setFormInput(CoreController core, string fieldName, string requestName) {
             //
+            logger.Debug($"cs.setFormInput, set fieldname {fieldName}, requestName {requestName}");
+            //
             // -- check arguments
             if (!ok()) { throw new GenericException("Data is invalid, empty, or end-of-file"); }
             if (string.IsNullOrEmpty(fieldName.Trim(' '))) { throw new GenericException("FieldName is invalid or blank"); }

@@ -414,7 +414,20 @@ namespace Contensive.Processor.Controllers {
                         core.siteProperties.passwordRequiresUppercase = false;
                         core.siteProperties.clearAdminPasswordOnHash = false;
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.6.15.1")) {
+                        //
+                        // -- upgrade layouts
+                    }
                 }
+                //
+                // -- force layout installation by deleting layout record
+                DbBaseModel.delete<LayoutModel>(cp, Constants.layoutAdminUITwoColumnLeftGuid);
+                DbBaseModel.delete<LayoutModel>(cp, Constants.layoutAdminUITwoColumnRightGuid);
+                DbBaseModel.delete<LayoutModel>(cp, Constants.layoutEditModalGuid);
+                DbBaseModel.delete<LayoutModel>(cp, Constants.layoutEditRecordGuid);
+                DbBaseModel.delete<LayoutModel>(cp, Constants.layoutAdminEditIconGuid);
+                DbBaseModel.delete<LayoutModel>(cp, Constants.layoutAddRecordGuid);
+                //
                 // -- Reload
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();

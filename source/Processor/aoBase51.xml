@@ -3182,8 +3182,8 @@
   </Addon>
   <Addon name="Contensive Base Assets" guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}" type="Add-on">
     <BlockEditTools>Yes</BlockEditTools>
-    <jsheadscriptsrc>/baseassets/baseAssets.js</jsheadscriptsrc>
-    <styleslinkhref>/baseassets/baseAssets.css</styleslinkhref>
+    <jsheadscriptsrc>/baseassets/baseAssets.js?refresh=240616</jsheadscriptsrc>
+    <styleslinkhref>/baseassets/baseAssets.css?refresh=240616</styleslinkhref>
     <Styles><![CDATA[]]></Styles>
   </Addon>
   <Addon name="Admin Site" guid="{c2de2acf-ca39-4668-b417-aa491e7d8460}" type="Add-on">

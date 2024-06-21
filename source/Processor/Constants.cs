@@ -1136,34 +1136,29 @@ namespace Contensive.Processor {
         //
         // Edit Modal layouts, all come from the same file
         //
-        public const string guidLayoutAdminEditIcon = "{36ECF05A-C1B8-4E79-8449-5AA6CB7DC623}";
-        public const string nameLayoutAdminEditIcon = "Admin Edit Icon Layout";
-        public const string pathFilenameLayoutAdminEditIcon = "baseAssets\\AdminEditIconLayout.html";
+        public const string layoutAdminEditIconGuid = "{36ECF05A-C1B8-4E79-8449-5AA6CB7DC623}";
+        public const string layoutAdminEditIconName = "Admin Edit Icon Layout";
+        public const string layoutAdminEditIconCdnPathFilename = "baseAssets\\AdminEditIconLayout.html";
         //
         public const string layoutEditRecordGuid = "{696D98A6-1454-45CD-B478-2D40B96940D9}";
-        public const string defaultEditRecordLayoutName = "Admin Edit Record Layout";
-        public const string defaultEditRecordLayoutCdnPathFilename = "baseAssets\\AdminEditRecordLayout.html";
+        public const string layoutEditRecordName = "Admin Edit Record Layout";
+        public const string layoutEditRecordGuidCdnPathFilename = "baseAssets\\AdminEditRecordLayout.html";
         //
         public const string layoutAddRecordGuid = "{FF2DFF28-AF79-4147-B9FF-B0A89AC5F054}";
-        public const string defaultAddRecordLayoutName = "Admin Add Record Layout";
-        public const string defaultAddRecordLayoutCdnPathFilename = "baseAssets\\AdminAddRecordLayout.html";
+        public const string layoutAddRecordName = "Admin Add Record Layout";
+        public const string layoutAddRecordCdnPathFilename = "baseAssets\\AdminAddRecordLayout.html";
         //
-        public const string layoutEditModelGuid = "{F6167221-8034-4781-837F-927E159B1685}";
-        public const string defaultEditModelLayoutName = "Admin Edit Modal Layout";
-        public const string defaultEditModalLayoutCdnPathFilename = "baseAssets\\AdminEditModalLayout.html";
+        public const string layoutEditModalGuid = "{F6167221-8034-4781-837F-927E159B1685}";
+        public const string layoutEditModalName = "Admin Edit Modal Layout";
+        public const string layoutEditModalCdnPathFilename = "baseAssets\\AdminEditModalLayout.html";
         //
+        public const string layoutAdminUITwoColumnLeftGuid = "{6B0B5593-49A9-45A9-AF64-9A14B34ACB44}";
+        public const string layoutAdminUITwoColumnLeftName = "AdminUI Two Column Left";
+        public const string layoutAdminUITwoColumnLeftCdnPathFilename = "portalframework\\AdminUITwoColumnLeftLayout.html";
         //
-        public const string guidLayoutPageWithNav = "{7B4BEE74-A4A1-4641-9745-25960AFD398F}";
-        public const string nameLayoutPageWithNav = "AdminUI Page With Nav Layout";
-        public const string pathFilenameLayoutAdminUIPageWithNav = "portalframework\\AdminUIPageWithNavLayout.html";
-        //
-        public const string guidLayoutAdminUITwoColumnLeft = "{6B0B5593-49A9-45A9-AF64-9A14B34ACB44}";
-        public const string nameLayoutAdminUITwoColumnLeft = "AdminUI Two Column Left";
-        public const string pathFilenameLayoutAdminUITwoColumnLeft = "portalframework\\AdminUITwoColumnLeftLayout.html";
-        //
-        public const string guidLayoutAdminUITwoColumnRight = "{41C1F5F9-9AAC-418D-8C05-8B558A02BAF2}";
-        public const string nameLayoutAdminUITwoColumnRight = "AdminUI Two Column Right";
-        public const string pathFilenameLayoutAdminUITwoColumnRight = "portalframework\\AdminUITwoColumnRightLayout.html";
+        public const string layoutAdminUITwoColumnRightGuid = "{41C1F5F9-9AAC-418D-8C05-8B558A02BAF2}";
+        public const string layoutAdminUITwoColumnRightName = "AdminUI Two Column Right";
+        public const string layoutAdminUITwoColumnRightCdnPathFilename = "portalframework\\AdminUITwoColumnRightLayout.html";
         //
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

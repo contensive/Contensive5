@@ -96,14 +96,17 @@ namespace Contensive.Processor.Addons {
                     case "saveChanges": {
                             //
                             // -- save the record
+                            logger.Debug($"save changes");
                             using (CPCSBaseClass cs = cp.CSNew()) {
                                 if (recordId == 0) {
                                     //
                                     // -- add record
+                                    logger.Debug($"SaveEditModalRemote, add record");
                                     cs.Insert(contentMetaData.name);
                                 } else {
                                     //
                                     // -- edit record
+                                    logger.Debug($"SaveEditModalRemote, edit recordId {recordId}");
                                     if (!cs.OpenRecord(contentMetaData.name, recordId)) {
                                         return getErrorResponse("The data could not be saved. The record could not be found.");
                                     }
@@ -122,14 +125,17 @@ namespace Contensive.Processor.Addons {
                                         if (cp.Request.GetBoolean($"field{field.id}delete")) {
                                             //
                                             // -- clear field
+                                            logger.Debug($"SaveEditModalRemote, clear field {field.nameLc}");
                                             cs.SetField(field.nameLc, "");
                                         } else {
                                             //
                                             // -- set field
+                                            logger.Debug($"SaveEditModalRemote, set fieldname {field.nameLc}, requestName {requestFieldName}, value {cp.Doc.GetText(requestFieldName)}");
                                             cs.SetFormInput(field.nameLc, requestFieldName);
                                         }
                                     }
                                 }
+                                logger.Debug($"SaveEditModalRemote, save record");
                                 cs.Save();
                                 //
                                 // -- call admin aftersave
@@ -149,7 +155,7 @@ namespace Contensive.Processor.Addons {
                         }
                 }
             } catch (Exception ex) {
-                logger.Error(ex, $"{cp.core.logCommonMessage}");
+                logger.Error(ex, $"SaveEditModalRemote, {cp.core.logCommonMessage}");
                 throw;
             }
         }

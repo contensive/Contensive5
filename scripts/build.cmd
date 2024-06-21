@@ -156,13 +156,22 @@ rem pause
 rem ==============================================================
 rem
 rem zip ui files, copy to the placeholders in the folder, move to the bin folder
+rem baseassets need img files copied to root of the zip file.
 rem
+
+@echo on
 
 c:
 cd "C:\Git\Contensive5\ui\BaseAssets\"
 del BaseAssets.zip /Q
 "c:\program files\7-zip\7z.exe" a "BaseAssets.zip"
-move /y "BaseAssets.zip"  "C:\Git\Contensive5\source\Processor\"
+"c:\program files\7-zip\7z.exe" d BaseAssets.zip BaseAssets\
+"c:\program files\7-zip\7z.exe" d BaseAssets.zip ".DS_Store"
+cd BaseAssets
+"c:\program files\7-zip\7z.exe" a "..\BaseAssets.zip"
+move /y "..\BaseAssets.zip"  "C:\Git\Contensive5\source\Processor\"
+
+rem pause
 
 c:
 cd "C:\Git\Contensive5\ui\AdminSite\"

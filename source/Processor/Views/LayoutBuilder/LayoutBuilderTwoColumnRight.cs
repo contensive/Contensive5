@@ -117,7 +117,7 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- construct body
             //
             // -- render layout
-            string layout = cp.Layout.GetLayout(Constants.guidLayoutAdminUITwoColumnRight, Constants.nameLayoutAdminUITwoColumnRight, Constants.pathFilenameLayoutAdminUITwoColumnRight);
+            string layout = cp.Layout.GetLayout(Constants.layoutAdminUITwoColumnRightGuid, Constants.layoutAdminUITwoColumnRightName, Constants.layoutAdminUITwoColumnRightCdnPathFilename);
             //
             AdminUIHtmlDocRequest request = new() {
                 body = cp.Mustache.Render(layout, this),
