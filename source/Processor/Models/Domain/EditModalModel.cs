@@ -147,6 +147,10 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     // -- else add a hidden for the prepopulate value
                     result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editId));
+                } else if ( editRecordId==0 && field.required ) {
+                    //
+                    // -- if new record (add), and field is required, and not otherwise added, include it in the list
+                    result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editId));
                 }
             }
             List<EditModalModel_FieldListItem> sortedResult = result.OrderBy(o => o.sort).ToList();
