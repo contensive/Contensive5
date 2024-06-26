@@ -51,12 +51,60 @@
                 border-top-right-radius: 8px;
                 border-bottom-right-radius: 0 !important;
             }
+
+            .cutBtn {
+                border-radius: 0;
+                border-bottom-left-radius: 8px !important;
+                background-color: #0955d2 !important;
+                height: 31px;
+                position: relative;
+                top: 31px;
+                z-index: 99;
+            }
+
+            .cutBtn img {
+                height: 16px !important;
+                position: relative;
+                filter: invert(100);
+                vertical-align: top;
+            }
+
+            .pasteBtn {
+                border-radius: 8px;
+                background-color: #0955d2 !important;
+                height: 31px;
+                color: white;
+                font-weight: 500;
+                font-size: 14px;
+                padding: 5px 10px;
+                min-width: 120px;
+            }
+
+            .pasteBtn img {
+                height: 16px !important;
+                filter: invert(100);
+                margin-right: 5px;
+            }
+
         </style>    
-        <a type="button" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editId}}">
-            <div class="btn-group editModalBtn ccRecordLinkCon" role="group">
-                <div class="btn editBtn" ><img src="img/light-edit-pencil.svg" alt=""></div>
-                <div class="widgetName">{{{dialogCaption}}}</div>
-            </div>
-        </a>
+       <div class="d-flex justify-content-between">
+            <a type="button" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editId}}">
+                <div class="btn-group editModalBtn ccRecordLinkCon" role="group">
+                    <div class="btn editBtn" ><img src="img/light-edit-pencil.svg" alt="pencil icon"></div>
+                    <div class="widgetName">{{{dialogCaption}}}</div>
+                </div>
+            </a>
+        <div data-delete>
+            {{#isAllowCut}}
+            <a href="#" class="btn cutBtn"><img src="BaseAssets/scissors.svg" alt="scissors icon"></a>
+            {{/isAllowCut}}
+        </div>
+       </div>
+
+       <div data-delete>
+        {{#isAllowPaste}}
+            <a href="#" class="btn pasteBtn"><img src="BaseAssets/paste.svg" alt="paste icon"> Paste Record</a>
+        {{/isAllowPaste}}
+        </div>
     </body>
 </html>
