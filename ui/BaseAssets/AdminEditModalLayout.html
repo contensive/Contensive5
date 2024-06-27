@@ -92,6 +92,18 @@
                 width: 32px;
                 margin-right: 20px;
             }
+
+            .widgetEditModal {
+                z-index: 999;
+            }
+
+            .widgetEditModal .sctnWrpr .redactor-box {
+                z-index: 99;
+            }
+
+            .modal-open .modal-backdrop {
+                z-index: 998;
+            }
         </style>  
         <div class="modal fade widgetEditModal" id="widgetEditModal{{editId}}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">

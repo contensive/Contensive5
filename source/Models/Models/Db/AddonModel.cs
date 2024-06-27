@@ -19,7 +19,8 @@ namespace Contensive.Models.Db {
         /// </summary>
         public bool admin { get; set; }
         /// <summary>
-        /// name=value pairs added to doc properties before execution, if the name does not already exist. Can be added to {% {json} %} execution to override properties
+        /// name=value pairs added to doc properties before execution, if the name does not already exist. 
+        /// Can be added to {% {json} %} execution to override properties
         /// </summary>
         public string argumentList { get; set; }
         /// <summary>

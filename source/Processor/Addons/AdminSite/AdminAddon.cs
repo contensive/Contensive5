@@ -1,18 +1,8 @@
 ﻿
 using Contensive.BaseClasses;
-using Contensive.Models.Db;
-using Contensive.Processor.Addons.Tools;
 using Contensive.Processor.Controllers;
-using Contensive.Exceptions;
-using Contensive.Processor.Models.Domain;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static Contensive.Processor.Constants;
-using static Contensive.Processor.Controllers.GenericController;
 using NLog;
-using System.Reflection;
-using NLog.LayoutRenderers;
+using System;
 
 namespace Contensive.Processor.Addons.AdminSite {
     //
