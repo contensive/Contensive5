@@ -70,6 +70,32 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         /// <summary>
+        /// create or update the record from layoutCdnPathFilename.
+        /// </summary>
+        /// <param name="layoutGuid"></param>
+        /// <param name="defaultLayoutName"></param>
+        /// <param name="defaultLayoutCdnPathFilename"></param>
+        /// <returns></returns>
+        public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename) {
+            LayoutController.updateLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, "");
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// create or update the record from layoutCdnPathFilename.
+        /// </summary>
+        /// <param name="layoutGuid"></param>
+        /// <param name="defaultLayoutName"></param>
+        /// <param name="defaultLayoutCdnPathFilename"></param>
+        /// <param name="platform5LayoutCdnPathFilename"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
+            LayoutController.updateLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// Get a layout by its name. If there are duplicates, return the first by id. Not recommeded, use Guid. For compatibility only
         /// </summary>
         /// <param name="layoutName"></param>

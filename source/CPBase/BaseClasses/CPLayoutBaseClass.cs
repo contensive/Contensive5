@@ -74,6 +74,25 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// the layout record is created or updated with the default name  and layout record
+        /// </summary>
+        /// <param name="layoutGuid"></param>
+        /// <param name="defaultLayoutName"></param>
+        /// <param name="defaultLayoutCdnPathFilename"></param>
+        public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// the layout record is created or updated with the default name  and layout record
+        /// </summary>
+        /// <param name="layoutGuid"></param>
+        /// <param name="defaultLayoutName"></param>
+        /// <param name="defaultLayoutCdnPathFilename"></param>
+        /// <param name="platform5LayoutCdnPathFilename"></param>
+        public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
+        //
+        //====================================================================================================
+        /// <summary>
         /// Transform the input html using the data attribute based html transformations. These transformations 
         /// are typically used to convert a static html design
         /// 

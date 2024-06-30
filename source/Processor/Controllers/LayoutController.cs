@@ -1,6 +1,7 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using NLog;
+using NLog.Layouts;
 using System;
 using System.Collections.Generic;
 
@@ -42,6 +43,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getLayout(CPClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
             try {
+                if (string.IsNullOrEmpty(layoutGuid)) { return ""; }
                 // 
                 // -- load the layout from the catalog settings selection
                 LayoutModel layout;
@@ -52,25 +54,48 @@ namespace Contensive.Processor.Controllers {
                     if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) { return layout.layoutPlatform5.content; }
                     return layout.layout.content;
                 }
-                // 
-                // -- layout record not found. Delete old record in case it was marked inactive
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutGuid);
+                return updateLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+        // 
+        // ====================================================================================================
+        /// <summary>
+        /// create or update the layout record and return the result
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="layoutGuid"></param>
+        /// <param name="defaultLayoutName"></param>
+        /// <param name="defaultLayoutCdnPathFilename"></param>
+        /// <param name="platform5LayoutCdnPathFilename"></param>
+        /// <returns></returns>
+        public static string updateLayout(CPClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
+            try {
+                if (string.IsNullOrEmpty(layoutGuid)) { return ""; }
+                if (string.IsNullOrEmpty(defaultLayoutName)) { defaultLayoutName = defaultLayoutCdnPathFilename; }
+                if (string.IsNullOrEmpty(defaultLayoutName)) { defaultLayoutName = platform5LayoutCdnPathFilename; }
                 //
                 // -- create a layout if a layout is found
-                List<string> ignoreErrors = new();
+                List<string> ignoreErrors = [];
                 string layout1 = string.IsNullOrEmpty(defaultLayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(defaultLayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
                 string layout5 = string.IsNullOrEmpty(platform5LayoutCdnPathFilename) ? "" : ImportController.processHtml(cp, cp.CdnFiles.Read(platform5LayoutCdnPathFilename), CPLayoutBaseClass.ImporttypeEnum.LayoutForAddon, ref ignoreErrors, defaultLayoutName);
                 if (string.IsNullOrEmpty(layout1 + layout5)) {
                     return "";
                 }
-                layout = DbBaseModel.addDefault<LayoutModel>(cp);
+                // 
+                // -- update or add layout
+                cp.Db.ExecuteNonQuery($"update cclayouts set active=1 where ccguid={cp.Db.EncodeSQLText(layoutGuid)}");
+                LayoutModel layout = DbBaseModel.create<LayoutModel>(cp, layoutGuid);
+                layout ??= DbBaseModel.addDefault<LayoutModel>(cp);
                 layout.name = defaultLayoutName;
                 layout.ccguid = layoutGuid;
                 layout.layout.content = layout1;
                 layout.layoutPlatform5.content = layout5;
                 layout.save(cp);
                 //
-                // -- flush caches aftre insert
+                // -- flush caches after insert
                 cp.core.cacheRuntime.clearLayout();
                 DbBaseModel.invalidateCacheOfTable<LayoutModel>(cp);
                 //
