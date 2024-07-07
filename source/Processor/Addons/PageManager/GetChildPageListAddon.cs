@@ -44,15 +44,15 @@ namespace Contensive.Processor.Addons.PageManager {
         //
         //   RequestedListName is the name of the ChildList (ActiveContent Child Page List)
         //       ----- New
-        //       {CHILDPAGELIST} = the listname for the orphan list at the bottom of all page content, same as "", "ORPHAN", "NONE"
-        //       RequestedListName = "", same as "ORPHAN", same as "NONE"
-        //           prints orphan list (child pages that have not printed so far (orphan list))
+        //       {CHILDPAGELIST} = the listname for the Hidden list at the bottom of all page content, same as "", "Hidden", "NONE"
+        //       RequestedListName = "", same as "Hidden", same as "NONE"
+        //           prints Hidden list (child pages that have not printed so far (Hidden list))
         //       AllowChildListDisplay - if false, no Child Page List is displayed, but authoring tags are still there
         //       Changed to friend, not public
         //       ----- Old
         //       "NONE" returns child pages with no RequestedListName
         //       "" same as "NONE"
-        //       "ORPHAN" returns all child pages that have not been printed on this page
+        //       "Hidden" returns all child pages that have not been printed on this page
         //           - uses ChildPageListTracking to track what has been seen
         //=============================================================================
         /// <summary>
@@ -69,7 +69,7 @@ namespace Contensive.Processor.Addons.PageManager {
             try {
                 if (string.IsNullOrEmpty(contentName)) { contentName = PageContentModel.tableMetadata.contentName; }
                 string UcaseRequestedListName = toUCase(requestedListName);
-                if ((UcaseRequestedListName == "NONE") || (UcaseRequestedListName == "ORPHAN") || (UcaseRequestedListName == "{CHILDPAGELIST}")) {
+                if ((UcaseRequestedListName == "NONE") || (UcaseRequestedListName == "ORPHAN") || (UcaseRequestedListName == "HIDDEN") || (UcaseRequestedListName == "{CHILDPAGELIST}")) {
                     UcaseRequestedListName = "";
                 }
                 string archiveLink = core.webServer.requestPathPage;
@@ -112,14 +112,14 @@ namespace Contensive.Processor.Addons.PageManager {
                         string LinkedText = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(link) + "\">", pageMenuHeadline);
                         if ((string.IsNullOrEmpty(UcaseRequestedListName)) && (childPage.parentListName != "") && (!isAuthoring)) {
                             //
-                            // ----- Requested orphan list, and this record is in a named list, and not editing, do not display
+                            // ----- Requested Hidden list, and this record is in a named list, and not editing, do not display
                             //
                         } else if ((string.IsNullOrEmpty(UcaseRequestedListName)) && (childPage.parentListName != "")) {
                             //
                             // -- child page has a parentListName but this request does not
                             if (!core.doc.pageController.childPageIdsListed.Contains(childPage.id)) {
                                 //
-                                // -- child page has not yet displays, if editing show it as an orphan page
+                                // -- child page has not yet displays, if editing show it as an Hidden page
                                 if (isAuthoring) {
                                     string editWrapperClass = "ccEditWrapper";
                                     //if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
@@ -132,7 +132,7 @@ namespace Contensive.Processor.Addons.PageManager {
                             }
                         } else if ((string.IsNullOrEmpty(UcaseRequestedListName)) && (!allowChildListDisplay) && (!isAuthoring)) {
                             //
-                            // ----- Requested orphan List, Not AllowChildListDisplay, not Authoring, do not display
+                            // ----- Requested Hidden List, Not AllowChildListDisplay, not Authoring, do not display
                             //
                         } else if ((!string.IsNullOrEmpty(UcaseRequestedListName)) && (UcaseRequestedListName != GenericController.toUCase(childPage.parentListName))) {
                             //

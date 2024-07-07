@@ -1,0 +1,54 @@
+
+Execute a javascript when the element becomes visible.
+
+
+https://stackoverflow.com/questions/70487991/execute-a-function-when-a-div-is-visible-using-the-intersection-observer
+
+
+
+function myFunc() {
+  const script = document.createElement('script');
+  script.src = '/myscript.js';
+  demo.append(script);
+  console.log('Script appended');
+}
+
+/**
+ * This is called whenever an observed element is 
+ * in view or went out of view.
+ */
+const onIntersection = (entries, observer) => {
+  for (const { isIntersecting, target } of entries) {
+    if (isIntersecting) {
+      myFunc();
+      observer.unobserve(target);
+    }
+  }
+};
+
+/**
+ * The options for the observer.
+ * 50px 0px on the rootMargin says that the observer triggers
+ * after 50px in the top and bottom.
+ */
+const options = {
+  root: null,
+  rootMargin: '50px 0px',
+  threshold: [0]
+};
+
+/**
+ * Select the demo element, create an observer and start observing the demo element.
+ */
+const demo = document.getElementById('demo');
+const observer = new IntersectionObserver(onIntersection, options);
+
+observer.observe(demo);
+#demo {
+  display: block;
+  height: 100px;
+  width: 100px;
+  background: red;
+  margin-top: 1000px;
+}
+<div id="demo"></div>

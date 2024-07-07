@@ -414,9 +414,10 @@ namespace Contensive.Processor.Controllers {
                         core.siteProperties.passwordRequiresUppercase = false;
                         core.siteProperties.clearAdminPasswordOnHash = false;
                     }
-                    if (GenericController.versionIsOlder(DataBuildVersion, "24.6.15.1")) {
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.7.6.1")) {
                         //
-                        // -- upgrade layouts
+                        // -- remove deprecated fields
+                        cp.Db.ExecuteNonQuery("delete from ccfields where name='boaddedupuserid'");
                     }
                 }
                 //

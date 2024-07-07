@@ -349,7 +349,8 @@ namespace Contensive.Processor.Controllers {
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping www file [" + core.appConfig.localWwwPath + dstDosPath + filename + "].");
                                                                 core.wwwFiles.unzipFile(dstDosPath + filename);
-                                                                core.wwwFiles.deleteFile(dstDosPath + filename);
+                                                                // cannot delete the zip because it may need to be exported
+                                                                //core.wwwFiles.deleteFile(dstDosPath + filename);
                                                             }
                                                             break;
                                                         }
@@ -361,7 +362,8 @@ namespace Contensive.Processor.Controllers {
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 logger.Info($"{core.logCommonMessage}, CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping privateFiles file [" + dstDosPath + filename + "].");
                                                                 core.privateFiles.unzipFile(dstDosPath + filename);
-                                                                core.privateFiles.deleteFile(dstDosPath + filename);
+                                                                // cannot delete the zip because it may need to be exported
+                                                                //core.privateFiles.deleteFile(dstDosPath + filename);
                                                             }
                                                             break;
                                                         }
@@ -375,7 +377,8 @@ namespace Contensive.Processor.Controllers {
                                                             if (GenericController.toLCase(filename.Substring(filename.Length - 4)) == ".zip") {
                                                                 logger.Info($"{core.logCommonMessage}, CollectionName [" + CollectionName + "], GUID [" + collectionGuid + "], pass 1, unzipping cdnFiles [" + dstDosPath + filename + "].");
                                                                 core.cdnFiles.unzipFile(dstDosPath + filename);
-                                                                core.cdnFiles.deleteFile(dstDosPath + filename);
+                                                                // cannot delete the zip because it may need to be exported
+                                                                //core.cdnFiles.deleteFile(dstDosPath + filename);
                                                             }
                                                             break;
                                                         }

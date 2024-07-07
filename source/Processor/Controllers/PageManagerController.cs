@@ -1088,7 +1088,7 @@ namespace Contensive.Processor.Controllers {
                 // -- End Text Search
                 result.Append("\r<!-- TextSearchStart -->" + resultInnerContent.ToString() + "\r<!-- TextSearchEnd -->");
                 //
-                // ----- Orphan Child pages. Pages in this list do not appear on the page. This is an admin editing tool to let admins see all pages not associated to a list.
+                // ----- Hidden Child pages. Pages in this list do not appear on the page. This is an admin editing tool to let admins see all pages not associated to a list.
                 if (core.session.isEditing()) {
                     var editItemList = new StringBuilder();
                     string sqlCriteria = "(parentid=" + core.doc.pageController.page.id + ")";
@@ -1133,11 +1133,11 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     //
-                    // -- build orphan list admin tool here
+                    // -- build Hidden list admin tool here
                     string RequestedListName = "";
                     string hintHtml = ""
-                        + HtmlController.h4("Orphan Child Pages")
-                        + HtmlController.p("All child pages not assigned to a Child Page List within this page. These pages may display in menuing but do not display on this page. To display any or all of these, add a Child Page List to the page and drag these where needed.")
+                        + HtmlController.h4("Hidden Child Pages")
+                        + HtmlController.p("This list of pages is hidden but the pages may display in other navigation. Creating a new page here helps organize your pages by keeping them together with the parent content. To display a child page, add a child page widget to the page and add pages there, or drag one of these child pages into that widget.")
                         + HtmlController.ul(editItemList.ToString() + addItemList.ToString(), "ccChildList", "childPageList_" + core.doc.pageController.page.id + "_" + RequestedListName);
                     result.Append(AdminUIEditButtonController.getAdminHintWrapper(core, hintHtml));
                 }

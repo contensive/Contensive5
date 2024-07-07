@@ -71,8 +71,8 @@ namespace Contensive.Processor.Controllers {
                 List<string> wwwUnixPathFilenameList = ExportResourceListController.getUnixPathFilenameList(cp, cs.GetText("wwwFileList"));
                 foreach (var pathFilename in wwwUnixPathFilenameList) {
                     if (!cp.WwwFiles.FileExists(pathFilename)) {
-                        cp.UserError.Add("The Collection includes a www file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
-                        return "";
+                        cp.UserError.Add("The collection includes a www file in the Resources tab that could not be found, [" + pathFilename + "]. The export continued without it but it might be needed. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
+                        //return "";
                     }
                 }
                 //
@@ -80,8 +80,8 @@ namespace Contensive.Processor.Controllers {
                 List<string> cdnUnixFileList = ExportResourceListController.getUnixPathFilenameList(cp, cs.GetText("ContentFileList"));
                 foreach (var pathFilename in cdnUnixFileList) {
                     if (!cp.CdnFiles.FileExists(pathFilename)) {
-                        cp.UserError.Add("Collection includes a cdn file in the Resources tab that could not be found, [" + pathFilename + "]. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
-                        return "";
+                        cp.UserError.Add("The collection includes a cdn file in the Resources tab that could not be found, [" + pathFilename + "]. The export continued without it but it might be needed. Verify upper/lower case, locate and restore the file, or if it is not needed, remove it from the collection resources tab.");
+                        //return "";
                     }
                 }
                 //
