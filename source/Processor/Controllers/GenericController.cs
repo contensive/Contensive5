@@ -23,6 +23,13 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class GenericController {
         //
+        public static string encodeDateIsoString(DateTime? dateValue) {
+            if (dateValue is null || dateValue.Equals(new DateTime(1, 1, 1))) {
+                return "";
+            }
+            return ((DateTime)dateValue).ToString("o", CultureInfo.InvariantCulture);
+        }
+        //
         //====================================================================================================
         /// <summary>
         /// returns true if first version is older than the second version

@@ -6,6 +6,11 @@ https://stackoverflow.com/questions/70487991/execute-a-function-when-a-div-is-vi
 
 
 
+<div id='demo'/>
+
+
+//
+// -- function to run when div#demo is visible
 function myFunc() {
   const script = document.createElement('script');
   script.src = '/myscript.js';

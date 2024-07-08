@@ -4,8 +4,12 @@ using Amazon.SimpleEmail.Model;
 using Contensive.BaseClasses;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
+using HandlebarsDotNet.ValueProviders;
+using NLog.LayoutRenderers.Wrappers;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net.Mime;
@@ -34,6 +38,7 @@ namespace Contensive.Processor.Models.Domain {
                 isEditing = !core.session.isEditing();
                 leftFields = getFieldList(core, currentRecordCs, contentMetadata, presetNameValuePairs, editId);
                 rightFields = [];
+                hasRightFields = rightFields.Count() > 0;
                 this.recordId = recordId;
                 contentGuid = contentMetadata.guid;
                 contentItemName = GenericController.getSingular_Sortof(core, contentMetadata.name);
@@ -57,6 +62,8 @@ namespace Contensive.Processor.Models.Domain {
         public List<EditModalModel_FieldListItem> leftFields { get; }
         //
         public EditModalModel_Rightfield[] rightFields { get; }
+        //
+        public bool hasRightFields { get; }
         //
         public int recordId { get; }
         //
@@ -122,13 +129,22 @@ namespace Contensive.Processor.Models.Domain {
                         // -- these field types have no value
                     } else {
                         //
-                        // -- capture current record value
+                        // -- prepopulated values
                         if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
-                            currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
+                            switch (field.fieldTypeId) {
+                                case CPContentBaseClass.FieldTypeIdEnum.Date: {
+                                        DateTime? dateValue = GenericController.encodeDate(prepopulateValue[fieldName.ToLowerInvariant()]);
+                                        currentValue = GenericController.encodeDateIsoString(  dateValue );
+                                        break;
+                                    }
+                                default: {
+                                        currentValue = prepopulateValue[fieldName.ToLowerInvariant()];
+                                        break;
+                                    }
+                            }
                         } else if (currentRecordCs.OK()) {
-                            currentValue = currentRecordCs.GetValue(field.nameLc);
                             //
-                            // -- file type fields read the filename, but save the content
+                            // -- current record value
                             switch (field.fieldTypeId) {
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
@@ -136,7 +152,19 @@ namespace Contensive.Processor.Models.Domain {
                                 case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
+                                        //
+                                        // -- file type fields read the filename, but save the content
+                                        currentValue = currentRecordCs.GetValue(field.nameLc);
                                         currentValue = core.cpParent.CdnFiles.Read(currentValue);
+                                        break;
+                                    }
+                                case CPContentBaseClass.FieldTypeIdEnum.Date: {
+                                        DateTime? dateValue = currentRecordCs.GetDate(field.nameLc);
+                                        currentValue = GenericController.encodeDateIsoString(dateValue);
+                                        break;
+                                    }
+                                default: {
+                                        currentValue = currentRecordCs.GetValue(field.nameLc);
                                         break;
                                     }
                             }
@@ -147,7 +175,7 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     // -- else add a hidden for the prepopulate value
                     result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editId));
-                } else if ( editRecordId==0 && field.required ) {
+                } else if (editRecordId == 0 && field.required) {
                     //
                     // -- if new record (add), and field is required, and not otherwise added, include it in the list
                     result.Add(new EditModalModel_FieldListItem(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editId));
@@ -308,10 +336,10 @@ namespace Contensive.Processor.Models.Domain {
                 EditorString = removeOptionsFromSelect(EditorString);
                 return EditorString;
             }
-            if ( field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.MemberSelect ) {
+            if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.MemberSelect) {
                 int groupId = field.memberSelectGroupId_get(core, contentMetaData.name, field.nameLc);
                 string groupName = core.cpParent.Content.GetRecordName("groups", groupId);
-                EditorString = AdminUIEditorController.getMemberSelectEditor(core,  field.nameLc, GenericController.encodeInteger(fieldValueObject), groupId, groupName,field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
+                EditorString = AdminUIEditorController.getMemberSelectEditor(core, field.nameLc, GenericController.encodeInteger(fieldValueObject), groupId, groupName, field.readOnly, fieldHtmlId, field.required, whyReadOnlyMsg);
                 EditorString = removeOptionsFromSelect(EditorString);
                 return EditorString;
             }

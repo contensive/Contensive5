@@ -116,7 +116,7 @@
                     </div>
                     <div class="modal-body">
                         <div class="row"> 
-                            <div class="col-md-8">
+                            <div class="{{#hasRightFields}}col-md-8{{/hasRightFields}}">
                                 {{#leftFields}}
                                     {{#isFile}}
                                     <!--
@@ -242,25 +242,39 @@
                                                 {{#isRequired}}<script>document.getElementById("{{fieldId}}-date").required = true;</script>{{/isRequired}}
                                                 {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-date").readOnly = true;</script>{{/isReadOnly}}
                                                 <!-- time part-->
-                                                <input type="time" name="{{htmlName}}-time" class="form-control" id="{{fieldId}}-time" value="">
+                                                <input type="time" step="1" name="{{htmlName}}-time" class="form-control" id="{{fieldId}}-time" value="">
                                                 {{#isRequired}}<script>document.getElementById("{{fieldId}}-time").required = true;</script>{{/isRequired}}
                                                 {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-time").readOnly = true;</script>{{/isReadOnly}}
                                                 <!-- clear both-->
                                                 <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="{{fieldId}}delete" autocomplete="off">
                                                 <label class="btn btn-outline-danger me-3" for="{{fieldId}}delete"><i class="fa-regular fa-trash-can"></i></label>
-                                        </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <script>
                                     document.addEventListener('DOMContentLoaded', function(){
-                                        var fieldDate = new Date($('#{{fieldId}}').val());
-                                        $('#{{fieldId}}-date').val(fieldDate.toISOString().substring(0,10));
-                                        $('#{{fieldId}}-time').val(fieldDate.toTimeString().split(' ')[0]);
-                                        $('body').on('change','#{{htmlName}}-date,#{{htmlName}}-time',function(e){
-                                            console.log('date/time change');
-                                            var dateVal = $("#{{fieldId}}-date").val();
-                                            var timeVal = $("#{{fieldId}}-time").val();
+                                        let initialValue = $('#{{fieldId}}').val();
+                                        console.log("set initialValue: ["+initialValue+"]");
+
+                                        //let fieldValue = new Date($('#{{fieldId}}').val());
+                                        //console.log("set fieldValue: ["+fieldValue+"]");
+                                        //
+                                        let dateString = initialValue.substring(0,10);
+                                        //let dateString = fieldValue.toISOString().substring(0,10);
+                                        $('#{{fieldId}}-date').val(dateString);
+                                        console.log("dateString: ["+dateString+"]");
+                                        //
+                                        let timeString = initialValue.substring(11,22);
+                                        //let timeString = fieldValue.toISOString().substring(11,22);
+                                        $('#{{fieldId}}-time').val(timeString);
+                                        console.log("timeString: ["+timeString+"]");
+                                        //
+                                        $('body').on('change','#{{fieldId}}-date,#{{fieldId}}-time',function(e){
+                                            let dateVal = $("#{{fieldId}}-date").val();
+                                            let timeVal = $("#{{fieldId}}-time").val();
+                                            console.log('date/time change, dateVal: ['+dateVal+'], timeVal ['+timeVal+']');
                                             $('#{{fieldId}}').val(dateVal + ((timeVal) ? "T" + timeVal : "" ));
+                                            console.log("new value: ["+$('#{{fieldId}}').val()+"]");
                                         });
                                     });
                                     </script>
@@ -599,68 +613,88 @@
                                     {{/isRedirect}}
                                 {{/leftFields}}  
                             </div>
+                            {{#hasRightFields}}
+                                <div class="col-md-4">
+                                    {{#rightFields}}
+                                    <div class="sctnWrpr">
+                                        <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-{{fieldId}}">
+                                            <div class="accordion-item">
+                                                <div class="accordion-header">
+                                                    <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{fieldId}}" aria-expanded="false" aria-controls="stylesCollapse-{{fieldId}}">
+                                                    
+                                                        {{#isHelp}}
+                                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                        </a>
+                                                        {{/isHelp}}
 
-                            <div class="col-md-4">
-                                {{#rightFields}}
-                                <div class="sctnWrpr">
-                                    <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-{{fieldId}}">
-                                        <div class="accordion-item">
-                                            <div class="accordion-header">
-                                                <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{fieldId}}" aria-expanded="false" aria-controls="stylesCollapse-{{fieldId}}">
-                                                
-                                                    {{#isHelp}}
-                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                                    </a>
-                                                    {{/isHelp}}
-
-                                                    <h6 class="pb-0 ps-2">{{caption}}</h6>
-                                                
+                                                        <h6 class="pb-0 ps-2">{{caption}}</h6>
+                                                    
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div id="stylesCollapse-{{fieldId}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{fieldId}}">
-                                                <div class="accordion-body">
-                                                    {{#rightSectionAccordion}}
-                                                        {{#isText}}
-                                                            <!--
-                                                                text field
-                                                            -->
-                                                            <input type="text" class="form-control mb-3" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                                            {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
-                                                        {{/isText}}
-                                                        {{#isSelect}}
-                                                            <!--
-                                                                select field
-                                                            -->
-                                                            <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
-                                                                <option value="{{currentValue}}" selected>{{currentValue}}</option>
-                                                            </select>
-                                                        {{/isSelect}}
-                                                        {{#isCheckboxList}}
-                                                            <!--
-                                                                checkbox list
-                                                            -->
-                                                            <div class="form-check form-check-inline mb-3">
-                                                                <input class="form-check-input" type="checkbox" value="" id="{{fieldId}}" name="{{htmlName}}">
+                                                <div id="stylesCollapse-{{fieldId}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{fieldId}}">
+                                                    <div class="accordion-body">
+                                                        {{#rightSectionAccordion}}
+                                                            {{#isText}}
+                                                                <!--
+                                                                    text field
+                                                                -->
+                                                                <input type="text" class="form-control mb-3" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
                                                                 {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
                                                                 {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
-                                                                <label class="form-check-label" for="checkbox{{fieldId}}">
-                                                                    <h6 class="mb-0">{{caption}}</h6>
-                                                                    {{#isHelp}}
-                                                                    <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                        <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                                                    </a>
-                                                                    {{/isHelp}}
-                                                                
-                                                                </label>
-                                                            </div>
-                                                        {{/isCheckboxList}}
-                                                        {{#isFile}}
-                                                            <!--
-                                                                file field
-                                                            -->
-                                                            <div class="d-flex justify-content-between align-items-center">
+                                                            {{/isText}}
+                                                            {{#isSelect}}
+                                                                <!--
+                                                                    select field
+                                                                -->
+                                                                <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
+                                                                    <option value="{{currentValue}}" selected>{{currentValue}}</option>
+                                                                </select>
+                                                            {{/isSelect}}
+                                                            {{#isCheckboxList}}
+                                                                <!--
+                                                                    checkbox list
+                                                                -->
+                                                                <div class="form-check form-check-inline mb-3">
+                                                                    <input class="form-check-input" type="checkbox" value="" id="{{fieldId}}" name="{{htmlName}}">
+                                                                    {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                    <label class="form-check-label" for="checkbox{{fieldId}}">
+                                                                        <h6 class="mb-0">{{caption}}</h6>
+                                                                        {{#isHelp}}
+                                                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                                        </a>
+                                                                        {{/isHelp}}
+                                                                    
+                                                                    </label>
+                                                                </div>
+                                                            {{/isCheckboxList}}
+                                                            {{#isFile}}
+                                                                <!--
+                                                                    file field
+                                                                -->
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <div class="mb-3">
+                                                                        <label for="{{fieldId}}" class="form-label d-flex align-items-center">
+                                                                            {{#isHelp}}
+                                                                                <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                                                    <img src="img/circle-info.svg" alt="info icon" class="icon"> 
+                                                                                </a>
+                                                                            {{/isHelp}}
+
+                                                                            <h6 class="mb-0">{{caption}}</h6>
+                                                                        </label>
+                                                                        <input class="form-control" type="file" id="{{fieldId}}" name="{{htmlName}}">
+                                                                        {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                                        {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                    </div>
+                                                                </div>
+                                                            {{/isFile}}
+                                                            {{#isCurrency}}
+                                                                <!--
+                                                                    currency field
+                                                                -->
                                                                 <div class="mb-3">
                                                                     <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                                         {{#isHelp}}
@@ -671,39 +705,19 @@
 
                                                                         <h6 class="mb-0">{{caption}}</h6>
                                                                     </label>
-                                                                    <input class="form-control" type="file" id="{{fieldId}}" name="{{htmlName}}">
-                                                                    {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
-                                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                    <input type="number" step="any"  name="{{htmlName}}" value="{{currentValue}}" id="{{fieldId}}" class="form-control">
+
                                                                 </div>
-                                                            </div>
-                                                        {{/isFile}}
-                                                        {{#isCurrency}}
-                                                            <!--
-                                                                currency field
-                                                            -->
-                                                            <div class="mb-3">
-                                                                <label for="{{fieldId}}" class="form-label d-flex align-items-center">
-                                                                    {{#isHelp}}
-                                                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                            <img src="img/circle-info.svg" alt="info icon" class="icon"> 
-                                                                        </a>
-                                                                    {{/isHelp}}
-
-                                                                    <h6 class="mb-0">{{caption}}</h6>
-                                                                </label>
-                                                                <input type="number" step="any"  name="{{htmlName}}" value="{{currentValue}}" id="{{fieldId}}" class="form-control">
-
-                                                            </div>
-                                                        {{/isCurrency}}
-                                                    {{/rightSectionAccordion}}
+                                                            {{/isCurrency}}
+                                                        {{/rightSectionAccordion}}
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
+                                    {{/rightFields}}
                                 </div>
-                                {{/rightFields}}
-                            </div>
-                            
+                            {{/hasRightFields}}
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-between border-0">
