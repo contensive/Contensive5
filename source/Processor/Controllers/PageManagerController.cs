@@ -1624,7 +1624,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- set linkPathPath to linkAlias
                 string linkPathPage = null;
-                if (AllowLinkAliasIfEnabled && core.siteProperties.allowLinkAlias) {
+                if (AllowLinkAliasIfEnabled) {
                     linkPathPage = LinkAliasController.getLinkAlias(core, PageID, QueryStringSuffix, "");
                 }
                 if (string.IsNullOrEmpty(linkPathPage)) {

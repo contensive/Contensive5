@@ -2604,11 +2604,11 @@
         </member>
         <member name="M:Contensive.BaseClasses.CPContentBaseClass.GetLinkAliasByPageID(System.Int32,System.String,System.String)">
             <summary>
-            Returns the primary link alias for the record id and querystringsuffix. If no link alias exists, it defaultvalue is returned.
+            Returns the primary Page URL for the record id and querystringsuffix. If no Page URL exists, it defaultvalue is returned.
             </summary>
             <param name="PageID"></param>
             <param name="QueryStringSuffix">In the case where an add-on is on the page, there may be many unique documents possible from the one pageid. Each possible variation is determined by values in the querystring added by the cpcore.addon. These name=value pairs in Querystring format are used to identify additional link aliases.</param>
-            <param name="DefaultLink">If no link alias is found, this value is returned.</param>
+            <param name="DefaultLink">If no Page URL is found, this value is returned.</param>
             <returns></returns>
             <remarks></remarks>
         </member>
@@ -2617,7 +2617,7 @@
             Return the appropriate link for a page.
             </summary>
             <param name="PageID"></param>
-            <param name="QueryStringSuffix">If a link alias exists, this is used to lookup the correct alias. See GetLinkAliasByPageID for details. In other cases, this is added to the querystring.</param>
+            <param name="QueryStringSuffix">If a Page URL exists, this is used to lookup the correct alias. See GetLinkAliasByPageID for details. In other cases, this is added to the querystring.</param>
             <param name="AllowLinkAlias"></param>
             <returns></returns>
             <remarks></remarks>
@@ -5783,15 +5783,15 @@
         </member>
         <member name="M:Contensive.BaseClasses.CPSiteBaseClass.AddLinkAlias(System.String,System.Int32,System.String)">
             <summary>
-            Add a link alias record for this page.
+            Add a Page URL record for this page.
             </summary>
-            <param name="linkAlias">The link alias to add.</param>
-            <param name="pageId">the id of the page to be displayed by this link alias</param>
+            <param name="linkAlias">The Page URL to add.</param>
+            <param name="pageId">the id of the page to be displayed by this Page URL</param>
             <param name="queryStringSuffix">The query string to be added to the url that may effect how addons on the page render.</param>
         </member>
         <member name="M:Contensive.BaseClasses.CPSiteBaseClass.AddLinkAlias(System.String,System.Int32)">
             <summary>
-            Add a link alias record for this page.
+            Add a Page URL record for this page.
             </summary>
             <param name="linkAlias"></param>
             <param name="pageId"></param>

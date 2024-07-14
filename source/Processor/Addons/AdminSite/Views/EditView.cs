@@ -241,7 +241,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         EditViewTabList.addCustomTab(core, editTabs, "Groups", GroupRuleEditor.get(core, adminData));
                     }
                     if (allowLinkAlias) {
-                        EditViewTabList.addCustomTab(core, editTabs, "Link Aliases", LinkAliasEditor.getForm_Edit_LinkAliases(core, adminData, adminData.editRecord.userReadOnly));
+                        EditViewTabList.addCustomTab(core, editTabs, "Page Urls", LinkAliasEditor.getForm_Edit_PageUrls(core, adminData, adminData.editRecord.userReadOnly));
                     }
                     EditViewTabList.addCustomTab(core, editTabs, "Control&nbsp;Info", EditViewTabControlInfo.get(core, adminData, editorEnv));
                     Stream.add(editTabs.getTabs(core));

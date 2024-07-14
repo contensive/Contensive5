@@ -100,11 +100,11 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
-        /// verify all page content has link alias.
-        /// Link alias runs out of a cache. If a link alias is requested by pageId that is no in linkalis cache, it reloads the addoncache which is expensive.
+        /// verify all page content has Page URL.
+        /// Page URL runs out of a cache. If a Page URL is requested by pageId that is no in linkalis cache, it reloads the addoncache which is expensive.
         /// </summary>
         /// <param name="cp"></param>
-        public static void verifyLinkAlias( CPBaseClass cp ) {
+        public static void verifyPageUrl( CPBaseClass cp ) {
             string sql = "" +
                 "select " +
                     "p.id,p.name,p.linkalias " +
@@ -129,7 +129,7 @@ namespace Contensive.Models.Db {
                 // -- save back to page record
                 int recordsAffected = 0;
                 cp.Db.ExecuteNonQuery($"update ccpagecontent set linkalias={cp.Db.EncodeSQLText(pageLinkAlias)} where id={pageId}", ref recordsAffected);
-                // -- create link alias record
+                // -- create Page URL record
                 LinkAliasModel asdf = addDefault<LinkAliasModel>(cp);
                 if(asdf ==null) { continue; }
                 asdf.name = linkAliasNormalized;
@@ -140,12 +140,12 @@ namespace Contensive.Models.Db {
         //
         //========================================================================
         /// <summary>
-        /// Save Link Alias field, managing duplicates and creating the linkalias field.
+        /// Save Page URL field, managing duplicates and creating the linkalias field.
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="adminData"></param>
-        /// <returns>The normalized link alias saved</returns>
-        public static string savePageContentLinkAlias(CPBaseClass cp, string linkAlias, int recordId, string recordName, bool overrideDuplicates) {
+        /// <returns>The normalized Page URL saved</returns>
+        public static string savePageContentPageUrl(CPBaseClass cp, string linkAlias, int recordId, string recordName, bool overrideDuplicates) {
             try {
                 if (string.IsNullOrEmpty(linkAlias)) { linkAlias = recordName.ToLowerInvariant(); }
                 if (string.IsNullOrEmpty(linkAlias)) { linkAlias = $"page{recordId}"; }
@@ -157,7 +157,7 @@ namespace Contensive.Models.Db {
                     if (overrideDuplicates) {
                         cp.Db.ExecuteQuery($"update ccpagecontent set linkalias=null where ( linkalias={cp.Db.EncodeSQLText(linkAlias)}) and (id<>{recordId})");
                     } else {
-                        cp.Site.ErrorReport("The Link Alias you entered can not be used because another record uses this value [" + linkAlias + "]. Enter a different Link Alias, or check the Override Duplicates checkbox in the Link Alias tab.");
+                        cp.Site.ErrorReport("The Page URL you entered can not be used because another record uses this value [" + linkAlias + "]. Enter a different Page URL, or check the Override Duplicates checkbox in the Page URL tab.");
                         return linkAliasNormalized;
                     }
                 }

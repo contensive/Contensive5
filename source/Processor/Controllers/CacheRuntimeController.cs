@@ -329,7 +329,7 @@ namespace Contensive.Processor.Controllers {
             if (linkAliasStore != null) { return linkAliasStore; }
             //
             // -- verify all page records have linkalias
-            PageContentModel.verifyLinkAlias(core.cpParent);
+            PageContentModel.verifyPageUrl(core.cpParent);
             //
             // -- load from db
             linkAliasStore = new LinkAliasStoreModel();

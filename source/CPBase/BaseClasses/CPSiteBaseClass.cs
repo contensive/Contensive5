@@ -258,18 +258,24 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Add a site warning that must be removed manually. Log a message to the site-warning log, which displays a Warning indicator in the admin site. This should only be for issues related to content and settings that an admin user can addres. To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
+        /// Add a site warning that must be removed manually. 
+        /// Log a message to the site-warning log, which displays a Warning indicator in the admin site. 
+        /// This should only be for issues related to content and settings that an admin user can address. 
+        /// To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
+        /// <param name="name">A short general description of the problem</param>
+        /// <param name="description">A more detailed description that might include instructions how to fix the issue.</param>
         public abstract void SetSiteWarning(string name, string description);
         //
         //====================================================================================================
         /// <summary>
-        /// Add or remove a site warning based on the boolean argument. Log a message to the site-warning log, which displays a Warning indicator in the admin site. This should only be for issues related to content and settings that an admin user can addres. To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
+        /// Add or remove a site warning based on the boolean argument. 
+        /// Log a message to the site-warning log, which displays a Warning indicator in the admin site. 
+        /// This should only be for issues related to content and settings that an admin user can address. 
+        /// To log code issues, use cp.log. To set the server alarm, use cp.site.LogAlarm() .
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="description"></param>
+        /// <param name="name">A short general description of the problem</param>
+        /// <param name="description">A more detailed description that might include instructions how to fix the issue.</param>
         /// <param name="addRemove">if true, the warning is added, else the warning is removed</param>
         public abstract void SetSiteWarning(string name, string description, bool addRemove);
         //

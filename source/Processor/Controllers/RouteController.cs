@@ -220,7 +220,7 @@ namespace Contensive.Processor.Controllers {
                             // -- consensus is that since the link alias (permalink, long-tail url, etc) comes first on the left, that the querystring should override
                             // -- so http://www.mySite.com/My-Blog-Post?bid=9 means use the bid not the bid from the link-alias
                             if (!string.IsNullOrEmpty(route.linkAliasRedirect)) {
-                                core.webServer.redirect(route.linkAliasRedirect, "Link Alias, older link forward to primary link.");
+                                core.webServer.redirect(route.linkAliasRedirect, "Page URL, older link forward to primary link.");
                                 return true;
                             }
                             core.docProperties.setProperty("bid", route.linkAliasPageId);

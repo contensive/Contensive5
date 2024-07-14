@@ -198,8 +198,4 @@
     </Reference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\View\" />
-  </ItemGroup>
-
 </Project>

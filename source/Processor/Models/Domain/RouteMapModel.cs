@@ -166,8 +166,8 @@ namespace Contensive.Processor.Models.Domain {
                     if (result.routeDictionary.ContainsKey(localRoute)) {
                         //
                         // -- duplicate route. map must be unique. fail route
-                        string warnName = $"Link Alias route [{localRoute}] cannot be added";
-                        string warnDesc = $"Link Alias route [{localRoute}] cannot be added because it matches the Admin Route, a Remote Method, a Link Forward o another Link Alias.";
+                        string warnName = $"Page URL route [{localRoute}] cannot be added";
+                        string warnDesc = $"Page URL route [{localRoute}] cannot be added because it matches the Admin Route, a Remote Method, a Link Forward o another Page URL.";
                         LogController.setSiteWarning(core, warnName, warnDesc, true);
                         continue;
                     }

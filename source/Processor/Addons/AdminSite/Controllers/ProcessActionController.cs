@@ -496,11 +496,12 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             bool overrideDuplicate = cp.core.docProperties.getBoolean("OverRideDuplicate");
-                            string linkAlias = cp.core.docProperties.getText("linkalias");
-                            string normalizedLinkAlias = PageContentModel.savePageContentLinkAlias(cp, linkAlias, adminData.editRecord.id, adminData.editRecord.nameLc, overrideDuplicate);
-                            bool dupCausesWarning = true; // this came from complexities in savePageContentLinkAlias
-                            LinkAliasController.addLinkAlias(cp.core, normalizedLinkAlias, adminData.editRecord.id, "", overrideDuplicate, dupCausesWarning);
-
+                            string setLinkAlias = cp.core.docProperties.getText("linkalias");
+                            if(!string.IsNullOrEmpty(setLinkAlias)) {
+                                string normalizedLinkAlias = PageContentModel.savePageContentPageUrl(cp, setLinkAlias, adminData.editRecord.id, adminData.editRecord.nameLc, overrideDuplicate);
+                                bool dupCausesWarning = true; // this came from complexities in savePageContentLinkAlias
+                                LinkAliasController.addLinkAlias(cp.core, normalizedLinkAlias, adminData.editRecord.id, "", overrideDuplicate, dupCausesWarning);
+                            }
                             // -- legacy
                             ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);
@@ -520,9 +521,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             EditRecordModel.SaveEditRecord(cp, adminData);
                             // -- legacy
                             if (adminData.editRecord.nameLc.ToLowerInvariant() == "allowlinkalias") {
-                                if (cp.core.siteProperties.allowLinkAlias) {
-                                    TurnOnLinkAlias(cp, UseContentWatchLink);
-                                }
+                                TurnOnLinkAlias(cp, UseContentWatchLink);
                             }
                         } else if (tableNameLower.Equals("ccgroups")) {
                             //
@@ -797,18 +796,18 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
         private static void TurnOnLinkAlias(CPClass cp, bool UseContentWatchLink) {
             try {
                 if (!cp.core.doc.userErrorList.Count.Equals(0)) {
-                    Processor.Controllers.ErrorController.addUserError(cp.core, "Existing pages could not be checked for Link Alias names because there was another error on this page. Correct this error, and turn Link Alias on again to rerun the verification.");
+                    Processor.Controllers.ErrorController.addUserError(cp.core, "Existing pages could not be checked for Page URL names because there was another error on this page. Correct this error, and turn Page URL on again to rerun the verification.");
                 } else {
                     using (var csData = new CsModel(cp.core)) {
                         csData.open("Page Content");
                         while (csData.ok()) {
                             //
-                            // Add the link alias
+                            // Add the Page URL
                             //
                             string linkAlias = csData.getText("LinkAlias");
                             if (!string.IsNullOrEmpty(linkAlias)) {
                                 //
-                                // Add the link alias
+                                // Add the Page URL
                                 //
                                 LinkAliasController.addLinkAlias(cp.core, linkAlias, csData.getInteger("ID"), "", true, true);
                             } else {
@@ -831,7 +830,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                         //
                         string ErrorList = Processor.Controllers.ErrorController.getUserError(cp.core);
                         ErrorList = GenericController.strReplace(ErrorList, UserErrorHeadline, "", 1, 99, 1);
-                        Processor.Controllers.ErrorController.addUserError(cp.core, "The following errors occurred while verifying Link Alias entries for your existing pages." + ErrorList);
+                        Processor.Controllers.ErrorController.addUserError(cp.core, "The following errors occurred while verifying Page URL entries for your existing pages." + ErrorList);
                     }
                 }
             } catch (Exception ex) {

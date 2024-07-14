@@ -8,76 +8,87 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //========================================================================
         //
-        public static string getForm_Edit_LinkAliases(CoreController core, AdminDataModel adminData, bool readOnlyField) {
-            string tempGetForm_Edit_LinkAliases = null;
+        public static string getForm_Edit_PageUrls(CoreController core, AdminDataModel adminData, bool readOnlyField) {
+            string returnHtml = null;
             try {
                 //
-                // Link Alias value from the admin data
+                // Page URL value from the admin data
                 //
-                string TabDescription = "Link Aliases are URLs used for this content that are more friendly to users and search engines. If you set the Link Alias field, this name will be used on the URL for this page. If you leave the Link Alias blank, the page name will be used. Below is a list of names that have been used previously and are still active. All of these entries when used in the URL will resolve to this page. The first entry in this list will be used to create menus on the site. To move an entry to the top, type it into the Link Alias field and save.";
+                string TabDescription = "Page URLs are URLs used for this content that are more friendly to users and search engines. If you set the Page URL field, this name will be used on the URL for this page. If you leave the Page URL blank, the page name will be used. Below is a list of names that have been used previously and are still active. All of these entries when used in the URL will resolve to this page. The first entry in this list will be used to create menus on the site. To move an entry to the top, type it into the Page URL field and save.";
                 string tabContent = "&nbsp;";
-                if (!core.siteProperties.allowLinkAlias) {
+                {
                     //
-                    // Disabled
+                    // Page URL Field
                     //
-                    TabDescription = "<p>The Link Alias feature is currently disabled. To enable Link Aliases, check the box marked 'Allow Link Alias' on the Page Settings page found on the Navigator under 'Settings'.</p><p>" + TabDescription + "</p>";
-                } else {
-                    //
-                    // Link Alias Field
-                    //
-                    string linkAlias = "";
+                    string currentLinkAlias = "";
                     if (adminData.adminContent.fields.ContainsKey("linkalias")) {
-                        linkAlias = GenericController.encodeText(adminData.editRecord.fieldsLc["linkalias"].value_content);
+                        currentLinkAlias = GenericController.encodeText(adminData.editRecord.fieldsLc["linkalias"].value_content);
                     }
                     StringBuilderLegacyController form = new StringBuilderLegacyController();
-                    form.add("<tr><td class=\"ccAdminEditCaption\">" + SpanClassAdminSmall + "Link Alias</td>");
-                    form.add("<td class=\"ccAdminEditField\" align=\"left\" colspan=\"2\">" + SpanClassAdminNormal);
-                    if (readOnlyField) {
-                        form.add(linkAlias);
-                    } else {
-                        form.add(HtmlController.inputText_Legacy(core, "LinkAlias", linkAlias));
+
+                    {
+                        //
+                        // -- set link alias
+                        string editorString = AdminUIEditorController.getTextEditor(core, "LinkAlias", "", false, "linkAliasInput", false);
+                        string helpDefault = "The text you want the page url to include. The actual Url will display in the Page Url Preview below.";
+                        string editorRow = AdminUIController.getEditRow(core, editorString, "Set Text for Page Url", helpDefault, false, false, "", "");
+                        form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                     }
-                    form.add("</span></td></tr>");
-                    //
-                    // Override Duplicates
-                    //
-                    form.add("<tr><td class=\"ccAdminEditCaption\">" + SpanClassAdminSmall + "Override Duplicates</td>");
-                    form.add("<td class=\"ccAdminEditField\" align=\"left\" colspan=\"2\">" + SpanClassAdminNormal);
-                    if (readOnlyField) {
-                        form.add("No");
-                    } else {
-                        form.add(HtmlController.checkbox("OverrideDuplicate", false));
+                    {
+                        //
+                        // -- page url preview
+                        string editorString = core.cdnFiles.readFileText("baseAssets/LinkAliasPreviewEditor.html");
+                        string helpDefault = "The preview of the Url created for the text entered";
+                        string editorRow = AdminUIController.getEditRow(core, editorString, "Page Url Preview", helpDefault, false, false, "", "");
+                        editorRow += HtmlController.inputHidden("", adminData.editRecord.id, "", "currentPageId");
+                        form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                     }
-                    form.add("</span></td></tr>");
-                    //
-                    // Table of old Link Aliases
-                    //
-                    // todo
-                    int LinkCnt = 0;
-                    string LinkList = "";
-                    using (var csData = new CsModel(core)) {
-                        csData.open("Link Aliases", "pageid=" + adminData.editRecord.id, "ID Desc", true, 0, "name");
-                        while (csData.ok()) {
-                            LinkList += "<div style=\"margin-left:4px;margin-bottom:4px;\">" + HtmlController.encodeHtml(csData.getText("name")) + "</div>";
-                            LinkCnt += 1;
-                            csData.goNext();
+                    {
+                        //
+                        // -- overridde duplicates
+                        string editorString = AdminUIEditorController.getBooleanEditor(core, "OverrideDuplicate", false, false, "overrideDuplicate", false);
+                        string helpDefault = "If the URL you are adding is currently used by another page, the save will fail because two pages cannot have the same Url. Check this box and the Url will be moved to this page.";
+                        string editorRow = AdminUIController.getEditRow(core, editorString, "Move Url to This Page", helpDefault, false, false, "", "");
+                        form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
+                    }
+                    {
+                        //
+                        // -- list page urls
+                        int LinkCnt = 0;
+                        string currentUrl = "";
+                        string previousUrlList = "";
+                        using (var csData = new CsModel(core)) {
+                            csData.open("Link Aliases", $"(pageid={adminData.editRecord.id})and((queryStringSuffix is null)or(queryStringSuffix=''))", "ID Desc", true, 0, "name");
+                            while (csData.ok()) {
+                                if(string.IsNullOrEmpty(currentUrl)) {
+                                    currentUrl += "<div style=\"margin-left:4px;margin-bottom:4px;\">" + HtmlController.encodeHtml(csData.getText("name")) + "</div>";
+                                } else {
+                                    previousUrlList += "<div style=\"margin-left:4px;margin-bottom:4px;\">" + HtmlController.encodeHtml(csData.getText("name")) + "</div>";
+                                }
+                                LinkCnt += 1;
+                                csData.goNext();
+                            }
                         }
-                    }
-                    if (LinkCnt > 0) {
-                        form.add("<tr><td class=\"ccAdminEditCaption\">" + SpanClassAdminSmall + "Previous Link Alias List</td>");
-                        form.add("<td class=\"ccAdminEditField\" align=\"left\" colspan=\"2\">" + SpanClassAdminNormal);
-                        form.add(LinkList);
-                        form.add("</span></td></tr>");
+                        {
+                            string helpDefault = "This is the current URL. Site navigation uses this url..";
+                            string editorRow = AdminUIController.getEditRow(core, currentUrl, "Current Page Url", helpDefault, false, false, "", "", false, "ml-5 ms-5 border p-2 bg-white");
+                            form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
+                        }
+                        {
+                            string helpDefault = "This list includes all the urls previously assigned to this page. If someone uses these urls, this page will display.";
+                            string editorRow = AdminUIController.getEditRow(core, previousUrlList, "Previous Page Urls", helpDefault, false, false, "", "", false, "ml-5 ms-5 border p-2 bg-white");
+                            form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
+                        }
                     }
                     tabContent = AdminUIController.editTable(form.text);
                 }
                 //
-                tempGetForm_Edit_LinkAliases = AdminUIController.getEditPanel(core, true, "Link Aliases", TabDescription, tabContent);
+                returnHtml = AdminUIController.getEditPanel(core, true, "Page Urls", TabDescription, tabContent);
                 adminData.editSectionPanelCount += 1;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
-            return tempGetForm_Edit_LinkAliases;
+            return returnHtml;
         }
 
         //

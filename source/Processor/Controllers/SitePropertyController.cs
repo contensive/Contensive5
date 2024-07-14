@@ -545,18 +545,6 @@ namespace Contensive.Processor.Controllers {
         private int? _defaultWrapperId = null;
         //
         //====================================================================================================
-        /// <summary>
-        /// allowLinkAlias
-        /// </summary>
-        /// <returns></returns>
-        internal bool allowLinkAlias {
-            get {
-                return getPropertyBase("allowLinkAlias", true, ref _allowLinkAlias_Local);
-            }
-        }
-        private bool? _allowLinkAlias_Local = null;
-        //
-        //====================================================================================================
         //
         public string docTypeDeclaration {
             get {

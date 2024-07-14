@@ -1,0 +1,88 @@
+<script>
+document.addEventListener("DOMContentLoaded", function(event) { 
+	console.log("linkAliasPreview, ready");
+		
+	//setup before functions
+	var typingTimer;                //timer identifier
+	var doneTypingInterval = 1000;  //time in ms
+	var $input = $("input#linkAliasInput");
+
+	//on keyup, start the countdown
+	$input.on('keyup', function () {
+	  clearTimeout(typingTimer);
+	  typingTimer = setTimeout(doneTyping, doneTypingInterval);
+	});
+
+	//on keydown, clear the countdown 
+	$input.on('keydown', function () {
+	  clearTimeout(typingTimer);
+	});
+	
+	//$("input#linkAliasInput").on("keyup",function(){
+	//	console.log("linkAliasPreview, keyup");
+	//	doneTyping();
+	//})
+});
+
+function doneTyping() {
+	let urlText = $("input#linkAliasInput").val();
+	console.log("linkAliasPreview, keyup ["+urlText+"]");
+	const xhr = new XMLHttpRequest();
+	xhr.responseType = 'json';	
+	let request = JSON.stringify({
+	  text: urlText,
+	  pageId: $("#currentPageId").val()
+	});		
+	xhr.onload = function() {
+		let responseData = xhr.response.data;
+		let caption = responseData.pageUrl;
+		if(responseData.isAvailable) {
+			//
+			// -- availble url
+			$("#linkAliasPreview").html(caption).removeClass("alert-danger").addClass("alert-primary");
+			$("#overrideDuplicate").attr("disabled", true);
+		} else if(responseData.isUsedByCurrentPage) {
+			//
+			// -- used by this page
+			caption += ", used by this page. Saving will make this url the current url used for navigation.";
+			$("#linkAliasPreview").html(caption).removeClass("alert-danger").addClass("alert-primary");
+			$("#overrideDuplicate").attr("disabled", true);
+		} else if(responseData.isUsedByOtherPage) {
+			//
+			// -- used by a different page
+			caption += ", currently used by a different page. To use the url for this page, check [Move Url to This Page], "+responseData.otherPageDetail;
+			if(responseData.editUrl) {caption += ", "+"<a href='"+responseData.editUrl+"' target='_blank' >edit</a>";}
+			$("#linkAliasPreview").html(caption).removeClass("alert-primary").addClass("alert-danger");
+			$("#overrideDuplicate").removeAttr("disabled");
+		} else if (responseData.isUsedByLinkForward) {
+			//
+			// -- link forward, warning, disable dup
+			caption += ", currently used by a Link Forward. To use the url for this page, delete the link forward";
+			if(responseData.editUrl) {caption += ", "+"<a href='"+responseData.editUrl+"' target='_blank' >edit</a>";}
+			$("#linkAliasPreview").html(caption).removeClass("alert-primary").addClass("alert-danger");
+			$("#overrideDuplicate").attr("disabled", true);
+		} else if (responseData.isUsedByRemoteMethod) {
+			//
+			// -- remote method, warning, disable dup
+			caption += ", currently used by a remote method. To use the url for this page, delete or rename the remote method";
+			if(responseData.editUrl) {caption += ", "+"<a href='"+responseData.editUrl+"' target='_blank' >edit</a>";}
+			$("#linkAliasPreview").html(caption).removeClass("alert-primary").addClass("alert-danger");
+			$("#overrideDuplicate").attr("disabled", true);
+		} else if (responseData.isUsedByAdmin) {
+			//
+			// -- admin site, warning, disable dup
+			caption += ", currently used by the admin site. This url can't be used.";
+			$("#linkAliasPreview").html(caption).removeClass("alert-primary").addClass("alert-danger");
+			$("#overrideDuplicate").attr("disabled", true);
+		}
+	}
+	xhr.open("POST", "/normalizeLinkAlias?");
+	xhr.send(request);
+}
+
+</script>
+<style>
+	div#linkAliasPreview {}
+	div#linkAliasPreview span {}
+</style>
+<div role="alert" class="alert alert-primary mb-0" id="linkAliasPreview">/</div>

@@ -95,29 +95,23 @@ namespace Contensive.Processor.Controllers {
                     //
                     // This alias points to the cclib folder
                     //
-                    if (core.siteProperties.allowLinkAlias) {
-                        return_WarningMessage = ""
-                            + "The Link Alias being created (" + normalizedLinkAlias + ") can not be used because there is a virtual directory in your website directory that already uses this name."
-                            + " Please change it to ensure the Link Alias is unique. To set or change the Link Alias, use the Link Alias tab and select a name not used by another page.";
-                    }
+                    return_WarningMessage = ""
+                        + "The Page URL being created (" + normalizedLinkAlias + ") can not be used because there is a virtual directory in your website directory that already uses this name."
+                        + " Please change it to ensure the Page URL is unique. To set or change the Page URL, use the Page URL tab and select a name not used by another page.";
                 } else if (GenericController.toLCase(normalizedLinkAlias) == "/cclib") {
                     //
                     // This alias points to the cclib folder
                     //
-                    if (core.siteProperties.allowLinkAlias) {
-                        return_WarningMessage = ""
-                            + "The Link Alias being created (" + normalizedLinkAlias + ") can not be used because there is a virtual directory in your website directory that already uses this name."
-                            + " Please change it to ensure the Link Alias is unique. To set or change the Link Alias, use the Link Alias tab and select a name not used by another page.";
-                    }
+                    return_WarningMessage = ""
+                        + "The Page URL being created (" + normalizedLinkAlias + ") can not be used because there is a virtual directory in your website directory that already uses this name."
+                        + " Please change it to ensure the Page URL is unique. To set or change the Page URL, use the Page URL tab and select a name not used by another page.";
                 } else if (core.wwwFiles.pathExists(core.appConfig.localWwwPath + "\\" + normalizedLinkAlias.Substring(1))) {
                     //
                     // This alias points to a different link, call it an error
                     //
-                    if (core.siteProperties.allowLinkAlias) {
-                        return_WarningMessage = ""
-                            + "The Link Alias being created (" + normalizedLinkAlias + ") can not be used because there is a folder in your website directory that already uses this name."
-                            + " Please change it to ensure the Link Alias is unique. To set or change the Link Alias, use the Link Alias tab and select a name not used by another page.";
-                    }
+                    return_WarningMessage = ""
+                        + "The Page URL being created (" + normalizedLinkAlias + ") can not be used because there is a folder in your website directory that already uses this name."
+                        + " Please change it to ensure the Page URL is unique. To set or change the Page URL, use the Page URL tab and select a name not used by another page.";
                 } else {
                     //
                     // Make sure there is one here for this
@@ -168,7 +162,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 if (resaveLinkAlias) {
                                     //
-                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, another link alias matches this pageId and QS. Move this to the top position");
+                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, another Page URL matches this pageId and QS. Move this to the top position");
                                     //
                                     core.db.executeNonQuery("delete from ccLinkAliases where id=" + CurrentLinkAliasId);
                                     using (var CS3 = new CsModel(core)) {
@@ -188,7 +182,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 if (overRideDuplicate) {
                                     //
-                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, overRideDuplicate true, change the Link Alias to the new link");
+                                    logger.Trace($"{core.logCommonMessage},addLinkAlias, overRideDuplicate true, change the Page URL to the new link");
                                     //
                                     // change the Link Alias to the new link
                                     csData.set("Pageid", pageId);
@@ -201,13 +195,13 @@ namespace Contensive.Processor.Controllers {
                                     if (recordPageId == 0) {
                                         int PageContentCId = Models.Domain.ContentMetadataModel.getContentId(core, "Page Content");
                                         return_WarningMessage = ""
-                                            + "This page has been saved, but the Link Alias could not be created (" + normalizedLinkAlias + ") because it is already in use for another page."
-                                            + " To use Link Aliasing (friendly page names) for this page, the Link Alias value must be unique on this site. To set or change the Link Alias, clicke the Link Alias tab and select a name not used by another page or a folder in your website.";
+                                            + "This page has been saved, but the Page URL could not be created (" + normalizedLinkAlias + ") because it is already in use for another page."
+                                            + " To use Page URLs (friendly page names) for this page, the Page URL value must be unique on this site. To set or change the Page URL, clicke the Page URL tab and select a name not used by another page or a folder in your website.";
                                     } else {
                                         int PageContentCid = Models.Domain.ContentMetadataModel.getContentId(core, "Page Content");
                                         return_WarningMessage = ""
-                                            + "This page has been saved, but the Link Alias could not be created (" + normalizedLinkAlias + ") because it is already in use for another page (<a href=\"?af=4&cid=" + PageContentCid + "&id=" + recordPageId + "\">edit</a>)."
-                                            + " To use Link Aliasing (friendly page names) for this page, the Link Alias value must be unique. To set or change the Link Alias, click the Link Alias tab and select a name not used by another page or a folder in your website.";
+                                            + "This page has been saved, but the Page URL could not be created (" + normalizedLinkAlias + ") because it is already in use for another page (<a href=\"?af=4&cid=" + PageContentCid + "&id=" + recordPageId + "\">edit</a>)."
+                                            + " To use Page URLs (friendly page names) for this page, the Page URL value must be unique. To set or change the Page URL, click the Page URL tab and select a name not used by another page or a folder in your website.";
                                     }
                                 }
                             }
