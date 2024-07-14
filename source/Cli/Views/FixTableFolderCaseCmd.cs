@@ -55,7 +55,7 @@ namespace Contensive.CLI {
                     foreach ( var content in contentList ) {
                         Console.Write("\n\rContent [" + content.name + "].");
                         var contentMeta = Contensive.Processor.Models.Domain.ContentMetadataModel.create(cp.core, content.id);
-                        if ( contentMeta != null ) {
+                        if ( contentMeta?.tableName != null ) {
                             string tablename = contentMeta.tableName.ToLower();
                             //
                             // -- check root folder if it matches the tablename, verify case

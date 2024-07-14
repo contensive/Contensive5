@@ -23,7 +23,8 @@ namespace Contensive.Processor.Addons.Base {
                 }
                 //
                 // -- delete layouts updated in this install
-                cp.Db.Delete(Contensive.Models.Db.LayoutModel.tableMetadata.tableNameLower, Contensive.Processor.Addons.AdminSite.Constants.guidLayoutAdminSite);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, AdminSite.Constants.guidLayoutAdminSite);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutLinkAliasPreviewEditorGuid);
                 //
                 // -- 
                 return "ok";

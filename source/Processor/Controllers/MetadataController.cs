@@ -26,7 +26,7 @@ namespace Contensive.Processor.Controllers {
         public static string getContentTablename(CoreController core, string contentName) {
             try {
                 var meta = ContentMetadataModel.createByUniqueName(core, contentName);
-                if (meta != null) { return meta.tableName; }
+                if (meta?.tableName != null) { return meta.tableName; }
                 return string.Empty;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

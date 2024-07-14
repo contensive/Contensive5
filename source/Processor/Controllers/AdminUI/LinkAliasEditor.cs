@@ -37,7 +37,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     {
                         //
                         // -- page url preview
-                        string editorString = core.cdnFiles.readFileText("baseAssets/LinkAliasPreviewEditor.html");
+                        string editorString = LayoutController.getLayout(core.cpParent, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);
                         string helpDefault = "The preview of the Url created for the text entered";
                         string editorRow = AdminUIController.getEditRow(core, editorString, "Page Url Preview", helpDefault, false, false, "", "");
                         editorRow += HtmlController.inputHidden("", adminData.editRecord.id, "", "currentPageId");

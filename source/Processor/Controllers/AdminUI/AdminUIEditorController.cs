@@ -711,7 +711,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- redirect goes to a list of records (one-to-many or many-to-many
-                var gridData = new AdminDataModel(core, new AdminDataRequest {
+                var redirectContent_adminData = new AdminDataModel(core, new AdminDataRequest {
                     adminAction = 0,
                     adminButton = "",
                     adminForm = 0,
@@ -725,10 +725,17 @@ namespace Contensive.Processor.Controllers {
                     titleExtension = "",
                     wherePairDict = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
                 });
-                GridConfigClass gridConfig = GridConfigClass.get(core, gridData);
+                //
+                // -- validate the redirectcontent field has valid table
+                if (redirectContent_adminData?.adminContent?.tableName is null) {
+                    //
+                    // -- if hardcoded redirect link, create open-in-new-windows
+                    return "This field is not configured correctly.";
+                }
+                GridConfigClass gridConfig = GridConfigClass.get(core, redirectContent_adminData);
                 var userContentPermissions = PermissionController.getUserContentPermissions(core, ContentMetadataModel.create(core, field.redirectContentId));
                 List<string> tmp = default;
-                DataSourceModel datasource = DataSourceModel.create(core.cpParent, gridData.adminContent.dataSourceId, ref tmp);
+                DataSourceModel datasource = DataSourceModel.create(core.cpParent, redirectContent_adminData.adminContent.dataSourceId, ref tmp);
                 //
                 // Get the SQL parts
                 bool AllowAccessToContent = false;
@@ -740,21 +747,21 @@ namespace Contensive.Processor.Controllers {
                 string sqlFrom = "";
                 Dictionary<string, bool> FieldUsedInColumns = new Dictionary<string, bool>(); // used to prevent select SQL from being sorted by a field that does not appear
                 Dictionary<string, bool> IsLookupFieldValid = new Dictionary<string, bool>();
-                ListView.setIndexSQL(core, gridData, gridConfig, ref AllowAccessToContent, ref sqlFieldList, ref sqlFrom, ref sqlWhere, ref sqlOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
-                bool allowAdd = gridData.adminContent.allowAdd && (!IsLimitedToSubContent) && (userContentPermissions.allowAdd);
-                bool allowDelete = (gridData.adminContent.allowDelete) && (userContentPermissions.allowDelete);
+                ListView.setIndexSQL(core, redirectContent_adminData, gridConfig, ref AllowAccessToContent, ref sqlFieldList, ref sqlFrom, ref sqlWhere, ref sqlOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
+                bool allowAdd = redirectContent_adminData.adminContent.allowAdd && (!IsLimitedToSubContent) && (userContentPermissions.allowAdd);
+                bool allowDelete = (redirectContent_adminData.adminContent.allowDelete) && (userContentPermissions.allowDelete);
                 if ((!userContentPermissions.allowEdit) || (!AllowAccessToContent)) {
                     //
                     // two conditions should be the same -- but not time to check - This user does not have access to this content
-                    ErrorController.addUserError(core, "Your account does not have access to any records in '" + gridData.adminContent.name + "'.");
+                    ErrorController.addUserError(core, "Your account does not have access to any records in '" + redirectContent_adminData.adminContent.name + "'.");
                     return "Your account does not have access to the requested content";
                 } else {
                     //
                     // -- for redirect fields, only include connected records that match the redirect criteria
-                    sqlWhere += (string.IsNullOrEmpty(field.redirectId)) ? "" : "and(" + gridData.adminContent.tableName + "." + field.redirectId + "=" + editRecordId + ")";
+                    sqlWhere += (string.IsNullOrEmpty(field.redirectId)) ? "" : "and(" + redirectContent_adminData.adminContent.tableName + "." + field.redirectId + "=" + editRecordId + ")";
                     //
                     // Get the total record count
-                    string sql = "select count(" + gridData.adminContent.tableName + ".ID) as cnt from " + sqlFrom;
+                    string sql = "select count(" + redirectContent_adminData.adminContent.tableName + ".ID) as cnt from " + sqlFrom;
                     if (!string.IsNullOrEmpty(sqlWhere)) {
                         sql += " where " + sqlWhere;
                     }
@@ -787,8 +794,8 @@ namespace Contensive.Processor.Controllers {
                         gridConfig.allowHeaderAtBottom = true;
                         gridConfig.allowColumnSort = false;
                         gridConfig.allowHeaderAtBottom = false;
-                        gridData.wherePair.Add(field.redirectId.ToLower(), editRecordId.ToString());
-                        return ListGridController.get(core, gridData, gridConfig, userContentPermissions, sql, datasource, FieldUsedInColumns, IsLookupFieldValid);
+                        redirectContent_adminData.wherePair.Add(field.redirectId.ToLower(), editRecordId.ToString());
+                        return ListGridController.get(core, redirectContent_adminData, gridConfig, userContentPermissions, sql, datasource, FieldUsedInColumns, IsLookupFieldValid);
                     } else {
                         //
                         // -- too many rows, setup a redirect

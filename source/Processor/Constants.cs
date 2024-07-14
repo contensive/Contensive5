@@ -1135,6 +1135,12 @@ namespace Contensive.Processor {
         public const string loginFailedError = "Incorrect login. Please try again.";
         //
         // Edit Modal layouts, all come from the same file
+
+        // baseAssets/LinkAliasPreviewEditor.html
+        //
+        public const string layoutLinkAliasPreviewEditorGuid = "{276A953D-BE40-4181-9749-56D8680455FA}";
+        public const string layoutLinkAliasPreviewEditorName = "Link Alias Preview Editor";
+        public const string layoutLinkAliasPreviewEditorCdnPathFilename = "baseAssets\\LinkAliasPreviewEditor.html";
         //
         public const string layoutAdminEditIconGuid = "{36ECF05A-C1B8-4E79-8449-5AA6CB7DC623}";
         public const string layoutAdminEditIconName = "Admin Edit Icon Layout";
