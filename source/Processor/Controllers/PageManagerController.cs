@@ -1043,31 +1043,23 @@ namespace Contensive.Processor.Controllers {
                 if (useLegacyPageCopy) {
                     //
                     // -- legacy deprecated mode -- display copyFilename field as contnet
-                    bool userLegacyQuickEditing = core.session.isQuickEditing(PageContentModel.tableMetadata.contentName);
-                    if (userLegacyQuickEditing) {
+                    // -- Render the legacy content for the page (copyFilename field)
+                    string htmlPageContent = core.doc.pageController.page.copyfilename.content;
+                    if (string.IsNullOrEmpty(htmlPageContent)) {
                         //
-                        // -- quick editor for wysiwyg content instead of rendered content
-                        resultInnerContent.Append(QuickEditController.getQuickEditing(core));
-                    } else {
-                        //
-                        // -- Render the legacy content for the page (copyFilename field)
-                        string htmlPageContent = core.doc.pageController.page.copyfilename.content;
-                        if (string.IsNullOrEmpty(htmlPageContent)) {
-                            //
-                            // Page copy is empty if  Links Enabled put in a blank line to separate edit from add tag
-                            if (core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
-                                htmlPageContent = "\r<p><!-- Empty Content Placeholder --></p>";
-                            }
+                        // Page copy is empty if  Links Enabled put in a blank line to separate edit from add tag
+                        if (core.session.isEditing(PageContentModel.tableMetadata.contentName)) {
+                            htmlPageContent = "\r<p><!-- Empty Content Placeholder --></p>";
                         }
-                        if (core.siteProperties.beta200327_BlockCCmdPostPageRender) {
-                            //
-                            // -- page content, directly from the record can be {%%} rendered.
-                            // -- if the content includes {%%} executables, render them
-                            // -- if those executables return content containing executables, those are block by post-processing executeaddon result to remove {%%}
-                            htmlPageContent = ContentRenderController.renderHtmlForWeb(core, htmlPageContent, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
-                        }
-                        resultInnerContent.Append(htmlPageContent);
                     }
+                    if (core.siteProperties.beta200327_BlockCCmdPostPageRender) {
+                        //
+                        // -- page content, directly from the record can be {%%} rendered.
+                        // -- if the content includes {%%} executables, render them
+                        // -- if those executables return content containing executables, those are block by post-processing executeaddon result to remove {%%}
+                        htmlPageContent = ContentRenderController.renderHtmlForWeb(core, htmlPageContent, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, core.siteProperties.defaultWrapperID, CPUtilsBaseClass.addonContext.ContextPage);
+                    }
+                    resultInnerContent.Append(htmlPageContent);
                 } else {
                     //
                     // -- addonList mode
@@ -2192,219 +2184,6 @@ namespace Contensive.Processor.Controllers {
                             result = Panel;
                             break;
                         }
-                }
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-            }
-            return result;
-        }
-        //
-        //====================================================================================================
-        //
-        public static string getWatchList(CoreController core, string ListName, string SortField, bool SortReverse) {
-            string result = "";
-            try {
-                using (var csData = new CsModel(core)) {
-                    if (SortReverse && (!string.IsNullOrEmpty(SortField))) {
-                        csData.openContentWatchList(ListName, SortField + " Desc", true);
-                    } else {
-                        csData.openContentWatchList(ListName, SortField, true);
-                    }
-                    //
-                    if (csData.ok()) {
-                        int ContentId = Models.Domain.ContentMetadataModel.getContentId(core, "Content Watch");
-                        while (csData.ok()) {
-                            string Link = csData.getText("link");
-                            string LinkLabel = csData.getText("LinkLabel");
-                            int RecordId = csData.getInteger("ID");
-                            if (!string.IsNullOrEmpty(LinkLabel)) {
-                                result += "\r<li id=\"main_ContentWatch" + RecordId + "\" class=\"ccListItem\">";
-                                if (!string.IsNullOrEmpty(Link)) {
-                                    result += "<a href=\"http://" + core.webServer.requestDomain + "/" + core.webServer.requestPage + "?rc=" + ContentId + "&ri=" + RecordId + "\">" + LinkLabel + "</a>";
-                                } else {
-                                    result += LinkLabel;
-                                }
-                                result += "</li>";
-                            }
-                        }
-                        if (!string.IsNullOrEmpty(result)) {
-                            result = core.html.getContentCopy("Watch List Caption: " + ListName, ListName, core.session.user.id, true, core.session.isAuthenticated) + "\r<ul class=\"ccWatchList\">" + nop(result) + "\r</ul>";
-                        }
-                    }
-                }
-                //
-                if (core.visitProperty.getBoolean("AllowAdvancedEditor")) {
-                    result = AdminUIEditButtonController.getEditWrapper(core, result);
-                }
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-            }
-            return result;
-        }
-        //
-        //========================================================================
-        //
-        public static void processFormQuickEditing(CoreController core) {
-            //
-            int recordId = (core.docProperties.getInteger("ID"));
-            string button = core.docProperties.getText("Button");
-            if ((!string.IsNullOrEmpty(button)) && (recordId != 0) && (core.session.isAuthenticatedContentManager(PageContentModel.tableMetadata.contentName))) {
-                var pageCdef = Models.Domain.ContentMetadataModel.createByUniqueName(core, "page content");
-                var pageTable = TableModel.createByContentName(core.cpParent, pageCdef.name);
-                WorkflowController.editLockClass editLock = WorkflowController.getEditLock(core, pageTable.id, recordId);
-                WorkflowController.clearEditLock(core, pageTable.id, recordId);
-                //
-                // tough case, in Quick mode, lets mark the record reviewed, no matter what button they push, except cancel
-                if (button != ButtonCancel) {
-                    PageContentModel.markReviewed(core.cpParent, recordId);
-                }
-                bool allowSave = false;
-                //
-                // Determine is the record should be saved
-                //
-                if (core.session.isAuthenticatedAdmin()) {
-                    //
-                    // cases that admin can save
-                    allowSave = (button == ButtonAddChildPage) || (button == ButtonAddSiblingPage) || (button == ButtonSave) || (button == ButtonOK);
-                } else {
-                    //
-                    // cases that CM can save
-                    allowSave = (button == ButtonAddChildPage) || (button == ButtonAddSiblingPage) || (button == ButtonSave) || (button == ButtonOK);
-                }
-                if (allowSave) {
-                    //
-                    // ----- Save Changes
-                    bool SaveButNoChanges = true;
-                    PageContentModel page = DbBaseModel.create<PageContentModel>(core.cpParent, recordId);
-                    if (page != null) {
-                        string Copy = core.docProperties.getText("copyFilename");
-                        Copy = ContentRenderController.processWysiwygResponseForSave(core, Copy);
-                        if (Copy != page.copyfilename.content) {
-                            page.copyfilename.content = Copy;
-                            SaveButNoChanges = false;
-                        }
-                        string RecordName = core.docProperties.getText("name");
-                        if (RecordName != page.name) {
-                            page.name = RecordName;
-                            LinkAliasController.addLinkAlias(core, RecordName, recordId, "");
-                            SaveButNoChanges = false;
-                        }
-                        page.save(core.cpParent);
-                        WorkflowController.setEditLock(core, pageTable.id, page.id);
-                        if (!SaveButNoChanges) {
-                            ContentController.processAfterSave(core, false, pageCdef.name, page.id, page.name, page.parentId, false);
-                            DbBaseModel.invalidateCacheOfRecord<PageContentModel>(core.cpParent, page.id);
-                        }
-                    }
-                }
-                string Link = null;
-                if (button == ButtonAddChildPage) {
-                    using (var csData = new CsModel(core)) {
-                        csData.insert(pageCdef.name);
-                        if (csData.ok()) {
-                            csData.set("active", true);
-                            csData.set("ParentID", recordId);
-                            csData.set("contactmemberid", core.session.user.id);
-                            csData.set("name", "New Page added " + core.doc.profileStartTime + " by " + core.session.user.name);
-                            csData.set("copyFilename", "");
-                            csData.save();
-                            recordId = csData.getInteger("ID");
-                            Link = PageManagerController.getPageLink(core, recordId, "", true, false);
-                            core.webServer.redirect(Link, "Redirecting because a new page has been added with the quick editor.", false, false);
-                        }
-                    }
-                    DbBaseModel.invalidateCacheOfRecord<PageContentModel>(core.cpParent, recordId);
-                }
-                int ParentId = 0;
-                if (button == ButtonAddSiblingPage) {
-                    //
-                    //
-                    //
-                    using (var csData = new CsModel(core)) {
-                        csData.openRecord(pageCdef.name, recordId, "ParentID");
-                        if (csData.ok()) {
-                            ParentId = csData.getInteger("ParentID");
-                        }
-                        if (ParentId != 0) {
-                            csData.insert(pageCdef.name);
-                            if (csData.ok()) {
-                                csData.set("active", true);
-                                csData.set("ParentID", ParentId);
-                                csData.set("contactmemberid", core.session.user.id);
-                                csData.set("name", "New Page added " + core.doc.profileStartTime + " by " + core.session.user.name);
-                                csData.set("copyFilename", "");
-                                csData.save();
-                                recordId = csData.getInteger("ID");
-                                //
-                                Link = PageManagerController.getPageLink(core, recordId, "", true, false);
-                                core.webServer.redirect(Link, "Redirecting because a new page has been added with the quick editor.", false, false);
-                            }
-                        }
-                    }
-                }
-                if (button == ButtonDelete) {
-                    using (var csData = new CsModel(core)) {
-                        csData.openRecord(pageCdef.name, recordId);
-                        if (csData.ok()) {
-                            ParentId = csData.getInteger("parentid");
-                        }
-                    }
-                    //
-                    MetadataController.deleteContentRecord(core, pageCdef.name, recordId);
-                    DbBaseModel.invalidateCacheOfRecord<PageContentModel>(core.cpParent, recordId);
-                    //
-                    if (!false) {
-                        Link = PageManagerController.getPageLink(core, ParentId, "", true, false);
-                        Link = GenericController.modifyLinkQuery(Link, "AdminWarningMsg", "The page has been deleted, and you have been redirected to the parent of the deleted page.", true);
-                        core.webServer.redirect(Link, "Redirecting to the parent page because the page was deleted with the quick editor.", core.doc.redirectBecausePageNotFound, false);
-                        return;
-                    }
-                }
-                if ((!(!core.doc.userErrorList.Count.Equals(0))) && ((button == ButtonOK) || (button == ButtonCancel))) {
-                    //
-                    // ----- Turn off Quick Editor if not save or add child
-                    //
-                    core.visitProperty.setProperty("AllowQuickEditor", false);
-                }
-            }
-        }
-        //
-        //========================================================================
-        // Print Whats New
-        //   Prints a linked list of new content
-        //========================================================================
-        //
-        public static string getWhatsNewList(CoreController core, string SortFieldList = "") {
-            string result = "";
-            try {
-                int ContentId = 0;
-                int RecordId = 0;
-                string LinkLabel = null;
-                string Link = null;
-                //
-                using (var csData = new CsModel(core)) {
-                    csData.openWhatsNew(SortFieldList);
-                    //
-                    if (csData.ok()) {
-                        ContentId = Models.Domain.ContentMetadataModel.getContentId(core, "Content Watch");
-                        while (csData.ok()) {
-                            Link = csData.getText("link");
-                            LinkLabel = csData.getText("LinkLabel");
-                            RecordId = csData.getInteger("ID");
-                            if (!string.IsNullOrEmpty(LinkLabel)) {
-                                result += "\r<li class=\"ccListItem\">";
-                                if (!string.IsNullOrEmpty(Link)) {
-                                    result += GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(core.webServer.requestPage + "?rc=" + ContentId + "&ri=" + RecordId) + "\">", LinkLabel);
-                                } else {
-                                    result += LinkLabel;
-                                }
-                                result += "</li>";
-                            }
-                            csData.goNext();
-                        }
-                        result = "\r<ul class=\"ccWatchList\">" + nop(result) + "\r</ul>";
-                    }
-                    csData.close();
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

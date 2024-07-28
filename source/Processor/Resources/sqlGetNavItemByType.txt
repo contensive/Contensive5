@@ -1,5 +1,5 @@
 ﻿select 
-	a.name,a.ccguid,c.name as categoryName, 0 as contentid
+	a.name,a.ccguid,a.id as id,c.name as categoryName,0 as isContent
 from 
 	ccaggregatefunctions a 
 	left join ccaddoncategories c on c.id=a.addonCategoryId 
@@ -10,7 +10,7 @@ where
 	and(a.ccguid is not null) 
 union
 select 
-	a.name,a.ccguid,c.name as categoryName , a.id as contentid
+	a.name,a.ccguid,a.id as id,c.name as categoryName,1 as isContent
 from 
 	cccontent a 
 	left join ccaddoncategories c on c.id=a.AddonCategoryId 

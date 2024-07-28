@@ -23,6 +23,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 env.log("executeDailyTasks, start");
                 //
+
+                //
                 // -- summary (must be first)
                 VisitSummaryClass.updateVisitSummary(env);
                 ViewingSummaryClass.updateViewingSummary(env);
@@ -35,6 +37,9 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 //
                 // -- metadata
                 ContentFieldClass.executeDailyTasks(env);
+                //
+                // -- check guid on every table
+                TablesClass.executeDailyTasks(env);
                 //
                 // -- content
                 MenuEntryClass.executeDailyTasks(env);

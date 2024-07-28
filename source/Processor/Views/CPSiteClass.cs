@@ -167,9 +167,9 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        public override void AddLinkAlias(string linkAlias, int pageId, string queryStringSuffix) => LinkAliasController.addLinkAlias(cp.core, linkAlias, pageId, queryStringSuffix);
+        public override void AddLinkAlias(string linkAliasPhrase, int pageId, string queryStringSuffix) => LinkAliasController.addLinkAlias(cp.core, linkAliasPhrase, pageId, queryStringSuffix);
         //
-        public override void AddLinkAlias(string linkAlias, int pageId) => LinkAliasController.addLinkAlias(cp.core, linkAlias, pageId, "");
+        public override void AddLinkAlias(string linkAliasPhrase, int pageId) => LinkAliasController.addLinkAlias(cp.core, linkAliasPhrase, pageId, "");
         //
         //====================================================================================================
         //

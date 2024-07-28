@@ -224,31 +224,20 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 // -- new category
                                 category = new() {
                                     navCategoryName = categoryName,
-                                    navCategoryItems = new List<NavCategoryItem>()
+                                    navCategoryItems = []
                                 };
                                 result.Add(category);
                                 categoryNameLast = categoryName;
                             }
                             //
                             // -- create entry
-                            string entryName = cp.Utils.EncodeText(dr["name"]);
-                            entryName = string.IsNullOrEmpty(entryName) ? "" : entryName;
-                            //
-                            string navItemHref = "";
-                            int contentId = cp.Utils.EncodeInteger(dr["contentid"]);
-                            if (contentId == 0) {
-                                //
-                                // -- addon
-                                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"]));
-                            } else {
-                                //
-                                // -- data
-                                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + contentId;
-                            }
-                            category.navCategoryItems.Add(new NavCategoryItem {
-                                navItemHref = navItemHref,
-                                navItemName = entryName
-                            });
+                            int id = cp.Utils.EncodeInteger(dr["id"]);
+                            var navCategoryItem = new NavCategoryItem {
+                                navItemName = cp.Utils.EncodeText(dr["name"]),
+                                navItemDataDragId = id > 0 ? $"c{id}" : "",
+                                navItemHref = cp.GetAppConfig().adminRoute + (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
+                            };
+                            category.navCategoryItems.Add(navCategoryItem);                            
                         }
                     }
                 }
@@ -277,13 +266,14 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         /// <param name="navTypeId"></param>
         /// <returns></returns>
-        public List<NavItem> getNavItemsByType(NavTypeIdEnum navTypeId) {
+        public List<NavItem> getNavItecmsByType(NavTypeIdEnum navTypeId) {
             try {
                 List<NavItem> localListCache = new();
                 using (DataTable dt = cp.Db.ExecuteQuery(Properties.Resources.sqlGetNavItemByType.replace("{navTypeId}", ((int)navTypeId).ToString(), System.StringComparison.CurrentCultureIgnoreCase))) {
                     if (dt?.Rows != null) {
                         string categoryNameLast = "";
                         foreach (DataRow dr in dt.Rows) {
+                            string navItemDataDropId = "";
                             string categoryName = cp.Utils.EncodeText(dr["categoryName"]);
                             categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName;
                             if (!string.IsNullOrEmpty(categoryName) && categoryName != categoryNameLast) {
@@ -317,7 +307,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                             localListCache.Add(new NavItem {
                                 navItemHref = navItemHref,
                                 navItemName = entryName,
-                                isCategory = false
+                                isCategory = false,
+                                navItemDataDragId = contentId > 0 ? $"c{contentId}" : ""
+
                             });
                         }
                     }
@@ -343,6 +335,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (_navProfileCategoryList != null) { return _navProfileCategoryList; }
                 //
                 string orgName = DbBaseModel.getRecordName<OrganizationModel>(cp, cp.User.OrganizationID);
+                int orgCid = cp.Content.GetID("organizations");
+                int peopleCid = cp.Content.GetID("people");
+                int groupCid = cp.Content.GetID("groups");
                 _navProfileCategoryList = new NavCategory {
                     navCategoryName = "",
                     navCategoryItems = new List<NavCategoryItem> {
@@ -360,15 +355,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                         },
                         new NavCategoryItem {
                             navItemName = "Groups",
-                            navItemHref = "?cid=" + cp.Content.GetID("groups")
+                            navItemHref = "?cid=" + groupCid,
+                            navItemDataDragId = $"c{groupCid}"
                         },
                         new NavCategoryItem {
                             navItemName = "Organizations",
-                            navItemHref = "?cid=" + cp.Content.GetID("organizations")
+                            navItemHref = "?cid=" + orgCid,
+                            navItemDataDragId = $"c{orgCid}"
                         },
                         new NavCategoryItem {
                             navItemName = "People",
-                            navItemHref = "?cid=" + cp.Content.GetID("people")
+                            navItemHref = "?cid=" + peopleCid,
+                            navItemDataDragId = $"c{peopleCid}"
                         }
                      }
                 };
@@ -395,10 +393,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (_navProfileList != null) { return _navProfileList; }
                 //
                 string orgName = DbBaseModel.getRecordName<OrganizationModel>(cp, cp.User.OrganizationID);
+                int peopleContentId = cp.Content.GetID("people");
                 var navList = new List<NavItem> {
                     new NavItem {
                         navItemName = cp.User.Name,
-                        navItemHref = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
+                        navItemHref = $"?af=4&cid={peopleContentId}&id=" + cp.User.Id
                     },
                     new NavItem {
                         navItemName = "Logout",
@@ -409,26 +408,31 @@ namespace Contensive.Processor.Addons.AdminSite {
                         navItemHref = "/impersonate"
                     }
                 };
+                int orgContentId = cp.Content.GetID("organizations");
                 if (!string.IsNullOrEmpty(orgName)) {
                     navList.Add(new NavItem {
                         navItemName = orgName,
-                        navItemHref = "?af=4&cid=" + cp.Content.GetID("organizations") + "&id=" + cp.User.OrganizationID
+                        navItemHref = $"?af=4&cid={orgContentId}&id=" + cp.User.OrganizationID
                     });
                 }
                 navList.Add(new NavItem {
                     navDivider = true
                 });
+                int groupContentId = cp.Content.GetID("organizations");
                 navList.Add(new NavItem {
                     navItemName = "Groups",
-                    navItemHref = "?cid=" + cp.Content.GetID("groups")
+                    navItemHref = $"?cid={groupContentId}",
+                    navItemDataDragId = $"c{groupContentId}"
                 });
                 navList.Add(new NavItem {
                     navItemName = "Organizations",
-                    navItemHref = "?cid=" + cp.Content.GetID("organizations")
+                    navItemHref = $"?cid={orgContentId}",
+                    navItemDataDragId = $"c{orgContentId}"
                 });
                 navList.Add(new NavItem {
                     navItemName = "People",
-                    navItemHref = "?cid=" + cp.Content.GetID("people")
+                    navItemHref = $"?cid={peopleContentId}",
+                    navItemDataDragId = $"c{peopleContentId}"
                 });
                 List<string> cacheKeyList = new List<string> {
                     cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower)
@@ -473,12 +477,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                 localRecentList = new List<NavItem>();
                 //
                 //
-                using (DataTable dt = cp.Db.ExecuteQuery("select top 20 name,href from ccAdminRecents where userId=" + cp.User.Id + " order by modifiedDate desc")) {
+                using (DataTable dt = cp.Db.ExecuteQuery("select top 20 name,href,addonid,contentid from ccAdminRecents where userId=" + cp.User.Id + " order by modifiedDate desc")) {
                     if (dt?.Rows != null) {
                         foreach (DataRow dr in dt.Rows) {
+                            int addonId = cp.Utils.EncodeInteger(dr["addonid"]);
+                            int contentId = cp.Utils.EncodeInteger(dr["contentid"]);
                             localRecentList.Add(new NavItem {
                                 navItemHref = cp.Utils.EncodeText(dr["href"]),
-                                navItemName = cp.Utils.EncodeText(dr["name"])
+                                navItemName = cp.Utils.EncodeText(dr["name"]),
+                                navItemDataDragId = addonId > 0 ? $"a{addonId}" : (contentId > 0 ? $"c{contentId}" : "")
                             });
                         }
                     }
@@ -659,6 +666,7 @@ namespace Contensive.Processor.Addons.AdminSite {
     public class NavCategoryItem {
         public string navItemHref { get; set; }
         public string navItemName { get; set; }
+        public string navItemDataDragId { get; set; }
     }
     //
     public class NavCategoryList {
@@ -675,6 +683,7 @@ namespace Contensive.Processor.Addons.AdminSite {
     public class NavItem {
         public string navItemHref { get; set; }
         public string navItemName { get; set; }
+        public string navItemDataDragId { get; set; }
         /// <summary>
         /// if true, a divider is added and name/href ignored
         /// </summary>

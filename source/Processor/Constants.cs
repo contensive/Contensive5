@@ -365,7 +365,6 @@ namespace Contensive.Processor {
         internal const string FormTypeToolsPanel = "do30a8vl29";
         internal const string FormTypeActiveEditor = "l1gk70al9n";
         internal const string FormTypeImageSelector = "ila9c5s01m";
-        internal const string FormTypePageAuthoring = "2s09lmpalb";
         internal const string FormTypeMyProfile = "89aLi180j5";
         internal const string FormTypeLogin = "login";
         internal const string FormTypePasswordRecovery = "lk0q56am09";

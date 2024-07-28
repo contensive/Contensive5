@@ -19,31 +19,6 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //
-        //
-        //
-        public static string main_GetRemoteQueryKey(CoreController core, string SQL, string dataSourceName = "default", int maxRows = 1000) {
-            string remoteKey = "";
-            if (maxRows == 0) { maxRows = 1000; }
-            using (var cs = new CsModel(core)) {
-                cs.insert("Remote Queries");
-                if (cs.ok()) {
-                    remoteKey = getGUIDNaked();
-                    cs.set("remotekey", remoteKey);
-                    cs.set("datasourceid", MetadataController.getRecordIdByUniqueName(core, "Data Sources", dataSourceName));
-                    cs.set("sqlquery", SQL);
-                    cs.set("maxRows", maxRows);
-                    cs.set("dateexpires", DbController.encodeSQLDate(core.doc.profileStartTime.AddDays(1)));
-                    cs.set("QueryTypeID", QueryTypeSQL);
-                    cs.set("VisitId", core.session.visit.id);
-                }
-                cs.close();
-            }
-            //
-            return remoteKey;
-        }
-        //
-        //
-        //
         public static string format(CoreController core, GoogleDataType gd, RemoteFormatEnum RemoteFormat) {
             //
             StringBuilderLegacyController s = null;

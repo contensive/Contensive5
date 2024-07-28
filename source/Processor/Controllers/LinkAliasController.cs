@@ -53,34 +53,34 @@ namespace Contensive.Processor.Controllers {
         /// 
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="linkAlias"></param>
+        /// <param name="linkAliasPhrase">non-normalized link alias</param>
         /// <param name="PageID"></param>
         /// <param name="QueryStringSuffix"></param>
         /// <param name="OverRideDuplicate">Should alway be true except in admin edit page where the user may not realize</param>
         /// <param name="DupCausesWarning">Always false except in admin edit where the user needs a warning</param>
-        public static string addLinkAlias(CoreController core, string linkAlias, int PageID, string QueryStringSuffix, bool OverRideDuplicate, bool DupCausesWarning) {
+        public static string addLinkAlias(CoreController core, string linkAliasPhrase, int PageID, string QueryStringSuffix, bool OverRideDuplicate, bool DupCausesWarning) {
             string tempVar = "";
-            return addLinkAlias(core, linkAlias, PageID, QueryStringSuffix, OverRideDuplicate, DupCausesWarning, ref tempVar);
+            return addLinkAlias(core, linkAliasPhrase, PageID, QueryStringSuffix, OverRideDuplicate, DupCausesWarning, ref tempVar);
         }
         //
         //====================================================================================================
         //
-        public static string addLinkAlias(CoreController core, string linkAlias, int PageID, string QueryStringSuffix) {
+        public static string addLinkAlias(CoreController core, string linkAliasPhrase, int PageID, string QueryStringSuffix) {
             string tempVar = "";
-            return addLinkAlias(core, linkAlias, PageID, QueryStringSuffix, true, false, ref tempVar);
+            return addLinkAlias(core, linkAliasPhrase, PageID, QueryStringSuffix, true, false, ref tempVar);
         }
         //
         //====================================================================================================
         /// <summary>
         /// add a link alias to a page as the primary
         /// </summary>
-        public static string addLinkAlias(CoreController core, string linkAlias, int pageId, string queryStringSuffix, bool overRideDuplicate, bool dupCausesWarning, ref string return_WarningMessage) {
+        public static string addLinkAlias(CoreController core, string linkAliasPhrase, int pageId, string queryStringSuffix, bool overRideDuplicate, bool dupCausesWarning, ref string return_WarningMessage) {
             string hint = "";
             try {
                 //
-                logger.Trace($"{core.logCommonMessage},addLinkAlias, enter, linkAlias [" + linkAlias + "], pageID [" + pageId + "], queryStringSuffix [" + queryStringSuffix + "], overRideDuplicate [" + overRideDuplicate + "], dupCausesWarning [" + dupCausesWarning + "]");
+                logger.Trace($"{core.logCommonMessage},addLinkAlias, enter, linkAliasPhrase [" + linkAliasPhrase + "], pageID [" + pageId + "], queryStringSuffix [" + queryStringSuffix + "], overRideDuplicate [" + overRideDuplicate + "], dupCausesWarning [" + dupCausesWarning + "]");
                 //
-                string normalizedLinkAlias = LinkAliasModel.normalizeLinkAlias(core.cpParent, linkAlias);
+                string normalizedLinkAlias = LinkAliasModel.normalizeLinkAlias(core.cpParent, linkAliasPhrase);
                 if (string.IsNullOrEmpty(normalizedLinkAlias)) {
                     //
                     logger.Trace($"{core.logCommonMessage},addLinkAlias exit, blank linkalias");

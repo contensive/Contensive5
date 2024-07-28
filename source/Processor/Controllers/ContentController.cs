@@ -133,7 +133,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="useContentWatchLink"></param>
         public static void processAfterSave(CoreController core, bool isDelete, string contentName, int recordId, string recordName, int recordParentID, bool useContentWatchLink) {
             try {
-                PageContentModel.markReviewed(core.cpParent, recordId);
                 string tableName = MetadataController.getContentTablename(core, contentName);
                 //
                 // -- invalidate the specific cache for this record
@@ -187,6 +186,7 @@ namespace Contensive.Processor.Controllers {
                 } else if (tableNameLower == SitePropertyModel.tableMetadata.tableNameLower) {
                     //
                     // -- Site Properties
+                    //
                     switch (GenericController.toLCase(recordName)) {
                         case "allowlinkalias":
                             PageContentModel.invalidateCacheOfTable<PageContentModel>(core.cpParent);
@@ -200,15 +200,8 @@ namespace Contensive.Processor.Controllers {
                     }
                 } else if (tableNameLower == PageContentModel.tableMetadata.tableNameLower) {
                     //
-                    // -- clear routeMap, is rebuilt on exit
-                    // -- no, normal save calls addlinkalias, which calls routemaprebuild
+                    // -- Page Content
                     //
-                    // -- set ChildPagesFound true for parent page
-                    if (recordParentID > 0) {
-                        if (!isDelete) {
-                            core.db.executeNonQuery("update ccpagecontent set ChildPagesfound=1 where ID=" + recordParentID);
-                        }
-                    }
                     if (isDelete) {
                         //
                         // Clear the Landing page and page not found site properties
@@ -222,8 +215,26 @@ namespace Contensive.Processor.Controllers {
                         // Delete Link Alias entries with this PageID
                         core.db.executeNonQuery("delete from cclinkAliases where PageID=" + recordId);
                         DbBaseModel.invalidateCacheOfTable<LinkAliasModel>(core.cpParent);
+                    } else {
+                        //
+                        // -- not delete
+                        if (recordParentID > 0 ) {
+                            //
+                            // -- set ChildPagesFound true for parent page
+                            core.db.executeNonQuery("update ccpagecontent set ChildPagesfound=1 where ID=" + recordParentID);
+                        }
+                        //
+                        // -- if new page and no linkAlias set, use page name.
+                        PageContentModel page = DbBaseModel.create<PageContentModel>(core.cpParent, recordId);
+                        if (page is not null) {
+                            List<LinkAliasModel> linkAliasList = DbBaseModel.createList<LinkAliasModel>(core.cpParent, $"pageid={page.id}");
+                            if (linkAliasList.Count == 0) {
+                                LinkAliasController.addLinkAlias(core, page.name, page.id, "", true, false);
+                            }
+                        }
                     }
                     DbBaseModel.invalidateCacheOfRecord<PageContentModel>(core.cpParent, recordId);
+                    core.routeMapRebuild();
                 } else if (tableNameLower == LibraryFilesModel.tableMetadata.tableNameLower) {
                     //
                     // -- 

@@ -494,13 +494,16 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                         } else if (tableNameLower.Equals("ccpagecontent")) {
                             //
                             //
+                            bool isNewRecord = adminData.editRecord.id.Equals(0);
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            bool overrideDuplicate = cp.core.docProperties.getBoolean("OverRideDuplicate");
-                            string setLinkAlias = cp.core.docProperties.getText("linkalias");
-                            if(!string.IsNullOrEmpty(setLinkAlias)) {
-                                string normalizedLinkAlias = PageContentModel.savePageContentPageUrl(cp, setLinkAlias, adminData.editRecord.id, adminData.editRecord.nameLc, overrideDuplicate);
-                                bool dupCausesWarning = true; // this came from complexities in savePageContentLinkAlias
-                                LinkAliasController.addLinkAlias(cp.core, normalizedLinkAlias, adminData.editRecord.id, "", overrideDuplicate, dupCausesWarning);
+                            //
+                            // -- save pageUrl (linkAlis) tab
+                            // -- if new page and no linkAlias set, use page name. If no name, skip pageUrl
+                            string linkAliasPhrase = cp.core.docProperties.getText("linkalias");
+                            if (string.IsNullOrEmpty(linkAliasPhrase) && isNewRecord) { linkAliasPhrase = cp.core.docProperties.getText("name"); }
+                            if (!string.IsNullOrEmpty(linkAliasPhrase)) {
+                                bool overrideDuplicate = cp.core.docProperties.getBoolean("OverRideDuplicate");
+                                LinkAliasController.addLinkAlias(cp.core, linkAliasPhrase, adminData.editRecord.id, "", overrideDuplicate, true);
                             }
                             // -- legacy
                             ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
@@ -804,19 +807,19 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             // Add the Page URL
                             //
-                            string linkAlias = csData.getText("LinkAlias");
-                            if (!string.IsNullOrEmpty(linkAlias)) {
+                            string linkAliasPhrase = csData.getText("LinkAlias");
+                            if (!string.IsNullOrEmpty(linkAliasPhrase)) {
                                 //
                                 // Add the Page URL
                                 //
-                                LinkAliasController.addLinkAlias(cp.core, linkAlias, csData.getInteger("ID"), "", true, true);
+                                LinkAliasController.addLinkAlias(cp.core, linkAliasPhrase, csData.getInteger("ID"), "", true, true);
                             } else {
                                 //
                                 // Add the name
                                 //
-                                linkAlias = csData.getText("name");
-                                if (!string.IsNullOrEmpty(linkAlias)) {
-                                    LinkAliasController.addLinkAlias(cp.core, linkAlias, csData.getInteger("ID"), "", true, false);
+                                linkAliasPhrase = csData.getText("name");
+                                if (!string.IsNullOrEmpty(linkAliasPhrase)) {
+                                    LinkAliasController.addLinkAlias(cp.core, linkAliasPhrase, csData.getInteger("ID"), "", true, false);
                                 }
                             }
                             //

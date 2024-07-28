@@ -1403,12 +1403,12 @@
     </style>
     <div class="container-fluid ccBodyAdmin ccCon">
     {{{adminExceptions}}}
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark justify-content-center ccAdminHeaderNav">
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark justify-content-center ccAdminHeaderNav pe-4 ps-2">
         <!-- <a class="navbar-brand abs" href="{{adminRoute}}">{{{leftSideMessage}}}</a> -->
-        <button class="navbar-toggler" type="button" data-toggle="collapse"  data-bs-toggle="collapse" data-target="#collapsingNavbar" data-bs-target="#collapsingNavbar">
+        <button class="ms-auto navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#collapsingNavbar" data-bs-target="#collapsingNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="ps-2 pe-4 navbar-collapse collapse" id="collapsingNavbar">
+        <div class="navbar-collapse collapse" id="collapsingNavbar">
             <!-- public links -->
             <ul class="navbar-nav ps-2">
                 <li class="nav-item text-center my-0">
@@ -1440,7 +1440,7 @@
 					</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         {{#recentList}}
-                        <a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
+                        <a id="{{navItemDataDragId}}" data-dropid="{{navItemDataDragId}}" class="navDrag dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
                         {{/recentList}}
                     </div>
                 </li>
@@ -1482,7 +1482,7 @@
                                 {{#navCategoryName}}
                                 <div class="dropdown-header">{{navCategoryName}}</div>
                                 {{/navCategoryName}}{{#navCategoryItems}}
-                                <a class="dropdown-item" href="{{navItemHref}}" title="{{navItemName}}">{{navItemName}}</a>
+                                <a id="{{navItemDataDragId}}" data-dropid="{{navItemDataDragId}}"  class="{{#navItemDataDragId}}navDrag{{/navItemDataDragId}} dropdown-item" href="{{navItemHref}}" title="{{navItemName}}">{{navItemName}}</a>
                                 {{/navCategoryItems}}
                             </div>
                             {{/listCategoryList}}

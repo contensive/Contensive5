@@ -389,11 +389,6 @@ namespace Contensive.Processor.Controllers {
                             (new Contensive.Processor.Addons.Primitives.processFormToolsPanelClass()).Execute(core.cpParent);
                             return;
                         }
-                    case FormTypePageAuthoring: {
-                            //
-                            (new Contensive.Processor.Addons.Primitives.processFormQuickEditingClass()).Execute(core.cpParent);
-                            return;
-                        }
                     case FormTypeActiveEditor: {
                             //
                             (new Contensive.Processor.Addons.Primitives.ProcessActiveEditorClass()).Execute(core.cpParent);

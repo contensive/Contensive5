@@ -408,7 +408,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         }
                         //
                         // -- add to admin recents
-                        AdminRecentModel.insertAdminRecentAddon(cp, cp.User.Id, addon.name, "/" + cp.GetAppConfig().adminRoute + "?addonid=" + addon.id);
+                        AdminRecentModel.insertAdminRecentAddon(cp, cp.User.Id, addon.name, "/" + cp.GetAppConfig().adminRoute + "?addonid=" + addon.id, addon.id);
                         //
                         // -- execute
                         string InstanceOptionString = cp.core.userProperty.getText("Addon [" + addonName + "] Options", "");
