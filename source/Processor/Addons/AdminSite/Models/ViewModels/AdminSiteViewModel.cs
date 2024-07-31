@@ -232,10 +232,23 @@ namespace Contensive.Processor.Addons.AdminSite {
                             //
                             // -- create entry
                             int id = cp.Utils.EncodeInteger(dr["id"]);
+                            string navItemHref = "";
+                            string navItemDataDragId = "";
+                            if (cp.Utils.EncodeBoolean(dr["isContent"])) {
+                                //
+                                // -- data
+                                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + id;
+                                navItemDataDragId = id > 0 ? $"c{id}" : "";
+                            } else {
+                                //
+                                // -- addon
+                                navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"]));
+                                navItemDataDragId = id > 0 ? $"a{id}" : "";
+                            }
                             var navCategoryItem = new NavCategoryItem {
                                 navItemName = cp.Utils.EncodeText(dr["name"]),
-                                navItemDataDragId = id > 0 ? $"c{id}" : "",
-                                navItemHref = cp.GetAppConfig().adminRoute + (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
+                                navItemDataDragId = navItemDataDragId,
+                                navItemHref = (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
                             };
                             category.navCategoryItems.Add(navCategoryItem);                            
                         }
@@ -273,7 +286,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (dt?.Rows != null) {
                         string categoryNameLast = "";
                         foreach (DataRow dr in dt.Rows) {
-                            string navItemDataDropId = "";
                             string categoryName = cp.Utils.EncodeText(dr["categoryName"]);
                             categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName;
                             if (!string.IsNullOrEmpty(categoryName) && categoryName != categoryNameLast) {
@@ -292,24 +304,25 @@ namespace Contensive.Processor.Addons.AdminSite {
                             // -- create entry
                             string entryName = cp.Utils.EncodeText(dr["name"]);
                             entryName = string.IsNullOrEmpty(entryName) ? "" : entryName;
-                            //
+                            int id = cp.Utils.EncodeInteger(dr["id"]);
+                            string navItemDataDragId = "";
                             string navItemHref = "";
-                            int contentId = cp.Utils.EncodeInteger(dr["contentid"]);
-                            if (contentId == 0) {
+                            if (cp.Utils.EncodeBoolean(dr["isContent"])) {
+                                //
+                                // -- data
+                                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + id;
+                                navItemDataDragId = id > 0 ? $"c{id}" : "";
+                            } else {
                                 //
                                 // -- addon
                                 navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"]));
-                            } else {
-                                //
-                                // -- data
-                                navItemHref = cp.GetAppConfig().adminRoute + "?cid=" + contentId;
+                                navItemDataDragId = id > 0 ? $"a{id}" : "";
                             }
                             localListCache.Add(new NavItem {
                                 navItemHref = navItemHref,
                                 navItemName = entryName,
                                 isCategory = false,
-                                navItemDataDragId = contentId > 0 ? $"c{contentId}" : ""
-
+                                navItemDataDragId = navItemDataDragId
                             });
                         }
                     }

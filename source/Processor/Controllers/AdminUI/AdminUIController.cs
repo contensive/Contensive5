@@ -700,10 +700,11 @@ namespace Contensive.Processor.Controllers {
         public static string getEditForm_TitleBarDetails(CoreController core, AdminDataModel adminData, RecordEditHeaderInfoClass headerInfo) {
             string result = "";
             EditRecordModel editRecord = adminData.editRecord;
+            string contentName = string.IsNullOrEmpty(editRecord.contentControlId_Name) ? adminData.adminContent.name : editRecord.contentControlId_Name;
             if (editRecord.id == 0) {
-                result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name) + ":&nbsp;New record", "col-sm-12");
+                result += HtmlController.div(HtmlController.strong(contentName) + ":&nbsp;New record", "col-sm-12");
             } else {
-                result += HtmlController.div(HtmlController.strong(editRecord.contentControlId_Name + ":&nbsp;#") + headerInfo.recordId + ", " + HtmlController.encodeHtml(editRecord.nameLc), "col-sm-4");
+                result += HtmlController.div(HtmlController.strong(contentName + ":&nbsp;#") + headerInfo.recordId + ", " + HtmlController.encodeHtml(editRecord.nameLc), "col-sm-4");
                 result += HtmlController.div(HtmlController.strong("Created:&nbsp;") + HtmlController.encodeHtml(getEditForm_TitleBarDetails_EditorString(editRecord.dateAdded, editRecord.createdBy, "unknown")), "col-sm-4");
                 result += HtmlController.div(HtmlController.strong("Modified:&nbsp;") + HtmlController.encodeHtml(getEditForm_TitleBarDetails_EditorString(editRecord.modifiedDate, editRecord.modifiedBy, "not modified")), "col-sm-4");
             }

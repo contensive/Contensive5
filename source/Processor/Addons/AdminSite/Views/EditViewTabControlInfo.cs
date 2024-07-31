@@ -140,41 +140,28 @@ namespace Contensive.Processor.Addons.AdminSite {
                         FieldHelp = GenericController.encodeText(field.helpMessage);
                         FieldRequired = GenericController.encodeBoolean(field.required);
                         int FieldValueInteger = (adminData.editRecord.contentControlId.Equals(0)) ? adminData.adminContent.id : adminData.editRecord.contentControlId;
-                        if (!core.session.isAuthenticatedAdmin()) {
-                            HTMLFieldString = HTMLFieldString + HtmlController.inputHidden("contentControlId", FieldValueInteger);
-                        } else {
-                            string RecordContentName = adminData.editRecord.contentControlId_Name;
-                            string TableName2 = MetadataController.getContentTablename(core, RecordContentName);
-                            int TableId = MetadataController.getRecordIdByUniqueName(core, "Tables", TableName2);
+                        if (core.session.isAuthenticatedAdmin() && !string.IsNullOrEmpty(adminData.editRecord.contentControlId_Name)) {
                             //
-                            // Test for parentid
-                            int ParentId = 0;
-                            bool ContentSupportsParentId = false;
-                            if (adminData.editRecord.id > 0) {
-                                using (var csData = new CsModel(core)) {
-                                    if (csData.openRecord(RecordContentName, adminData.editRecord.id)) {
-                                        ContentSupportsParentId = csData.isFieldSupported("ParentID");
-                                        if (ContentSupportsParentId) {
-                                            ParentId = csData.getInteger("ParentID");
-                                        }
-                                    }
+                            // administrator, let them select any content compatible with the table
+                            bool IsEmptyList = false;
+                            string TableName2 = MetadataController.getContentTablename(core, adminData.editRecord.contentControlId_Name);
+                            if (!string.IsNullOrEmpty(TableName2)) {
+                                int tableId = MetadataController.getRecordIdByUniqueName(core, "Tables", TableName2);
+                                int contentCId = MetadataController.getRecordIdByUniqueName(core, ContentModel.tableMetadata.contentName, ContentModel.tableMetadata.contentName);
+                                if (tableId > 0 && contentCId > 0) {
+                                    HTMLFieldString += AdminUIEditorController.getLookupContentEditor(core, "contentcontrolid", FieldValueInteger, contentCId, ref IsEmptyList, adminData.editRecord.userReadOnly, "", "", true, $"(ContentTableID={tableId})");
+                                    FieldHelp = FieldHelp + " (Only administrators have access to this control. Changing the Controlling Content allows you to change who can author the record, as well as how it is edited.)";
                                 }
                             }
-                            bool IsEmptyList = false;
-                            if (core.session.isAuthenticatedAdmin()) {
-                                //
-                                // administrator, and either ( no parentid or does not support it), let them select any content compatible with the table
-                                string sqlFilter = "(ContentTableID=" + TableId + ")";
-                                int contentCId = MetadataController.getRecordIdByUniqueName(core, ContentModel.tableMetadata.contentName, ContentModel.tableMetadata.contentName);
-                                HTMLFieldString += AdminUIEditorController.getLookupContentEditor(core, "contentcontrolid", FieldValueInteger, contentCId, ref IsEmptyList, adminData.editRecord.userReadOnly, "", "", true, sqlFilter);
-                                FieldHelp = FieldHelp + " (Only administrators have access to this control. Changing the Controlling Content allows you to change who can author the record, as well as how it is edited.)";
-                            }
                         }
+                        if (string.IsNullOrEmpty(HTMLFieldString)) {
+                            //
+                            // -- just display the name and a hidden with the value
+                            HTMLFieldString = string.IsNullOrEmpty(adminData.editRecord.contentControlId_Name) ? adminData.adminContent.name : adminData.editRecord.contentControlId_Name;
+                            HTMLFieldString += HtmlController.inputHidden("contentControlId", adminData.editRecord.contentControlId);
+                        }
+                        tabPanel.add(AdminUIController.getEditRow(core, HTMLFieldString, "Controlling Content", FieldHelp, FieldRequired, false, ""));
                     }
-                    if (string.IsNullOrEmpty(HTMLFieldString)) {
-                        HTMLFieldString = adminData.editRecord.contentControlId_Name;
-                    }
-                    tabPanel.add(AdminUIController.getEditRow(core, HTMLFieldString, "Controlling Content", FieldHelp, FieldRequired, false, ""));
                 }
                 //
                 // ----- Created By
