@@ -487,8 +487,7 @@ namespace Tests {
                     },
                     argumentKeyValuePairs = new Dictionary<string, string>(),
                     instanceGuid = "",
-                    isDependency = false,
-                    wrapperID = 0
+                    isDependency = false
                 });
                 // assert
                 Assert.AreEqual("", result);
@@ -528,8 +527,7 @@ namespace Tests {
                     },
                     argumentKeyValuePairs = new Dictionary<string, string>(),
                     instanceGuid = "",
-                    isDependency = false,
-                    wrapperID = 0
+                    isDependency = false
                 });
                 // assert
                 Assert.AreEqual(addon.copy, result);

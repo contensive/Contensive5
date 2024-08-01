@@ -131,10 +131,10 @@ namespace Contensive.BaseClasses {
             /// <returns></returns>
             public addonExecuteHostRecordContext hostRecord { get; set; } = new addonExecuteHostRecordContext();
             /// <summary>
-            /// Optional. If included, this is the id value of a record in the Wrappers content and that wrapper will be added to the addon return result.
+            /// deprecated
             /// </summary>
             /// <returns></returns>
-            public int wrapperID { get; set; }
+            [Obsolete("Deprecated", false)] public int wrapperID { get; set; }
             /// <summary>
             /// Optional. If included, the addon will be wrapped with a div and this will be the html Id value of the div. May be used to customize the resulting html styles.
             /// </summary>
@@ -268,9 +268,11 @@ namespace Contensive.BaseClasses {
         /// <param name="source"></param>
         /// <param name="contextContentName"></param>
         /// <param name="contextRecordID"></param>
-        /// <param name="wrapperID"></param>
         /// <returns></returns>
-        public abstract string EncodeContentForWeb(string source, string contextContentName = "", int contextRecordID = 0, int wrapperID = 0);
+        [Obsolete("Depreated. Use method without wrapper",false)] public abstract string EncodeContentForWeb(string source, string contextContentName, int contextRecordID, int ignoreId);
+        public abstract string EncodeContentForWeb(string source, string contextContentName, int contextRecordID);
+        public abstract string EncodeContentForWeb(string source, string contextContentName);
+        public abstract string EncodeContentForWeb(string source);
         //
         //====================================================================================================
         /// <summary>
@@ -709,9 +711,9 @@ namespace Contensive.BaseClasses {
         /// Deprecated. use cp.addon.execute() and manage the wrapper manually.
         /// </summary>
         /// <param name="IdGuidOrName"></param>
-        /// <param name="WrapperId"></param>
+        /// <param name="ignoreId"></param>
         /// <returns></returns>
-        [Obsolete("Deprecated. use cp.addon.execute() and manage the wrapper manually.", false)] public abstract string ExecuteAddon(string IdGuidOrName, int WrapperId);
+        [Obsolete("Deprecated. use cp.addon.execute() and manage the wrapper manually.", false)] public abstract string ExecuteAddon(string IdGuidOrName, int ignoreId);
         /// <summary>
         /// Deprecated. use cp.addon.execute()
         /// </summary>

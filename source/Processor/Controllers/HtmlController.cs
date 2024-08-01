@@ -1854,6 +1854,11 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                             }
+                            if(ContentName.ToLowerInvariant().Equals("wrappers")) {
+                                //
+                                // -- deprecate wrappers
+                                return "";
+                            }
                             using (var csData = new CsModel(core)) {
                                 if (IsContentList) {
                                     //

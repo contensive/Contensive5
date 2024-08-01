@@ -94,8 +94,20 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
-        public override string EncodeContentForWeb(string Source, string ContextContentName = "", int ContextRecordId = 0, int WrapperId = 0) {
-            return ContentRenderController.renderHtmlForWeb(cp.core, Source, ContextContentName, ContextRecordId, 0, "", WrapperId, CPUtilsBaseClass.addonContext.ContextPage);
+        [Obsolete("User method without wrapper", false )] public override string EncodeContentForWeb(string Source, string ContextContentName, int ContextRecordId, int ignoreInt) {
+            return ContentRenderController.renderHtmlForWeb(cp.core, Source, ContextContentName, ContextRecordId, 0, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
+        }
+        //
+        public override string EncodeContentForWeb(string Source, string ContextContentName, int ContextRecordId) {
+            return ContentRenderController.renderHtmlForWeb(cp.core, Source, ContextContentName, ContextRecordId, 0, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
+        }
+        //
+        public override string EncodeContentForWeb(string Source, string ContextContentName) {
+            return ContentRenderController.renderHtmlForWeb(cp.core, Source, ContextContentName, 0, 0, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
+        }
+        //
+        public override string EncodeContentForWeb(string Source) {
+            return ContentRenderController.renderHtmlForWeb(cp.core, Source, "", 0, 0, "", 0, CPUtilsBaseClass.addonContext.ContextPage);
         }
         //
         // ====================================================================================================
@@ -454,11 +466,11 @@ namespace Contensive.Processor {
             return cp.core.programFiles.readFileText("Resources\\WaitPageOpen.htm");
         }
         //
-        public string executeAddon(string addonIDGuidOrName, int wrapperId, addonContext context) {
+        [Obsolete("Deprecated, use cp.addon.Execute", false)]
+        public string executeAddon(string addonIDGuidOrName, int ignoreInt, addonContext context) {
             addonExecuteContext executeContext = new addonExecuteContext {
                 addonType = context,
-                instanceGuid = cp.core.docProperties.getText("instanceId"),
-                wrapperID = wrapperId
+                instanceGuid = cp.core.docProperties.getText("instanceId")
             };
             if (addonIDGuidOrName.isNumeric()) {
                 return (string)cp.Addon.Execute(EncodeInteger(addonIDGuidOrName), executeContext);
@@ -473,7 +485,7 @@ namespace Contensive.Processor {
         public override string ExecuteAddon(string addonIDGuidOrName) => executeAddon(addonIDGuidOrName, 0, addonContext.ContextPage);
         //
         [Obsolete("Deprecated, use cp.addon.Execute", false)]
-        public override string ExecuteAddon(string addonIDGuidOrName, int WrapperId) => executeAddon(addonIDGuidOrName, WrapperId, addonContext.ContextPage);
+        public override string ExecuteAddon(string addonIDGuidOrName, int ignoreId) => executeAddon(addonIDGuidOrName, ignoreId, addonContext.ContextPage);
         //
         [Obsolete("Deprecated, use cp.addon.Execute", false)]
         public override string ExecuteAddon(string addonIDGuidOrName, addonContext context) => executeAddon(addonIDGuidOrName, 0, context);

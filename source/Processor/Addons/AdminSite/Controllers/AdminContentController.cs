@@ -412,12 +412,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // -- execute
                         string InstanceOptionString = cp.core.userProperty.getText("Addon [" + addonName + "] Options", "");
-                        int DefaultWrapperId = -1;
                         content = cp.core.addon.execute(addon, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
                             addonType = Contensive.BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
                             instanceGuid = adminSiteInstanceId,
                             argumentKeyValuePairs = GenericController.convertQSNVAArgumentstoDocPropertiesList(cp.core, InstanceOptionString),
-                            wrapperID = DefaultWrapperId,
                             errorContextMessage = executeContextErrorCaption
                         });
                         if (string.IsNullOrEmpty(content)) {

@@ -429,7 +429,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="queryStringForLinkAppend"></param>
         /// <param name="protocolHostLink"></param>
         /// <param name="isEmailContent"></param>
-        /// <param name="ignore_DefaultWrapperID"></param>
         /// <param name="ignore_TemplateCaseOnly_Content"></param>
         /// <param name="addonExecuteContext"></param>
         /// <param name="userIsAuthenticated"></param>
@@ -618,10 +617,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="ContextRecordID">optional, id of the record from which the data being rendered originated</param>
         /// <param name="deprecated_ContextContactPeopleID">optional, the id of the person who should be contacted for this content. If 0, uses current user.</param>
         /// <param name="ProtocolHostString">The protocol + domain to be used to build URLs if the content includes dynamically generated images (resource library active content) and the domain is different from where the content is being rendered already. Leave blank and the URL will start with a slash.</param>
-        /// <param name="DefaultWrapperID">optional, if provided and addon is html on a page, the content will be wrapped in the wrapper indicated</param>
         /// <param name="addonContext">Where this addon is being executed, like as a process, or in an email, or on a page. If not provided page context is assumed (adding assets like js and css to document)</param>
         /// <returns></returns>
-        public static string renderHtmlForWeb(CoreController core, string source, string contextContentName = "", int ContextRecordId = 0, int deprecated_ContextContactPeopleId = 0, string ProtocolHostString = "", int DefaultWrapperId = 0, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextPage) {
+        public static string renderHtmlForWeb(CoreController core, string source, string contextContentName = "", int ContextRecordId = 0, int deprecated_ContextContactPeopleId = 0, string ProtocolHostString = "", int ignoreInt = 0, CPUtilsBaseClass.addonContext addonContext = CPUtilsBaseClass.addonContext.ContextPage) {
             string result = ContentCmdController.executeContentCommands(core, source, CPUtilsBaseClass.addonContext.ContextAdmin);
             return renderContent(core, result, core.session.user, contextContentName, ContextRecordId, deprecated_ContextContactPeopleId, false, false, true, true, false, true, "", ProtocolHostString, false, addonContext, core.session.isAuthenticated, core.session.isEditing());
         }
@@ -1245,7 +1243,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="ContextRecordID"></param>
         /// <param name="deprecated_ContextContactPeopleID"></param>
         /// <param name="ProtocolHostString"></param>
-        /// <param name="DefaultWrapperID"></param>
         /// <param name="ignore_TemplateCaseOnly_Content"></param>
         /// <param name="addonContext"></param>
         /// <returns></returns>

@@ -140,20 +140,17 @@ namespace Contensive.Processor.Controllers {
             // -- save current context
             var contextParent = new CPUtilsBaseClass.addonExecuteContext {
                 forceHtmlDocument = executeContext.forceHtmlDocument,
-                isDependency = executeContext.isDependency,
-                wrapperID = executeContext.wrapperID
+                isDependency = executeContext.isDependency
             };
             //
             // -- set dependency context
             executeContext.isDependency = true;
             executeContext.forceHtmlDocument = false;
-            executeContext.wrapperID = 0;
             //
             // -- execute addon
             string result = execute(addon, executeContext);
             //
             // -- restore previous conext
-            executeContext.wrapperID = contextParent.wrapperID;
             executeContext.forceHtmlDocument = contextParent.forceHtmlDocument;
             executeContext.isDependency = contextParent.isDependency;
             return result;
@@ -359,10 +356,6 @@ namespace Contensive.Processor.Controllers {
                 string ContainerCssClass = "";
                 foreach (var kvp in executeContext.argumentKeyValuePairs) {
                     switch (kvp.Key.ToLowerInvariant()) {
-                        case "wrapper": {
-                                executeContext.wrapperID = GenericController.encodeInteger(kvp.Value);
-                                break;
-                            }
                         case "as ajax": {
                                 addon.asAjax = GenericController.encodeBoolean(kvp.Value);
                                 break;
@@ -714,12 +707,6 @@ namespace Contensive.Processor.Controllers {
                                     result = new StringBuilder("\r<!-- Add-on " + AddonCommentName + " -->" + result.ToString() + "\r<!-- /Add-on " + AddonCommentName + " -->");
                                 }
                             }
-                        }
-                        //
-                        // -- Add Design Wrapper
-                        hint = 27;
-                        if ((result.Length > 0) && (!addon.isInline) && (executeContext.wrapperID > 0)) {
-                            result = new StringBuilder(addWrapperToResult(result.ToString(), executeContext.wrapperID, "for Add-on " + addon.name));
                         }
                         // -- restore the parent's instanceId
                         hint = 28;
@@ -1931,59 +1918,6 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        //   Apply a wrapper to content
-        // todo -- wrapper should be an addon !!!
-        private string addWrapperToResult(string Content, int WrapperID, string WrapperSourceForComment = "") {
-            string result = Content;
-            try {
-                string SelectFieldList = "name,copytext,javascriptonload,javascriptbodyend,stylesfilename,otherheadtags,JSFilename,targetString";
-                using var csData = new CsModel(core);
-                csData.openRecord("Wrappers", WrapperID, SelectFieldList);
-                if (csData.ok()) {
-                    string Wrapper = csData.getText("copytext");
-                    string wrapperName = csData.getText("name");
-                    string TargetString = csData.getText("targetString");
-                    //
-                    string SourceComment = "wrapper " + wrapperName;
-                    if (!string.IsNullOrEmpty(WrapperSourceForComment)) {
-                        SourceComment = SourceComment + " for " + WrapperSourceForComment;
-                    }
-                    core.html.addScriptCode_onLoad(csData.getText("javascriptonload"), SourceComment);
-                    core.html.addScriptCode(csData.getText("javascriptbodyend"), SourceComment);
-                    core.html.addHeadTag(csData.getText("OtherHeadTags"), SourceComment);
-                    //
-                    string JSFilename = csData.getText("jsfilename");
-                    if (!string.IsNullOrEmpty(JSFilename)) {
-                        JSFilename = GenericController.getCdnFileLink(core, JSFilename);
-                        core.html.addScriptLinkSrc(JSFilename, SourceComment);
-                    }
-                    string styleSheetUrl = csData.getText("stylesfilename");
-                    if (!string.IsNullOrEmpty(styleSheetUrl)) {
-                        if (GenericController.strInstr(1, styleSheetUrl, "://").Equals(0) && (!styleSheetUrl.left(1).Equals("/"))) {
-                            styleSheetUrl = GenericController.getCdnFileLink(core, styleSheetUrl);
-                        }
-                        core.html.addStyleLink(styleSheetUrl, SourceComment);
-                    }
-                    //
-                    if (!string.IsNullOrEmpty(Wrapper)) {
-                        int Pos = GenericController.strInstr(1, Wrapper, TargetString, 1);
-                        if (Pos != 0) {
-                            result = GenericController.strReplace(Wrapper, TargetString, result, 1, 99, 1);
-                        } else {
-                            result = ""
-                                + "<!-- the selected wrapper does not include the Target String marker to locate the position of the content. -->"
-                                + Wrapper + result;
-                        }
-                    }
-                }
-                csData.close();
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-            }
-            return result;
-        }
-        //
-        //====================================================================================================
         // main_Get an XML nodes attribute based on its name
         //
         public string xml_GetAttribute(bool found, XmlNode Node, string Name, string defaultIfNotFound) {
@@ -2015,109 +1949,100 @@ namespace Contensive.Processor.Controllers {
         /// get an option from an argument list
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="ArgumentList"></param>
+        /// <param name="ArgumentList">list of name=value arguments, separated by new-line</param>
         /// <param name="AddonGuid"></param>
         /// <param name="IsInline"></param>
         /// <returns></returns>
         public static string getDefaultAddonOptions(CoreController core, string ArgumentList, string AddonGuid, bool IsInline, string AddonName, ref string jsonCommand) {
-            var argList = new List<NameValueModel>();
+            string result = "";
+            //
+            // -- normalize argumentlist
             ArgumentList = GenericController.strReplace(ArgumentList, Environment.NewLine, "\r");
             ArgumentList = GenericController.strReplace(ArgumentList, "\n", "\r");
             ArgumentList = GenericController.strReplace(ArgumentList, "\r", Environment.NewLine);
-            if (ArgumentList.IndexOf("wrapper", System.StringComparison.OrdinalIgnoreCase) == -1) {
+            if (string.IsNullOrEmpty(ArgumentList.replace(Environment.NewLine, "", StringComparison.InvariantCultureIgnoreCase))) { return result; }
+            //
+            // Argument list is present, translate from AddonConstructor to AddonOption format (see main_executeAddon for details)
+            //
+            var argList = new List<NameValueModel>();
+            string[] argSplit = GenericController.splitNewLine(ArgumentList);
+            for (int Ptr = 0; Ptr <= argSplit.GetUpperBound(0); Ptr++) {
+                string NameValue = argSplit[Ptr];
+                // deprecate wrappers
+                if (string.IsNullOrEmpty(NameValue) || NameValue.ToLowerInvariant().Contains("ListID(Wrappers)")) { continue; }
                 //
-                // Add in default constructors, like wrapper
-                if (!string.IsNullOrEmpty(ArgumentList)) {
-                    ArgumentList += Environment.NewLine;
-                }
-                if (GenericController.toLCase(AddonGuid) == GenericController.toLCase(addonGuidContentBox)) {
-                    ArgumentList += AddonOptionConstructor_BlockNoAjax;
-                } else if (IsInline) {
-                    ArgumentList += AddonOptionConstructor_Inline;
+                // split on equal
+                //
+                NameValue = GenericController.strReplace(NameValue, "\\=", Environment.NewLine);
+                int Pos = GenericController.strInstr(1, NameValue, "=");
+                //
+                // Execute list functions
+                //
+                string OptionName;
+                string OptionValue = "";
+                if (Pos == 0) {
+                    OptionName = NameValue;
                 } else {
-                    ArgumentList += AddonOptionConstructor_Block;
+                    OptionName = NameValue.left(Pos - 1);
+                    OptionValue = NameValue.Substring(Pos);
+                }
+                OptionName = GenericController.strReplace(OptionName, Environment.NewLine, "\\=");
+                OptionValue = GenericController.strReplace(OptionValue, Environment.NewLine, "\\=");
+                //
+                // split optionvalue on [
+                //
+                OptionValue = GenericController.strReplace(OptionValue, "\\[", Environment.NewLine);
+                string OptionSelector = "";
+                Pos = GenericController.strInstr(1, OptionValue, "[");
+                if (Pos != 0) {
+                    OptionSelector = OptionValue.Substring(Pos - 1);
+                    OptionValue = OptionValue.left(Pos - 1);
+                }
+                OptionValue = GenericController.strReplace(OptionValue, Environment.NewLine, "\\[");
+                OptionSelector = GenericController.strReplace(OptionSelector, Environment.NewLine, "\\[");
+                //
+                // Decode AddonConstructor format
+                OptionName = GenericController.decodeAddonConstructorArgument(OptionName);
+                OptionValue = GenericController.decodeAddonConstructorArgument(OptionValue);
+                //
+                // -- add to json format
+                argList.Add(new NameValueModel {
+                    name = OptionName,
+                    value = OptionValue
+                });
+                //
+                // Encode AddonOption format
+                OptionValue = GenericController.encodeNvaArgument(OptionValue);
+                //
+                // rejoin
+                string NameValuePair = core.html.getAddonSelector(OptionName, OptionValue, OptionSelector);
+                if (!string.IsNullOrEmpty(NameValuePair)) {
+                    //
+                    // -- only process non-empty results so getAddonSelector can filter out deprecations (wrappers)
+                    NameValuePair = GenericController.encodeJavascriptStringSingleQuote(NameValuePair);
+                    result += "&" + NameValuePair;
+                    if (GenericController.strInstr(1, NameValuePair, "=") == 0) {
+                        result += "=";
+                    }
                 }
             }
-            string result = "";
-            if (!string.IsNullOrEmpty(ArgumentList)) {
-                //
-                // Argument list is present, translate from AddonConstructor to AddonOption format (see main_executeAddon for details)
-                //
-                string[] QuerySplit = GenericController.splitNewLine(ArgumentList);
-                for (int Ptr = 0; Ptr <= QuerySplit.GetUpperBound(0); Ptr++) {
-                    string NameValue = QuerySplit[Ptr];
-                    if (!string.IsNullOrEmpty(NameValue)) {
-                        string OptionValue = "";
-                        string OptionSelector = "";
-                        //
-                        // split on equal
-                        //
-                        NameValue = GenericController.strReplace(NameValue, "\\=", Environment.NewLine);
-                        int Pos = GenericController.strInstr(1, NameValue, "=");
-                        //
-                        // Execute list functions
-                        //
-                        string OptionName;
-                        if (Pos == 0) {
-                            OptionName = NameValue;
-                        } else {
-                            OptionName = NameValue.left(Pos - 1);
-                            OptionValue = NameValue.Substring(Pos);
-                        }
-                        OptionName = GenericController.strReplace(OptionName, Environment.NewLine, "\\=");
-                        OptionValue = GenericController.strReplace(OptionValue, Environment.NewLine, "\\=");
-                        //
-                        // split optionvalue on [
-                        //
-                        OptionValue = GenericController.strReplace(OptionValue, "\\[", Environment.NewLine);
-                        Pos = GenericController.strInstr(1, OptionValue, "[");
-                        if (Pos != 0) {
-                            OptionSelector = OptionValue.Substring(Pos - 1);
-                            OptionValue = OptionValue.left(Pos - 1);
-                        }
-                        OptionValue = GenericController.strReplace(OptionValue, Environment.NewLine, "\\[");
-                        OptionSelector = GenericController.strReplace(OptionSelector, Environment.NewLine, "\\[");
-                        //
-                        // Decode AddonConstructor format
-                        OptionName = GenericController.decodeAddonConstructorArgument(OptionName);
-                        OptionValue = GenericController.decodeAddonConstructorArgument(OptionValue);
-                        //
-                        // -- add to json format
-                        argList.Add(new NameValueModel {
-                            name = OptionName,
-                            value = OptionValue
-                        });
-                        //
-                        // Encode AddonOption format
-                        OptionValue = GenericController.encodeNvaArgument(OptionValue);
-                        //
-                        // rejoin
-                        string NameValuePair = core.html.getAddonSelector(OptionName, OptionValue, OptionSelector);
-                        NameValuePair = GenericController.encodeJavascriptStringSingleQuote(NameValuePair);
-                        result += "&" + NameValuePair;
-                        if (GenericController.strInstr(1, NameValuePair, "=") == 0) {
-                            result += "=";
-                        }
-                    }
+            //
+            // -- cleanup htmlId command
+            if (!string.IsNullOrEmpty(result)) {
+                result = result.Substring(1);
+            }
+            //
+            // -- create json command
+            string jsonArgs = "";
+            foreach (var arg in argList) {
+                if (!string.IsNullOrEmpty(arg.value)) {
+                    jsonArgs += (string.IsNullOrEmpty(jsonArgs) ? "" : ",") + "{" + "\"" + encodeJavascriptStringSingleQuote(arg.name) + "\":\"" + encodeJavascriptStringSingleQuote(arg.value) + "\"" + "}";
                 }
-                //
-                // -- cleanup htmlId command
-                if (!string.IsNullOrEmpty(result)) {
-                    result = result.Substring(1);
-                }
-                //
-                // -- create json command
-                string jsonArgs = "";
-                foreach (var arg in argList) {
-                    if (!string.IsNullOrEmpty(arg.value)) {
-                        jsonArgs += (string.IsNullOrEmpty(jsonArgs) ? "" : ",") + "{" + "\"" + encodeJavascriptStringSingleQuote(arg.name) + "\":\"" + encodeJavascriptStringSingleQuote(arg.value) + "\"" + "}";
-                    }
-                }
-                if (string.IsNullOrEmpty(jsonArgs)) {
-                    jsonCommand = "{%\"" + encodeJavascriptStringSingleQuote(AddonName) + "\"%}";
-                } else {
-                    jsonCommand = "{%{\"" + encodeJavascriptStringSingleQuote(AddonName) + "\":" + jsonArgs + "}%}";
-                }
+            }
+            if (string.IsNullOrEmpty(jsonArgs)) {
+                jsonCommand = "{%\"" + encodeJavascriptStringSingleQuote(AddonName) + "\"%}";
+            } else {
+                jsonCommand = "{%{\"" + encodeJavascriptStringSingleQuote(AddonName) + "\":" + jsonArgs + "}%}";
             }
             return result;
         }

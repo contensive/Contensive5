@@ -249,8 +249,8 @@ namespace Contensive.Processor {
         internal static readonly string cr5 = cr4 + "\t";
         internal static readonly string cr6 = cr5 + "\t";
         //
-        internal const string AddonOptionConstructor_BlockNoAjax = "Wrapper=[Default:0|None:-1|ListID(Wrappers)]\r\ncss Container id\r\ncss Container class";
-        internal const string AddonOptionConstructor_Block = "Wrapper=[Default:0|None:-1|ListID(Wrappers)]\r\nAs Ajax=[If Add-on is Ajax:0|Yes:1]\r\ncss Container id\r\ncss Container class";
+        internal const string AddonOptionConstructor_BlockNoAjax = "css Container id\r\ncss Container class";
+        internal const string AddonOptionConstructor_Block = "As Ajax=[If Add-on is Ajax:0|Yes:1]\r\ncss Container id\r\ncss Container class";
         internal const string AddonOptionConstructor_Inline = "As Ajax=[If Add-on is Ajax:0|Yes:1]\r\ncss Container id\r\ncss Container class";
         //
         // Constants used as arguments to SiteBuilderClass.CreateNewSite

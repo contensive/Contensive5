@@ -537,15 +537,6 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        internal int defaultWrapperID {
-            get {
-                return getPropertyBase("DefaultWrapperID", 0, ref _defaultWrapperId);
-            }
-        }
-        private int? _defaultWrapperId = null;
-        //
-        //====================================================================================================
-        //
         public string docTypeDeclaration {
             get {
                 return getPropertyBase("DocTypeDeclaration", DTDDefault, ref _docTypeDeclaration);

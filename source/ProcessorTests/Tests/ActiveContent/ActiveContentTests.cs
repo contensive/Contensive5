@@ -29,7 +29,7 @@ namespace Tests {
                     ContextRecordId: 0,
                     deprecated_ContextContactPeopleId: 0,
                     ProtocolHostString: "",
-                    DefaultWrapperId: 0,
+                    ignoreInt: 0,
                     addonContext: CPUtilsBaseClass.addonContext.ContextPage
                 );
                 // assert

@@ -419,6 +419,13 @@ namespace Contensive.Processor.Controllers {
                         // -- remove deprecated fields
                         cp.Db.ExecuteNonQuery("delete from ccfields where name='boaddedupuserid'");
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.7.31.1")) {
+                        //
+                        // -- deprecate wrappers
+                        cp.Db.ExecuteNonQuery("delete from ccMenuEntries where ccguid='{131E0319-D516-4AB2-BBDA-D7EA63A8AD9E}'");
+                        cp.Db.ExecuteNonQuery("update cccontent set isbasecontent=0 where name='Wrappers'");
+                        // leave table and content metadata in case an addon accesses the data
+                    }
                 }
                 //
                 // -- force layout installation by deleting layout record
