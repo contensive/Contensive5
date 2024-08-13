@@ -41,7 +41,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         public DateTime? lastVisitTime { get; set; }
         /// <summary>
-        /// count of login attempts during this visit
+        /// count of login sequential unsuccessful attempts. Set to zero on successful login
         /// </summary>
         public int loginAttempts { get; set; }
         /// <summary>

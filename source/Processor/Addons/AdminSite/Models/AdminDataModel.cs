@@ -483,21 +483,16 @@ namespace Contensive.Processor.Addons.AdminSite {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// addons used for editing, based on the field type
-        /// </summary>
-        public List<FieldTypeEditorAddonModel> fieldTypeEditors {
-            get {
-                if (_fieldTypeDefaultEditors == null) {
-                    _fieldTypeDefaultEditors = EditorController.getFieldEditorAddonList(core);
-                }
-                return _fieldTypeDefaultEditors;
-            }
-        }
-        private List<FieldTypeEditorAddonModel> _fieldTypeDefaultEditors;
-        //
+        ////
+        ////====================================================================================================
+        ///// <summary>
+        ///// addons used for editing, based on the field type
+        ///// </summary>
+        //public List<FieldTypeEditorAddonModel> fieldTypeEditors {
+        //    get {
+        //        return core.cacheRuntime.fieldEditorAddonList;
+        //    }
+        //}
     }
     //
     //====================================================================================================

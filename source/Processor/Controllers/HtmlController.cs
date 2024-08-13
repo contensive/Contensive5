@@ -1951,8 +1951,7 @@ namespace Contensive.Processor.Controllers {
         public string getFormInputHTML(string htmlName, string DefaultValue = "", string styleHeight = "", string styleWidth = "", bool readOnlyfield = false, bool allowActiveContent = false, string addonListJSON = "", string styleList = "", string styleOptionList = "", bool allowResourceLibrary = false) {
             string returnHtml = "";
             try {
-                var fieldEditorAddonList = EditorController.getFieldEditorAddonList(core);
-                Contensive.Processor.Addons.AdminSite.FieldTypeEditorAddonModel fieldEditor = fieldEditorAddonList.Find(x => x.fieldTypeId == (int)CPContentBaseClass.FieldTypeIdEnum.HTML);
+                Addons.AdminSite.FieldTypeEditorAddonModel fieldEditor = core.cacheRuntime.fieldEditorAddonList.Find(x => x.fieldTypeId == (int)CPContentBaseClass.FieldTypeIdEnum.HTML);
                 int FieldEditorAddonId = 0;
                 if (fieldEditor != null) {
                     FieldEditorAddonId = fieldEditor.editorAddonId;

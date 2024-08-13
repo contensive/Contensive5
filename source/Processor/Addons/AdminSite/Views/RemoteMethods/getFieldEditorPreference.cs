@@ -60,10 +60,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         if ((addonId != 0) && (addonId != addonDefaultEditorId)) {
                             result += Environment.NewLine + "\t<div class=\"radioCon\">" + HtmlController.inputRadio(radioGroupName, GenericController.encodeText(addonId), currentEditorAddonId.ToString()) + "&nbsp;Use " + GenericController.encodeText(rsDr["addonName"]) + "</div>";
                         }
-
                     }
                 }
-
                 string OnClick = ""
                                         + "var a=document.getElementsByName('" + radioGroupName + "');"
                                         + "for(i=0;i<a.length;i++) {"

@@ -52,7 +52,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     contentId = adminData.adminContent.id,
                     field = field,
                     tableName = adminData.adminContent.tableName,
-                    fieldTypeEditors = adminData.fieldTypeEditors,
+                    fieldTypeEditors = core.cacheRuntime.fieldEditorAddonList,
                     editRecordId = adminData.editRecord.id,
                     editViewTitleSuffix = adminData.editViewTitleSuffix,
                     isContentRootPage = editorEnv.isContentRootPage,

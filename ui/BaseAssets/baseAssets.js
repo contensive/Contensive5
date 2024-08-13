@@ -195,8 +195,15 @@ function cjAjaxURL(LocalURL, FormID, DestinationID, onEmptyHideID, onEmptyShowID
     }
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+            console.log('xmlHttp.responseURL='+xmlHttp.responseURL);
             serverResponse = xmlHttp.responseText;
             if ((serverResponse !== "") && (DestinationID !== "")) {
+                console.log('xmlHttp response ['+serverResponse+']');
+                if(serverResponse.substr(0,8)=='redirect'){
+                    console.log('xmlHttp response redirect ['+serverResponse.substr(8)+']');
+                    window.location.href = serverResponse.substr(8);
+                    return;
+                }
                 if (document.getElementById) {
                     var el1 = document.getElementById(DestinationID);
                 } else if (document.all) {

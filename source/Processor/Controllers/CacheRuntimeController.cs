@@ -1,10 +1,12 @@
 ﻿using Amazon.Runtime.Internal.Util;
 using Amazon.SimpleEmail;
 using Contensive.Models.Db;
+using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -515,6 +517,53 @@ namespace Contensive.Processor.Controllers {
             }
         }
         private Dictionary<string, ContentModel> ContentGuidDict_Local;
+        //
+        public List<FieldTypeEditorAddonModel> fieldEditorAddonList {
+            get {
+                if (_fieldEditorAddonList != null) { return _fieldEditorAddonList; }
+                //
+                _fieldEditorAddonList = [];
+                try {
+                    //
+                    // --use the last addon installed that is set to each field
+                    {
+                        core.db.executeNonQuery("delete  from ccAddonContentFieldTypeRules from ccAddonContentFieldTypeRules r left join ccAggregateFunctions a on a.id=r.addonid where a.id is null");
+                        string sql = "select contentfieldtypeid, max(addonId) as editorAddonId from ccAddonContentFieldTypeRules group by contentfieldtypeid";
+                        DataTable dt = core.db.executeQuery(sql);
+                        foreach (DataRow row in dt.Rows) {
+                            _fieldEditorAddonList.Add(new FieldTypeEditorAddonModel {
+                                fieldTypeId = GenericController.encodeInteger(row["contentfieldtypeid"]),
+                                editorAddonId = GenericController.encodeInteger(row["editorAddonId"])
+                            });
+                        }
+                    }
+                    //
+                    // -- for field types without custom addons, use the addon selected for the field type
+                    {
+                        string sql = ""
+                            + " select"
+                            + " t.id as contentfieldtypeid"
+                            + " ,t.editorAddonId"
+                            + " from ccFieldTypes t"
+                            + " left join ccaggregatefunctions a on a.id=t.editorAddonId"
+                            + " where (t.active<>0)and(a.active<>0) order by t.id";
+                        DataTable dt = core.db.executeQuery(sql);
+                        foreach (DataRow dr in dt.Rows) {
+                            int fieldTypeId = GenericController.encodeInteger(dr["contentfieldtypeid"]);
+                            _fieldEditorAddonList.Add(new FieldTypeEditorAddonModel {
+                                fieldTypeId = fieldTypeId,
+                                editorAddonId = GenericController.encodeInteger(dr["editorAddonId"])
+                            });
+                        }
+                    }
+                    return _fieldEditorAddonList;
+                } catch (Exception ex) {
+                    logger.Error(ex, $"{core.logCommonMessage}");
+                    return null;
+                }
+            }
+        }
+        private List<FieldTypeEditorAddonModel> _fieldEditorAddonList = null;
         //
         //====================================================================================================
         /// <summary>

@@ -224,7 +224,7 @@ namespace Contensive.Processor.Models.Domain {
             isRedirect = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Redirect;
             //
             // -- cache this or pass from calling method
-            List<FieldTypeEditorAddonModel> fieldTypeDefaultEditors = EditorController.getFieldEditorAddonList(core);
+            List<FieldTypeEditorAddonModel> fieldTypeDefaultEditors = core.cacheRuntime.fieldEditorAddonList;
             //
             // -- code editor
             EditorRowClass.editorResponse editorResponse = EditorRowClass.getEditor(core, new EditorRowClass.EditorRequest() {
