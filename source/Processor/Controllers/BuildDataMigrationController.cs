@@ -426,6 +426,14 @@ namespace Contensive.Processor.Controllers {
                         cp.Db.ExecuteNonQuery("update cccontent set isbasecontent=0 where name='Wrappers'");
                         // leave table and content metadata in case an addon accesses the data
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.7.31.1")) {
+                        //
+                        // -- delete old hardcoded menu entries
+                        cp.Db.ExecuteNonQuery("delete from ccMenuEntries where ccguid='{131E0319-D516-4AB2-BBDA-D7EA63A8AD9E}'");
+                        cp.Db.ExecuteNonQuery("update cccontent set isbasecontent=0 where name='Wrappers'");
+                        // leave table and content metadata in case an addon accesses the data
+                    }
+
                 }
                 //
                 // -- force layout installation by deleting layout record

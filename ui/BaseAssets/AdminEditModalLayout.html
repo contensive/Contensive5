@@ -116,8 +116,14 @@
                     </div>
                     <div class="modal-body">
                         <div class="row"> 
-                            <div class="{{#hasRightFields}}col-md-8{{/hasRightFields}}">
+                            <div class="{{#hasRightGroups}}col-md-8{{/hasRightGroups}}">
                                 {{#leftFields}}
+                                    {{#isHidden}}
+                                    <!--
+                                        Hidden field
+                                    -->
+                                    <input type="hidden" name="{{htmlName}}" value="{{currentValue}}">
+                                    {{/isHidden}}
                                     {{#isFile}}
                                     <!--
                                         File field
@@ -613,14 +619,14 @@
                                     {{/isRedirect}}
                                 {{/leftFields}}  
                             </div>
-                            {{#hasRightFields}}
+                            {{#hasRightGroups}}
                                 <div class="col-md-4">
-                                    {{#rightFields}}
+                                    {{#rightGroups}}
                                     <div class="sctnWrpr">
-                                        <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-{{fieldId}}">
+                                        <div class="rightSideAccordion accordion accordion-flush" id="stylesCollapseDiv-{{groupId}}">
                                             <div class="accordion-item">
                                                 <div class="accordion-header">
-                                                    <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{fieldId}}" aria-expanded="false" aria-controls="stylesCollapse-{{fieldId}}">
+                                                    <div class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#stylesCollapse-{{groupId}}" aria-expanded="false" aria-controls="stylesCollapse-{{groupId}}">
                                                     
                                                         {{#isHelp}}
                                                         <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
@@ -632,9 +638,9 @@
                                                     
                                                     </div>
                                                 </div>
-                                                <div id="stylesCollapse-{{fieldId}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{fieldId}}">
+                                                <div id="stylesCollapse-{{groupId}}" class="accordion-collapse collapse" data-bs-parent="#stylesCollapseDiv-{{groupId}}">
                                                     <div class="accordion-body">
-                                                        {{#rightSectionAccordion}}
+                                                        {{#rightGroupFields}}
                                                             {{#isText}}
                                                                 <!--
                                                                     text field
@@ -651,12 +657,12 @@
                                                                     <option value="{{currentValue}}" selected>{{currentValue}}</option>
                                                                 </select>
                                                             {{/isSelect}}
-                                                            {{#isCheckboxList}}
+                                                            {{#isBoolean}}
                                                                 <!--
                                                                     checkbox list
                                                                 -->
                                                                 <div class="form-check form-check-inline mb-3">
-                                                                    <input class="form-check-input" type="checkbox" value="" id="{{fieldId}}" name="{{htmlName}}">
+                                                                    <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
                                                                     {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
                                                                     {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                                     <label class="form-check-label" for="checkbox{{fieldId}}">
@@ -669,7 +675,7 @@
                                                                     
                                                                     </label>
                                                                 </div>
-                                                            {{/isCheckboxList}}
+                                                            {{/isBoolean}}
                                                             {{#isFile}}
                                                                 <!--
                                                                     file field
@@ -709,15 +715,15 @@
 
                                                                 </div>
                                                             {{/isCurrency}}
-                                                        {{/rightSectionAccordion}}
+                                                        {{/rightGroupFields}}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    {{/rightFields}}
+                                    {{/rightGroups}}
                                 </div>
-                            {{/hasRightFields}}
+                            {{/hasRightGroups}}
                         </div>
                     </div>
                     <div class="modal-footer d-flex justify-content-between border-0">

@@ -1,10 +1,10 @@
 ﻿
-using Contensive.Processor.Models.Domain;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
+using Contensive.Processor.Models.Domain;
 
 namespace Contensive.WebApi {
     public class ConfigurationClass {

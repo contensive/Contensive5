@@ -185,12 +185,12 @@ rem pause
 
 rem ==============================================================
 rem
-rem copy all xsd files from /xsd folder to deployment
+rem copy all Collection.dtd file from /xml folder to deployment
 rem then the deployment script will copy to aws contensive folder
 rem
 
 c:
-copy "C:\Git\Contensive5\xsd\*.xsd" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\xml\*.dtd" "%deploymentFolderRoot%%versionNumber%\"
 
 rem pause
 
