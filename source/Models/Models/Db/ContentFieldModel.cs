@@ -47,9 +47,13 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int editSortPriority { get; set; }
         /// <summary>
-        /// admin edit, tab
+        /// admin edit, tabs at the top.
         /// </summary>
         public string editTab { get; set; }
+        /// <summary>
+        /// In edit-modal, left side is details-tab, right side is edit-groups. Groups do not 
+        /// </summary>
+        public string editGroup { get; set; }
         /// <summary>
         /// (legacy) previously used to set an html field as wysiwyg editor
         /// </summary>
