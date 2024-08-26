@@ -572,45 +572,6 @@ namespace Contensive.Processor {
         internal const string FieldTypeNameLcaseHTMLCodeFile = "htmlcodefile";
         //
         //------------------------------------------------------------------------
-        // ----- Payment Options
-        //------------------------------------------------------------------------
-        //
-        internal const int PayTypeCreditCardOnline = 0; // Pay by credit card online
-        internal const int PayTypeCreditCardByPhone = 1; // Phone in a credit card
-        internal const int PayTypeCreditCardByFax = 9; // Phone in a credit card
-        internal const int PayTypeCHECK = 2; // pay by check to be mailed
-        internal const int PayTypeCREDIT = 3; // pay on account
-        internal const int PayTypeNONE = 4; // order total is $0.00. Nothing due
-        internal const int PayTypeCHECKCOMPANY = 5; // pay by company check
-        internal const int PayTypeNetTerms = 6;
-        internal const int PayTypeCODCompanyCheck = 7;
-        internal const int PayTypeCODCertifiedFunds = 8;
-        internal const int PayTypePAYPAL = 10;
-        internal const int PAYDEFAULT = 0;
-        //
-        //------------------------------------------------------------------------
-        // ----- Credit card options
-        //------------------------------------------------------------------------
-        //
-        internal const int CCTYPEVISA = 0; // Visa
-        internal const int CCTYPEMC = 1; // MasterCard
-        internal const int CCTYPEAMEX = 2; // American Express
-        internal const int CCTYPEDISCOVER = 3; // Discover
-        internal const int CCTYPENOVUS = 4; // Novus Card
-        internal const int CCTYPEDEFAULT = 0;
-        //
-        //------------------------------------------------------------------------
-        // ----- Shipping Options
-        //------------------------------------------------------------------------
-        //
-        internal const int SHIPGROUND = 0; // ground
-        internal const int SHIPOVERNIGHT = 1; // overnight
-        internal const int SHIPSTANDARD = 2; // standard, whatever that is
-        internal const int SHIPOVERSEAS = 3; // to overseas
-        internal const int SHIPCANADA = 4; // to Canada
-        internal const int SHIPDEFAULT = 0;
-        //
-        //------------------------------------------------------------------------
         // Debugging info
         //------------------------------------------------------------------------
         //
@@ -624,7 +585,6 @@ namespace Contensive.Processor {
         internal const string ButtonApply = "  Apply ";
         internal const string ButtonLogin = "  Login  ";
         internal const string ButtonLogout = "  Logout  ";
-        internal const string ButtonSendPassword = "  Send Password  ";
         internal const string ButtonJoin = "   Join   ";
         internal const string ButtonSave = "  Save  ";
         internal const string ButtonOK = "     OK     ";

@@ -464,6 +464,7 @@ namespace Contensive.Processor.Models.Domain {
                                 + ",a.id as editorAddonId"
                                 + ",a.ccguid as editorAddonGuid"
                                 + ",f.LookupContentSqlFilter as LookupContentSqlFilter"
+                                + $",{(GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0") ? "''" : ",f.EditGroup")} as EditGroup"
                                 + ""
                                 + " from (((ccFields f"
                                 + " left join ccContent c ON f.ContentId = c.ID)"
@@ -601,6 +602,7 @@ namespace Contensive.Processor.Models.Domain {
                                                 // add only fields that can be selected
                                                 result.selectList.Add(fieldNameLower);
                                             }
+                                            field.editGroupName = GenericController.encodeText(fieldRow[45]);
                                         }
                                     }
                                     result.selectCommaList = string.Join(",", result.selectList);
@@ -968,8 +970,13 @@ namespace Contensive.Processor.Models.Domain {
                             { "scramble", DbController.encodeSQLBoolean(false) },
                             { "isbasefield", DbController.encodeSQLBoolean(fieldMetadata.isBaseField) },
                             { "lookuplist", DbController.encodeSQLText(fieldMetadata.lookupList) },
-                            { "lookupcontentsqlfilter", DbController.encodeSQLText(fieldMetadata.LookupContentSqlFilter) }
+                            { "lookupcontentsqlfilter", DbController.encodeSQLText(fieldMetadata.LookupContentSqlFilter) }                            
                         };
+                //
+                // -- editgroup, added 24.8.26.0
+                if (!GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0")) {
+                    sqlList.Add("editgroup", DbController.encodeSQLText(fieldMetadata.editGroupName));
+                }
                 //
                 // -- conditional fields
                 switch (fieldMetadata.fieldTypeId) {

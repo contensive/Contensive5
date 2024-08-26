@@ -15,7 +15,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// 
         /// </summary>
-        private readonly CPBaseClass cp;
+        private readonly CPClass cp;
         /// <summary>
         /// This should match the Lookup List in the NavIconType field in the Navigator Entry content definition
         /// </summary>
@@ -111,7 +111,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="cp"></param>
         /// <remarks></remarks>
-        public XmlController(CPBaseClass cp) {
+        public XmlController(CPClass cp) {
             this.cp = cp;
         }
         // 
@@ -134,7 +134,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 bool IncludeBaseFields = false;
                 // 
-                const string ContentSelectList = ""
+                string ContentSelectList = ""
                     + " id,name,active,adminonly,allowadd"
                     + ",allowcalendarevents,allowcontentchildtool,allowcontenttracking,allowdelete,allowmetacontent"
                     + ",allowtopicrules,AllowWorkflowAuthoring,AuthoringTableID"
@@ -143,17 +143,16 @@ namespace Contensive.Processor.Controllers {
                     + ",IconLink,IconHeight,IconWidth,IconSprites"
                     + ",NavTypeID,AddonCategoryId";
 
-                const string FieldSelectList = ""
+                string FieldSelectList = ""
                     + "f.ID,f.Name,f.contentid,f.Active,f.AdminOnly,f.Authorable,f.Caption,f.DeveloperOnly,f.EditSortPriority,f.Type,f.HTMLContent"
                     + ",f.IndexColumn,f.IndexSortDirection,f.IndexSortPriority,f.RedirectID,f.RedirectPath,f.Required"
                     + ",f.TextBuffered,f.UniqueName,f.DefaultValue,f.RSSTitleField,f.RSSDescriptionField,f.MemberSelectGroupID"
                     + ",f.EditTab,f.Scramble,f.LookupList,f.NotEditable,f.Password,f.readonly,f.ManyToManyRulePrimaryField"
                     + ",f.ManyToManyRuleSecondaryField,'' as HelpMessageDeprecated,f.ModifiedBy,f.IsBaseField,f.LookupContentID"
                     + ",f.RedirectContentID,f.ManyToManyContentID,f.ManyToManyRuleContentID"
-                    + ",h.helpdefault,h.helpcustom,f.IndexWidth,f.editorAddonId,a.ccguid as editorAddonGuid";
-
+                    + ",h.helpdefault,h.helpcustom,f.IndexWidth,f.editorAddonId,a.ccguid as editorAddonGuid"
+                    + $"{(!versionIsOlder(cp.core.siteProperties.dataBuildVersion, "24.8.26.0") ? ",editGroup" : ",'' as editGroup")}";
                 // 
-                bool IsBaseContent;
                 int FieldCnt = 0;
                 string FieldName;
                 int FieldContentID;
@@ -259,7 +258,7 @@ namespace Contensive.Processor.Controllers {
                             // 
                             // ----- <cdef>
                             // 
-                            IsBaseContent = (contentCs.GetBoolean("isBaseContent"));
+                            bool IsBaseContent = (contentCs.GetBoolean("isBaseContent"));
                             iContentName = GetRSXMLAttribute(contentCs, "Name");
                             ContentID = (contentCs.GetInteger("ID"));
                             sb.Append(System.Environment.NewLine + "\t" + "<CDef");
@@ -283,7 +282,7 @@ namespace Contensive.Processor.Controllers {
                                 AuthoringTableID = (contentCs.GetInteger("AuthoringTableID"));
                                 TableName = "";
                                 DataSourceName = "";
-                                if ((tables.ContainsKey(AuthoringTableID))) {
+                                if (tables.ContainsKey(AuthoringTableID)) {
                                     TableName = tables[AuthoringTableID].tableName;
                                     DataSourceName = tables[AuthoringTableID].dataSourceName;
                                 }
@@ -299,7 +298,7 @@ namespace Contensive.Processor.Controllers {
                                     if (ContentTableID != 0) {
                                         TableName = "";
                                         DataSourceName = "";
-                                        if ((tables.ContainsKey(ContentTableID))) {
+                                        if (tables.ContainsKey(ContentTableID)) {
                                             TableName = tables[ContentTableID].tableName;
                                             DataSourceName = tables[ContentTableID].dataSourceName;
                                             if (DataSourceName == "")
@@ -325,8 +324,8 @@ namespace Contensive.Processor.Controllers {
                                 sb.Append(" EditorGroupName=\"" + EncodeXMLattribute(EditorGroupName) + "\"");
                                 // 
                                 ParentName = "";
-                                ParentID = (contentCs.GetInteger("ParentID"));
-                                if ((contents.ContainsKey(ParentID)))
+                                ParentID = contentCs.GetInteger("ParentID");
+                                if (contents.ContainsKey(ParentID))
                                     ParentName = contents[ParentID];
                                 sb.Append(" Parent=\"" + EncodeXMLattribute(ParentName) + "\"");
                                 // 
@@ -334,16 +333,8 @@ namespace Contensive.Processor.Controllers {
                                 sb.Append(" IconHeight=\"" + GetRSXMLAttribute(contentCs, "IconHeight") + "\"");
                                 sb.Append(" IconWidth=\"" + GetRSXMLAttribute(contentCs, "IconWidth") + "\"");
                                 sb.Append(" IconSprites=\"" + GetRSXMLAttribute(contentCs, "IconSprites") + "\"");
-                                // 
-                                // -- Add IsBaseContent
-                                sb.Append(" isbasecontent=\"" + GetRSXMLAttribute(contentCs, "IsBaseContent") + "\"");
                             }
-                            // 
-                            if (true)
-                                // 
-                                // Add guid
-                                // 
-                                sb.Append(" guid=\"" + GetRSXMLAttribute(contentCs, "ccGuid") + "\"");
+                            sb.Append(" Guid=\"" + GetRSXMLAttribute(contentCs, "ccGuid") + "\"");
                             sb.Append(" >");
                             // 
                             // create output
@@ -371,6 +362,7 @@ namespace Contensive.Processor.Controllers {
                                                 sb.Append(" Name=\"" + FieldName + "\"");
                                                 sb.Append(" Caption=\"" + fieldsCs.GetText("Caption") + "\"");
                                                 sb.Append(" EditTab=\"" + fieldsCs.GetText("EditTab") + "\"");
+                                                sb.Append(" EditGroup=\"" + fieldsCs.GetText("EditGroup") + "\"");
                                                 sb.Append(" FieldType=\"" + fieldType + "\"");
                                                 sb.Append(" Authorable=\"" + fieldsCs.GetBoolean("Authorable") + "\"");
                                                 sb.Append(" EditSortPriority=\"" + fieldsCs.GetText("EditSortPriority") + "\"");

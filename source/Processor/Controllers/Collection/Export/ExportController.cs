@@ -21,7 +21,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="collection"></param>
         /// <returns></returns>
-        public static string createCollectionZip_returnCdnPathFilename(CPBaseClass cp, AddonCollectionModel collection) {
+        public static string createCollectionZip_returnCdnPathFilename(CPClass cp, AddonCollectionModel collection) {
             string cdnExportZip_Filename = "";
             try {
                 if (collection == null) {
@@ -56,15 +56,15 @@ namespace Contensive.Processor.Controllers {
                 }
                 string CollectionName = cs.GetText("name");
                 collectionXml.Append(System.Environment.NewLine + "<Collection");
-                collectionXml.Append(" name=\"" + CollectionName + "\"");
-                collectionXml.Append(" guid=\"" + CollectionGuid + "\"");
-                collectionXml.Append(" system=\"" + GenericController.getYesNo(cs.GetBoolean("system")) + "\"");
-                collectionXml.Append(" updatable=\"" + GenericController.getYesNo(cs.GetBoolean("updatable")) + "\"");
-                collectionXml.Append(" blockNavigatorNode=\"" + GenericController.getYesNo(cs.GetBoolean("blockNavigatorNode")) + "\"");
-                collectionXml.Append(" onInstallAddonGuid=\"" + onInstallAddonGuid + "\"");
+                collectionXml.Append(" Name=\"" + CollectionName + "\"");
+                collectionXml.Append(" Guid=\"" + CollectionGuid + "\"");
+                collectionXml.Append(" System=\"" + GenericController.getYesNo(cs.GetBoolean("system")) + "\"");
+                collectionXml.Append(" Updatable=\"" + GenericController.getYesNo(cs.GetBoolean("updatable")) + "\"");
+                collectionXml.Append(" BlockNavigatorNode=\"" + GenericController.getYesNo(cs.GetBoolean("blockNavigatorNode")) + "\"");
+                collectionXml.Append(" OnInstallAddonGuid=\"" + onInstallAddonGuid + "\"");
                 collectionXml.Append(">");
                 cdnExportZip_Filename = FileController.encodeDosPathFilename(CollectionName + ".zip");
-                List<string> tempPathFileList = new List<string>();
+                List<string> tempPathFileList = [];
                 string tempExportPath = "CollectionExport" + Guid.NewGuid().ToString() + @"\";
                 // 
                 // -- create www file list, test for missing files
@@ -250,7 +250,7 @@ namespace Contensive.Processor.Controllers {
                         content.ccguid = cp.Utils.CreateGuid();
                         content.save(cp);
                     }
-                    XmlController xmlTool = new XmlController(cp);
+                    XmlController xmlTool = new(cp);
                     string Node = xmlTool.getXMLContentDefinition(content.name);
                     // 
                     // remove the <collection> top node

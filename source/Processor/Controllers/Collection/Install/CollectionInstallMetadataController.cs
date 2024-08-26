@@ -239,6 +239,7 @@ namespace Contensive.Processor.Controllers {
                                                 }
                                             }
                                             metaDataField.editTabName = XmlController.getXMLAttribute(core, MetaDataChildNode, "EditTab", DefaultMetaDataField.editTabName);
+                                            metaDataField.editGroupName = XmlController.getXMLAttribute(core, MetaDataChildNode, "EditGroup", DefaultMetaDataField.editGroupName);
                                             metaDataField.scramble = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "Scramble", DefaultMetaDataField.scramble);
                                             metaDataField.lookupList = XmlController.getXMLAttribute(core, MetaDataChildNode, "LookupList", DefaultMetaDataField.lookupList);
                                             metaDataField.manyToManyRulePrimaryField = XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyRulePrimaryField", DefaultMetaDataField.manyToManyRulePrimaryField);

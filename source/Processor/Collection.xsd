@@ -23,28 +23,30 @@
 											<xs:attribute name="FieldType">
 												<xs:simpleType>
 													<xs:restriction base="xs:NMTOKEN">
-														<xs:enumeration value="Lookup" />
-														<xs:enumeration value="Text" />
 														<xs:enumeration value="Boolean" />
-														<xs:enumeration value="LongText" />
-														<xs:enumeration value="Redirect" />
-														<xs:enumeration value="Html" />
-														<xs:enumeration value="Link" />
-														<xs:enumeration value="Integer" />
-														<xs:enumeration value="ManyToMany" />
+														<xs:enumeration value="CssFile" />
+														<xs:enumeration value="Currency" />
 														<xs:enumeration value="Date" />
-														<xs:enumeration value="LookupList" />
 														<xs:enumeration value="File" />
 														<xs:enumeration value="Float" />
+														<xs:enumeration value="Html" />
+														<xs:enumeration value="HtmlCode" />
+														<xs:enumeration value="HtmlCodeFile" />
 														<xs:enumeration value="HtmlFile" />
 														<xs:enumeration value="Image" />
-														<xs:enumeration value="CssFile" />
-														<xs:enumeration value="TextFile" />
-														<xs:enumeration value="MemberSelect" />
+														<xs:enumeration value="Integer" />
 														<xs:enumeration value="JavascriptFile" />
-														<xs:enumeration value="HtmlCode" />
+														<xs:enumeration value="Link" />
+														<xs:enumeration value="LongText" />
+														<xs:enumeration value="Lookup" />
+														<xs:enumeration value="LookupList" />
+														<xs:enumeration value="ManyToMany" />
+														<xs:enumeration value="MemberSelect" />
+														<xs:enumeration value="Redirect" />
 														<xs:enumeration value="ResourceLink" />
-														<xs:enumeration value="HtmlCodeFile" />
+														<xs:enumeration value="Text" />
+														<xs:enumeration value="TextFile" />
+														<xs:enumeration value="XmlFile" />
 													</xs:restriction>
 												</xs:simpleType>
 											</xs:attribute>
@@ -201,7 +203,11 @@
 							<xs:attribute name="IconWidth" type="xs:string" />
 							<xs:attribute name="IconHeight" type="xs:string" />
 							<xs:attribute name="IconSprites" type="xs:string" />
-							<xs:attribute name="Guid" type="xs:string" use="required" />
+							<xs:attribute name="Guid" use="required">
+							<xs:simpleType>
+								<xs:restriction base ="GUID"/>
+							   </xs:simpleType>
+							</xs:attribute>
 							<xs:attribute name="Active">
 								<xs:simpleType>
 									<xs:restriction base="xs:NMTOKEN">
@@ -441,7 +447,11 @@
 			<xs:attribute name="OnInstallAddonGuid" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
-	<xs:element name="HelpDefault" type="xs:string" />
+	<xs:simpleType name="GUID">
+		<xs:restriction base="xs:string">
+		  <xs:pattern value="([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})|(\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\})"/>
+		</xs:restriction>
+	  </xs:simpleType>	<xs:element name="HelpDefault" type="xs:string" />
 	<xs:element name="RemoteMethod" type="xs:string" />
 	<xs:element name="Category" type="xs:string" />
 	<xs:element name="FormXML" type="xs:string" />

@@ -38,6 +38,7 @@ namespace Contensive.Processor.Models.Domain {
                 developerOnly = false,
                 editSortPriority = 9999,
                 editTabName = "",
+                editGroupName = "",
                 fieldTypeId = fieldType,
                 htmlContent = false,
                 indexColumn = 0,
@@ -260,6 +261,12 @@ namespace Contensive.Processor.Models.Domain {
         /// in the edit form, this field should appear in this edit tab
         /// </summary>
         public string editTabName { get; set; }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// on the edit modal, fields with an edit group appear on the right side, grouped
+        /// </summary>
+        public string editGroupName { get; set; }
         //
         //====================================================================================================
         /// <summary>
