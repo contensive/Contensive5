@@ -3,590 +3,446 @@
 	<xs:element name="Collection">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element minOccurs="1" maxOccurs="unbounded" ref="CDef" />
-				<xs:element minOccurs="1" maxOccurs="unbounded" ref="Addon" />
-				<xs:element minOccurs="1" maxOccurs="unbounded" ref="SQLIndex" />
-				<xs:element minOccurs="1" maxOccurs="unbounded" ref="NavigatorEntry" />
-				<xs:element ref="data" />
-				<xs:element minOccurs="1" maxOccurs="unbounded" ref="ImportCollection" />
-				<xs:element minOccurs="1" maxOccurs="unbounded" ref="Resource" />
+				<xs:choice minOccurs="0" maxOccurs="unbounded">
+					<xs:element name="CDef" minOccurs="1" maxOccurs="unbounded">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:choice minOccurs="0" maxOccurs="unbounded">
+									<xs:element name="Field"  minOccurs="1" maxOccurs="unbounded">
+										<xs:complexType>
+											<xs:choice minOccurs="0" maxOccurs="unbounded">
+												<xs:element ref="HelpDefault" />
+											</xs:choice>
+											<xs:attribute name="Name" type="xs:string" />
+											<xs:attribute name="Active" type="xs:boolean" use="required" />
+											<xs:attribute name="AdminOnly" type="xs:boolean" />
+											<xs:attribute name="Authorable" type="xs:boolean" />
+											<xs:attribute name="Caption" type="xs:string" />
+											<xs:attribute name="DeveloperOnly" type="xs:boolean" />
+											<xs:attribute name="EditSortPriority" type="xs:NMTOKEN" />
+											<xs:attribute name="FieldType">
+												<xs:simpleType>
+													<xs:restriction base="xs:NMTOKEN">
+														<xs:enumeration value="Lookup" />
+														<xs:enumeration value="Text" />
+														<xs:enumeration value="Boolean" />
+														<xs:enumeration value="LongText" />
+														<xs:enumeration value="Redirect" />
+														<xs:enumeration value="Html" />
+														<xs:enumeration value="Link" />
+														<xs:enumeration value="Integer" />
+														<xs:enumeration value="ManyToMany" />
+														<xs:enumeration value="Date" />
+														<xs:enumeration value="LookupList" />
+														<xs:enumeration value="File" />
+														<xs:enumeration value="Float" />
+														<xs:enumeration value="HtmlFile" />
+														<xs:enumeration value="Image" />
+														<xs:enumeration value="CssFile" />
+														<xs:enumeration value="TextFile" />
+														<xs:enumeration value="MemberSelect" />
+														<xs:enumeration value="JavascriptFile" />
+														<xs:enumeration value="HtmlCode" />
+														<xs:enumeration value="ResourceLink" />
+														<xs:enumeration value="HtmlCodeFile" />
+													</xs:restriction>
+												</xs:simpleType>
+											</xs:attribute>
+											<xs:attribute name="HTMLContent" type="xs:boolean" />
+											<xs:attribute name="IndexColumn" type="xs:string" />
+											<xs:attribute name="IndexSortDirection" type="xs:string" />
+											<xs:attribute name="IndexSortOrder" type="xs:string" />
+											<xs:attribute name="IndexWidth" type="xs:string" />
+											<xs:attribute name="LookupContent" type="xs:string" />
+											<xs:attribute name="NotEditable" type="xs:boolean" />
+											<xs:attribute name="Password" type="xs:boolean" />
+											<xs:attribute name="ReadOnly" type="xs:boolean" />
+											<xs:attribute name="RedirectContent" type="xs:string" />
+											<xs:attribute name="RedirectPath" type="xs:string" />
+											<xs:attribute name="Required" type="xs:boolean" />
+											<xs:attribute name="TextBuffered" type="xs:boolean" />
+											<xs:attribute name="UniqueName" type="xs:boolean" />
+											<xs:attribute name="DefaultValue" type="xs:string" />
+											<xs:attribute name="RSSTitle" type="xs:string" />
+											<xs:attribute name="RSSDescription" type="xs:string" />
+											<xs:attribute name="MemberSelectGroup" type="xs:string" />
+											<xs:attribute name="EditTab" type="xs:string" />
+											<xs:attribute name="EditGroup" type="xs:string" />
+											<xs:attribute name="Scramble" type="xs:boolean" />
+											<xs:attribute name="LookupList" type="xs:string" />
+											<xs:attribute name="ManyToManyContent" type="xs:string" />
+											<xs:attribute name="ManyToManyRuleContent" type="xs:string" />
+											<xs:attribute name="ManyToManyRulePrimaryField" type="xs:string" />
+											<xs:attribute name="ManyToManyRuleSecondaryField" type="xs:string" use="required" />
+											<xs:attribute name="HtmlContent" type="xs:boolean" />
+											<xs:attribute name="RedirectId" type="xs:string" />
+											<xs:attribute name="RSSTitleField" type="xs:boolean" />
+											<xs:attribute name="RSSDescriptionField" type="xs:boolean" />
+											<xs:attribute name="EditorAddonId" type="xs:string" />
+											<xs:attribute name="MemberSelectGroupID" type="xs:string" />
+										</xs:complexType>
+									</xs:element>
+								</xs:choice>
+							</xs:sequence>
+							<xs:attribute name="Name" type="xs:string" />
+							<xs:attribute name="AddonCategoryId" type="xs:string" />
+							<xs:attribute name="ActiveOnly" type="xs:boolean" />
+							<xs:attribute name="AdminOnly">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AliasID">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="id" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AliasName">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="name" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AllowAdd">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AllowContentTracking">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AllowDelete">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AllowTopicRules">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AllowWorkflowAuthoring">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AuthoringDataSourceName" type="xs:string" />
+							<xs:attribute name="AuthoringTableName" type="xs:NMTOKEN" />
+							<xs:attribute name="ContentDataSourceName" type="xs:string" />
+							<xs:attribute name="ContentTableName" type="xs:NMTOKEN" />
+							<xs:attribute name="DefaultSortMethod" type="xs:string" />
+							<xs:attribute name="DeveloperOnly">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="DropDownFieldList" type="xs:string" />
+							<xs:attribute name="EditorGroupName" type="xs:string" />
+							<xs:attribute name="Parent" type="xs:string" />
+							<xs:attribute name="AllowContentChildTool">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="NavIconType">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="Content" />
+										<xs:enumeration value="Report" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="IconLink" type="xs:string" />
+							<xs:attribute name="IconWidth" type="xs:string" />
+							<xs:attribute name="IconHeight" type="xs:string" />
+							<xs:attribute name="IconSprites" type="xs:string" />
+							<xs:attribute name="Guid" type="xs:string" use="required" />
+							<xs:attribute name="Active">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="NavTypeId">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="Comm" />
+										<xs:enumeration value="Content" />
+										<xs:enumeration value="Design" />
+										<xs:enumeration value="Reports" />
+										<xs:enumeration value="Settings" />
+										<xs:enumeration value="System" />
+										<xs:enumeration value="Tools" />
+										<xs:enumeration value="Profile" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AllowCalendarEvents">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AllowMetaContent" type="xs:string" />
+							<xs:attribute name="isbasecontent" type="xs:string" />
+							<xs:attribute name="IgnoreContentControl" type="xs:NMTOKEN" />
+							<xs:attribute name="name" type="xs:string" />
+							<xs:attribute name="adminonly" type="xs:NMTOKEN" />
+							<xs:attribute name="aliasid" type="xs:NMTOKEN" />
+							<xs:attribute name="aliasname" type="xs:NMTOKEN" />
+							<xs:attribute name="allowadd" type="xs:NMTOKEN" />
+							<xs:attribute name="allowcontenttracking" type="xs:NMTOKEN" />
+							<xs:attribute name="allowdelete" type="xs:NMTOKEN" />
+							<xs:attribute name="allowtopicrules" type="xs:NMTOKEN" />
+							<xs:attribute name="allowworkflowauthoring" type="xs:NMTOKEN" />
+							<xs:attribute name="authoringdatasourcename" type="xs:NMTOKEN" />
+							<xs:attribute name="authoringtablename" type="xs:NMTOKEN" />
+							<xs:attribute name="contentdatasourcename" type="xs:NMTOKEN" />
+							<xs:attribute name="contenttablename" type="xs:NMTOKEN" />
+							<xs:attribute name="defaultsortmethod" type="xs:string" />
+							<xs:attribute name="developeronly" type="xs:NMTOKEN" />
+							<xs:attribute name="dropdownfieldlist" type="xs:NMTOKEN" />
+							<xs:attribute name="editorgroupname" type="xs:string" />
+							<xs:attribute name="parent" type="xs:string" />
+							<xs:attribute name="allowcontentchildtool" type="xs:NMTOKEN" />
+							<xs:attribute name="navicontype" type="xs:NMTOKEN" />
+							<xs:attribute name="iconlink" type="xs:string" />
+							<xs:attribute name="iconwidth" type="xs:string" />
+							<xs:attribute name="iconheight" type="xs:string" />
+							<xs:attribute name="iconsprites" type="xs:string" />
+			</xs:complexType>
+					</xs:element>
+					<xs:element name="Addon" minOccurs="1" maxOccurs="unbounded" >
+						<xs:complexType>
+							<xs:sequence>
+								<xs:choice minOccurs="0" maxOccurs="unbounded">
+									<xs:element name="Admin" minOccurs="0" maxOccurs="1" type="xs:string" />
+									<xs:element name="DotNetClass" minOccurs="0" maxOccurs="1" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" ref="RemoteMethod" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="FormXML" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="ProcessInterval" />
+									<xs:element minOccurs="0" maxOccurs="unbounded" ref="BlockEditTools" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="jsheadscriptsrc" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="styleslinkhref" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="Styles" />
+									<xs:element minOccurs="0" maxOccurs="unbounded" ref="IncludeAddon" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="HtmlDocument" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="JavascriptInHead" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="JavascriptForceHead" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="Category" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="Content" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="Template" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="Email" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="ArgumentList" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="IsInline" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="Diagnostic" />
+									<xs:element minOccurs="0" maxOccurs="1" ref="CopyText" />
+									</xs:choice>
+							</xs:sequence>
+							<xs:attribute name="Name" type="xs:string" use="required" />
+							<xs:attribute name="Guid" type="xs:string" use="required" />
+							<xs:attribute name="Type" use="required">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="Add-on" />
+										<xs:enumeration value="Setting" />
+										<xs:enumeration value="System" />
+										<xs:enumeration value="Task" />
+										<xs:enumeration value="Tool" />
+										<xs:enumeration value="Widget" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+						</xs:complexType>
+					</xs:element>
+					<xs:element name="SQLIndex" minOccurs="1" maxOccurs="unbounded"	>
+						<xs:complexType>
+							<xs:sequence>
+								<xs:choice minOccurs="0" maxOccurs="unbounded">
+
+								</xs:choice>
+							</xs:sequence>
+							<xs:attribute name="IndexName" type="xs:ID" use="required" />
+							<xs:attribute fixed="Default" name="DataSourceName" type="xs:NMTOKEN" />
+							<xs:attribute name="TableName" type="xs:NMTOKEN" use="required" />
+							<xs:attribute name="FieldNameList" type="xs:string" use="required" />
+						</xs:complexType>
+					</xs:element>
+
+					<xs:element name="NavigatorEntry" minOccurs="1" maxOccurs="unbounded">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:choice minOccurs="0" maxOccurs="unbounded">
+	
+								</xs:choice>
+							</xs:sequence>
+							<xs:attribute name="Name" type="xs:string" use="required" />
+							<xs:attribute name="NameSpace" type="xs:string" use="required" />
+							<xs:attribute name="NavIconTitle" type="xs:string" use="required" />
+							<xs:attribute name="NavIconType" use="required">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="Addon" />
+										<xs:enumeration value="Advanced" />
+										<xs:enumeration value="Content" />
+										<xs:enumeration value="Email" />
+										<xs:enumeration value="Folder" />
+										<xs:enumeration value="Reports" />
+										<xs:enumeration value="Settings" />
+										<xs:enumeration value="Tools" />
+										<xs:enumeration value="User" />
+										<xs:enumeration value="content" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="LinkPage" type="xs:string" use="required" />
+							<xs:attribute name="ContentName" type="xs:string" use="required" />
+							<xs:attribute name="AdminOnly" use="required">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="DeveloperOnly" use="required">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="NewWindow" type="xs:string" use="required" />
+							<xs:attribute name="Active">
+								<xs:simpleType>
+									<xs:restriction base="xs:NMTOKEN">
+										<xs:enumeration value="0" />
+										<xs:enumeration value="1" />
+										<xs:enumeration value="true" />
+										<xs:enumeration value="false" />
+									</xs:restriction>
+								</xs:simpleType>
+							</xs:attribute>
+							<xs:attribute name="AddonGuid" type="xs:string" use="required" />
+							<xs:attribute name="Guid" type="xs:string" use="required" />
+						</xs:complexType>
+					</xs:element>
+					
+					<xs:element name="Data" minOccurs="1" maxOccurs="unbounded">
+						<xs:complexType>
+							<xs:sequence>
+								<xs:choice minOccurs="0" maxOccurs="unbounded">
+									<xs:element minOccurs="1" maxOccurs="unbounded" name="Record">
+										<xs:complexType>
+											<xs:sequence>
+												<xs:choice minOccurs="0" maxOccurs="unbounded">
+													<xs:element name="field" minOccurs="1" maxOccurs="unbounded">
+														<xs:complexType>
+															<xs:simpleContent>
+																<xs:extension base="xs:string">
+																	<xs:attribute name="Name" type="xs:string" use="required"/>
+																</xs:extension>
+															</xs:simpleContent>
+														</xs:complexType>	
+													</xs:element>
+												</xs:choice>
+											</xs:sequence>
+											<xs:attribute name="Content" type="xs:string" use="required" />
+											<xs:attribute name="Guid" type="xs:string" use="required" />
+											<xs:attribute name="Name" type="xs:string" use="required" />
+									</xs:complexType>
+									</xs:element>
+								</xs:choice>
+							</xs:sequence>
+						</xs:complexType>
+					</xs:element>
+
+					<xs:element name="ImportCollection">
+						<xs:complexType>
+							<xs:simpleContent>
+								<xs:extension base="xs:string">
+									<xs:attribute name="Name" type="xs:string" use="required" />
+								</xs:extension>
+							</xs:simpleContent>
+						</xs:complexType>
+					</xs:element>
+					
+					<xs:element name="Resource" minOccurs="1" maxOccurs="unbounded">
+						<xs:complexType>
+							<xs:attribute name="Name" type="xs:NMTOKEN" use="required" />
+							<xs:attribute name="Type" type="xs:NMTOKEN" use="required" />
+							<xs:attribute name="Path" type="xs:string" use="required" />
+						</xs:complexType>
+					</xs:element>
+
+				</xs:choice>
 			</xs:sequence>
-			<xs:attribute name="name" type="xs:NMTOKEN" use="required" />
-			<xs:attribute name="guid" type="xs:string" use="required" />
-			<xs:attribute name="system" type="xs:NMTOKEN" use="required" />
-			<xs:attribute name="OnInstallAddonGuid" type="xs:string" use="required" />
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="CDef">
-		<xs:complexType mixed="true">
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element ref="Field" />
-			</xs:choice>
-			<xs:attribute name="Name" type="xs:string" />
-			<xs:attribute name="AddonCategoryId" type="xs:string" />
-			<xs:attribute name="ActiveOnly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AdminOnly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AliasID">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="id" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AliasName">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="name" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AllowAdd">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AllowContentTracking">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AllowDelete">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AllowTopicRules">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AllowWorkflowAuthoring">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AuthoringDataSourceName" type="xs:string" />
-			<xs:attribute name="AuthoringTableName" type="xs:NMTOKEN" />
-			<xs:attribute name="ContentDataSourceName" type="xs:string" />
-			<xs:attribute name="ContentTableName" type="xs:NMTOKEN" />
-			<xs:attribute name="DefaultSortMethod" type="xs:string" />
-			<xs:attribute name="DeveloperOnly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="DropDownFieldList" type="xs:string" />
-			<xs:attribute name="EditorGroupName" type="xs:string" />
-			<xs:attribute name="Parent" type="xs:string" />
-			<xs:attribute name="AllowContentChildTool">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="NavIconType">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="Content" />
-						<xs:enumeration value="Report" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="IconLink" type="xs:string" />
-			<xs:attribute name="IconWidth" type="xs:string" />
-			<xs:attribute name="IconHeight" type="xs:string" />
-			<xs:attribute name="IconSprites" type="xs:string" />
-			<xs:attribute name="guid" type="xs:string" use="required" />
-			<xs:attribute name="Active">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="NavTypeId">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="Comm" />
-						<xs:enumeration value="Content" />
-						<xs:enumeration value="Design" />
-						<xs:enumeration value="Reports" />
-						<xs:enumeration value="Settings" />
-						<xs:enumeration value="System" />
-						<xs:enumeration value="Tools" />
-						<xs:enumeration value="Profile" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AllowCalendarEvents">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AllowMetaContent" type="xs:string" />
-			<xs:attribute name="isbasecontent" type="xs:string" />
-			<xs:attribute name="IgnoreContentControl" type="xs:NMTOKEN" />
-			<xs:attribute name="name" type="xs:string" />
-			<xs:attribute name="adminonly" type="xs:NMTOKEN" />
-			<xs:attribute name="aliasid" type="xs:NMTOKEN" />
-			<xs:attribute name="aliasname" type="xs:NMTOKEN" />
-			<xs:attribute name="allowadd" type="xs:NMTOKEN" />
-			<xs:attribute name="allowcontenttracking" type="xs:NMTOKEN" />
-			<xs:attribute name="allowdelete" type="xs:NMTOKEN" />
-			<xs:attribute name="allowtopicrules" type="xs:NMTOKEN" />
-			<xs:attribute name="allowworkflowauthoring" type="xs:NMTOKEN" />
-			<xs:attribute name="authoringdatasourcename" type="xs:NMTOKEN" />
-			<xs:attribute name="authoringtablename" type="xs:NMTOKEN" />
-			<xs:attribute name="contentdatasourcename" type="xs:NMTOKEN" />
-			<xs:attribute name="contenttablename" type="xs:NMTOKEN" />
-			<xs:attribute name="defaultsortmethod" type="xs:string" />
-			<xs:attribute name="developeronly" type="xs:NMTOKEN" />
-			<xs:attribute name="dropdownfieldlist" type="xs:NMTOKEN" />
-			<xs:attribute name="editorgroupname" type="xs:string" />
-			<xs:attribute name="parent" type="xs:string" />
-			<xs:attribute name="allowcontentchildtool" type="xs:NMTOKEN" />
-			<xs:attribute name="navicontype" type="xs:NMTOKEN" />
-			<xs:attribute name="iconlink" type="xs:string" />
-			<xs:attribute name="iconwidth" type="xs:string" />
-			<xs:attribute name="iconheight" type="xs:string" />
-			<xs:attribute name="iconsprites" type="xs:string" />
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="Field">
-		<xs:complexType mixed="true">
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element ref="HelpDefault" />
-			</xs:choice>
-			<xs:attribute name="Name" type="xs:string" />
-			<xs:attribute name="Active" use="required">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AdminOnly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="Authorable">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="Caption" type="xs:string" />
-			<xs:attribute name="DeveloperOnly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="EditSortPriority" type="xs:NMTOKEN" />
-			<xs:attribute name="FieldType" type="xs:string" />
-			<xs:attribute name="HTMLContent">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="IndexColumn" type="xs:string" />
-			<xs:attribute name="IndexSortDirection" type="xs:string" />
-			<xs:attribute name="IndexSortOrder" type="xs:string" />
-			<xs:attribute name="IndexWidth" type="xs:string" />
-			<xs:attribute name="LookupContent" type="xs:string" />
-			<xs:attribute name="NotEditable">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="Password">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="ReadOnly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="RedirectContent" type="xs:string" />
-			<xs:attribute name="RedirectID" type="xs:string" />
-			<xs:attribute name="RedirectPath" type="xs:string" />
-			<xs:attribute name="Required">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="TextBuffered">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="UniqueName">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="DefaultValue" type="xs:string" />
-			<xs:attribute name="RSSTitle" type="xs:string" />
-			<xs:attribute name="RSSDescription" type="xs:string" />
-			<xs:attribute name="MemberSelectGroup" type="xs:string" />
-			<xs:attribute name="EditTab" type="xs:string" />
-			<xs:attribute name="EditGroup" type="xs:string" />
-			<xs:attribute name="Scramble">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="LookupList" type="xs:string" />
-			<xs:attribute name="ManyToManyContent" type="xs:string" />
-			<xs:attribute name="ManyToManyRuleContent" type="xs:string" />
-			<xs:attribute name="ManyToManyRulePrimaryField" type="xs:string" />
-			<xs:attribute name="ManyToManyRuleSecondaryField" type="xs:string" use="required" />
-			<xs:attribute name="name" type="xs:ID" />
-			<xs:attribute name="adminonly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="authorable">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="caption" type="xs:string" />
-			<xs:attribute name="developeronly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="editsortpriority" type="xs:NMTOKEN" />
-			<xs:attribute name="fieldtype" type="xs:NMTOKEN" />
-			<xs:attribute name="htmlcontent">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="2" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="indexcolumn">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="99" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="indexsortdirection">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="indexsortorder">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="20" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="indexwidth">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="20" />
-						<xs:enumeration value="25" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="lookupcontent" type="xs:string" />
-			<xs:attribute name="noteditable">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="password">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="readonly">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="redirectcontent" type="xs:string" />
-			<xs:attribute name="redirectid" type="xs:string" />
-			<xs:attribute name="redirectpath" type="xs:string" />
-			<xs:attribute name="required">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="textbuffered">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="uniquename">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="defaultvalue" type="xs:string" />
-			<xs:attribute name="edittab" type="xs:string" />
-			<xs:attribute name="scramble">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="lookuplist" type="xs:string" />
-			<xs:attribute name="manytomanycontent" type="xs:string" />
-			<xs:attribute name="manytomanyrulecontent" type="xs:string" />
-			<xs:attribute name="manytomanyruleprimaryfield" type="xs:string" />
-			<xs:attribute name="RSSTitleField">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="RSSDescriptionField">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="EditorAddonId" type="xs:string" />
-			<xs:attribute name="MemberSelectGroupID" type="xs:string" />
+			<xs:attribute name="Name" type="xs:NMTOKEN" use="required" />
+			<xs:attribute name="Guid" type="xs:string" use="required" />
+			<xs:attribute name="System" type="xs:NMTOKEN" />
+			<xs:attribute name="OnInstallAddonGuid" type="xs:string" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="HelpDefault" type="xs:string" />
-	<xs:element name="Addon">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element minOccurs="0" maxOccurs="1" ref="DotNetClass" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="RemoteMethod" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="Admin" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="FormXML" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="ProcessInterval" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" ref="BlockEditTools" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="jsheadscriptsrc" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="styleslinkhref" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="Styles" />
-				<xs:element minOccurs="0" maxOccurs="unbounded" ref="IncludeAddon" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="HtmlDocument" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="JavascriptInHead" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="javascriptforcehead" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="Category" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="Content" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="Template" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="Email" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="ArgumentList" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="IsInline" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="Diagnostic" />
-				<xs:element minOccurs="0" maxOccurs="1" ref="CopyText" />
-			</xs:sequence>
-			<xs:attribute name="name" type="xs:string" use="required" />
-			<xs:attribute name="guid" type="xs:string" use="required" />
-			<xs:attribute name="type" use="required">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="Add-on" />
-						<xs:enumeration value="Setting" />
-						<xs:enumeration value="System" />
-						<xs:enumeration value="Task" />
-						<xs:enumeration value="Tool" />
-						<xs:enumeration value="Widget" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="DotNetClass" type="xs:string" />
 	<xs:element name="RemoteMethod" type="xs:string" />
-	<xs:element name="Admin" type="xs:string" />
 	<xs:element name="Category" type="xs:string" />
 	<xs:element name="FormXML" type="xs:string" />
 	<xs:element name="ProcessInterval" type="xs:string" />
@@ -596,13 +452,13 @@
 	<xs:element name="Styles" type="xs:string" />
 	<xs:element name="IncludeAddon">
 		<xs:complexType>
-			<xs:attribute name="name" type="xs:string" use="required" />
-			<xs:attribute name="guid" type="xs:string" use="required" />
+			<xs:attribute name="Name" type="xs:string" use="required" />
+			<xs:attribute name="Guid" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="HtmlDocument" type="xs:string" />
 	<xs:element name="JavascriptInHead" type="xs:string" />
-	<xs:element name="javascriptforcehead" type="xs:string" />
+	<xs:element name="JavascriptForceHead" type="xs:string" />
 	<xs:element name="Content" type="xs:string" />
 	<xs:element name="Template" type="xs:string" />
 	<xs:element name="Email" type="xs:string" />
@@ -610,120 +466,30 @@
 	<xs:element name="ArgumentList" type="xs:string" />
 	<xs:element name="IsInline" type="xs:string" />
 	<xs:element name="Diagnostic" type="xs:string" />
-	<xs:element name="SQLIndex">
+	<xs:element name="Record">
 		<xs:complexType>
-			<xs:attribute name="IndexName" type="xs:ID" use="required" />
-			<xs:attribute fixed="Default" name="DataSourceName" type="xs:NMTOKEN" />
-			<xs:attribute name="TableName" type="xs:NMTOKEN" use="required" />
-			<xs:attribute name="FieldNameList" type="xs:string" use="required" />
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="NavigatorEntry">
-		<xs:complexType>
+			<xs:all>
+				<xs:element name="Field" >
+					<xs:complexType>
+						<xs:simpleContent>
+							<xs:extension base="xs:string">
+								<xs:attribute name="Name" use="required">
+									<xs:simpleType>
+										<xs:restriction base="xs:NMTOKEN">
+											<xs:enumeration value="OrderByClause" />
+											<xs:enumeration value="Caption" />
+											<xs:enumeration value="IconHtml" />
+										</xs:restriction>
+									</xs:simpleType>
+								</xs:attribute>
+							</xs:extension>
+						</xs:simpleContent>
+					</xs:complexType>
+				</xs:element>
+			</xs:all>
+			<xs:attribute name="Content" type="xs:string" use="required" />
+			<xs:attribute name="Guid" type="xs:string" use="required" />
 			<xs:attribute name="Name" type="xs:string" use="required" />
-			<xs:attribute name="NameSpace" type="xs:string" use="required" />
-			<xs:attribute name="NavIconTitle" type="xs:string" use="required" />
-			<xs:attribute name="NavIconType" use="required">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="Addon" />
-						<xs:enumeration value="Advanced" />
-						<xs:enumeration value="Content" />
-						<xs:enumeration value="Email" />
-						<xs:enumeration value="Folder" />
-						<xs:enumeration value="Reports" />
-						<xs:enumeration value="Settings" />
-						<xs:enumeration value="Tools" />
-						<xs:enumeration value="User" />
-						<xs:enumeration value="content" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="LinkPage" type="xs:string" use="required" />
-			<xs:attribute name="ContentName" type="xs:string" use="required" />
-			<xs:attribute name="AdminOnly" use="required">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="DeveloperOnly" use="required">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="NewWindow" type="xs:string" use="required" />
-			<xs:attribute name="Active">
-				<xs:simpleType>
-					<xs:restriction base="xs:NMTOKEN">
-						<xs:enumeration value="0" />
-						<xs:enumeration value="1" />
-						<xs:enumeration value="true" />
-						<xs:enumeration value="false" />
-					</xs:restriction>
-				</xs:simpleType>
-			</xs:attribute>
-			<xs:attribute name="AddonGuid" type="xs:string" use="required" />
-			<xs:attribute name="guid" type="xs:string" use="required" />
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="data">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element minOccurs="1" maxOccurs="unbounded" ref="record" />
-			</xs:sequence>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="record">
-		<xs:complexType>
-			<xs:sequence>
-				<xs:element ref="field" />
-			</xs:sequence>
-			<xs:attribute name="content" type="xs:string" use="required" />
-			<xs:attribute name="guid" type="xs:string" use="required" />
-			<xs:attribute name="name" type="xs:string" use="required" />
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="field">
-		<xs:complexType>
-			<xs:simpleContent>
-				<xs:extension base="xs:string">
-					<xs:attribute name="name" use="required">
-						<xs:simpleType>
-							<xs:restriction base="xs:NMTOKEN">
-								<xs:enumeration value="OrderByClause" />
-								<xs:enumeration value="caption" />
-								<xs:enumeration value="iconhtml" />
-							</xs:restriction>
-						</xs:simpleType>
-					</xs:attribute>
-				</xs:extension>
-			</xs:simpleContent>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="ImportCollection">
-		<xs:complexType>
-			<xs:simpleContent>
-				<xs:extension base="xs:string">
-					<xs:attribute name="name" type="xs:string" use="required" />
-				</xs:extension>
-			</xs:simpleContent>
-		</xs:complexType>
-	</xs:element>
-	<xs:element name="Resource">
-		<xs:complexType>
-			<xs:attribute name="name" type="xs:NMTOKEN" use="required" />
-			<xs:attribute name="type" type="xs:NMTOKEN" use="required" />
-			<xs:attribute name="path" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
 </xs:schema>

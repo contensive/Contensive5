@@ -190,7 +190,7 @@ rem then the deployment script will copy to aws contensive folder
 rem
 
 c:
-copy "C:\Git\Contensive5\xml\*.dtd" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\source\Processor\*.xsd" "%deploymentFolderRoot%%versionNumber%\"
 
 rem pause
 
