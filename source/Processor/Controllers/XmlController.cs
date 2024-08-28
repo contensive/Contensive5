@@ -83,7 +83,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// 
         /// </summary>
-        public string fieldDescriptorJavaScriptFile { get; set; } = "JavascriptFile";
+        public string fieldDescriptorJavaScriptFile { get; set; } = "JavaScriptFile";
         /// <summary>
         /// 
         /// </summary>
@@ -388,7 +388,7 @@ namespace Contensive.Processor.Controllers {
                                                 sb.Append($" IndexSortDirection=\"{fieldsCs.GetText("IndexSortDirection")}\"");
                                                 sb.Append($" IndexSortOrder=\"{fieldsCs.GetText("IndexSortPriority")}\"");
                                                 sb.Append($" IndexWidth=\"{fieldsCs.GetText("IndexWidth")}\"");
-                                                sb.Append($" RedirectID=\"{fieldsCs.GetText("RedirectID")}\"");
+                                                sb.Append($" RedirectId=\"{fieldsCs.GetText("RedirectID")}\"");
                                                 sb.Append($" RedirectPath=\"{fieldsCs.GetText("RedirectPath")}\"");
                                                 sb.Append($" IsBaseField=\"{getTrueFalse( fieldsCs.GetBoolean("IsBaseField"))}\"");
                                                 sb.Append($" EditorAddonId=\"{fieldsCs.GetText("editorAddonGuid")}\"");

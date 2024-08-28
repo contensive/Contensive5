@@ -78,10 +78,10 @@ namespace Contensive.Processor.Controllers {
                         // -- javascript (xml nodes may not match Db filename)
                         //
                         // -- jsfilename = text box to add small javascript
-                        result += ExportController.getNode("JavascriptInHead", CS.GetText("JSFilename"));
+                        result += ExportController.getNode("JavaScriptInHead", CS.GetText("JSFilename"));
                         //
                         // -- JavascriptForceHead = checkbox to force all javascript to head
-                        result += ExportController.getNode("JavascriptForceHead", CS.GetBoolean("JavascriptForceHead"));
+                        result += ExportController.getNode("JavaScriptForceHead", CS.GetBoolean("JavascriptForceHead"));
                         //
                         // -- jsHeadScriptSrc = url to default (platform based on bootstrap 4.x)
                         result += ExportController.getNode("JSHeadScriptSrc", CS.GetText("JSHeadScriptSrc"));

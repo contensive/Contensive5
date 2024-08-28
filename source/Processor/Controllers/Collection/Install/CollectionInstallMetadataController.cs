@@ -215,7 +215,7 @@ namespace Contensive.Processor.Controllers {
                                             metaDataField.indexColumn = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "IndexColumn", DefaultMetaDataField.indexColumn);
                                             metaDataField.indexWidth = XmlController.getXMLAttribute(core, MetaDataChildNode, "IndexWidth", DefaultMetaDataField.indexWidth);
                                             metaDataField.indexSortOrder = XmlController.getXMLAttributeInteger(core, MetaDataChildNode, "IndexSortOrder", DefaultMetaDataField.indexSortOrder);
-                                            metaDataField.redirectId = XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectID", DefaultMetaDataField.redirectId);
+                                            metaDataField.redirectId = XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectId", DefaultMetaDataField.redirectId);
                                             metaDataField.redirectPath = XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectPath", DefaultMetaDataField.redirectPath);
                                             metaDataField.htmlContent = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "HTMLContent", DefaultMetaDataField.htmlContent);
                                             metaDataField.uniqueName = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "UniqueName", DefaultMetaDataField.uniqueName);

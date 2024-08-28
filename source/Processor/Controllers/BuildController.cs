@@ -722,16 +722,16 @@ namespace Contensive.Processor.Controllers {
                     //
                     core.db.createSQLTable("ccContent");
                     core.db.createSQLTableField("ccContent", "ContentTableID", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                    core.db.createSQLTableField("ccContent", "AuthoringTableID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccContent", "AuthoringTableId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccContent", "AllowAdd", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccContent", "AllowDelete", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccContent", "AllowWorkflowAuthoring", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccContent", "DeveloperOnly", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccContent", "AdminOnly", CPContentBaseClass.FieldTypeIdEnum.Boolean);
-                    core.db.createSQLTableField("ccContent", "ParentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                    core.db.createSQLTableField("ccContent", "DefaultSortMethodID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccContent", "ParentId", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccContent", "DefaultSortMethodId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccContent", "DropDownFieldList", CPContentBaseClass.FieldTypeIdEnum.Text);
-                    core.db.createSQLTableField("ccContent", "EditorGroupID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccContent", "EditorGroupId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccContent", "AllowCalendarEvents", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccContent", "AllowContentTracking", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccContent", "AllowTopicRules", CPContentBaseClass.FieldTypeIdEnum.Boolean);
@@ -744,16 +744,16 @@ namespace Contensive.Processor.Controllers {
                     core.db.createSQLTableField("ccContent", "IsBaseContent", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     //
                     core.db.createSQLTable("ccFields");
-                    core.db.createSQLTableField("ccFields", "ContentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "ContentId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccFields", "Type", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccFields", "Caption", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "ReadOnly", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "NotEditable", CPContentBaseClass.FieldTypeIdEnum.Boolean);
-                    core.db.createSQLTableField("ccFields", "LookupContentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "LookupContentId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccFields", "LookupContentSqlFilter", CPContentBaseClass.FieldTypeIdEnum.Text);
-                    core.db.createSQLTableField("ccFields", "RedirectContentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "RedirectContentId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccFields", "RedirectPath", CPContentBaseClass.FieldTypeIdEnum.Text);
-                    core.db.createSQLTableField("ccFields", "RedirectID", CPContentBaseClass.FieldTypeIdEnum.Text);
+                    core.db.createSQLTableField("ccFields", "RedirectId", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "HelpMessage", CPContentBaseClass.FieldTypeIdEnum.LongText); // deprecated but Im chicken to remove this
                     core.db.createSQLTableField("ccFields", "UniqueName", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "TextBuffered", CPContentBaseClass.FieldTypeIdEnum.Boolean);
@@ -769,13 +769,13 @@ namespace Contensive.Processor.Controllers {
                     core.db.createSQLTableField("ccFields", "Required", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "HTMLContent", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "Authorable", CPContentBaseClass.FieldTypeIdEnum.Boolean);
-                    core.db.createSQLTableField("ccFields", "ManyToManyContentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
-                    core.db.createSQLTableField("ccFields", "ManyToManyRuleContentID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "ManyToManyContentId", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "ManyToManyRuleContentId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccFields", "ManyToManyRulePrimaryField", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "ManyToManyRuleSecondaryField", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "RSSTitleField", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "RSSDescriptionField", CPContentBaseClass.FieldTypeIdEnum.Boolean);
-                    core.db.createSQLTableField("ccFields", "MemberSelectGroupID", CPContentBaseClass.FieldTypeIdEnum.Integer);
+                    core.db.createSQLTableField("ccFields", "MemberSelectGroupId", CPContentBaseClass.FieldTypeIdEnum.Integer);
                     core.db.createSQLTableField("ccFields", "EditTab", CPContentBaseClass.FieldTypeIdEnum.Text);
                     core.db.createSQLTableField("ccFields", "Scramble", CPContentBaseClass.FieldTypeIdEnum.Boolean);
                     core.db.createSQLTableField("ccFields", "LookupList", CPContentBaseClass.FieldTypeIdEnum.Text);
