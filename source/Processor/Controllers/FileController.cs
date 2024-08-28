@@ -1607,7 +1607,7 @@ namespace Contensive.Processor.Controllers {
                 case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                         return getVirtualTableFieldUnixPath(tableName, fieldName) + idFilename + ".xml";
                     }
-                case CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
+                case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
                         return getVirtualTableFieldUnixPath(tableName, fieldName) + idFilename + ".js";
                     }
                 case CPContentBaseClass.FieldTypeIdEnum.FileHTML: {

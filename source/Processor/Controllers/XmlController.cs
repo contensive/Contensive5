@@ -83,7 +83,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// 
         /// </summary>
-        public string fieldDescriptorJavascriptFile { get; set; } = "JavascriptFile";
+        public string fieldDescriptorJavaScriptFile { get; set; } = "JavascriptFile";
         /// <summary>
         /// 
         /// </summary>
@@ -154,9 +154,9 @@ namespace Contensive.Processor.Controllers {
                     + $"{(!versionIsOlder(cp.core.siteProperties.dataBuildVersion, "24.8.26.0") ? ",editGroup" : ",'' as editGroup")}";
                 // 
                 int FieldCnt = 0;
-                string FieldName;
-                int FieldContentID;
-                int LastFieldID;
+                string fieldName;
+                int fieldContentID;
+                int lastFieldID;
                 int RecordID;
                 string RecordName;
                 int AuthoringTableID;
@@ -261,23 +261,25 @@ namespace Contensive.Processor.Controllers {
                             bool IsBaseContent = (contentCs.GetBoolean("isBaseContent"));
                             iContentName = GetRSXMLAttribute(contentCs, "Name");
                             ContentID = (contentCs.GetInteger("ID"));
-                            sb.Append(System.Environment.NewLine + "\t" + "<CDef");
-                            sb.Append(" Name=\"" + iContentName + "\"");
+                            sb.Append(System.Environment.NewLine + "\t<CDef");
+                            sb.Append($" Name=\"{iContentName}\"");
                             if ((!IsBaseContent) || IncludeBaseFields) {
-                                sb.Append(" Active=\"" + GetRSXMLAttribute(contentCs, "Active") + "\"");
-                                sb.Append(" AdminOnly=\"" + GetRSXMLAttribute(contentCs, "AdminOnly") + "\"");
-                                sb.Append(" AllowAdd=\"" + GetRSXMLAttribute(contentCs, "AllowAdd") + "\"");
-                                sb.Append(" AllowCalendarEvents=\"" + GetRSXMLAttribute(contentCs, "AllowCalendarEvents") + "\"");
-                                sb.Append(" AllowContentChildTool=\"" + GetRSXMLAttribute(contentCs, "AllowContentChildTool") + "\"");
-                                sb.Append(" AllowContentTracking=\"" + GetRSXMLAttribute(contentCs, "AllowContentTracking") + "\"");
-                                sb.Append(" AllowDelete=\"" + GetRSXMLAttribute(contentCs, "AllowDelete") + "\"");
-                                sb.Append(" AllowMetaContent=\"" + GetRSXMLAttribute(contentCs, "AllowMetaContent") + "\"");
-                                sb.Append(" AllowTopicRules=\"" + GetRSXMLAttribute(contentCs, "AllowTopicRules") + "\"");
+                                sb.Append($" Active=\"{GetRSXMLAttribute(contentCs, "Active")}\"");
+                                sb.Append($" AdminOnly=\"{GetRSXMLAttribute(contentCs, "AdminOnly")}\"");
+                                sb.Append($" AllowAdd=\"{GetRSXMLAttribute(contentCs, "AllowAdd")}\"");
+                                sb.Append($" AllowCalendarEvents=\"{GetRSXMLAttribute(contentCs, "AllowCalendarEvents")}\"");
+                                sb.Append($" AllowContentChildTool=\"{GetRSXMLAttribute(contentCs, "AllowContentChildTool")}\"");
+                                sb.Append($" AllowContentTracking=\"{GetRSXMLAttribute(contentCs, "AllowContentTracking")}\"");
+                                sb.Append($" AllowDelete=\"{GetRSXMLAttribute(contentCs, "AllowDelete")}\"");
+                                sb.Append($" AllowMetaContent=\"{GetRSXMLAttribute(contentCs, "AllowMetaContent")}\"");
+                                sb.Append($" AllowTopicRules=\"{GetRSXMLAttribute(contentCs, "AllowTopicRules")}\"");
                                 //
-                                sb.Append(" NavTypeID=\"" + GetRSXMLAttribute(contentCs, "NavTypeID") + "\"");
-                                sb.Append(" AddonCategoryId=\"" + GetRSXMLAttribute(contentCs, "AddonCategoryId") + "\"");
+                                int key = contentCs.GetInteger("NavTypeId");
+                                string value = ContentController.getLookupListText(key, "Other,Report,Setting,Tool,Comm,Design,Content,System");
+                                sb.Append($" NavTypeId=\"{value}\"");
+                                sb.Append($" AddonCategoryId=\"{GetRSXMLAttribute(contentCs, "AddonCategoryId")}\"");
                                 //
-                                //sb.Append(" AllowWorkflowAuthoring=\"" + GetRSXMLAttribute(contentCs, "AllowWorkflowAuthoring") + "\"");
+                                //sb.Append($" AllowWorkflowAuthoring=\"{GetRSXMLAttribute(contentCs, "AllowWorkflowAuthoring")}\"");
                                 // 
                                 AuthoringTableID = (contentCs.GetInteger("AuthoringTableID"));
                                 TableName = "";
@@ -290,8 +292,8 @@ namespace Contensive.Processor.Controllers {
                                     DataSourceName = "Default";
                                 if (Strings.UCase(TableName) == "CCMENUENTRIES")
                                     FoundMenuTable = true;
-                                sb.Append(" AuthoringDataSourceName=\"" + EncodeXMLattribute(DataSourceName) + "\"");
-                                sb.Append(" AuthoringTableName=\"" + EncodeXMLattribute(TableName) + "\"");
+                                sb.Append($" AuthoringDataSourceName=\"{EncodeXMLattribute(DataSourceName)}\"");
+                                sb.Append($" AuthoringTableName=\"{EncodeXMLattribute(TableName)}\"");
                                 // 
                                 ContentTableID = (contentCs.GetInteger("ContentTableID"));
                                 if (ContentTableID != AuthoringTableID) {
@@ -306,133 +308,130 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                 }
-                                sb.Append(" ContentDataSourceName=\"" + EncodeXMLattribute(DataSourceName) + "\"");
-                                sb.Append(" ContentTableName=\"" + EncodeXMLattribute(TableName) + "\"");
+                                sb.Append($" ContentDataSourceName=\"{EncodeXMLattribute(DataSourceName)}\"");
+                                sb.Append($" ContentTableName=\"{EncodeXMLattribute(TableName)}\"");
                                 // 
                                 DefaultSortMethod = "";
                                 DefaultSortMethodID = (contentCs.GetInteger("DefaultSortMethodID"));
                                 if (sorts.ContainsKey(DefaultSortMethodID)) { DefaultSortMethod = sorts[DefaultSortMethodID]; }
-                                sb.Append(" DefaultSortMethod=\"" + EncodeXMLattribute(DefaultSortMethod) + "\"");
+                                sb.Append($" DefaultSortMethod=\"{EncodeXMLattribute(DefaultSortMethod)}\"");
                                 // 
-                                sb.Append(" DeveloperOnly=\"" + GetRSXMLAttribute(contentCs, "DeveloperOnly") + "\"");
-                                sb.Append(" DropDownFieldList=\"" + GetRSXMLAttribute(contentCs, "DropDownFieldList") + "\"");
+                                sb.Append($" DeveloperOnly=\"{GetRSXMLAttribute(contentCs, "DeveloperOnly")}\"");
+                                sb.Append($" DropDownFieldList=\"{GetRSXMLAttribute(contentCs, "DropDownFieldList")}\"");
                                 // 
                                 EditorGroupName = "";
                                 EditorGroupID = (contentCs.GetInteger("EditorGroupID"));
                                 if ((groups.ContainsKey(EditorGroupID)))
                                     EditorGroupName = groups[EditorGroupID];
-                                sb.Append(" EditorGroupName=\"" + EncodeXMLattribute(EditorGroupName) + "\"");
+                                sb.Append($" EditorGroupName=\"{EncodeXMLattribute(EditorGroupName)}\"");
                                 // 
                                 ParentName = "";
                                 ParentID = contentCs.GetInteger("ParentID");
                                 if (contents.ContainsKey(ParentID))
                                     ParentName = contents[ParentID];
-                                sb.Append(" Parent=\"" + EncodeXMLattribute(ParentName) + "\"");
+                                sb.Append($" Parent=\"{EncodeXMLattribute(ParentName)}\"");
                                 // 
-                                sb.Append(" IconLink=\"" + GetRSXMLAttribute(contentCs, "IconLink") + "\"");
-                                sb.Append(" IconHeight=\"" + GetRSXMLAttribute(contentCs, "IconHeight") + "\"");
-                                sb.Append(" IconWidth=\"" + GetRSXMLAttribute(contentCs, "IconWidth") + "\"");
-                                sb.Append(" IconSprites=\"" + GetRSXMLAttribute(contentCs, "IconSprites") + "\"");
+                                sb.Append($" IconLink=\"{GetRSXMLAttribute(contentCs, "IconLink")}\"");
+                                sb.Append($" IconHeight=\"{GetRSXMLAttribute(contentCs, "IconHeight")}\"");
+                                sb.Append($" IconWidth=\"{GetRSXMLAttribute(contentCs, "IconWidth")}\"");
+                                sb.Append($" IconSprites=\"{GetRSXMLAttribute(contentCs, "IconSprites")}\"");
                             }
-                            sb.Append(" Guid=\"" + GetRSXMLAttribute(contentCs, "ccGuid") + "\"");
-                            sb.Append(" >");
+                            sb.Append($" Guid=\"{GetRSXMLAttribute(contentCs, "ccGuid")}\"");
+                            sb.Append($" >");
                             // 
                             // create output
                             // 
-                            sql = "select " + FieldSelectList + " from ccfields f left join ccfieldhelp h on h.fieldid=f.id left join ccaggregatefunctions a on a.id=f.editorAddonId where (f.Type<>0)";
-                            if (ContentID != 0) { sql += "and(f.contentid=" + ContentID + ")"; }
+                            sql = $"select {FieldSelectList} from ccfields f left join ccfieldhelp h on h.fieldid=f.id left join ccaggregatefunctions a on a.id=f.editorAddonId where (f.Type<>0)";
+                            if (ContentID != 0) { sql += $"and(f.contentid={ContentID})"; }
                             if (!IncludeBaseFields) { sql += " and ((f.IsBaseField is null)or(f.IsBaseField=0))"; }
                             sql += " order by f.contentid,f.editTab,f.editSortPriority,f.id";
                             using (CPCSBaseClass fieldsCs = cp.CSNew()) {
                                 if (fieldsCs.OpenSQL(sql)) {
                                     fieldId = 0;
                                     do {
-                                        LastFieldID = fieldId;
+                                        lastFieldID = fieldId;
                                         fieldId = fieldsCs.GetInteger("ID");
-                                        FieldName = fieldsCs.GetText("Name");
-                                        FieldContentID = fieldsCs.GetInteger("contentid");
-                                        if (FieldContentID > ContentID)
+                                        fieldName = fieldsCs.GetText("Name");
+                                        fieldContentID = fieldsCs.GetInteger("contentid");
+                                        if (fieldContentID > ContentID)
                                             break;
-                                        else if ((FieldContentID == ContentID) && (fieldId != LastFieldID)) {
-                                            if (IncludeBaseFields || (Strings.InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + FieldName + ",", CompareMethod.Text) == 0)) {
+                                        else if ((fieldContentID == ContentID) && (fieldId != lastFieldID)) {
+                                            if (IncludeBaseFields || (Strings.InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + fieldName + ",", CompareMethod.Text) == 0)) {
                                                 int memberSelectGroupId = fieldsCs.GetInteger("MemberSelectGroupID");
                                                 string memberSelectGroup = memberSelectGroupId <= 0 ? "" : cp.Group.GetName(memberSelectGroupId.ToString());
-                                                sb.Append(System.Environment.NewLine + "\t" + "\t" + "<Field");
+                                                sb.Append(System.Environment.NewLine + "\t\t<Field");
                                                 fieldType = csv_GetFieldDescriptorByType(fieldsCs.GetInteger("Type"));
-                                                sb.Append(" Name=\"" + FieldName + "\"");
-                                                sb.Append(" Caption=\"" + fieldsCs.GetText("Caption") + "\"");
-                                                sb.Append(" EditTab=\"" + fieldsCs.GetText("EditTab") + "\"");
-                                                sb.Append(" EditGroup=\"" + fieldsCs.GetText("EditGroup") + "\"");
-                                                sb.Append(" FieldType=\"" + fieldType + "\"");
-                                                sb.Append(" Authorable=\"" + fieldsCs.GetBoolean("Authorable") + "\"");
-                                                sb.Append(" EditSortPriority=\"" + fieldsCs.GetText("EditSortPriority") + "\"");
-                                                sb.Append(" DefaultValue=\"" + fieldsCs.GetText("DefaultValue") + "\"");
-                                                sb.Append(" Active=\"" + fieldsCs.GetBoolean("Active") + "\"");
-                                                sb.Append(" AdminOnly=\"" + fieldsCs.GetBoolean("AdminOnly") + "\"");
-                                                sb.Append(" DeveloperOnly=\"" + fieldsCs.GetBoolean("DeveloperOnly") + "\"");
-                                                sb.Append(" HTMLContent=\"" + fieldsCs.GetBoolean("HTMLContent") + "\"");
-                                                sb.Append(" Required=\"" + fieldsCs.GetBoolean("Required") + "\"");
-                                                sb.Append(" TextBuffered=\"" + fieldsCs.GetBoolean("TextBuffered") + "\"");
-                                                sb.Append(" UniqueName=\"" + fieldsCs.GetBoolean("UniqueName") + "\"");
-                                                //sb.Append(" RSSTitle=\"" + fieldsCs.GetBoolean("RSSTitleField") + "\"");
-                                                //sb.Append(" RSSDescription=\"" + fieldsCs.GetBoolean("RSSDescriptionField") + "\"");
-                                                sb.Append(" MemberSelectGroup=\"" + memberSelectGroup + "\"");
-                                                sb.Append(" Scramble=\"" + fieldsCs.GetBoolean("Scramble") + "\"");
-                                                sb.Append(" LookupList=\"" + fieldsCs.GetText("LookupList") + "\"");
-                                                sb.Append(" NotEditable=\"" + fieldsCs.GetBoolean("NotEditable") + "\"");
-                                                sb.Append(" Password=\"" + fieldsCs.GetBoolean("Password") + "\"");
-                                                sb.Append(" ReadOnly=\"" + fieldsCs.GetBoolean("ReadOnly") + "\"");
-                                                sb.Append(" ManyToManyRulePrimaryField=\"" + fieldsCs.GetText("ManyToManyRulePrimaryField") + "\"");
-                                                sb.Append(" ManyToManyRuleSecondaryField=\"" + fieldsCs.GetText("ManyToManyRuleSecondaryField") + "\"");
-                                                sb.Append(" IsModified=\"" + (fieldsCs.GetInteger("ModifiedBy") != 0) + "\"");
-                                                sb.Append(" IndexColumn=\"" + fieldsCs.GetText("IndexColumn") + "\"");
-                                                sb.Append(" IndexSortDirection=\"" + fieldsCs.GetText("IndexSortDirection") + "\"");
-                                                sb.Append(" IndexSortOrder=\"" + fieldsCs.GetText("IndexSortPriority") + "\"");
-                                                sb.Append(" IndexWidth=\"" + fieldsCs.GetText("IndexWidth") + "\"");
-                                                sb.Append(" RedirectID=\"" + fieldsCs.GetText("RedirectID") + "\"");
-                                                sb.Append(" RedirectPath=\"" + fieldsCs.GetText("RedirectPath") + "\"");
-                                                sb.Append(" IsBaseField=\"" + fieldsCs.GetBoolean("IsBaseField") + "\"");
-                                                sb.Append(" EditorAddonId=\"" + fieldsCs.GetText("editorAddonGuid") + "\"");
+                                                sb.Append($" Name=\"{fieldName}\"");
+                                                sb.Append($" Caption=\"{fieldsCs.GetText("Caption")}\"");
+                                                sb.Append($" EditTab=\"{fieldsCs.GetText("EditTab")}\"");
+                                                sb.Append($" EditGroup=\"{fieldsCs.GetText("EditGroup")}\"");
+                                                sb.Append($" FieldType=\"{fieldType}\"");
+                                                sb.Append($" Authorable=\"{getTrueFalse( fieldsCs.GetBoolean("Authorable"))}\"");
+                                                sb.Append($" EditSortPriority=\"{fieldsCs.GetText("EditSortPriority")}\"");
+                                                sb.Append($" DefaultValue=\"{fieldsCs.GetText("DefaultValue")}\"");
+                                                sb.Append($" Active=\"{getTrueFalse( fieldsCs.GetBoolean("Active"))}\"");
+                                                sb.Append($" AdminOnly=\"{getTrueFalse( fieldsCs.GetBoolean("AdminOnly"))}\"");
+                                                sb.Append($" DeveloperOnly=\"{getTrueFalse( fieldsCs.GetBoolean("DeveloperOnly"))}\"");
+                                                sb.Append($" HTMLContent=\"{getTrueFalse( fieldsCs.GetBoolean("HTMLContent"))}\"");
+                                                sb.Append($" Required=\"{getTrueFalse( fieldsCs.GetBoolean("Required"))}\"");
+                                                sb.Append($" TextBuffered=\"{getTrueFalse( fieldsCs.GetBoolean("TextBuffered"))}\"");
+                                                sb.Append($" UniqueName=\"{getTrueFalse( fieldsCs.GetBoolean("UniqueName"))}\"");
+                                                sb.Append($" MemberSelectGroup=\"{memberSelectGroup}\"");
+                                                sb.Append($" Scramble=\"{getTrueFalse( fieldsCs.GetBoolean("Scramble"))}\"");
+                                                sb.Append($" LookupList=\"{fieldsCs.GetText("LookupList")}\"");
+                                                sb.Append($" NotEditable=\"{getTrueFalse( fieldsCs.GetBoolean("NotEditable"))}\"");
+                                                sb.Append($" Password=\"{getTrueFalse( fieldsCs.GetBoolean("Password"))}\"");
+                                                sb.Append($" ReadOnly=\"{getTrueFalse( fieldsCs.GetBoolean("ReadOnly"))}\"");
+                                                sb.Append($" ManyToManyRulePrimaryField=\"{fieldsCs.GetText("ManyToManyRulePrimaryField")}\"");
+                                                sb.Append($" ManyToManyRuleSecondaryField=\"{fieldsCs.GetText("ManyToManyRuleSecondaryField")}\"");
+                                                sb.Append($" IndexColumn=\"{fieldsCs.GetText("IndexColumn")}\"");
+                                                sb.Append($" IndexSortDirection=\"{fieldsCs.GetText("IndexSortDirection")}\"");
+                                                sb.Append($" IndexSortOrder=\"{fieldsCs.GetText("IndexSortPriority")}\"");
+                                                sb.Append($" IndexWidth=\"{fieldsCs.GetText("IndexWidth")}\"");
+                                                sb.Append($" RedirectID=\"{fieldsCs.GetText("RedirectID")}\"");
+                                                sb.Append($" RedirectPath=\"{fieldsCs.GetText("RedirectPath")}\"");
+                                                sb.Append($" IsBaseField=\"{getTrueFalse( fieldsCs.GetBoolean("IsBaseField"))}\"");
+                                                sb.Append($" EditorAddonId=\"{fieldsCs.GetText("editorAddonGuid")}\"");
                                                 // 
                                                 RecordName = "";
                                                 RecordID = fieldsCs.GetInteger("LookupContentID");
                                                 if ((contents.ContainsKey(RecordID)))
                                                     RecordName = contents[RecordID];
-                                                sb.Append(" LookupContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                sb.Append($" LookupContent=\"{System.Net.WebUtility.HtmlEncode(RecordName)}\"");
                                                 // 
                                                 RecordName = "";
                                                 RecordID = fieldsCs.GetInteger("RedirectContentID");
                                                 if ((contents.ContainsKey(RecordID)))
                                                     RecordName = contents[RecordID];
-                                                sb.Append(" RedirectContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                sb.Append($" RedirectContent=\"{System.Net.WebUtility.HtmlEncode(RecordName)}\"");
                                                 // 
                                                 RecordName = "";
                                                 RecordID = fieldsCs.GetInteger("ManyToManyContentID");
                                                 if ((contents.ContainsKey(RecordID)))
                                                     RecordName = contents[RecordID];
-                                                sb.Append(" ManyToManyContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                sb.Append($" ManyToManyContent=\"{System.Net.WebUtility.HtmlEncode(RecordName)}\"");
                                                 // 
                                                 RecordName = "";
                                                 RecordID = fieldsCs.GetInteger("ManyToManyRuleContentID");
                                                 if ((contents.ContainsKey(RecordID)))
                                                     RecordName = contents[RecordID];
-                                                sb.Append(" ManyToManyRuleContent=\"" + System.Net.WebUtility.HtmlEncode(RecordName) + "\"");
+                                                sb.Append($" ManyToManyRuleContent=\"{System.Net.WebUtility.HtmlEncode(RecordName)}\"");
                                                 // 
-                                                sb.Append(" >");
+                                                sb.Append($" >");
                                                 // 
                                                 HelpCnt = 0;
                                                 HelpDefault = fieldsCs.GetText("helpcustom");
                                                 if (string.IsNullOrEmpty(HelpDefault)) {
                                                     HelpDefault = fieldsCs.GetText("helpdefault");
                                                 }
-                                                if (!string.IsNullOrEmpty(HelpDefault)) {
-                                                    sb.Append(System.Environment.NewLine + "\t" + "\t" + "\t" + "<HelpDefault>" + EncodeCData(HelpDefault) + "</HelpDefault>");
+                                                    if (!string.IsNullOrEmpty(HelpDefault)) {
+                                                        sb.Append(System.Environment.NewLine + $"\t\t\t<HelpDefault>{EncodeCData(HelpDefault)}</HelpDefault>");
                                                     HelpCnt += 1;
                                                 }
                                                 if (HelpCnt > 0) {
-                                                    sb.Append(System.Environment.NewLine + "\t" + "\t");
+                                                    sb.Append(System.Environment.NewLine + "\t\t");
                                                 }
-                                                sb.Append("</Field>");
+                                                sb.Append($"</Field>");
                                             }
                                             FieldCnt += 1;
                                         }
@@ -460,7 +459,7 @@ namespace Contensive.Processor.Controllers {
                     }
                     const string ApplicationCollectionGuid = "{C58A76E2-248B-4DE8-BF9C-849A960F79C6}";
                     const string CollectionFileRootNode = "collection";
-                    return "<" + CollectionFileRootNode + " name=\"Application\" guid=\"" + ApplicationCollectionGuid + "\">" + sb.ToString() + System.Environment.NewLine + "</" + CollectionFileRootNode + ">";
+                    return "<" + CollectionFileRootNode + $" name=\"Application\" guid=\"{ApplicationCollectionGuid}\">{sb}{System.Environment.NewLine}</{CollectionFileRootNode}>";
                 }
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "GetXMLContentDefinition3");
@@ -882,8 +881,8 @@ namespace Contensive.Processor.Controllers {
                             break;
                         }
 
-                    case (int)CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
-                            result = fieldDescriptorJavascriptFile;
+                    case (int)CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
+                            result = fieldDescriptorJavaScriptFile;
                             break;
                         }
 

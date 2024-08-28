@@ -355,7 +355,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                         case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                         case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                         case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                         case CPContentBaseClass.FieldTypeIdEnum.HTML:
                                         case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
                                         case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
@@ -613,7 +613,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                             case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                             case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                             case CPContentBaseClass.FieldTypeIdEnum.FileText:
                             case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                     //
@@ -825,7 +825,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                                case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
                                         valueStoredInDb = csData.getText(adminContentcontent.nameLc);

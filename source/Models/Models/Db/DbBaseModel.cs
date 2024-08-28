@@ -1131,7 +1131,7 @@ namespace Contensive.Models.Db {
                                         case "FieldTypeJavascriptFile": {
                                                 //
                                                 // -- create a file with this copy, handled after switch
-                                                fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.FileJavascript;
+                                                fieldTypeId = CPContentBaseClass.FieldTypeIdEnum.FileJavaScript;
                                                 textFileProperty = (FieldTypeJavascriptFile)instanceProperty.GetValue(this);
                                                 if (textFileProperty == null) { textFileProperty = new FieldTypeJavascriptFile(); }
                                             }

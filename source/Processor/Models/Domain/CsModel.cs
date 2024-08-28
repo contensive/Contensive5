@@ -162,7 +162,7 @@ namespace Contensive.Processor {
                             case CPContentBaseClass.FieldTypeIdEnum.FileImage:
                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                             case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
+                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
                                     //
                                     // ----- cdn file
                                     string SourceFilename = getFilename(field.nameLc, "", contentMeta.name, field.fieldTypeId);
@@ -221,7 +221,7 @@ namespace Contensive.Processor {
                             case CPContentBaseClass.FieldTypeIdEnum.File:
                             case CPContentBaseClass.FieldTypeIdEnum.FileImage:
                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                             case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                     //
                                     // cdn file
@@ -358,7 +358,7 @@ namespace Contensive.Processor {
                                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                                     //
@@ -404,7 +404,7 @@ namespace Contensive.Processor {
                                         case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                         case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                         case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
-                                        case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                        case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                         case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                         case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                                 //
@@ -1030,13 +1030,7 @@ namespace Contensive.Processor {
                             if (!string.IsNullOrEmpty(field.lookupList)) {
                                 //
                                 // -- lookup list, index is 1-based (to be consistent with Db), but array is 0-based, so adjust
-                                int FieldValueInteger = GenericController.encodeInteger(rawData) - 1;
-                                if (FieldValueInteger >= 0) {
-                                    string[] lookups = field.lookupList.Split(',');
-                                    if (lookups.GetUpperBound(0) >= FieldValueInteger) {
-                                        return lookups[FieldValueInteger];
-                                    }
-                                }
+                                return ContentController.getLookupListText(encodeInteger(rawData), field.lookupList);
                             }
                             return string.Empty;
                         }
@@ -1057,7 +1051,7 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                    case CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
+                    case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
                             //
                             // -- file-content type
                             // -- this code treates the rawData is a filename. If not valid file log error and continue
@@ -1147,7 +1141,7 @@ namespace Contensive.Processor {
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                    case CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
+                    case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
                             string pathFilename_valueInDbField = getValueStoredInDbField(field.nameLc);
                             set_saveContentFile(core.cdnFiles, contentName, field.nameLc, field.fieldTypeId, ref contentToBeSaved, pathFilename_valueInDbField);
                             SetNeeded = true;
@@ -1439,7 +1433,7 @@ namespace Contensive.Processor {
                                 case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                                case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
                                         string filename = encodeText(writeCacheValue);

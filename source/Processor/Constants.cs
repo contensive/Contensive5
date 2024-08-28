@@ -538,7 +538,7 @@ namespace Contensive.Processor {
         internal const string FieldTypeNameTextFile = "TextFile";
         internal const string FieldTypeNameCSSFile = "CSSFile";
         internal const string FieldTypeNameXMLFile = "XMLFile";
-        internal const string FieldTypeNameJavascriptFile = "JavascriptFile";
+        internal const string FieldTypeNameJavaScriptFile = "JavaScriptFile";
         internal const string FieldTypeNameLink = "Link";
         internal const string FieldTypeNameResourceLink = "ResourceLink";
         internal const string FieldTypeNameMemberSelect = "MemberSelect";
@@ -562,7 +562,7 @@ namespace Contensive.Processor {
         internal const string FieldTypeNameLcaseTextFile = "textfile";
         internal const string FieldTypeNameLcaseCSSFile = "cssfile";
         internal const string FieldTypeNameLcaseXMLFile = "xmlfile";
-        internal const string FieldTypeNameLcaseJavascriptFile = "javascriptfile";
+        internal const string FieldTypeNameLcaseJavaScriptFile = "JavaScriptFile";
         internal const string FieldTypeNameLcaseLink = "link";
         internal const string FieldTypeNameLcaseResourceLink = "resourcelink";
         internal const string FieldTypeNameLcaseMemberSelect = "memberselect";

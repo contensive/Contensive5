@@ -264,7 +264,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
                         case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
-                        case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                         case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                             //
                             // Text

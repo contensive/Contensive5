@@ -63,7 +63,7 @@ namespace Contensive.Processor.Controllers {
                                             Guid = cp.Utils.CreateGuid();
                                             CS3.SetField("ccGuid", Guid);
                                         }
-                                        result += System.Environment.NewLine + "\t" + "<IncludeAddon name=\"" + System.Net.WebUtility.HtmlEncode(CS3.GetText("name")) + "\" guid=\"" + Guid + "\"/>";
+                                        result += System.Environment.NewLine + "\t" + "<IncludeAddon Name=\"" + System.Net.WebUtility.HtmlEncode(CS3.GetText("name")) + "\" Guid=\"" + Guid + "\"/>";
                                     }
                                     CS3.Close();
                                 }
@@ -80,8 +80,8 @@ namespace Contensive.Processor.Controllers {
                         // -- jsfilename = text box to add small javascript
                         result += ExportController.getNode("JavascriptInHead", CS.GetText("JSFilename"));
                         //
-                        // -- javascriptForceHead = checkbox to force all javascript to head
-                        result += ExportController.getNode("javascriptForceHead", CS.GetBoolean("javascriptForceHead"));
+                        // -- JavascriptForceHead = checkbox to force all javascript to head
+                        result += ExportController.getNode("JavascriptForceHead", CS.GetBoolean("JavascriptForceHead"));
                         //
                         // -- jsHeadScriptSrc = url to default (platform based on bootstrap 4.x)
                         result += ExportController.getNode("JSHeadScriptSrc", CS.GetText("JSHeadScriptSrc"));
@@ -90,9 +90,9 @@ namespace Contensive.Processor.Controllers {
                         result += ExportController.getNode("JSHeadScriptPlatform5Src", CS.GetText("JSHeadScriptPlatform5Src"));
                         // 
                         // -- javascript deprecated
-                        result += ExportController.getNode("JSBodyScriptSrc", CS.GetText("JSBodyScriptSrc"), true);
-                        result += ExportController.getNode("JavascriptBodyEnd", CS.GetText("JavascriptBodyEnd"), true);
-                        result += ExportController.getNode("JavascriptOnLoad", CS.GetText("JavascriptOnLoad"), true);
+                        //result += ExportController.getNode("JSBodyScriptSrc", CS.GetText("JSBodyScriptSrc"), true);
+                        //result += ExportController.getNode("JavascriptBodyEnd", CS.GetText("JavascriptBodyEnd"), true);
+                        //result += ExportController.getNode("JavascriptOnLoad", CS.GetText("JavascriptOnLoad"), true);
                         // 
                         // -- Placements
                         result += ExportController.getNode("Content", CS.GetBoolean("Content"));
@@ -257,7 +257,7 @@ namespace Contensive.Processor.Controllers {
                             navType = "Add-on";
                         }
                         result = ""
-                        + System.Environment.NewLine + "\t" + "<Addon name=\"" + System.Net.WebUtility.HtmlEncode(addonName) + "\" guid=\"" + addonGuid + "\" type=\"" + navType + "\">"
+                        + System.Environment.NewLine + "\t" + "<Addon Name=\"" + System.Net.WebUtility.HtmlEncode(addonName) + "\" Guid=\"" + addonGuid + "\" Type=\"" + navType + "\">"
                         + HtmlController.indent(result, 1)
                         + System.Environment.NewLine + "\t" + "</Addon>";
                     }

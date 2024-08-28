@@ -155,11 +155,6 @@ namespace Contensive.Processor.Models.Domain {
         public bool allowContentChildTool { get; set; }
         //
         /// <summary>
-        /// deprecate
-        /// </summary>
-        public bool isModifiedSinceInstalled { get; set; }
-        //
-        /// <summary>
         /// icon for content
         /// </summary>
         public string iconLink { get; set; }
@@ -315,6 +310,7 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     // load Db version
                     //
+                    string editGroupFieldSelect = $",{(GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0") ? "''" : "f.EditGroup")} as EditGroup";
                     string sql = "SELECT "
                         + "c.ID"
                         + ", c.Name"
@@ -464,7 +460,7 @@ namespace Contensive.Processor.Models.Domain {
                                 + ",a.id as editorAddonId"
                                 + ",a.ccguid as editorAddonGuid"
                                 + ",f.LookupContentSqlFilter as LookupContentSqlFilter"
-                                + $",{(GenericController.versionIsOlder(core.siteProperties.dataBuildVersion, "24.8.26.0") ? "''" : ",f.EditGroup")} as EditGroup"
+                                + editGroupFieldSelect
                                 + ""
                                 + " from (((ccFields f"
                                 + " left join ccContent c ON f.ContentId = c.ID)"

@@ -13,7 +13,7 @@ namespace Contensive.Processor.Models.Db {
                 + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode}"
                 + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS}"
                 + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage}"
-                + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript}"
+                + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavaScript}"
                 + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileText}"
                 + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML}"
                 + $",{(int)Contensive.BaseClasses.CPContentBaseClass.FieldTypeIdEnum.File}"

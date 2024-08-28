@@ -666,7 +666,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     response.editorString = HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, false, "styles form-control");
                                     break;
                                 }
-                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript: {
+                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
                                     //
                                     // ----- Javascript field
                                     request.formFieldList += "," + request.field.nameLc;

@@ -39,7 +39,7 @@ namespace Contensive.Processor.Models.Domain {
             isImage = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileImage;
             isFloat = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Float;
             isCSS = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileCSS;
-            isJavaScript = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavascript;
+            isJavaScript = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileJavaScript;
             isXML = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileXML;
             isRedirect = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Redirect;
             //
@@ -243,7 +243,7 @@ namespace Contensive.Processor.Models.Domain {
                                 case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
-                                case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                 case CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                         //
                                         // -- file type fields read the filename, but save the content

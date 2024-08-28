@@ -24,18 +24,18 @@
 												<xs:simpleType>
 													<xs:restriction base="xs:NMTOKEN">
 														<xs:enumeration value="Boolean" />
-														<xs:enumeration value="CssFile" />
+														<xs:enumeration value="CSSFile" />
 														<xs:enumeration value="Currency" />
 														<xs:enumeration value="Date" />
 														<xs:enumeration value="File" />
 														<xs:enumeration value="Float" />
-														<xs:enumeration value="Html" />
-														<xs:enumeration value="HtmlCode" />
-														<xs:enumeration value="HtmlCodeFile" />
-														<xs:enumeration value="HtmlFile" />
+														<xs:enumeration value="HTML" />
+														<xs:enumeration value="HTMLCode" />
+														<xs:enumeration value="HTMLCodeFile" />
+														<xs:enumeration value="HTMLFile" />
 														<xs:enumeration value="Image" />
 														<xs:enumeration value="Integer" />
-														<xs:enumeration value="JavascriptFile" />
+														<xs:enumeration value="JavaScriptFile" />
 														<xs:enumeration value="Link" />
 														<xs:enumeration value="LongText" />
 														<xs:enumeration value="Lookup" />
@@ -46,7 +46,7 @@
 														<xs:enumeration value="ResourceLink" />
 														<xs:enumeration value="Text" />
 														<xs:enumeration value="TextFile" />
-														<xs:enumeration value="XmlFile" />
+														<xs:enumeration value="XMLFile" />
 													</xs:restriction>
 												</xs:simpleType>
 											</xs:attribute>
@@ -269,7 +269,7 @@
 							<xs:attribute name="iconwidth" type="xs:string" />
 							<xs:attribute name="iconheight" type="xs:string" />
 							<xs:attribute name="iconsprites" type="xs:string" />
-			</xs:complexType>
+						</xs:complexType>
 					</xs:element>
 					<xs:element name="Addon" minOccurs="1" maxOccurs="unbounded" >
 						<xs:complexType>
@@ -277,26 +277,67 @@
 								<xs:choice minOccurs="0" maxOccurs="unbounded">
 									<xs:element name="Admin" minOccurs="0" maxOccurs="1" type="xs:string" />
 									<xs:element name="DotNetClass" minOccurs="0" maxOccurs="1" type="xs:string"  />
-									<xs:element minOccurs="0" maxOccurs="1" ref="RemoteMethod" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="FormXML" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="ProcessInterval" />
-									<xs:element minOccurs="0" maxOccurs="unbounded" ref="BlockEditTools" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="jsheadscriptsrc" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="styleslinkhref" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="Styles" />
-									<xs:element minOccurs="0" maxOccurs="unbounded" ref="IncludeAddon" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="HtmlDocument" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="JavascriptInHead" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="JavascriptForceHead" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="Category" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="Content" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="Template" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="Email" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="ArgumentList" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="IsInline" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="Diagnostic" />
-									<xs:element minOccurs="0" maxOccurs="1" ref="CopyText" />
-									</xs:choice>
+									<xs:element minOccurs="0" maxOccurs="1" name="RemoteMethod"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="FormXML" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="ProcessInterval"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="unbounded" name="BlockEditTools"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="styleslinkhref"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Styles"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="StylesLinkPlatform5Href"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="HtmlDocument" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="JavaScriptInHead"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="JavaScriptForceHead" type="xs:boolean"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="JSHeadScriptSrc" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="JSHeadScriptPlatform5Src" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="Category" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="Content" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="Template"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Email"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="ArgumentList"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="IsInline" type="xs:string"  />
+									<xs:element minOccurs="0" maxOccurs="1" name="Diagnostic"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="CopyText" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Copy" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="instanceSettingPrimaryContentId" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="AsAjax" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Filter" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnPageEndEvent" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnPageStartEvent" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnBodyStart" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OnBodyEnd" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="ProcessRunOnce" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Help" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="HelpLink" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="MetaDescription" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="OtherHeadTags" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="PageTitle" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="RemoteAssetLink" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Icon">
+										<xs:complexType>
+											<xs:attribute name="Link" type="xs:string" use="required" />
+											<xs:attribute name="width" type="xs:integer" use="required" />
+											<xs:attribute name="height" type="xs:integer" use="required" />
+											<xs:attribute name="sprites" type="xs:boolean" use="required" />
+										</xs:complexType>
+									</xs:element>
+									<xs:element minOccurs="0" maxOccurs="1" name="InIframe" type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="AliasList" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="IncludeAddon">
+										<xs:complexType>
+											<xs:attribute name="Name" type="xs:string" use="required" />
+											<xs:attribute name="Guid" type="xs:string" use="required" />
+										</xs:complexType>
+									</xs:element>
+
+									<xs:element minOccurs="0" maxOccurs="1" name="Scripting">
+										<xs:complexType>
+											<xs:attribute name="Language" type="xs:string" use="required" />
+											<xs:attribute name="EntryPoint" type="xs:string" use="required" />
+											<xs:attribute name="Timeout" type="xs:integer" use="required" />
+										</xs:complexType>
+									</xs:element>
+
+								</xs:choice>
 							</xs:sequence>
 							<xs:attribute name="Name" type="xs:string" use="required" />
 							<xs:attribute name="Guid" type="xs:string" use="required" />
@@ -327,7 +368,6 @@
 							<xs:attribute name="FieldNameList" type="xs:string" use="required" />
 						</xs:complexType>
 					</xs:element>
-
 					<xs:element name="NavigatorEntry" minOccurs="1" maxOccurs="unbounded">
 						<xs:complexType>
 							<xs:sequence>
@@ -390,8 +430,7 @@
 							<xs:attribute name="AddonGuid" type="xs:string" use="required" />
 							<xs:attribute name="Guid" type="xs:string" use="required" />
 						</xs:complexType>
-					</xs:element>
-					
+					</xs:element>					
 					<xs:element name="Data" minOccurs="1" maxOccurs="unbounded">
 						<xs:complexType>
 							<xs:sequence>
@@ -420,7 +459,6 @@
 							</xs:sequence>
 						</xs:complexType>
 					</xs:element>
-
 					<xs:element name="ImportCollection">
 						<xs:complexType>
 							<xs:simpleContent>
@@ -429,22 +467,24 @@
 								</xs:extension>
 							</xs:simpleContent>
 						</xs:complexType>
-					</xs:element>
-					
+					</xs:element>					
 					<xs:element name="Resource" minOccurs="1" maxOccurs="unbounded">
 						<xs:complexType>
 							<xs:attribute name="Name" type="xs:NMTOKEN" use="required" />
 							<xs:attribute name="Type" type="xs:NMTOKEN" use="required" />
 							<xs:attribute name="Path" type="xs:string" use="required" />
 						</xs:complexType>
-					</xs:element>
-
+					</xs:element>					
+					<xs:element name="Help" minOccurs="1" maxOccurs="unbounded" type="xs:string" />
+					<xs:element name="HelpLink" minOccurs="1" maxOccurs="unbounded" type="xs:string" />
 				</xs:choice>
 			</xs:sequence>
 			<xs:attribute name="Name" type="xs:NMTOKEN" use="required" />
 			<xs:attribute name="Guid" type="xs:string" use="required" />
-			<xs:attribute name="System" type="xs:NMTOKEN" />
+			<xs:attribute name="System" type="xs:boolean" />
 			<xs:attribute name="OnInstallAddonGuid" type="xs:string" />
+			<xs:attribute name="Updatable" type="xs:boolean" />
+			<xs:attribute name="BlockNavigatorNode" type="xs:boolean" />
 		</xs:complexType>
 	</xs:element>
 	<xs:simpleType name="GUID">
@@ -467,12 +507,11 @@
 		</xs:complexType>
 	</xs:element>
 	<xs:element name="HtmlDocument" type="xs:string" />
-	<xs:element name="JavascriptInHead" type="xs:string" />
-	<xs:element name="JavascriptForceHead" type="xs:string" />
+	<xs:element name="JavaScriptInHead" type="xs:string" />
+	<xs:element name="JavaScriptForceHead" type="xs:string" />
 	<xs:element name="Content" type="xs:string" />
 	<xs:element name="Template" type="xs:string" />
 	<xs:element name="Email" type="xs:string" />
-	<xs:element name="CopyText" type="xs:string" />
 	<xs:element name="ArgumentList" type="xs:string" />
 	<xs:element name="IsInline" type="xs:string" />
 	<xs:element name="Diagnostic" type="xs:string" />

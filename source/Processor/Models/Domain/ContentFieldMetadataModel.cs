@@ -785,8 +785,8 @@ namespace Contensive.Processor.Models.Domain {
                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                         returnFieldTypeName = FieldTypeNameXMLFile;
                         break;
-                    case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
-                        returnFieldTypeName = FieldTypeNameJavascriptFile;
+                    case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
+                        returnFieldTypeName = FieldTypeNameJavaScriptFile;
                         break;
                     case CPContentBaseClass.FieldTypeIdEnum.Text:
                         returnFieldTypeName = FieldTypeNameText;

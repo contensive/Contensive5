@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<Collection
+	Name="test"
+	Guid="{e2080385-b9ab-4639-81d3-85024d11003f}"
+	System="false"
+	Updatable="true"
+	BlockNavigatorNode="false"
+	OnInstallAddonGuid=""
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd">
+	<HelpLink></HelpLink>
+	<Help></Help>
+	<Addon Name="test" Guid="{9FAD70BD-F2EF-488F-B1A5-65D1A5A636F1}" Type="Widget">
+		<Copy></Copy>
+		<CopyText></CopyText>
+		<DotNetClass><![CDATA[Contensive.DesignBlocks.Views.ImageSliderWidget]]></DotNetClass>
+		<ArgumentList></ArgumentList>
+		<instanceSettingPrimaryContentId><![CDATA[Image Slider Widgets]]></instanceSettingPrimaryContentId>
+		<AsAjax>false</AsAjax>
+		<Filter>false</Filter>
+		<Help></Help>
+		<HelpLink></HelpLink>
+		<Icon Link="" width="50" height="50" sprites="0" />
+		<InIframe>false</InIframe>
+		<BlockEditTools>true</BlockEditTools>
+		<AliasList><![CDATA[Design Block Image Slider,Image Slider Block]]></AliasList>
+		<FormXML></FormXML>
+		<IncludeAddon Name="Design Block Includes" Guid="{3B6663DA-C07C-4B7D-9DB7-F2F5F65B53EA}"/>
+		<IsInline>false</IsInline>
+		<JavascriptInHead><![CDATA[$('#carouselExampleControls').bind('mousewheel', function (e) {
+				$(this).carousel('next');
+			});]]></JavascriptInHead>
+		<JavascriptForceHead>false</JavascriptForceHead>
+		<JSHeadScriptSrc></JSHeadScriptSrc>
+		<JSHeadScriptPlatform5Src></JSHeadScriptPlatform5Src>
+		<Content>true</Content>
+		<Template>true</Template>
+		<Email>false</Email>
+		<Admin>false</Admin>
+		<OnPageEndEvent>false</OnPageEndEvent>
+		<OnPageStartEvent>false</OnPageStartEvent>
+		<OnBodyStart>false</OnBodyStart>
+		<OnBodyEnd>false</OnBodyEnd>
+		<RemoteMethod>false</RemoteMethod>
+		<Diagnostic>false</Diagnostic>
+		<Category><![CDATA[Content.Image]]></Category>
+		<ProcessRunOnce>false</ProcessRunOnce>
+		<ProcessInterval>0</ProcessInterval>
+		<MetaDescription></MetaDescription>
+		<OtherHeadTags></OtherHeadTags>
+		<PageTitle></PageTitle>
+		<RemoteAssetLink></RemoteAssetLink>
+		<Styles></Styles>
+		<styleslinkhref></styleslinkhref>
+		<StylesLinkPlatform5Href></StylesLinkPlatform5Href>
+		<Scripting Language="VBScript" EntryPoint="" Timeout="5000"/>
+	</Addon>
+	<CDef Name="EditModalTestData" Active="1" AdminOnly="0" AllowAdd="1" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowMetaContent="" AllowTopicRules="0" NavTypeId="" AddonCategoryId="20" AuthoringDataSourceName="Default" AuthoringTableName="EditModalTestData" ContentDataSourceName="Default" ContentTableName="EditModalTestData" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="Name" EditorGroupName="Site Managers" Parent="" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" Guid="{b14b478a-0645-4e89-b199-a49244f969a9}" >
+		<Field Name="testredirect" Caption="testRedirect" EditTab="" EditGroup="" FieldType="Redirect" Authorable="true" EditSortPriority="0" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="editModalTestDataId" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="People" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testmanytomany" Caption="testManyToMany" EditTab="" EditGroup="" FieldType="ManyToMany" Authorable="true" EditSortPriority="1" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="testid" ManyToManyRuleSecondaryField="memberid" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="People" ManyToManyRuleContent="EditModelTestDataRules" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testcss" Caption="testCSS" EditTab="" EditGroup="" FieldType="CSSFile" Authorable="true" EditSortPriority="2" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testcurrency" Caption="testCurrency" EditTab="" EditGroup="" FieldType="Currency" Authorable="true" EditSortPriority="3" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testdate" Caption="testDate" EditTab="" EditGroup="" FieldType="Date" Authorable="true" EditSortPriority="4" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testfile" Caption="testFile" EditTab="" EditGroup="" FieldType="File" Authorable="true" EditSortPriority="5" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testfloat" Caption="testFloat" EditTab="" EditGroup="" FieldType="Float" Authorable="true" EditSortPriority="6" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testhtml" Caption="testHtml" EditTab="" EditGroup="" FieldType="HTML" Authorable="true" EditSortPriority="7" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testhtmlcode" Caption="testHtmlCode" EditTab="" EditGroup="" FieldType="Text" Authorable="true" EditSortPriority="8" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testimage" Caption="testImage" EditTab="" EditGroup="" FieldType="Image" Authorable="true" EditSortPriority="9" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testinteger" Caption="testInteger" EditTab="" EditGroup="" FieldType="Integer" Authorable="true" EditSortPriority="10" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testjsfile" Caption="testJSFile" EditTab="" EditGroup="" FieldType="JavascriptFile" Authorable="true" EditSortPriority="11" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testlink" Caption="testLink" EditTab="" EditGroup="" FieldType="Link" Authorable="true" EditSortPriority="12" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testlongtext" Caption="testLongText" EditTab="" EditGroup="" FieldType="LongText" Authorable="true" EditSortPriority="13" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testlookup" Caption="testLookup" EditTab="" EditGroup="" FieldType="Lookup" Authorable="true" EditSortPriority="14" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="People" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testselectmember" Caption="testMemberSelect" EditTab="" EditGroup="" FieldType="MemberSelect" Authorable="true" EditSortPriority="16" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="staff" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testboolean" Caption="testBoolean" EditTab="" EditGroup="" FieldType="Boolean" Authorable="true" EditSortPriority="17" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testtext" Caption="testText" EditTab="" EditGroup="" FieldType="Text" Authorable="true" EditSortPriority="18" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="testxml" Caption="testXML" EditTab="" EditGroup="" FieldType="XMLFile" Authorable="true" EditSortPriority="19" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="name" Caption="Name" EditTab="" EditGroup="" FieldType="Text" Authorable="true" EditSortPriority="110" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="active" Caption="Active" EditTab="" EditGroup="" FieldType="Boolean" Authorable="true" EditSortPriority="200" DefaultValue="1" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+		<Field Name="sortorder" Caption="Alpha Sort Order" EditTab="" EditGroup="" FieldType="Text" Authorable="true" EditSortPriority="2000" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IsModified="False" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectID="" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
+		</Field>
+	</CDef>
+</Collection>

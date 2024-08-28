@@ -751,7 +751,7 @@ namespace Contensive.Processor.Controllers {
                     case CPContentBaseClass.FieldTypeIdEnum.Text:
                     case CPContentBaseClass.FieldTypeIdEnum.File:
                     case CPContentBaseClass.FieldTypeIdEnum.FileText:
-                    case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                    case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
@@ -933,11 +933,11 @@ namespace Contensive.Processor.Controllers {
                     case "xml file": {
                             return CPContentBaseClass.FieldTypeIdEnum.FileXML;
                         }
-                    case Constants.FieldTypeNameLcaseJavascriptFile:
+                    case Constants.FieldTypeNameLcaseJavaScriptFile:
                     case "javascript file":
                     case "js file":
                     case "jsfile": {
-                            return CPContentBaseClass.FieldTypeIdEnum.FileJavascript;
+                            return CPContentBaseClass.FieldTypeIdEnum.FileJavaScript;
                         }
                     case Constants.FieldTypeNameLcaseText: {
                             return CPContentBaseClass.FieldTypeIdEnum.Text;

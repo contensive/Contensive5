@@ -1005,10 +1005,15 @@ namespace Contensive.Processor.Controllers {
         /// <param name="Key"></param>
         /// <returns></returns>
         public static string getYesNo(bool Key) {
-            if (Key) {
-                return "Yes";
-            }
-            return "No";
+            return Key ? "Yes" : "No";
+        }
+        //
+        //========================================================================
+        /// <summary>
+        /// return true or false
+        /// </summary>
+        public static string getTrueFalse(bool Key) {
+            return Key ? "true" : "false";
         }
         //
         // ====================================================================================================

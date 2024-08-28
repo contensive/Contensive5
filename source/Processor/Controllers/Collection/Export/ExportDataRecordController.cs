@@ -173,7 +173,7 @@ namespace Contensive.Processor.Controllers {
                                                     }
 
                                                 case (int)CPContentBaseClass.FieldTypeIdEnum.FileCSS:
-                                                case (int)CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                                case (int)CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                                 case (int)CPContentBaseClass.FieldTypeIdEnum.FileText:
                                                 case (int)CPContentBaseClass.FieldTypeIdEnum.FileXML: {
                                                         // 

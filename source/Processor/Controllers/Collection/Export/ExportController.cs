@@ -55,14 +55,15 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 string CollectionName = cs.GetText("name");
-                collectionXml.Append(System.Environment.NewLine + "<Collection");
-                collectionXml.Append(" Name=\"" + CollectionName + "\"");
-                collectionXml.Append(" Guid=\"" + CollectionGuid + "\"");
-                collectionXml.Append(" System=\"" + GenericController.getYesNo(cs.GetBoolean("system")) + "\"");
-                collectionXml.Append(" Updatable=\"" + GenericController.getYesNo(cs.GetBoolean("updatable")) + "\"");
-                collectionXml.Append(" BlockNavigatorNode=\"" + GenericController.getYesNo(cs.GetBoolean("blockNavigatorNode")) + "\"");
-                collectionXml.Append(" OnInstallAddonGuid=\"" + onInstallAddonGuid + "\"");
-                collectionXml.Append(">");
+                collectionXml.AppendLine("\n<Collection");
+                collectionXml.AppendLine("\tName=\"" + CollectionName + "\"");
+                collectionXml.AppendLine("\tGuid=\"" + CollectionGuid + "\"");
+                collectionXml.AppendLine("\tSystem=\"" + GenericController.getTrueFalse(cs.GetBoolean("system")) + "\"");
+                collectionXml.AppendLine("\tUpdatable=\"" + GenericController.getTrueFalse(cs.GetBoolean("updatable")) + "\"");
+                collectionXml.AppendLine("\tBlockNavigatorNode=\"" + GenericController.getTrueFalse(cs.GetBoolean("blockNavigatorNode")) + "\"");
+                collectionXml.AppendLine("\tOnInstallAddonGuid=\"" + onInstallAddonGuid + "\"");
+                collectionXml.AppendLine("\txmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+                collectionXml.Append("\txsi:noNamespaceSchemaLocation=\"https://contensive.s3.amazonaws.com/xsd/Collection.xsd\">");
                 cdnExportZip_Filename = FileController.encodeDosPathFilename(CollectionName + ".zip");
                 List<string> tempPathFileList = [];
                 string tempExportPath = "CollectionExport" + Guid.NewGuid().ToString() + @"\";
@@ -128,47 +129,51 @@ namespace Contensive.Processor.Controllers {
                 string IncludeModuleGuidList = "";
                 foreach (var addon in DbBaseModel.createList<AddonModel>(cp, "collectionid=" + collection.id, "id")) {
                     //
+                    // -- if local files, add them to the export list
                     // -- style sheet link
-                    if (!string.IsNullOrEmpty(addon.stylesLinkHref)) {
+                    if (!string.IsNullOrWhiteSpace(addon.stylesLinkHref)) {
                         string href = addon.stylesLinkHref.ToLowerInvariant();
                         if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
                             //
                             // -- it is a local file, convert to filename (remove querystring, convert unix to dos slash, remove leading slash) and add it to file list
                             string dosPathFilename = FileController.convertToDosSlash(addon.stylesLinkHref);
                             int pos = dosPathFilename.IndexOf("?");
-                            if (pos == 0) { continue; }
-                            if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
-                            if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
-                            //
-                            // -- remove 
-                            if (!cp.WwwFiles.FileExists(dosPathFilename)) {
-                                cp.WwwFiles.Save(dosPathFilename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
-                            }
-                            string unixPathFilename = FileController.convertToUnixSlash(dosPathFilename);
-                            if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
-                                wwwUnixPathFilenameList.Add(unixPathFilename);
+                            if (pos != 0) {
+                                if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
+                                if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                                //
+                                // -- verify file 
+                                if (!cp.WwwFiles.FileExists(dosPathFilename)) {
+                                    cp.WwwFiles.Save(dosPathFilename, @"/* css file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "] */");
+                                }
+                                string unixPathFilename = FileController.convertToUnixSlash(dosPathFilename);
+                                if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
+                                    wwwUnixPathFilenameList.Add(unixPathFilename);
+                                }
                             }
                         }
                     }
                     //
                     // -- js is as link
-                    if (!string.IsNullOrEmpty(addon.jsHeadScriptSrc)) {
+                    if (!string.IsNullOrWhiteSpace(addon.jsHeadScriptSrc)) {
                         string href = addon.jsHeadScriptSrc.ToLowerInvariant();
                         if (!href.left(7).Equals("http://") && !href.left(8).Equals("https://")) {
                             //
                             // -- it is a local file, convert to filename (remove querystring, convert unix to dos slash, remove leading slash) and add it to file list
                             string dosPathFilename = FileController.convertToDosSlash(addon.jsHeadScriptSrc);
                             int pos = dosPathFilename.IndexOf("?");
-                            if (pos == 0) { continue; }
-                            if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
-                            if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
-                            //
-                            if (!cp.WwwFiles.FileExists(dosPathFilename)) {
-                                cp.WwwFiles.Save(dosPathFilename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
-                            }
-                            string unixPathFilename = FileController.convertToUnixSlash(dosPathFilename);
-                            if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
-                                wwwUnixPathFilenameList.Add(unixPathFilename);
+                            if (pos != 0) {
+                                if (pos > 0) { dosPathFilename = dosPathFilename.substringSafe(0, pos); }
+                                if (dosPathFilename.Substring(0, 1).Equals(@"\")) { dosPathFilename = dosPathFilename.Substring(1); }
+                                //
+                                // -- verify file 
+                                if (!cp.WwwFiles.FileExists(dosPathFilename)) {
+                                    cp.WwwFiles.Save(dosPathFilename, @"// javascript file created as exported for addon [" + addon.name + "], collection [" + collection.name + "] in site [" + cp.Site.Name + "]");
+                                }
+                                string unixPathFilename = FileController.convertToUnixSlash(dosPathFilename);
+                                if (!wwwUnixPathFilenameList.Contains(unixPathFilename)) {
+                                    wwwUnixPathFilenameList.Add(unixPathFilename);
+                                }
                             }
                         }
                     }
@@ -423,7 +428,7 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         //
         public static string getNode(string NodeName, bool NodeContent, bool deprecated) {
-            return System.Environment.NewLine + "\t" + (deprecated ? "<!-- deprecated -->" : "") + "<" + NodeName + ">" + GenericController.getYesNo(NodeContent) + "</" + NodeName + ">";
+            return System.Environment.NewLine + "\t" + (deprecated ? "<!-- deprecated -->" : "") + "<" + NodeName + ">" + GenericController.getTrueFalse(NodeContent) + "</" + NodeName + ">";
         }
         //
         public static string getNode(string NodeName, bool NodeContent)

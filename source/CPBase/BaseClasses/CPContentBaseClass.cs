@@ -87,7 +87,7 @@ namespace Contensive.BaseClasses {
             /// <summary>
             /// (string, varchar(255)), holds a path and filename to a javascript content file
             /// </summary>
-            FileJavascript = 18,
+            FileJavaScript = 18,
             /// <summary>
             /// 
             /// </summary>

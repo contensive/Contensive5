@@ -228,7 +228,7 @@ namespace Contensive.Processor.Controllers {
                     case CPContentBaseClass.FieldTypeIdEnum.ManyToMany:
                     case CPContentBaseClass.FieldTypeIdEnum.Text:
                     case CPContentBaseClass.FieldTypeIdEnum.FileText:
-                    case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                    case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                     case CPContentBaseClass.FieldTypeIdEnum.FileHTML:

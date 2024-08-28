@@ -47,7 +47,7 @@ namespace Contensive.CLI {
                         CPContentBaseClass.FieldTypeIdEnum.FileCSS,
                         CPContentBaseClass.FieldTypeIdEnum.FileHTML,
                         CPContentBaseClass.FieldTypeIdEnum.FileImage,
-                        CPContentBaseClass.FieldTypeIdEnum.FileJavascript,
+                        CPContentBaseClass.FieldTypeIdEnum.FileJavaScript,
                         CPContentBaseClass.FieldTypeIdEnum.FileText,
                         CPContentBaseClass.FieldTypeIdEnum.FileXML,
                         CPContentBaseClass.FieldTypeIdEnum.File

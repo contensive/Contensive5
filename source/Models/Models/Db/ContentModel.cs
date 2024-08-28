@@ -40,6 +40,10 @@ namespace Contensive.Models.Db {
         /// html to be used for the icon. The icon is for the dashboard and addon manager, etc
         /// </summary>
         public string iconHtml { get; set; }
+        /// <summary>
+        /// lookup list - Other,Report,Setting,Tool,Comm,Design,Content,System
+        /// </summary>
+        public int NavTypeId { get; set; }
         //
         //====================================================================================================
         /// <summary>

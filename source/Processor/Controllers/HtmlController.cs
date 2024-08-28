@@ -1366,7 +1366,7 @@ namespace Contensive.Processor.Controllers {
                                 break;
                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                             case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                 FieldValueText = GenericController.encodeText(FieldValueVariant);
                                 if (!string.IsNullOrEmpty(FieldValueText)) {
                                     FieldValueText = core.cdnFiles.readFileText(FieldValueText);
@@ -2246,7 +2246,7 @@ namespace Contensive.Processor.Controllers {
                                     case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                     case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                     case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                                    case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                    case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                     case CPContentBaseClass.FieldTypeIdEnum.HTML:
                                     case CPContentBaseClass.FieldTypeIdEnum.HTMLCode:
                                     case CPContentBaseClass.FieldTypeIdEnum.FileHTML:

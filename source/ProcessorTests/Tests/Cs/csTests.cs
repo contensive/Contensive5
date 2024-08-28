@@ -263,7 +263,7 @@ namespace Tests {
         //
         [TestMethod()]
         public void createFieldJSFileTest() {
-            createAndReadFileField_Util(CPContentBaseClass.FieldTypeIdEnum.FileJavascript, ".js");
+            createAndReadFileField_Util(CPContentBaseClass.FieldTypeIdEnum.FileJavaScript, ".js");
         }
         //
         //

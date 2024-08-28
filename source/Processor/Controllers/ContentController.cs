@@ -15,6 +15,23 @@ namespace Contensive.Processor.Controllers {
     public class ContentController : IDisposable {
         //
         //====================================================================================================
+        /// <summary>
+        /// return the 1-based value from comma delimited string.
+        /// Use for LookupList decode
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="lookupList"></param>
+        /// <returns></returns>
+        public static string getLookupListText(int key, string lookupList) {
+            int FieldValueInteger = key - 1;
+            string result = "";
+            if (FieldValueInteger < 0) { return result; }
+            string[] lookups = lookupList.Split(',');
+            if (lookups.GetUpperBound(0) < FieldValueInteger) { return result; }
+            return lookups[FieldValueInteger];
+        }
+        //
+        //====================================================================================================
         //
         public static void processAfterSave_AddonCollection(CoreController core, bool isDelete, string contentName, int recordID, string recordName, int recordParentID, bool useContentWatchLink) {
             //

@@ -129,7 +129,7 @@ namespace Contensive.Processor.Controllers {
                                             case CPContentBaseClass.FieldTypeIdEnum.FileText:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                                            case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                                            case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                                             case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode:
                                                 Copy = csData.getTextEncoded(GenericController.encodeText(FieldNameVariant));

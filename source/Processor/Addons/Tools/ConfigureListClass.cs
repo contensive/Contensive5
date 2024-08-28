@@ -413,7 +413,7 @@ namespace Contensive.Processor.Addons.Tools {
                                     // text filename can not be search
                                     //
                                     Stream.add("<IMG src=\"" + cdnPrefix + "images/Spacer.gif\" width=\"50\" height=\"15\" border=\"0\"> " + field.caption + " (xml file field)<br>");
-                                } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileJavascript) {
+                                } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileJavaScript) {
                                     //
                                     // text filename can not be search
                                     //

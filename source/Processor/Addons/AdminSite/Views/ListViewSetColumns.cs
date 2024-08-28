@@ -392,7 +392,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //
                                     // xml filename can not be search
                                     notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (xml file field)"));
-                                } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileJavascript) {
+                                } else if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.FileJavaScript) {
                                     //
                                     // javascript filename can not be search
                                     notCompatible.Append(HtmlController.div(iconNotAvailable + "&nbsp;" + field.caption + " (javascript file field)"));

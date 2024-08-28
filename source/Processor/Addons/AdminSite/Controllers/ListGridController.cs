@@ -391,7 +391,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case CPContentBaseClass.FieldTypeIdEnum.FileText:
                         case CPContentBaseClass.FieldTypeIdEnum.FileCSS:
                         case CPContentBaseClass.FieldTypeIdEnum.FileXML:
-                        case CPContentBaseClass.FieldTypeIdEnum.FileJavascript:
+                        case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript:
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTML:
                         case CPContentBaseClass.FieldTypeIdEnum.FileHTMLCode: {
                                 string filename = csData.getText(field.nameLc);

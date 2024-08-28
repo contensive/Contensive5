@@ -159,7 +159,6 @@ namespace Contensive.Processor.Controllers {
                                     targetMetaData.includesAFieldChange = false;
                                     targetMetaData.installedByCollectionGuid = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "installedByCollection", DefaultMetaData.installedByCollectionGuid);
                                     targetMetaData.isBaseContent = isBaseCollection || XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "IsBaseContent", false);
-                                    targetMetaData.isModifiedSinceInstalled = XmlController.getXMLAttributeBoolean(core, metaData_NodeWithinLoop, "IsModified", DefaultMetaData.isModifiedSinceInstalled);
                                     targetMetaData.name = contentName;
                                     targetMetaData.parentName = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "Parent", DefaultMetaData.parentName);
                                     targetMetaData.whereClause = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "WhereClause", DefaultMetaData.whereClause);
@@ -252,7 +251,6 @@ namespace Contensive.Processor.Controllers {
                                             metaDataField.set_redirectContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "RedirectContent", DefaultMetaDataField.get_redirectContentName(core)));
                                             metaDataField.set_manyToManyContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyContent", DefaultMetaDataField.get_manyToManyContentName(core)));
                                             metaDataField.set_manyToManyRuleContentName(core, XmlController.getXMLAttribute(core, MetaDataChildNode, "ManyToManyRuleContent", DefaultMetaDataField.get_manyToManyRuleContentName(core)));
-                                            metaDataField.isModifiedSinceInstalled = XmlController.getXMLAttributeBoolean(core, MetaDataChildNode, "IsModified", DefaultMetaDataField.isModifiedSinceInstalled);
                                             metaDataField.installedByCollectionGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "installedByCollectionId", DefaultMetaDataField.installedByCollectionGuid);
                                             metaDataField.editorAddonGuid = XmlController.getXMLAttribute(core, MetaDataChildNode, "editorAddonId", DefaultMetaDataField.editorAddonGuid);
                                             metaDataField.id = DbController.getContentFieldId(core, targetMetaData.id, metaDataField.nameLc);
