@@ -132,7 +132,7 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getXMLContentDefinition(string ContentName) {
             try {
-                bool IncludeBaseFields = false;
+                bool includeBaseFields = false;
                 // 
                 string ContentSelectList = ""
                     + " id,name,active,adminonly,allowadd"
@@ -167,27 +167,24 @@ namespace Contensive.Processor.Controllers {
                 int ContentTableID;
                 string TableName;
                 string DataSourceName;
-                int DefaultSortMethodID;
                 string DefaultSortMethod;
-                int EditorGroupID;
                 string EditorGroupName;
-                int ParentID;
                 string ParentName;
-                int ContentID = 0;
+                int contentId = 0;
                 System.Text.StringBuilder sb = new System.Text.StringBuilder();
-                string iContentName;
+                string contentName;
                 string sql;
                 bool FoundMenuTable = false;
                 //
                 CPCSBaseClass cs = cp.CSNew();
                 // 
-                iContentName = ContentName;
-                if (!string.IsNullOrEmpty(iContentName)) {
-                    sql = "select id from cccontent where name=" + cp.Db.EncodeSQLText(iContentName);
-                    if (cs.OpenSQL(sql)) { ContentID = cs.GetInteger("id"); }
+                contentName = ContentName;
+                if (!string.IsNullOrEmpty(contentName)) {
+                    sql = "select id from cccontent where name=" + cp.Db.EncodeSQLText(contentName);
+                    if (cs.OpenSQL(sql)) { contentId = cs.GetInteger("id"); }
                     cs.Close();
                 }
-                if (!string.IsNullOrEmpty(iContentName) && (ContentID == 0)) {
+                if (!string.IsNullOrEmpty(contentName) && (contentId == 0)) {
                     return string.Empty;
                 }
                 {
@@ -248,8 +245,8 @@ namespace Contensive.Processor.Controllers {
                     }
                     cs.Close();
                     // 
-                    if (ContentID != 0) {
-                        sql = "select " + ContentSelectList + " from ccContent where (id=" + ContentID + ")and(contenttableid is not null)and(contentcontrolid is not null) order by id";
+                    if (contentId != 0) {
+                        sql = "select " + ContentSelectList + " from ccContent where (id=" + contentId + ")and(contenttableid is not null)and(contentcontrolid is not null) order by id";
                     } else {
                         sql = "select " + ContentSelectList + " from ccContent where (name<>'')and(name is not null)and(contenttableid is not null)and(contentcontrolid is not null) order by id";
                     }
@@ -258,12 +255,11 @@ namespace Contensive.Processor.Controllers {
                             // 
                             // ----- <cdef>
                             // 
-                            bool IsBaseContent = (contentCs.GetBoolean("isBaseContent"));
-                            iContentName = GetRSXMLAttribute(contentCs, "Name");
-                            ContentID = (contentCs.GetInteger("ID"));
-                            sb.Append(System.Environment.NewLine + "\t<CDef");
-                            sb.Append($" Name=\"{iContentName}\"");
-                            if ((!IsBaseContent) || IncludeBaseFields) {
+                            bool isBaseContent = contentCs.GetBoolean("isBaseContent");
+                            contentId = contentCs.GetInteger("ID");
+                            contentName = GetRSXMLAttribute(contentCs, "Name");
+                            sb.Append($"{Environment.NewLine}\t<CDef Name=\"{contentName}\"");
+                            if (!isBaseContent || includeBaseFields) {
                                 sb.Append($" Active=\"{GetRSXMLAttribute(contentCs, "Active")}\"");
                                 sb.Append($" AdminOnly=\"{GetRSXMLAttribute(contentCs, "AdminOnly")}\"");
                                 sb.Append($" AllowAdd=\"{GetRSXMLAttribute(contentCs, "AllowAdd")}\"");
@@ -279,8 +275,6 @@ namespace Contensive.Processor.Controllers {
                                 sb.Append($" NavTypeId=\"{value}\"");
                                 sb.Append($" AddonCategoryId=\"{GetRSXMLAttribute(contentCs, "AddonCategoryId")}\"");
                                 //
-                                //sb.Append($" AllowWorkflowAuthoring=\"{GetRSXMLAttribute(contentCs, "AllowWorkflowAuthoring")}\"");
-                                // 
                                 AuthoringTableID = (contentCs.GetInteger("AuthoringTableID"));
                                 TableName = "";
                                 DataSourceName = "";
@@ -292,8 +286,8 @@ namespace Contensive.Processor.Controllers {
                                     DataSourceName = "Default";
                                 if (Strings.UCase(TableName) == "CCMENUENTRIES")
                                     FoundMenuTable = true;
-                                sb.Append($" AuthoringDataSourceName=\"{EncodeXMLattribute(DataSourceName)}\"");
-                                sb.Append($" AuthoringTableName=\"{EncodeXMLattribute(TableName)}\"");
+                                sb.Append($" AuthoringDataSourceName=\"{encodeXMLattribute(DataSourceName)}\"");
+                                sb.Append($" AuthoringTableName=\"{encodeXMLattribute(TableName)}\"");
                                 // 
                                 ContentTableID = (contentCs.GetInteger("ContentTableID"));
                                 if (ContentTableID != AuthoringTableID) {
@@ -308,33 +302,26 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                 }
-                                sb.Append($" ContentDataSourceName=\"{EncodeXMLattribute(DataSourceName)}\"");
-                                sb.Append($" ContentTableName=\"{EncodeXMLattribute(TableName)}\"");
-                                // 
-                                DefaultSortMethod = "";
-                                DefaultSortMethodID = (contentCs.GetInteger("DefaultSortMethodID"));
-                                if (sorts.ContainsKey(DefaultSortMethodID)) { DefaultSortMethod = sorts[DefaultSortMethodID]; }
-                                sb.Append($" DefaultSortMethod=\"{EncodeXMLattribute(DefaultSortMethod)}\"");
-                                // 
+                                sb.Append($" ContentDataSourceName=\"{encodeXMLattribute(DataSourceName)}\"");
+                                sb.Append($" ContentTableName=\"{encodeXMLattribute(TableName)}\"");
+                                {
+                                    int defaultSortMethodId = (contentCs.GetInteger("DefaultSortMethodID"));
+                                    sb.Append($" DefaultSortMethod=\"{encodeXMLattribute(sorts.ContainsKey(defaultSortMethodId) ? sorts[defaultSortMethodId] : "")}\"");
+                                }
                                 sb.Append($" DeveloperOnly=\"{GetRSXMLAttribute(contentCs, "DeveloperOnly")}\"");
                                 sb.Append($" DropDownFieldList=\"{GetRSXMLAttribute(contentCs, "DropDownFieldList")}\"");
-                                // 
-                                EditorGroupName = "";
-                                EditorGroupID = (contentCs.GetInteger("EditorGroupID"));
-                                if ((groups.ContainsKey(EditorGroupID)))
-                                    EditorGroupName = groups[EditorGroupID];
-                                sb.Append($" EditorGroupName=\"{EncodeXMLattribute(EditorGroupName)}\"");
-                                // 
-                                ParentName = "";
-                                ParentID = contentCs.GetInteger("ParentID");
-                                if (contents.ContainsKey(ParentID))
-                                    ParentName = contents[ParentID];
-                                sb.Append($" Parent=\"{EncodeXMLattribute(ParentName)}\"");
-                                // 
+                                {
+                                    int editorGroupID = contentCs.GetInteger("EditorGroupID");
+                                    sb.Append($" EditorGroupName=\"{encodeXMLattribute(groups.ContainsKey(editorGroupID) ? groups[editorGroupID] : "")}\"");
+                                }
                                 sb.Append($" IconLink=\"{GetRSXMLAttribute(contentCs, "IconLink")}\"");
                                 sb.Append($" IconHeight=\"{GetRSXMLAttribute(contentCs, "IconHeight")}\"");
                                 sb.Append($" IconWidth=\"{GetRSXMLAttribute(contentCs, "IconWidth")}\"");
                                 sb.Append($" IconSprites=\"{GetRSXMLAttribute(contentCs, "IconSprites")}\"");
+                                {
+                                    int parentId = contentCs.GetInteger("ParentID");
+                                    sb.Append($" Parent=\"{encodeXMLattribute(contents.ContainsKey(parentId) ? contents[parentId] : "")}\"");
+                                }
                             }
                             sb.Append($" Guid=\"{GetRSXMLAttribute(contentCs, "ccGuid")}\"");
                             sb.Append($" >");
@@ -342,8 +329,8 @@ namespace Contensive.Processor.Controllers {
                             // create output
                             // 
                             sql = $"select {FieldSelectList} from ccfields f left join ccfieldhelp h on h.fieldid=f.id left join ccaggregatefunctions a on a.id=f.editorAddonId where (f.Type<>0)";
-                            if (ContentID != 0) { sql += $"and(f.contentid={ContentID})"; }
-                            if (!IncludeBaseFields) { sql += " and ((f.IsBaseField is null)or(f.IsBaseField=0))"; }
+                            if (contentId != 0) { sql += $"and(f.contentid={contentId})"; }
+                            if (!includeBaseFields) { sql += " and ((f.IsBaseField is null)or(f.IsBaseField=0))"; }
                             sql += " order by f.contentid,f.editTab,f.editSortPriority,f.id";
                             using (CPCSBaseClass fieldsCs = cp.CSNew()) {
                                 if (fieldsCs.OpenSQL(sql)) {
@@ -353,10 +340,10 @@ namespace Contensive.Processor.Controllers {
                                         fieldId = fieldsCs.GetInteger("ID");
                                         fieldName = fieldsCs.GetText("Name");
                                         fieldContentID = fieldsCs.GetInteger("contentid");
-                                        if (fieldContentID > ContentID)
+                                        if (fieldContentID > contentId) {
                                             break;
-                                        else if ((fieldContentID == ContentID) && (fieldId != lastFieldID)) {
-                                            if (IncludeBaseFields || (Strings.InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + fieldName + ",", CompareMethod.Text) == 0)) {
+                                        } else if ((fieldContentID == contentId) && (fieldId != lastFieldID)) {
+                                            if (includeBaseFields || (Strings.InStr(1, ",id,ContentCategoryID,dateadded,createdby,modifiedby,EditBlank,EditArchive,EditSourceID,ContentControlID,CreateKey,ModifiedDate,ccguid,", "," + fieldName + ",", CompareMethod.Text) == 0)) {
                                                 int memberSelectGroupId = fieldsCs.GetInteger("MemberSelectGroupID");
                                                 string memberSelectGroup = memberSelectGroupId <= 0 ? "" : cp.Group.GetName(memberSelectGroupId.ToString());
                                                 sb.Append(System.Environment.NewLine + "\t\t<Field");
@@ -366,22 +353,22 @@ namespace Contensive.Processor.Controllers {
                                                 sb.Append($" EditTab=\"{fieldsCs.GetText("EditTab")}\"");
                                                 sb.Append($" EditGroup=\"{fieldsCs.GetText("EditGroup")}\"");
                                                 sb.Append($" FieldType=\"{fieldType}\"");
-                                                sb.Append($" Authorable=\"{getTrueFalse( fieldsCs.GetBoolean("Authorable"))}\"");
+                                                sb.Append($" Authorable=\"{getTrueFalse(fieldsCs.GetBoolean("Authorable"))}\"");
                                                 sb.Append($" EditSortPriority=\"{fieldsCs.GetText("EditSortPriority")}\"");
                                                 sb.Append($" DefaultValue=\"{fieldsCs.GetText("DefaultValue")}\"");
-                                                sb.Append($" Active=\"{getTrueFalse( fieldsCs.GetBoolean("Active"))}\"");
-                                                sb.Append($" AdminOnly=\"{getTrueFalse( fieldsCs.GetBoolean("AdminOnly"))}\"");
-                                                sb.Append($" DeveloperOnly=\"{getTrueFalse( fieldsCs.GetBoolean("DeveloperOnly"))}\"");
-                                                sb.Append($" HTMLContent=\"{getTrueFalse( fieldsCs.GetBoolean("HTMLContent"))}\"");
-                                                sb.Append($" Required=\"{getTrueFalse( fieldsCs.GetBoolean("Required"))}\"");
-                                                sb.Append($" TextBuffered=\"{getTrueFalse( fieldsCs.GetBoolean("TextBuffered"))}\"");
-                                                sb.Append($" UniqueName=\"{getTrueFalse( fieldsCs.GetBoolean("UniqueName"))}\"");
+                                                sb.Append($" Active=\"{getTrueFalse(fieldsCs.GetBoolean("Active"))}\"");
+                                                sb.Append($" AdminOnly=\"{getTrueFalse(fieldsCs.GetBoolean("AdminOnly"))}\"");
+                                                sb.Append($" DeveloperOnly=\"{getTrueFalse(fieldsCs.GetBoolean("DeveloperOnly"))}\"");
+                                                sb.Append($" HTMLContent=\"{getTrueFalse(fieldsCs.GetBoolean("HTMLContent"))}\"");
+                                                sb.Append($" Required=\"{getTrueFalse(fieldsCs.GetBoolean("Required"))}\"");
+                                                sb.Append($" TextBuffered=\"{getTrueFalse(fieldsCs.GetBoolean("TextBuffered"))}\"");
+                                                sb.Append($" UniqueName=\"{getTrueFalse(fieldsCs.GetBoolean("UniqueName"))}\"");
                                                 sb.Append($" MemberSelectGroup=\"{memberSelectGroup}\"");
-                                                sb.Append($" Scramble=\"{getTrueFalse( fieldsCs.GetBoolean("Scramble"))}\"");
+                                                sb.Append($" Scramble=\"{getTrueFalse(fieldsCs.GetBoolean("Scramble"))}\"");
                                                 sb.Append($" LookupList=\"{fieldsCs.GetText("LookupList")}\"");
-                                                sb.Append($" NotEditable=\"{getTrueFalse( fieldsCs.GetBoolean("NotEditable"))}\"");
-                                                sb.Append($" Password=\"{getTrueFalse( fieldsCs.GetBoolean("Password"))}\"");
-                                                sb.Append($" ReadOnly=\"{getTrueFalse( fieldsCs.GetBoolean("ReadOnly"))}\"");
+                                                sb.Append($" NotEditable=\"{getTrueFalse(fieldsCs.GetBoolean("NotEditable"))}\"");
+                                                sb.Append($" Password=\"{getTrueFalse(fieldsCs.GetBoolean("Password"))}\"");
+                                                sb.Append($" ReadOnly=\"{getTrueFalse(fieldsCs.GetBoolean("ReadOnly"))}\"");
                                                 sb.Append($" ManyToManyRulePrimaryField=\"{fieldsCs.GetText("ManyToManyRulePrimaryField")}\"");
                                                 sb.Append($" ManyToManyRuleSecondaryField=\"{fieldsCs.GetText("ManyToManyRuleSecondaryField")}\"");
                                                 sb.Append($" IndexColumn=\"{fieldsCs.GetText("IndexColumn")}\"");
@@ -390,7 +377,7 @@ namespace Contensive.Processor.Controllers {
                                                 sb.Append($" IndexWidth=\"{fieldsCs.GetText("IndexWidth")}\"");
                                                 sb.Append($" RedirectId=\"{fieldsCs.GetText("RedirectID")}\"");
                                                 sb.Append($" RedirectPath=\"{fieldsCs.GetText("RedirectPath")}\"");
-                                                sb.Append($" IsBaseField=\"{getTrueFalse( fieldsCs.GetBoolean("IsBaseField"))}\"");
+                                                sb.Append($" IsBaseField=\"{getTrueFalse(fieldsCs.GetBoolean("IsBaseField"))}\"");
                                                 sb.Append($" EditorAddonId=\"{fieldsCs.GetText("editorAddonGuid")}\"");
                                                 // 
                                                 RecordName = "";
@@ -424,8 +411,8 @@ namespace Contensive.Processor.Controllers {
                                                 if (string.IsNullOrEmpty(HelpDefault)) {
                                                     HelpDefault = fieldsCs.GetText("helpdefault");
                                                 }
-                                                    if (!string.IsNullOrEmpty(HelpDefault)) {
-                                                        sb.Append(System.Environment.NewLine + $"\t\t\t<HelpDefault>{EncodeCData(HelpDefault)}</HelpDefault>");
+                                                if (!string.IsNullOrEmpty(HelpDefault)) {
+                                                    sb.Append(System.Environment.NewLine + $"\t\t\t<HelpDefault>{EncodeCData(HelpDefault)}</HelpDefault>");
                                                     HelpCnt += 1;
                                                 }
                                                 if (HelpCnt > 0) {
@@ -532,10 +519,10 @@ namespace Contensive.Processor.Controllers {
                                             // 
                                             if (IndexName != "" & IndexFields != "") {
                                                 sb.Append("<SQLIndex");
-                                                sb.Append(" Indexname=\"" + EncodeXMLattribute(IndexName) + "\"");
-                                                sb.Append(" DataSourceName=\"" + EncodeXMLattribute(DataSourceName) + "\"");
-                                                sb.Append(" TableName=\"" + EncodeXMLattribute(TableName) + "\"");
-                                                sb.Append(" FieldNameList=\"" + EncodeXMLattribute(IndexFields) + "\"");
+                                                sb.Append(" Indexname=\"" + encodeXMLattribute(IndexName) + "\"");
+                                                sb.Append(" DataSourceName=\"" + encodeXMLattribute(DataSourceName) + "\"");
+                                                sb.Append(" TableName=\"" + encodeXMLattribute(TableName) + "\"");
+                                                sb.Append(" FieldNameList=\"" + encodeXMLattribute(IndexFields) + "\"");
                                                 sb.Append("></SQLIndex>" + System.Environment.NewLine);
                                             }
                                             // 
@@ -595,7 +582,7 @@ namespace Contensive.Processor.Controllers {
                         RecordName = (dt.GetText("Name"));
                         ParentID = (dt.GetInteger("ParentID"));
                         menuNameSpace = getMenuNameSpace(ParentID, "");
-                        sb.Append("<NavigatorEntry Name=\"" + EncodeXMLattribute(RecordName) + "\"");
+                        sb.Append("<NavigatorEntry Name=\"" + encodeXMLattribute(RecordName) + "\"");
                         sb.Append(" NameSpace=\"" + menuNameSpace + "\"");
                         sb.Append(" LinkPage=\"" + GetRSXMLAttribute(dt, "LinkPage") + "\"");
                         sb.Append(" ContentName=\"" + GetRSXMLLookupAttribute(dt, "ContentID", "ccContent") + "\"");
@@ -640,7 +627,7 @@ namespace Contensive.Processor.Controllers {
                 if ((dr.OpenSQL("select * from ccMenuEntries where (contentcontrolid=" + MenuContentID + ")and(name<>'')"))) {
                     do {
                         RecordName = (dr.GetText("Name"));
-                        sb.Append("<MenuEntry Name=\"" + EncodeXMLattribute(RecordName) + "\"");
+                        sb.Append("<MenuEntry Name=\"" + encodeXMLattribute(RecordName) + "\"");
                         sb.Append(" ParentName=\"" + GetRSXMLLookupAttribute(dr, "ParentID", "ccMenuEntries") + "\"");
                         sb.Append(" LinkPage=\"" + GetRSXMLAttribute(dr, "LinkPage") + "\"");
                         sb.Append(" ContentName=\"" + GetRSXMLLookupAttribute(dr, "ContentID", "ccContent") + "\"");
@@ -696,7 +683,7 @@ namespace Contensive.Processor.Controllers {
         // 
         // 
         // 
-        private string EncodeXMLattribute(string Source) {
+        private string encodeXMLattribute(string Source) {
             string result = System.Net.WebUtility.HtmlEncode(Source);
             result = Strings.Replace(result, System.Environment.NewLine, " ");
             result = Strings.Replace(result, "\n", "");
@@ -725,13 +712,13 @@ namespace Contensive.Processor.Controllers {
         // 
         // 
         private string GetRSXMLAttribute(CPCSBaseClass dr, string FieldName) {
-            return EncodeXMLattribute((dr.GetText(FieldName)));
+            return encodeXMLattribute((dr.GetText(FieldName)));
         }
         // 
         // 
         // 
         private string GetRSXMLLookupAttribute(CPCSBaseClass dr, string FieldName, string TableName) {
-            return EncodeXMLattribute(GetTableRecordName(TableName, (dr.GetInteger(FieldName))));
+            return encodeXMLattribute(GetTableRecordName(TableName, (dr.GetInteger(FieldName))));
         }
         // 
         // 

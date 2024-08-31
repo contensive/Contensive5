@@ -351,7 +351,6 @@ namespace Contensive.Processor.Controllers {
                         if (!redisValue.IsNull) {
                             result = Newtonsoft.Json.JsonConvert.DeserializeObject<CacheDocumentClass>(redisValue);
                         }
-                        //result = cacheClientMemCacheD.Get<CacheDocumentClass>(keyHash.hash);
                     } catch (Exception ex) {
                         logger.Error(ex, $"{core.logCommonMessage}");
                         throw;

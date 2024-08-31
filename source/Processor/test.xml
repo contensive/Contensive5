@@ -8,7 +8,6 @@
 	OnInstallAddonGuid=""
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd">
-
 	<HelpLink></HelpLink>
 	<Help></Help>
 	<Addon Name="test" Guid="{9FAD70BD-F2EF-488F-B1A5-65D1A5A636F1}" Type="Widget">
@@ -56,7 +55,7 @@
 		<StylesLinkPlatform5Href></StylesLinkPlatform5Href>
 		<Scripting Language="VBScript" EntryPoint="" Timeout="5000"/>
 	</Addon>
-	<CDef Name="EditModalTestData" Active="1" AdminOnly="0" AllowAdd="1" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowMetaContent="" AllowTopicRules="0" NavTypeId="" AddonCategoryId="20" AuthoringDataSourceName="Default" AuthoringTableName="EditModalTestData" ContentDataSourceName="Default" ContentTableName="EditModalTestData" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="Name" EditorGroupName="Site Managers" Parent="" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" Guid="{b14b478a-0645-4e89-b199-a49244f969a9}" >
+	<CDef Name="EditModalTestData" Active="1" AdminOnly="0" AllowAdd="1" AllowCalendarEvents="0" AllowContentChildTool="0" AllowContentTracking="0" AllowDelete="1" AllowMetaContent="" AllowTopicRules="0" NavTypeId="" AddonCategoryId="20" AuthoringDataSourceName="Default" AuthoringTableName="EditModalTestData" ContentDataSourceName="Default" ContentTableName="EditModalTestData" DefaultSortMethod="By Name" DeveloperOnly="0" DropDownFieldList="Name" EditorGroupName="Site Managers" IconLink="" IconHeight="0" IconWidth="0" IconSprites="0" Parent="" Guid="{b14b478a-0645-4e89-b199-a49244f969a9}" >
 		<Field Name="testredirect" Caption="testRedirect" EditTab="" EditGroup="" FieldType="Redirect" Authorable="true" EditSortPriority="0" DefaultValue="" Active="true" AdminOnly="false" DeveloperOnly="false" HTMLContent="false" Required="false" TextBuffered="false" UniqueName="false" MemberSelectGroup="" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="" RedirectId="editModalTestDataId" RedirectPath="" IsBaseField="false" EditorAddonId="" LookupContent="" RedirectContent="People" ManyToManyContent="" ManyToManyRuleContent="" >
 			<HelpDefault><![CDATA[All work and no play makes Johnny a dull boy.]]></HelpDefault>
 		</Field>
