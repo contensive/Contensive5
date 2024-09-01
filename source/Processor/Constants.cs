@@ -562,7 +562,7 @@ namespace Contensive.Processor {
         internal const string FieldTypeNameLcaseTextFile = "textfile";
         internal const string FieldTypeNameLcaseCSSFile = "cssfile";
         internal const string FieldTypeNameLcaseXMLFile = "xmlfile";
-        internal const string FieldTypeNameLcaseJavaScriptFile = "JavaScriptFile";
+        internal const string FieldTypeNameLcaseJavaScriptFile = "javascriptfile";
         internal const string FieldTypeNameLcaseLink = "link";
         internal const string FieldTypeNameLcaseResourceLink = "resourcelink";
         internal const string FieldTypeNameLcaseMemberSelect = "memberselect";
@@ -1096,6 +1096,9 @@ namespace Contensive.Processor {
         // Edit Modal layouts, all come from the same file
 
         // baseAssets/LinkAliasPreviewEditor.html
+        public const string layoutAdminSiteGuid = "{06CF29A1-B5E9-4170-894B-069CF36C7E7D}";
+        public const string layoutAdminSiteName = "Admin Site Layout";
+        public const string layoutAdminSiteCdnPathFilename = @"adminsite\AdminSiteLayout.html";
         //
         public const string layoutLinkAliasPreviewEditorGuid = "{276A953D-BE40-4181-9749-56D8680455FA}";
         public const string layoutLinkAliasPreviewEditorName = "Link Alias Preview Editor";

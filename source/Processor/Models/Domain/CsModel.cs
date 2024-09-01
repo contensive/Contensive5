@@ -733,9 +733,9 @@ namespace Contensive.Processor {
                 string returnFilename;
                 //
                 if (!ok()) {
-                    throw new ArgumentException("the current data set is not valid.");
+                    throw new ArgumentException("the current data set is not valid");
                 } else if (string.IsNullOrEmpty(fieldName)) {
-                    throw new ArgumentException("Fieldname Is blank");
+                    throw new ArgumentException("the fieldname is blank");
                 } else {
                     fieldNameUpper = GenericController.toUCase(fieldName.Trim(' '));
                     returnFilename = getValueStoredInDbField(fieldNameUpper);
@@ -1235,6 +1235,14 @@ namespace Contensive.Processor {
                 if (string.IsNullOrEmpty(PathFilename)) {
                     //
                     // -- current pathFilename is empty (value in cs)
+                    PathFilename = getFilename(fieldName, "", contentName, fieldTypeId);
+                }
+                if (!fileSystem.isValidPathFilename(PathFilename)) {
+                    //
+                    // -- current pathFilename is not a valid filename. This case came up when the field was set improperly.
+                    // -- there is not way to fix this field without regenerating the filename. getFilename first reads the value
+                    // -- this can only be used for content files, where original-filename is empty
+                    setFilename(fieldName, "");
                     PathFilename = getFilename(fieldName, "", contentName, fieldTypeId);
                 }
                 if (PathFilename.left(1) == "/") {

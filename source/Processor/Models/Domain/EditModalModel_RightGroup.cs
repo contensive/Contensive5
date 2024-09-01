@@ -21,7 +21,7 @@ namespace Contensive.Processor.Models.Domain {
         public List<EditModalModel_Field> rightGroupFields { get; set; }
         //
         public static EditModalModel_RightGroup getContainerStyles(CoreController core, ContentMetadataModel contentMetadata, Dictionary<string, ContentFieldMetadataModel> styleFields, string editModalSn, CPCSBaseClass currentRecordCs) {
-            int recordId = currentRecordCs.OK() ?  currentRecordCs.GetInteger("id") : 0 ;
+            int recordId = currentRecordCs.OK() ? currentRecordCs.GetInteger("id") : 0;
             string help = "";
             EditModalModel_RightGroup result = new() {
                 groupId = GenericController.getRandomString(4),
@@ -31,7 +31,7 @@ namespace Contensive.Processor.Models.Domain {
                 isHelp = string.IsNullOrEmpty(help),
                 rightGroupFields = []
             };
-            if(styleFields.ContainsKey("padtop")) {
+            if (styleFields.ContainsKey("padtop")) {
                 string currentValue = currentRecordCs.OK() ? currentRecordCs.GetText("padtop") : "0";
                 result.rightGroupFields.Add(new EditModalModel_Field(core, styleFields["padtop"], currentValue, recordId, styleFields, contentMetadata, editModalSn, false));
             }
@@ -69,8 +69,8 @@ namespace Contensive.Processor.Models.Domain {
             return result;
         }
         //
-        public static EditModalModel_RightGroup getButtonStyles(CoreController core, ContentMetadataModel contentMetadata, Dictionary<string, ContentFieldMetadataModel> styleFields, string editModalSn, CPCSBaseClass currentRecordCs) {
-            int recordId = currentRecordCs.OK() ?  currentRecordCs.GetInteger("id") : 0 ;
+        public static EditModalModel_RightGroup getButtonFields(CoreController core, ContentMetadataModel contentMetadata, Dictionary<string, ContentFieldMetadataModel> styleFields, string editModalSn, CPCSBaseClass currentRecordCs) {
+            int recordId = currentRecordCs.OK() ? currentRecordCs.GetInteger("id") : 0;
             string help = "";
             EditModalModel_RightGroup result = new() {
                 groupId = GenericController.getRandomString(4),
@@ -80,7 +80,7 @@ namespace Contensive.Processor.Models.Domain {
                 isHelp = string.IsNullOrEmpty(help),
                 rightGroupFields = []
             };
-            if(styleFields.ContainsKey("buttontext")) {
+            if (styleFields.ContainsKey("buttontext")) {
                 string currentValue = currentRecordCs.OK() ? currentRecordCs.GetText("buttontext") : "";
                 result.rightGroupFields.Add(new EditModalModel_Field(core, styleFields["buttontext"], currentValue, recordId, styleFields, contentMetadata, editModalSn, false));
             }
@@ -131,18 +131,17 @@ namespace Contensive.Processor.Models.Domain {
                 }
             }
             //
-            // -- output padding section
-            result.Add(getContainerStyles(core, contentMetadata, styleFields, editModalSn, currentRecordCs));
-            result.Add(getButtonStyles(core, contentMetadata, styleFields, editModalSn, currentRecordCs));
-
-
-
-
-
-
-
-
-
+            // -- style group
+            var stylegroup = getContainerStyles(core, contentMetadata, styleFields, editModalSn, currentRecordCs);
+            if (stylegroup != null && stylegroup.rightGroupFields.Count > 0) {
+                result.Add(stylegroup);
+            }
+            // -- buttons without groups
+            var buttonGroup = getButtonFields(core, contentMetadata, contentMetadata.fields, editModalSn, currentRecordCs);
+            if (buttonGroup != null && buttonGroup.rightGroupFields.Count > 0) {
+                result.Add(buttonGroup);
+            }
+            //
             return result;
         }
 

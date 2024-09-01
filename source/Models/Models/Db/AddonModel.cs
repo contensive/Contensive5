@@ -165,8 +165,11 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int? contentSourceId { get; set; }
         //
-        // -- deprecated, but for leave for now and log error
+        [Obsolete("Use javascriptInHead to hold local javascript content", false)] 
         public string javaScriptBodyEnd { get; set; }
+        //
+        // -- deprecated, use jsHeadScriptSrc to hold URL to external scripts
+        [Obsolete("Use jsHeadScriptSrc to hold URL to external scripts", false)] 
         public string jsBodyScriptSrc { get; set; }
         //
         // -- deprecated

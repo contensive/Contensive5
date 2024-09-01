@@ -3,6 +3,7 @@ using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
 using NLog;
 using System;
+using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Addons.AdminSite {
     //
@@ -53,7 +54,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // todo -- plan is to include layout-files with base51.zip file, instead of base51.xml file -- need to review the build process to better understand first
                 // -- get layout - first layout record, then layout-file, then layout-resource
-                string layout = cp.Layout.GetLayout(Constants.guidLayoutAdminSite, "Admin Site Layout", @"adminsite\AdminSiteLayout.html");
+                string layout = cp.Layout.GetLayout(layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename);
                 if (string.IsNullOrEmpty(layout)) { layout = Processor.Properties.Resources.AdminSiteLayoutBackup; }
                 return cp.Mustache.Render(layout, new AdminSiteViewModel(cp));
             } catch (Exception ex) {

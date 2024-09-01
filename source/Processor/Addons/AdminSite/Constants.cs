@@ -9,7 +9,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         internal const string guidLayoutAdminHeader = "{980BB0F3-D15C-477F-BAD6-7CC8E86C2221}";
         internal const string guidLayoutAdminFooter = "{3B30FC7E-0652-4A80-BEA9-64E2E0CFBD15}";
-        internal const string guidLayoutAdminSite = "{06CF29A1-B5E9-4170-894B-069CF36C7E7D}";
         //
         internal const int ToolsActionMenuMove = 1;
         internal const int ToolsActionAddField = 2; // Add a field to the Index page
