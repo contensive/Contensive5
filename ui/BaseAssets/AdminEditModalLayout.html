@@ -105,9 +105,9 @@
                 z-index: 998;
             }
         </style>  
-        <div class="modal fade widgetEditModal" id="widgetEditModal{{editId}}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
+        <div class="modal fade widgetEditModal" id="widgetEditModal{{editModalSn}}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">
-                <form action="/saveEditModal" method="post" enctype="multipart/form-data" class="modal-content" id="modalForm{{editId}}">
+                <form action="/saveEditModal" method="post" enctype="multipart/form-data" class="modal-content" id="modalForm{{editModalSn}}">
                     <input type="hidden" name="recordId" value="{{recordId}}">
                     <input type="hidden" name="contentGuid" value="{{contentGuid}}">
                     <div class="modal-header d-flex justify-content-between border-0">
@@ -737,7 +737,7 @@
                             {{/allowDeleteData}}
                         </div>
                         <div>
-                            <button type="button" name="button" value="cancel" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn{{editId}}">Cancel</button>
+                            <button type="button" name="button" value="cancel" class="btn btn-secondary" data-bs-dismiss="modal" id="cancelBtn{{editModalSn}}">Cancel</button>
                             <button type="submit" name="button" value="saveChanges" class="btn btn-primary">Save Changes</button>
                         </div>
                     </div>
@@ -745,12 +745,12 @@
             </div>
         </div>
         <script>
-            console.log('widgetEditModal{{editId}} script');
+            console.log('widgetEditModal{{editModalSn}} script');
             document.addEventListener("DOMContentLoaded", function(event) { 
-                console.log('widgetEditModal{{editId}} binding');
-                $('#cancelBtn{{editId}}').on('click',function(){
+                console.log('widgetEditModal{{editModalSn}} binding');
+                $('#cancelBtn{{editModalSn}}').on('click',function(){
                     console.log('form reset, close modal');
-                    document.getElementById("modalForm{{editId}}").reset();
+                    document.getElementById("modalForm{{editModalSn}}").reset();
                 })
                 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                 var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
