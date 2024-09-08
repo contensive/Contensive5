@@ -135,7 +135,8 @@ namespace Contensive.Processor.Models.Domain {
         /// if isFile or isImage, this is the name of the file without path
         /// </summary>
         public string fileName { get; }
-
+        //
+        // ====================================================================================================
         //
         /// <summary>
         /// create the select input option list for lookup field types using AdminUI, and remove the select wrapper
@@ -169,6 +170,8 @@ namespace Contensive.Processor.Models.Domain {
             return EditorString;
         }
         //
+        // ====================================================================================================
+        //
         /// <summary>
         /// return the options from a select tag
         /// </summary>
@@ -185,8 +188,13 @@ namespace Contensive.Processor.Models.Domain {
             return result;
         }
         //
+        // ====================================================================================================
+        //
         /// <summary>
-        /// Get the list of fields to be edited
+        /// Get the list of fields to be edited. 
+        /// Fields in the main "details" tab that are not in the rightFields list.
+        /// Exclude fields that are in the rightGroups
+        /// Add hiddens for fields that are one of the presets but are not included in left and right lists
         /// </summary>
         /// <param name="core"></param>
         /// <param name="currentRecordCs"></param>
@@ -194,7 +202,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
         /// <param name="editModalSn">a unique string for the current editor (edit tag plus modal)</param>
         /// <returns></returns>
-        public static List<EditModalModel_Field> getLeftFields(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editModalSn) {
+        public static List<EditModalModel_Field> getLeftFields(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editModalSn, List<EditModalModel_RightGroup> rightGroups) {
             List<EditModalModel_Field> result = [];
             Dictionary<string, string> prepopulateValue = [];
             if (!string.IsNullOrEmpty(presetNameValuePairs)) {
@@ -215,6 +223,10 @@ namespace Contensive.Processor.Models.Domain {
             foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                 string fieldName = fieldKvp.Key;
                 ContentFieldMetadataModel field = fieldKvp.Value;
+                //
+                // -- search rightGroups for this field, if found, skip it
+                if (rightGroups.Find( (x) => x.rightGroupFields.Find((x) => x.fileName == fieldName)!=null ) !=null) { continue; }
+                //
                 if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
                     string currentValue = "";
                     if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany || field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {

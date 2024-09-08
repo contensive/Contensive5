@@ -35,7 +35,6 @@ namespace Contensive.Processor.Models.Domain {
                 contentItemName = GenericController.getSingular_Sortof(core, contentMetadata.name);
                 pageId = core.doc.pageController.page.id;
                 string instanceId = core.docProperties.getText("instanceId");
-                leftFields = EditModalModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
                 if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID") == instanceId) {
                     // -- is widget
                     rightGroups = EditModalModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
@@ -46,7 +45,10 @@ namespace Contensive.Processor.Models.Domain {
                     // -- not widget
                     allowDeleteData = true;
                     allowDeleteWidget = false;
+                    rightGroups = [];
+
                 }
+                leftFields = EditModalModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, rightGroups);
             }
         }
         //
