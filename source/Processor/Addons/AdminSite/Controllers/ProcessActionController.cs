@@ -513,7 +513,7 @@ namespace Contensive.Processor.Addons.AdminSite.Controllers {
                             //
                             //
                             EditRecordModel.SaveEditRecord(cp, adminData);
-                            cp.core.html.processCheckList("LibraryFolderRules", adminData.adminContent.name, GenericController.encodeText(adminData.editRecord.id), "Groups", "Library Folder Rules", "FolderID", "GroupID");
+                            cp.core.html.processCheckList("LibraryFolderRules", adminData.adminContent.name, adminData.editRecord.id, "Groups", "Library Folder Rules", "FolderID", "GroupID");
                             // -- legacy
                             ContentTrackingController.loadContentTrackingDataBase(cp.core, adminData);
                             ContentTrackingController.loadContentTrackingResponse(cp.core, adminData);

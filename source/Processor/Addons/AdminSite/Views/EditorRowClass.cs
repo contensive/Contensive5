@@ -73,7 +73,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 editorEnv.formFieldList = request.formFieldList;
                 //
                 // assemble the editor row
-                return AdminUIController.getEditRow(core, response.editorString, response.fieldCaption, field.helpDefault, field.required, false, response.fieldHtmlId, response.editorWrapperSyle);
+                return AdminUIController.getEditRow(core, response.editorString, response.fieldCaption, field.helpDefault, field.required, false, response.fieldHtmlId, response.editorWrapperSyle,false,"");
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "getEditorRow, hint[" + hint + "], field [" + hintField + "]");
                 throw;

@@ -373,7 +373,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                         case CPContentBaseClass.FieldTypeIdEnum.ManyToMany: {
                                                 //
                                                 // Many to Many checklist
-                                                cp.core.html.processCheckList("field" + field.id, MetadataController.getContentNameByID(cp.core, field.contentId), encodeText(adminData.editRecord.id), MetadataController.getContentNameByID(cp.core, field.manyToManyContentId), MetadataController.getContentNameByID(cp.core, field.manyToManyRuleContentId), field.manyToManyRulePrimaryField, field.manyToManyRuleSecondaryField);
+                                                cp.core.html.processCheckList("field" + field.id, MetadataController.getContentNameByID(cp.core, field.contentId), adminData.editRecord.id, MetadataController.getContentNameByID(cp.core, field.manyToManyContentId), MetadataController.getContentNameByID(cp.core, field.manyToManyRuleContentId), field.manyToManyRulePrimaryField, field.manyToManyRuleSecondaryField);
                                                 break;
                                             }
                                         default: {

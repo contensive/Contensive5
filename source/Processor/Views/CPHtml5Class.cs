@@ -278,8 +278,14 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
-        public override void ProcessCheckList(string htmlName, string PrimaryContentName, string PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
-            cp.core.html.processCheckList(htmlName, PrimaryContentName, PrimaryRecordID, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
+        [Obsolete("Use ProcessCheckList with corrected type ", false)] public override void ProcessCheckList(string htmlName, string PrimaryContentName, string PrimaryRecordId, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
+            cp.core.html.processCheckList(htmlName, PrimaryContentName, GenericController.encodeInteger( PrimaryRecordId), SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
+        }
+        //
+        // ====================================================================================================
+        //
+        public override void ProcessCheckList(string htmlName, string PrimaryContentName, int PrimaryRecordId, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
+            cp.core.html.processCheckList(htmlName, PrimaryContentName, PrimaryRecordId, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
         }
         //
         // ==========================================================================================

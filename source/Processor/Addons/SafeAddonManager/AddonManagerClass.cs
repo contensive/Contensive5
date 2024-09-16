@@ -563,8 +563,8 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                                 + "</table>"
                                 + Controllers.HtmlController.inputHidden("UploadCount", 1, "", "UploadCount") + "";
                             Body.add(AdminUIController.editTable(""
-                                + AdminUIController.getEditRowLegacy(core, Controllers.HtmlController.inputFile("MetaFile"), "Add-on Collection File(s)", "", true, false, "")
-                                + AdminUIController.getEditRowLegacy(core, FormInput, "&nbsp;", "", true, false, "")
+                                + AdminUIController.getEditRow(core, Controllers.HtmlController.inputFile("MetaFile"), "Add-on Collection File(s)", "", true, false, "")
+                                + AdminUIController.getEditRow(core, FormInput, "&nbsp;", "", true, false, "")
                                 ));
                         }
                         adminMenu.addEntry("Add&nbsp;Manually", AdminUIController.getEditPanel(core, true, "Install or Update an Add-on Collection.", "Use this form to upload a new or updated Add-on Collection to your site. A collection file can be a single xml configuration file, a single zip file containing the configuration file and other resource files, or a configuration with other resource files uploaded separately. Use the 'Add more files' link to add as many files as you need. When you hit OK, the Collection will be checked, and only submitted if all files are uploaded.", Body.text), "ccAdminTab");

@@ -439,7 +439,7 @@ namespace Contensive.Processor.Controllers {
         private static void installMetaDataMiniCollection_BuildDb(CoreController core, bool isBaseCollection, MetadataMiniCollectionModel Collection, bool isNewBuild, bool reinstallDependencies, string logPrefix) {
             try {
                 //
-                string logMsgContext = "installing MetaDataMiniCollection BuildDb, collection [" + Collection.name + "]";
+                 string logMsgContext = "installing MetaDataMiniCollection BuildDb, collection [" + Collection.name + "]";
                 logger.Info($"{core.logCommonMessage},Application: " + core.appConfig.name + ", Upgrademetadata_BuildDbFromCollection");
                 //
                 //----------------------------------------------------------------------------------------------------------------------

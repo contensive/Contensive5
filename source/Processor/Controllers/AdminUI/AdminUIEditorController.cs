@@ -682,12 +682,13 @@ namespace Contensive.Processor.Controllers {
         /// <param name="isPassword"></param>
         /// <returns></returns>
         public static string getTextEditor(CoreController core, string fieldName, string fieldValue, bool readOnly, string htmlId, bool required = false) {
-            if ((fieldValue.IndexOf("\n", StringComparison.InvariantCulture) == -1) && (fieldValue.Length < 80)) {
+            string editValue = fieldValue ?? "";
+            if ((editValue.IndexOf("\n", StringComparison.InvariantCulture) == -1) && (editValue.Length < 80)) {
                 //
                 // text field shorter then 40 characters without a CR
-                return HtmlController.inputText_Legacy(core, fieldName, fieldValue, 1, -1, htmlId, false, readOnly, "text form-control", 255, false, "", required);
+                return HtmlController.inputText_Legacy(core, fieldName, editValue, 1, -1, htmlId, false, readOnly, "text form-control", 255, false, "", required);
             }
-            return AdminUIEditorController.getHtmlCodeEditor(core, fieldName, fieldValue, readOnly, htmlId, required);
+            return AdminUIEditorController.getHtmlCodeEditor(core, fieldName, editValue, readOnly, htmlId, required);
         }
         //
         // ====================================================================================================

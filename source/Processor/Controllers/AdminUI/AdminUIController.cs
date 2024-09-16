@@ -712,27 +712,47 @@ namespace Contensive.Processor.Controllers {
         }
         //
         // ====================================================================================================
-
-        //
-        // ====================================================================================================
         /// <summary>
         /// return an admin edit page row for one field in a list of fields within a tab
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="Caption"></param>
-        /// <param name="fieldHtmlId"></param>
-        /// <param name="EditorString"></param>
-        /// <param name="editorHelpRow"></param>
+        /// <param name="label"></param>
+        /// <param name="htmlId"></param>
+        /// <param name="editHtml"></param>
+        /// <param name="help"></param>
         /// <returns></returns>
-        public static string getEditRow(CoreController core, string EditorString, string Caption, string editorHelpRow, bool fieldRequired = false, bool ignore = false, string fieldHtmlId = "", string editorWrapperStyle = "", bool blockBottomRule = false, string editorWrapperClass = "") {
-            if(string.IsNullOrEmpty(editorWrapperClass)) { editorWrapperClass = "ml-5 ms-5";  }
-            return HtmlController.div(HtmlController.label(Caption, fieldHtmlId) + HtmlController.div(EditorString, editorWrapperClass, "", editorWrapperStyle) + HtmlController.div(HtmlController.small(editorHelpRow, "form-text text-muted"), "ml-5 ms-5"), "p-2" + ((blockBottomRule) ? "" : " border-bottom"), fieldHtmlId + "-wrapper");
+        public static string getEditRow(CoreController core, string editHtml, string label, string help, bool isRequired, bool ignore, string htmlId, string editorWrapperStyle, bool blockBottomRule, string editorWrapperClass) {
+            if (string.IsNullOrEmpty(editorWrapperClass)) {
+                editorWrapperClass = "ml-5 ms-5";
+            }
+            string wrappedLabel = HtmlController.label(label, htmlId);
+            string wrappedEditor = HtmlController.div(editHtml, editorWrapperClass, "", editorWrapperStyle);
+            string smallHelp = HtmlController.div(HtmlController.small(help, "form-text text-muted"), "ml-5 ms-5");
+            string content = wrappedLabel + wrappedEditor + smallHelp;
+            string wrapperHtmlId = string.IsNullOrEmpty(htmlId) ? "" : htmlId + "-wrapper";
+            string wrapperClass = "p-2" + ((blockBottomRule) ? "" : " border-bottom");
+            return HtmlController.div(content, wrapperClass, wrapperHtmlId);
         }
         //
         // ====================================================================================================
         //
-        public static string getEditRowLegacy(CoreController core, string HTMLFieldString, string Caption, string HelpMessage = "", bool FieldRequired = false, bool AllowActiveEdit = false, string htmlId = "") {
-            return getEditRow(core, HTMLFieldString, Caption, HelpMessage, FieldRequired, AllowActiveEdit, htmlId);
+        public static string getEditRow(CoreController core, string editHtml, string label, string help, bool isRequired, bool ignore, string htmlId) {
+            return getEditRow(core, editHtml, label, help, isRequired, ignore, htmlId,"",false,"");
+        }
+        //
+        // ====================================================================================================
+        public static string getEditRow(CoreController core, string editHtml, string label, string help, bool isRequired) {
+            return getEditRow(core, editHtml, label, help, isRequired, false, "", "", false, "");
+        }
+        //
+        // ====================================================================================================
+        public static string getEditRow(CoreController core, string editHtml, string label, string help) {
+            return getEditRow(core, editHtml, label, help, false, false, "", "", false, "");
+        }
+        //
+        // ====================================================================================================
+        public static string getEditRow(CoreController core, string editHtml, string label) {
+            return getEditRow(core, editHtml, label, "", false, false, "", "", false, "");
         }
         //
         //====================================================================================================

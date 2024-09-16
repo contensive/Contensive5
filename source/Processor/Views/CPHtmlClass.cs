@@ -219,8 +219,12 @@ namespace Contensive.Processor {
         public override string ul(string innerHtml, string htmlName) => HtmlController.ul(innerHtml);
         public override string ul(string innerHtml) => HtmlController.ul(innerHtml);
         //
-        public override void ProcessCheckList(string htmlName, string PrimaryContentName, string PrimaryRecordID, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
-            cp.core.html.processCheckList(htmlName, PrimaryContentName, PrimaryRecordID, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
+        [Obsolete("Use method with int PrimaryRecordId",false)] public override void ProcessCheckList(string htmlName, string PrimaryContentName, string PrimaryRecordId, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
+            cp.core.html.processCheckList(htmlName, PrimaryContentName, encodeInteger(PrimaryRecordId), SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
+        }
+        //
+        public override void ProcessCheckList(string htmlName, string PrimaryContentName, int PrimaryRecordId, string SecondaryContentName, string RulesContentName, string RulesPrimaryFieldname, string RulesSecondaryFieldName) {
+            cp.core.html.processCheckList(htmlName, PrimaryContentName, PrimaryRecordId, SecondaryContentName, RulesContentName, RulesPrimaryFieldname, RulesSecondaryFieldName);
         }
         public override string RadioBox(string htmlName, string htmlValue, string currentValue, string htmlClass, string htmlId) {
             return HtmlController.inputRadio(htmlName, htmlValue, currentValue, htmlId, htmlClass);

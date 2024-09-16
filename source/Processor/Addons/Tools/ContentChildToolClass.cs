@@ -150,15 +150,15 @@ namespace Contensive.Processor.Addons.Tools {
                         FieldValue = "<select size=\"1\" name=\"ParentContentID\" ID=\"\"><option value=\"\">Select One</option>";
                         FieldValue = FieldValue + GetContentChildTool_Options(cp, 0, ParentContentId);
                         FieldValue = FieldValue + "</select>";
-                        tableBody += AdminUIController.getEditRowLegacy(cp.core, FieldValue, "Parent Content Name", "", false, false, "");
+                        tableBody += AdminUIController.getEditRow(cp.core, FieldValue, "Parent Content Name", "", false, false, "");
                         //
                         FieldValue = Controllers.HtmlController.inputText_Legacy(cp.core, "ChildContentName", ChildContentName, 1, 40);
-                        tableBody += AdminUIController.getEditRowLegacy(cp.core, FieldValue, "New Child Content Name", "", false, false, "");
+                        tableBody += AdminUIController.getEditRow(cp.core, FieldValue, "New Child Content Name", "", false, false, "");
                         //
                         FieldValue = ""
                             + Controllers.HtmlController.inputRadio("NewGroup", false.ToString(), NewGroup.ToString()) + cp.core.html.selectFromContent("GroupID", GroupId, "Groups", "", "", "", ref IsEmptyList) + "(Select a current group)"
                             + "<br>" + Controllers.HtmlController.inputRadio("NewGroup", true.ToString(), NewGroup.ToString()) + Controllers.HtmlController.inputText_Legacy(cp.core, "NewGroupName", NewGroupName) + "(Create a new group)";
-                        tableBody += AdminUIController.getEditRowLegacy(cp.core, FieldValue, "Content Manager Group", "", false, false, "");
+                        tableBody += AdminUIController.getEditRow(cp.core, FieldValue, "Content Manager Group", "", false, false, "");
                         //
                         Content.add(AdminUIController.editTable(tableBody));
                         Content.add("</td></tr>" + kmaEndTable);

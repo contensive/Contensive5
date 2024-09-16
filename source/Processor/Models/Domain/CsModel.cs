@@ -1815,7 +1815,7 @@ namespace Contensive.Processor {
                         KeyValuePair<string, ContentFieldMetadataModel> fieldKVP = contentMeta.fields.First((x) => x.Value.nameLc == fieldName);
                         ContentFieldMetadataModel field = fieldKVP.Value;
                         int id = getInteger("ID");
-                        core.html.processCheckList("field" + field.id, MetadataController.getContentNameByID(core, field.contentId), encodeText(id), MetadataController.getContentNameByID(core, field.manyToManyContentId), MetadataController.getContentNameByID(core, field.manyToManyRuleContentId), field.manyToManyRulePrimaryField, field.manyToManyRuleSecondaryField);
+                        core.html.processCheckList("field" + field.id, MetadataController.getContentNameByID(core, field.contentId), id, MetadataController.getContentNameByID(core, field.manyToManyContentId), MetadataController.getContentNameByID(core, field.manyToManyRuleContentId), field.manyToManyRulePrimaryField, field.manyToManyRuleSecondaryField);
                         return;
                     }
                 case CPContentBaseClass.FieldTypeIdEnum.Date: {

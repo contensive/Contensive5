@@ -211,12 +211,24 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="htmlName"></param>
         /// <param name="primaryContentName"></param>
+        /// <param name="primaryRecordId"></param>
+        /// <param name="secondaryContentName"></param>
+        /// <param name="rulesContentName"></param>
+        /// <param name="rulesPrimaryFieldname"></param>
+        /// <param name="rulesSecondaryFieldName"></param>
+        [Obsolete("Use ProcessCheckList with corrected primaryRecordID type", false)] public abstract void ProcessCheckList(string htmlName, string primaryContentName, string primaryRecordId, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName);
+        //
+        /// <summary>
+        /// Process and input checklist
+        /// </summary>
+        /// <param name="htmlName"></param>
+        /// <param name="primaryContentName"></param>
         /// <param name="primaryRecordID"></param>
         /// <param name="secondaryContentName"></param>
         /// <param name="rulesContentName"></param>
         /// <param name="rulesPrimaryFieldname"></param>
         /// <param name="rulesSecondaryFieldName"></param>
-        public abstract void ProcessCheckList(string htmlName, string primaryContentName, string primaryRecordID, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName);
+        public abstract void ProcessCheckList(string htmlName, string primaryContentName, int primaryRecordID, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName);
         //
         public abstract string RadioBox(string htmlName, string htmlValue, string currentValue, string htmlClass, string htmlId);
         public abstract string RadioBox(string htmlName, string htmlValue, string currentValue, string htmlClass);

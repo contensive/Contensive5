@@ -1052,10 +1052,11 @@ namespace Contensive.Processor.Controllers {
         public static string inputText_Legacy(CoreController core, string htmlName, string defaultValue = "", int heightRows = 1, int widthCharacters = 20, string htmlId = "", bool passwordField = false, bool readOnly = false, string htmlClass = "", int maxLength = -1, bool disabled = false, string placeholder = "", bool required = false) {
             string result = "";
             try {
+                string editValue = defaultValue ?? "";
                 if ((heightRows > 1) && !passwordField) {
-                    result = inputTextarea(core, htmlName, defaultValue, heightRows, widthCharacters, htmlId, true, readOnly, htmlClass, disabled, maxLength);
+                    result = inputTextarea(core, htmlName, editValue, heightRows, widthCharacters, htmlId, true, readOnly, htmlClass, disabled, maxLength);
                 } else {
-                    defaultValue = HtmlController.encodeHtml(defaultValue);
+                    editValue = HtmlController.encodeHtml(editValue);
                     // todo replace concat with stringbuilder
                     string attrList = " name=\"" + htmlName + "\"";
                     attrList += (string.IsNullOrEmpty(htmlId)) ? "" : " id=\"" + htmlId + "\"";
@@ -1067,10 +1068,10 @@ namespace Contensive.Processor.Controllers {
                     attrList += (!required) ? "" : " required";
                     if (passwordField) {
                         attrList += (widthCharacters <= 0) ? " size=\"" + core.siteProperties.defaultFormInputWidth.ToString() + "\"" : " size=\"" + widthCharacters.ToString() + "\"";
-                        result = "<input type=\"password\" value=\"" + defaultValue + "\"" + attrList + ">";
+                        result = $"<input type=\"password\" value=\"{editValue}\"{attrList}>";
                     } else {
                         attrList += (widthCharacters <= 0) ? " size=\"" + core.siteProperties.defaultFormInputWidth.ToString() + "\"" : " size=\"" + widthCharacters.ToString() + "\"";
-                        result = "<input TYPE=\"Text\" value=\"" + defaultValue + "\"" + attrList + ">";
+                        result = $"<input TYPE=\"Text\" value=\"{editValue}\"{attrList}>";
                     }
                     core.doc.formInputTextCnt += 1;
                 }
@@ -3305,12 +3306,12 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="tagName"></param>
         /// <param name="primaryContentName"></param>
-        /// <param name="primaryRecordID"></param>
+        /// <param name="primaryRecordId"></param>
         /// <param name="secondaryContentName"></param>
         /// <param name="rulesContentName"></param>
         /// <param name="rulesPrimaryFieldname"></param>
         /// <param name="rulesSecondaryFieldName"></param>
-        public void processCheckList(string tagName, string primaryContentName, string primaryRecordID, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName) {
+        public void processCheckList(string tagName, string primaryContentName, int primaryRecordId, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName) {
             int rowCnt = core.docProperties.getInteger(tagName + ".RowCount");
             bool RuleContentChanged = false;
             if (rowCnt > 0) {
@@ -3332,7 +3333,7 @@ namespace Contensive.Processor.Controllers {
                 // Go through each checkbox and check for a rule
                 string dupRuleIdList = "";
                 string rulesTablename = MetadataController.getContentTablename(core, rulesContentName);
-                string SQL = "select " + rulesSecondaryFieldName + ",id from " + rulesTablename + " where (" + rulesPrimaryFieldname + "=" + primaryRecordID + ")and(active<>0) order by " + rulesSecondaryFieldName;
+                string SQL = "select " + rulesSecondaryFieldName + ",id from " + rulesTablename + " where (" + rulesPrimaryFieldname + "=" + primaryRecordId + ")and(active<>0) order by " + rulesSecondaryFieldName;
                 DataTable currentRules = core.db.executeQuery(SQL);
                 int currentRulesCnt = currentRules.Rows.Count;
                 for (int rowPtr = 0; rowPtr < rowCnt; rowPtr++) {
@@ -3371,7 +3372,7 @@ namespace Contensive.Processor.Controllers {
                             using (var csData = new CsModel(core)) {
                                 if (csData.insert(rulesContentName)) {
                                     csData.set("Active", ruleNeeded);
-                                    csData.set(rulesPrimaryFieldname, primaryRecordID);
+                                    csData.set(rulesPrimaryFieldname, primaryRecordId);
                                     csData.set(rulesSecondaryFieldName, secondaryRecordId);
                                     ruleId = csData.getInteger("id");
                                 }
@@ -3993,7 +3994,7 @@ namespace Contensive.Processor.Controllers {
             var blockFieldNames = new List<string> { "id", "name", "sortorder", "active", "dateadded", "createdby", "modifieddate", "modifiedby", "contentcontrolid", "ccguid", "createkey" };
             List<ContentFieldMetadataModel> ruleFields = new();
             foreach (var field in rulesMeta.fields) {
-                if (allowedFieldTypes.Contains(field.Value.fieldTypeId) && !blockFieldNames.Contains(field.Value.nameLc) && field.Value.active && field.Value.authorable && field.Value.nameLc != rulesPrimaryFieldname && field.Value.nameLc != rulesSecondaryFieldName) {
+                if (allowedFieldTypes.Contains(field.Value.fieldTypeId) && !blockFieldNames.Contains(field.Value.nameLc) && field.Value.active && field.Value.authorable && field.Value.nameLc != rulesPrimaryFieldname.ToLowerInvariant() && field.Value.nameLc != rulesSecondaryFieldName) {
                     ruleFields.Add(field.Value);
                 }
             }

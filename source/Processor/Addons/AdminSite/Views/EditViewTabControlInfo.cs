@@ -60,7 +60,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     string fieldValue = (adminData.editRecord.id == 0) ? "(available after save)" : adminData.editRecord.id.ToString();
                     string fieldEditor = AdminUIEditorController.getTextEditor(core, "ignore", fieldValue, true, "");
                     string fieldHelp = "This is the unique number that identifies this record within this content.";
-                    tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Record Number", fieldHelp, true, false, ""));
+                    tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Record Number", fieldHelp, true));
                 }
                 //
                 // -- Active

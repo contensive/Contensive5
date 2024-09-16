@@ -163,8 +163,9 @@ namespace Contensive.Processor.Controllers {
                 layout = layout.Replace("{{userError}}", core.doc.userErrorList.Count.Equals(0) ? "" : ErrorController.getUserError(core));
                 layout += HtmlController.inputHidden("Type", FormTypeLogin);
                 //
-                // -- wrap in form
-                string result = HtmlController.form(core, layout);
+                // -- wrap in form that sumbits to the same request URL, to return to the same page after login
+                string action = GenericController.modifyQueryString(core.cpParent.Request.QueryString, "method","");
+                string result = HtmlController.form(core, layout, action);
                 //
                 // -- Password Form
                 if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {

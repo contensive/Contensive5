@@ -31,7 +31,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // -- set link alias
                         string editorString = AdminUIEditorController.getTextEditor(core, "LinkAlias", "", false, "linkAliasInput", false);
                         string helpDefault = "The text you want the page url to include. The actual Url will display in the Page Url Preview below.";
-                        string editorRow = AdminUIController.getEditRow(core, editorString, "Set Text for Page Url", helpDefault, false, false, "", "");
+                        string editorRow = AdminUIController.getEditRow(core, editorString, "Set Text for Page Url", helpDefault);
                         form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                     }
                     {
@@ -39,7 +39,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // -- page url preview
                         string editorString = LayoutController.getLayout(core.cpParent, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);
                         string helpDefault = "The preview of the Url created for the text entered";
-                        string editorRow = AdminUIController.getEditRow(core, editorString, "Page Url Preview", helpDefault, false, false, "", "");
+                        string editorRow = AdminUIController.getEditRow(core, editorString, "Page Url Preview", helpDefault);
                         editorRow += HtmlController.inputHidden("", adminData.editRecord.id, "", "currentPageId");
                         form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                     }
@@ -48,7 +48,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // -- overridde duplicates
                         string editorString = AdminUIEditorController.getBooleanEditor(core, "OverrideDuplicate", false, false, "overrideDuplicate", false);
                         string helpDefault = "If the URL you are adding is currently used by another page, the save will fail because two pages cannot have the same Url. Check this box and the Url will be moved to this page.";
-                        string editorRow = AdminUIController.getEditRow(core, editorString, "Move Url to This Page", helpDefault, false, false, "", "");
+                        string editorRow = AdminUIController.getEditRow(core, editorString, "Move Url to This Page", helpDefault);
                         form.add("<tr><td colspan=2>" + editorRow + "</td></tr>");
                     }
                     {

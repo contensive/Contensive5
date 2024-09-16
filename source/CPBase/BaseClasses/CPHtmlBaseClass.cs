@@ -117,7 +117,9 @@ namespace Contensive.BaseClasses {
         public abstract string SelectList(string htmlName, string htmlValue, string optionList, string noneCaption);
         public abstract string SelectList(string htmlName, string htmlValue, string optionList);
         //
-        public abstract void ProcessCheckList(string htmlName, string primaryContentName, string primaryRecordID, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName);
+        [Obsolete("Use ProcessCheckList with int primaryRecordId", false)] public abstract void ProcessCheckList(string htmlName, string primaryContentName, string primaryRecordId, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName);
+        //
+        public abstract void ProcessCheckList(string htmlName, string primaryContentName, int primaryRecordId, string secondaryContentName, string rulesContentName, string rulesPrimaryFieldname, string rulesSecondaryFieldName);
         //
         public abstract void ProcessInputFile(string HtmlName, string VirtualFilePath);
         public abstract void ProcessInputFile(string HtmlName);

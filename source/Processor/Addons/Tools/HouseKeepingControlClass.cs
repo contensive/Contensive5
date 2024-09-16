@@ -102,7 +102,7 @@ namespace Contensive.Processor.Addons.Tools {
                             PagesTotal = csData.getInteger("Result");
                         }
                     }
-                    tableBody += AdminUIController.getEditRowLegacy(cp.core, SpanClassAdminNormal + PagesTotal, "Visits Found", "", false, false, "");
+                    tableBody += AdminUIController.getEditRow(cp.core, SpanClassAdminNormal + PagesTotal, "Visits Found", "", false, false, "");
                     //
                     // ----- Oldest Visit
                     //
@@ -119,7 +119,7 @@ namespace Contensive.Processor.Addons.Tools {
                             }
                         }
                     }
-                    tableBody += (AdminUIController.getEditRowLegacy(cp.core, SpanClassAdminNormal + Copy + " (" + AgeInDays + " days)", "Oldest Visit", "", false, false, ""));
+                    tableBody += (AdminUIController.getEditRow(cp.core, SpanClassAdminNormal + Copy + " (" + AgeInDays + " days)", "Oldest Visit", "", false, false, ""));
                     //
                     // ----- Viewings Found
                     //
@@ -132,21 +132,21 @@ namespace Contensive.Processor.Addons.Tools {
                         }
                         csData.close();
                     }
-                    tableBody += (AdminUIController.getEditRowLegacy(cp.core, SpanClassAdminNormal + PagesTotal, "Viewings Found", "", false, false, ""));
+                    tableBody += (AdminUIController.getEditRow(cp.core, SpanClassAdminNormal + PagesTotal, "Viewings Found", "", false, false, ""));
                     //
                     tableBody += (HtmlController.tableRowStart() + "<td colspan=\"3\" class=\"ccPanel3D ccAdminEditSubHeader\"><b>Options</b>" + tableCellEnd + kmaEndTableRow);
                     //
                     Caption = "Archive Age";
                     Copy = HtmlController.inputText_Legacy(cp.core, "ArchiveRecordAgeDays", ArchiveRecordAgeDays.ToString(), -1, 20) + "&nbsp;Number of days to keep visit records. 0 disables housekeeping.";
-                    tableBody += (AdminUIController.getEditRowLegacy(cp.core, Copy, Caption));
+                    tableBody += (AdminUIController.getEditRow(cp.core, Copy, Caption));
                     //
                     Caption = "Housekeeping Time";
                     Copy = HtmlController.inputText_Legacy(cp.core, "ArchiveTimeOfDay", ArchiveTimeOfDay, -1, 20) + "&nbsp;The time of day when record deleting should start.";
-                    tableBody += (AdminUIController.getEditRowLegacy(cp.core, Copy, Caption));
+                    tableBody += (AdminUIController.getEditRow(cp.core, Copy, Caption));
                     //
                     Caption = "Purge Content Files";
                     Copy = HtmlController.checkbox("ArchiveAllowFileClean", ArchiveAllowFileClean) + "&nbsp;Delete Contensive content files with no associated database record.";
-                    tableBody += (AdminUIController.getEditRowLegacy(cp.core, Copy, Caption));
+                    tableBody += (AdminUIController.getEditRow(cp.core, Copy, Caption));
                     //
                     Content.add(AdminUIController.editTable(tableBody));
                     Content.add(HtmlController.inputHidden(rnAdminSourceForm, AdminformHousekeepingControl));

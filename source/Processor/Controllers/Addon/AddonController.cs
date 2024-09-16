@@ -1212,7 +1212,7 @@ namespace Contensive.Processor.Controllers {
                                                                                 }
                                                                         }
                                                                     }
-                                                                    TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
+                                                                    TabCell.add(AdminUIController.getEditRow(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
                                                                 }
                                                                 break;
                                                             }
@@ -1250,7 +1250,7 @@ namespace Contensive.Processor.Controllers {
                                                                     } else {
                                                                         Copy = AdminUIEditorController.getTextEditor(core, fieldName, fieldValue, fieldReadOnly);
                                                                     }
-                                                                    TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
+                                                                    TabCell.add(AdminUIController.getEditRow(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
                                                                 }
                                                                 break;
                                                             }
@@ -1276,7 +1276,7 @@ namespace Contensive.Processor.Controllers {
                                                                 } else {
                                                                     Copy = AdminUIEditorController.getLongTextEditor(core, fieldName, fieldValue, fieldReadOnly, "", false, "");
                                                                 }
-                                                                TabCell.add(AdminUIController.getEditRowLegacy(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
+                                                                TabCell.add(AdminUIController.getEditRow(core, Copy, FieldCaption, FieldDescription, false, false, fieldHtmlId));
                                                                 break;
                                                             }
                                                         case "dbquery":
@@ -1336,7 +1336,7 @@ namespace Contensive.Processor.Controllers {
                                                                         if (dt.Rows.Count > 0) {
                                                                             object[,] something = { { } };
                                                                             if (dt.Rows.Count == 1 && dt.Columns.Count == 1) {
-                                                                                Copy = HtmlController.inputText_Legacy(core, "result", GenericController.encodeText(something[0, 0]), 0, 0, "", false, true);
+                                                                                Copy = HtmlController.inputText(core, "result", GenericController.encodeText(something[0, 0]),"","",true);
                                                                             } else {
                                                                                 foreach (DataRow dr in dt.Rows) {
                                                                                     //
