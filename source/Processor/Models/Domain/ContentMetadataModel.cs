@@ -786,8 +786,8 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="contentId"></param>
         /// <returns></returns>
-        public static CacheKeyHashClass createKeyHash(CoreController core, int contentId) {
-            return core.cache.createKeyHash("metadata-" + contentId.ToString());
+        public static string createKey(CoreController core, int contentId) {
+            return core.cache.createKey("metadata-" + contentId.ToString());
         }
         //
         //====================================================================================================
@@ -797,7 +797,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <param name="contentId"></param>
         public static void invalidateCache(CoreController core, int contentId) {
-            core.cache.invalidate(createKeyHash(core, contentId));
+            core.cache.invalidate(createKey(core, contentId));
         }
         //
         //====================================================================================================
@@ -808,7 +808,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="contentId"></param>
         /// <param name="metaData"></param>
         public static void setCache(CoreController core, int contentId, ContentMetadataModel metaData) {
-            core.cache.storeObject(createKeyHash(core, contentId), metaData);
+            core.cache.storeObject(createKey(core, contentId), metaData);
         }
         //
         //====================================================================================================
@@ -821,7 +821,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <returns></returns>
         public static ContentMetadataModel getCache(CoreController core, int contentId) {
             try {
-                return core.cache.getObject<ContentMetadataModel>(createKeyHash(core, contentId));
+                return core.cache.getObject<ContentMetadataModel>(createKey(core, contentId));
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

@@ -259,7 +259,7 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public abstract string GetText(string key );
+        public abstract string GetText(string key);
         //
         //====================================================================================================
         /// <summary>
@@ -366,6 +366,10 @@ namespace Contensive.BaseClasses {
         /// <param name="key"></param>
         /// <param name="value"></param>
         public abstract void AddRefreshQueryString(string key, DateTime value);
+        /// <summary>
+        /// A list of all doc properties available. Return the values with getInteger(), etc.
+        /// </summary>
+        public abstract List<string> Properties { get; }
         //
         //====================================================================================================
         // deprecated

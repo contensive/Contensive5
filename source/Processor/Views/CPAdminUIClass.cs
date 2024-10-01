@@ -204,22 +204,18 @@ namespace Contensive.Processor {
 
         public override string GetLongTextEditor(string htmlName, string htmlValue, string htmlId, bool readOnly, bool required) {
             return Controllers.AdminUIEditorController.getLongTextEditor(core, htmlName, htmlValue, readOnly, htmlId, required, "");
-            //throw new NotImplementedException();
         }
 
         public override string GetLongTextEditor(string htmlName, string htmlValue, string htmlId, bool readOnly) {
             return Controllers.AdminUIEditorController.getLongTextEditor(core, htmlName, htmlValue, readOnly, htmlId, false, "");
-            //throw new NotImplementedException();
         }
 
         public override string GetLongTextEditor(string htmlName, string htmlValue, string htmlId) {
             return Controllers.AdminUIEditorController.getLongTextEditor(core, htmlName, htmlValue, false, htmlId, false, "");
-            //throw new NotImplementedException();
         }
 
         public override string GetLongTextEditor(string htmlName, string htmlValue) {
             return Controllers.AdminUIEditorController.getLongTextEditor(core, htmlName, htmlValue,false, "", false, "");
-            //throw new NotImplementedException();
         }
 
         public override string GetLookupContentEditor(string htmlName, int lookupContentId, int htmlValue, string htmlId, bool readOnly, bool required, string sqlFilter) {

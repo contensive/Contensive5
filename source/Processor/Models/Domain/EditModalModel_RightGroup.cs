@@ -1,6 +1,7 @@
 ﻿using Amazon.Runtime.Internal.Transform;
 using Amazon.SimpleEmail;
 using Contensive.BaseClasses;
+using Contensive.Models.Db;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using NUglify.JavaScript.Syntax;
@@ -54,13 +55,14 @@ namespace Contensive.Processor.Models.Domain {
             SortedDictionary<string, List<ContentFieldMetadataModel>> fieldsByGroupName = [];
             foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldNVP in contentMetadata.fields) {
                 ContentFieldMetadataModel field = fieldNVP.Value;
-                // -- create new group with an empty list of fields
-                if (!string.IsNullOrEmpty(field.editGroupName)) {
-                    if (!fieldsByGroupName.ContainsKey(field.editGroupName)) {
-                        fieldsByGroupName.Add(field.editGroupName, []);
+                if (AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
+                    if (!string.IsNullOrEmpty(field.editGroupName)) {
+                        if (!fieldsByGroupName.ContainsKey(field.editGroupName)) {
+                            fieldsByGroupName.Add(field.editGroupName, []);
+                        }
+                        // -- add this field to the group
+                        fieldsByGroupName[field.editGroupName].Add(field);
                     }
-                    // -- add this field to the group
-                    fieldsByGroupName[field.editGroupName].Add(field);
                 }
             }
             //

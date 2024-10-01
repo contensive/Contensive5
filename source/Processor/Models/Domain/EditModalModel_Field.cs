@@ -14,7 +14,8 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// constructor
         /// </summary>
-        public EditModalModel_Field(CoreController core,  ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData, string editModalSn, bool isHidden) {
+        public EditModalModel_Field(CoreController core, ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData, string editModalSn, bool isHidden) {
+            id = field.id;
             htmlName = $"field{field.id}";
             caption = field.caption;
             help = field.helpMessage;
@@ -84,6 +85,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// if true, the field is a hidden and should just include the htmlName and currentvalue
         /// </summary>
+        public int  id { get; }
         public bool isHidden { get; }
         public string htmlName { get; }
         public string caption { get; }
@@ -223,9 +225,10 @@ namespace Contensive.Processor.Models.Domain {
             foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                 string fieldName = fieldKvp.Key;
                 ContentFieldMetadataModel field = fieldKvp.Value;
+                string fieldNameLC = fieldKvp.Key.ToLowerInvariant() ;
                 //
                 // -- search rightGroups for this field, if found, skip it
-                if (rightGroups.Find( (x) => x.rightGroupFields.Find((x) => x.fileName == fieldName)!=null ) !=null) { continue; }
+                if (rightGroups.Find( (x) => x.rightGroupFields.Find((x) => x.id == field.id)!=null ) !=null) { continue; }
                 //
                 if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
                     string currentValue = "";

@@ -858,7 +858,7 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="objectUniqueName">The unique key that describes the object. Ex. catalogitemList, or metadata-134</param>
         /// <returns></returns>
-        public CacheKeyHashClass createKeyHash(string objectUniqueName) {
+        private CacheKeyHashClass createKeyHash(string objectUniqueName) {
             var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(createKey(objectUniqueName));
             return new CacheKeyHashClass {
                 key = objectUniqueName,

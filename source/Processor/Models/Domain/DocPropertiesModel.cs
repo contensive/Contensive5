@@ -2,6 +2,7 @@
 using Contensive.Processor.Controllers;
 using NLog;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
@@ -30,6 +31,16 @@ namespace Contensive.Processor.Models.Domain {
         public DocPropertiesModel(CoreController core) {
             this.core = core;
             docPropertiesDict = new Dictionary<string, DocPropertyModel>(StringComparer.InvariantCultureIgnoreCase);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// List all doc properties available. Use to debug
+        /// </summary>
+        public List<string> Properties { 
+            get {
+                return new List<string>(docPropertiesDict.Keys);
+            }
         }
         //
         //====================================================================================================

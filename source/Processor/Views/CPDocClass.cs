@@ -456,6 +456,11 @@ namespace Contensive.Processor {
                 return !cp.Request.PathPage.IndexOf(cp.Site.GetText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
             }
         }
+        public override List<string> Properties {
+            get {
+                return cp.Doc.Properties;
+            }
+        }
         //
         //=======================================================================================================
         // Deprecated

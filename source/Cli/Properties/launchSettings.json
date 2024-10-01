@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a lydiakidwell --installfile \"C:\\Deployments\\aoDesignBlocks\\Dev\\24.9.8.4\\design Blocks.zip\"",
+      "commandLineArgs": "-a lydiakidwell -u",
       "jsWebView2Debugging": false
     }
   }

@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.Collections.Generic;
+using Amazon.SimpleEmail;
+using Contensive.Models.Db;
 using Contensive.Processor;
 using Contensive.Processor.Controllers;
 
@@ -29,8 +31,22 @@ namespace Contensive.CLI {
                     Console.WriteLine("Server Configuration not loaded correctly. Please run --configure");
                     return;
                 }
-                //
-                throw new NotImplementedException();
+                using (var cp = new CPClass(appName)) {
+                    //
+                    if (string.IsNullOrWhiteSpace(collectionName)) {
+                        Console.WriteLine($"Please include a non-blank collection name to export");
+                        return;
+                    }
+                    //
+                    AddonCollectionModel collection = DbBaseModel.createByUniqueName<AddonCollectionModel>(cp, collectionName);
+                    if (collection == null) {
+                        Console.WriteLine($"The collection [{collectionName}] could not be found");
+                        return;
+                    }
+                    string exportPathFilename = ExportController.createCollectionZip_returnCdnPathFilename(cp, collection);
+                    Console.WriteLine($"Collection exported to file [{exportPathFilename}]");
+                }
+
             } catch (Exception ex) {
                 Console.WriteLine("Error: [" + ex + "]");
             }
