@@ -15,6 +15,7 @@ using System.Xml;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using static Newtonsoft.Json.JsonConvert;
+using System.Threading;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -140,19 +141,23 @@ namespace Contensive.Processor.Controllers {
             // -- save current context
             var contextParent = new CPUtilsBaseClass.addonExecuteContext {
                 forceHtmlDocument = executeContext.forceHtmlDocument,
-                isDependency = executeContext.isDependency
+                isDependency = executeContext.isDependency,
+                resultCanBeCached = executeContext.resultCanBeCached
             };
             //
             // -- set dependency context
             executeContext.isDependency = true;
             executeContext.forceHtmlDocument = false;
+            executeContext.resultCanBeCached = true;
             //
             // -- execute addon
             string result = execute(addon, executeContext);
             //
-            // -- restore previous conext
+            // -- restore previous context
             executeContext.forceHtmlDocument = contextParent.forceHtmlDocument;
             executeContext.isDependency = contextParent.isDependency;
+            // -- a dependency runs before an addon, not during the addon, so a dependency's cache status does not effect the parent addon's status
+            executeContext.resultCanBeCached = contextParent.resultCanBeCached;
             return result;
         }
         //
@@ -201,18 +206,18 @@ namespace Contensive.Processor.Controllers {
         /// execute addon
         /// </summary>
         /// <param name="addon"></param>
-        /// <param name="executeContext">A description of the calling method/environment</param>
+        /// <param name="renderContext">A description of the calling method/environment.</param>
         /// <returns></returns>
-        public string execute(AddonModel addon, CPUtilsBaseClass.addonExecuteContext executeContext) {
+        public string execute(AddonModel addon, CPUtilsBaseClass.addonExecuteContext renderContext) {
             int hint = 0;
             Stopwatch sw = new();
             sw.Start();
             //
-            logger.Debug($"{core.logCommonMessage},[" + ((addon == null) ? "null" : addon.id.ToString() + ", " + addon.name) + "], context [" + (executeContext == null ? "null" : executeContext.addonType) + "], context [" + (executeContext == null ? "null" : executeContext.errorContextMessage) + "]");
+            logger.Debug($"{core.logCommonMessage},[" + ((addon == null) ? "null" : addon.id.ToString() + ", " + addon.name) + "], context [" + (renderContext == null ? "null" : renderContext.addonType) + "], context [" + (renderContext == null ? "null" : renderContext.errorContextMessage) + "]");
             //
             // -- verify arguments
             if (addon == null) {
-                if (executeContext == null) {
+                if (renderContext == null) {
                     //
                     // -- no addon and no context
                     logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon and null executeContext."));
@@ -220,10 +225,9 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- no addon
-                logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon, executeContext [" + executeContext.errorContextMessage + "]."));
+                logger.Warn($"{core.logCommonMessage}", new ArgumentException("AddonController.execute called with null addon, executeContext [" + renderContext.errorContextMessage + "]."));
                 return "";
-            }
-            if (executeContext == null) {
+            } else if (renderContext == null) {
                 //
                 // -- no context
                 logger.Error($"{core.logCommonMessage}", new ArgumentException("AddonController.execute call with invalid executeContext,  was not configured for addon [#" + addon.id + ", " + addon.name + "]."));
@@ -232,7 +236,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- test dependency-recursion (where a depends on b, and b depends on a)
             // -- block the second running on any dependency
-            if (executeContext.isDependency && executeContext.dependencyRecursionTestStack.Contains(addon.id)) {
+            if (renderContext.isDependency && renderContext.dependencyRecursionTestStack.Contains(addon.id)) {
                 //
                 // -- error -- recursive addon dependencies. Exit now
                 string recursionTraceMsg = "addon stack ";
@@ -244,7 +248,7 @@ namespace Contensive.Processor.Controllers {
                 return "";
             }
             //
-            // -- test developer-recursion - if a developer inside and addon calls other addons, and that addon then calls the first
+            // -- test developer-recursion - if a developer inside an addon calls other addons, and that addon then calls the first
             // -- track how many times each addon is being executed with an array that includes the number of times each addon is executing
             // -- within one execution environment, an addon can only be currently executing 5 times.
             bool inDeveloperRecursionList = core.doc.addonDeveloperRecursionCount.ContainsKey(addon.id);
@@ -260,8 +264,28 @@ namespace Contensive.Processor.Controllers {
                 return "";
             }
             //
+            // -- addon cache
+            // -- return-assets = the data from the addon that is returned from this method
+            // -- env-assets = changes made during the execution of the method, like adding js and css to the document head
+            //
+            // -- cachedReturnAssets is populated from cache if allowed. it contains only the returnAssets of this addon. Addon execution continues to set env-assets, but return-assets are skipped and the cache is returned instead
+            //
+            // -- the rendingContext is stored in the doc object, so if this addon executes another addon through content-execution, it picks up its renderContext from the core.doc global
+            // -- a new addon.execution pushes the new renderContext on the core.doc stack, but on exit when it pops, the resultCanBeCached is passed from the current context to the new popped context. 
+            // -- set resultCanBeCached to addon.allowcache.
+            // -- during execution
+            // --   1) if a cache hit, skip sections that append result and in the end, return the resultCache
+            // --   2) if cache miss, when subordinate addons are called, they will return their allowCache status in resultCanBeCached.
+            // --   2) 
+            // -- so before exit, test resultCanBeCached and if true, cache the result
+            renderContext.resultCanBeCached = addon.allowCache;
+            //
+            var returnAssets = new StringBuilder();
+            string addonCacheName = core.cache.createKey($"addon{addon.id}ResultCache");
+            returnAssets.Append(renderContext.resultCanBeCached ? core.cache.getText(addonCacheName) : "");
+            bool useCachedReturnAssets = returnAssets.Length != 0;
+            //
             // -- setup values that have to be within finalize
-            var result = new StringBuilder();
             string parentInstanceId = core.docProperties.getText("instanceId");
             bool rootLevelAddon = core.doc.addonDeveloperRecursionCount.Count.Equals(0);
             try {
@@ -271,7 +295,7 @@ namespace Contensive.Processor.Controllers {
                 // -- save the addon details in a fifo stack to popoff during exit.
                 // -- Used to track the current addon being executed
                 core.doc.addonExecutionStack.Push(addon);
-                executeContext.dependencyRecursionTestStack.Push(addon.id);
+                renderContext.dependencyRecursionTestStack.Push(addon.id);
                 // -- add all addons to the dependencyrecursionTestStack, only test them if they are dependencies - but block them even if they were first run as non-dependencies
                 hint = 2;
                 //
@@ -282,10 +306,15 @@ namespace Contensive.Processor.Controllers {
                     core.doc.addonDeveloperRecursionCount[addon.id] += 1;
                 }
                 //
+                // -- add addonRenderContext to current environment.
+                // -- this is the context used for rendering, for this addon and all subordinate addon execution
+                // -- renderContext includes the cache validation. If a subordinate addon cannot be cache, it should change the environment which then passes back up and blocks addon cache for addons that call
+                core.doc.addonRenderContext.Push(renderContext);
+                //
                 // -- execute dependencies, if the addon's javascript is required in the head, set it in the executeContext now so it will propigate into the dependant addons as well
                 {
-                    bool save_forceJavascriptToHead = executeContext.forceJavascriptToHead;
-                    executeContext.forceJavascriptToHead = executeContext.forceJavascriptToHead || addon.javascriptForceHead;
+                    bool save_forceJavascriptToHead = renderContext.forceJavascriptToHead;
+                    renderContext.forceJavascriptToHead = renderContext.forceJavascriptToHead || addon.javascriptForceHead;
                     //
                     // -- run included add-ons before their parent
                     foreach (var dependentAddon in core.cacheRuntime.addonCache.getDependsOnList(addon.id)) {
@@ -293,10 +322,11 @@ namespace Contensive.Processor.Controllers {
                             logger.Warn($"{core.logCommonMessage}", new GenericException("Dependent addon not found. An included addon of [" + addon.name + "] was not found. The included addon may have been deleted. Recreate or reinstall the missing addon, then reinstall [" + addon.name + "] or manually correct the included addon selection."));
                             continue;
                         }
-                        executeContext.errorContextMessage = "adding dependent addon [" + dependentAddon.name + "] for addon [" + addon.name + "] called within context [" + executeContext.errorContextMessage + "]";
-                        result.Append(executeDependency(dependentAddon, executeContext));
+                        renderContext.errorContextMessage = "adding dependent addon [" + dependentAddon.name + "] for addon [" + addon.name + "] called within context [" + renderContext.errorContextMessage + "]";
+                        string dependencyReturnAssets = executeDependency(dependentAddon, renderContext);
+                        if (!useCachedReturnAssets) { returnAssets.Append(dependencyReturnAssets); }
                     }
-                    executeContext.forceJavascriptToHead = save_forceJavascriptToHead;
+                    renderContext.forceJavascriptToHead = save_forceJavascriptToHead;
                     hint = 3;
                 }
                 //
@@ -308,23 +338,24 @@ namespace Contensive.Processor.Controllers {
                     core.doc.addonsExecuted.Add(addon.id);
                 } else {
                     // -- addon has aleady run once. If just a dependency, set flag to signal this is running just to check js-in-head and all else should be skipped
-                    isDependencyThatAlreadyRan = executeContext.isDependency;
+                    isDependencyThatAlreadyRan = renderContext.isDependency;
                 }
                 //
                 // -- if root level addon, and the addon is an html document, create the html document around it and uglify if not debugging
-                if (executeContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
+                if (renderContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
                     //
                     // -- on body start addons (as long  as this addon is not onbodystart also
                     if (!addon.onBodyStart) {
-                        result.Append(core.addon.executeOnBodyStart());
+                        string returnAssetOnBodyStart = core.addon.executeOnBodyStart();
+                        if (!useCachedReturnAssets) { returnAssets.Append(returnAssetOnBodyStart); }
                     } else {
                         logger.Warn(core.logCommonMessage + ",Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyStart. onBodyStart was ignored.");
                     }
                 }
                 //
                 // -- if executeContext.instanceGuid is set, save the current instanceId and set the context value. If not set, leave the current in place
-                if (!string.IsNullOrWhiteSpace(executeContext.instanceGuid)) {
-                    core.docProperties.setProperty("instanceId", executeContext.instanceGuid);
+                if (!string.IsNullOrWhiteSpace(renderContext.instanceGuid)) {
+                    core.docProperties.setProperty("instanceId", renderContext.instanceGuid);
                 }
                 hint = 4;
                 //
@@ -354,7 +385,7 @@ namespace Contensive.Processor.Controllers {
                 // -- add instance properties to doc properties
                 string containerCssId = "";
                 string ContainerCssClass = "";
-                foreach (var kvp in executeContext.argumentKeyValuePairs) {
+                foreach (var kvp in renderContext.argumentKeyValuePairs) {
                     switch (kvp.Key.ToLowerInvariant()) {
                         case "as ajax": {
                                 addon.asAjax = GenericController.encodeBoolean(kvp.Value);
@@ -379,32 +410,33 @@ namespace Contensive.Processor.Controllers {
                 // -- build content
                 //
                 string AddedByName = addon.name + " addon";
-                if (!isDependencyThatAlreadyRan && addon.inFrame && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
-                    //
-                    // -- inframe execution, deliver iframe with link back to remote method. remote is intercepted in routing and execute is called with context ContextRemoteMethodHtml or ContextRemoteMethodJson
-                    //
-                    result.Append("TBD - inframe");
-                } else if (!isDependencyThatAlreadyRan && addon.asAjax && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
-                    //
-                    // -- asajax execution, deliver div with ajax callback. remote is intercepted in routing and execute is called with context ContextRemoteMethodHtml or ContextRemoteMethodJson
-                    //
-                    result.Append("TBD - asajax");
-                } else {
+                //if (!isDependencyThatAlreadyRan && addon.inFrame && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
+                //    //
+                //    // -- inframe execution, deliver iframe with link back to remote method. remote is intercepted in routing and execute is called with context ContextRemoteMethodHtml or ContextRemoteMethodJson
+                //    //
+                //    returnAssets.Append("TBD - inframe");
+                //} else if (!isDependencyThatAlreadyRan && addon.asAjax && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
+                //    //
+                //    // -- asajax execution, deliver div with ajax callback. remote is intercepted in routing and execute is called with context ContextRemoteMethodHtml or ContextRemoteMethodJson
+                //    //
+                //    returnAssets.Append("TBD - asajax");
+                //} else 
+                {
                     //
                     // -- standard addon content delivery
                     //
-                    hint = 9;
-                    if (addon.inFrame && (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml)) {
-                        //
-                        // -- remote method called from inframe execution
-                        //
-                        result.Append("TBD - remotemethod inframe");
-                    } else if (addon.asAjax && (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml)) {
-                        //
-                        // -- remotemethod called from asajax execution. Add-on setup for AsAjax, running the call-back - put the referring page's QS as the RQS. restore form values
-                        //
-                        result.Append("TBD - remotemethod ajax");
-                    }
+                    //hint = 9;
+                    //if (addon.inFrame && (renderContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml)) {
+                    //    //
+                    //    // -- remote method called from inframe execution
+                    //    //
+                    //    returnAssets.Append("TBD - remotemethod inframe");
+                    //} else if (addon.asAjax && (renderContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml)) {
+                    //    //
+                    //    // -- remotemethod called from asajax execution. Add-on setup for AsAjax, running the call-back - put the referring page's QS as the RQS. restore form values
+                    //    //
+                    //    returnAssets.Append("TBD - remotemethod ajax");
+                    //}
                     hint = 10;
                     //
                     // -- js code
@@ -412,10 +444,10 @@ namespace Contensive.Processor.Controllers {
                     bool validMinJs = core.siteProperties.allowMinify && !string.IsNullOrEmpty(addon.minifyJsFilename.filename);
                     if (validMinJs) {
                         string scriptCodeUrl = getCdnFileLink(core, addon.minifyJsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Minify Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Minify Javascript Head Code", (renderContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
                     } else if (!string.IsNullOrEmpty(addon.jsFilename.filename)) {
                         string scriptCodeUrl = getCdnFileLink(core, addon.jsFilename.filename);
-                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Javascript Head Code", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                        core.html.addScriptLinkSrc(scriptCodeUrl, AddedByName + " Javascript Head Code", (renderContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
                     }
                     //
                     // -- js Url
@@ -424,7 +456,7 @@ namespace Contensive.Processor.Controllers {
                         if (validMinJs && AddonModel.isAssetUrlLocal(core.cpParent, scriptUrl)) {
                             // -- local js, was included in minified
                         } else {
-                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (executeContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
+                            core.html.addScriptLinkSrc(scriptUrl, AddedByName + " Javascript Head Src", (renderContext.forceJavascriptToHead || addon.javascriptForceHead), addon.id);
                         }
                     }
                     if (!isDependencyThatAlreadyRan) {
@@ -460,109 +492,144 @@ namespace Contensive.Processor.Controllers {
                         }
                         hint = 13;
                         //
-                        // -- text components
-                        string contentParts = "";
-                        contentParts += (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ContentText) ? addon_copyText : "";
-                        contentParts += (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ContentWysiwyg) ? addon_copy : "";
-                        if (!string.IsNullOrEmpty(contentParts) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextEditor)) {
+                        // -- return asset elements
+                        if (!useCachedReturnAssets) {
                             //
-                            // not editor, encode the content parts of the addon
-                            //
-                            switch (executeContext.addonType) {
-                                case CPUtilsBaseClass.addonContext.ContextEditor:
-                                    contentParts = ContentRenderController.renderHtmlForWysiwygEditor(core, contentParts);
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextEmail:
-                                    contentParts = ContentRenderController.renderHtmlForEmail(core, contentParts, core.session.user, "", false);
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextFilter:
-                                case CPUtilsBaseClass.addonContext.ContextOnBodyEnd:
-                                case CPUtilsBaseClass.addonContext.ContextOnBodyStart:
-                                case CPUtilsBaseClass.addonContext.ContextOnPageEnd:
-                                case CPUtilsBaseClass.addonContext.ContextOnPageStart:
-                                case CPUtilsBaseClass.addonContext.ContextPage:
-                                case CPUtilsBaseClass.addonContext.ContextTemplate:
-                                case CPUtilsBaseClass.addonContext.ContextAdmin:
-                                case CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml:
-                                    contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, executeContext.hostRecord.contentName, executeContext.hostRecord.recordId, 0, "", 0, executeContext.addonType);
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextOnContentChange:
-                                case CPUtilsBaseClass.addonContext.ContextSimple:
-                                    contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextRemoteMethodJson:
-                                    contentParts = ContentRenderController.renderJSONForRemoteMethod(core, contentParts, "", 0, 0, "", executeContext.addonType);
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextOnNewVisit:
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextHelpUser:
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextHelpAdmin:
-                                    break;
-                                case CPUtilsBaseClass.addonContext.ContextHelpDeveloper:
-                                    break;
-                                default:
-                                    contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, executeContext.addonType);
-                                    break;
-                            }
-                            result.Append(contentParts);
-                        }
-                        //
-                        // -- RemoteAssetLink
-                        hint = 16;
-                        if (!string.IsNullOrEmpty(addon.remoteAssetLink) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.RemoteAsset)) {
-                            string RemoteAssetLink = addon.remoteAssetLink;
-                            if (RemoteAssetLink.IndexOf("://", StringComparison.InvariantCulture) < 0) {
+                            // -- text components
+                            string contentParts = "";
+                            contentParts += (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ContentText) ? addon_copyText : "";
+                            contentParts += (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ContentWysiwyg) ? addon_copy : "";
+                            if (!string.IsNullOrEmpty(contentParts) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextEditor)) {
                                 //
-                                // use request object to build link
-                                if (RemoteAssetLink.left(1) == "/") {
-                                    // asset starts with a slash, add to appRoot
-                                    RemoteAssetLink = core.webServer.requestProtocol + core.webServer.requestDomain + RemoteAssetLink;
-                                } else {
-                                    // asset is public files
-                                    RemoteAssetLink = core.webServer.requestProtocol + core.webServer.requestDomain + core.appConfig.cdnFileUrl + RemoteAssetLink;
+                                // not editor, encode the content parts of the addon
+                                //
+                                switch (renderContext.addonType) {
+                                    case CPUtilsBaseClass.addonContext.ContextEditor:
+                                        contentParts = ContentRenderController.renderHtmlForWysiwygEditor(core, contentParts);
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextEmail:
+                                        contentParts = ContentRenderController.renderHtmlForEmail(core, contentParts, core.session.user, "", false);
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextFilter:
+                                    case CPUtilsBaseClass.addonContext.ContextOnBodyEnd:
+                                    case CPUtilsBaseClass.addonContext.ContextOnBodyStart:
+                                    case CPUtilsBaseClass.addonContext.ContextOnPageEnd:
+                                    case CPUtilsBaseClass.addonContext.ContextOnPageStart:
+                                    case CPUtilsBaseClass.addonContext.ContextPage:
+                                    case CPUtilsBaseClass.addonContext.ContextTemplate:
+                                    case CPUtilsBaseClass.addonContext.ContextAdmin:
+                                    case CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml:
+                                        contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, renderContext.hostRecord.contentName, renderContext.hostRecord.recordId, 0, "", 0, renderContext.addonType);
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextOnContentChange:
+                                    case CPUtilsBaseClass.addonContext.ContextSimple:
+                                        contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, renderContext.addonType);
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextRemoteMethodJson:
+                                        contentParts = ContentRenderController.renderJSONForRemoteMethod(core, contentParts, "", 0, 0, "", renderContext.addonType);
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextOnNewVisit:
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextHelpUser:
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextHelpAdmin:
+                                        break;
+                                    case CPUtilsBaseClass.addonContext.ContextHelpDeveloper:
+                                        break;
+                                    default:
+                                        contentParts = ContentRenderController.renderHtmlForWeb(core, contentParts, "", 0, 0, "", 0, renderContext.addonType);
+                                        break;
                                 }
+                                returnAssets.Append(contentParts);
                             }
-                            int PosStart = 0;
-                            HttpController kmaHTTP = new();
-                            string RemoteAssetContent = kmaHTTP.getURL(RemoteAssetLink);
-                            int Pos = GenericController.strInstr(1, RemoteAssetContent, "<body", 1);
-                            if (Pos > 0) {
-                                Pos = GenericController.strInstr(Pos, RemoteAssetContent, ">");
-                                if (Pos > 0) {
-                                    PosStart = Pos + 1;
-                                    Pos = GenericController.strInstr(Pos, RemoteAssetContent, "</body", 1);
-                                    if (Pos > 0) {
-                                        RemoteAssetContent = RemoteAssetContent.Substring(PosStart - 1, Pos - PosStart);
+                            //
+                            // -- RemoteAssetLink
+                            hint = 16;
+                            if (!string.IsNullOrEmpty(addon.remoteAssetLink) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.RemoteAsset)) {
+                                string RemoteAssetLink = addon.remoteAssetLink;
+                                if (RemoteAssetLink.IndexOf("://", StringComparison.InvariantCulture) < 0) {
+                                    //
+                                    // use request object to build link
+                                    if (RemoteAssetLink.left(1) == "/") {
+                                        // asset starts with a slash, add to appRoot
+                                        RemoteAssetLink = core.webServer.requestProtocol + core.webServer.requestDomain + RemoteAssetLink;
+                                    } else {
+                                        // asset is public files
+                                        RemoteAssetLink = core.webServer.requestProtocol + core.webServer.requestDomain + core.appConfig.cdnFileUrl + RemoteAssetLink;
                                     }
                                 }
+                                int PosStart = 0;
+                                HttpController kmaHTTP = new();
+                                string RemoteAssetContent = kmaHTTP.getURL(RemoteAssetLink);
+                                int Pos = GenericController.strInstr(1, RemoteAssetContent, "<body", 1);
+                                if (Pos > 0) {
+                                    Pos = GenericController.strInstr(Pos, RemoteAssetContent, ">");
+                                    if (Pos > 0) {
+                                        PosStart = Pos + 1;
+                                        Pos = GenericController.strInstr(Pos, RemoteAssetContent, "</body", 1);
+                                        if (Pos > 0) {
+                                            RemoteAssetContent = RemoteAssetContent.Substring(PosStart - 1, Pos - PosStart);
+                                        }
+                                    }
+                                }
+                                returnAssets.Append(RemoteAssetContent);
                             }
-                            result.Append(RemoteAssetContent);
-                        }
-                        //
-                        // --  FormXML
-                        hint = 17;
-                        if (!string.IsNullOrEmpty(addon_formXML) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.FormExecution)) {
-                            bool ExitAddonWithBlankResponse = false;
-                            result.Append(execute_formContent(addon_formXML, ref ExitAddonWithBlankResponse, "addon [" + addon.name + "]"));
-                            if (ExitAddonWithBlankResponse) {
-                                //
-                                // -- exit early
-                                return string.Empty;
+                            //
+                            // --  FormXML
+                            hint = 17;
+                            if (!string.IsNullOrEmpty(addon_formXML) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.FormExecution)) {
+                                bool ExitAddonWithBlankResponse = false;
+                                returnAssets.Append(execute_formContent(addon_formXML, ref ExitAddonWithBlankResponse, "addon [" + addon.name + "]"));
+                                if (ExitAddonWithBlankResponse) {
+                                    //
+                                    // -- exit early
+                                    return string.Empty;
+                                }
                             }
-                        }
-                        //
-                        // -- Script Callback
-                        hint = 18;
-                        if (!string.IsNullOrEmpty(addon.link)) {
-                            string callBackLink = encodeVirtualPath(addon.link, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
-                            foreach (var key in core.docProperties.getKeyList()) {
-                                callBackLink = modifyLinkQuery(callBackLink, encodeRequestVariable(key), encodeRequestVariable(core.docProperties.getText(key)), true);
+                            //
+                            // -- Script Callback
+                            hint = 18;
+                            if (!string.IsNullOrEmpty(addon.link)) {
+                                string callBackLink = encodeVirtualPath(addon.link, core.appConfig.cdnFileUrl, appRootPath, core.webServer.requestDomain);
+                                foreach (var key in core.docProperties.getKeyList()) {
+                                    callBackLink = modifyLinkQuery(callBackLink, encodeRequestVariable(key), encodeRequestVariable(core.docProperties.getText(key)), true);
+                                }
+                                foreach (var kvp in renderContext.argumentKeyValuePairs) {
+                                    callBackLink = modifyLinkQuery(callBackLink, encodeRequestVariable(kvp.Key), encodeRequestVariable(core.docProperties.getText(kvp.Value)), true);
+                                }
+                                returnAssets.Append("<SCRIPT LANGUAGE=\"JAVASCRIPT\" SRC=\"" + callBackLink + "\"></SCRIPT>");
                             }
-                            foreach (var kvp in executeContext.argumentKeyValuePairs) {
-                                callBackLink = modifyLinkQuery(callBackLink, encodeRequestVariable(kvp.Key), encodeRequestVariable(core.docProperties.getText(kvp.Value)), true);
+                            //
+                            // -- add scripting and dotnet code last, so if the execution adds javascript to the head, the code in the fields is first.
+                            // -- Scripting code
+                            hint = 14;
+                            if (!string.IsNullOrEmpty(addon.scriptingCode) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ScriptingCodeExecution)) {
+                                try {
+                                    if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
+                                        returnAssets.Append(AddonScriptController.execute_Script_JScript(core, ref addon));
+                                    } else {
+                                        returnAssets.Append(AddonScriptController.execute_Script_VBScript(core, ref addon));
+                                    }
+                                } catch (Exception ex) {
+                                    //
+                                    // -- exeption in outside code
+                                    logger.Error($"{core.logCommonMessage}", ex, "Exception in script component of addon [" + getAddonDescription(core, addon) + "]");
+                                }
                             }
-                            result.Append("<SCRIPT LANGUAGE=\"JAVASCRIPT\" SRC=\"" + callBackLink + "\"></SCRIPT>");
+                            //
+                            // -- DotNet
+                            hint = 15;
+                            if (!string.IsNullOrEmpty(addon.dotNetClass) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.DotNetCodeExecution)) {
+                                try {
+                                    //
+                                    // -- executing outside code, swallow exceptions
+                                    returnAssets.Append(execute_dotNetClass(addon, AddonCollectionModel.create<AddonCollectionModel>(core.cpParent, addon.collectionId)));
+                                } catch (Exception ex) {
+                                    //
+                                    // -- exeption in outside code
+                                    logger.Error($"{core.logCommonMessage}", ex, "Exception in dotnet component of addon [" + getAddonDescription(core, addon) + "]");
+                                }
+                            }
                         }
                         //
                         // -- non-js html assets (styles,head tags), set flag to block duplicates 
@@ -594,37 +661,6 @@ namespace Contensive.Processor.Controllers {
                             }
                         }
                         //
-                        // -- add scripting and dotnet code last, so if the execution adds javascript to the head, the code in the fields is first.
-                        // -- Scripting code
-                        hint = 14;
-                        if (!string.IsNullOrEmpty(addon.scriptingCode) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.ScriptingCodeExecution)) {
-                            try {
-                                if (addon.scriptingLanguageId == (int)ScriptLanguages.Javascript) {
-                                    result.Append(AddonScriptController.execute_Script_JScript(core, ref addon));
-                                } else {
-                                    result.Append(AddonScriptController.execute_Script_VBScript(core, ref addon));
-                                }
-                            } catch (Exception ex) {
-                                //
-                                // -- exeption in outside code
-                                logger.Error($"{core.logCommonMessage}", ex, "Exception in script component of addon [" + getAddonDescription(core, addon) + "]");
-                            }
-                        }
-                        //
-                        // -- DotNet
-                        hint = 15;
-                        if (!string.IsNullOrEmpty(addon.dotNetClass) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.DotNetCodeExecution)) {
-                            try {
-                                //
-                                // -- executing outside code, swallow exceptions
-                                result.Append(execute_dotNetClass(addon, AddonCollectionModel.create<AddonCollectionModel>(core.cpParent, addon.collectionId)));
-                            } catch (Exception ex) {
-                                //
-                                // -- exeption in outside code
-                                logger.Error($"{core.logCommonMessage}", ex, "Exception in dotnet component of addon [" + getAddonDescription(core, addon) + "]");
-                            }
-                        }
-                        //
                         // -- add meta data elements after all code execution so metadata added by code appears first (more specific data before less specific data)
                         if (addMetaData) {
                             core.html.addTitle(addon_pageTitle, AddedByName);
@@ -639,32 +675,32 @@ namespace Contensive.Processor.Controllers {
                     //
                     //   Add Wrappers to content
                     //
-                    if (addon.inFrame && (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml)) {
+                    if (addon.inFrame && (renderContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml)) {
                         //
                         // -- iFrame content, framed in content, during the remote method call, add in the rest of the html page
                         hint = 24;
 
-                        result = new StringBuilder(""
+                        returnAssets = new StringBuilder(""
                             + core.siteProperties.docTypeDeclaration
                             + Environment.NewLine + "<html lang=\"en-US\">"
                             + Environment.NewLine + "<head>"
                             + core.html.getHtmlHead()
                             + Environment.NewLine + "</head>"
                             + Environment.NewLine + TemplateDefaultBodyTag
-                            + result.ToString()
+                            + returnAssets.ToString()
                             + Environment.NewLine + "</body>"
                             + Environment.NewLine + "</html>"
                             );
-                    } else if (addon.asAjax && (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
+                    } else if (addon.asAjax && (renderContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
                         //
                         // -- as ajax content, AsAjax addon, during the Ajax callback, need to create an onload event that runs everything appended to onload within this content
-                    } else if ((executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) || (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
+                    } else if ((renderContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) || (renderContext.addonType == CPUtilsBaseClass.addonContext.ContextRemoteMethodJson)) {
                         //
                         // -- non-ajax/non-Iframe remote method content (no wrapper)
-                    } else if (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextEmail) {
+                    } else if (renderContext.addonType == CPUtilsBaseClass.addonContext.ContextEmail) {
                         //
                         // -- return Email context (no wrappers)
-                    } else if (executeContext.addonType == CPUtilsBaseClass.addonContext.ContextSimple) {
+                    } else if (renderContext.addonType == CPUtilsBaseClass.addonContext.ContextSimple) {
                         //
                         // -- add-on called by another add-on, subroutine style (no wrappers)
                     } else {
@@ -673,38 +709,38 @@ namespace Contensive.Processor.Controllers {
                         hint = 22;
                         if (!string.IsNullOrEmpty(containerCssId) || !string.IsNullOrEmpty(ContainerCssClass)) {
                             if (addon.isInline) {
-                                result = new StringBuilder("\r<span id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\" style=\"display:inline;\">" + result.ToString() + "</span>");
+                                returnAssets = new StringBuilder("\r<span id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\" style=\"display:inline;\">" + returnAssets.ToString() + "</span>");
                             } else {
-                                result = new StringBuilder("\r<div id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\">" + result.ToString() + "\r</div>");
+                                returnAssets = new StringBuilder("\r<div id=\"" + containerCssId + "\" class=\"" + ContainerCssClass + "\">" + returnAssets.ToString() + "\r</div>");
                             }
                         }
                         //
                         // -- Return all other types, Enable Edit Wrapper for Page Content edit mode
 
                         hint = 25;
-                        bool IncludeEditWrapper = (!addon.blockEditTools) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextEditor) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextEmail) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextSimple) && (!executeContext.isDependency);
+                        bool IncludeEditWrapper = (!addon.blockEditTools) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextEditor) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextEmail) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextSimple) && (!renderContext.isDependency);
                         if (IncludeEditWrapper) {
-                            IncludeEditWrapper = IncludeEditWrapper && (allowAdvanceEditor && ((executeContext.addonType == CPUtilsBaseClass.addonContext.ContextAdmin) || core.session.isEditing(executeContext.hostRecord.contentName)));
+                            IncludeEditWrapper = IncludeEditWrapper && (allowAdvanceEditor && ((renderContext.addonType == CPUtilsBaseClass.addonContext.ContextAdmin) || core.session.isEditing(renderContext.hostRecord.contentName)));
                             if (IncludeEditWrapper) {
                                 //
                                 // Edit Icon
                                 var editSegmentList = new List<string> {
                                             AdminUIEditButtonController.getOldEditSegment(core, addon.id, addon.name)
                                         };
-                                result = new StringBuilder(AdminUIEditButtonController.joinOldEditSegments(core, editSegmentList) + result.ToString());
-                                result = new StringBuilder(AdminUIEditButtonController.getEditWrapper(core, result.ToString()));
+                                returnAssets = new StringBuilder(AdminUIEditButtonController.joinOldEditSegments(core, editSegmentList) + returnAssets.ToString());
+                                returnAssets = new StringBuilder(AdminUIEditButtonController.getEditWrapper(core, returnAssets.ToString()));
                             }
                         }
                         //
                         // -- Add Comment wrapper, to help debugging except email, remote methods and admin (empty is used to detect no result)
                         hint = 26;
-                        if (true && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextAdmin) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextEmail) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson) && (executeContext.addonType != CPUtilsBaseClass.addonContext.ContextSimple)) {
+                        if (true && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextAdmin) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextEmail) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodHtml) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextRemoteMethodJson) && (renderContext.addonType != CPUtilsBaseClass.addonContext.ContextSimple)) {
                             if (core.visitProperty.getBoolean("AllowDebugging")) {
                                 string AddonCommentName = GenericController.strReplace(addon.name, "-->", "..>");
                                 if (addon.isInline) {
-                                    result = new StringBuilder("<!-- Add-on " + AddonCommentName + " -->" + result.ToString() + "<!-- /Add-on " + AddonCommentName + " -->");
+                                    returnAssets = new StringBuilder("<!-- Add-on " + AddonCommentName + " -->" + returnAssets.ToString() + "<!-- /Add-on " + AddonCommentName + " -->");
                                 } else {
-                                    result = new StringBuilder("\r<!-- Add-on " + AddonCommentName + " -->" + result.ToString() + "\r<!-- /Add-on " + AddonCommentName + " -->");
+                                    returnAssets = new StringBuilder("\r<!-- Add-on " + AddonCommentName + " -->" + returnAssets.ToString() + "\r<!-- /Add-on " + AddonCommentName + " -->");
                                 }
                             }
                         }
@@ -732,52 +768,72 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("instanceId", parentInstanceId);
                 //
                 // -- html-only addons
-                if (executeContext.forceHtmlDocument || addon.htmlDocument) {
+                if (renderContext.forceHtmlDocument || addon.htmlDocument) {
                     //
                     // -- if the executed content includes content cmds, we cant guarantee it didnt come from user data
                     if (core.siteProperties.beta200327_BlockCCmdCodeAfterAddonExec) {
-                        result = new StringBuilder(result.ToString().Replace("{%", "{_%").Replace("%}", "%_}"));
+                        returnAssets = new StringBuilder(returnAssets.ToString().Replace("{%", "{_%").Replace("%}", "%_}"));
                     }
                     //
                     // -- if root level addon, and the addon is an html document, create the html document around it and uglify if not debugging
-                    if (executeContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
+                    if (renderContext.forceHtmlDocument || (rootLevelAddon && addon.htmlDocument)) {
                         //
                         // -- on body end addons (as long  as this addon is not onbodystart also
                         if (!addon.onBodyEnd) {
                             //
                             // -- on body end addons
-                            core.doc.body = result.ToString();
+                            core.doc.body = returnAssets.ToString();
                             string addonResult = core.addon.executeOnBodyEnd();
-                            result = new StringBuilder(core.doc.body + addonResult);
+                            returnAssets = new StringBuilder(core.doc.body + addonResult);
                         } else {
                             logger.Warn(core.logCommonMessage + ",Addon [" + addon.id + ", " + addon.name + "] is run as an Html Document addon but it is marked onBodyEnd. onBodyEnd was ignored.");
                         }
                         //
                         // -- create html document from returned body
-                        result = new StringBuilder(core.html.getHtmlDoc(result.ToString()));
+                        returnAssets = new StringBuilder(core.html.getHtmlDoc(returnAssets.ToString()));
                         //
                         // -- minify results
                         if ((!core.doc.visitPropertyAllowDebugging) && (core.siteProperties.getBoolean("Allow Html Minify", true))) {
-                            result = new StringBuilder(NUglify.Uglify.Html(result.ToString()).Code);
+                            returnAssets = new StringBuilder(NUglify.Uglify.Html(returnAssets.ToString()).Code);
                         }
                     }
                 }
+                //
+                // -- addon cache
+                // -- if addon.allowCache then attempt read. On miss, execute addon and if all subordinate addons allowAddon, then store the cache
+
+                renderContext.resultCanBeCached = renderContext.resultCanBeCached && addon.allowCache;
+                if (renderContext.resultCanBeCached) {
+                    //
+                    // -- test if all subordinate executions returned allowCache (context-returnValueCanBeCached).
+                    // If true, and this is allowCache, save the cache and return that this data can be cached.
+                    // 
+                    //
+                    core.cache.storeObject(addonCacheName, returnAssets.ToString());
+                }
+
                 //
                 // -- log remote method payload size
                 if (addon.remoteMethod) {
                     StackFrame frame = new(1);
                     MethodBase method = frame.GetMethod();
-                    logger.Trace($"{core.logCommonMessage},addon [" + addon.id + "." + addon.name + "], method [" + method.ReflectedType.Name + "." + method.Name + "], visit [" + core.session.visit.id + "], payload [" + result.Length + "], time [" + sw.ElapsedMilliseconds + "ms]");
+                    logger.Trace($"{core.logCommonMessage},addon [" + addon.id + "." + addon.name + "], method [" + method.ReflectedType.Name + "." + method.Name + "], visit [" + core.session.visit.id + "], payload [" + returnAssets.Length + "], time [" + sw.ElapsedMilliseconds + "ms]");
                 }
                 //
                 // -- remove this addon from the recursion test stack
                 // -- add all addons to the dependencyrecursionTestStack, only test them if they are dependencies - but block them even if they were first run as non-dependencies
-                executeContext.dependencyRecursionTestStack.Pop();
+                renderContext.dependencyRecursionTestStack.Pop();
                 //
                 // -- pop modelstack and test point message
                 core.doc.addonExecutionStack.Pop();
+                //
+                // -- restore previous render context, but set its resultCanBeCached to the current value
+                core.doc.addonRenderContext.Pop();
+                if (core.doc.addonRenderContext.Count > 0 && core.doc.addonRenderContext.Peek() != null) {
+                    core.doc.addonRenderContext.Peek().resultCanBeCached = renderContext.resultCanBeCached;
+                };
             }
-            return result.ToString();
+            return returnAssets.ToString();
         }
         //
         //====================================================================================================
@@ -1336,7 +1392,7 @@ namespace Contensive.Processor.Controllers {
                                                                         if (dt.Rows.Count > 0) {
                                                                             object[,] something = { { } };
                                                                             if (dt.Rows.Count == 1 && dt.Columns.Count == 1) {
-                                                                                Copy = HtmlController.inputText(core, "result", GenericController.encodeText(something[0, 0]),"","",true);
+                                                                                Copy = HtmlController.inputText(core, "result", GenericController.encodeText(something[0, 0]), "", "", true);
                                                                             } else {
                                                                                 foreach (DataRow dr in dt.Rows) {
                                                                                     //

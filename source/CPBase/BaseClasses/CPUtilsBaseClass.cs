@@ -182,6 +182,13 @@ namespace Contensive.BaseClasses {
             ///// If addon 1 is dependent on addon 2, which is dependent on addon 3, and we execute addon 3, it would have 3, then 2, then 1
             ///// </summary>
             public Stack<int> dependencyRecursionTestStack { get; set; } = new();
+            /// <summary>
+            /// when calling an addon for execution, within addon.execute(), this property is set to the value of addon.allowCache
+            /// use this property after addon-execution exit to determine if the returned result from the execution can be cached by it's calling process.
+            /// Only the return-value portion of addon execution is affected: dotnet code, script-code and text returns. non-return-result elements like js and css added to head are still executed. 
+            /// this property is used to signal parent addon executions that a subordinate execution content cannot be cached, and hence the parent cannot be cached
+            /// </summary>
+            public bool resultCanBeCached { get; set; }
         }
         //
         //====================================================================================================

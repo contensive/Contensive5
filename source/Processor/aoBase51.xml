@@ -1964,6 +1964,9 @@
     </Field>
 
     <!-- Features -->
+    <Field Name="allowCache" Active="true" AdminOnly="0" Authorable="1" Caption="Output Can Be Cached" DeveloperOnly="0" EditSortPriority="1010" FieldType="Boolean" HtmlContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="0" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Features" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+      <HelpDefault><![CDATA[If true, the output of the add-on can be cached for the next use, saving time and resources.]]></HelpDefault>
+    </Field>
     <Field Name="ArgumentList" Active="true" AdminOnly="0" Authorable="1" Caption="Argument List" DeveloperOnly="0" EditSortPriority="1100" FieldType="LongText" HtmlContent="0" IndexColumn="1" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Features" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault><![CDATA[The argument list is a set of Name=value pairs seperated by new line. When addons are added to a page with the wysiwyg editor, the administrator will have a tool to edit the values for these arguments. The Name=value pairs are provided to code through the cp.doc properties, and the content is find-replaced with $name$.]]></HelpDefault>
     </Field>

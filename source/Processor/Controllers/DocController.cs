@@ -354,6 +354,15 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// When executing an addon, you pass in as an argument the renderContext. This represents the circomstances around which the execution takes place, such as for json, or for email, or for web
+        /// This stack points to the current addon execution's context
+        /// It is needed because an addon may include content that has commands that run subordinate addons, This is the mechanism that passes the previous context to those executions
+        /// Passing context out of an addon execution is important because the contact includes .resultCanBeCached and this is set true on addon.execute() entry, but must be passed to the caller on exit.
+        /// </summary>
+        public Stack<CPUtilsBaseClass.addonExecuteContext> addonRenderContext { get; set; } = new Stack<CPUtilsBaseClass.addonExecuteContext>();
+        //
+        //====================================================================================================
+        /// <summary>
         /// 
         /// </summary>
         public int addonInstanceCnt { get; set; } = 0;

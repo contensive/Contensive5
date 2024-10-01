@@ -28,6 +28,10 @@ namespace Contensive.Models.Db {
         /// </summary>
         public string aliasList { get; set; }
         /// <summary>
+        /// allow the output of this addon to be cached.
+        /// </summary>
+        public bool allowCache { get; set; }
+        /// <summary>
         /// deprecated
         /// </summary>
         public bool asAjax { get; set; }
