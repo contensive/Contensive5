@@ -13,6 +13,7 @@ using System.Text.RegularExpressions;
 using static Contensive.Processor.Constants;
 using static Newtonsoft.Json.JsonConvert;
 using Amazon.SimpleEmail;
+using System.Net;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -208,9 +209,12 @@ namespace Contensive.Processor.Controllers {
                     return false;
                 }
                 if (!verifyEmailAddress(core, email.fromAddress)) {
-                    //
-                    returnUserWarning = "The from-address is not valid.";
-                    return false;
+                    if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        returnUserWarning = "The from-address is not valid.";
+                        return false;
+                    }
+                    email.fromAddress = core.siteProperties.emailFromAddress;
                 }
                 return true;
             } catch (Exception ex) {
@@ -223,14 +227,16 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// email subject cannot have crlf
         /// </summary>
-        public static bool verifyEmailSubject(CoreController core, string emailSubject) {
+        public static string validateEmailSubject(CoreController core, string emailSubject) {
             try {
-                if (string.IsNullOrWhiteSpace(emailSubject)) { return true; }
-                if (emailSubject.Contains(windowsNewLine) || emailSubject.Contains(unixNewLine) || emailSubject.Contains(macNewLine)) { return false; }
+                if (string.IsNullOrWhiteSpace(emailSubject)) { return ""; }
+                emailSubject = emailSubject.replace(windowsNewLine, "", StringComparison.InvariantCultureIgnoreCase);
+                emailSubject = emailSubject.replace(unixNewLine, "", StringComparison.InvariantCultureIgnoreCase);
+                emailSubject = emailSubject.replace(macNewLine, "", StringComparison.InvariantCultureIgnoreCase);
                 //
-                return true;
+                return emailSubject;
             } catch (Exception) {
-                return false;
+                return emailSubject;
             }
         }
         //
@@ -279,11 +285,7 @@ namespace Contensive.Processor.Controllers {
         public static bool sendAdHocEmail(CoreController core, string emailContextMessage, int loggedPersonId, string toAddress, string fromAddress, string subject, string body, string bounceAddress, string replyToAddress, string ignore, bool isImmediate, bool isHTML, int loggedEmailId, ref string userErrorMessage, int personalizeAddonId) {
             try {
                 // -- validate arguments
-                if (!verifyEmailSubject(core, subject)) {
-                    userErrorMessage = "Email not sent because the subject is not valid.";
-                    logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                    return false;
-                }
+                subject = validateEmailSubject(core, subject);
                 if (!verifyEmailAddress(core, toAddress)) {
                     //
                     userErrorMessage = "Email not sent because the to-address is not valid [" + toAddress + "].";
@@ -291,10 +293,13 @@ namespace Contensive.Processor.Controllers {
                     return false;
                 }
                 if (!verifyEmailAddress(core, fromAddress)) {
-                    //
-                    userErrorMessage = "Email not sent because the from-address is not valid [" + fromAddress + "].";
-                    logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                    return false;
+                    if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        userErrorMessage = "Email not sent because the from-address is not valid [" + fromAddress + "].";
+                        logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        return false;
+                    }
+                    fromAddress = core.siteProperties.emailFromAddress;
                 }
                 if (isOnBlockedList(core, toAddress)) {
                     //
@@ -384,21 +389,20 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [null], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
-                if (!verifyEmailSubject(core, subject)) {
-                    userErrorMessage = "Email not sent because the subject is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
-                    logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                    return false;
-                }
+                subject = validateEmailSubject(core, subject);
                 if (!verifyEmailAddress(core, recipient.email)) {
                     userErrorMessage = "Email not sent because the to-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                     logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, fromAddress)) {
-                    //
-                    userErrorMessage = "Email not sent because the from-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
-                    logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
-                    return false;
+                    if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        userErrorMessage = "Email not sent because the from-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
+                        logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
+                        return false;
+                    }
+                    fromAddress = core.siteProperties.emailFromAddress;
                 }
                 if (isOnBlockedList(core, recipient.email)) {
                     //
@@ -641,15 +645,19 @@ namespace Contensive.Processor.Controllers {
         public static bool trySendSystemEmail(CoreController core, bool immediate, SystemEmailModel email, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             try {
                 // -- validate arguments
-                if (!verifyEmailSubject(core, email.subject)) {
-                    userErrorMessage = "The email subject is not valid.";
-                    return false;
-                }
+                // -- an email with no subject is still valid
+                //if (!verifyEmailSubject(core, email.subject)) {
+                //    userErrorMessage = "The email subject is not valid.";
+                //    return false;
+                //}
                 if (!verifyEmailAddress(core, email.fromAddress)) {
-                    //
-                    userErrorMessage = "Email not sent because the from-address is not valid.";
-                    logger.Info($"{core.logCommonMessage},tryQueueSystemEmail, NOT SENT [" + userErrorMessage + "], email [" + email.name + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
-                    return false;
+                    if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        userErrorMessage = $"Email not sent because the from-address is not valid [{email.fromAddress}].";
+                        logger.Info($"{core.logCommonMessage},tryQueueSystemEmail, NOT SENT [" + userErrorMessage + "], email [" + email.name + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
+                        return false;
+                    }
+                    email.fromAddress = core.siteProperties.emailFromAddress;
                 }
                 string BounceAddress = core.siteProperties.emailBounceAddress;
                 EmailTemplateModel emailTemplate = DbBaseModel.create<EmailTemplateModel>(core.cpParent, email.emailTemplateId);
@@ -918,10 +926,7 @@ namespace Contensive.Processor.Controllers {
                     userErrorMessage = "The from-address [" + fromAddress + "] is not valid.";
                     return false;
                 }
-                if (!verifyEmailSubject(core, emailSubject)) {
-                    userErrorMessage = "The email subject is not valid.";
-                    return false;
-                }
+                emailSubject = validateEmailSubject(core, emailSubject);
                 userErrorMessage = "";
                 string Message = "";
                 string emailSubjectWorking = emailSubject;
@@ -1149,19 +1154,16 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
                     return false;
                 }
-                if (!verifyEmailSubject(core, sendRequest.subject)) {
-                    //
-                    // -- from address is reasonForFail
-                    userErrorMessage = $"email subject is invalid [{sendRequest.subject}]";
-                    logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
-                    return false;
-                }
+                sendRequest.subject = validateEmailSubject(core, sendRequest.subject);
                 if (!verifyEmailAddress(core, sendRequest.fromAddress)) {
-                    //
-                    // -- from address is reasonForFail
-                    userErrorMessage = $"email from-address is invalid [{sendRequest.fromAddress}]";
-                    logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
-                    return false;
+                    if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        // -- from address is reasonForFail
+                        userErrorMessage = $"email from-address is invalid [{sendRequest.fromAddress}]";
+                        logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
+                        return false;
+                    }
+                    sendRequest.fromAddress = core.siteProperties.emailFromAddress;
                 }
                 bool sendWithSES = core.siteProperties.getBoolean(Constants.sitePropertyName_SendEmailWithAmazonSES);
                 bool sendSuccess = false;

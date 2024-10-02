@@ -103,7 +103,7 @@ namespace Contensive.Processor {
             if (string.IsNullOrEmpty(userEmail)) { return; }
             List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
             if (users.Count != 1) { return; }
-            AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getAndClearVisitAuthTokenInfo(cp);
+            AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getVisitAuthTokenInfo(cp);
             EmailController.trySendPasswordReset(cp.core, users[0], visitAuthTokeninfo, ref userErrorMessage);
         }
         //

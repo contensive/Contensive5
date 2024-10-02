@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a lydiakidwell -u",
+      "commandLineArgs": "--tasks run",
       "jsWebView2Debugging": false
     }
   }

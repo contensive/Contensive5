@@ -24,17 +24,53 @@ namespace Contensive.Processor.Addons {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
+                if (cp.Doc.GetText("button").ToLowerInvariant() == "cancel") {
+                    //
+                    // -- clear the setPassword token
+                    AuthTokenInfoModel.clearVisitAuthTokenInfo(cp);
+                    //
+                    // -- handle cancel button
+                    if (cp.Request.PathPage == cp.GetAppConfig().adminRoute) {
+                        cp.Response.Redirect(cp.GetAppConfig().adminRoute + "?refresh");
+                    } else {
+                        cp.Response.Redirect("/");
+                    }
+                }
+                if (cp.Doc.GetText("button").ToLowerInvariant() != "setpassword") {
+                    //
+                    // -- no button pressed
+                    return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
+                        userErrorHtml = "",
+                        authToken = cp.Doc.GetText("authToken")
+                    }));
+                }
+                //
+                // -- handle set password
+                string userErrorMessage = "";
+                string password = cp.Doc.GetText("password");
+                string confirm = cp.Doc.GetText("confirm");
+                if (password != confirm) {
+                    //
+                    // -- confirm fail, delay to discourage brute-force
+                    userErrorMessage = "Password and password confirm do not match";
+                    System.Threading.Thread.Sleep(3000);
+                    return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
+                        userErrorHtml = userErrorMessage,
+                        authToken = cp.Doc.GetText("authToken")
+                    }));
+                }
+                //
+                // -- matches, attempt change
                 // -- determine user.
                 // -- If authenticated, use current user.
                 // -- if authToken string is included, used as one-time-login tokenk saved in user
-                string userErrorMessage = "";
                 PersonModel user = null;
-                AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getAndClearVisitAuthTokenInfo(cp);
+                AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getVisitAuthTokenInfo(cp);
                 if (cp.User.IsAuthenticated) {
                     //
                     // -- user changing password
                     user = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
-                } else if (visitAuthTokeninfo != null && !string.IsNullOrEmpty(visitAuthTokeninfo.text) && visitAuthTokeninfo.text== cp.Doc.GetText(Constants.rn_authToken)) {
+                } else if (visitAuthTokeninfo != null && !string.IsNullOrEmpty(visitAuthTokeninfo.text) && visitAuthTokeninfo.text == cp.Doc.GetText(Constants.rn_authToken)) {
                     //
                     // -- authToken in link to site matches authToken saved in visit when invitation was sent (email/sms) so this is the same visitor
                     // -- forgot-password process, this user-visit requested forgot-password link
@@ -46,30 +82,14 @@ namespace Contensive.Processor.Addons {
                         authToken = ""
                     }));
                 }
-                //
-                if (cp.Doc.GetText("button").ToLowerInvariant() == "cancel") {
-                    //
-                    // -- handle cancel button
-                    if (cp.Request.PathPage == cp.GetAppConfig().adminRoute) {
-                        cp.Response.Redirect(cp.GetAppConfig().adminRoute + "?refresh");
-                    } else {
-                        cp.Response.Redirect("/");
-                    }
-                }
-                if (cp.Doc.GetText("button").ToLowerInvariant() == "setpassword") {
-                    //
-                    // -- handle set password
-                    string password = cp.Doc.GetText("password");
-                    string confirm = cp.Doc.GetText("confirm");
-                    if (password != confirm) {
+                if (AuthenticationController.tryIsValidPassword(core, user, password, ref userErrorMessage)) {
+                    if (AuthenticationController.trySetPassword(core.cpParent, password, user)) {
                         //
-                        // -- delay to discourage brute-force
-                        cp.UserError.Add("Password and password confirm do not match");
-                        System.Threading.Thread.Sleep(3000);
+                        // -- password changed, forward to home
+                        cp.Response.Redirect("/");
+                        return "";
                     }
-                    if (AuthenticationController.tryIsValidPassword(core, user, password, ref userErrorMessage)) {
-                        AuthenticationController.trySetPassword(core.cpParent, password, user);
-                    }
+                    userErrorMessage = "There was an error and the password could not be set.";
                 }
                 return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                     userErrorHtml = userErrorMessage,

@@ -41,11 +41,19 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public static AuthTokenInfoModel getAndClearVisitAuthTokenInfo(CPBaseClass cp) {
+        public static AuthTokenInfoModel getVisitAuthTokenInfo(CPBaseClass cp) {
             string authTokenJson = cp.Visit.GetText("authTokenJson");
             var result = cp.JSON.Deserialize<AuthTokenInfoModel>(authTokenJson);
-            cp.Visit.SetProperty("authTokenJson", "");
             return result;
+        }
+        //
+        /// <summary>
+        /// get the current visit property authToken. return null if there is no token
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public static void clearVisitAuthTokenInfo(CPBaseClass cp) {
+            cp.Visit.SetProperty("authTokenJson", "");
         }
         public string text { get; set; }
         public int userId { get; set; }
