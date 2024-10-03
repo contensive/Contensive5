@@ -76,13 +76,13 @@ namespace Contensive.Processor.Controllers {
                         reasonForFail += $", {ex.InnerException.Message}";
                     }
                     string errMsg = "Unexpected exception during SES send" + logLongDetail + "";
-                    logger.Error($"{core.logCommonMessage},{errMsg}");
+                    logger.Error(ex,$"{core.logCommonMessage},{errMsg}");
                     return false;
                 }
             } catch (Exception ex) {
                 reasonForFail = "Error sending email [" + ex.Message + "]" + logShortDetail;
                 string errMsg = "Unexpected exception during SES configure" + logLongDetail + "";
-                logger.Error($"{core.logCommonMessage},{errMsg}");
+                logger.Error(ex,$"{core.logCommonMessage},{errMsg}");
                 return false;
             }
         }
