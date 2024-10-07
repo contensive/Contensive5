@@ -196,6 +196,17 @@ rem pause
 
 rem ==============================================================
 rem
+rem copy the install readme file
+rem then the deployment script will copy to aws contensive folder
+rem
+
+c:
+copy "C:\Git\Contensive5\etc\install-readme.txt" "%deploymentFolderRoot%%versionNumber%\"
+
+rem pause
+
+rem ==============================================================
+rem
 rem build and pack Contensive common solution (CPBase +Models + Processor)
 rem The assembly version represents the architecture, 4.1.2.0 was the version we locked this down.
 rem Assemblies are signed so if we use cpbase or models as a dependency in a dll that as a dependency, if a dll uses it and one of these bases, the assembly must match
