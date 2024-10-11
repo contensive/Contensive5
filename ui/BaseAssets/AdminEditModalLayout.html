@@ -29,9 +29,9 @@
                 border-radius: 12px;
                 margin-bottom: 20px;
             }
-            .widgetEditModal .sctnWrpr div {
+            /* .widgetEditModal .sctnWrpr div {
                 overflow: hidden;
-            }
+            } */
             .widgetEditModal img.output {
                 width: 110px;
                 height: 90px;
@@ -517,7 +517,7 @@
                                     -->
                                     {{#isImage}}
                                     <div class="sctnWrpr">
-                                        <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex justify-content-between align-items-center" style="overflow: visible !important;">
                                             <div class="d-flex mt-1">
                                                 <div class="position-relative">
                                                     {{#isHelp}}
@@ -664,14 +664,14 @@
                                                                 <!--
                                                                     checkbox list
                                                                 -->
-                                                                <div class="form-check form-check-inline mb-3">
+                                                                <div class="form-check mb-3">
                                                                     <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
                                                                     {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
                                                                     {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
-                                                                    <label class="form-check-label" for="checkbox{{fieldId}}">
+                                                                    <label class="form-check-label d-flex" for="checkbox{{fieldId}}">
                                                                         <h6 class="mb-0">{{caption}}</h6>
                                                                         {{#isHelp}}
-                                                                        <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                                        <a type="button" class="helpIcon ms-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                                             <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                                         </a>
                                                                         {{/isHelp}}
