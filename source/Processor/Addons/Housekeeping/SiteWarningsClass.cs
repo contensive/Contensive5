@@ -63,7 +63,7 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 }
                 //
                 // -- set warning of doctype is not <!DOCTYPE HTML>
-                string docType = cp.Site.GetText("DOCTYPEDECLARATION");
+                string docType = cp.core.siteProperties.docTypeDeclaration;
                 if (!string.IsNullOrEmpty(docType) && docType.ToLowerInvariant() != "<!doctype html>") {
                     cp.Site.SetSiteWarning($"html doctype is not html5 doctype html", $"html doctype is not html5 doctype html. This effects how browsers display html and styles. To fix this, make sure all templates are html5 compatible, then set DocType Declaration to '<!DOCTYPE HTML>' in the Templates tab of Site Settings, available from the Settings icon in the admin site.");
                 }

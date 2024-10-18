@@ -202,6 +202,8 @@ rem
 
 c:
 copy "C:\Git\Contensive5\etc\install-readme.txt" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\etc\install.cmd" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\etc\uninstall.cmd" "%deploymentFolderRoot%%versionNumber%\"
 
 rem pause
 
