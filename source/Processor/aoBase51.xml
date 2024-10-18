@@ -1960,7 +1960,7 @@
 
     <!-- Events -->
     <Field Name="Events" Active="true" AdminOnly="0" Authorable="1" Caption="Events To Handle" DeveloperOnly="0" EditSortPriority="1000" FieldType="ManyToMany" HtmlContent="0" IndexColumn="" IndexSortDirection="" IndexSortOrder="" IndexWidth="" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Events" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="addonId" ManyToManyRuleSecondaryField="eventId" LookupContent="" RedirectContent="" ManyToManyContent="Add-on Events" ManyToManyRuleContent="Add-on Event Catchers" >
-      <HelpDefault><![CDATA[If other add-ons call cp.Site.ThrowEvent() and this add-on has checked the event in this list, this add-on will be called.]]></HelpDefault>
+      <HelpDefault><![CDATA[If other add-ons call cp.Site.ThrowEvent("event name") and this add-on has checked the event ("event name") in this list, this add-on will be called by the ThrowEvent method.]]></HelpDefault>
     </Field>
 
     <!-- Features -->
