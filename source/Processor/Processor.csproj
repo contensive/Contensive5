@@ -3,6 +3,7 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
+	  <UseWPF>true</UseWPF>
 	  <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
 	  <RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
@@ -133,6 +134,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\Pluralize.NET\Pluralize.NET.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -158,6 +160,7 @@
     <PackageReference Include="SharpZipLib" Version="1.4.2" />
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />
     <PackageReference Include="StackExchange.Redis" Version="2.8.0" />
+    <PackageReference Include="StrongNamer" Version="0.2.5" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="System.IO.Pipelines" Version="8.0.0" />
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.7.0" />

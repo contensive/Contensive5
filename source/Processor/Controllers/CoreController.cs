@@ -4,8 +4,6 @@ using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Design.PluralizationServices;
-using System.Globalization;
 using System.Reflection;
 using System.Runtime.InteropServices;
 //
@@ -730,21 +728,6 @@ namespace Contensive.Processor.Controllers {
             Version myVersion = myAssemblyname.Version;
             return myVersion.Major.ToString("0") + "." + myVersion.Minor.ToString("0") + "." + myVersion.Build.ToString("0") + "." + myVersion.Revision.ToString("0");
         }
-        //
-        //====================================================================================================
-        /// <summary>
-        /// dotnet pluralize and singularize.
-        /// </summary>
-        public PluralizationService pluralizationService {
-            get {
-                if (_pluralizationService == null) {
-                    _pluralizationService = PluralizationService.CreateService(CultureInfo.GetCultureInfo("en-us"));
-                }
-                return _pluralizationService;
-            }
-        }
-        private PluralizationService _pluralizationService;
-
         #region  IDisposable Support 
         //
         //====================================================================================================

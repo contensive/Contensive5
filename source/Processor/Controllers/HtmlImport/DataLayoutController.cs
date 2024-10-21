@@ -31,40 +31,44 @@ namespace Contensive.Processor {
                     if (nodeList != null) {
                         foreach (HtmlNode node in nodeList) {
                             string layoutRecordName = node.Attributes["data-layout"]?.Value;
-                            if(layoutRecordName != layoutNameFilter) {
-                                // -- this is not the layout to be filtered
-                                continue;
-                            }
-                            // -- load htmldoc with this node and return
-                            htmlDoc.LoadHtml(node.InnerHtml);
-                            return;
-                            //node.Attributes.Remove("data-layout");
-                            ////
-                            //// -- body found, set the htmlDoc to the body
-                            //var layoutDoc = new HtmlDocument();
-                            //layoutDoc.LoadHtml(node.InnerHtml);
-                            ////
-                            //// -- process the layout 
-                            //DataDeleteController.process(layoutDoc);
-                            //MustacheVariableController.process(layoutDoc);
-                            //MustacheSectionController.process(layoutDoc);
-                            //MustacheTruthyController.process(layoutDoc);
-                            //MustacheInvertedSectionController.process(layoutDoc);
-                            //MustacheValueController.process(layoutDoc);
-                            //DataAddonController.process(cp, layoutDoc);
-                            ////
-                            //// -- save the alyout
-                            //LayoutModel layout = null;
-                            //if ((layout == null) && !string.IsNullOrWhiteSpace(layoutRecordName)) {
-                            //    layout = DbBaseModel.createByUniqueName<LayoutModel>(cp, layoutRecordName);
-                            //    if (layout == null) {
-                            //        layout = DbBaseModel.addDefault<LayoutModel>(cp);
-                            //        layout.name = layoutRecordName;
-                            //    }
-                            //    layout.layout.content = layoutDoc.DocumentNode.OuterHtml;
-                            //    layout.save(cp);
-                            //    userMessageList.Add("Saved Layout '" + layoutRecordName + "' from data-layout attribute.");
+                            //if(layoutRecordName != layoutNameFilter) {
+                            //    // -- this is not the layout to be filtered
+                            //    continue;
                             //}
+                            //// -- load htmldoc with this node and return
+                            //htmlDoc.LoadHtml(node.InnerHtml);
+                            //return;
+                            node.Attributes.Remove("data-layout");
+                            //
+                            // -- body found, set the htmlDoc to the body
+                            var layoutDoc = new HtmlDocument();
+                            layoutDoc.LoadHtml(node.InnerHtml);
+                            //
+                            // -- process the layout 
+                            DataDeleteController.process(layoutDoc);
+                            MustacheVariableController.process(layoutDoc);
+                            MustacheSectionController.process(layoutDoc);
+                            MustacheTruthyController.process(layoutDoc);
+                            MustacheInvertedSectionController.process(layoutDoc);
+                            MustacheValueController.process(layoutDoc);
+                            DataAddonController.process(cp, layoutDoc);
+                            //
+                            // -- save the alyout
+                            LayoutModel layout = null;
+                            if ((layout == null) && !string.IsNullOrWhiteSpace(layoutRecordName)) {
+                                layout = DbBaseModel.createByUniqueName<LayoutModel>(cp, layoutRecordName);
+                                if (layout == null) {
+                                    layout = DbBaseModel.addDefault<LayoutModel>(cp);
+                                    layout.name = layoutRecordName;
+                                }
+                                if(cp.Site.htmlPlatformVersion == 5) {
+                                    layout.layoutPlatform5.content = layoutDoc.DocumentNode.OuterHtml;
+                                } else {
+                                    layout.layout.content = layoutDoc.DocumentNode.OuterHtml;
+                                }
+                                layout.save(cp);
+                                userMessageList.Add("Saved Layout '" + layoutRecordName + "' from data-layout attribute.");
+                            }
                         }
                     }
                     //

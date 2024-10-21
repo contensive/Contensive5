@@ -28,7 +28,7 @@ namespace Contensive.Processor.Controllers {
                 // todo - move locals
                 hint += "enter";
                 // -- error in core 8, 
-                // -- System.TypeLoadException: 'Could not load type 'System.Windows.Threading.Dispatcher' from assembly 'WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'.'
+                // -- System.IO.FileNotFoundException: 'Could not load file or assembly 'WindowsBase, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35'. The system cannot find the file specified.'
                 // 
                 // https://stackoverflow.com/questions/76864510/how-to-resolve-could-not-load-type-system-windows-threading-dispatchertimer
                 //

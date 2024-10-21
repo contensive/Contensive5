@@ -223,6 +223,14 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+dotnet build Pluralize.NET/Pluralize.NET.csproj --no-dependencies /property:AssemblyVersion=%versionNumber% /property:FileVersion=%versionNumber% -p:TargetFramework=net472
+if errorlevel 1 (
+   echo failure building common solution
+   pause
+   exit /b %errorlevel%
+)
+
+rem pause
 
 dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (

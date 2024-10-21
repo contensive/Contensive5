@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageVersion>1.0.13</PackageVersion>
+    <PackageId>Pluralize.NET</PackageId>
+    <Title>Pluralize.NET</Title>
+    <Authors>Sarath KCM</Authors>
+    <Description>Pluralize or singularize any word. C# Port of Blake Embrey's pluralize library for Javascript. Supports .NET framework and .NET standard. Visit https://github.com/sarathkcm/Pluralize.NET for details on how to use."</Description>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <PackageLicenseUrl>https://github.com/sarathkcm/Pluralize.NET/blob/master/LICENCE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/sarathkcm/Pluralize.NET</PackageProjectUrl>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageTags>pluralize singularize plural singular english pluralization singularization plurals singulars</PackageTags>
+    <IncludeSymbols>false</IncludeSymbols>
+    <IncludeSource>false</IncludeSource>
+    <RepositoryUrl>https://github.com/sarathkcm/Pluralize.NET</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <Version>1.0.13</Version>
+    <AssemblyVersion>1.0.13</AssemblyVersion>
+    <FileVersion>1.0.13</FileVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+  </PropertyGroup>
+</Project>

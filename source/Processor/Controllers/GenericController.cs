@@ -1,6 +1,7 @@
 ﻿
 using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
+using Pluralize.NET;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1185,7 +1186,8 @@ namespace Contensive.Processor.Controllers {
                         return PluralSource.Substring(0,4);
                     }
                 default: {
-                        return core.pluralizationService.Singularize(PluralSource);
+                        IPluralize pluralizer = new Pluralizer();
+                        return pluralizer.Singularize(PluralSource); 
                     }
             }
         }
