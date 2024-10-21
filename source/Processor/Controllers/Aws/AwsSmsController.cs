@@ -61,14 +61,10 @@ namespace Contensive.Processor.Controllers {
                     PhoneNumber = normalizedPhoneNumber
                 };
                 request.MessageAttributes["AWS.SNS.SMS.SMSType"] = new MessageAttributeValue { StringValue = "Transactional", DataType = "String" };
-//#if NET472
                 PublishResponse awsResponse = snsClient.PublishAsync(request).Result;
                 if(awsResponse.HttpStatusCode == HttpStatusCode.OK) { return true;  }
                 userError = "Error sending";
                 return false;
-//#else
-                // --  "Core AWS Text Message not implemented";
-//#endif
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
