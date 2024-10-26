@@ -218,7 +218,7 @@ cd ..\source
 
 dotnet clean contensivecommon.sln
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure cleaning common solution
    pause
    exit /b %errorlevel%
 )
@@ -227,14 +227,7 @@ pause
 
 dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
-   echo failure building common solution
-   pause
-   exit /b %errorlevel%
-)
-
-dotnet build PluralizeFork/PluralizeFork.csproj --no-dependencies /property:AssemblyVersion=%versionNumber% /property:FileVersion=%versionNumber% -p:TargetFramework=net472
-if errorlevel 1 (
-   echo failure building common solution
+   echo failure building CPBase
    pause
    exit /b %errorlevel%
 )
@@ -242,28 +235,28 @@ if errorlevel 1 (
 rem asssembly product version was set 20.0.0.0, properties, package, packageid was
 dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure building Models
    pause
    exit /b %errorlevel%
 )
 
 dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure building Processor
    pause
    exit /b %errorlevel%
 )
 
 dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure building taskservice
    pause
    exit /b %errorlevel%
 )
 
 dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure building cli
    pause
    exit /b %errorlevel%
 )
@@ -273,21 +266,21 @@ pause
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure pack CPBase
    pause
    exit /b %errorlevel%
 )
 
 dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure pack Models
    pause
    exit /b %errorlevel%
 )
 
 dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
-   echo failure building common solution
+   echo failure pack Processor
    pause
    exit /b %errorlevel%
 )
