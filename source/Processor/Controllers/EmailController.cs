@@ -45,7 +45,11 @@ namespace Contensive.Processor.Controllers {
                     email.copyFilename.content = $"<p>You received this email because there was a request at {primaryDomain} to reset your password.</p>";
                     email.save(core.cpParent);
                 }
-                return trySendSystemEmail(core, true, email.id, $"<p>If this was you, <a href=\"{resetUrl}\">click here to reset your password.</a></p>", user.id);
+                string body = $"" +
+                    $"<p>An account was found on this site matching your email address with username {user.username}.</p>" +
+                    $"<p>If you requested this email to reset your password, <a href=\"{resetUrl}\">click here</a>.</p>" +
+                    $"";
+                return trySendSystemEmail(core, true, email.id, body, user.id);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

@@ -72,12 +72,14 @@ namespace Contensive.Processor.Controllers {
                     // -- no email entered
                     return;
                 }
-                List<PersonModel> users = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}");
-                if (users.Count != 1) {
-                    // -- 0 or 2+ users found
-                    return;
+                foreach (PersonModel user in DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}")) {
+                    EmailController.trySendPasswordReset(core, user, authTokenInfo, ref returnUserMessage);
                 }
-                EmailController.trySendPasswordReset(core, users[0], authTokenInfo,  ref returnUserMessage);
+                //List<PersonModel> users = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}");
+                //if (users.Count != 1) {
+                //    // -- 0 or 2+ users found
+                //    return;
+                //}
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

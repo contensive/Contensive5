@@ -23,13 +23,12 @@ namespace Contensive.Processor.Addons.Primitives {
                 string userEmail = core.docProperties.getText("email");
                 if (string.IsNullOrEmpty(userEmail)) { return ""; }
                 //
-                List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
-                if (users.Count != 1) { return ""; }
-                //
                 string userErrorMessage = "";
-                var authTokenInfo = new AuthTokenInfoModel(cp, users[0]);
-                AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
-                EmailController.trySendPasswordReset(core, users[0], authTokenInfo, ref userErrorMessage);
+                foreach (PersonModel user in DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}")) {
+                    var authTokenInfo = new AuthTokenInfoModel(cp, user);
+                    AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
+                    EmailController.trySendPasswordReset(core, user, authTokenInfo, ref userErrorMessage);
+                }
                 //
                 core.doc.continueProcessing = false;
                 return ""

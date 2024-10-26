@@ -6,6 +6,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using static Contensive.Processor.Constants;
 //
 namespace Contensive.Processor.Controllers {
@@ -105,7 +106,7 @@ namespace Contensive.Processor.Controllers {
                             PasswordRecoveryController.processPasswordRecoveryForm(core, authTokenInfo);
                             //
                             // -- display the password recovery instructions page. Access to set-password can only happen from the email
-                            return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { requestEmail });
+                            return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new  { email = requestEmail });
                         }
                     }
                 }

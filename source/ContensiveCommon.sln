@@ -38,7 +38,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApi", "webapi\WebApi.csp
 		{46657D07-74BC-4DDC-8FDD-9078EB1A1CD2} = {46657D07-74BC-4DDC-8FDD-9078EB1A1CD2}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pluralize.NET", "Pluralize.NET\Pluralize.NET.csproj", "{6DA3617B-D3E4-46D7-BF6B-B6A6241C1F45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PluralizeFork", "PluralizeFork\PluralizeFork.csproj", "{6DA3617B-D3E4-46D7-BF6B-B6A6241C1F45}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
