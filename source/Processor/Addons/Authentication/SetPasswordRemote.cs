@@ -78,7 +78,7 @@ namespace Contensive.Processor.Addons {
                 }
                 if (user == null) {
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
-                        userErrorHtml = "<p>Set password feature is disabled because the user can not be determined.</p>",
+                        userErrorHtml = "<p>Set Password failed because the user who requested the password change could not be determined. Be sure to use the same browser to set the password that was used to request the password change.</p>",
                         authToken = ""
                     }));
                 }

@@ -54,7 +54,12 @@ namespace Contensive.Processor.Controllers {
                 } else {
                      body = $"" +
                         $"<p>An account was found on this site matching your email address with username: {user.username}.</p>" +
-                        $"<p>If you requested this email to reset your password, <a href=\"{resetUrl}\">click here</a>.</p>" +
+                        $"<p>If you requested this change, <a href=\"{resetUrl}\">click here</a> to set a new password.</p>" +
+                        $"<p>" +
+                        $"If multiple user accounts were found for your email, you will receive mulitple password update emails. " +
+                        $"Do not forward these emails. " +
+                        $"Only one update can be made for each password update request, and the update must be made from the same browser that requested the update. " +
+                        $"</p>" +
                         $"";
                 }
                 return trySendSystemEmail(core, true, email.id, body, user.id);
