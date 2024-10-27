@@ -38,7 +38,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // --- must be authenticated to continue. Force a local login
                     // -- blank response means login process successful, can continue
                     // -- non-blank is the login form, return it
-                    string loginResult = LoginController.getLoginPage(cp.core, false, true);
+                    string loginResult = AuthWorkflowController.processGetAuthWorkflow(cp.core, false, true);
                     if (!string.IsNullOrEmpty(loginResult)) {
                         cp.User.Logout();
                         cp.core.html.addTitle("Unauthorized Access", "AdminAddon");

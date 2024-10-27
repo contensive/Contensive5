@@ -80,7 +80,7 @@ namespace Contensive.Processor.Addons {
         /// <returns></returns>
         public static AuthenticateResponse authenticateUsernamePassword(CoreController core, string username, string password, string errorPrefix) {
             string userErrorMessage = "";
-            int userId = AuthenticationController.preflightAuthentication_returnUserId(core, core.session, username, password, false, ref userErrorMessage);
+            int userId = AuthController.preflightAuthentication_returnUserId(core, core.session, username, password, false, ref userErrorMessage);
             if (userId == 0) {
                 //
                 // -- user was not found
@@ -90,7 +90,7 @@ namespace Contensive.Processor.Addons {
                     data = new AuthenticateResponseData()
                 };
             } else {
-                if (!AuthenticationController.authenticateById(core, core.session, userId)) {
+                if (!AuthController.authenticateById(core, core.session, userId)) {
                     //
                     // -- username/password login failed
                     core.webServer.setResponseStatus(WebServerController.httpResponseStatus401_Unauthorized);

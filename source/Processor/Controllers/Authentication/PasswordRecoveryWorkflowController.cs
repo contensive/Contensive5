@@ -1,6 +1,7 @@
 ﻿
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
+using NLog.Layouts;
 using System;
 using System.Collections.Generic;
 using static Contensive.Processor.Constants;
@@ -12,7 +13,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Recover password form and process
     /// </summary>
-    public static class PasswordRecoveryController {
+    public static class PasswordRecoveryWorkflowController {
         //
         //=============================================================================
         /// <summary>
@@ -22,35 +23,38 @@ namespace Contensive.Processor.Controllers {
         public static string getPasswordRecoveryForm(CoreController core) {
             string returnResult = "";
             try {
-                string QueryString = null;
+                //string QueryString = null;
                 //
                 if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {
                     returnResult += Properties.Resources.defaultForgetPassword_html;
                     //
                     // write out all of the form input (except state) to hidden fields so they can be read after login
                     returnResult += HtmlController.inputHidden("Type", FormTypePasswordRecovery);
-                    foreach (string formKey in core.docProperties.getKeyList()) {
-                        var formValue = core.docProperties.getProperty(formKey);
-                        if (formValue.propertyType == DocPropertyModel.DocPropertyTypesEnum.form) {
-                            switch (toUCase(formValue.name)) {
-                                case "S":
-                                case "MA":
-                                case "MB":
-                                case "USERNAME":
-                                case "PASSWORD":
-                                case "EMAIL":
-                                case "TYPE":
-                                    break;
-                                default:
-                                    returnResult += HtmlController.inputHidden(formValue.name, formValue.value);
-                                    break;
-                            }
-                        }
-                    }
-                    QueryString = core.doc.refreshQueryString;
-                    QueryString = modifyQueryString(QueryString, "S", "");
-                    QueryString = modifyQueryString(QueryString, "ccIPage", "");
-                    returnResult = HtmlController.form(core, returnResult, QueryString);
+                    //foreach (string formKey in core.docProperties.getKeyList()) {
+                    //    var formValue = core.docProperties.getProperty(formKey);
+                    //    if (formValue.propertyType == DocPropertyModel.DocPropertyTypesEnum.form) {
+                    //        switch (toUCase(formValue.name)) {
+                    //            case "S":
+                    //            case "MA":
+                    //            case "MB":
+                    //            case "USERNAME":
+                    //            case "PASSWORD":
+                    //            case "EMAIL":
+                    //            case "TYPE":
+                    //                break;
+                    //            default:
+                    //                returnResult += HtmlController.inputHidden(formValue.name, formValue.value);
+                    //                break;
+                    //        }
+                    //    }
+                    //}
+                    //QueryString = core.doc.refreshQueryString;
+                    //QueryString = modifyQueryString(QueryString, "S", "");
+                    //QueryString = modifyQueryString(QueryString, "ccIPage", "");
+                    //returnResult = HtmlController.form(core, returnResult, QueryString);
+                    //string action = core.cpParent.Request.QueryString;
+                    //action = GenericController.modifyQueryString(action, "method", "");
+                    return HtmlController.form(core, returnResult, core.cpParent.Request.QueryString);
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

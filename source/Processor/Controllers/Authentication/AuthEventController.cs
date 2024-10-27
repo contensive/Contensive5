@@ -8,7 +8,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// Recover password form and process
     /// </summary>
-    public static class AuthenticationDefaultEventController {
+    public static class AuthEventController {
         //
         /// <summary>
         /// authentication event happens right after session is initialized.
@@ -16,17 +16,18 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <returns>Return true if successful authentication.</returns>
-        public static bool processAuthenticationDefaultEvent(CoreController core) {
+        public static bool processAuthenticationDefaultEvent(CoreController core, ref string UserErrorMessage) {
             //
             // -- default username/password login (? /mfa-otp/reset-password)
             string authType = core.docProperties.getText("type");
             if(!string.IsNullOrEmpty(authType)) {
                 if(authType.Equals("login", StringComparison.InvariantCultureIgnoreCase)) {
                     string requestPassword = core.docProperties.getText("password");
-                    if (LoginController.processLoginPage_Default(core, 
+                    if (LoginWorkflowController.processLogin(core, 
                         core.docProperties.getText("username"), 
                         requestPassword,
-                        !string.IsNullOrEmpty(requestPassword))) {
+                        !string.IsNullOrEmpty(requestPassword),
+                        ref UserErrorMessage)) {
                         return true;
                     }
                 }
@@ -40,9 +41,9 @@ namespace Contensive.Processor.Controllers {
                 string authPassword = core.docProperties.getText("authPassword");
                 if ((!string.IsNullOrWhiteSpace(authUsername)) && (!string.IsNullOrWhiteSpace(authPassword))) {
                     string userErrorMessage = "";
-                    int userId = AuthenticationController.preflightAuthentication_returnUserId(core, core.session, authUsername, authPassword, false, ref userErrorMessage);
+                    int userId = AuthController.preflightAuthentication_returnUserId(core, core.session, authUsername, authPassword, false, ref userErrorMessage);
                     if (userId > 0) {
-                        AuthenticationController.authenticateById(core, core.session, userId);
+                        AuthController.authenticateById(core, core.session, userId);
                         return true;
                     }
                 }
@@ -61,9 +62,9 @@ namespace Contensive.Processor.Controllers {
                     string username = usernamePassword[0];
                     string password = usernamePassword[1];
                     string userErrorMessage = "";
-                    int userId = AuthenticationController.preflightAuthentication_returnUserId(core, core.session, username, password, false, ref userErrorMessage);
+                    int userId = AuthController.preflightAuthentication_returnUserId(core, core.session, username, password, false, ref userErrorMessage);
                     if (userId > 0) {
-                        AuthenticationController.authenticateById(core, core.session, userId);
+                        AuthController.authenticateById(core, core.session, userId);
                         return true;
                     }
                 }
@@ -84,7 +85,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- allow Link Login
                         logger.Trace($"{core.logCommonMessage},attempt link Login, userid [" + linkToken.id + "]");
-                        if (AuthenticationController.authenticateById(core, core.session, linkToken.id)) {
+                        if (AuthController.authenticateById(core, core.session, linkToken.id)) {
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link login", core.session.user.id);
                             return true;
                         }
@@ -92,7 +93,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- allow Link Recognize
                         logger.Trace($"{core.logCommonMessage},attempt link recognize, userid [" + linkToken.id + "]");
-                        if (AuthenticationController.recognizeById(core, core.session, linkToken.id)) {
+                        if (AuthController.recognizeById(core, core.session, linkToken.id)) {
                             LogController.addActivityCompletedVisit(core, "Login", "Successful link recognize", core.session.user.id);
                             return true;
                         }
@@ -116,14 +117,14 @@ namespace Contensive.Processor.Controllers {
                     if (core.siteProperties.allowAutoLogin) {
                         //
                         // -- login by the visitor.memberid
-                        if (AuthenticationController.authenticateById(core, core.session, core.session.visitor.memberId, true)) {
+                        if (AuthController.authenticateById(core, core.session, core.session.visitor.memberId, true)) {
                             LogController.addActivityCompletedVisit(core, "Login", "auto-login", core.session.user.id);
                             return true;
                         }
                     } else if (core.siteProperties.allowAutoRecognize) {
                         //
                         // -- recognize by the visitor.memberid
-                        if (AuthenticationController.recognizeById(core, core.session, core.session.visitor.memberId, true)) {
+                        if (AuthController.recognizeById(core, core.session, core.session.visitor.memberId, true)) {
                             LogController.addActivityCompletedVisit(core, "Recognize", "auto-recognize", core.session.user.id);
                             return true;
                         }

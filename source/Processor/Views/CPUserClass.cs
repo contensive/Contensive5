@@ -57,7 +57,7 @@ namespace Contensive.Processor {
         public override int GetIdByLogin(string username, string password) {
             if (cp?.core?.session == null) { return 0; }
             string userErrorMessage = "";
-            return AuthenticationController.preflightAuthentication_returnUserId(cp.core, cp.core.session, username, password, false, ref userErrorMessage);
+            return AuthController.preflightAuthentication_returnUserId(cp.core, cp.core.session, username, password, false, ref userErrorMessage);
         }
         //
         //====================================================================================================
@@ -323,36 +323,36 @@ namespace Contensive.Processor {
         //
         public override bool Login(string username, string password, bool setAutoLogin) {
             string userErrorMessage = "";
-            return AuthenticationController.login(cp.core, cp.core.session, username, password, setAutoLogin, ref userErrorMessage);
+            return AuthController.login(cp.core, cp.core.session, username, password, setAutoLogin, ref userErrorMessage);
         }
         public override bool Login(string username, string password) {
             string userErrorMessage = "";
-            return AuthenticationController.login(cp.core, cp.core.session, username, password, false, ref userErrorMessage);
+            return AuthController.login(cp.core, cp.core.session, username, password, false, ref userErrorMessage);
         }
         //
         //====================================================================================================
         //
         public override bool LoginByID(int userId) {
-            return AuthenticationController.loginById(cp.core, cp.core.session, userId, false );
+            return AuthController.loginById(cp.core, cp.core.session, userId, false );
         }
         //
         //====================================================================================================
         //
         public override bool LoginByID(int userId, bool setAutoLogin) {
-            return AuthenticationController.loginById(cp.core, cp.core.session, userId, setAutoLogin);
+            return AuthController.loginById(cp.core, cp.core.session, userId, setAutoLogin);
         }
         //
         //====================================================================================================
         //
         public override bool LoginIsOK(string username, string password) {
             string userErrorMessage = "";
-            return !AuthenticationController.preflightAuthentication_returnUserId(cp.core, cp.core.session, username, password, false, ref userErrorMessage).Equals(0);
+            return !AuthController.preflightAuthentication_returnUserId(cp.core, cp.core.session, username, password, false, ref userErrorMessage).Equals(0);
         }
         //
         //====================================================================================================
         //
         public override void Logout() {
-            AuthenticationController.logout(cp.core, cp.core.session);
+            AuthController.logout(cp.core, cp.core.session);
         }
         //
         //====================================================================================================
@@ -394,7 +394,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool Recognize(int userID) {
-            return AuthenticationController.recognizeById(cp.core, cp.core.session, userID);
+            return AuthController.recognizeById(cp.core, cp.core.session, userID);
         }
         //
         //====================================================================================================
@@ -472,28 +472,28 @@ namespace Contensive.Processor {
         //=======================================================================================================
         //
         public override bool SetPassword(string password, ref string userErrorMessage) {
-            return AuthenticationController.trySetPassword(cp, password, ref userErrorMessage);
+            return AuthController.trySetPassword(cp, password, ref userErrorMessage);
         }
         //
         //=======================================================================================================
         //
         public override bool SetPassword(string password, int userId, ref string userErrorMessage) {
             PersonModel user = DbBaseModel.create<PersonModel>(cp, userId);
-            return AuthenticationController.trySetPassword(cp, password, user, ref userErrorMessage);
+            return AuthController.trySetPassword(cp, password, user, ref userErrorMessage);
         }
         //
         //=======================================================================================================
         //
         public override bool SetPassword(string password) {
             string userErrorMessage = "";
-            return AuthenticationController.trySetPassword(cp, password, ref userErrorMessage);
+            return AuthController.trySetPassword(cp, password, ref userErrorMessage);
         }
         //
         //=======================================================================================================
         //
         public override bool SetPassword(string password, int userId) {
             PersonModel user = DbBaseModel.create<PersonModel>(cp, userId);
-            return AuthenticationController.trySetPassword(cp, password, user);
+            return AuthController.trySetPassword(cp, password, user);
         }
         //
         //====================================================================================================
@@ -527,7 +527,7 @@ namespace Contensive.Processor {
         //
         [Obsolete("Use LoginById(integer) instead", false)]
         public override bool LoginByID(string RecordID, bool SetAutoLogin = false) {
-            return AuthenticationController.authenticateById(cp.core, cp.core.session, encodeInteger(RecordID));
+            return AuthController.authenticateById(cp.core, cp.core.session, encodeInteger(RecordID));
         }
         //
         //=======================================================================================================

@@ -60,7 +60,7 @@ namespace Contensive.Processor.Controllers {
         public void verifyUser() {
             if (user.id == 0) {
                 var user = createGuest(core, false);
-                AuthenticationController.recognizeById(core, this, user.id);
+                AuthController.recognizeById(core, this, user.id);
             }
         }
 

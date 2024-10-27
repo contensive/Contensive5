@@ -82,8 +82,8 @@ namespace Contensive.Processor.Addons {
                         authToken = ""
                     }));
                 }
-                if (AuthenticationController.tryIsValidPassword(core, user, password, ref userErrorMessage)) {
-                    if (AuthenticationController.trySetPassword(core.cpParent, password, user)) {
+                if (AuthController.tryIsValidPassword(core, user, password, ref userErrorMessage)) {
+                    if (AuthController.trySetPassword(core.cpParent, password, user)) {
                         //
                         // -- password changed, forward to home
                         cp.Response.Redirect("/");

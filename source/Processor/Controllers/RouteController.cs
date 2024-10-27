@@ -87,8 +87,11 @@ namespace Contensive.Processor.Controllers {
                     return (new Contensive.Processor.Addons.Primitives.BlockEmailClass()).Execute(core.cpParent).ToString();
                 }
                 //
-                // -- legacy form process methods 
-                processBuiltInForms(core);
+                // -- legacy form process methods
+                // -- returned userError is a problem. 
+                string userErrorMessage = "";
+                processBuiltInForms(core, userErrorMessage);
+                if(!string.IsNullOrEmpty(userErrorMessage)) { core.cpParent.UserError.Add(userErrorMessage); }
                 //
                 // -- try legacy methods (?method=login)
                 string methodRouteResult = "";
@@ -271,11 +274,6 @@ namespace Contensive.Processor.Controllers {
                             returnResult = string.Empty;
                             return true;
                         }
-                    case HardCodedPageSendPassword: {
-                            //
-                            returnResult = (new Contensive.Processor.Addons.Primitives.ProcessSendPasswordMethodClass()).Execute(core.cpParent).ToString();
-                            return true;
-                        }
                     case HardCodedPageResourceLibrary: {
                             //
                             returnResult = (new Contensive.Processor.Addons.Primitives.ProcessResourceLibraryMethodClass()).Execute(core.cpParent).ToString();
@@ -368,7 +366,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="normalizedRoute"></param>
         /// <param name="returnResult"></param>
         /// <returns></returns>
-        public static void processBuiltInForms(CoreController core) {
+        public static void processBuiltInForms(CoreController core, string userErrorMessage) {
             try {
                 string formType = core.docProperties.getText(core.docProperties.getText("ccformsn") + "type");
                 if (string.IsNullOrEmpty(formType)) { return; }
@@ -381,12 +379,7 @@ namespace Contensive.Processor.Controllers {
                             string requestUsername = core.cpParent.Doc.GetText("username");
                             string requestPassword = core.cpParent.Doc.GetText("password");
                             bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
-                            LoginController.processLoginPage_Default(core, requestUsername, requestPassword, requestIncludesPassword);
-                            return;
-                        }
-                    case FormTypeToolsPanel: {
-                            //
-                            (new Contensive.Processor.Addons.Primitives.processFormToolsPanelClass()).Execute(core.cpParent);
+                            LoginWorkflowController.processLogin(core, requestUsername, requestPassword, requestIncludesPassword, ref userErrorMessage);
                             return;
                         }
                     case FormTypeActiveEditor: {

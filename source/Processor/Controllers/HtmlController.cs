@@ -1993,65 +1993,6 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        /// <summary>
-        /// process requests from the legacy tool panel at the bottom of the page, and the replacement tool-bar at the top.
-        /// Removed login processing and legacy tool panel
-        /// </summary>
-        public void processFormToolsPanel() {
-            try {
-                //
-                // ----- Read in and save the Member profile values from the tools panel
-                //
-                if (core.session.user.id > 0) {
-                    if (core.doc.userErrorList.Count.Equals(0)) {
-                        string legacyFormSn = core.docProperties.getText("ccformsn");
-                        string Button = core.docProperties.getText(legacyFormSn + "mb");
-                        switch (Button) {
-                            case ButtonLogout: {
-                                    //
-                                    // Logout - This can only come from the Horizonal Tool Bar
-                                    //
-                                    AuthenticationController.logout(core, core.session);
-                                }
-                                break;
-                            case ButtonLogin: {
-                                    //
-                                    // Login - This can only come from the Horizonal Tool Bar
-                                    //
-                                    string requestUsername = core.cpParent.Doc.GetText(legacyFormSn + "username");
-                                    string requestPassword = core.cpParent.Doc.GetText(legacyFormSn + "password");
-                                    bool passwordRequestValid = core.cpParent.Doc.IsProperty(legacyFormSn + "password");
-                                    LoginController.processLoginPage_Default(core, requestUsername, requestPassword, passwordRequestValid);
-                                }
-                                break;
-                            case ButtonApply: {
-                                    //
-                                    // ----- AllowAdminLinks
-                                    //
-                                    core.visitProperty.setProperty("AllowEditing", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowEditing")));
-                                    //
-                                    // ----- Quick Editor
-                                    //
-                                    core.visitProperty.setProperty("AllowQuickEditor", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowQuickEditor")));
-                                    //
-                                    // ----- Advanced Editor
-                                    //
-                                    core.visitProperty.setProperty("AllowAdvancedEditor", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowAdvancedEditor")));
-                                    //
-                                    // ----- developer Only parts
-                                    //
-                                    core.visitProperty.setProperty("AllowDebugging", encodeText(core.docProperties.getBoolean(legacyFormSn + "AllowDebugging")));
-                                }
-                                break;
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-            }
-        }
-        //
-        //====================================================================================================
         //
         public void processAddonSettingsEditor() {
             //

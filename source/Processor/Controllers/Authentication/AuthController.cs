@@ -20,7 +20,7 @@ namespace Contensive.Processor.Controllers {
     /// guest -- means the user has not been recognized. Values are accumulating, but the person is anonymous
     /// 
     /// </summary>
-    public static class AuthenticationController {
+    public static class AuthController {
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();

@@ -33,8 +33,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool trySendPasswordReset(CoreController core, PersonModel user, AuthTokenInfoModel authTokenInfo, ref string userErrorMessage) {
             try {
-                string primaryDomain = core.appConfig.domainList.First();
-                string resetUrl = $"https://{primaryDomain}{endpointSetPassword}?authToken={authTokenInfo.text}";
+                string primaryProtocolDomain = $"https://{core.appConfig.domainList.First()}";
+                string currentProtocolDomain = core.cpParent.Request.Protocol + core.cpParent.Request.Host;
+                string resetUrl = $"{currentProtocolDomain}{endpointSetPassword}?authToken={authTokenInfo.text}";
                 SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
                 if (email is null) {
                     email = DbBaseModel.addDefault<SystemEmailModel>(core.cpParent);
@@ -42,13 +43,20 @@ namespace Contensive.Processor.Controllers {
                     email.name = "Password Reset";
                     email.subject = "Password reset";
                     email.fromAddress = core.siteProperties.emailFromAddress;
-                    email.copyFilename.content = $"<p>You received this email because there was a request at {primaryDomain} to reset your password.</p>";
+                    email.copyFilename.content = $"<p>You received this email because there was a request at {primaryProtocolDomain} to reset your password.</p>";
                     email.save(core.cpParent);
                 }
-                string body = $"" +
-                    $"<p>An account was found on this site matching your email address with username {user.username}.</p>" +
-                    $"<p>If you requested this email to reset your password, <a href=\"{resetUrl}\">click here</a>.</p>" +
-                    $"";
+                string body = "";
+                if (string.IsNullOrEmpty(user.username)) {
+                    //
+                    // -- email is blank, send message to contact site admin
+                    body = $"<p>An account was found on this site matching your email address but the username is blank. Please contact the site administrator to have the account username updated.</p>";
+                } else {
+                     body = $"" +
+                        $"<p>An account was found on this site matching your email address with username: {user.username}.</p>" +
+                        $"<p>If you requested this email to reset your password, <a href=\"{resetUrl}\">click here</a>.</p>" +
+                        $"";
+                }
                 return trySendSystemEmail(core, true, email.id, body, user.id);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

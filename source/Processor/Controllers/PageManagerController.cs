@@ -109,7 +109,7 @@ namespace Contensive.Processor.Controllers {
                         }
                         if (loginAddonBlock) {
                             core.doc.continueProcessing = false;
-                            return LoginController.getLoginPage(core, false, false);
+                            return AuthWorkflowController.processGetAuthWorkflow(core, false, false);
                         }
                     }
                 }
@@ -754,7 +754,7 @@ namespace Contensive.Processor.Controllers {
                                     if (!core.session.isAuthenticated && core.session.isRecognized()) {
                                         //
                                         // -- Can not take the chance, if you go to a registration page, and you are recognized but not auth -- logout first
-                                        AuthenticationController.logout(core, core.session);
+                                        AuthController.logout(core, core.session);
                                     }
                                     if (!core.session.isAuthenticated) {
                                         //
@@ -1728,7 +1728,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // If this form will authenticate when done, and their is a current, non-authenticated account -- logout first
                         //
-                        AuthenticationController.logout(core, core.session);
+                        AuthController.logout(core, core.session);
                     }
                     bool Success = true;
                     int Ptr = 0;
@@ -1852,7 +1852,7 @@ namespace Contensive.Processor.Controllers {
                         // Authenticate
                         //
                         if (pageForm.authenticateOnFormProcess) {
-                            AuthenticationController.authenticateById(core, core.session, core.session.user.id);
+                            AuthController.authenticateById(core, core.session, core.session.user.id);
                         }
                         //
                         // Join Group requested by page that created form
