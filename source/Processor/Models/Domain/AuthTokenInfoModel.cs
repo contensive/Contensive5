@@ -16,6 +16,8 @@ namespace Contensive.Processor.Models.Domain {
     /// </summary>
     public class AuthTokenInfoModel {
         //
+        public static int tokenTTLsec { get; } = 5;
+        //
         public static void setVisitProperty(CPBaseClass cp, AuthTokenInfoModel authTokenInfo) {
             cp.Visit.SetProperty("authTokenJson", cp.JSON.Serialize(authTokenInfo));
         }
@@ -33,7 +35,7 @@ namespace Contensive.Processor.Models.Domain {
         public AuthTokenInfoModel(CPBaseClass cp, PersonModel user) {
             text = GenericController.getRandomString(50);
             userId = user.id;
-            expires = DateTime.Now.AddMinutes(5);
+            expires = DateTime.Now.AddMinutes(tokenTTLsec);
         }
         //
         /// <summary>
@@ -41,8 +43,7 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public static AuthTokenInfoModel getVisitAuthTokenInfo(CPBaseClass cp) {
-            string authTokenJson = cp.Visit.GetText("authTokenJson");
+        public static AuthTokenInfoModel getVisitAuthTokenInfo(CPBaseClass cp, string authTokenJson) {
             var result = cp.JSON.Deserialize<AuthTokenInfoModel>(authTokenJson);
             return result;
         }

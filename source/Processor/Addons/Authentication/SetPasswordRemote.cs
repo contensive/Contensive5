@@ -24,6 +24,7 @@ namespace Contensive.Processor.Addons {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
+                string authToken = cp.Doc.GetText("authToken");
                 if (cp.Doc.GetText("button").ToLowerInvariant() == "cancel") {
                     //
                     // -- clear the setPassword token
@@ -41,7 +42,7 @@ namespace Contensive.Processor.Addons {
                     // -- no button pressed
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                         userErrorHtml = "",
-                        authToken = cp.Doc.GetText("authToken")
+                        authToken = authToken
                     }));
                 }
                 //
@@ -56,29 +57,33 @@ namespace Contensive.Processor.Addons {
                     System.Threading.Thread.Sleep(3000);
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                         userErrorHtml = userErrorMessage,
-                        authToken = cp.Doc.GetText("authToken")
+                        authToken = authToken
                     }));
                 }
                 //
-                // -- matches, attempt change
-                // -- determine user.
-                // -- If authenticated, use current user.
-                // -- if authToken string is included, used as one-time-login tokenk saved in user
+                // -- if autoToken present, log out
+                if (!string.IsNullOrEmpty(authToken)) { cp.User.Logout(); }
+                //
                 PersonModel user = null;
-                AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getVisitAuthTokenInfo(cp);
+                string authTokenJson = cp.Visit.GetText("authTokenJson");
+                AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getVisitAuthTokenInfo(cp, authTokenJson);
                 if (cp.User.IsAuthenticated) {
                     //
                     // -- user changing password
                     user = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
-                } else if (visitAuthTokeninfo != null && !string.IsNullOrEmpty(visitAuthTokeninfo.text) && visitAuthTokeninfo.text == cp.Doc.GetText(Constants.rn_authToken)) {
+                } else if (visitAuthTokeninfo != null && !string.IsNullOrEmpty(visitAuthTokeninfo.text)) {
                     //
                     // -- authToken in link to site matches authToken saved in visit when invitation was sent (email/sms) so this is the same visitor
                     // -- forgot-password process, this user-visit requested forgot-password link
                     user = DbBaseModel.create<PersonModel>(cp, visitAuthTokeninfo.userId);
+                } else if (visitAuthTokeninfo.expires.CompareTo(DateTime.Now)<0 ) {
+                    //
+                    // -- authToken expired
+                    userErrorMessage = "The time period for resetting your password has expired.";
                 }
                 if (user == null) {
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
-                        userErrorHtml = "<p>Set Password failed because the user who requested the password change could not be determined. Be sure to use the same browser to set the password that was used to request the password change.</p>",
+                        userErrorHtml = $"<p>Set Password failed because the user who requested the password change could not be determined. This link is only valid for {AuthTokenInfoModel.tokenTTLsec} minutes, and must be used by the same browser that requested the password change.</p>",
                         authToken = ""
                     }));
                 }
@@ -93,7 +98,7 @@ namespace Contensive.Processor.Addons {
                 }
                 return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                     userErrorHtml = userErrorMessage,
-                    authToken = cp.Doc.GetText("authToken")
+                    authToken = authToken
                 }));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

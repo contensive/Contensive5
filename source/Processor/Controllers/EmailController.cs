@@ -23,52 +23,6 @@ namespace Contensive.Processor.Controllers {
     /// </summary>
     public static class EmailController {
         //
-        /// <summary>
-        /// Send link to the set-password endpoint
-        /// </summary>
-        /// <param name="core"></param>
-        /// <param name="user"></param>
-        /// <param name="authToken"></param>
-        /// <param name="userErrorMessage"></param>
-        /// <returns></returns>
-        public static bool trySendPasswordReset(CoreController core, PersonModel user, AuthTokenInfoModel authTokenInfo, ref string userErrorMessage) {
-            try {
-                string primaryProtocolDomain = $"https://{core.appConfig.domainList.First()}";
-                string currentProtocolDomain = core.cpParent.Request.Protocol + core.cpParent.Request.Host;
-                string resetUrl = $"{currentProtocolDomain}{endpointSetPassword}?authToken={authTokenInfo.text}";
-                SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
-                if (email is null) {
-                    email = DbBaseModel.addDefault<SystemEmailModel>(core.cpParent);
-                    email.ccguid = emailGuidResetPassword;
-                    email.name = "Password Reset";
-                    email.subject = "Password reset";
-                    email.fromAddress = core.siteProperties.emailFromAddress;
-                    email.copyFilename.content = $"<p>You received this email because there was a request at {primaryProtocolDomain} to reset your password.</p>";
-                    email.save(core.cpParent);
-                }
-                string body = "";
-                if (string.IsNullOrEmpty(user.username)) {
-                    //
-                    // -- email is blank, send message to contact site admin
-                    body = $"<p>An account was found on this site matching your email address but the username is blank. Please contact the site administrator to have the account username updated.</p>";
-                } else {
-                     body = $"" +
-                        $"<p>An account was found on this site matching your email address with username: {user.username}.</p>" +
-                        $"<p>If you requested this change, <a href=\"{resetUrl}\">click here</a> to set a new password.</p>" +
-                        $"<p>" +
-                        $"If multiple user accounts were found for your email, you will receive mulitple password update emails. " +
-                        $"Do not forward these emails. " +
-                        $"Only one update can be made for each password update request, and the update must be made from the same browser that requested the update. " +
-                        $"</p>" +
-                        $"";
-                }
-                return trySendSystemEmail(core, true, email.id, body, user.id);
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
-            }
-        }
-        //
         //====================================================================================================
         //
         public static void unblockEmailAddress(CoreController core, string recipientRawEmail) {

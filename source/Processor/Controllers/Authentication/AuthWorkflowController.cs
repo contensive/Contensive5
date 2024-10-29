@@ -96,21 +96,10 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- process send password
                     string requestEmail = core.cpParent.Doc.GetText("email");
-                    if (string.IsNullOrEmpty(requestEmail)) {
-                        userErrorMessage = "Email is required.";
-                    } else {
-                        // -- get first email order by id
-                        List<PersonModel> emailUsers = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(requestEmail)}", "id");
-                        if (emailUsers.Count == 0) {
-                            userErrorMessage = $"There is no login with this email [{HtmlController.encodeHtml(requestEmail)}].";
-                        } else {
-                            var authTokenInfo = new AuthTokenInfoModel(core.cpParent, emailUsers[0]);
-                            AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
-                            PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, authTokenInfo);
-                            //
-                            // -- display the password recovery instructions page. Access to set-password can only happen from the email
-                            return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString });
-                        }
+                    if(PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, requestEmail, ref userErrorMessage)) {
+                        //
+                        // -- display the password recovery instructions page. Access to set-password can only happen from the email
+                        return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString });
                     }
                 }
                 //
