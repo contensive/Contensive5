@@ -382,6 +382,11 @@ namespace Contensive.Processor.Controllers {
                             LoginWorkflowController.processLogin(core, requestUsername, requestPassword, requestIncludesPassword, ref userErrorMessage);
                             return;
                         }
+                    case FormTypeToolsPanel: {
+                            //
+                            (new Contensive.Processor.Addons.Primitives.processFormToolsPanelClass()).Execute(core.cpParent);
+                            return;
+                        }
                     case FormTypeActiveEditor: {
                             //
                             (new Contensive.Processor.Addons.Primitives.ProcessActiveEditorClass()).Execute(core.cpParent);
