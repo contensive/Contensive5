@@ -52,9 +52,8 @@ namespace Contensive.Processor.Controllers {
                     return false;
                 }
                 foreach (PersonModel user in userList) {
-                    var authTokenInfo = new AuthTokenInfoModel(core.cpParent, user);
-                    AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
-                    trySendPasswordReset(core, user, authTokenInfo, ref userErrorMessage, userList.Count > 1);
+                    var passwordToken = new PasswordTokenModel(core.cpParent, user);
+                    trySendPasswordReset(core, user, passwordToken, ref userErrorMessage, userList.Count > 1);
                 }
                 //
                 // -- display the password recovery instructions page. Access to set-password can only happen from the email
@@ -70,13 +69,13 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="core"></param>
         /// <param name="user"></param>
-        /// <param name="authToken"></param>
+        /// <param name="passwordToken"></param>
         /// <param name="userErrorMessage"></param>
         /// <returns></returns>
-        public static bool trySendPasswordReset(CoreController core, PersonModel user, AuthTokenInfoModel authTokenInfo, ref string userErrorMessage, bool emailNotUnique) {
+        public static bool trySendPasswordReset(CoreController core, PersonModel user, PasswordTokenModel passwordToken, ref string userErrorMessage, bool emailNotUnique) {
             try {
                 string currentProtocolDomain = core.cpParent.Request.Protocol + core.cpParent.Request.Host;
-                string resetUrl = $"{currentProtocolDomain}{endpointSetPassword}?authToken={authTokenInfo.text}";
+                string resetUrl = $"{currentProtocolDomain}{endpointSetPassword}?passwordTokenKey={passwordToken.key}";
                 SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailGuidResetPassword);
                 if (email is null) {
                     email = DbBaseModel.addDefault<SystemEmailModel>(core.cpParent);

@@ -19,16 +19,15 @@ namespace Contensive.Processor.Addons.Primitives {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
-                // -- setup authToken and send reset link and code
+                // -- setup passwordToken and send reset link and code
                 string userEmail = core.docProperties.getText("email");
                 if (string.IsNullOrEmpty(userEmail)) { return ""; }
                 //
                 string userErrorMessage = "";
                 List<PersonModel> userList = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}");
                 foreach (PersonModel user in userList) {
-                    var authTokenInfo = new AuthTokenInfoModel(cp, user);
-                    AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
-                    PasswordRecoveryWorkflowController.trySendPasswordReset(core, user, authTokenInfo, ref userErrorMessage, userList.Count>1);
+                    var passwordToken = new PasswordTokenModel(cp, user);
+                    PasswordRecoveryWorkflowController.trySendPasswordReset(core, user, passwordToken, ref userErrorMessage, userList.Count>1);
                 }
                 //
                 core.doc.continueProcessing = false;

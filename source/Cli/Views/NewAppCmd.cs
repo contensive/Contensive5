@@ -36,8 +36,6 @@ namespace Contensive.CLI {
         public static async System.Threading.Tasks.Task executeAsync(string appName, string domainName) {
             try {
                 const string iisDefaultDoc = "default.aspx";
-                string authTokenDefault = "909903";
-                string authToken = authTokenDefault;
                 //
                 string allowableNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 if (!appName.All(x => allowableNameCharacters.Contains(x))) {

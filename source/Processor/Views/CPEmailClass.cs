@@ -104,9 +104,8 @@ namespace Contensive.Processor {
             //
             List<PersonModel> userList = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
             foreach (PersonModel user in userList) {
-                var authTokenInfo = new AuthTokenInfoModel(cp, user);
-                AuthTokenInfoModel.setVisitProperty(cp, authTokenInfo);
-                PasswordRecoveryWorkflowController.trySendPasswordReset(cp.core, user, authTokenInfo, ref userErrorMessage, userList.Count > 1);
+                var passwordToken = new PasswordTokenModel(cp, user);
+                PasswordRecoveryWorkflowController.trySendPasswordReset(cp.core, user, passwordToken, ref userErrorMessage, userList.Count > 1);
             }
         }
         //
