@@ -57,6 +57,16 @@ set /a versionRevision=%versionRevision%+1
 goto tryagain
 :makefolder
 md "%deploymentFolderRoot%%versionNumber%"
+
+
+echo 111111111111111111111
+if errorlevel 1 (
+   pause
+   exit /b %errorlevel%
+)
+pause
+
+
 rem ==============================================================
 rem
 rem clean build folders
@@ -129,6 +139,16 @@ rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\bin"
 del /s /q "C:\Git\Contensive5\source\Cli.Installer\obj"
 rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\obj"
 
+
+
+echo 22222222222222222222222
+if errorlevel 1 (
+   pause
+   exit /b %errorlevel%
+)
+pause
+
+
 rem pause
 
 rem ==============================================================
@@ -150,6 +170,15 @@ del "%deploymentFolderRoot%%versionNumber%\HelpFiles.zip"
 rem copy default article and articles for the  Help Pages collection
 "c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" 
 cd ..\scripts
+
+
+echo 3333333333333333333333333
+if errorlevel 1 (
+   pause
+   exit /b %errorlevel%
+)
+pause
+
 
 rem pause
 
@@ -183,6 +212,15 @@ cd "C:\Git\Contensive5\scripts"
 
 rem pause
 
+
+echo 444444444444444444444
+if errorlevel 1 (
+   pause
+   exit /b %errorlevel%
+)
+pause
+
+
 rem ==============================================================
 rem
 rem copy all Collection.dtd file from /xml folder to deployment
@@ -214,6 +252,16 @@ rem The assembly version represents the architecture, 4.1.2.0 was the version we
 rem Assemblies are signed so if we use cpbase or models as a dependency in a dll that as a dependency, if a dll uses it and one of these bases, the assembly must match
 rem
 
+
+
+echo 5555555555555555555555
+if errorlevel 1 (
+   pause
+   exit /b %errorlevel%
+)
+pause
+
+
 cd ..\source
 
 dotnet clean contensivecommon.sln
@@ -222,6 +270,8 @@ if errorlevel 1 (
    pause
    exit /b %errorlevel%
 )
+
+pause
 
 dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
@@ -258,6 +308,9 @@ if errorlevel 1 (
    pause
    exit /b %errorlevel%
 )
+
+pause
+
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (

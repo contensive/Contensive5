@@ -22,7 +22,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 CoreController core = ((CPClass)cp).core;
                 //
                 // -- login
-                AuthenticationController.logout(core, core.session);
+                AuthController.logout(core, core.session);
                 core.doc.continueProcessing = false;
                 Dictionary<string, string> addonArguments = new Dictionary<string, string>();
                 addonArguments.Add("Force Default Login", "false");

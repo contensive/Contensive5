@@ -134,7 +134,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\Pluralize.NET\Pluralize.NET.csproj" />
   </ItemGroup>
 
   <ItemGroup>

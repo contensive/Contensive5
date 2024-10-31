@@ -20,7 +20,7 @@ namespace Contensive.Processor.Controllers {
     /// guest -- means the user has not been recognized. Values are accumulating, but the person is anonymous
     /// 
     /// </summary>
-    public static class AuthenticationController {
+    public static class AuthController {
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
@@ -769,7 +769,7 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- password must not be on bad-password list
                 if (DbBaseModel.getCount<CommonPasswordModel>(core.cpParent, $"(name={DbController.encodeSQLText(newPassword)})") > 0) {
-                    userErrorMessage = $"This password is not available.";
+                    userErrorMessage = $"This password is not available because it is commonly used.";
                     return false;
                 }
                 // 
@@ -777,7 +777,7 @@ namespace Contensive.Processor.Controllers {
                 // 
                 // -- is on used password list
                 if (UsedPasswordModel.isUsedPassword(core.cpParent, newPassword, newPasswordHashInfo.text)) {
-                    userErrorMessage = $"This password is not available.";
+                    userErrorMessage = $"This password is not available because it was previously used.";
                     return false;
                 }
                 //

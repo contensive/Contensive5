@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
-using static Contensive.Processor.Controllers.AuthenticationController;
+using static Contensive.Processor.Controllers.AuthController;
 //
 namespace Contensive.Processor.Addons.Primitives {
     public class ProcessSendPasswordMethodClass : Contensive.BaseClasses.AddonBaseClass {
@@ -19,17 +19,16 @@ namespace Contensive.Processor.Addons.Primitives {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
-                // -- setup authToken and send reset link and code
+                // -- setup passwordToken and send reset link and code
                 string userEmail = core.docProperties.getText("email");
                 if (string.IsNullOrEmpty(userEmail)) { return ""; }
                 //
-                List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
-                if (users.Count != 1) { return ""; }
-                //
                 string userErrorMessage = "";
-                var authTokenInfo = new AuthTokenInfoModel(cp, users[0]);
-                AuthTokenInfoModel.setVisitProperty(core.cpParent, authTokenInfo);
-                EmailController.trySendPasswordReset(core, users[0], authTokenInfo, ref userErrorMessage);
+                List<PersonModel> userList = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}");
+                foreach (PersonModel user in userList) {
+                    var passwordToken = new PasswordTokenModel(cp, user);
+                    PasswordRecoveryWorkflowController.trySendPasswordReset(core, user, passwordToken, ref userErrorMessage, userList.Count>1);
+                }
                 //
                 core.doc.continueProcessing = false;
                 return ""

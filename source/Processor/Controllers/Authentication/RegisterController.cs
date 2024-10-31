@@ -56,7 +56,7 @@ namespace Contensive.Processor.Controllers {
                     if ((!string.IsNullOrEmpty(csPerson.getText("username"))) || !string.IsNullOrEmpty(csPerson.getText("password")) || csPerson.getBoolean("admin") || csPerson.getBoolean("developer")) {
                         //
                         // -- if the current account can be logged into, you can not join 'into' it
-                        AuthenticationController.logout(core, core.session);
+                        AuthController.logout(core, core.session);
                     }
                     string FirstName = core.docProperties.getText("firstname");
                     string LastName = core.docProperties.getText("lastname");
@@ -66,7 +66,7 @@ namespace Contensive.Processor.Controllers {
                     csPerson.set("Email", core.docProperties.getText("email"));
                     csPerson.set("username", loginForm_Username);
                     csPerson.set("password", loginForm_Password);
-                    AuthenticationController.authenticateById(core, core.session, core.session.user.id);
+                    AuthController.authenticateById(core, core.session, core.session.user.id);
                 }
                 DbBaseModel.invalidateCacheOfRecord<PersonModel>(core.cpParent, core.session.user.id);
             } catch (Exception ex) {

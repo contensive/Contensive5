@@ -100,19 +100,9 @@ namespace Contensive.Processor {
         internal const string sitePropertyName_AllowPlainTextPassword = "allow plain text password";
         //
         //========================================================================
-        // visit property names
-        //
-        public static readonly string vp_AuthTokenInfo = "authToken";
-        //
-        //========================================================================
         // end-points (must match remote names)
         //
         public static readonly string endpointSetPassword = "/set-password";
-        //
-        //========================================================================
-        // request names
-        //
-        public static readonly string rn_authToken = "authToken";
         //
         //========================================================================
         // html
@@ -449,7 +439,6 @@ namespace Contensive.Processor {
         internal const string HardCodedPageStatus = "status";
         internal const string HardCodedPageRedirect = "redirect";
         internal const string HardCodedPageExportAscii = "exportascii";
-        internal const string HardCodedPageSendPassword = "sendpassword";
         //
         //-----------------------------------------------------------------------
         //   Option values

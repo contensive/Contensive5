@@ -20,7 +20,7 @@ namespace Contensive.Processor.Addons.Login {
             try {
                 bool requirePassword = cp.Doc.GetBoolean("requirePassword", true);
                 bool forceDefaultLogin = cp.Doc.GetBoolean("Force Default Login", false);
-                return LoginController.getLoginPage(((CPClass)cp).core, forceDefaultLogin, requirePassword);
+                return AuthWorkflowController.processGetAuthWorkflow(((CPClass)cp).core, forceDefaultLogin, requirePassword);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

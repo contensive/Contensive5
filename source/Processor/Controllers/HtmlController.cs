@@ -2011,7 +2011,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // Logout - This can only come from the Horizonal Tool Bar
                                     //
-                                    AuthenticationController.logout(core, core.session);
+                                    AuthController.logout(core, core.session);
                                 }
                                 break;
                             case ButtonLogin: {
@@ -2021,7 +2021,8 @@ namespace Contensive.Processor.Controllers {
                                     string requestUsername = core.cpParent.Doc.GetText(legacyFormSn + "username");
                                     string requestPassword = core.cpParent.Doc.GetText(legacyFormSn + "password");
                                     bool passwordRequestValid = core.cpParent.Doc.IsProperty(legacyFormSn + "password");
-                                    LoginController.processLoginPage_Default(core, requestUsername, requestPassword, passwordRequestValid);
+                                    string userErrorMessage = "";
+                                    LoginWorkflowController.processLogin(core, requestUsername, requestPassword, passwordRequestValid, ref userErrorMessage);
                                 }
                                 break;
                             case ButtonApply: {

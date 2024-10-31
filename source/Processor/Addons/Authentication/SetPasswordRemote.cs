@@ -24,10 +24,11 @@ namespace Contensive.Processor.Addons {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
+                string passwordTokenKey = cp.Doc.GetText("passwordTokenKey");
                 if (cp.Doc.GetText("button").ToLowerInvariant() == "cancel") {
                     //
                     // -- clear the setPassword token
-                    AuthTokenInfoModel.clearVisitAuthTokenInfo(cp);
+                    PasswordTokenModel.clearVisitPasswordToken(cp, passwordTokenKey);
                     //
                     // -- handle cancel button
                     if (cp.Request.PathPage == cp.GetAppConfig().adminRoute) {
@@ -41,7 +42,7 @@ namespace Contensive.Processor.Addons {
                     // -- no button pressed
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                         userErrorHtml = "",
-                        authToken = cp.Doc.GetText("authToken")
+                        passwordTokenKey = passwordTokenKey
                     }));
                 }
                 //
@@ -56,34 +57,37 @@ namespace Contensive.Processor.Addons {
                     System.Threading.Thread.Sleep(3000);
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                         userErrorHtml = userErrorMessage,
-                        authToken = cp.Doc.GetText("authToken")
+                        passwordTokenKey = passwordTokenKey
                     }));
                 }
                 //
-                // -- matches, attempt change
-                // -- determine user.
-                // -- If authenticated, use current user.
-                // -- if authToken string is included, used as one-time-login tokenk saved in user
+                // -- if autoToken present, log out
+                if (!string.IsNullOrEmpty(passwordTokenKey)) { cp.User.Logout(); }
+                //
                 PersonModel user = null;
-                AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getVisitAuthTokenInfo(cp);
+                PasswordTokenModel passwordToken = PasswordTokenModel.getVisitPasswordTokenInfo(cp, passwordTokenKey);
                 if (cp.User.IsAuthenticated) {
                     //
                     // -- user changing password
                     user = DbBaseModel.create<PersonModel>(cp, cp.User.Id);
-                } else if (visitAuthTokeninfo != null && !string.IsNullOrEmpty(visitAuthTokeninfo.text) && visitAuthTokeninfo.text == cp.Doc.GetText(Constants.rn_authToken)) {
+                } else if (passwordToken != null && !string.IsNullOrEmpty(passwordToken.key)) {
                     //
-                    // -- authToken in link to site matches authToken saved in visit when invitation was sent (email/sms) so this is the same visitor
+                    // -- passwordTokenKey in link to site matches passwordTokenKey saved in visit when invitation was sent (email/sms) so this is the same visitor
                     // -- forgot-password process, this user-visit requested forgot-password link
-                    user = DbBaseModel.create<PersonModel>(cp, visitAuthTokeninfo.userId);
+                    user = DbBaseModel.create<PersonModel>(cp, passwordToken.userId);
+                } else if (passwordToken.expires.CompareTo(DateTime.Now)<0 ) {
+                    //
+                    // -- passwordToken expired
+                    userErrorMessage = "The time period for resetting your password has expired.";
                 }
                 if (user == null) {
                     return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
-                        userErrorHtml = "<p>Set password feature is disabled because the user can not be determined.</p>",
-                        authToken = ""
+                        userErrorHtml = $"<p>Set Password failed because the user who requested the password change could not be determined. This link is only valid for {PasswordTokenModel.tokenTTLsec} minutes, and must be used by the same browser that requested the password change.</p>",
+                        passwordTokenKey = ""
                     }));
                 }
-                if (AuthenticationController.tryIsValidPassword(core, user, password, ref userErrorMessage)) {
-                    if (AuthenticationController.trySetPassword(core.cpParent, password, user)) {
+                if (AuthController.tryIsValidPassword(core, user, password, ref userErrorMessage)) {
+                    if (AuthController.trySetPassword(core.cpParent, password, user)) {
                         //
                         // -- password changed, forward to home
                         cp.Response.Redirect("/");
@@ -93,7 +97,7 @@ namespace Contensive.Processor.Addons {
                 }
                 return HtmlController.form(core, cp.Mustache.Render(Properties.Resources.Layout_SetPassword, new setPasswordDataModel {
                     userErrorHtml = userErrorMessage,
-                    authToken = cp.Doc.GetText("authToken")
+                    passwordTokenKey = passwordTokenKey
                 }));
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -102,7 +106,7 @@ namespace Contensive.Processor.Addons {
         }
         //
         public class setPasswordDataModel {
-            public string authToken { get; set; }
+            public string passwordTokenKey { get; set; }
             public string userErrorHtml { get; set; }
         }
     }

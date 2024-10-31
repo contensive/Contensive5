@@ -19,7 +19,7 @@ namespace Contensive.Processor.Addons.Login {
                 //
                 // -- calling method can bypass
                 bool requirePassword = cp.Doc.GetBoolean("requirePassword", true);
-                return LoginController.getLoginPage(((CPClass)cp).core, false, requirePassword);
+                return AuthWorkflowController.processGetAuthWorkflow(((CPClass)cp).core, false, requirePassword);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

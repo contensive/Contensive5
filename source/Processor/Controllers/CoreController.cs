@@ -689,7 +689,8 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (string.IsNullOrEmpty(appName)) { return; }
                     //
-                    if (!AuthenticationDefaultEventController.processAuthenticationDefaultEvent(this)) {
+                    string UserErrorMessage = "";
+                    if (!AuthEventController.processAuthenticationDefaultEvent(this, ref UserErrorMessage)) {
                         _ = EventController.throwEvent(this, "authentication event");
                     }
                 }

@@ -189,9 +189,9 @@ namespace Contensive.Processor.Controllers {
                                 } else if (!string.IsNullOrEmpty(user.password)) {
                                     // -- password field set, hash and save to passwordHash, used passwords
                                     string userErrorMessage = "";
-                                    if (!AuthenticationController.tryIsValidPassword(core, user, user.password, ref userErrorMessage)) {
+                                    if (!AuthController.tryIsValidPassword(core, user, user.password, ref userErrorMessage)) {
                                         ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
-                                    } else if (!AuthenticationController.trySetPassword(core.cpParent, user.password, user, ref userErrorMessage)) {
+                                    } else if (!AuthController.trySetPassword(core.cpParent, user.password, user, ref userErrorMessage)) {
                                         ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
                                     }
                                     user.password = "";

@@ -101,10 +101,12 @@ namespace Contensive.Processor {
         /// <param name="userErrorMessage"></param>
         public override void sendPassword(string userEmail, ref string userErrorMessage) {
             if (string.IsNullOrEmpty(userEmail)) { return; }
-            List<PersonModel> users = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
-            if (users.Count != 1) { return; }
-            AuthTokenInfoModel visitAuthTokeninfo = AuthTokenInfoModel.getVisitAuthTokenInfo(cp);
-            EmailController.trySendPasswordReset(cp.core, users[0], visitAuthTokeninfo, ref userErrorMessage);
+            //
+            List<PersonModel> userList = DbBaseModel.createList<PersonModel>(cp, $"email={DbController.encodeSQLText(userEmail)}");
+            foreach (PersonModel user in userList) {
+                var passwordToken = new PasswordTokenModel(cp, user);
+                PasswordRecoveryWorkflowController.trySendPasswordReset(cp.core, user, passwordToken, ref userErrorMessage, userList.Count > 1);
+            }
         }
         //
         public override void sendPassword(string userEmail) {
