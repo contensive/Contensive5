@@ -60,10 +60,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                         using (var csData = new CsModel(core)) {
                             csData.open("Link Aliases", $"(pageid={adminData.editRecord.id})and((queryStringSuffix is null)or(queryStringSuffix=''))", "ID Desc", true, 0, "name");
                             while (csData.ok()) {
-                                if(string.IsNullOrEmpty(currentUrl)) {
-                                    currentUrl += "<div style=\"margin-left:4px;margin-bottom:4px;\">" + HtmlController.encodeHtml(csData.getText("name")) + "</div>";
+                                string name = HtmlController.encodeHtml(csData.getText("name"));
+                                string urlAnchor = $"<div style=\"margin-left:4px;margin-bottom:4px;\"><a href=\"{name}\" target=\"_blank\">{name}</a></div>";
+                                if (string.IsNullOrEmpty(currentUrl)) {
+                                    currentUrl += urlAnchor;
                                 } else {
-                                    previousUrlList += "<div style=\"margin-left:4px;margin-bottom:4px;\">" + HtmlController.encodeHtml(csData.getText("name")) + "</div>";
+                                    previousUrlList += urlAnchor;
                                 }
                                 LinkCnt += 1;
                                 csData.goNext();
