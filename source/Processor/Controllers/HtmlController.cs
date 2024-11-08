@@ -14,6 +14,8 @@ using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.BaseClasses.CPContentBaseClass;
+using System.Text.Encodings.Web;
+using System.Web;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -4012,6 +4014,81 @@ namespace Contensive.Processor.Controllers {
         //
         private static string getAddedByComment(string addedByMessage) {
             return Environment.NewLine + "<!-- added by " + HtmlController.encodeHtml(addedByMessage) + " -->";
+        }
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// wrap in-tag mustache elements in a standard attribute to block them from being corrupted by html-agility-pack.
+        /// changes <div {{anything}}asdfasdf{anything}}></div>
+        /// to <div data-wrapped="{{anything}}asdfasdf{anything}}"></div>
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string wrapMustacheAttributes(string source) {
+            var result = new StringBuilder();
+            string[] segementSplits = source.Split(["<"], StringSplitOptions.None);
+            result.Append(segementSplits[0]);
+            foreach (string sourceSegment in segementSplits.Skip(1)) {
+                string segment = $"<{sourceSegment}";
+                if (segment.IndexOf(" {{") == -1) {
+                    // -- no mustache tag, skip
+                    result.Append(segment);
+                    continue;
+                }
+                int firstSpace = segment.IndexOf(" ");
+                if (firstSpace == -1) {
+                    // -- no attributes, skip
+                    result.Append(segment);
+                    continue;
+                }
+                int posTagEnd = segment.IndexOf(">");
+                if (posTagEnd == -1) {
+                    // -- no end tag, skip
+                    result.Append(segment);
+                    continue;
+                }
+                //
+                // -- this tag includes a mustache tag, wrap the entire inner tag
+                string innerTag = HttpUtility.HtmlEncode(segment.Substring(firstSpace+1, posTagEnd - firstSpace-1));
+                segment = $"{segment.Substring(0, firstSpace)} data-wrapper=\"{innerTag}\"{segment.Substring(posTagEnd)}";
+                result.Append(segment);
+            }
+            return result.ToString();
+        }
+        //
+        //====================================================================================================
+        //
+        /// <summary>
+        /// unwraps in-tag mustache elements that were previously wrapped with wrapMustacheAttributes
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string unwrapMustacheAttributes(string source) {
+            var result = new StringBuilder();
+            string[] segementSplits = source.Split(["<"], StringSplitOptions.None);
+            result.Append(segementSplits[0]);
+            foreach (string sourceSegment in segementSplits.Skip(1)) {
+                string segment = $"<{sourceSegment}";
+                int posWrapStart = segment.IndexOf("data-wrapper=\"");
+                if (posWrapStart == -1) {
+                    // -- no datawrapper, skip
+                    result.Append(segment);
+                    continue;
+                }
+                int posWrapEnd = segment.IndexOf("\">");
+                if (posWrapEnd == -1) {
+                    // -- not tag close, skip
+                    result.Append(segment);
+                    continue;
+                }
+                string inner = segment.Substring(posWrapStart + 14, posWrapEnd - posWrapStart - 14);
+                inner = HttpUtility.HtmlDecode(inner);
+                segment = $"{segment.Substring(0, posWrapStart-1)} {inner}{segment.Substring(posWrapEnd + 1)}";
+                result.Append(segment);
+                continue;
+            }
+            return result.ToString();
         }
 
         //

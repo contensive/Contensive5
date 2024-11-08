@@ -54,7 +54,9 @@ namespace Contensive.Processor {
                             string newRecordName = Path.GetFileNameWithoutExtension(file.Name);
                             htmlFileFound = true;
                             HtmlDocument htmlDoc = new HtmlDocument();
-                            htmlDoc.Load(cp.TempFiles.PhysicalFilePath + tempPath + file.Name, Encoding.UTF8);
+                            string htmlBody = cp.TempFiles.Read(tempPath + file.Name);
+                            string wrappedBody = HtmlController.wrapMustacheAttributes(htmlBody);
+                            htmlDoc.LoadHtml(wrappedBody);
                             htmlDoc.OptionCheckSyntax = false;
                             if (htmlDoc == null) {
                                 //
@@ -119,10 +121,10 @@ namespace Contensive.Processor {
                                     }
                                     if (layoutFrameworkId == 5) {
                                         //layout.layoutPlatform5.content = htmlDoc.ParsedText;
-                                        layout.layoutPlatform5.content = htmlDoc.DocumentNode.OuterHtml;
+                                        layout.layoutPlatform5.content = HtmlController.unwrapMustacheAttributes( htmlDoc.DocumentNode.OuterHtml);
                                     } else {
                                         //layout.layout.content = htmlDoc.ParsedText;
-                                        layout.layout.content = htmlDoc.DocumentNode.OuterHtml;
+                                        layout.layout.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     }
                                     layout.save(cp);
                                 }
@@ -137,9 +139,9 @@ namespace Contensive.Processor {
                                     //
                                     // -- check site property, not cp.site.htmlPlatformVersion because this tool runs in the admin site, which may overwrite the public property
                                     if (layoutFrameworkId == 5) {
-                                        layout.layoutPlatform5.content = htmlDoc.DocumentNode.OuterHtml;
+                                        layout.layoutPlatform5.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     } else {
-                                        layout.layout.content = htmlDoc.DocumentNode.OuterHtml;
+                                        layout.layout.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     }
                                     layout.save(cp);
                                     userMessageList.Add("Saved Layout '" + layoutRecordName + "'.");
@@ -160,7 +162,7 @@ namespace Contensive.Processor {
                                         userMessageList.Add("The template selected could not be found.");
                                         return false;
                                     }
-                                    pageTemplate.bodyHTML = htmlDoc.DocumentNode.OuterHtml;
+                                    pageTemplate.bodyHTML = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     pageTemplate.save(cp);
                                     userMessageList.Add("Saved Page Template '" + pageTemplateRecordName + "'.");
                                 }
@@ -175,7 +177,7 @@ namespace Contensive.Processor {
                                     //
                                     // -- try to resolve the various relative urls possible into the primary url, then to a reoot relative url
                                     //string urlProtocolDomainSlash = "https://" + cp.Site.DomainPrimary + "/";
-                                    string bodyhtml = htmlDoc.DocumentNode.OuterHtml;
+                                    string bodyhtml = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     //
                                     pageTemplate.bodyHTML = bodyhtml;
                                     pageTemplate.save(cp);
@@ -197,7 +199,7 @@ namespace Contensive.Processor {
                                         userMessageList.Add("The template selected could not be found.");
                                         return false;
                                     }
-                                    emailTemplate.bodyHTML = htmlDoc.DocumentNode.OuterHtml;
+                                    emailTemplate.bodyHTML = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     emailTemplate.save(cp);
                                 }
                                 //
@@ -208,7 +210,7 @@ namespace Contensive.Processor {
                                         emailTemplate = DbBaseModel.addDefault<EmailTemplateModel>(cp);
                                         emailTemplate.name = emailTemplateRecordName;
                                     }
-                                    emailTemplate.bodyHTML = htmlDoc.DocumentNode.OuterHtml;
+                                    emailTemplate.bodyHTML = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     emailTemplate.save(cp);
                                     userMessageList.Add("Saved Email Template '" + emailTemplateRecordName + "'.");
                                 }
@@ -228,7 +230,7 @@ namespace Contensive.Processor {
                                         userMessageList.Add("The email selected could not be found.");
                                         return false;
                                     }
-                                    email.copyFilename.content = htmlDoc.DocumentNode.OuterHtml;
+                                    email.copyFilename.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     email.save(cp);
                                     userMessageList.Add("Saved Email '" + emailRecordName + "'.");
                                 }
@@ -240,7 +242,7 @@ namespace Contensive.Processor {
                                         email = DbBaseModel.addDefault<EmailModel>(cp);
                                         email.name = emailRecordName;
                                     }
-                                    email.copyFilename.content = htmlDoc.DocumentNode.OuterHtml;
+                                    email.copyFilename.content = HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
                                     email.save(cp);
                                     userMessageList.Add("Saved Email '" + emailRecordName + "'.");
                                 }
@@ -269,7 +271,7 @@ namespace Contensive.Processor {
             /// <returns></returns>
             public static string processHtml(CPBaseClass cp, string html, ImporttypeEnum importTypeId, ref List<string> userMessageList, string layoutNameFilter) {
                 HtmlDocument htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(html);
+                htmlDoc.LoadHtml(HtmlController.wrapMustacheAttributes(html));
                 if (htmlDoc == null) {
                     //
                     // -- body tag not found, import the whole document
@@ -277,7 +279,7 @@ namespace Contensive.Processor {
                     return "";
                 }
                 processHtmlDoc(cp, htmlDoc, importTypeId, ref userMessageList, layoutNameFilter);
-                return htmlDoc.DocumentNode.OuterHtml;
+                return HtmlController.unwrapMustacheAttributes(htmlDoc.DocumentNode.OuterHtml);
             }
             //
             //====================================================================================================

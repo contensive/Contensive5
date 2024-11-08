@@ -31,18 +31,11 @@ namespace Contensive.Processor {
                     if (nodeList != null) {
                         foreach (HtmlNode node in nodeList) {
                             string layoutRecordName = node.Attributes["data-layout"]?.Value;
-                            //if(layoutRecordName != layoutNameFilter) {
-                            //    // -- this is not the layout to be filtered
-                            //    continue;
-                            //}
-                            //// -- load htmldoc with this node and return
-                            //htmlDoc.LoadHtml(node.InnerHtml);
-                            //return;
                             node.Attributes.Remove("data-layout");
                             //
                             // -- body found, set the htmlDoc to the body
                             var layoutDoc = new HtmlDocument();
-                            layoutDoc.LoadHtml(node.InnerHtml);
+                            layoutDoc.LoadHtml( node.InnerHtml );
                             //
                             // -- process the layout 
                             DataDeleteController.process(layoutDoc);
@@ -62,9 +55,9 @@ namespace Contensive.Processor {
                                     layout.name = layoutRecordName;
                                 }
                                 if(cp.Site.htmlPlatformVersion == 5) {
-                                    layout.layoutPlatform5.content = layoutDoc.DocumentNode.OuterHtml;
+                                    layout.layoutPlatform5.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.OuterHtml);
                                 } else {
-                                    layout.layout.content = layoutDoc.DocumentNode.OuterHtml;
+                                    layout.layout.content = HtmlController.unwrapMustacheAttributes(layoutDoc.DocumentNode.OuterHtml);
                                 }
                                 layout.save(cp);
                                 userMessageList.Add("Saved Layout '" + layoutRecordName + "' from data-layout attribute.");
