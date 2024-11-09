@@ -5,18 +5,104 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using static Tests.TestConstants;
 
-namespace Tests {
+namespace Tests
+{
     //
     //====================================================================================================
     //
     [TestClass()]
     public class HtmlControllerTests {
         //
+        public List<string[]> mustacheWrapTestData = new List<string[]>() {
+            new string[] { 
+                "<div>{{mustache}}</div>", 
+                "<div>{{mustache}}</div>" 
+            },
+            new string[] {
+                "<div class=\"className\">{{mustache}}</div>",
+                "<div class=\"className\">{{mustache}}</div>"
+            },
+            new string[] {
+                "<div>{{mustache.tag}}</div>" +
+                "<div>{{#mustache.tag}}<b>something</b>{{/mustache.tag}}</div>" +
+                "<div>{{^mustache.tag}}<b>something</b>{{/mustache.tag}}</div>" +
+                "<div>{{#mustache.tag}}{{mustache.value}}{{/mustache.tag}}</div>",
+                "<div>{{mustache.tag}}</div>" +
+                "<div>{{#mustache.tag}}<b>something</b>{{/mustache.tag}}</div>" +
+                "<div>{{^mustache.tag}}<b>something</b>{{/mustache.tag}}</div>" +
+                "<div>{{#mustache.tag}}{{mustache.value}}{{/mustache.tag}}</div>"
+            },
+            new string[] {
+                "<div class=\"test\">" +
+                "   {{mustache}}" +
+                "   <div class=\"test\">" +
+                "       {{mustache}}" +
+                "   </div>" +
+                "   <div class=\"test\">" +
+                "       {{mustache}}" +
+                "   </div>" +
+                "</div>",
+                "<div class=\"test\">" +
+                "   {{mustache}}" +
+                "   <div class=\"test\">" +
+                "       {{mustache}}" +
+                "   </div>" +
+                "   <div class=\"test\">" +
+                "       {{mustache}}" +
+                "   </div>" +
+                "</div>"
+            },
+            new string[] {
+                "<div {{mustache}}></div>",
+                "<div data-wrapper=\"{{mustache}}\"></div>"
+            },
+            new string[] {
+                "<div id=\"idName\" class=\"className\" {{mustache1}}>{{mustache2}}</div>",
+                "<div data-wrapper=\"id=&quot;idName&quot; class=&quot;className&quot; {{mustache1}}\">{{mustache2}}</div>"
+            },
+            new string[] {
+                "<div id=\"idName\" {{mustache1}} class=\"className\">{{mustache2}}</div>",
+                "<div data-wrapper=\"id=&quot;idName&quot; {{mustache1}} class=&quot;className&quot;\">{{mustache2}}</div>"
+            }
+        };
+        //
+        [TestMethod]
+        public void wrapMustacheAttributes_Test_FromTestData() {
+            using (CPClass cp = new(testAppName)) {
+                foreach(string[] test in mustacheWrapTestData) {
+                    // arrange
+                    string src = test[0];
+                    string expect = test[1];
+                    // act
+                    string result = HtmlController.wrapMustacheAttributes(src);
+                    // assert
+                    Assert.AreEqual(expect, result);
+                }
+            }
+        }
+        //
+        [TestMethod]
+        public void unwrapMustacheAttributes_Test_FromTestData() {
+            using (CPClass cp = new(testAppName)) {
+                foreach (string[] test in mustacheWrapTestData) {
+                    // arrange
+                    string src = test[1];
+                    string expect = test[0];
+                    // act
+                    string result = HtmlController.unwrapMustacheAttributes(src);
+                    // assert
+                    Assert.AreEqual(expect, result);
+                }
+            }
+        }
+        //
         //====================================================================================================
         //
         [TestMethod]
-        public void selectFromList_Test() {
-            using (CPClass cp = new(testAppName)) {
+        public void selectFromList_Test()
+        {
+            using (CPClass cp = new(testAppName))
+            {
                 // arrange
                 string expect = "<select size=1 id=\"htmlid\" class=\"htmlclass\" name=\"menuname\"><option value=\"\">nonecaption</option><option value=\"2\">a</option><option value=\"1\" selected>b</option><option value=\"3\">c</option></select>";
                 string menuName = "menuname";
@@ -35,8 +121,10 @@ namespace Tests {
         //====================================================================================================
         //
         [TestMethod]
-        public void selectFromList_Test_CaptionInput() {
-            using (CPClass cp = new(testAppName)) {
+        public void selectFromList_Test_CaptionInput()
+        {
+            using (CPClass cp = new(testAppName))
+            {
                 // arrange
                 string expect = "<select size=1 id=\"htmlid\" class=\"htmlclass\" name=\"menuname\"><option value=\"\">nonecaption</option><option value=\"2\" selected>a</option><option value=\"1\">b</option><option value=\"3\">c</option></select>";
                 string menuName = "menuname";
@@ -55,8 +143,10 @@ namespace Tests {
         //====================================================================================================
         //
         [TestMethod]
-        public void convertHtmlToText_variations() {
-            using (CPClass cp = new(testAppName)) {
+        public void convertHtmlToText_variations()
+        {
+            using (CPClass cp = new(testAppName))
+            {
                 {
                     // arrange
                     string src = "This is plain text";

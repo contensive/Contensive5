@@ -4020,6 +4020,7 @@ namespace Contensive.Processor.Controllers {
         //
         /// <summary>
         /// wrap in-tag mustache elements in a standard attribute to block them from being corrupted by html-agility-pack.
+        /// if " {{" is found in the tag, it converts all tag attributes to data-wrapper="" with the tag attributes html-enoced
         /// changes <div {{anything}}asdfasdf{anything}}></div>
         /// to <div data-wrapped="{{anything}}asdfasdf{anything}}"></div>
         /// </summary>
@@ -4031,27 +4032,39 @@ namespace Contensive.Processor.Controllers {
             result.Append(segementSplits[0]);
             foreach (string sourceSegment in segementSplits.Skip(1)) {
                 string segment = $"<{sourceSegment}";
-                if (segment.IndexOf(" {{") == -1) {
+                int posTagClose = segment.IndexOf(">");
+                if (posTagClose == -1) {
+                    // -- no end tag, skip
+                    result.Append(segment);
+                    continue;
+                }
+                int posCurlyOpen = segment.IndexOf(" {{");
+                if (posCurlyOpen == -1) {
                     // -- no mustache tag, skip
                     result.Append(segment);
                     continue;
                 }
-                int firstSpace = segment.IndexOf(" ");
-                if (firstSpace == -1) {
-                    // -- no attributes, skip
+                if(posTagClose<posCurlyOpen) {
+                    // -- curly brace in content, not tag
                     result.Append(segment);
                     continue;
                 }
-                int posTagEnd = segment.IndexOf(">");
-                if (posTagEnd == -1) {
-                    // -- no end tag, skip
+                int posFirstSpace = segment.IndexOf(" ");
+                if (posFirstSpace == -1) {
+                    // -- no attributes, skip
                     result.Append(segment);
                     continue;
                 }
                 //
                 // -- this tag includes a mustache tag, wrap the entire inner tag
-                string innerTag = HttpUtility.HtmlEncode(segment.Substring(firstSpace+1, posTagEnd - firstSpace-1));
-                segment = $"{segment.Substring(0, firstSpace)} data-wrapper=\"{innerTag}\"{segment.Substring(posTagEnd)}";
+                int innerLen = posTagClose - posFirstSpace - 1;
+                if (innerLen < 0) {
+                    // -- invalid tag, skip
+                    result.Append(segment);
+                    continue;
+                }
+                string innerTag = HttpUtility.HtmlEncode(segment.Substring(posFirstSpace+1, innerLen));
+                segment = $"{segment.Substring(0, posFirstSpace)} data-wrapper=\"{innerTag}\"{segment.Substring(posTagClose)}";
                 result.Append(segment);
             }
             return result.ToString();
@@ -4082,7 +4095,14 @@ namespace Contensive.Processor.Controllers {
                     result.Append(segment);
                     continue;
                 }
-                string inner = segment.Substring(posWrapStart + 14, posWrapEnd - posWrapStart - 14);
+                int innerStart = posWrapStart + 14;
+                int innerLen = posWrapEnd - posWrapStart - 14;
+                if (innerStart< 0 || innerLen < 0) {
+                    // -- invalid wrap, skip
+                    result.Append(segment);
+                    continue;
+                }
+                string inner = segment.Substring(innerStart, innerLen);
                 inner = HttpUtility.HtmlDecode(inner);
                 segment = $"{segment.Substring(0, posWrapStart-1)} {inner}{segment.Substring(posWrapEnd + 1)}";
                 result.Append(segment);
