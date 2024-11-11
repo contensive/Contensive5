@@ -58,18 +58,17 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         public WebServerController(CoreController core, HttpContextModel httpContext) {
             this.core = core;
-            requestHeaders = httpContext.Request.Headers;
-            requestForm = httpContext.Request.Form;
             this.httpContext = httpContext;
-
-            //
-            LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
             //
             // -- must have valid context, else non http 
             if (httpContext == null) { return; }
             if (!core.appConfig.appStatus.Equals(BaseModels.AppConfigBaseModel.AppStatusEnum.ok)) { return; }
             //
+            LogController.logShortLine("initHttpContext, enter", BaseClasses.CPLogBaseClass.LogLevel.Trace);
+            //
             // -- initialize doc properties from httpContext
+            requestHeaders = httpContext.Request.Headers;
+            requestForm = httpContext.Request.Form;
             var httpContextRequest = httpContext.Request;
             var coreDocProperties = core.docProperties;
             // -- 240407, this can be removed
