@@ -58,8 +58,8 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         public WebServerController(CoreController core, HttpContextModel httpContext) {
             this.core = core;
-            requestHeaders = [];
-            requestForm = [];
+            requestHeaders = httpContext.Request.Headers;
+            requestForm = httpContext.Request.Form;
             this.httpContext = httpContext;
 
             //
