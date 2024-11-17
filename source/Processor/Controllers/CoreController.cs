@@ -33,9 +33,9 @@ namespace Contensive.Processor.Controllers {
                 userId = session?.user?.id;
                 visitId = session?.visit?.id;
                 _logCommonMessage = $"" +
-                    $"app[{((appConfig == null) ? "no-app" : appConfig.name)}]" +
-                    $",doc[{(doc == null ? "unset" : doc.docGuid)}]" +
-                    $",user[{(userId == null ? "0" : userId.ToString() + ":" + session.user.name)}]" +
+                    $"app[{((appConfig?.name == null) ? "no-app" : appConfig.name)}]" +
+                    $",doc[{(doc?.docGuid == null ? "unset" : doc.docGuid)}]" +
+                    $",user[{(session?.user?.name == null ? "0" : userId.ToString() + ":" + session.user.name)}]" +
                     $",visit[{(visitId == null ? "0" : visitId.ToString())}]" +
                     $",thread[{Environment.CurrentManagedThreadId:000}]" +
                     $",url[{((webServer == null) ? "non-web" : string.IsNullOrEmpty(webServer.requestPathPage) ? "empty" : webServer.requestPathPage)}]";

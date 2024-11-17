@@ -3,7 +3,7 @@
     <ProjectGuid>{36E017D4-C4EB-4C0E-8E2B-1F97150B07D9}</ProjectGuid>
     <RootNamespace>Contensive.Processor.Tests</RootNamespace>
     <AssemblyName>processortests</AssemblyName>
-	  <TargetFrameworks>net472;net8.0-windows</TargetFrameworks>
+	  <TargetFrameworks>net472;net9.0-windows</TargetFrameworks>
 	  <LangVersion>latest</LangVersion>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -43,6 +43,7 @@
     <PackageReference Include="MSTest.TestAdapter" Version="3.5.0" />
     <PackageReference Include="MSTest.TestFramework" Version="3.5.0" />
     <PackageReference Include="StrongNamer" Version="0.2.5" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />

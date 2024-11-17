@@ -42,7 +42,6 @@ namespace Contensive.Processor.Addons.Housekeeping {
                 env.log("Housekeep, TasksClass");
                 {
                     //
-                    //
                     env.log("Housekeep, ccTasks, delete tasks started and not finished with 1 day.");
                     //
                     env.core.db.executeNonQuery("delete from cctasks where (cmdRunner is not null)or(DateAdded<DATEADD(day,-1,CAST(GETDATE() AS DATE)))");

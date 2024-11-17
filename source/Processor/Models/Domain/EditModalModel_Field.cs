@@ -24,7 +24,12 @@ namespace Contensive.Processor.Models.Domain {
             isRequired = field.required;
             isReadOnly = field.readOnly;
             //
-            this.isHidden = isHidden;
+            if (isHidden) {
+                //
+                // -- if this is a hidden exit now
+                this.isHidden = isHidden;
+                return;
+            }
             isFile = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.File;
             isText = field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.Text;
             isTextLong = (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.LongText) || (field.fieldTypeId == BaseClasses.CPContentBaseClass.FieldTypeIdEnum.FileText);
@@ -85,7 +90,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// if true, the field is a hidden and should just include the htmlName and currentvalue
         /// </summary>
-        public int  id { get; }
+        public int id { get; }
         public bool isHidden { get; }
         public string htmlName { get; }
         public string caption { get; }
@@ -225,10 +230,10 @@ namespace Contensive.Processor.Models.Domain {
             foreach (KeyValuePair<string, ContentFieldMetadataModel> fieldKvp in contentMetadata.fields) {
                 string fieldName = fieldKvp.Key;
                 ContentFieldMetadataModel field = fieldKvp.Value;
-                string fieldNameLC = fieldKvp.Key.ToLowerInvariant() ;
+                string fieldNameLC = fieldKvp.Key.ToLowerInvariant();
                 //
                 // -- search rightGroups for this field, if found, skip it
-                if (rightGroups.Find( (x) => x.rightGroupFields.Find((x) => x.id == field.id)!=null ) !=null) { continue; }
+                if (rightGroups.Find((x) => x.rightGroupFields.Find((x) => x.id == field.id) != null) != null) { continue; }
                 //
                 if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
                     string currentValue = "";
