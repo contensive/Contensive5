@@ -203,7 +203,16 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 switch (UcaseFieldName) {
                                     case "NAME": {
                                             //
+                                            // -- update cache for next view
                                             adminData.editRecord.nameLc = GenericController.encodeText(fieldValueObject);
+                                            break;
+                                        }
+                                    case "SORTORDER": {
+                                            //
+                                            if (csData.getText(fieldName) != FieldValueText) {
+                                                recordChanged = true;
+                                                csData.set(fieldName, FieldValueText);
+                                            }
                                             break;
                                         }
                                     case "CCGUID": {
@@ -234,6 +243,8 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                             }
                                             break;
                                         }
+                                    //
+                                    // -- these are deprecated, but still in use
                                     case "DATEEXPIRES": {
                                             //
                                             // ----- make sure content watch expires before content expires
@@ -249,6 +260,8 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                             //
                                             break;
                                         }
+                                    //
+                                    // -- these are deprecated, but still in use
                                     case "DATEARCHIVE": {
                                             //
                                             // ----- make sure content watch expires before content archives
@@ -1085,6 +1098,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                             ResponseFieldIsEmpty = false;
                         }
                         break;
+                    case "sortorder":
                     case "ccguid":
                         //
                         // -- anyone can change

@@ -258,6 +258,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         case "MODIFIEDBY":
                         case "MODIFIEDDATE":
                         case "CREATEKEY":
+                        case "SORTORDER":
                         case "CCGUID": {
                                 //
                                 // ----- control fields are not editable user fields

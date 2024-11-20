@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using NLog;
+using System.Linq;
 
 namespace Contensive.Processor.Addons.AdminSite {
     /// <summary>
@@ -144,10 +145,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                     editorEnv.allowHelpMsgCustom = true;
                 }
                 //
-                List<string> TabsFound = new List<string>();
+                List<string> TabsFound = [];
+                var fieldsForcedToControl = new List<string> { "id", "dateadded", "createdby", "modifieddate", "modifiedby", "ccguid", "contentcontrolid", "sortorder", "active" };
                 foreach (KeyValuePair<string, ContentFieldMetadataModel> keyValuePair in adminData.adminContent.fields) {
                     ContentFieldMetadataModel field = keyValuePair.Value;
-                    if ((!field.editTabName.ToLowerInvariant().Equals("control info")) && (field.authorable) && (field.active) && (!TabsFound.Contains(field.editTabName.ToLowerInvariant()))) {
+                    string fieldTabName = field.editTabName.ToLowerInvariant();
+                    bool isControlTab = fieldTabName.Equals("control info") || fieldTabName.Equals("controlinfo") || fieldsForcedToControl.Contains(field.nameLc);
+                    if ((!isControlTab) && (field.authorable) && (field.active) && (!TabsFound.Contains(fieldTabName))) {
                         TabsFound.Add(field.editTabName.ToLowerInvariant());
                         string editTabCaption = field.editTabName;
                         if (string.IsNullOrEmpty(editTabCaption)) { editTabCaption = "Details"; }

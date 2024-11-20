@@ -22,7 +22,6 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="adminData"></param>
         /// <returns></returns>
         public static string get(CoreController core, AdminDataModel adminData, EditorEnvironmentModel editorEnv) {
-            // -- used in expection handling
             string result;
             var tabPanel = new StringBuilderLegacyController();
             try {
@@ -43,19 +42,47 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
                 //
-                // ----- Authoring status
                 bool FieldRequired = false;
-
-
-                List<string> TabsFound = new List<string>();
+                //
+                // -- fields with edittab set to control info, at top
+                //
+                List<string> TabsFound = [];
                 foreach (KeyValuePair<string, ContentFieldMetadataModel> keyValuePair in adminData.adminContent.fields) {
                     ContentFieldMetadataModel field = keyValuePair.Value;
-                    if ((field.editTabName.ToLowerInvariant().Equals("control info")) && (field.authorable) && (field.active)) {
+                    string fieldTabName = field.editTabName.ToLowerInvariant();
+                    if ((fieldTabName.Equals("control info") || fieldTabName.Equals("controlinfo")) && field.authorable && field.active) {
                         tabPanel.add(EditorRowClass.getEditorRow(core, field, adminData, editorEnv));
                     }
                 }
                 //
-                // ----- RecordID
+                // -- people-table-only, EID (Encoded ID)
+                {
+                    if (GenericController.toUCase(adminData.adminContent.tableName) == GenericController.toUCase("ccMembers")) {
+                        string htmlId = "fieldGuid";
+                        bool AllowEId = (core.siteProperties.getBoolean("AllowLinkLogin", true)) || (core.siteProperties.getBoolean("AllowLinkRecognize", true));
+                        string fieldHelp = "This string is an authentication token that can be used in the URL for the next 15 minutes to log in as this user.";
+                        string fieldEditor = "";
+                        if (!AllowEId) {
+                            fieldEditor = "(link login and link recognize are disabled in security preferences)";
+                        } else if (adminData.editRecord.id == 0) {
+                            fieldEditor = "(available after save)";
+                        } else {
+                            string eidQueryString = "eid=" + WebUtility.UrlEncode(SecurityController.encodeToken(core, adminData.editRecord.id, core.doc.profileStartTime.AddMinutes(15)));
+                            string sampleUrl = core.webServer.requestProtocol + core.webServer.requestDomain + "/" + core.siteProperties.serverPageDefault + "?" + eidQueryString;
+                            if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
+                                fieldHelp = " If " + eidQueryString + " is added to a url querystring for this site, the user be logged in as this person.";
+                            } else {
+                                fieldHelp = " If " + eidQueryString + " is added to a url querystring for this site, the user be recognized in as this person, but not logged in.";
+                            }
+                            fieldHelp += " To enable, disable or modify this feature, use the security tab on the Preferences page.";
+                            fieldHelp += "<br>For example: " + sampleUrl;
+                            fieldEditor = AdminUIEditorController.getTextEditor(core, "ignore_eid", eidQueryString, true, htmlId);
+                        }
+                        tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Member Link Login Querystring", fieldHelp, true, false, htmlId));
+                    }
+                }
+                //
+                // -- RecordID
                 {
                     string fieldValue = (adminData.editRecord.id == 0) ? "(available after save)" : adminData.editRecord.id.ToString();
                     string fieldEditor = AdminUIEditorController.getTextEditor(core, "ignore", fieldValue, true, "");
@@ -69,6 +96,21 @@ namespace Contensive.Processor.Addons.AdminSite {
                     string fieldEditor = HtmlController.checkbox("active", adminData.editRecord.active, htmlId, disabled, "", adminData.editRecord.userReadOnly);
                     string fieldHelp = "When unchecked, add-ons can ignore this record as if it was temporarily deleted.";
                     tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Active", fieldHelp, false, false, htmlId));
+                }
+                //
+                // -- Sort Order
+                {
+                    bool fieldFound = adminData.editRecord.fieldsLc.ContainsKey("sortorder");
+                    if(fieldFound) {
+                        string fieldValue = "";
+                        object fieldObject = adminData.editRecord.fieldsLc["sortorder"].value_content;
+                        if (fieldObject != null) {
+                            fieldValue = fieldObject.ToString();
+                        }
+                        string fieldEditor = AdminUIEditorController.getTextEditor(core, "sortOrder", fieldValue, false, "");
+                        string fieldHelp = "Can be used to set the order of records displayed in lists. Is sorted alphabetically.";
+                        tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Sort Order", fieldHelp, false));
+                    }
                 }
                 //
                 // -- GUID
@@ -99,33 +141,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                     string FieldHelp = "This is a unique number that identifies this record globally. A GUID is not required, but when set it should never be changed. GUIDs are used to synchronize records. When empty, you can create a new guid. Only Developers can modify the guid.";
                     tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "GUID", FieldHelp, false, false, guidInputHtmlId));
-                }
-                //
-                // ----- EID (Encoded ID)
-                {
-                    if (GenericController.toUCase(adminData.adminContent.tableName) == GenericController.toUCase("ccMembers")) {
-                        string htmlId = "fieldGuid";
-                        bool AllowEId = (core.siteProperties.getBoolean("AllowLinkLogin", true)) || (core.siteProperties.getBoolean("AllowLinkRecognize", true));
-                        string fieldHelp = "This string is an authentication token that can be used in the URL for the next 15 minutes to log in as this user.";
-                        string fieldEditor = "";
-                        if (!AllowEId) {
-                            fieldEditor = "(link login and link recognize are disabled in security preferences)";
-                        } else if (adminData.editRecord.id == 0) {
-                            fieldEditor = "(available after save)";
-                        } else {
-                            string eidQueryString = "eid=" + WebUtility.UrlEncode(SecurityController.encodeToken(core, adminData.editRecord.id, core.doc.profileStartTime.AddMinutes(15)));
-                            string sampleUrl = core.webServer.requestProtocol + core.webServer.requestDomain + "/" + core.siteProperties.serverPageDefault + "?" + eidQueryString;
-                            if (core.siteProperties.getBoolean("AllowLinkLogin", true)) {
-                                fieldHelp = " If " + eidQueryString + " is added to a url querystring for this site, the user be logged in as this person.";
-                            } else {
-                                fieldHelp = " If " + eidQueryString + " is added to a url querystring for this site, the user be recognized in as this person, but not logged in.";
-                            }
-                            fieldHelp += " To enable, disable or modify this feature, use the security tab on the Preferences page.";
-                            fieldHelp += "<br>For example: " + sampleUrl;
-                            fieldEditor = AdminUIEditorController.getTextEditor(core, "ignore_eid", eidQueryString, true, htmlId);
-                        }
-                        tabPanel.add(AdminUIController.getEditRow(core, fieldEditor, "Member Link Login Querystring", fieldHelp, true, false, htmlId));
-                    }
                 }
                 //
                 // ----- Controlling Content
