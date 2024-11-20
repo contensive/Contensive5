@@ -275,9 +275,9 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        public override bool IsQuickEditing(string contentName) {
+        public override bool IsQuickEditing(string ignore) {
             if (cp?.core?.session == null) { return false; }
-            return cp.core.session.isQuickEditing(contentName);
+            return cp.core.session.isPageBuilderEditing();
         }
         //
         //====================================================================================================

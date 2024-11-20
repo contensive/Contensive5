@@ -816,7 +816,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- Render the content for the contentbox
                     result += getHtmlBody_BodyTag_ContentBox_RenderPageFeatures(core);
-                    if (core.session.isQuickEditing("")) {
+                    if (core.session.isPageBuilderEditing()) {
                         //
                         // Quick Editor, no encoding or tracking
                         //

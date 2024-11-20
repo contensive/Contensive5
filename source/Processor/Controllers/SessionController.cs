@@ -828,19 +828,6 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
-        /// true if editing page addon lists
-        /// </summary>
-        /// <returns></returns>
-        public bool isPageBuilderEditing() {
-            //
-            logger.Trace($"{core.logCommonMessage},SessionController.isPageBuilderEditing, enter");
-            //
-            if (!isAuthenticatedAdmin()) { return false; }
-            return core.visitProperty.getBoolean("AllowQuickEditor", false);
-        }
-        //
-        //========================================================================
-        /// <summary>
         /// true if developer and debugging
         /// </summary>
         /// <returns></returns>
@@ -854,24 +841,15 @@ namespace Contensive.Processor.Controllers {
         //
         //========================================================================
         /// <summary>
-        /// true if editing with the quick editor
+        /// true if editing page addon lists
         /// </summary>
-        /// <param name="ContentName"></param>
         /// <returns></returns>
-        public bool isQuickEditing(string ContentName) {
-            bool returnResult = false;
-            try {
-                //
-                logger.Trace($"{core.logCommonMessage},SessionController.isQuickEditing, enter");
-                //
-                if (isAuthenticatedContentManager(ContentName)) {
-                    returnResult = core.visitProperty.getBoolean("AllowQuickEditor");
-                }
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-                throw;
-            }
-            return returnResult;
+        public bool isPageBuilderEditing() {
+            //
+            logger.Trace($"{core.logCommonMessage},SessionController.isPageBuilderEditing, enter");
+            //
+            if (!isAuthenticatedAdmin()) { return false; }
+            return core.visitProperty.getBoolean("AllowQuickEditor", false);
         }
         //
         //========================================================================
