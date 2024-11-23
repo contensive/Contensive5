@@ -62,6 +62,9 @@ namespace Contensive.Processor {
         // -- 230301, added space - no, not allowed in url
         public const string allowedFilenameCharacters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -._&@,$()+";
         //
+        // -- content.fields that are in the control-info tab of the admin site
+        public static readonly string[] controlInfoFields = { "active", "id", "contentcontrolid", "createdby", "dateadded", "modifiedby", "modifieddate", "createkey", "sortorder", "ccguid" };
+        //
         //=======================================================================
         //   sitepropertyNames
         //=======================================================================

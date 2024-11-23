@@ -98,7 +98,7 @@ namespace Contensive.Processor.Addons.PageManager {
                         }
                         string pageEditLink = "";
                         if (isAuthoring) {
-                            pageEditLink = AdminUIEditButtonController.getEditIcon(core,contentName, childPage.id);
+                            pageEditLink = EditUIController.getEditIcon(core,contentName, childPage.id);
                         }
                         //
                         string link = PageLink;
@@ -234,7 +234,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 if (!ArchivePages && isAuthoring) {
                     string editWrapperClass = "";
                     if (!core.siteProperties.allowEditModal) { editWrapperClass = "ccEditWrapper"; }
-                    foreach (var AddLink in AdminUIEditButtonController.getAddTabList(core, contentName, "parentid=" + parentPageID + ",ParentListName=" + UcaseRequestedListName, true)) {
+                    foreach (var AddLink in EditUIController.getAddTabList(core, contentName, "parentid=" + parentPageID + ",ParentListName=" + UcaseRequestedListName, true)) {
                         if (!string.IsNullOrEmpty(AddLink)) { 
                             inactiveList.Append($"<li class=\"{editWrapperClass} ccListItemNoBullet\">" + AddLink + "</LI>"); 
                         }

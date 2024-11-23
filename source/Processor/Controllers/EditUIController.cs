@@ -12,7 +12,7 @@ namespace Contensive.Processor.Controllers {
     //
     //====================================================================================================
     //
-    public static class AdminUIEditButtonController {
+    public static class EditUIController {
         //
         //===================================================================================================
         /// <summary>
@@ -147,8 +147,8 @@ namespace Contensive.Processor.Controllers {
                 string editRecordLayout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, layoutEditRecordName, layoutEditRecordGuidCdnPathFilename, layoutEditRecordGuidCdnPathFilename);
                 string editModalLayout = LayoutController.getLayout(core.cpParent, layoutEditModalGuid, layoutEditModalName, layoutEditModalCdnPathFilename, layoutEditModalCdnPathFilename);
                 string delim = getRandomString(10);
-                EditModalModel dataSet = new(core, contentMetadata, recordId, allowCut, recordName, caption, "");
-                string result = MustacheController.renderStringToString(editRecordLayout + delim + editModalLayout, dataSet);
+                EditModalViewModel editModalViewData = new(core, contentMetadata, recordId, allowCut, recordName, caption, "");
+                string result = MustacheController.renderStringToString(editRecordLayout + delim + editModalLayout, editModalViewData);
                 string[] resultParts = result.Split(new string[] { delim }, StringSplitOptions.None);
                 core.cpParent.Doc.AddBodyEnd(resultParts[1]);
                 return resultParts[0];
@@ -342,7 +342,7 @@ namespace Contensive.Processor.Controllers {
                 string customCaption = "";
                 string caption = getEditCaption(core, "Add", contentName, customCaption);
                 var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
-                EditModalModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
+                EditModalViewModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
                 //
                 string delim = getRandomString(10);
                 string addLayout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, layoutAddRecordName, layoutAddRecordCdnPathFilename, layoutAddRecordCdnPathFilename);

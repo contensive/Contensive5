@@ -12,7 +12,7 @@ namespace Contensive.Processor.Controllers {
     /// <summary>
     /// static class controller
     /// </summary>
-    public class EditorController : IDisposable {
+    public class ActiveEditorController : IDisposable {
         //
         //====================================================================================================
         /// <summary>
@@ -139,7 +139,7 @@ namespace Contensive.Processor.Controllers {
             GC.SuppressFinalize(this);
         }
         //
-        ~EditorController()  {
+        ~ActiveEditorController()  {
             // do not add code here. Use the Dispose(disposing) overload
             Dispose(false);
 

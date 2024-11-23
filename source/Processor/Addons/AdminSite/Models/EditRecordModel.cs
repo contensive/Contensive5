@@ -284,7 +284,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                 //
                                 // ----- Put the field in the SQL to be saved
                                 //
-                                if (AdminDataModel.isVisibleUserField(cp.core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, adminData.adminContent.tableName) && (NewRecord || (!field.readOnly)) && (NewRecord || (!field.notEditable))) {
+                                if (AdminDataModel.isVisibleUserField_AdminEdit(cp.core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, adminData.adminContent.tableName) && (NewRecord || (!field.readOnly)) && (NewRecord || (!field.notEditable))) {
                                     //
                                     // ----- save the value by field type
                                     //

@@ -12,7 +12,7 @@ namespace Contensive.Processor.Models.Domain {
     //
     //====================================================================================================
     //
-    public class EditModalModel {
+    public class EditModalViewModel {
         /// <summary>
         /// 
         /// </summary>
@@ -23,12 +23,12 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="recordName"></param>
         /// <param name="customCaption"></param>
         /// <param name="presetNameValuePairs">Comma separated list of field name=value to prepopulate fields. Add hiddens if these fields are not visible in the edit.</param>
-        public EditModalModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
+        public EditModalViewModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
             using (CPCSBaseClass currentRecordCs = core.cpParent.CSNew()) {
                 if (recordId > 0) { currentRecordCs.OpenRecord(contentMetadata.name, recordId); }
                 editModalSn = GenericController.getRandomString(5);
                 dialogCaption = string.IsNullOrEmpty(customCaption) ? $"Edit {recordName}" : customCaption;
-                adminEditUrl = AdminUIEditButtonController.getEditUrl(core, contentMetadata.id, recordId);
+                adminEditUrl = EditUIController.getEditUrl(core, contentMetadata.id, recordId);
                 isEditing = !core.session.isEditing();
                 this.recordId = recordId;
                 contentGuid = contentMetadata.guid;
@@ -37,7 +37,7 @@ namespace Contensive.Processor.Models.Domain {
                 string instanceId = core.docProperties.getText("instanceId");
                 if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID") == instanceId) {
                     // -- is widget
-                    rightGroups = EditModalModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
+                    rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
                     hasRightGroups = rightGroups.Count() > 0;
                     allowDeleteData = false;
                     allowDeleteWidget = true;
@@ -48,7 +48,7 @@ namespace Contensive.Processor.Models.Domain {
                     rightGroups = [];
 
                 }
-                leftFields = EditModalModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, rightGroups);
+                leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, rightGroups);
             }
         }
         //
@@ -58,9 +58,9 @@ namespace Contensive.Processor.Models.Domain {
         //
         public bool isEditing { get; }
         //
-        public List<EditModalModel_Field> leftFields { get; }
+        public List<EditModalViewModel_Field> leftFields { get; }
         //
-        public List<EditModalModel_RightGroup> rightGroups { get; }
+        public List<EditModalViewModel_RightGroup> rightGroups { get; }
         //
         public bool hasRightGroups { get; }
         //
@@ -93,7 +93,7 @@ namespace Contensive.Processor.Models.Domain {
         public int pageId { get; }
         //
         public static bool isFieldInModal(CoreController core, ContentFieldMetadataModel field, ContentMetadataModel contentMetadata) {
-            return (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName));
+            return (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField_EditModal(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName));
         }
     }
 }

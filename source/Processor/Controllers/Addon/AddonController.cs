@@ -689,10 +689,10 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // Edit Icon
                                 var editSegmentList = new List<string> {
-                                            AdminUIEditButtonController.getOldEditSegment(core, addon.id, addon.name)
+                                            EditUIController.getOldEditSegment(core, addon.id, addon.name)
                                         };
-                                result = new StringBuilder(AdminUIEditButtonController.joinOldEditSegments(core, editSegmentList) + result.ToString());
-                                result = new StringBuilder(AdminUIEditButtonController.getEditWrapper(core, result.ToString()));
+                                result = new StringBuilder(EditUIController.joinOldEditSegments(core, editSegmentList) + result.ToString());
+                                result = new StringBuilder(EditUIController.getEditWrapper(core, result.ToString()));
                             }
                         }
                         //

@@ -345,7 +345,7 @@ namespace Contensive.Processor.Addons.Tools {
                             //
                             // edit button
                             //
-                            streamRow.add("<td class=\"ccPanelInput px-2\" align=\"left\">" + AdminUIEditButtonController.getEditIcon(core, contentFieldsCdef.id, formFieldId) + "</td>");
+                            streamRow.add("<td class=\"ccPanelInput px-2\" align=\"left\">" + EditUIController.getEditIcon(core, contentFieldsCdef.id, formFieldId) + "</td>");
                             //
                             // Inherited
                             //

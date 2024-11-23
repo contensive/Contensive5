@@ -9,12 +9,12 @@ using System.IO;
 using System.Linq;
 
 namespace Contensive.Processor.Models.Domain {
-    public class EditModalModel_Field {
+    public class EditModalViewModel_Field {
         //
         /// <summary>
         /// constructor
         /// </summary>
-        public EditModalModel_Field(CoreController core, ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData, string editModalSn, bool isHidden) {
+        public EditModalViewModel_Field(CoreController core, ContentFieldMetadataModel field, string currentValue, int editRecordId, Dictionary<string, ContentFieldMetadataModel> fields, ContentMetadataModel contentMetaData, string editModalSn, bool isHidden) {
             id = field.id;
             htmlName = $"field{field.id}";
             caption = field.caption;
@@ -209,8 +209,8 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
         /// <param name="editModalSn">a unique string for the current editor (edit tag plus modal)</param>
         /// <returns></returns>
-        public static List<EditModalModel_Field> getLeftFields(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editModalSn, List<EditModalModel_RightGroup> rightGroups) {
-            List<EditModalModel_Field> result = [];
+        public static List<EditModalViewModel_Field> getLeftFields(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editModalSn, List<EditModalViewModel_RightGroup> rightGroups) {
+            List<EditModalViewModel_Field> result = [];
             Dictionary<string, string> prepopulateValue = [];
             if (!string.IsNullOrEmpty(presetNameValuePairs)) {
                 //
@@ -235,7 +235,7 @@ namespace Contensive.Processor.Models.Domain {
                 // -- search rightGroups for this field, if found, skip it
                 if (rightGroups.Find((x) => x.rightGroupFields.Find((x) => x.id == field.id) != null) != null) { continue; }
                 //
-                if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
+                if (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField_EditModal(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName)) {
                     string currentValue = "";
                     if (field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.ManyToMany || field.fieldTypeId == CPContentBaseClass.FieldTypeIdEnum.Redirect) {
                         // 
@@ -283,18 +283,18 @@ namespace Contensive.Processor.Models.Domain {
                             }
                         }
                     }
-                    result.Add(new EditModalModel_Field(core, field, currentValue, editRecordId, contentMetadata.fields, contentMetadata, editModalSn, false));
+                    result.Add(new EditModalViewModel_Field(core, field, currentValue, editRecordId, contentMetadata.fields, contentMetadata, editModalSn, false));
                 } else if (prepopulateValue.ContainsKey(fieldName.ToLowerInvariant())) {
                     //
                     // -- else add a hidden for the prepopulate value
-                    result.Add(new EditModalModel_Field(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editModalSn, true));
+                    result.Add(new EditModalViewModel_Field(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editModalSn, true));
                 } else if (editRecordId == 0 && field.required) {
                     //
                     // -- if new record (add), and field is required, and not otherwise added, include it in the list
-                    result.Add(new EditModalModel_Field(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editModalSn, false));
+                    result.Add(new EditModalViewModel_Field(core, field, prepopulateValue[fieldName.ToLowerInvariant()], editRecordId, contentMetadata.fields, contentMetadata, editModalSn, false));
                 }
             }
-            List<EditModalModel_Field> sortedResult = result.OrderBy(o => o.sort).ToList();
+            List<EditModalViewModel_Field> sortedResult = result.OrderBy(o => o.sort).ToList();
             return result;
         }
     }

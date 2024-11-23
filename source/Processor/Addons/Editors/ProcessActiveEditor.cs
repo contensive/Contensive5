@@ -17,7 +17,7 @@ namespace Contensive.Processor.Addons.Primitives {
                 CoreController core = ((CPClass)cp).core;
                 //
                 // ----- Active Editor
-                EditorController.processActiveEditor(core);
+                ActiveEditorController.processActiveEditor(core);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
             }

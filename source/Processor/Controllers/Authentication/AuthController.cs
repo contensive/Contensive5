@@ -414,6 +414,7 @@ namespace Contensive.Processor.Controllers {
                             if (!requestPasswordHashInfo.payload.Equals(recordPasswordHashInfo.payload)) {
                                 //
                                 // -- fail, unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
+                                logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, hash-231226, hash mismatch, request [{requestPasswordHashInfo.payload}], record [{recordPasswordHashInfo.payload}], memberId [{record.id}]");
                                 userErrorMessage = "Username or password are incorrect.";
                                 processLoginFail(core, record.id);
                                 return 0;
@@ -451,6 +452,7 @@ namespace Contensive.Processor.Controllers {
                             if (!requestPasswordHashInfo.text.Equals(recordPasswordHashInfo.text)) {
                                 //
                                 // -- unsuccessful hash-login, attempt migration and return status with the userErrorMessage from first fail
+                                logger.Trace($"{core.logCommonMessage},preflightAuthentication_returnUserId, legacy hash, hash mismatch, request [{requestPasswordHashInfo.text}], record [{recordPasswordHashInfo.text}], memberId [{record.id}]");
                                 userErrorMessage = "Username or password are incorrect.";
                                 processLoginFail(core, record.id);
                                 return 0;

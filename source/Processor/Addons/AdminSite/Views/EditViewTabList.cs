@@ -51,7 +51,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         hint = 50;
                         if (field.editTabName.ToLowerInvariant() == EditTab.ToLowerInvariant()) {
                             hint = 60;
-                            if (AdminDataModel.isVisibleUserField(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, adminData.adminContent.tableName)) {
+                            if (AdminDataModel.isVisibleUserField_AdminEdit(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, adminData.adminContent.tableName)) {
                                 hint = 70;
                                 string AlphaSort = GenericController.getIntegerString(field.editSortPriority, 10) + "-" + GenericController.getIntegerString(field.id, 10);
                                 hint = 80;

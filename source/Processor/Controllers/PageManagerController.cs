@@ -551,8 +551,8 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- add template edit link
                     if (core.session.isTemplateEditing()) {
-                        result = AdminUIEditButtonController.getEditTab(core, "Page Templates", core.doc.pageController.template.id, false, templateName) + result;
-                        result = AdminUIEditButtonController.getEditWrapper(core, result);
+                        result = EditUIController.getEditTab(core, "Page Templates", core.doc.pageController.template.id, false, templateName) + result;
+                        result = EditUIController.getEditWrapper(core, result);
                     }
                 }
             } catch (Exception ex) {
@@ -963,8 +963,8 @@ namespace Contensive.Processor.Controllers {
                 bool allowEdit = core.siteProperties.allowPageSettingsEdit;
                 if (allowEdit && core.session.isEditing()) {
                     bool allowCut = core.doc.pageController.pageToRootList.Count != 1;
-                    result = AdminUIEditButtonController.getEditTab(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, allowCut, core.doc.pageController.page.name, "Edit Page Settings") + result;
-                    result = AdminUIEditButtonController.getEditWrapper(core, result);
+                    result = EditUIController.getEditTab(core, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, allowCut, core.doc.pageController.page.name, "Edit Page Settings") + result;
+                    result = EditUIController.getEditWrapper(core, result);
                 }
                 //
                 // -- add contentid and sectionid
@@ -973,10 +973,10 @@ namespace Contensive.Processor.Controllers {
                 // -- display Admin Warnings with Edits for record errors
                 if (core.doc.adminWarning != "") {
                     if (core.doc.adminWarningPageID != 0) {
-                        core.doc.adminWarning = core.doc.adminWarning + "</p>" + AdminUIEditButtonController.getEditTab(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
+                        core.doc.adminWarning = core.doc.adminWarning + "</p>" + EditUIController.getEditTab(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
                         core.doc.adminWarningPageID = 0;
                     }
-                    result = AdminUIEditButtonController.getAdminHintWrapper(core, core.doc.adminWarning) + result + "";
+                    result = EditUIController.getAdminHintWrapper(core, core.doc.adminWarning) + result + "";
                     core.doc.adminWarning = "";
                 }
                 //
@@ -995,10 +995,10 @@ namespace Contensive.Processor.Controllers {
                 // -- Add admin warning to the top of the content
                 if (core.session.isAuthenticatedAdmin() && core.doc.adminWarning != "") {
                     if (core.doc.adminWarningPageID != 0) {
-                        core.doc.adminWarning += "</p>" + AdminUIEditButtonController.getEditTab(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
+                        core.doc.adminWarning += "</p>" + EditUIController.getEditTab(core, "Page Content", core.doc.adminWarningPageID, true, "Page " + core.doc.adminWarningPageID) + "&nbsp;Edit the page<p>";
                         core.doc.adminWarningPageID = 0;
                     }
-                    result = AdminUIEditButtonController.getAdminHintWrapper(core, core.doc.adminWarning) + result;
+                    result = EditUIController.getAdminHintWrapper(core, core.doc.adminWarning) + result;
                     core.doc.adminWarning = "";
                 }
                 //
@@ -1099,7 +1099,7 @@ namespace Contensive.Processor.Controllers {
                         string pageLink = getPageLink(core, page.id, "", true, false);
                         string pageName = (!string.IsNullOrWhiteSpace(page.name)) ? page.name : "Page " + page.id;
                         string pageMenuHeadline = (!string.IsNullOrWhiteSpace(page.menuHeadline)) ? page.menuHeadline : pageName;
-                        string editAnchorTag = AdminUIEditButtonController.getEditIcon(core, contentMetadata.id, page.id);
+                        string editAnchorTag = EditUIController.getEditIcon(core, contentMetadata.id, page.id);
                         string pageAnchorTag = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(pageLink) + "\">", pageMenuHeadline);
                         editItemList.Append("\r<li name=\"page" + page.id + "\"  id=\"page" + page.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
                         if (!string.IsNullOrEmpty(editAnchorTag)) {
@@ -1111,7 +1111,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- add new link for each associated content
                     var addItemList = new StringBuilder();
-                    foreach (var addItem in AdminUIEditButtonController.getAddTabList(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
+                    foreach (var addItem in EditUIController.getAddTabList(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
                         if (!string.IsNullOrEmpty(addItem)) {
                             if (core.siteProperties.allowEditModal) {
                                 //
@@ -1131,7 +1131,7 @@ namespace Contensive.Processor.Controllers {
                         + HtmlController.h4("Hidden Child Pages")
                         + HtmlController.p("This list of pages is hidden but the pages may display in other navigation. Creating a new page here helps organize your pages by keeping them together with the parent content. To display a child page, add a child page widget to the page and add pages there, or drag one of these child pages into that widget.")
                         + HtmlController.ul(editItemList.ToString() + addItemList.ToString(), "ccChildList", "childPageList_" + core.doc.pageController.page.id + "_" + RequestedListName);
-                    result.Append(AdminUIEditButtonController.getAdminHintWrapper(core, hintHtml));
+                    result.Append(EditUIController.getAdminHintWrapper(core, hintHtml));
                 }
                 //
                 // -- Allow More Info

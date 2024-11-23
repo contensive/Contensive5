@@ -5,6 +5,7 @@ using NLog;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 //
@@ -228,77 +229,66 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         // ====================================================================================================
         /// <summary>
-        /// 
+        /// true if this field can be included in the admin edit form and a non-control-info field
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="AdminOnly"></param>
-        /// <param name="DeveloperOnly"></param>
-        /// <param name="Active"></param>
-        /// <param name="Authorable"></param>
-        /// <param name="Name"></param>
-        /// <param name="TableName"></param>
+        /// <param name="adminOnly"></param>
+        /// <param name="developerOnly"></param>
+        /// <param name="active"></param>
+        /// <param name="authorable"></param>
+        /// <param name="name"></param>
+        /// <param name="tableName"></param>
         /// <returns></returns>
-        public static bool isVisibleUserField(CoreController core, bool AdminOnly, bool DeveloperOnly, bool Active, bool Authorable, string Name, string TableName) {
-            bool tempIsVisibleUserField = false;
+
+        public static bool isVisibleUserField_AdminEdit(CoreController core, bool adminOnly, bool developerOnly, bool active, bool authorable, string name, string tableName) {
             try {
-                bool HasEditRights = false;
+                if (!active || !authorable) { return false; }
+                if (developerOnly && !core.session.user.developer) { return false; }
+                if (adminOnly && !core.session.user.developer && !core.session.user.admin) { return false; }
                 //
-                tempIsVisibleUserField = false;
-                if ((TableName.ToLowerInvariant() == "ccpagecontent") && (Name.ToLowerInvariant() == "linkalias")) {
-                    //
-                    // ccpagecontent.linkalias is a control field that is not in control tab
-                    //
-                } else {
-                    switch (GenericController.toUCase(Name)) {
-                        case "ACTIVE":
-                        case "ID":
-                        case "CONTENTCONTROLID":
-                        case "CREATEDBY":
-                        case "DATEADDED":
-                        case "MODIFIEDBY":
-                        case "MODIFIEDDATE":
-                        case "CREATEKEY":
-                        case "SORTORDER":
-                        case "CCGUID": {
-                                //
-                                // ----- control fields are not editable user fields
-                                //
-                                break;
-                            }
-                        default: {
-                                //
-                                // ----- test access
-                                //
-                                HasEditRights = true;
-                                if (AdminOnly || DeveloperOnly) {
-                                    //
-                                    // field has some kind of restriction
-                                    //
-                                    if (!core.session.user.developer) {
-                                        if (!core.session.user.admin) {
-                                            //
-                                            // you are not admin
-                                            //
-                                            HasEditRights = false;
-                                        } else if (DeveloperOnly) {
-                                            //
-                                            // you are admin, and the record is developer
-                                            //
-                                            HasEditRights = false;
-                                        }
-                                    }
-                                }
-                                if ((HasEditRights) && (Active) && (Authorable)) {
-                                    tempIsVisibleUserField = true;
-                                }
-                                break;
-                            }
-                    }
-                }
+                // -- control-info fields are not editable user fields
+                if (controlInfoFields.Contains(name.ToLowerInvariant())) { return false; }
+                //
+                // -- ccpagecontent.linkalias is a control field that is not in control tab
+                if ((tableName.ToLowerInvariant() == "ccpagecontent") && (name.ToLowerInvariant() == "linkalias")) { return false; }
+                //
+                // -- else visible
+                return true;
             } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
+                logger.Error(ex, $"isVisibleUserField_AdminEdit exception, blocked field, {core.logCommonMessage}");
+                return false;
             }
-            return tempIsVisibleUserField;
+        }
+        //
+        /// <summary>
+        /// true if this field can be included in the edit-modal
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="adminOnly"></param>
+        /// <param name="developerOnly"></param>
+        /// <param name="active"></param>
+        /// <param name="authorable"></param>
+        /// <param name="name"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        public static bool isVisibleUserField_EditModal(CoreController core, bool adminOnly, bool developerOnly, bool active, bool authorable, string name, string tableName) {
+            try {
+                if (!active || !authorable) { return false; }
+                if (developerOnly && !core.session.user.developer) { return false; }
+                if (adminOnly && !core.session.user.developer && !core.session.user.admin) { return false; }
+                //
+                // -- control-info fields (except sortorder) are not editable user fields
+                if (controlInfoFields.Contains(name.ToLowerInvariant()) && name.ToLowerInvariant() != "sortorder") { return false; }
+                //
+                // -- ccpagecontent.linkalias is a control field that is not in control tab
+                if ((tableName.ToLowerInvariant() == "ccpagecontent") && (name.ToLowerInvariant() == "linkalias")) { return false; }
+                //
+                // -- else visible
+                return true;
+            } catch (Exception ex) {
+                logger.Error(ex, $"isVisibleUserField_AdminEdit exception, blocked field, {core.logCommonMessage}");
+                return false;
+            }
         }
         //
         // ====================================================================================================
@@ -373,7 +363,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             if ((recordContentId > 0) && (recordContentId != adminContent.id)) {
                                 // -- protect from use-case where cdef is deleted after records created. Record's cdef is invalid
                                 var testContent = ContentMetadataModel.create(core, recordContentId);
-                                if (testContent != null) { adminContent = testContent;  }
+                                if (testContent != null) { adminContent = testContent; }
                             }
                         }
                         csData.close();

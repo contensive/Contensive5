@@ -53,13 +53,13 @@ namespace Contensive.Processor.Addons {
                             result.isUsedByLinkForward = true;
                             LinkForwardModel linkForward = DbBaseModel.create<LinkForwardModel>(cp, currentRoute.linkForwardId);
                             if (linkForward is not null) {
-                                result.editUrl = AdminUIEditButtonController.getEditUrl(cp.core, cp.Content.GetID("link forwards"), linkForward.id);
+                                result.editUrl = EditUIController.getEditUrl(cp.core, cp.Content.GetID("link forwards"), linkForward.id);
                             }
                             return AjaxResponse.getResponse(cp, result);
                         }
                     case RouteMapModel.RouteTypeEnum.remoteMethod: {
                             result.isUsedByRemoteMethod = true;
-                            result.editUrl = AdminUIEditButtonController.getEditUrl(cp.core, cp.Content.GetID("Add-ons"), currentRoute.remoteMethodAddonId);
+                            result.editUrl = EditUIController.getEditUrl(cp.core, cp.Content.GetID("Add-ons"), currentRoute.remoteMethodAddonId);
                             return AjaxResponse.getResponse(cp, result);
                         }
                     case RouteMapModel.RouteTypeEnum.admin: {
@@ -70,7 +70,7 @@ namespace Contensive.Processor.Addons {
                     case RouteMapModel.RouteTypeEnum.linkAlias: {
                             result.isUsedByOtherPage = true;
                             LinkAliasModel linkAlias = DbBaseModel.create<LinkAliasModel>(cp, currentRoute.linkAliasId);
-                            result.editUrl = AdminUIEditButtonController.getEditUrl(cp.core, cp.Content.GetID("page content"), currentRoute.linkAliasPageId);
+                            result.editUrl = EditUIController.getEditUrl(cp.core, cp.Content.GetID("page content"), currentRoute.linkAliasPageId);
                             if (linkAlias is not null) {
                                 PageContentModel page = DbBaseModel.create<PageContentModel>(cp, linkAlias.pageId);
                                 if (page is not null) {

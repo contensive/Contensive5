@@ -44,7 +44,7 @@ namespace Contensive.Processor.Addons.PageManager {
                             if ((!string.IsNullOrWhiteSpace(link)) && (!link.Contains("://"))) {
                                 link = core.webServer.requestProtocol + link;
                             }
-                            string editAnchorTag = (!core.session.isEditing() ? "" : AdminUIEditButtonController.getEditTab(core, "See Also", cs.getInteger("ID")));
+                            string editAnchorTag = (!core.session.isEditing() ? "" : EditUIController.getEditTab(core, "See Also", cs.getInteger("ID")));
                             string pageAnchorTag = HtmlController.a(cs.getText("name"), HtmlController.encodeHtml(link));
                             string brief = cs.getText("Brief");
                             if (!string.IsNullOrEmpty(brief)) {
@@ -58,7 +58,7 @@ namespace Contensive.Processor.Addons.PageManager {
                 }
                 if (core.session.isEditing()) {
                     SeeAlsoCount += 1;
-                    foreach (var AddLink in AdminUIEditButtonController.getAddTabList(core, "See Also", "RecordID=" + core.doc.pageController.page.id)) {
+                    foreach (var AddLink in EditUIController.getAddTabList(core, "See Also", "RecordID=" + core.doc.pageController.page.id)) {
                         if (!string.IsNullOrEmpty(AddLink)) {
                             result += HtmlController.li(AddLink, "ccEditWrapper ccListItem");
                         }

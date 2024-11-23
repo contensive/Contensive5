@@ -2600,8 +2600,8 @@ namespace Contensive.Processor.Controllers {
                             bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
                             string DivName = htmlNamePrefix + ".All";
                             bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
-                            string editLink = AdminUIEditButtonController.getEditUrl(core, secondaryMeta.id, -1);
-                            string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getEditIcon(core, editLink,"","");
+                            string editLink = EditUIController.getEditUrl(core, secondaryMeta.id, -1);
+                            string editLinkTemplate = !isAdmin ? "" : EditUIController.getEditIcon(core, editLink,"","");
                             //string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getLegacyRecordEditAnchorTag(core, secondaryMeta, -1, "", "");
                             while (csData.ok()) {
                                 string OptionName = csData.getText("OptionName");
@@ -3259,7 +3259,7 @@ namespace Contensive.Processor.Controllers {
                             if (core.session.isEditing()) {
                                 returnCopy = csData.getRecordEditLink(false) + returnCopy;
                                 if (AllowEditWrapper) {
-                                    returnCopy = AdminUIEditButtonController.getEditWrapper(core, returnCopy);
+                                    returnCopy = EditUIController.getEditWrapper(core, returnCopy);
                                 }
                             }
                         }
