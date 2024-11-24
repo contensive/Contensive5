@@ -144,18 +144,31 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- edit record plus edit modal (blue pencil)
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
-                string editRecordLayout = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, layoutEditRecordName, layoutEditRecordGuidCdnPathFilename, layoutEditRecordGuidCdnPathFilename);
-                string editModalLayout = LayoutController.getLayout(core.cpParent, layoutEditModalGuid, layoutEditModalName, layoutEditModalCdnPathFilename, layoutEditModalCdnPathFilename);
-                string delim = getRandomString(10);
+                string editAddModalLayout = removeLayoutModelSection( LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename));
                 EditModalViewModel editModalViewData = new(core, contentMetadata, recordId, allowCut, recordName, caption, "");
-                string result = MustacheController.renderStringToString(editRecordLayout + delim + editModalLayout, editModalViewData);
-                string[] resultParts = result.Split(new string[] { delim }, StringSplitOptions.None);
+                string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                string[] resultParts = result.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);
                 core.cpParent.Doc.AddBodyEnd(resultParts[1]);
                 return resultParts[0];
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;
             }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// remove the layout model section from the source
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string removeLayoutModelSection(string source) {
+            int posStart = source.IndexOf("<!-- modal-content-start -->");
+            if (posStart < 0) { return source; }
+            int posEnd = source.IndexOf("<!-- modal-content-end -->");
+            if (posEnd < 0) { return source; }
+            return source.Substring(0, posStart) + source.Substring(posEnd + 25);
+
         }
         //
         //====================================================================================================
@@ -343,14 +356,9 @@ namespace Contensive.Processor.Controllers {
                 string caption = getEditCaption(core, "Add", contentName, customCaption);
                 var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
                 EditModalViewModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
-                //
-                string delim = getRandomString(10);
-                string addLayout = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, layoutAddRecordName, layoutAddRecordCdnPathFilename, layoutAddRecordCdnPathFilename);
-                string modalLayout = LayoutController.getLayout(core.cpParent, layoutEditModalGuid, layoutEditModalName, layoutEditModalCdnPathFilename, layoutEditModalCdnPathFilename);
-                string renderedLayout = MustacheController.renderStringToString(addLayout + delim + modalLayout, dataSet);
-                string[] renderedParts = renderedLayout.Split(new string[] { delim }, StringSplitOptions.None);
-                //
-                // -- add modal to body end and return tag. b/c modal may include an add tag which has its own form, forms cannot be in other forms
+                string layout = removeLayoutModelSection(LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename));
+                string renderedLayout = MustacheController.renderStringToString(layout, dataSet);
+                string[] renderedParts = renderedLayout.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);
                 core.cpParent.Doc.AddBodyEnd(renderedParts[1]);
                 result.Add(renderedParts[0]);
                 return result;

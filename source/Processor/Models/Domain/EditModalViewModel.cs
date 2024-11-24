@@ -25,7 +25,11 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="presetNameValuePairs">Comma separated list of field name=value to prepopulate fields. Add hiddens if these fields are not visible in the edit.</param>
         public EditModalViewModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
             using (CPCSBaseClass currentRecordCs = core.cpParent.CSNew()) {
-                if (recordId > 0) { currentRecordCs.OpenRecord(contentMetadata.name, recordId); }
+                includeEditTag = !recordId.Equals(0);
+                includeAddTag = !includeEditTag;
+                if (recordId > 0) { 
+                    currentRecordCs.OpenRecord(contentMetadata.name, recordId); 
+                }
                 editModalSn = GenericController.getRandomString(5);
                 dialogCaption = string.IsNullOrEmpty(customCaption) ? $"Edit {recordName}" : customCaption;
                 adminEditUrl = EditUIController.getEditUrl(core, contentMetadata.id, recordId);
@@ -51,6 +55,14 @@ namespace Contensive.Processor.Models.Domain {
                 leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, rightGroups);
             }
         }
+        /// <summary>
+        /// if true, the edit tag is included in the modal
+        /// </summary>
+        public bool includeEditTag { get; set; }
+        /// <summary>
+        /// if true, the add tag is included in the modal
+        /// </summary>
+        public bool includeAddTag { get; set; }
         //
         public string dialogCaption { get; }
         //

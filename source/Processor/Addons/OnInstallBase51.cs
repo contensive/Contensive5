@@ -28,8 +28,8 @@ namespace Contensive.Processor.Addons.Base {
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutAdminSiteGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename, layoutAdminSiteCdnPathFilename);
                 //
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutAddRecordGuid);
-                _ = LayoutController.getLayout(core.cpParent, layoutAddRecordGuid, layoutAddRecordName, layoutAddRecordCdnPathFilename, layoutAddRecordCdnPathFilename);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutEditAddModalGuid);
+                _ = LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
                 //
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutAdminEditIconGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename, layoutAdminEditIconCdnPathFilename);
@@ -39,12 +39,6 @@ namespace Contensive.Processor.Addons.Base {
                 //
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutAdminUITwoColumnRightGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutAdminUITwoColumnRightGuid, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename, layoutAdminUITwoColumnRightCdnPathFilename);
-                //
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutEditModalGuid);
-                _ = LayoutController.getLayout(core.cpParent, layoutEditModalGuid, layoutEditModalName, layoutEditModalCdnPathFilename, layoutEditModalCdnPathFilename);
-                //
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutEditRecordGuid);
-                _ = LayoutController.getLayout(core.cpParent, layoutEditRecordGuid, layoutEditRecordName, layoutEditRecordGuidCdnPathFilename, layoutEditRecordGuidCdnPathFilename);
                 //
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutLinkAliasPreviewEditorGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);

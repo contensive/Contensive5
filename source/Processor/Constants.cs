@@ -1099,17 +1099,22 @@ namespace Contensive.Processor {
         public const string layoutAdminEditIconName = "Admin Edit Icon Layout";
         public const string layoutAdminEditIconCdnPathFilename = "baseAssets\\AdminEditIconLayout.html";
         //
-        public const string layoutEditRecordGuid = "{696D98A6-1454-45CD-B478-2D40B96940D9}";
-        public const string layoutEditRecordName = "Admin Edit Record Layout";
-        public const string layoutEditRecordGuidCdnPathFilename = "baseAssets\\AdminEditRecordLayout.html";
+        // -- combination of edit, add, and modal layouts
+        public const string layoutEditAddModalGuid = "{03B8C4AE-D7AE-47D6-9EEF-D56C76283AEF}";
+        public const string layoutEditAddModalName = "Admin Edit Add Record Layout";
+        public const string layoutEditAddModalCdnPathFilename = "baseAssets\\AdminEditAddModalLayout.html";
         //
-        public const string layoutAddRecordGuid = "{FF2DFF28-AF79-4147-B9FF-B0A89AC5F054}";
-        public const string layoutAddRecordName = "Admin Add Record Layout";
-        public const string layoutAddRecordCdnPathFilename = "baseAssets\\AdminAddRecordLayout.html";
-        //
-        public const string layoutEditModalGuid = "{F6167221-8034-4781-837F-927E159B1685}";
-        public const string layoutEditModalName = "Admin Edit Modal Layout";
-        public const string layoutEditModalCdnPathFilename = "baseAssets\\AdminEditModalLayout.html";
+        //public const string layoutEditRecordGuid = "{696D98A6-1454-45CD-B478-2D40B96940D9}";
+        //public const string layoutEditRecordName = "Admin Edit Record Layout";
+        //public const string layoutEditRecordGuidCdnPathFilename = "baseAssets\\AdminEditRecordLayout.html";
+        ////
+        //public const string layoutAddRecordGuid = "{FF2DFF28-AF79-4147-B9FF-B0A89AC5F054}";
+        //public const string layoutAddRecordName = "Admin Add Record Layout";
+        //public const string layoutAddRecordCdnPathFilename = "baseAssets\\AdminAddRecordLayout.html";
+        ////
+        //public const string layoutEditModalGuid = "{F6167221-8034-4781-837F-927E159B1685}";
+        //public const string layoutEditModalName = "Admin Edit Modal Layout";
+        //public const string layoutEditModalCdnPathFilename = "baseAssets\\AdminEditModalLayout.html";
         //
         public const string layoutAdminUITwoColumnLeftGuid = "{6B0B5593-49A9-45A9-AF64-9A14B34ACB44}";
         public const string layoutAdminUITwoColumnLeftName = "AdminUI Two Column Left";
