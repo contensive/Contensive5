@@ -2960,11 +2960,16 @@
 	</CDef>
   <!--
 
-    Tools
+    addons
 
   -->  
+  <Addon Name="getEditModal" Guid="{912B6877-FF92-4E2F-81F0-16A3988424E2}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.GetEditModalRemote]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
+  </Addon>
+
   <Addon Name="normalizeLinkAlias" Guid="{D6153148-15BE-4C98-8547-6B3ABF72DF96}" Type="Add-on">
-    <Admin>aaaa</Admin>
+    <Admin>false</Admin>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.NormalizeLinkAliasRemote]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
   </Addon>
@@ -3004,11 +3009,7 @@
     <Admin>Yes</Admin>
 		<Category><![CDATA[Advanced]]></Category>
   </Addon>  
-  <!-- 
-    
-    settings 
-
-  -->
+     
 	<Addon Name="Site Settings" Guid="{D9C2D64E-9004-4DBE-806F-60635B9F52C8}" Type="Setting">
 		<FormXML>
 					<![CDATA[<Form>

@@ -25,23 +25,26 @@ namespace Contensive.Processor.Addons.Base {
                 }
                 //
                 // -- delete layouts updated in this install
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutAdminSiteGuid);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutAdminSiteGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename, layoutAdminSiteCdnPathFilename);
                 //
                 cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutEditAddModalGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
                 //
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutAdminEditIconGuid);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutAdminEditIconGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename, layoutAdminEditIconCdnPathFilename);
                 //
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutAdminUITwoColumnLeftGuid);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutAdminUITwoColumnLeftGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutAdminUITwoColumnLeftGuid, layoutAdminUITwoColumnLeftName, layoutAdminUITwoColumnLeftCdnPathFilename, layoutAdminUITwoColumnLeftCdnPathFilename);
                 //
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutAdminUITwoColumnRightGuid);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutAdminUITwoColumnRightGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutAdminUITwoColumnRightGuid, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename, layoutAdminUITwoColumnRightCdnPathFilename);
                 //
-                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, Constants.layoutLinkAliasPreviewEditorGuid);
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutLinkAliasPreviewEditorGuid);
                 _ = LayoutController.getLayout(core.cpParent, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);
+                //
+                cp.Db.Delete(LayoutModel.tableMetadata.tableNameLower, layoutEditAddModalGuid);
+                _ = LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
                 //
                 // -- 
                 return "ok";

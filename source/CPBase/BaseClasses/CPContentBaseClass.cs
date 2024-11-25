@@ -116,7 +116,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Get the string from the 'Copy Content' record based on it's name. If the record does not exist it is created with the default value provided.
+        /// Get the string from the 'Copy Content' record based on its name. If the record does not exist it is created with the default value provided.
         /// </summary>
         /// <param name="CopyName"></param>
         /// <param name="DefaultContent"></param>
@@ -124,7 +124,7 @@ namespace Contensive.BaseClasses {
         /// <remarks></remarks>
         public abstract string GetCopy(string CopyName, string DefaultContent);
         /// <summary>
-        /// Get the string from the 'Copy Content' record based on it's name. If the record does not exist it is created with the default value provided.
+        /// Get the string from the 'Copy Content' record based on its name. If the record does not exist it is created with the default value provided.
         /// </summary>
         /// <param name="CopyName"></param>
         /// <returns></returns>
@@ -132,7 +132,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Get the string from the 'Copy Content' record based on it's name. If the record does not exist it is created with the default value provided.
+        /// Get the string from the 'Copy Content' record based on its name. If the record does not exist it is created with the default value provided.
         /// </summary>
         /// <param name="CopyName"></param>
         /// <param name="DefaultContent"></param>
@@ -459,7 +459,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Return a record's ID given it's name. If duplicates exist, the first one ordered by ID is returned.
+        /// Return a record's ID given its name. If duplicates exist, the first one ordered by ID is returned.
         /// </summary>
         /// <param name="ContentName"></param>
         /// <param name="RecordName"></param>
@@ -469,13 +469,33 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Return a records name given it's ID.
+        /// Return a records name given its guid.
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="RecordGuid"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public abstract string GetRecordName(string ContentName, string RecordGuid);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return a records name given its ID.
         /// </summary>
         /// <param name="ContentName"></param>
         /// <param name="RecordID"></param>
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract string GetRecordName(string ContentName, int RecordID);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Return a records guid given its ID.
+        /// </summary>
+        /// <param name="ContentName"></param>
+        /// <param name="RecordID"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
+        public abstract string GetRecordGuid(string ContentName, int RecordID);
         //
         //====================================================================================================
         /// <summary>

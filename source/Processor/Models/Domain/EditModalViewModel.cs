@@ -13,6 +13,208 @@ namespace Contensive.Processor.Models.Domain {
     //====================================================================================================
     //
     public class EditModalViewModel {
+        //
+        /// <summary>
+        /// if true, the edit tag is included in the modal
+        /// </summary>
+        public bool includeEditTag {
+            get {
+                return !string.IsNullOrWhiteSpace(recordGuid);
+            }
+        }
+        //
+        /// <summary>
+        /// if true, the add tag is included in the modal
+        /// </summary>
+        public bool includeAddTag {
+            get {
+                return string.IsNullOrWhiteSpace(recordGuid);
+            }
+        }
+        //
+        /// <summary>
+        /// modal caption
+        /// </summary>
+        public string dialogCaption {
+            get {
+                return string.IsNullOrEmpty(customCaption) ? $"Edit {recordName}" : customCaption;
+            }
+        }
+        //
+        /// <summary>
+        /// the link to the admin site advance edit page
+        /// </summary>
+        public string adminEditUrl {
+            get {
+                return EditUIController.getEditUrl(core, contentMetadata.id, recordGuid);
+            }
+        }
+        //
+        /// <summary>
+        /// true if this user is in edit mode
+        /// </summary>
+        public bool isEditing {
+            get {
+                return !core.session.isEditing();
+            }
+        }
+        //
+        /// <summary>
+        /// The edit modal list of fields for the left
+        /// </summary>
+        public List<EditModalViewModel_Field> leftFields {
+            get {
+                setContentData();
+                return contentData_leftFields;
+            }
+        }
+        //
+        /// <summary>
+        /// the edit modal list of groups of fields for the right
+        /// </summary>
+        public List<EditModalViewModel_RightGroup> rightGroups {
+            get {
+                setContentData();
+                return contentData_rightGroups;
+            }
+        }
+        //
+        /// <summary>
+        /// true if there are right groups in the edit modal
+        /// </summary>
+        public bool hasRightGroups {
+            get {
+                setContentData();
+                return contentData_rightGroups.Count > 0;
+            }
+        }
+        //
+        /// <summary>
+        /// 
+        /// </summary>
+        public string recordGuid { get; }
+        //
+        /// <summary>
+        /// the guid of hte content for the record being edited
+        /// </summary>
+        public string contentGuid {
+            get {
+                return contentMetadata.guid;
+            }
+        }
+        //
+        /// <summary>
+        /// value that is unique for each editor instance. Use to prevent collisions when the same addon is used multiple times
+        /// </summary>
+        public string editModalSn {
+            get {
+                if (_editModalSn != null) { return _editModalSn; }
+                _editModalSn = GenericController.getRandomString(5);
+                return _editModalSn;
+            }
+        }
+        private string _editModalSn = null;
+        //
+        /// <summary>
+        /// for the add item layout, this is the name added to the "Add New {{addItemName}}"
+        /// It is the singular of the content name
+        /// </summary>
+        public string contentItemName {
+            get {
+                return GenericController.getSingular_Sortof(core, contentMetadata.name);
+            }
+        }
+        //
+        /// <summary>
+        /// allows the delete button.
+        /// </summary>
+        public bool allowDeleteWidget {
+            get {
+                setContentData();
+                return contentData_AllowDeleteWidget;
+            }
+        }
+        /// <summary>
+        /// if true, the delete data button appears. Clicking it deletes this data record
+        /// </summary>
+        public bool allowDeleteData {
+            get {
+                setContentData();
+                return contentData_allowDeleteData;
+            }
+        }
+        //
+        /// <summary>
+        /// if delete-widget, this is the page to be updated
+        /// </summary>
+        public int pageId {
+            get {
+                return core.doc.pageController.page.id;
+            }
+        }
+        //
+        /// <summary>
+        /// adds the paste link to add tab
+        /// </summary>
+        public bool isAllowPaste { get; }
+        //
+        /// <summary>
+        /// adds the cut link to edit tab
+        /// </summary>
+        public bool isAllowCut { get; }
+        //
+        //
+        // ====================================================================================================
+        // -- privates
+        // 
+        private string recordName { get; }
+        //
+        private string customCaption { get; }
+        //
+        string presetNameValuePairs { get; }
+        //
+        CoreController core { get; }
+        //
+        private ContentMetadataModel contentMetadata { get; }
+        //
+        // ====================================================================================================
+        //
+        public static bool isFieldInModal(CoreController core, ContentFieldMetadataModel field, ContentMetadataModel contentMetadata) {
+            return (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField_EditModal(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName));
+        }
+        //
+        // ====================================================================================================
+        //
+        private void setContentData() {
+            if(contentDataLoaded) { return; }
+            //
+            contentDataLoaded=true;
+            using (CPCSBaseClass currentRecordCs = core.cpParent.CSNew()) {
+                if (!string.IsNullOrWhiteSpace(recordGuid)) {
+                    currentRecordCs.OpenRecord(contentMetadata.name, recordGuid);
+                }
+                contentData_rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
+                if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID") == instanceId) {
+                    // -- is widget
+                    contentData_allowDeleteData = false;
+                    contentData_AllowDeleteWidget = true;
+                } else {
+                    // -- not widget
+                    contentData_allowDeleteData = true;
+                    contentData_AllowDeleteWidget = false;
+                }
+                contentData_leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, contentData_rightGroups);
+            }
+        }
+        private bool contentDataLoaded { get; set; } = false;
+        private string instanceId;
+        private List<EditModalViewModel_RightGroup> contentData_rightGroups;
+        private List<EditModalViewModel_Field> contentData_leftFields;
+        private bool contentData_AllowDeleteWidget;
+        private bool contentData_allowDeleteData;
+        //
+        // ====================================================================================================
+        //
         /// <summary>
         /// 
         /// </summary>
@@ -23,89 +225,21 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="recordName"></param>
         /// <param name="customCaption"></param>
         /// <param name="presetNameValuePairs">Comma separated list of field name=value to prepopulate fields. Add hiddens if these fields are not visible in the edit.</param>
-        public EditModalViewModel(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
-            using (CPCSBaseClass currentRecordCs = core.cpParent.CSNew()) {
-                includeEditTag = !recordId.Equals(0);
-                includeAddTag = !includeEditTag;
-                if (recordId > 0) { 
-                    currentRecordCs.OpenRecord(contentMetadata.name, recordId); 
-                }
-                editModalSn = GenericController.getRandomString(5);
-                dialogCaption = string.IsNullOrEmpty(customCaption) ? $"Edit {recordName}" : customCaption;
-                adminEditUrl = EditUIController.getEditUrl(core, contentMetadata.id, recordId);
-                isEditing = !core.session.isEditing();
-                this.recordId = recordId;
-                contentGuid = contentMetadata.guid;
-                contentItemName = GenericController.getSingular_Sortof(core, contentMetadata.name);
-                pageId = core.doc.pageController.page.id;
-                string instanceId = core.docProperties.getText("instanceId");
-                if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID") == instanceId) {
-                    // -- is widget
-                    rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
-                    hasRightGroups = rightGroups.Count() > 0;
-                    allowDeleteData = false;
-                    allowDeleteWidget = true;
-                } else {
-                    // -- not widget
-                    allowDeleteData = true;
-                    allowDeleteWidget = false;
-                    rightGroups = [];
-
-                }
-                leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, rightGroups);
-            }
-        }
-        /// <summary>
-        /// if true, the edit tag is included in the modal
-        /// </summary>
-        public bool includeEditTag { get; set; }
-        /// <summary>
-        /// if true, the add tag is included in the modal
-        /// </summary>
-        public bool includeAddTag { get; set; }
-        //
-        public string dialogCaption { get; }
-        //
-        public string adminEditUrl { get; }
-        //
-        public bool isEditing { get; }
-        //
-        public List<EditModalViewModel_Field> leftFields { get; }
-        //
-        public List<EditModalViewModel_RightGroup> rightGroups { get; }
-        //
-        public bool hasRightGroups { get; }
-        //
-        public int recordId { get; }
-        //
-        public string contentGuid { get; }
-        /// <summary>
-        /// value that is unique for each editor instance. Use to prevent collisions when the same addon is used multiple times
-        /// </summary>
-        public string editModalSn { get; }
-        /// <summary>
-        /// for the add item layout, this is the name added to the "Add New {{addItemName}}"
-        /// It is the singular of the content name
-        /// </summary>
-        public string contentItemName { get; }
-        /// <summary>
-        /// True if this addon is executed from the pagemanagers addonList.
-        /// Detect this if the instanceId is guid, and it matches the current records guid.
-        /// if true, the delete widget button appears. 
-        /// Clicking this button removes this widget from the pages addon list
-        /// </summary>
-        public bool allowDeleteWidget { get; }
-        /// <summary>
-        /// if true, the delete data button appears. Clicking it deletes this data record
-        /// </summary>
-        public bool allowDeleteData { get; }
-        /// <summary>
-        /// if delete-widget, this is the page to be updated
-        /// </summary>
-        public int pageId { get; }
-        //
-        public static bool isFieldInModal(CoreController core, ContentFieldMetadataModel field, ContentMetadataModel contentMetadata) {
-            return (string.IsNullOrEmpty(field.editTabName) && AdminDataModel.isVisibleUserField_EditModal(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName));
+        public EditModalViewModel(CoreController core, ContentMetadataModel contentMetadata, string recordGuid, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
+            //
+            // -- move this to arguments, it is view
+            this.instanceId = core.docProperties.getText("instanceId");
+            //
+            // -- store privates
+            this.core = core;
+            this.contentMetadata = contentMetadata;
+            this.recordGuid = recordGuid;
+            this.presetNameValuePairs = presetNameValuePairs;
+            this.recordName = recordName;
+            this.customCaption = customCaption;
+            this.isAllowCut = allowCut;
+            // todo
+            this.isAllowPaste = false;
         }
     }
 }

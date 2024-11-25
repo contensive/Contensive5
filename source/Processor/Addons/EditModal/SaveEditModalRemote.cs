@@ -46,7 +46,7 @@ namespace Contensive.Processor.Addons {
                 ContentMetadataModel contentMetaData = ContentMetadataModel.create(cp.core, content);
                 if (contentMetaData == null) { return getErrorResponse("The data could not be saved. The content requested is not valid."); }
                 //
-                int recordId = cp.Request.GetInteger("recordId");
+                string recordGuid = cp.Request.GetText("recordGuid");
                 //
                 switch (cp.Request.GetText("button")) {
                     case "deleteWidget": {
@@ -63,21 +63,13 @@ namespace Contensive.Processor.Addons {
                                 return result;
                             }
                             List<AddonListItemModel> addonList = cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
-                            if (addonList.Count==0) {
+                            if (addonList.Count == 0) {
                                 cp.Response.Redirect(cp.Request.Referer);
                                 return result;
                             }
-                            //
-                            // -- get addonList instanceGuid, which is the settings record ccguid
-                            DataTable dt = cp.Db.ExecuteQuery($"select ccguid from {contentMetaData.tableName} where id={recordId}");
-                            if(dt?.Rows is null || dt.Rows.Count == 0) {
-                                cp.Response.Redirect(cp.Request.Referer);
-                                return result;
-                            }
-                            string widgetSettingsRecordGuid = cp.Utils.EncodeText(dt.Rows[0][0]);
                             //
                             // -- remove the widget from the page's addonlist
-                            if (!AddonListItemModel.deleteInstance(cp, addonList, widgetSettingsRecordGuid)) {
+                            if (!AddonListItemModel.deleteInstance(cp, addonList, recordGuid)) {
                                 cp.Response.Redirect(cp.Request.Referer);
                                 return result;
                             }
@@ -89,7 +81,7 @@ namespace Contensive.Processor.Addons {
                     case "deleteData": {
                             //
                             // -- delete the record
-                            cp.Content.Delete(contentMetaData.name, $"id={recordId}");
+                            cp.Content.Delete(contentMetaData.name, $"id={recordGuid}");
                             cp.Response.Redirect(cp.Request.Referer);
                             return result;
                         }
@@ -98,7 +90,7 @@ namespace Contensive.Processor.Addons {
                             // -- save the record
                             logger.Debug($"save changes");
                             using (CPCSBaseClass cs = cp.CSNew()) {
-                                if (recordId == 0) {
+                                if (string.IsNullOrWhiteSpace(recordGuid)) {
                                     //
                                     // -- add record
                                     logger.Debug($"SaveEditModalRemote, add record");
@@ -106,8 +98,8 @@ namespace Contensive.Processor.Addons {
                                 } else {
                                     //
                                     // -- edit record
-                                    logger.Debug($"SaveEditModalRemote, edit recordId {recordId}");
-                                    if (!cs.OpenRecord(contentMetaData.name, recordId)) {
+                                    logger.Debug($"SaveEditModalRemote, edit recordGuid {recordGuid}");
+                                    if (!cs.OpenRecord(contentMetaData.name, recordGuid)) {
                                         return getErrorResponse("The data could not be saved. The record could not be found.");
                                     }
                                 }
@@ -139,6 +131,14 @@ namespace Contensive.Processor.Addons {
                                 cs.Save();
                                 //
                                 // -- call admin aftersave
+                                int recordId = 0;
+                                if(!string.IsNullOrEmpty(recordGuid)) {
+                                    using (DataTable dt = cp.Db.ExecuteQuery($"select id from {contentMetaData.tableName} where ccguid={DbController.encodeSQLText(recordGuid)}")) {
+                                        if (dt?.Rows != null && dt.Rows.Count > 0) {
+                                            recordId = cp.Utils.EncodeInteger(dt.Rows[0][0]);
+                                        }
+                                    }
+                                }
                                 ContentController.processAfterSave(cp.core, false, contentMetaData.name, recordId, recordName, parentId, false);
                             }
                             //

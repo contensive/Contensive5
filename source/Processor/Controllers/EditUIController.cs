@@ -124,7 +124,17 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// Get the edit tab (the little tab with the edit link)
+        /// It also returns the mechanism for the modal, but the modal itself is delivered by ajax from /getEditModal
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="contentMetadata"></param>
+        /// <param name="recordId"></param>
+        /// <param name="allowCut"></param>
+        /// <param name="recordName"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
         public static string getEditTab(CoreController core, ContentMetadataModel contentMetadata, int recordId, bool allowCut, string recordName, string customCaption) {
             try {
                 if (!core.session.isEditing()) { return string.Empty; }
@@ -143,10 +153,15 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- edit record plus edit modal (blue pencil)
+                // -- get layout and remove the modal. Modal is delivered ajax from /getEditModal
+                string editAddModalLayout = LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
+                editAddModalLayout = removeModalFromLayout(editAddModalLayout);
+                //
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
-                string editAddModalLayout = removeLayoutModelSection( LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename));
-                EditModalViewModel editModalViewData = new(core, contentMetadata, recordId, allowCut, recordName, caption, "");
+                string recordGuid = contentMetadata.getRecordGuid(core, recordId);
+                EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, "");
                 string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                //
                 string[] resultParts = result.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);
                 core.cpParent.Doc.AddBodyEnd(resultParts[1]);
                 return resultParts[0];
@@ -156,18 +171,72 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
+        /// <summary>
+        /// return the modal html from the layout to be called from ajax on the UI, created without the modal
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="contentMetadata"></param>
+        /// <param name="recordId"></param>
+        /// <param name="allowCut"></param>
+        /// <param name="recordName"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public static string getEditTab_Modal(CoreController core, ContentMetadataModel contentMetadata, string recordGuid, bool allowCut, string recordName, string customCaption) {
+            try {
+                if (!core.session.isEditing()) { return string.Empty; }
+                if (contentMetadata == null) { return ""; }
+                if (!core.siteProperties.allowEditModal) { return string.Empty; }
+                //
+                // -- edit record plus edit modal (blue pencil)
+                // -- get layout and remove the modal. Modal is delivered ajax from /getEditModal
+                string editAddModalLayout = LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
+                editAddModalLayout = getModalFromLayout(editAddModalLayout);
+                //
+                string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
+                EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, "");
+                string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                return result;
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                return string.Empty;
+            }
+        }
+        //
         //====================================================================================================
         /// <summary>
-        /// remove the layout model section from the source
+        /// remove the modal from the layout
+        /// The edit-add-modal layout contains three sections: edit tab, add tab and the modal.
+        /// the edit and add sections are mustache enabled.
+        /// The modal is removed from the layout with two markers, modal-content-start and modal-content-end
         /// </summary>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static string removeLayoutModelSection(string source) {
+        public static string removeModalFromLayout(string source) {
             int posStart = source.IndexOf("<!-- modal-content-start -->");
             if (posStart < 0) { return source; }
             int posEnd = source.IndexOf("<!-- modal-content-end -->");
             if (posEnd < 0) { return source; }
-            return source.Substring(0, posStart) + source.Substring(posEnd + 25);
+            string result = source.Substring(0, posStart) + source.Substring(posEnd + 26);
+            return result;
+
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// get the modal from the layout
+        /// The edit-add-modal layout contains three sections: edit tab, add tab and the modal.
+        /// the edit and add sections are mustache enabled.
+        /// The modal is removed from the layout with two markers, modal-content-start and modal-content-end
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static string getModalFromLayout(string source) {
+            int posStart = source.IndexOf("<!-- modal-content-start -->");
+            if (posStart < 0) { return source; }
+            int posEnd = source.IndexOf("<!-- modal-content-end -->");
+            if (posEnd < 0) { return source; }
+            string result = source.Substring(posStart, posEnd - posStart);
+            return result;
 
         }
         //
@@ -355,8 +424,8 @@ namespace Contensive.Processor.Controllers {
                 string customCaption = "";
                 string caption = getEditCaption(core, "Add", contentName, customCaption);
                 var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
-                EditModalViewModel dataSet = new(core, metadata, 0, false, "record name", caption, presetNameValueList);
-                string layout = removeLayoutModelSection(LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename));
+                EditModalViewModel dataSet = new(core, metadata, "", false, "record name", caption, presetNameValueList);
+                string layout = removeModalFromLayout(LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename));
                 string renderedLayout = MustacheController.renderStringToString(layout, dataSet);
                 string[] renderedParts = renderedLayout.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);
                 core.cpParent.Doc.AddBodyEnd(renderedParts[1]);

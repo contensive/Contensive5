@@ -274,7 +274,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        public override string GetPageLink(int pageID, string queryStringSuffix, bool allowLinkAlias) {
+        [Obsolete("use method wihtout allowLinkAlias",false)] public override string GetPageLink(int pageID, string queryStringSuffix, bool allowLinkAlias) {
             return PageManagerController.getPageLink(cp.core, pageID, queryStringSuffix, allowLinkAlias, false);
         }
         //
@@ -308,6 +308,31 @@ namespace Contensive.Processor {
             var meta = ContentMetadataModel.createByUniqueName(cp.core, contentName);
             if (meta == null) { return string.Empty; }
             return meta.getRecordName(cp.core, recordID);
+        }
+        //
+        /// <summary>
+        /// returns the matching record name if a match is found, otherwise blank. Does NOT validate the record.
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordID"></param>
+        /// <returns></returns>
+        public override string GetRecordName(string contentName, string recordGuid) {
+            var meta = ContentMetadataModel.createByUniqueName(cp.core, contentName);
+            if (meta == null) { return string.Empty; }
+            return meta.getRecordName(cp.core, recordGuid);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// returns the matching record name if a match is found, otherwise blank. Does NOT validate the record.
+        /// </summary>
+        /// <param name="contentName"></param>
+        /// <param name="recordID"></param>
+        /// <returns></returns>
+        public override string GetRecordGuid(string contentName, int recordID) {
+            var meta = ContentMetadataModel.createByUniqueName(cp.core, contentName);
+            if (meta == null) { return string.Empty; }
+            return meta.getRecordGuid(cp.core, recordID);
         }
         //
         //====================================================================================================

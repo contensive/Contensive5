@@ -966,7 +966,7 @@ namespace Contensive.Processor.Models.Domain {
                             { "scramble", DbController.encodeSQLBoolean(false) },
                             { "isbasefield", DbController.encodeSQLBoolean(fieldMetadata.isBaseField) },
                             { "lookuplist", DbController.encodeSQLText(fieldMetadata.lookupList) },
-                            { "lookupcontentsqlfilter", DbController.encodeSQLText(fieldMetadata.LookupContentSqlFilter) }                            
+                            { "lookupcontentsqlfilter", DbController.encodeSQLText(fieldMetadata.LookupContentSqlFilter) }
                         };
                 //
                 // -- editgroup, added 24.8.26.0
@@ -1635,16 +1635,46 @@ namespace Contensive.Processor.Models.Domain {
         //   
         //============================================================================================================
         /// <summary>
+        /// Return a record guid given the record id. If not record is found, blank is returned.
+        /// </summary>
+        public string getRecordGuid(CoreController core, int recordID) {
+            try {
+                using (DataTable dt = core.db.executeQuery($"select ccguid from {tableName} where id={recordID}")) {
+                    if (dt?.Rows != null && dt.Rows.Count > 0) { return dt.Rows[0][0].ToString(); }
+                    return string.Empty;
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //   
+        //============================================================================================================
+        /// <summary>
         /// Return a record name given the record id. If not record is found, blank is returned.
         /// </summary>
         public string getRecordName(CoreController core, int recordID) {
             try {
-                using (DataTable dt = core.db.executeQuery("select name from " + tableName + " where id=" + recordID)) {
-                    foreach (DataRow dr in dt.Rows) {
-                        return DbController.getDataRowFieldText(dr, "name");
-                    }
+                using (DataTable dt = core.db.executeQuery($"select name from {tableName} where id={recordID}")) {
+                    if (dt?.Rows != null && dt.Rows.Count > 0) { return dt.Rows[0][0].ToString(); }
+                    return string.Empty;
                 }
-                return string.Empty;
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
+        }
+        //   
+        //============================================================================================================
+        /// <summary>
+        /// Return a record name given the record guid. If not record is found, blank is returned.
+        /// </summary>
+        public string getRecordName(CoreController core, string guid) {
+            try {
+                using (DataTable dt = core.db.executeQuery($"select name from {tableName} where ccguid={DbController.encodeSQLText(guid)}")) {
+                    if (dt?.Rows != null && dt.Rows.Count > 0) { return dt.Rows[0][0].ToString(); }
+                    return string.Empty;
+                }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
