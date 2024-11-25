@@ -163,6 +163,8 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public bool isAllowCut { get; }
         //
+        public string presetNameValuePairs { get; }
+        //
         //
         // ====================================================================================================
         // -- privates
@@ -170,8 +172,6 @@ namespace Contensive.Processor.Models.Domain {
         private string recordName { get; }
         //
         private string customCaption { get; }
-        //
-        string presetNameValuePairs { get; }
         //
         CoreController core { get; }
         //
@@ -194,14 +194,23 @@ namespace Contensive.Processor.Models.Domain {
                     currentRecordCs.OpenRecord(contentMetadata.name, recordGuid);
                 }
                 contentData_rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
-                if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID") == instanceId) {
-                    // -- is widget
+                if(!currentRecordCs.OK()) {
+                    //
+                    // -- add new record
                     contentData_allowDeleteData = false;
-                    contentData_AllowDeleteWidget = true;
-                } else {
-                    // -- not widget
-                    contentData_allowDeleteData = true;
                     contentData_AllowDeleteWidget = false;
+                } else {
+                    //
+                    // -- edit record
+                    if (!string.IsNullOrEmpty(instanceId) && currentRecordCs.OK() && currentRecordCs.GetText("CCGUID") == instanceId) {
+                        // -- is widget
+                        contentData_allowDeleteData = false;
+                        contentData_AllowDeleteWidget = true;
+                    } else {
+                        // -- not widget
+                        contentData_allowDeleteData = true;
+                        contentData_AllowDeleteWidget = false;
+                    }
                 }
                 contentData_leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, contentData_rightGroups);
             }

@@ -26,12 +26,18 @@ namespace Contensive.Processor.Addons {
                 if (string.IsNullOrEmpty(requestJson)) { return AjaxResponse.getResponseArgumentInvalid(cp, $"Empty request"); };
                 GetEditModalRequest request = Newtonsoft.Json.JsonConvert.DeserializeObject<GetEditModalRequest>(requestJson);
                 //
-                string customCaption = "";
                 ContentMetadataModel contentMetadata = ContentMetadataModel.create(core, request.contentGuid);
-                string recordName = cp.Content.GetRecordName(contentMetadata.name, request.recordGuid);
                 //
-                string modalHtml = EditUIController.getEditTab_Modal(core, contentMetadata, request.recordGuid, false, recordName, customCaption);
-                return AjaxResponse.getResponse(cp, new GetEditModalResponse { modalHtml = modalHtml });
+                if (string.IsNullOrEmpty(request.recordGuid)) {
+                    //
+                    // -- add new record
+                    return AjaxResponse.getResponse(cp, new GetEditModalResponse { modalHtml = EditUIController.getAddTab_Modal(core, contentMetadata, false, $"Add {contentMetadata.name}", request.presetNameValuePairs) });
+                }
+                //
+                // -- edit record
+                string recordName = cp.Content.GetRecordName(contentMetadata.name, request.recordGuid);
+                return AjaxResponse.getResponse(cp, new GetEditModalResponse { modalHtml = EditUIController.getEditTab_Modal(core, contentMetadata, request.recordGuid, false, recordName, $"Edit {contentMetadata.name}") });
+                //
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
@@ -48,6 +54,7 @@ namespace Contensive.Processor.Addons {
             /// </summary>
             public string contentGuid { get; set; }
             public string recordGuid { get; set; }
+            public string presetNameValuePairs { get; set; }
         }
         //
         // ====================================================================================================

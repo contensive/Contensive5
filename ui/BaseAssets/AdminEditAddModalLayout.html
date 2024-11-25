@@ -128,7 +128,7 @@
             </script>
         {{/includeEditTag}}
         <!--
-            Edit Add Tag Section
+            Add Tag Section
         -->
         {{#includeAddTag}}
             <style>
@@ -157,10 +157,32 @@
                     margin-bottom: 0px;
                 }
             </style>
-            <div class="addNewItemTag" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editModalSn}}">
+            <div id="widgetEditTab{{editModalSn}}" class="addNewItemTag" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editModalSn}}">
                 <img src="BaseAssets/circle-plus.svg" alt="add item icon" class="icon">
                 <h6>Add New {{contentItemName}}</h6>
             </div>
+            <input type="hidden" id="widgetEditModalContentGuid{{editModalSn}}" value="{{contentGuid}}">
+            <input type="hidden" id="widgetEditModalpresetNameValuePairs{{editModalSn}}" value="{{presetNameValuePairs}}">
+            <script>
+                document.addEventListener("DOMContentLoaded", function(event) { 
+                    $('body').on('click','#widgetEditTab{{editModalSn}}',function(){
+                        var sendData = {
+                            contentGuid: $('#widgetEditModalContentGuid{{editModalSn}}').val(),
+                            presetNameValuePairs: $('#widgetEditModalpresetNameValuePairs{{editModalSn}}').val()
+                        };
+                        console.log('Add Tag clicked, loading modal, sendData: ', sendData);
+                        $.ajax({
+                            type: "POST",
+                            dataType: "json",
+                            url: "/getEditModal",
+                            data: JSON.stringify(sendData),
+                            success: function(response){
+                                $('#widgetEditModalDialog{{editModalSn}}').html(response.data.modalHtml);
+                            }
+                        });
+                    })
+                });
+            </script>
         {{/includeAddTag}}
         <!--
             Edit Modal Section

@@ -202,6 +202,37 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
+        /// <summary>
+        /// return the modal html from the layout to be called from ajax on the UI, created without the modal
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="contentMetadata"></param>
+        /// <param name="recordId"></param>
+        /// <param name="allowPaste"></param>
+        /// <param name="recordName"></param>
+        /// <param name="customCaption"></param>
+        /// <returns></returns>
+        public static string getAddTab_Modal(CoreController core, ContentMetadataModel contentMetadata, bool allowPaste,  string customCaption, string presetNameValuePairs) {
+            try {
+                if (!core.session.isEditing()) { return string.Empty; }
+                if (contentMetadata == null) { return ""; }
+                if (!core.siteProperties.allowEditModal) { return string.Empty; }
+                //
+                // -- edit record plus edit modal (blue pencil)
+                // -- get layout and remove the modal. Modal is delivered ajax from /getEditModal
+                string editAddModalLayout = LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
+                editAddModalLayout = getModalFromLayout(editAddModalLayout);
+                //
+                string caption = getEditCaption(core, "Add", contentMetadata.name, customCaption);
+                EditModalViewModel editModalViewData = new(core, contentMetadata, "", allowPaste, "", caption, presetNameValuePairs);
+                string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                return result;
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                return string.Empty;
+            }
+        }
+        //
         //====================================================================================================
         /// <summary>
         /// remove the modal from the layout
