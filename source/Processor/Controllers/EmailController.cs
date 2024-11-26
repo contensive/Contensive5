@@ -281,7 +281,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // Test for from-address / to-address matches
                 if (GenericController.toLCase(fromAddress) == GenericController.toLCase(toAddress)) {
-                    fromAddress = core.siteProperties.getText("EmailFromAddress", "");
+                    fromAddress = core.siteProperties.getText("EmailFromAddress", core.cpParent.ServerConfig.defaultEmailContact);
                     if (string.IsNullOrEmpty(fromAddress)) {
                         //
                         //

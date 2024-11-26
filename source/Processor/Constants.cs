@@ -73,6 +73,8 @@ namespace Contensive.Processor {
         /// default iis script document
         /// </summary>
         public const string sitePropertyName_ServerPageDefault = "serverPageDefault";
+        public const string sitePropertyName_EmailAdmin = "EmailAdmin";
+        public const string sitePropertyName_EmailFromAddress = "EmailFromAddress";
         //
         /// <summary>
         /// default iis script document

@@ -330,6 +330,9 @@ namespace Contensive.CLI {
                     cp.core.serverConfig.save(cp.core);
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_ServerPageDefault, iisDefaultDoc);
                     //
+                    cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailAdmin, cp.ServerConfig.defaultEmailContact);
+                    cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailFromAddress, cp.ServerConfig.defaultEmailContact);
+                    //
                     logger.Info($"{cp.core.logCommonMessage},Upgrade complete.");
                     if (DefaultAspxSiteInstalled) {
                         logger.Info($"{cp.core.logCommonMessage},A default website was imported into an iis website with this applicaiton name.");

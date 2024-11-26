@@ -29,7 +29,7 @@ namespace Contensive.Processor {
         //
         public override string fromAddressDefault {
             get {
-                return cp.core.siteProperties.getText("EMAILFROMADDRESS");
+                return cp.core.siteProperties.getText("EMAILFROMADDRESS", cp.ServerConfig.defaultEmailContact);
             }
         }
         //

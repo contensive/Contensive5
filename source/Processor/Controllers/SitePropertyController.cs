@@ -390,7 +390,7 @@ namespace Contensive.Processor.Controllers {
         public string emailFromAddress {
             get {
                 if (_emailFromAddress == null) {
-                    _emailFromAddress = getText("emailFromAddress");
+                    _emailFromAddress = getText("emailFromAddress", core.cpParent.ServerConfig.defaultEmailContact);
                 }
                 return Convert.ToString(_emailFromAddress);
             }

@@ -195,6 +195,11 @@ namespace Contensive.Processor.Models.Domain {
         public override DataSourceTypeEnum defaultDataSourceType { get; set; }
         //
         /// <summary>
+        /// email contact for server issues, used as the default email for app contacts
+        /// </summary>
+        public override string defaultEmailContact { get; set; }
+        //
+        /// <summary>
         /// List of all apps on this server
         /// </summary>
         public Dictionary<string, AppConfigModel> apps { get; set; }

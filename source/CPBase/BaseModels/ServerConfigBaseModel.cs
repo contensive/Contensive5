@@ -127,6 +127,11 @@ namespace Contensive.BaseModels {
             sqlServer = 2
         }
         public abstract bool useSecretManager { get; set; }
+        /// <summary>
+        /// email address for the server contact. Also used as the default from email address for the server.
+        /// </summary>
+        public abstract string defaultEmailContact { get; set; }
+
     }
 }
 

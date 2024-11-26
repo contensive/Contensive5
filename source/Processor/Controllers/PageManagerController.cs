@@ -866,7 +866,7 @@ namespace Contensive.Processor.Controllers {
                                         string queryStringForLinkAppend = "";
                                         string emailStatus = "";
                                         int personalizeAddonId = 0;
-                                        EmailController.trySendPersonEmail(core, person, core.siteProperties.getText("EmailFromAddress", "info@" + core.webServer.requestDomain), "Page Hit Notification", emailBody.ToString(), "", "", false, true, 0, "", false, ref emailStatus, queryStringForLinkAppend, "Page Hit Notification, page [" + core.doc.pageController.page.id + "]", personalizeAddonId);
+                                        EmailController.trySendPersonEmail(core, person, core.siteProperties.getText("EmailFromAddress", core.cpParent.ServerConfig.defaultEmailContact), "Page Hit Notification", emailBody.ToString(), "", "", false, true, 0, "", false, ref emailStatus, queryStringForLinkAppend, "Page Hit Notification, page [" + core.doc.pageController.page.id + "]", personalizeAddonId);
                                     }
                                 }
                             }

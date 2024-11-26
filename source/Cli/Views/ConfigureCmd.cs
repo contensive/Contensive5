@@ -48,6 +48,15 @@ namespace Contensive.CLI {
                     } while (string.IsNullOrEmpty(defaultValue));
                 }
                 //
+                // -- default email contact
+                {
+                    Console.WriteLine("\n\nContact Email Address");
+                    Console.WriteLine("Enter an email address for server notifications. This email address is also used as the default from-address.");
+                    String prompt = "Contact Email Address";
+                    String defaultValue = string.IsNullOrEmpty(core.serverConfig.defaultEmailContact) ? "support@contensive.com" : core.serverConfig.defaultEmailContact;
+                    core.serverConfig.defaultEmailContact = GenericController.promptForReply(prompt, defaultValue);
+                }
+                //
                 // -- production server?
                 {
                     Console.WriteLine("\n\nProduction Server");

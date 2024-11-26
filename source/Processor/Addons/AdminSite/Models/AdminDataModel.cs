@@ -352,36 +352,26 @@ namespace Contensive.Processor.Addons.AdminSite {
                     loaded = false
                 };
                 if (userAllowContentEdit && !adminContent.id.Equals(0)) {
-                    int requestedRecordId = request.id;
-                    if (!requestedRecordId.Equals(0)) {
-                        using var csData = new CsModel(core); csData.openRecord(adminContent.name, requestedRecordId, "id,contentControlId");
-                        if (csData.ok()) {
-                            editRecord.id = csData.getInteger("id");
-                            //
-                            // -- if this record is within a sub-content, reload adminContent
-                            int recordContentId = csData.getInteger("contentControlId");
-                            if ((recordContentId > 0) && (recordContentId != adminContent.id)) {
-                                // -- protect from use-case where cdef is deleted after records created. Record's cdef is invalid
-                                var testContent = ContentMetadataModel.create(core, recordContentId);
-                                if (testContent != null) { adminContent = testContent; }
-                            }
-                        }
-                        csData.close();
+                    string criteria = "";
+                    if (request.id != 0) {
+                        criteria = $"id={request.id}";
+                    } else if (!string.IsNullOrEmpty(request.guid)) {
+                        criteria = $"ccguid={DbController.encodeSQLText(request.guid)}";
                     }
-                    if (editRecord.id.Equals(0)) {
-                        string requestedGuid = request.guid;
-                        if (!string.IsNullOrWhiteSpace(requestedGuid) && isGuid(requestedGuid)) {
-                            using var csData = new CsModel(core); csData.open(adminContent.name, "(ccguid=" + DbController.encodeSQLText(requestedGuid) + ")", "id", false, core.session.user.id, "id,contentControlId");
-                            if (csData.ok()) {
-                                editRecord.id = csData.getInteger("id");
+                    if (!string.IsNullOrEmpty(criteria)) {
+                        using (DataTable dt = core.db.executeQuery("select top 1 id,contentControlId from " + adminContent.tableName + " where " + criteria)) {
+                            if (dt?.Rows != null && dt.Rows.Count > 0) {
+                                editRecord.id = encodeInteger(dt.Rows[0]["id"]);
                                 //
                                 // -- if this record is within a sub-content, reload adminContent
-                                int recordContentId = csData.getInteger("contentControlId");
+                                int recordContentId = encodeInteger(dt.Rows[0]["contentControlId"]);
                                 if ((recordContentId > 0) && (recordContentId != adminContent.id)) {
-                                    adminContent = ContentMetadataModel.create(core, recordContentId);
+                                    // -- protect from use-case where cdef is deleted after records created. Record's cdef is invalid
+                                    var testContent = ContentMetadataModel.create(core, recordContentId);
+                                    if (testContent != null) { adminContent = testContent; }
                                 }
+
                             }
-                            csData.close();
                         }
                     }
                 }
