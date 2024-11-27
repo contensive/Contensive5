@@ -177,25 +177,25 @@ namespace Contensive.Processor.Controllers {
                     // -- PersonModel
                     if (!isDelete) {
                         LogController.addActivityCompletedEdit(core, "Edit", core.session.user.name + " saved changes to user #" + recordId + " (" + recordName + ")", recordId);
-                        bool allowPlainTextPassword = core.siteProperties.getBoolean(Constants.sitePropertyName_AllowPlainTextPassword, true);
+                        bool allowPlainTextPassword = core.siteProperties .getBoolean(Constants.sitePropertyName_AllowPlainTextPassword, true);
                         if (!allowPlainTextPassword) {
                             //
                             // -- handle auto password hash
-                            if (core.siteProperties.clearAdminPasswordOnHash) {
-                                PersonModel user = DbBaseModel.create<PersonModel>(core.cpParent, recordId);
-                                if (user is null) {
-                                    // -- user not valid
-                                    ErrorController.addUserError(core, "Could not set password. Error accessing user record.");
-                                } else if (!string.IsNullOrEmpty(user.password)) {
-                                    // -- password field set, hash and save to passwordHash, used passwords
-                                    string userErrorMessage = "";
-                                    if (!AuthController.tryIsValidPassword(core, user, user.password, ref userErrorMessage)) {
-                                        ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
-                                    } else if (!AuthController.trySetPassword(core.cpParent, user.password, user, ref userErrorMessage)) {
-                                        ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
-                                    }
-                                    user.password = "";
-                                    user.save(core.cpParent);
+                            PersonModel user = DbBaseModel.create<PersonModel>(core.cpParent, recordId);
+                            if (user is null) {
+                                // -- user not valid
+                                ErrorController.addUserError(core, "Could not set password. Error accessing user record.");
+                            } else if (string.IsNullOrEmpty(user.password)) {
+                                user.passwordHash = "";
+                                user.passwordModifiedDate = core.dateTimeNowMockable;
+                                user.save(core.cpParent);
+                            } else {
+                                // -- password field set, hash and save to passwordHash, used passwords
+                                string userErrorMessage = "";
+                                if (!AuthController.tryIsValidPassword(core, user, user.password, ref userErrorMessage)) {
+                                    ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
+                                } else if (!AuthController.trySetPassword(core.cpParent, user.password, user, ref userErrorMessage)) {
+                                    ErrorController.addUserError(core, $"Could not set password. {userErrorMessage}");
                                 }
                             }
                         }

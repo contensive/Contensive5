@@ -929,26 +929,40 @@
                         </div>
                     </div>
                 </form>
-<!-- modal-content-end -->
+                <script>
+                    console.log('widgetEditModal{{editModalSn}} tooltip setup');
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl)
+                    })
+                    document.addEventListener("DOMContentLoaded", function(event) { 
+                        console.log('widgetEditModal{{editModalSn}} tooltip setup');
+                        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                            return new bootstrap.Tooltip(tooltipTriggerEl)
+                        })
+                    });
+                </script>
+        <!-- modal-content-end -->
             </div>
         </div>
         <script>
-            console.log('widgetEditModal{{editModalSn}} script');
             document.addEventListener("DOMContentLoaded", function(event) { 
                 console.log('widgetEditModal{{editModalSn}} binding');
                 $('body').on('click','#cancelBtn{{editModalSn}}',function(){
                     console.log('form reset, close modal');
                     document.getElementById("modalForm{{editModalSn}}").reset();
                 })
-                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                    return new bootstrap.Tooltip(tooltipTriggerEl)
-                })
+                //console.log('widgetEditModal{{editModalSn}} tooltip setup');
+                //var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                //var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                //    return new bootstrap.Tooltip(tooltipTriggerEl)
+                //})
                 // -- bind show event to fetch  ajax modal content
-                const modalDiv = document.getElementById('widgetEditModal{{editModalSn}}')
-                modalDiv.addEventListener('show.bs.modal', event => {
-                    console.log('widgetEditModal{{editModalSn}} show event');
-                },  {passive: true}  );         
+                //const modalDiv = document.getElementById('widgetEditModal{{editModalSn}}')
+                //modalDiv.addEventListener('show.bs.modal', event => {
+                //    console.log('widgetEditModal{{editModalSn}} show event');
+                //},  {passive: true}  );         
             });
         </script>
 <!-- modal-end -->

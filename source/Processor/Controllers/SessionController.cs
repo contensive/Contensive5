@@ -437,7 +437,7 @@ namespace Contensive.Processor.Controllers {
             user.autoLogin = false;
             user.admin = false;
             user.developer = false;
-            user.allowBulkEmail = false;
+            user.allowBulkEmail = true;
             if (!exitWithoutSave) { user.save(core.cpParent); }
             return user;
         }

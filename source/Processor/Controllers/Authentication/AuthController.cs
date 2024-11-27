@@ -603,7 +603,7 @@ namespace Contensive.Processor.Controllers {
                 // -- set hash password
                 PasswordHashInfoModel passwordHashInfo = createPasswordHash_current(cp.core, plainTextPassword, userGuid);
                 user.passwordHash = passwordHashInfo.text;
-                user.password = null;
+                user.password = cp.core.siteProperties.clearAdminPasswordOnHash ? null : plainTextPassword;
                 user.modifiedDate = DateTime.Now;
                 user.modifiedBy = user.id;
                 user.passwordModifiedDate = DateTime.Now;

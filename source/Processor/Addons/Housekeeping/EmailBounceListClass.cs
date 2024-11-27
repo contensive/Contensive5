@@ -48,15 +48,13 @@ namespace Contensive.Processor.Addons.Housekeeping {
                     }
                 }
                 //
-                // -- restore allow-group-email for expiring transients
+                // -- restore allow-group-email for expiring transients, and remove the transients
                 env.core.db.executeNonQuery("update ccmembers set AllowBulkEmail=1 from ccmembers m left join EmailBounceList b on b.email=m.email where b.transient>0 and b.transientfixdeadline<GETDATE()");
+                env.core.db.executeNonQuery("delete from EmailBounceList  where transient>0 and transientfixdeadline<GETDATE()");
                 //
-                // -- remove expired transients and set allowGroupEmail
-                env.core.db.executeNonQuery("delete from EmailBounceList b b.transient>0 and b.transientfixdeadline<GETDATE()");
-                //
-                // -- null out email fields without "@" and "." -- so we can use it in a join
+                // -- clear people allow-buld-email for non-transient bounces
                 env.core.cpParent.Db.ExecuteNonQuery("update ccmembers set email=null where email is not null and not ((email like '%@%')and(email like '%.%'))");
-                env.core.cpParent.Db.ExecuteNonQuery("update ccmembers set allowbulkemail=0 from ccmembers m left join emailbouncelist b on b.name LIKE CONCAT('%', m.[email], '%') where b.id is not null and m.email is not null");
+                env.core.cpParent.Db.ExecuteNonQuery("update ccmembers set allowbulkemail=0 from ccmembers m left join emailbouncelist b on b.name=m.[email] where b.id is not null and m.email is not null and b.transient=0");
                 //
             } catch (Exception ex) {
                 logger.Error(ex, $"{env.core.logCommonMessage}");
