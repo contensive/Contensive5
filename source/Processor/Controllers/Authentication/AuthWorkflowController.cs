@@ -95,8 +95,12 @@ namespace Contensive.Processor.Controllers {
                 if (processFormType == FormTypePasswordRecovery) {
                     //
                     // -- process send password
-                    string requestEmail = core.cpParent.Doc.GetText("email");
-                    if(PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, requestEmail, ref userErrorMessage)) {
+                    string requestEmail = core.cpParent.Doc.GetText("email").Trim();
+                    if (string.IsNullOrWhiteSpace(requestEmail)) {
+                        userErrorMessage = "Email is required.";
+                    } else if (!EmailController.verifyEmailAddress(core, requestEmail)) {
+                        userErrorMessage = "Email is not valid.";
+                    } else if (PasswordRecoveryWorkflowController.processPasswordRecoveryForm(core, requestEmail, ref userErrorMessage)) {
                         //
                         // -- display the password recovery instructions page. Access to set-password can only happen from the email
                         return core.cpParent.Mustache.Render(Properties.Resources.Layout_PasswordResetSent, new { email = requestEmail, action = core.cpParent.Request.QueryString });

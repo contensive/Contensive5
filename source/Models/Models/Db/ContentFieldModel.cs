@@ -103,6 +103,10 @@ namespace Contensive.Models.Db {
         public bool rssTitleField { get; set; }
         public bool scramble { get; set; }
         public bool textBuffered { get; set; }
+        /// <summary>
+        ///         Integer = 1,Text = 2,LongText = 3,Boolean = 4,Date = 5,File = 6,Lookup = 7,Redirect = 8, Currency = 9, FileText = 10,FileImage = 11, Float = 12,AutoIdIncrement = 13, ManyToMany = 14,
+        ///         MemberSelect = 15,FileCSS = 16, FileXML = 17,FileJavaScript = 18,Link = 19,ResourceLink = 20,HTML = 21,FileHTML = 22,HTMLCode = 23, FileHTMLCode = 24
+        /// </summary>
         public int type { get; set; }
         public bool uniqueName { get; set; }
         public bool isBaseField { get; set; }

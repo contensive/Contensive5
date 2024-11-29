@@ -460,12 +460,13 @@ namespace Contensive.Processor.Addons.AdminSite {
         public List<NavItem> navDomainList {
             get {
                 if (navDomainList_Local != null) { return navDomainList_Local; }
-                if (cp.User.Id == 0) { return new List<NavItem>(); }
-                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavItem>(); }
+                navDomainList_Local = [];
                 //
-                navDomainList_Local = new List<NavItem>();
-                foreach (DomainModel domain in DbBaseModel.createList<DomainModel>(cp, "(name<>'*')")) {
-                    string navItemHref = (domain.name.Contains("://") ? domain.name : (cp.Request.Secure ? "https://" : "http://") + domain.name);
+                if (cp.User.Id == 0) { return []; }
+                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return []; }
+                //
+                foreach (string domainName in DomainModel.getPublicDomains(cp )) {
+                    string navItemHref = domainName.Contains("://") ? domainName : (cp.Request.Secure ? "https://" : "http://") + domainName;
                     navDomainList_Local.Add(new NavItem {
                         navDivider = false,
                         navItemHref = navItemHref,

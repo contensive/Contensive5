@@ -172,7 +172,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="email"></param>
         /// <param name="returnUserWarning"></param>
         /// <returns></returns>
-        public static bool tryVerifyEmail(CoreController core, EmailSendRequest email, ref string returnUserWarning) {
+        public static bool tryIsValidEmail(CoreController core, EmailSendRequest email, ref string returnUserWarning) {
             try {
                 if (!verifyEmailAddress(core, email.toAddress)) {
                     //
@@ -417,7 +417,7 @@ namespace Contensive.Processor.Controllers {
                     emailContextMessage = emailContextMessage,
                     emailDropId = 0
                 };
-                if (!tryVerifyEmail(core, sendRequest, ref userErrorMessage)) {
+                if (!tryIsValidEmail(core, sendRequest, ref userErrorMessage)) {
                     //
                     // -- error sending
                     return false;

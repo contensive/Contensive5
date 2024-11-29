@@ -39,7 +39,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int rootPageId { get; set; }
         /// <summary>
-        /// determines the type of response
+        /// determines the type of response. 0/1=normal, 2=forward to url, 3=forward to replacement domain
         /// </summary>
         public int typeId { get; set; }
         /// <summary>
@@ -79,6 +79,23 @@ namespace Contensive.Models.Db {
             domain.defaultRouteId = cp.Site.GetInteger("DEFAULT ROUTE ADDONID");
             domain.save(cp);
             return domain;
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// get a list of domains that a user can click on
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public static List<string> getPublicDomains(CPBaseClass cp) {
+            List<string> result = [];
+            using (DataTable dt = cp.Db.ExecuteQuery("select name from ccdomains where (name<>'*')and((typeId is null)or(typeId<=1))")) {
+                if(dt?.Rows == null || dt.Rows.Count == 0) { return result; }
+                foreach (DataRow row in dt.Rows) {
+                    result.Add(row[0].ToString());
+                }
+            }
+            return result;
         }
         //
         public enum DomainTypeEnum {

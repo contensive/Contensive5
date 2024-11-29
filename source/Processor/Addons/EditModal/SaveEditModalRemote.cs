@@ -111,7 +111,7 @@ namespace Contensive.Processor.Addons {
                                     if (field.nameLc == "name") { recordName = cs.GetText("name"); }
                                     if (field.nameLc == "parentid") { parentId = cs.GetInteger("parentid"); }
                                     string requestFieldName = $"field{field.id}";
-                                    if (EditModalViewModel.isFieldInModal(cp.core, field, contentMetaData) || cp.Doc.IsProperty(requestFieldName)) {
+                                    if (EditModalViewModel.isFieldInModal(cp.core, field, contentMetaData)) {
                                         //
                                         // -- clear field before save
                                         if (cp.Request.GetBoolean($"field{field.id}delete")) {
