@@ -115,7 +115,7 @@
       <Version>20.8.25.4</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.3</Version>
+      <Version>13.0.1</Version>
     </PackageReference>
     <PackageReference Include="Nustache">
       <Version>1.16.0.10</Version>
