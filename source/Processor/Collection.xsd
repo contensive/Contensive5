@@ -13,101 +13,101 @@
 											<xs:choice minOccurs="0" maxOccurs="unbounded">
 												<xs:element ref="HelpDefault" />
 											</xs:choice>
-											<xs:attribute name="Active" type="xs:boolean" use="required" />
-											<xs:attribute name="AdminOnly" type="xs:boolean" />
-											<xs:attribute name="Authorable" type="xs:boolean" />
-											<xs:attribute name="Caption" type="xs:string" />
-											<xs:attribute name="DefaultValue" type="xs:string" />
-											<xs:attribute name="DeveloperOnly" type="xs:boolean" />
-											<xs:attribute name="EditSortPriority" type="xs:integer" />
-											<xs:attribute name="EditorAddonId" type="xs:string" />
-											<xs:attribute name="EditTab" type="xs:string" />
-											<xs:attribute name="EditGroup" type="xs:string" />
-											<xs:attribute name="FieldType">
+											<xs:attribute name="active" type="xs:boolean" use="required" />
+											<xs:attribute name="adminOnly" type="xs:boolean" />
+											<xs:attribute name="authorable" type="xs:boolean" />
+											<xs:attribute name="caption" type="xs:string" />
+											<xs:attribute name="defaultValue" type="xs:string" />
+											<xs:attribute name="developerOnly" type="xs:boolean" />
+											<xs:attribute name="editSortPriority" type="xs:integer" />
+											<xs:attribute name="editorAddonId" type="xs:string" />
+											<xs:attribute name="editTab" type="xs:string" />
+											<xs:attribute name="editGroup" type="xs:string" />
+											<xs:attribute name="fieldType">
 												<xs:simpleType>
 													<xs:restriction base="xs:NMTOKEN">
-														<xs:enumeration value="Boolean" />
-														<xs:enumeration value="CSSFile" />
-														<xs:enumeration value="Currency" />
-														<xs:enumeration value="Date" />
-														<xs:enumeration value="File" />
-														<xs:enumeration value="Float" />
-														<xs:enumeration value="HTML" />
-														<xs:enumeration value="HTMLCode" />
-														<xs:enumeration value="HTMLCodeFile" />
-														<xs:enumeration value="HTMLFile" />
-														<xs:enumeration value="Image" />
-														<xs:enumeration value="Integer" />
-														<xs:enumeration value="JavaScriptFile" />
-														<xs:enumeration value="Link" />
-														<xs:enumeration value="LongText" />
-														<xs:enumeration value="Lookup" />
-														<xs:enumeration value="LookupList" />
-														<xs:enumeration value="ManyToMany" />
-														<xs:enumeration value="MemberSelect" />
-														<xs:enumeration value="Redirect" />
-														<xs:enumeration value="ResourceLink" />
-														<xs:enumeration value="Text" />
-														<xs:enumeration value="TextFile" />
-														<xs:enumeration value="XMLFile" />
+														<xs:enumeration value="boolean" />
+														<xs:enumeration value="cssFile" />
+														<xs:enumeration value="currency" />
+														<xs:enumeration value="date" />
+														<xs:enumeration value="file" />
+														<xs:enumeration value="float" />
+														<xs:enumeration value="html" />
+														<xs:enumeration value="htmlCode" />
+														<xs:enumeration value="htmlCodeFile" />
+														<xs:enumeration value="htmlFile" />
+														<xs:enumeration value="image" />
+														<xs:enumeration value="integer" />
+														<xs:enumeration value="javaScriptFile" />
+														<xs:enumeration value="link" />
+														<xs:enumeration value="longText" />
+														<xs:enumeration value="lookup" />
+														<xs:enumeration value="lookupList" />
+														<xs:enumeration value="manyToMany" />
+														<xs:enumeration value="memberSelect" />
+														<xs:enumeration value="redirect" />
+														<xs:enumeration value="resourceLink" />
+														<xs:enumeration value="text" />
+														<xs:enumeration value="textFile" />
+														<xs:enumeration value="xmlFile" />
 													</xs:restriction>
 												</xs:simpleType>
 											</xs:attribute>
-											<xs:attribute name="HTMLContent" type="xs:boolean" />
-											<xs:attribute name="IndexColumn" type="xs:string" />
-											<xs:attribute name="IndexSortDirection" type="xs:string" />
-											<xs:attribute name="IndexSortOrder" type="xs:string" />
-											<xs:attribute name="IndexWidth" type="xs:string" />
-											<xs:attribute name="IsBaseField" type="xs:boolean" />
-											<xs:attribute name="LookupContent" type="xs:string" />
-											<xs:attribute name="LookupList" type="xs:string" />
-											<xs:attribute name="ManyToManyContent" type="xs:string" />
-											<xs:attribute name="ManyToManyRuleContent" type="xs:string" />
-											<xs:attribute name="ManyToManyRulePrimaryField" type="xs:string" />
-											<xs:attribute name="ManyToManyRuleSecondaryField" type="xs:string" use="required" />
-											<xs:attribute name="MemberSelectGroup" type="xs:string" />
-											<xs:attribute name="MemberSelectGroupId" type="xs:string" />
-											<xs:attribute name="Name" type="xs:string" />
-											<xs:attribute name="NotEditable" type="xs:boolean" />
-											<xs:attribute name="Password" type="xs:boolean" />
-											<xs:attribute name="ReadOnly" type="xs:boolean" />
-											<xs:attribute name="RedirectContent" type="xs:string" />
-											<xs:attribute name="RedirectPath" type="xs:string" />
-											<xs:attribute name="Required" type="xs:boolean" />
-											<xs:attribute name="RedirectId" type="xs:string" />
-											<xs:attribute name="RSSTitleField" type="xs:boolean" />
-											<xs:attribute name="RSSDescriptionField" type="xs:boolean" />
-											<xs:attribute name="RSSTitle" type="xs:string" />
-											<xs:attribute name="RSSDescription" type="xs:string" />
-											<xs:attribute name="Scramble" type="xs:boolean" />
-											<xs:attribute name="TextBuffered" type="xs:boolean" />
-											<xs:attribute name="UniqueName" type="xs:boolean" />
+											<xs:attribute name="htmlContent" type="xs:boolean" />
+											<xs:attribute name="indexColumn" type="xs:string" />
+											<xs:attribute name="indexSortDirection" type="xs:string" />
+											<xs:attribute name="indexSortOrder" type="xs:string" />
+											<xs:attribute name="indexWidth" type="xs:string" />
+											<xs:attribute name="isBaseField" type="xs:boolean" />
+											<xs:attribute name="lookupContent" type="xs:string" />
+											<xs:attribute name="lookupList" type="xs:string" />
+											<xs:attribute name="manyToManyContent" type="xs:string" />
+											<xs:attribute name="manyToManyRuleContent" type="xs:string" />
+											<xs:attribute name="manyToManyRulePrimaryField" type="xs:string" />
+											<xs:attribute name="manyToManyRuleSecondaryField" type="xs:string" use="required" />
+											<xs:attribute name="memberSelectGroup" type="xs:string" />
+											<xs:attribute name="memberSelectGroupId" type="xs:string" />
+											<xs:attribute name="name" type="xs:string" />
+											<xs:attribute name="notEditable" type="xs:boolean" />
+											<xs:attribute name="password" type="xs:boolean" />
+											<xs:attribute name="readOnly" type="xs:boolean" />
+											<xs:attribute name="redirectContent" type="xs:string" />
+											<xs:attribute name="redirectPath" type="xs:string" />
+											<xs:attribute name="required" type="xs:boolean" />
+											<xs:attribute name="redirectId" type="xs:string" />
+											<xs:attribute name="rssTitleField" type="xs:boolean" />
+											<xs:attribute name="rssDescriptionField" type="xs:boolean" />
+											<xs:attribute name="rssTitle" type="xs:string" />
+											<xs:attribute name="rssDescription" type="xs:string" />
+											<xs:attribute name="scramble" type="xs:boolean" />
+											<xs:attribute name="textBuffered" type="xs:boolean" />
+											<xs:attribute name="uniqueName" type="xs:boolean" />
 										</xs:complexType>
 									</xs:element>
 								</xs:choice>
 							</xs:sequence>
-							<xs:attribute name="Name" type="xs:string" />
-							<xs:attribute name="AddonCategoryId" type="xs:string" />
-							<xs:attribute name="ActiveOnly" type="xs:boolean" />
-							<xs:attribute name="AdminOnly" type="xs:boolean" />
-							<xs:attribute name="AliasId" type="xs:string" />
-							<xs:attribute name="AliasName" type="xs:string" />
-							<xs:attribute name="AllowAdd" type="xs:boolean" />
-							<xs:attribute name="AllowContentChildTool" type="xs:boolean" />
-							<xs:attribute name="AllowContentTracking" type="xs:boolean" />
-							<xs:attribute name="AllowDelete" type="xs:boolean" />
-							<xs:attribute name="AllowTopicRules" type="xs:boolean" />
-							<xs:attribute name="AllowWorkflowAuthoring" type="xs:boolean" />
-							<xs:attribute name="AuthoringDataSourceName" type="xs:string" />
-							<xs:attribute name="AuthoringTableName" type="xs:string" />
-							<xs:attribute name="ContentDataSourceName" type="xs:string" />
-							<xs:attribute name="ContentTableName" type="xs:string" />
-							<xs:attribute name="DefaultSortMethod" type="xs:string" />
-							<xs:attribute name="DeveloperOnly" type="xs:boolean" />
-							<xs:attribute name="DropDownFieldList" type="xs:string" />
-							<xs:attribute name="EditorGroupName" type="xs:string" />
-							<xs:attribute name="Parent" type="xs:string" />
-							<xs:attribute name="NavIconType">
+							<xs:attribute name="name" type="xs:string" />
+							<xs:attribute name="addonCategoryId" type="xs:string" />
+							<xs:attribute name="activeOnly" type="xs:boolean" />
+							<xs:attribute name="adminOnly" type="xs:boolean" />
+							<xs:attribute name="aliasId" type="xs:string" />
+							<xs:attribute name="aliasName" type="xs:string" />
+							<xs:attribute name="allowAdd" type="xs:boolean" />
+							<xs:attribute name="allowContentChildTool" type="xs:boolean" />
+							<xs:attribute name="allowContentTracking" type="xs:boolean" />
+							<xs:attribute name="allowDelete" type="xs:boolean" />
+							<xs:attribute name="allowTopicRules" type="xs:boolean" />
+							<xs:attribute name="allowWorkflowAuthoring" type="xs:boolean" />
+							<xs:attribute name="authoringDataSourceName" type="xs:string" />
+							<xs:attribute name="authoringTableName" type="xs:string" />
+							<xs:attribute name="contentDataSourceName" type="xs:string" />
+							<xs:attribute name="contentTableName" type="xs:string" />
+							<xs:attribute name="defaultSortMethod" type="xs:string" />
+							<xs:attribute name="developerOnly" type="xs:boolean" />
+							<xs:attribute name="dropDownFieldList" type="xs:string" />
+							<xs:attribute name="editorGroupName" type="xs:string" />
+							<xs:attribute name="parent" type="xs:string" />
+							<xs:attribute name="navIconType">
 								<xs:simpleType>
 									<xs:union>
 										<xs:simpleType>
@@ -117,24 +117,24 @@
 										</xs:simpleType>
 										<xs:simpleType>
 											<xs:restriction base="xs:NMTOKEN">
-												<xs:enumeration value="Content" />
-												<xs:enumeration value="Report" />
+												<xs:enumeration value="content" />
+												<xs:enumeration value="report" />
 												</xs:restriction>											
 										</xs:simpleType>										
 									</xs:union>
 								</xs:simpleType>
 							</xs:attribute>
-							<xs:attribute name="IconLink" type="xs:string" />
-							<xs:attribute name="IconWidth" type="xs:string" />
-							<xs:attribute name="IconHeight" type="xs:string" />
-							<xs:attribute name="IconSprites" type="xs:string" />
-							<xs:attribute name="Guid" use="required">
+							<xs:attribute name="iconLink" type="xs:string" />
+							<xs:attribute name="iconWidth" type="xs:string" />
+							<xs:attribute name="iconHeight" type="xs:string" />
+							<xs:attribute name="iconSprites" type="xs:string" />
+							<xs:attribute name="guid" use="required">
 								<xs:simpleType>
 									<xs:restriction base ="GUID"/>
 							   </xs:simpleType>
 							</xs:attribute>
-							<xs:attribute name="Active" type="xs:boolean" />
-							<xs:attribute name="NavTypeId">
+							<xs:attribute name="active" type="xs:boolean" />
+							<xs:attribute name="navTypeId">
 								<xs:simpleType>
 									<xs:union>
 										<xs:simpleType>
@@ -144,23 +144,23 @@
 										</xs:simpleType>
 										<xs:simpleType>
 											<xs:restriction base="xs:NMTOKEN">
-												<xs:enumeration value="Comm" />
-												<xs:enumeration value="Content" />
-												<xs:enumeration value="Design" />
-												<xs:enumeration value="Reports" />
-												<xs:enumeration value="Settings" />
-												<xs:enumeration value="System" />
-												<xs:enumeration value="Tools" />
-												<xs:enumeration value="Profile" />
+												<xs:enumeration value="comm" />
+												<xs:enumeration value="content" />
+												<xs:enumeration value="design" />
+												<xs:enumeration value="reports" />
+												<xs:enumeration value="settings" />
+												<xs:enumeration value="system" />
+												<xs:enumeration value="tools" />
+												<xs:enumeration value="profile" />
 											</xs:restriction>											
 										</xs:simpleType>										
 									</xs:union>
 								</xs:simpleType>
 							</xs:attribute>
-							<xs:attribute name="AllowCalendarEvents" type="xs:boolean" />
-							<xs:attribute name="AllowMetaContent" type="xs:string" />
-							<xs:attribute name="IsBaseContent" type="xs:string" />
-							<xs:attribute name="IgnoreContentControl" type="xs:boolean" />
+							<xs:attribute name="allowCalendarEvents" type="xs:boolean" />
+							<xs:attribute name="allowMetaContent" type="xs:string" />
+							<xs:attribute name="isBaseContent" type="xs:string" />
+							<xs:attribute name="ignoreContentControl" type="xs:boolean" />
 						</xs:complexType>
 					</xs:element>
 					<xs:element name="Addon" minOccurs="1" maxOccurs="unbounded" >
@@ -173,7 +173,7 @@
 									<xs:element minOccurs="0" maxOccurs="1" name="FormXML" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="ProcessInterval"  type="xs:integer" />
 									<xs:element minOccurs="0" maxOccurs="1" name="BlockEditTools"  type="xs:boolean" />
-									<xs:element minOccurs="0" maxOccurs="1" name="styleslinkhref"  type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="Styleslinkhref"  type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="Styles"  type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="StylesLinkPlatform5Href"  type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="HtmlDocument" type="xs:boolean"  />
@@ -190,7 +190,7 @@
 									<xs:element minOccurs="0" maxOccurs="1" name="Diagnostic"  type="xs:boolean" />
 									<xs:element minOccurs="0" maxOccurs="1" name="CopyText" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="Copy" type="xs:string" />
-									<xs:element minOccurs="0" maxOccurs="1" name="instanceSettingPrimaryContentId" type="xs:string" />
+									<xs:element minOccurs="0" maxOccurs="1" name="InstanceSettingPrimaryContentId" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="AsAjax" type="xs:boolean" />
 									<xs:element minOccurs="0" maxOccurs="1" name="Filter" type="xs:boolean" />
 									<xs:element minOccurs="0" maxOccurs="1" name="OnPageEndEvent" type="xs:boolean" />
@@ -206,7 +206,7 @@
 									<xs:element minOccurs="0" maxOccurs="1" name="RemoteAssetLink" type="xs:string" />
 									<xs:element minOccurs="0" maxOccurs="1" name="Icon">
 										<xs:complexType>
-											<xs:attribute name="Link" type="xs:string" use="required" />
+											<xs:attribute name="link" type="xs:string" use="required" />
 											<xs:attribute name="width" type="xs:integer" use="required" />
 											<xs:attribute name="height" type="xs:integer" use="required" />
 											<xs:attribute name="sprites" type="xs:boolean" use="required" />
@@ -214,10 +214,10 @@
 									</xs:element>
 									<xs:element minOccurs="0" maxOccurs="1" name="InIframe" type="xs:boolean" />
 									<xs:element minOccurs="0" maxOccurs="1" name="AliasList" type="xs:string" />
-									<xs:element minOccurs="0" maxOccurs="1" name="IncludeAddon">
+									<xs:element minOccurs="0" maxOccurs="unbounded" name="IncludeAddon">
 										<xs:complexType>
-											<xs:attribute name="Name" type="xs:string" use="required" />
-											<xs:attribute name="Guid" use="required">
+											<xs:attribute name="name" type="xs:string" use="required" />
+											<xs:attribute name="guid" use="required">
 												<xs:simpleType>
 													<xs:restriction base ="GUID"/>
 											   </xs:simpleType>
@@ -226,28 +226,28 @@
 									</xs:element>
 									<xs:element minOccurs="0" maxOccurs="1" name="Scripting">
 										<xs:complexType>
-											<xs:attribute name="Language" type="xs:string" use="required" />
-											<xs:attribute name="EntryPoint" type="xs:string" use="required" />
-											<xs:attribute name="Timeout" type="xs:integer" use="required" />
+											<xs:attribute name="language" type="xs:string" use="required" />
+											<xs:attribute name="entryPoint" type="xs:string" use="required" />
+											<xs:attribute name="timeout" type="xs:integer" use="required" />
 										</xs:complexType>
 									</xs:element>
 								</xs:choice>
 							</xs:sequence>
-							<xs:attribute name="Name" type="xs:string" use="required" />
-							<xs:attribute name="Guid" use="required">
+							<xs:attribute name="name" type="xs:string" use="required" />
+							<xs:attribute name="guid" use="required">
 								<xs:simpleType>
 									<xs:restriction base ="GUID"/>
 							   </xs:simpleType>
 							</xs:attribute>
-							<xs:attribute name="Type" use="required">
+							<xs:attribute name="type" use="required">
 								<xs:simpleType>
 									<xs:restriction base="xs:NMTOKEN">
-										<xs:enumeration value="Add-on" />
-										<xs:enumeration value="Setting" />
-										<xs:enumeration value="System" />
-										<xs:enumeration value="Task" />
-										<xs:enumeration value="Tool" />
-										<xs:enumeration value="Widget" />
+										<xs:enumeration value="add-on" />
+										<xs:enumeration value="setting" />
+										<xs:enumeration value="system" />
+										<xs:enumeration value="task" />
+										<xs:enumeration value="tool" />
+										<xs:enumeration value="widget" />
 									</xs:restriction>
 								</xs:simpleType>
 							</xs:attribute>
@@ -260,10 +260,10 @@
 
 								</xs:choice>
 							</xs:sequence>
-							<xs:attribute name="IndexName" type="xs:ID" use="required" />
+							<xs:attribute name="indexName" type="xs:ID" use="required" />
 							<xs:attribute fixed="Default" name="DataSourceName" type="xs:NMTOKEN" />
-							<xs:attribute name="TableName" type="xs:NMTOKEN" use="required" />
-							<xs:attribute name="FieldNameList" type="xs:string" use="required" />
+							<xs:attribute name="tableName" type="xs:NMTOKEN" use="required" />
+							<xs:attribute name="fieldNameList" type="xs:string" use="required" />
 						</xs:complexType>
 					</xs:element>
 					<xs:element name="NavigatorEntry" minOccurs="1" maxOccurs="unbounded">
@@ -273,37 +273,37 @@
 	
 								</xs:choice>
 							</xs:sequence>
-							<xs:attribute name="Name" type="xs:string" use="required" />
-							<xs:attribute name="NameSpace" type="xs:string" use="required" />
-							<xs:attribute name="NavIconTitle" type="xs:string" use="required" />
-							<xs:attribute name="NavIconType" use="required">
+							<xs:attribute name="name" type="xs:string" use="required" />
+							<xs:attribute name="nameSpace" type="xs:string" use="required" />
+							<xs:attribute name="navIconTitle" type="xs:string" use="required" />
+							<xs:attribute name="navIconType" use="required">
 								<xs:simpleType>
 									<xs:restriction base="xs:NMTOKEN">
-										<xs:enumeration value="Addon" />
-										<xs:enumeration value="Advanced" />
-										<xs:enumeration value="Content" />
-										<xs:enumeration value="Email" />
-										<xs:enumeration value="Folder" />
-										<xs:enumeration value="Reports" />
-										<xs:enumeration value="Settings" />
-										<xs:enumeration value="Tools" />
-										<xs:enumeration value="User" />
+										<xs:enumeration value="addon" />
+										<xs:enumeration value="advanced" />
+										<xs:enumeration value="content" />
+										<xs:enumeration value="email" />
+										<xs:enumeration value="folder" />
+										<xs:enumeration value="reports" />
+										<xs:enumeration value="settings" />
+										<xs:enumeration value="tools" />
+										<xs:enumeration value="user" />
 										<xs:enumeration value="content" />
 									</xs:restriction>
 								</xs:simpleType>
 							</xs:attribute>
-							<xs:attribute name="LinkPage" type="xs:string" use="required" />
-							<xs:attribute name="ContentName" type="xs:string" use="required" />
-							<xs:attribute name="AdminOnly" type="xs:boolean" />
-							<xs:attribute name="DeveloperOnly"  type="xs:boolean" />
-							<xs:attribute name="NewWindow" type="xs:boolean" />
-							<xs:attribute name="Active" type="xs:boolean" />
-							<xs:attribute name="AddonGuid" use="required">
+							<xs:attribute name="linkPage" type="xs:string" use="required" />
+							<xs:attribute name="contentName" type="xs:string" use="required" />
+							<xs:attribute name="adminOnly" type="xs:boolean" />
+							<xs:attribute name="developerOnly"  type="xs:boolean" />
+							<xs:attribute name="newWindow" type="xs:boolean" />
+							<xs:attribute name="active" type="xs:boolean" />
+							<xs:attribute name="addonGuid" use="required">
 								<xs:simpleType>
 									<xs:restriction base ="GUID"/>
 							   </xs:simpleType>
 							</xs:attribute>
-							<xs:attribute name="Guid" use="required">
+							<xs:attribute name="guid" use="required">
 								<xs:simpleType>
 									<xs:restriction base ="GUID"/>
 							   </xs:simpleType>
@@ -323,20 +323,20 @@
 														<xs:complexType>
 															<xs:simpleContent>
 																<xs:extension base="xs:string">
-																	<xs:attribute name="Name" type="xs:string" use="required"/>
+																	<xs:attribute name="name" type="xs:string" use="required"/>
 																</xs:extension>
 															</xs:simpleContent>
 														</xs:complexType>	
 													</xs:element>
 												</xs:choice>
 											</xs:sequence>
-											<xs:attribute name="Content" type="xs:string" use="required" />
-											<xs:attribute name="Guid" use="required" >
+											<xs:attribute name="content" type="xs:string" use="required" />
+											<xs:attribute name="guid" use="required" >
 												<xs:simpleType>
 													<xs:restriction base ="GUID"/>
 											   </xs:simpleType>
 											</xs:attribute>
-											<xs:attribute name="Name" type="xs:string" use="required" />
+											<xs:attribute name="name" type="xs:string" use="required" />
 									</xs:complexType>
 									</xs:element>
 								</xs:choice>
@@ -347,32 +347,32 @@
 						<xs:complexType>
 							<xs:simpleContent>
 								<xs:extension base="xs:string">
-									<xs:attribute name="Name" type="xs:string" use="required" />
+									<xs:attribute name="name" type="xs:string" use="required" />
 								</xs:extension>
 							</xs:simpleContent>
 						</xs:complexType>
 					</xs:element>					
 					<xs:element name="Resource" minOccurs="1" maxOccurs="unbounded">
 						<xs:complexType>
-							<xs:attribute name="Name" type="xs:string" use="required" />
-							<xs:attribute name="Type" type="xs:string" use="required" />
-							<xs:attribute name="Path" type="xs:string" use="required" />
+							<xs:attribute name="name" type="xs:string" use="required" />
+							<xs:attribute name="type" type="xs:string" use="required" />
+							<xs:attribute name="path" type="xs:string" use="required" />
 						</xs:complexType>
 					</xs:element>					
 					<xs:element name="Help" minOccurs="1" maxOccurs="unbounded" type="xs:string" />
 					<xs:element name="HelpLink" minOccurs="1" maxOccurs="unbounded" type="xs:string" />
 				</xs:choice>
 			</xs:sequence>
-			<xs:attribute name="Name" type="xs:string" use="required" />
-			<xs:attribute name="Guid" use="required">
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="guid" use="required">
 				<xs:simpleType>
 					<xs:restriction base ="GUID"/>
 			   </xs:simpleType>
 			</xs:attribute>
-			<xs:attribute name="System" type="xs:boolean" />
-			<xs:attribute name="Updatable" type="xs:boolean" />
-			<xs:attribute name="BlockNavigatorNode" type="xs:boolean" />
-			<xs:attribute name="OnInstallAddonGuid">
+			<xs:attribute name="system" type="xs:boolean" />
+			<xs:attribute name="updateable" type="xs:boolean" />
+			<xs:attribute name="blockNavigatorNode" type="xs:boolean" />
+			<xs:attribute name="onInstallAddonGuid">
 				<xs:simpleType>
 					<xs:union>
 						<xs:simpleType>
@@ -403,8 +403,8 @@
 	<xs:element name="Styles" type="xs:string" />
 	<xs:element name="IncludeAddon">
 		<xs:complexType>
-			<xs:attribute name="Name" type="xs:string" use="required" />
-			<xs:attribute name="Guid" use="required">
+			<xs:attribute name="name" type="xs:string" use="required" />
+			<xs:attribute name="guid" use="required">
 				<xs:simpleType>
 					<xs:restriction base ="GUID"/>
 			   </xs:simpleType>
@@ -427,12 +427,12 @@
 					<xs:complexType>
 						<xs:simpleContent>
 							<xs:extension base="xs:string">
-								<xs:attribute name="Name" use="required">
+								<xs:attribute name="name" use="required">
 									<xs:simpleType>
 										<xs:restriction base="xs:NMTOKEN">
-											<xs:enumeration value="OrderByClause" />
-											<xs:enumeration value="Caption" />
-											<xs:enumeration value="IconHtml" />
+											<xs:enumeration value="orderByClause" />
+											<xs:enumeration value="caption" />
+											<xs:enumeration value="iconHtml" />
 										</xs:restriction>
 									</xs:simpleType>
 								</xs:attribute>
@@ -441,13 +441,13 @@
 					</xs:complexType>
 				</xs:element>
 			</xs:all>
-			<xs:attribute name="Content" type="xs:string" use="required" />
-			<xs:attribute name="Guid" use="required">
+			<xs:attribute name="content" type="xs:string" use="required" />
+			<xs:attribute name="guid" use="required">
 				<xs:simpleType>
 					<xs:restriction base ="GUID"/>
 			   </xs:simpleType>
 			</xs:attribute>
-			<xs:attribute name="Name" type="xs:string" use="required" />
+			<xs:attribute name="name" type="xs:string" use="required" />
 		</xs:complexType>
 	</xs:element>
 </xs:schema>

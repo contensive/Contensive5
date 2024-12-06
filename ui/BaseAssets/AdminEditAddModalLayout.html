@@ -669,9 +669,12 @@
                                                 {{/isHelp}}                                                
                                                 <h6 class="mb-0">{{caption}}</h6>
                                             </label>
-                                            <select id="{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
-                                                {{{selectOptionList}}}
-                                            </select>
+                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <select id="{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
+                                                    {{{selectOptionList}}}
+                                                </select>
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isSelect}}

@@ -4,10 +4,11 @@
 	Guid="{7C6601A7-9D52-40A3-9570-774D0D43D758}" 
 	System="true" 
 	OnInstallAddonGuid="{86739518-9D46-470F-8C76-195D1A19CEDD}"
+  updateable="true"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="https://contensive.s3.amazonaws.com/xsd/Collection.xsd"
 	>
-  <CDef Name="Data Sources" NavTypeId="System" AddonCategoryId="" ActiveOnly="1" AdminOnly="1" AliasID="id" AliasName="name" AllowAdd="1" AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccDataSources" ContentDataSourceName="DEFAULT" ContentTableName="ccDataSources" DefaultSortMethod="By Name" DeveloperOnly="1" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" Guid="{50EC1B7B-B671-4F40-8DBE-BD74D1E54D7D}">
+  <CDef name="Data Sources" NavTypeId="System" AddonCategoryId="" ActiveOnly="1" AdminOnly="1" AliasID="id" AliasName="name" AllowAdd="1" AllowContentTracking="0" AllowDelete="1" AllowTopicRules="0" AllowWorkflowAuthoring="0" AuthoringDataSourceName="DEFAULT" AuthoringTableName="ccDataSources" ContentDataSourceName="DEFAULT" ContentTableName="ccDataSources" DefaultSortMethod="By Name" DeveloperOnly="1" DropDownFieldList="NAME" EditorGroupName="" Parent="" AllowContentChildTool="0" NavIconType="Content" IconLink="" IconWidth="" IconHeight="" IconSprites="" Guid="{50EC1B7B-B671-4F40-8DBE-BD74D1E54D7D}">
     <Field Name="Name" Active="true" AdminOnly="0" Authorable="1" Caption="Name" DeveloperOnly="0" EditSortPriority="110" FieldType="Text" HtmlContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="30" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="1" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" >
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>

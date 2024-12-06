@@ -53,27 +53,29 @@ namespace Contensive.Processor.Models.Domain {
             List<FieldTypeEditorAddonModel> fieldTypeDefaultEditors = core.cacheRuntime.fieldEditorAddonList;
             //
             // -- code editor
-            EditorRowClass.editorResponse editorResponse = EditorRowClass.getEditor(core, new EditorRowClass.EditorRequest() {
-                contentId = field.contentId,
-                contentName = contentMetaData.name,
-                editorAddonListJSON = core.html.getWysiwygAddonList(CPHtml5BaseClass.EditorContentType.contentTypeWeb),
-                editRecordId = editRecordId,
-                editViewTitleSuffix = "",
-                field = field,
-                fieldTypeEditors = fieldTypeDefaultEditors,
-                formFieldList = null,
-                isContentRootPage = false,
-                record_readOnly = field.readOnly,
-                styleList = "",
-                styleOptionList = null,
-                tableName = contentMetaData.tableName,
-                editRecordNameLc = "",
-                editRecordContentControlId = 0,
-                currentValue = currentValue,
-                fields = fields,
-                htmlName = htmlName
-            });
-            customEditor = editorResponse.editorString;
+            if (string.IsNullOrEmpty(field.editorAddonGuid)) {
+                EditorRowClass.editorResponse editorResponse = EditorRowClass.getEditor(core, new EditorRowClass.EditorRequest() {
+                    contentId = field.contentId,
+                    contentName = contentMetaData.name,
+                    editorAddonListJSON = core.html.getWysiwygAddonList(CPHtml5BaseClass.EditorContentType.contentTypeWeb),
+                    editRecordId = editRecordId,
+                    editViewTitleSuffix = "",
+                    field = field,
+                    fieldTypeEditors = fieldTypeDefaultEditors,
+                    formFieldList = null,
+                    isContentRootPage = false,
+                    record_readOnly = field.readOnly,
+                    styleList = "",
+                    styleOptionList = null,
+                    tableName = contentMetaData.tableName,
+                    editRecordNameLc = "",
+                    editRecordContentControlId = 0,
+                    currentValue = currentValue,
+                    fields = fields,
+                    htmlName = htmlName
+                });
+                customEditor = editorResponse.editorString;
+            }
             textMaxLength = isText ? 255 : (isTextLong ? 65353 : ((isHtml || isHtmlCode) ? 65535 : 255));
             numberMin = 0;
             numberMax = 2147483647;
