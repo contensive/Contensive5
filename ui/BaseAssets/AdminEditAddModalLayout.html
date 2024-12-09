@@ -669,8 +669,9 @@
                                                 {{/isHelp}}                                                
                                                 <h6 class="mb-0">{{caption}}</h6>
                                             </label>
-                                            {{#customEditor}}{{{customEditor}}}{{/customEditor}}
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
+                                                <!-- select -->
                                                 <select id="{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
                                                     {{{selectOptionList}}}
                                                 </select>
@@ -905,6 +906,45 @@
 
                                                                 </div>
                                                             {{/isCurrency}}
+                                                            {{#isImage}}                                                            
+                                                                <!--
+                                                                    image
+                                                                -->
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <div class="mb-3">
+                                                                        <label for="{{fieldId}}" class="form-label d-flex align-items-center">
+                                                                            {{#isHelp}}
+                                                                                <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                                                    <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                                                </a>
+                                                                            {{/isHelp}}
+                                                                            <img src="{{imageUrl}}" alt="placeholder image" class="output">
+                                                                        </label>
+                                                                        <input class="form-control" type="file" id="{{fieldId}}" name="{{htmlName}}">
+                                                                        <h6 class="mb-0">{{caption}}</h6>
+                                                                        {{#currentValue}}<a href="{{imageUrl}}">{{fileName}}</a>{{/currentValue}}
+                                                                        {{^currentValue}}<span id="{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>{{/currentValue}}
+                                                                        <!--<h6 class="fw-light">File Type: WEBP, PNG, GIF, or JPEG</h6>-->
+                                                                        <input class="form-control d-none" type="file" id="{{fieldId}}" name="{{htmlName}}">
+                                                                        {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                                        {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                    </div>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <div>  
+                                                                            <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="{{fieldId}}delete" autocomplete="off">
+                                                                            <label class="btn btn-outline-danger me-3" for="{{fieldId}}delete"><i class="fa-regular fa-trash-can"></i></label>
+                                                                        </div>
+                                                                        <label class="btn btn-primary" id="upload-btn-{{fieldId}}" for="{{fieldId}}">Choose File</label>
+                                                                    </div>
+                                                                </div>
+                                                                <script>
+                                                                    const actualBtn{{fieldId}} = document.getElementById('{{fieldId}}');
+                                                                    const fileChosen{{fieldId}} = document.getElementById('{{fieldId}}-caption');
+                                                                    actualBtn{{fieldId}}.addEventListener('change', function(){
+                                                                        fileChosen{{fieldId}}.textContent = this.files[0].name
+                                                                    })                                        
+                                                                </script>
+                                                            {{/isImage}}
                                                         {{/rightGroupFields}}
                                                     </div>
                                                 </div>

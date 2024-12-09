@@ -768,8 +768,9 @@ namespace Contensive.Processor.Controllers {
                     FastString.Append("><option value=\"\">Select One</option>");
                 }
                 //
-                // ----- sort values
-                var lookupDict = lookupList.Select((s, i) => new { s, i }).ToDictionary(x => x.i + 1, x => x.s);
+                // -- trim and sort
+                var lookupListTrimmed = lookupList.Select(x => x.Trim()).ToList();
+                var lookupDict = lookupListTrimmed.Select((s, i) => new { s, i }).ToDictionary(x => x.i + 1, x => x.s);
                 var sortedLookupDict = lookupDict.OrderBy(x => x.Value);
                 //
                 // ----- select values

@@ -2,6 +2,7 @@
 using Contensive.BaseClasses;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Db;
 using NUglify.JavaScript.Syntax;
 using System;
 using System.Collections.Generic;
@@ -189,11 +190,15 @@ namespace Contensive.Processor.Models.Domain {
             if(contentDataLoaded) { return; }
             //
             contentDataLoaded=true;
+            //
+            // -- determine if any fields use custom editors
+            Dictionary<int,int> fieldTypeEditorAddons = ContentFieldModel.getFieldTypeEditorAddons(core);
+            //
             using (CPCSBaseClass currentRecordCs = core.cpParent.CSNew()) {
                 if (!string.IsNullOrWhiteSpace(recordGuid)) {
                     currentRecordCs.OpenRecord(contentMetadata.name, recordGuid);
                 }
-                contentData_rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn);
+                contentData_rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, fieldTypeEditorAddons);
                 if(!currentRecordCs.OK()) {
                     //
                     // -- add new record
@@ -212,7 +217,7 @@ namespace Contensive.Processor.Models.Domain {
                         contentData_AllowDeleteWidget = false;
                     }
                 }
-                contentData_leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, contentData_rightGroups);
+                contentData_leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, contentData_rightGroups, fieldTypeEditorAddons);
             }
         }
         private bool contentDataLoaded { get; set; } = false;

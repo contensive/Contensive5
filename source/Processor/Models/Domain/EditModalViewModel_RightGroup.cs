@@ -34,7 +34,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
         /// <param name="editModalSn">a unique string for the current editor (edit tag plus modal)</param>
         /// <returns></returns>
-        public static List<EditModalViewModel_RightGroup> getRightGroups(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editModalSn) {
+        public static List<EditModalViewModel_RightGroup> getRightGroups(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editModalSn, Dictionary<int, int> FieldTypeEditorAddons) {
             List<EditModalViewModel_RightGroup> result = [];
             Dictionary<string, string> prepopulateValue = [];
             int recordId = currentRecordCs.OK() ? currentRecordCs.GetInteger("id") : 0;
@@ -82,7 +82,7 @@ namespace Contensive.Processor.Models.Domain {
                 sortedFields.Sort((x, y) => x.nameLc.CompareTo(y.nameLc));
                 foreach (var field in sortedFields) {
                     string currentValue = currentRecordCs.OK() ? currentRecordCs.GetText(field.nameLc) : "";
-                    rightGroup.rightGroupFields.Add(new EditModalViewModel_Field(core, field, currentValue, recordId, contentMetadata.fields, contentMetadata, editModalSn, false));
+                    rightGroup.rightGroupFields.Add(new EditModalViewModel_Field(core, field, currentValue, recordId, contentMetadata.fields, contentMetadata, editModalSn, false, FieldTypeEditorAddons));
                     rightGroup.help += string.IsNullOrEmpty(field.helpMessage) ? "" : field.caption + ": " + field.helpMessage + ". \n";
                 }
                 rightGroup.isHelp = string.IsNullOrEmpty(rightGroup.help);

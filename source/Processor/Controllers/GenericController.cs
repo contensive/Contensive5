@@ -236,7 +236,7 @@ namespace Contensive.Processor.Controllers {
                                 if (string.IsNullOrEmpty(queryValue)) {
                                     Element[ElementPointer] = "";
                                 } else {
-                                    Element[ElementPointer] = queryName + "=" + queryValue;
+                                    Element[ElementPointer] = encodeRequestVariable(queryName) + "=" + encodeRequestVariable(queryValue);
                                 }
                                 ElementFound = true;
                                 break;

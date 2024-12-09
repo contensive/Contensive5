@@ -21,12 +21,39 @@ namespace Contensive.Processor.Models.Db {
             using DataTable dtFields = core.db.executeQuery($"select t.name, f.name from ccfields f left join ccContent c on c.id=f.contentid left join cctables t on t.id=c.contentTableId where f.type in ({idCommaList})");
             List<TableFieldFilesModel> result = new();
             if (dtFields?.Rows == null || dtFields.Rows.Count <= 0) { return result; }
-            
+
             foreach (DataRow drFields in dtFields.Rows) {
                 result.Add(new TableFieldFilesModel {
                     table = GenericController.encodeText(drFields[0]),
                     field = GenericController.encodeText(drFields[1])
                 });
+            }
+            return result;
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// return a dictionary of fieldTypeId, editorAddonId for all field types that include custom editors
+        /// </summary>
+        /// <param name="core"></param>
+        /// <returns></returns>
+        public static Dictionary<int, int> getFieldTypeEditorAddons(CoreController core) {
+            Dictionary<int, int> result = [];
+            //
+            // -- for field types without custom addons, use the addon selected for the field type
+            {
+                string sql = "" +
+                    "select " +
+                    "   contentfieldtypeid, " +
+                    "   max(addonId) as editorAddonId " +
+                    "from " +
+                    "   ccAddonContentFieldTypeRules " +
+                    "group by " +
+                    "   contentfieldtypeid";
+                DataTable dt = core.db.executeQuery(sql);
+                foreach (DataRow dr in dt.Rows) {
+                    result.Add(GenericController.encodeInteger(dr[0]), GenericController.encodeInteger(dr[1]));
+                };
             }
             return result;
         }
