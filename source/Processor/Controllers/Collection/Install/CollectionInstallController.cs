@@ -1075,7 +1075,7 @@ namespace Contensive.Processor.Controllers {
                 // -- collectionsToInstall = collections stored in the collection folder that need to be stored in the Db
                 var collectionsToInstall = new List<string>();
                 var collectionsBuildingFolder = new List<string>();
-                returnSuccess = CollectionFolderController.buildCollectionFoldersFromCollectionZips(core, contextLog, installTempPath, CollectionLastChangeDate, ref collectionsToInstall, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder);
+                returnSuccess = CollectionFolderController.buildCollectionFoldersFromCollectionZips(core, contextLog, installTempPath, CollectionLastChangeDate, ref collectionsToInstall, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder, reinstallDependencies);
                 if (!returnSuccess) {
                     //
                     // BuildLocal failed, log it and do not upgrade
@@ -1120,7 +1120,7 @@ namespace Contensive.Processor.Controllers {
                 CollectionLastChangeDate = core.dateTimeNowMockable;
                 var collectionsDownloaded = new List<string>();
                 var collectionsBuildingFolder = new List<string>();
-                if (!CollectionFolderController.buildCollectionFolderFromCollectionZip(core, contextLog, tempPathFilename, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsDownloaded, ref collectionsInstalledList, ref collectionsBuildingFolder)) {
+                if (!CollectionFolderController.buildCollectionFolderFromCollectionZip(core, contextLog, tempPathFilename, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsDownloaded, ref collectionsInstalledList, ref collectionsBuildingFolder,  reinstallDependencies)) {
                     //
                     // BuildLocal failed, log it and do not upgrade
                     //
