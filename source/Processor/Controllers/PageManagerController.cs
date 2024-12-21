@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using Contensive.Processor.Addons.PageManager;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -79,7 +80,7 @@ namespace Contensive.Processor.Controllers {
                                     core.doc.continueProcessing = false;
                                     core.html.addScriptCode_onLoad("document.body.style.overflow='scroll'", "Anonymous User Block");
                                     core.doc.bodyClassList.Add("ccBodyWeb");
-                                    return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated),  true, true);
+                                    return core.html.getHtmlDoc('\r' + core.html.getContentCopy("AnonymousUserResponseCopy", "<p style=\"width:250px;margin:100px auto auto auto;\">The site is currently not available for anonymous access.</p>", core.session.user.id, true, core.session.isAuthenticated), true, true);
                                 }
                             case 3: {
                                     //
@@ -368,11 +369,11 @@ namespace Contensive.Processor.Controllers {
                             // -- find link alias and inject into request (doc) the linkAlias.querystring elements
                             //
                             if (!string.IsNullOrEmpty(linkAliasTest1) && !string.IsNullOrEmpty(linkAliasTest2)) {
-                                Dictionary<string,LinkAliasModel> linkAliasNameDict = core.cacheRuntime.linkAliasNameDict;
-                                LinkAliasModel linkAlias  = null;
-                                if(linkAliasNameDict.ContainsKey(linkAliasTest1)) { linkAlias  = linkAliasNameDict[linkAliasTest1];  }
-                                if(linkAlias ==null && linkAliasNameDict.ContainsKey(linkAliasTest2)) { linkAlias  = linkAliasNameDict[linkAliasTest2]; }
-                                if(linkAlias !=null) {
+                                Dictionary<string, LinkAliasModel> linkAliasNameDict = core.cacheRuntime.linkAliasNameDict;
+                                LinkAliasModel linkAlias = null;
+                                if (linkAliasNameDict.ContainsKey(linkAliasTest1)) { linkAlias = linkAliasNameDict[linkAliasTest1]; }
+                                if (linkAlias == null && linkAliasNameDict.ContainsKey(linkAliasTest2)) { linkAlias = linkAliasNameDict[linkAliasTest2]; }
+                                if (linkAlias != null) {
                                     string LinkQueryString = rnPageId + "=" + linkAlias.pageId + "&" + linkAlias.queryStringSuffix;
                                     core.docProperties.setProperty(rnPageId, linkAlias.pageId, DocPropertyModel.DocPropertyTypesEnum.userDefined);
                                     string[] nameValuePairs = linkAlias.queryStringSuffix.Split('&');
@@ -1026,7 +1027,7 @@ namespace Contensive.Processor.Controllers {
                     string BreadCrumbPrefix = core.siteProperties.getText("BreadCrumbPrefix", "Return to");
                     string breadCrumb = core.doc.pageController.getReturnBreadcrumb(core);
                     if (!string.IsNullOrEmpty(breadCrumb)) {
-                        breadCrumb = "\r<p class=\"ccPageListNavigation\">" + BreadCrumbPrefix + " " + breadCrumb + "</p>";
+                        breadCrumb = "\r<p class=\"container pt-4 ccPageListNavigation\">" + BreadCrumbPrefix + " " + breadCrumb + "</p>";
                     }
                     result.Append(breadCrumb);
                 }
@@ -1035,7 +1036,7 @@ namespace Contensive.Processor.Controllers {
                 var resultInnerContent = new StringBuilder();
                 // -- Headline
                 if (!string.IsNullOrWhiteSpace(core.doc.pageController.page.headline)) {
-                    resultInnerContent.Append("\r<h1>").Append(HtmlController.encodeHtml(core.doc.pageController.page.headline)).Append("</h1>");
+                    resultInnerContent.Append("\r<h1 class=\"container pt-4\">").Append(HtmlController.encodeHtml(core.doc.pageController.page.headline)).Append("</h1>");
                 }
                 //
                 // -- legacy page copy mode - needed for old sites during upgrade
@@ -1059,7 +1060,7 @@ namespace Contensive.Processor.Controllers {
                         // -- if those executables return content containing executables, those are block by post-processing executeaddon result to remove {%%}
                         htmlPageContent = ContentRenderController.renderHtmlForWeb(core, htmlPageContent, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
                     }
-                    resultInnerContent.Append(htmlPageContent);
+                    resultInnerContent.Append($"<div class=\"container\">{htmlPageContent}</div>");
                 } else {
                     //
                     // -- addonList mode
@@ -1078,65 +1079,15 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 // -- End Text Search
-                result.Append("\r<!-- TextSearchStart -->" + resultInnerContent.ToString() + "\r<!-- TextSearchEnd -->");
+                result.Append("<!-- TextSearchStart -->" + resultInnerContent.ToString() + "<!-- TextSearchEnd -->");
                 //
-                // ----- Hidden Child pages. Pages in this list do not appear on the page. This is an admin editing tool to let admins see all pages not associated to a list.
-                if (core.session.isEditing()) {
-                    var editItemList = new StringBuilder();
-                    string sqlCriteria = "(parentid=" + core.doc.pageController.page.id + ")";
-                    var usedPageidList = core.cpParent.Doc.GetText("Current Page Child PageId List", "");
-                    if (!string.IsNullOrWhiteSpace(usedPageidList)) {
-                        sqlCriteria += "and(id not in (" + usedPageidList + "))";
-                    }
-                    foreach (var page in DbBaseModel.createList<PageContentModel>(core.cpParent, sqlCriteria, "sortorder")) {
-                        ContentMetadataModel contentMetadata;
-                        if (page.contentControlId == 0) {
-                            contentMetadata = ContentMetadataModel.createByUniqueName(core, "page content");
-                        } else {
-                            contentMetadata = ContentMetadataModel.create(core, page.contentControlId);
-
-                        }
-                        string pageLink = getPageLink(core, page.id, "", true, false);
-                        string pageName = (!string.IsNullOrWhiteSpace(page.name)) ? page.name : "Page " + page.id;
-                        string pageMenuHeadline = (!string.IsNullOrWhiteSpace(page.menuHeadline)) ? page.menuHeadline : pageName;
-                        string editAnchorTag = EditUIController.getEditIcon(core, contentMetadata.id, page.id);
-                        string pageAnchorTag = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(pageLink) + "\">", pageMenuHeadline);
-                        editItemList.Append("\r<li name=\"page" + page.id + "\"  id=\"page" + page.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
-                        if (!string.IsNullOrEmpty(editAnchorTag)) {
-                            editItemList.Append(HtmlController.div(iconGrip, "ccListItemDragHandle") + editAnchorTag + "&nbsp;");
-                        }
-                        editItemList.Append(pageAnchorTag);
-                        editItemList.Append("</li>");
-                    }
-                    //
-                    // -- add new link for each associated content
-                    var addItemList = new StringBuilder();
-                    foreach (var addItem in EditUIController.getAddTabList(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
-                        if (!string.IsNullOrEmpty(addItem)) {
-                            if (core.siteProperties.allowEditModal) {
-                                //
-                                // -- beta add, includes its own edit wrapper
-                                addItemList.Append("<li>" + addItem + "</LI>");
-                            } else {
-                                //
-                                // -- legacy add, add edit wrapper
-                                addItemList.Append("<li class=\"ccEditWrapper ccListItemNoBullet\">" + addItem + "</LI>");
-                            }
-                        }
-                    }
-                    //
-                    // -- build Hidden list admin tool here
-                    string RequestedListName = "";
-                    string hintHtml = ""
-                        + HtmlController.h4("Hidden Child Pages")
-                        + HtmlController.p("This list of pages is hidden but the pages may display in other navigation. Creating a new page here helps organize your pages by keeping them together with the parent content. To display a child page, add a child page widget to the page and add pages there, or drag one of these child pages into that widget.")
-                        + HtmlController.ul(editItemList.ToString() + addItemList.ToString(), "ccChildList", "childPageList_" + core.doc.pageController.page.id + "_" + RequestedListName);
-                    result.Append(EditUIController.getAdminHintWrapper(core, hintHtml));
-                }
+                // -- get hidden child page list
+                AddonBaseClass HiddenChildPageList = new GetHiddenChildPageList();
+                result.Append(HiddenChildPageList.Execute(core.cpParent).ToString());
                 //
                 // -- Allow More Info
                 if ((core.doc.pageController.page.contactMemberId != 0) && core.doc.pageController.page.allowMoreInfo) {
-                    result.Append(getMoreInfoHtml(core, core.doc.pageController.page.contactMemberId));
+                    result.Append($"<div class=\"container pt-4\">{getMoreInfoHtml(core, core.doc.pageController.page.contactMemberId)}</div>");
                 }
                 //
                 // -- Last Modified line
@@ -1145,14 +1096,13 @@ namespace Contensive.Processor.Controllers {
                     core.cpParent.Content.LatestContentModifiedDate.Track(pageModifiedDate);
                     pageModifiedDate = core.cpParent.Content.LatestContentModifiedDate.Get();
                     if (pageModifiedDate != DateTime.MinValue) {
-                        result.Append("\r<p>This page was last modified " + encodeDate(pageModifiedDate).ToString("G"));
-                        result.Append("</p>");
+                        result.Append($"<div class=\"container pt-4\"><p>This page was last modified {encodeDate(pageModifiedDate).ToString("G")}</p></div>");
                     }
                 }
                 //
                 // -- Last Reviewed line
                 if ((core.doc.pageController.page.dateReviewed != DateTime.MinValue) && core.doc.pageController.page.allowReviewedFooter) {
-                    result.Append("\r<p>This page was last reviewed " + encodeDate(core.doc.pageController.page.dateReviewed).ToString(""));
+                    result.Append($"<div class=\"container pt-4\"><p>This page was last reviewed {encodeDate(core.doc.pageController.page.dateReviewed).ToString("")}");
                     if (core.session.isAuthenticatedAdmin()) {
                         if (core.doc.pageController.page.reviewedBy == 0) {
                             result.Append(" (by unknown)");
@@ -1164,15 +1114,15 @@ namespace Contensive.Processor.Controllers {
                                 result.Append(" (by " + personName + ")");
                             }
                         }
-                        result.Append(".</p>");
                     }
+                    result.Append(".</p></div>");
                 }
                 //
                 // -- Page Content Message Footer
                 if (core.doc.pageController.page.allowMessageFooter) {
                     string pageContentMessageFooter = core.siteProperties.getText("PageContentMessageFooter", "");
                     if (!string.IsNullOrEmpty(pageContentMessageFooter)) {
-                        result.Append("\r<p>" + pageContentMessageFooter + "</p>");
+                        result.Append("<div class=\"container pt-4\"><p>" + pageContentMessageFooter + "</p></div>");
                     }
                 }
             } catch (Exception ex) {

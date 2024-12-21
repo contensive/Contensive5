@@ -433,7 +433,12 @@ namespace Contensive.Processor.Controllers {
                         cp.Db.ExecuteNonQuery("update cccontent set isbasecontent=0 where name='Wrappers'");
                         // leave table and content metadata in case an addon accesses the data
                     }
-
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.12.19.0")) {
+                        //
+                        // -- update redactor, needed because edit modal needs redactor js to load the redactor library
+                        string returnErrorMessage = "";
+                        cp.Addon.InstallCollectionFromLibrary(Constants.redactorCollectionGuid, ref returnErrorMessage);
+                    }
                 }
                 //
                 // -- Reload

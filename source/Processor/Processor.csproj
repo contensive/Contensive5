@@ -19,11 +19,10 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>signingKey.snk</AssemblyOriginatorKeyFile>
     <PackageId>Contensive.Processor</PackageId>
-    <Version>22.8.14.1</Version>
+    <Version>24.12.20.1</Version>
     <Authors>Contensive</Authors>
     <Product>Contensive Processor</Product>
     <Description>This package installs the library files required to create an instance of cp within an application.</Description>
-    <Copyright>Copyright 2020</Copyright>
   </PropertyGroup>
 
   <PropertyGroup Label="Nuget">
@@ -39,7 +38,7 @@
     <Company>Contensive</Company>
     <Product>Contensive Processor</Product>
     <PackageTags>Contensive</PackageTags>
-    <Copyright>Copyright 2020</Copyright>
+    <Copyright>Copyright 2024</Copyright>
     <Description>This package installs the library files required to create an instance of cp within an application.</Description>
     <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
