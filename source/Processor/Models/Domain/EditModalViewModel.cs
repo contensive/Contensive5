@@ -181,8 +181,7 @@ namespace Contensive.Processor.Models.Domain {
         // ====================================================================================================
         //
         public static bool isFieldInModal(CoreController core, ContentFieldMetadataModel field, ContentMetadataModel contentMetadata) {
-            return core.docProperties.containsKey($"field{field.id}");
-            //return (string.IsNullOrEmpty(field.editTabName) || !string.IsNullOrEmpty(field.editGroupName)) && AdminDataModel.isVisibleUserField_EditModal(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName);
+            return (string.IsNullOrEmpty(field.editTabName) || !string.IsNullOrEmpty(field.editGroupName)) && AdminDataModel.isVisibleUserField_EditModal(core, field.adminOnly, field.developerOnly, field.active, field.authorable, field.nameLc, contentMetadata.tableName);
         }
         //
         // ====================================================================================================
