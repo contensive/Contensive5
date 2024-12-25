@@ -54,7 +54,7 @@ namespace Contensive.Processor.Controllers {
                     if ((cp.Site.htmlPlatformVersion == 5) && !string.IsNullOrEmpty(layout.layoutPlatform5.content)) { return layout.layoutPlatform5.content; }
                     return layout.layout.content;
                 }
-                return updateLayout(cp, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
+                return updateLayout(cp, 0, layoutGuid, defaultLayoutName, defaultLayoutCdnPathFilename, platform5LayoutCdnPathFilename);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
@@ -66,12 +66,13 @@ namespace Contensive.Processor.Controllers {
         /// create or update the layout record and return the result
         /// </summary>
         /// <param name="cp"></param>
+        /// <param name="layoutContentId">The contentcontrolid for this layout. Use to create 'layouts for CTA' for example. Set to 0 and the contentcontrolid is not updated, and for new records, content 'layouts' is used. </param>
         /// <param name="layoutGuid"></param>
         /// <param name="defaultLayoutName"></param>
         /// <param name="defaultLayoutCdnPathFilename"></param>
         /// <param name="platform5LayoutCdnPathFilename"></param>
         /// <returns></returns>
-        public static string updateLayout(CPClass cp, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
+        public static string updateLayout(CPClass cp, int layoutContentId, string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename) {
             try {
                 if (string.IsNullOrEmpty(layoutGuid)) { return ""; }
                 if (string.IsNullOrEmpty(defaultLayoutName)) { defaultLayoutName = defaultLayoutCdnPathFilename; }
@@ -94,6 +95,10 @@ namespace Contensive.Processor.Controllers {
                 layout.layout.content = layout1;
                 layout.layoutPlatform5.content = layout5;
                 layout.save(cp);
+                //
+                if(layoutContentId != 0) {
+                    cp.Db.ExecuteNonQuery($"update cclayouts set contentcontrolid={layoutContentId} where ccguid={cp.Db.EncodeSQLText(layoutGuid)}");
+                }
                 //
                 // -- flush caches after insert
                 cp.core.cacheRuntime.clearLayout();

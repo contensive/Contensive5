@@ -76,20 +76,41 @@ namespace Contensive.BaseClasses {
         /// <summary>
         /// the layout record is created or updated with the default name  and layout record
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
+        /// <param name="layoutGuid">The layout's guid</param>
+        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
+        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
         public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename);
         //
         //====================================================================================================
         /// <summary>
         /// the layout record is created or updated with the default name  and layout record
         /// </summary>
-        /// <param name="layoutGuid"></param>
-        /// <param name="defaultLayoutName"></param>
-        /// <param name="defaultLayoutCdnPathFilename"></param>
-        /// <param name="platform5LayoutCdnPathFilename"></param>
+        /// <param name="layoutGuid">The layout's guid</param>
+        /// <param name="layoutContentId">set to a contentid if this layout should be created in a different segment of Layouts, like 'layouts for CTA'. Use cp.content.getid("layouts for CTA") to determine the contentId</param>
+        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
+        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
+        public abstract void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// the layout record is created or updated with the default name  and layout record
+        /// </summary>
+        /// <param name="layoutGuid">The layout's guid</param>
+        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
+        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
+        /// <param name="platform5LayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout. The platform5 html layout field is used when the site is set to plaform5 (bootstrap 5) and the platform5 field is not empty.</param>
         public abstract void updateLayout(string layoutGuid, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
+        //
+        //====================================================================================================
+        /// <summary>
+        /// the layout record is created or updated with the default name  and layout record
+        /// </summary>
+        /// <param name="layoutGuid">The layout's guid</param>
+        /// <param name="layoutContentId">set to a contentid if this layout should be created in a different segment of Layouts, like 'layouts for CTA'. Use cp.content.getid("layouts for CTA") to determine the contentId</param>
+        /// <param name="defaultLayoutName">If the layout record is created, this is the name saved to the record.</param>
+        /// <param name="defaultLayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout.</param>
+        /// <param name="platform5LayoutCdnPathFilename">If the layout record is created, this is the file used as the source for the html layout. The platform5 html layout field is used when the site is set to plaform5 (bootstrap 5) and the platform5 field is not empty.</param>
+        public abstract void updateLayout(string layoutGuid, int layoutContentId, string defaultLayoutName, string defaultLayoutCdnPathFilename, string platform5LayoutCdnPathFilename);
         //
         //====================================================================================================
         /// <summary>

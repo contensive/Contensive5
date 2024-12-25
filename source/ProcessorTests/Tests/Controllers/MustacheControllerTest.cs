@@ -1,5 +1,6 @@
 ﻿using Contensive.Processor.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Tests.TestConstants;
 
 namespace Tests {
     [TestClass()]

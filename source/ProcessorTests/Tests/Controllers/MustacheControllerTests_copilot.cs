@@ -1,6 +1,7 @@
+using Contensive.Processor.Controllers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Contensive.Processor.Controllers.Tests {
+namespace Tests {
     [TestClass]
     public class MustacheControllerTests {
         [TestMethod]
