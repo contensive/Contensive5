@@ -1,4 +1,5 @@
 /*
+241225 06050
 * ContentBox
 */
 .contentBox {
@@ -65,9 +66,10 @@ a.ccGridCaption {
 /*
     Edit Wrapper, ccEditWrapperBeta added to body
 */
+
 .ccEditWrapper {
-	border: 1px dashed #808080;
-	margin: 1px;
+    border: 2px dashed #297de2;
+	margin: 0;
     padding: 5px;
 }
 
@@ -79,12 +81,6 @@ a.ccGridCaption {
 	font-size: 16px;
 }
 
-.ccBetaEditModal .ccEditWrapper {
-    border: 2px dashed #297de2;
-	margin: 0;
-    padding: 5px;
-}
-
 .ccEditWrapperCaption {
 	text-align: left;
 	border-bottom: 1px solid #808080;
@@ -94,15 +90,14 @@ a.ccGridCaption {
 }
 
 .ccEditWrapper .ccChildList li {
-	/* padding-left: 5px !important; */
-	border-top: 1px dashed #262;
-	border-right: 1px dashed #262;
-	border-left: 1px dashed #262;
+	/* border-top: 2px dashed #297de2;
+	border-right:2px dashed #297de2;
+	border-left: 2px dashed #297de2; */
 }
 
 .ccEditWrapper .ccChildList li:last-child,
 .ccEditWrapper .ccChildList li.ui-sortable-helper {
-	border-bottom: 1px dashed #262;
+	border-bottom: 2px dashed #297de2;
 }
 
 .ccEditWrapper .ccListItemDragHandle {
@@ -119,9 +114,6 @@ a.ccGridCaption {
 	cursor: move;
 }
 
-.ccEditWrapper .ccChildList li {
-	border: 1px dashed #262;
-}
 
 /*
 * Record add link

@@ -1,4 +1,5 @@
 ﻿
+using NUglify.JavaScript.Syntax;
 using System;
 
 namespace Contensive.Processor {
@@ -231,6 +232,10 @@ namespace Contensive.Processor {
         internal const string sfImageExtList = "jpg,jpeg,gif,png";
         //
         internal const string PageChildListInstanceId = "{ChildPageList}";
+        //
+        // -- special case. When childpagelsit is rendered with this instanceid, it acts like the common hidden child page list at the bottom of every page
+        internal const string guidHiddenChildPageList = "{19f9bb3c-cb9f-446e-9e2c-275be810699f}";
+        internal const string guidChildPageListAddon = "{D291F133-AB50-4640-9A9A-18DB68FF363B}";
         //
         internal const string unixNewLine = "\n";
         internal const string macNewLine = "\r";

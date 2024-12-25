@@ -31,7 +31,8 @@ namespace Contensive.Processor.Addons {
                 if (string.IsNullOrEmpty(request.recordGuid)) {
                     //
                     // -- add new record
-                    return AjaxResponse.getResponse(cp, new GetEditModalResponse { modalHtml = EditUIController.getAddTab_Modal(core, contentMetadata, false, $"Add {contentMetadata.name}", request.presetNameValuePairs) });
+                    List<string> presetQSNameValues = request.presetNameValueQS.Split(['&']).ToList();
+                    return AjaxResponse.getResponse(cp, new GetEditModalResponse { modalHtml = EditUIController.getAddTab_Modal(core, contentMetadata, false, $"Add {contentMetadata.name}", presetQSNameValues) });
                 }
                 //
                 // -- edit record
@@ -50,11 +51,17 @@ namespace Contensive.Processor.Addons {
         /// </summary>
         public class GetEditModalRequest {
             /// <summary>
-            /// 
+            /// the content of the record being edited
             /// </summary>
             public string contentGuid { get; set; }
+            /// <summary>
+            /// the id of the record being edited
+            /// </summary>
             public string recordGuid { get; set; }
-            public string presetNameValuePairs { get; set; }
+            /// <summary>
+            /// querystring name value pairs to prepopulate the add/edit form
+            /// </summary>
+            public string presetNameValueQS { get; set; }
         }
         //
         // ====================================================================================================

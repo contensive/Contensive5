@@ -164,7 +164,11 @@ namespace Contensive.Processor.Models.Domain {
         /// </summary>
         public bool isAllowCut { get; }
         //
-        public string presetNameValuePairs { get; }
+        public string presetNameValueQS { 
+            get {
+                return string.Join("&", presetQSNameValues);
+            }
+        }
         //
         //
         // ====================================================================================================
@@ -177,6 +181,8 @@ namespace Contensive.Processor.Models.Domain {
         CoreController core { get; }
         //
         private ContentMetadataModel contentMetadata { get; }
+        //
+        public List<string> presetQSNameValues { get; } = [];
         //
         // ====================================================================================================
         //
@@ -198,7 +204,7 @@ namespace Contensive.Processor.Models.Domain {
                 if (!string.IsNullOrWhiteSpace(recordGuid)) {
                     currentRecordCs.OpenRecord(contentMetadata.name, recordGuid);
                 }
-                contentData_rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, fieldTypeEditorAddons);
+                contentData_rightGroups = EditModalViewModel_RightGroup.getRightGroups(core, currentRecordCs, contentMetadata, presetQSNameValues, editModalSn, fieldTypeEditorAddons);
                 if(!currentRecordCs.OK()) {
                     //
                     // -- add new record
@@ -217,7 +223,7 @@ namespace Contensive.Processor.Models.Domain {
                         contentData_AllowDeleteWidget = false;
                     }
                 }
-                contentData_leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetNameValuePairs, editModalSn, contentData_rightGroups, fieldTypeEditorAddons);
+                contentData_leftFields = EditModalViewModel_Field.getLeftFields(core, currentRecordCs, contentMetadata, presetQSNameValues, editModalSn, contentData_rightGroups, fieldTypeEditorAddons);
             }
         }
         private bool contentDataLoaded { get; set; } = false;
@@ -238,8 +244,8 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="allowCut"></param>
         /// <param name="recordName"></param>
         /// <param name="customCaption"></param>
-        /// <param name="presetNameValuePairs">Comma separated list of field name=value to prepopulate fields. Add hiddens if these fields are not visible in the edit.</param>
-        public EditModalViewModel(CoreController core, ContentMetadataModel contentMetadata, string recordGuid, bool allowCut, string recordName, string customCaption, string presetNameValuePairs) {
+        /// <param name="presetQSNameValues">Comma separated list of field name=value to prepopulate fields. Add hiddens if these fields are not visible in the edit.</param>
+        public EditModalViewModel(CoreController core, ContentMetadataModel contentMetadata, string recordGuid, bool allowCut, string recordName, string customCaption, List<string> presetQSNameValues) {
             //
             // -- move this to arguments, it is view
             this.instanceId = core.docProperties.getText("instanceId");
@@ -248,7 +254,7 @@ namespace Contensive.Processor.Models.Domain {
             this.core = core;
             this.contentMetadata = contentMetadata;
             this.recordGuid = recordGuid;
-            this.presetNameValuePairs = presetNameValuePairs;
+            this.presetQSNameValues = presetQSNameValues;
             this.recordName = recordName;
             this.customCaption = customCaption;
             this.isAllowCut = allowCut;

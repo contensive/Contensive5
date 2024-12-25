@@ -81,7 +81,7 @@ namespace Contensive.Processor.Addons {
                     case "deleteData": {
                             //
                             // -- delete the record
-                            cp.Content.Delete(contentMetaData.name, $"id={recordGuid}");
+                            cp.Content.Delete(contentMetaData.name, $"ccguid={cp.Db.EncodeSQLText(recordGuid)}");
                             cp.Response.Redirect(cp.Request.Referer);
                             return result;
                         }
@@ -111,7 +111,9 @@ namespace Contensive.Processor.Addons {
                                     if (field.nameLc == "name") { recordName = cs.GetText("name"); }
                                     if (field.nameLc == "parentid") { parentId = cs.GetInteger("parentid"); }
                                     string requestFieldName = $"field{field.id}";
-                                    if (EditModalViewModel.isFieldInModal(cp.core, field, contentMetaData)) {
+                                    // -- check for fields in modal, plus those added as hiddens for preset values during add-record
+                                    // -- alternative is to send a field list with the edit-form in a hidden, then use that to qualify fields during save
+                                    if (EditModalViewModel.isFieldInModal(cp.core, field, contentMetaData) || cp.Doc.IsProperty($"field{field.id}")) {
                                         //
                                         // -- clear field before save
                                         if (cp.Request.GetBoolean($"field{field.id}delete")) {
@@ -122,7 +124,8 @@ namespace Contensive.Processor.Addons {
                                         } else {
                                             //
                                             // -- set field
-                                            logger.Debug($"SaveEditModalRemote, set fieldname {field.nameLc}, requestName {requestFieldName}, value {cp.Doc.GetText(requestFieldName)}");
+                                            string fieldValue = cp.Doc.GetText(requestFieldName);
+                                            logger.Debug($"SaveEditModalRemote, set fieldname {field.nameLc}, requestName {requestFieldName}, value {fieldValue}");
                                             cs.SetFormInput(field.nameLc, requestFieldName);
                                         }
                                     }
@@ -132,7 +135,7 @@ namespace Contensive.Processor.Addons {
                                 //
                                 // -- call admin aftersave
                                 int recordId = 0;
-                                if(!string.IsNullOrEmpty(recordGuid)) {
+                                if (!string.IsNullOrEmpty(recordGuid)) {
                                     using (DataTable dt = cp.Db.ExecuteQuery($"select id from {contentMetaData.tableName} where ccguid={DbController.encodeSQLText(recordGuid)}")) {
                                         if (dt?.Rows != null && dt.Rows.Count > 0) {
                                             recordId = cp.Utils.EncodeInteger(dt.Rows[0][0]);

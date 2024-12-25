@@ -31,21 +31,22 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="core"></param>
         /// <param name="currentRecordCs"></param>
         /// <param name="contentMetadata"></param>
-        /// <param name="presetNameValuePairs">comma separated list of name=value pairs to prepopulate</param>
+        /// <param name="presetQSNameValues">comma separated list of name=value pairs to prepopulate</param>
         /// <param name="editModalSn">a unique string for the current editor (edit tag plus modal)</param>
         /// <returns></returns>
-        public static List<EditModalViewModel_RightGroup> getRightGroups(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, string presetNameValuePairs, string editModalSn, Dictionary<int, int> FieldTypeEditorAddons) {
+        public static List<EditModalViewModel_RightGroup> getRightGroups(CoreController core, CPCSBaseClass currentRecordCs, ContentMetadataModel contentMetadata, List<string> presetQSNameValues, string editModalSn, Dictionary<int, int> FieldTypeEditorAddons) {
             List<EditModalViewModel_RightGroup> result = [];
             Dictionary<string, string> prepopulateValue = [];
             int recordId = currentRecordCs.OK() ? currentRecordCs.GetInteger("id") : 0;
-            if (!string.IsNullOrEmpty(presetNameValuePairs)) {
+            if (presetQSNameValues.Count>0) {
                 //
                 // -- create dictionary of name/values that should be prepopulated during an add
-                foreach (var keyValuePair in presetNameValuePairs.Split(',')) {
+                foreach (var keyValuePair in presetQSNameValues) {
                     if (!string.IsNullOrEmpty(keyValuePair)) {
                         string[] keyValue = keyValuePair.Split('=');
-                        if (keyValue.Length == 2 && !prepopulateValue.ContainsKey(keyValue[0].ToLowerInvariant())) {
-                            prepopulateValue.Add(keyValue[0].ToLowerInvariant(), keyValue[1]);
+                        string keyName = GenericController.decodeResponseVariable(keyValue[0]).ToLowerInvariant();
+                        if (keyValue.Length == 2 && !prepopulateValue.ContainsKey(keyName)) {
+                            prepopulateValue.Add(keyName, GenericController.decodeResponseVariable(keyValue[1]).ToLowerInvariant());
                         }
                     }
                 }

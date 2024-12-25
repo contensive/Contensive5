@@ -50,58 +50,61 @@ namespace Contensive.Processor.Addons.PageManager {
                 if (!core.session.isEditing()) {
                     return "";
                 }
-                var editItemList = new StringBuilder();
-                string sqlCriteria = "(parentid=" + core.doc.pageController.page.id + ")";
-                var usedPageidList = cp.Doc.GetText("Current Page Child PageId List", "");
-                if (!string.IsNullOrWhiteSpace(usedPageidList)) {
-                    sqlCriteria += "and(id not in (" + usedPageidList + "))";
-                }
-                foreach (var page in DbBaseModel.createList<PageContentModel>(cp, sqlCriteria, "sortorder")) {
-                    ContentMetadataModel contentMetadata;
-                    if (page.contentControlId == 0) {
-                        contentMetadata = ContentMetadataModel.createByUniqueName(core, "page content");
-                    } else {
-                        contentMetadata = ContentMetadataModel.create(core, page.contentControlId);
+                cp.Doc.SetProperty("instanceid", Constants.guidHiddenChildPageList);
+                return cp.Addon.Execute(guidChildPageListAddon);
 
-                    }
-                    string pageLink = PageManagerController.getPageLink(core, page.id, "", true, false);
-                    string pageName = (!string.IsNullOrWhiteSpace(page.name)) ? page.name : "Page " + page.id;
-                    string pageMenuHeadline = (!string.IsNullOrWhiteSpace(page.menuHeadline)) ? page.menuHeadline : pageName;
-                    string editAnchorTag = EditUIController.getEditIcon(core, contentMetadata.id, page.id);
-                    string pageAnchorTag = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(pageLink) + "\">", pageMenuHeadline);
-                    editItemList.Append("\r<li name=\"page" + page.id + "\"  id=\"page" + page.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
-                    if (!string.IsNullOrEmpty(editAnchorTag)) {
-                        editItemList.Append(HtmlController.div(iconGrip, "ccListItemDragHandle") + editAnchorTag + "&nbsp;");
-                    }
-                    editItemList.Append(pageAnchorTag);
-                    editItemList.Append("</li>");
-                }
-                //
-                // -- add new link for each associated content
-                var addItemList = new StringBuilder();
-                foreach (var addItem in EditUIController.getAddTabList(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
-                    if (!string.IsNullOrEmpty(addItem)) {
-                        if (core.siteProperties.allowEditModal) {
-                            //
-                            // -- beta add, includes its own edit wrapper
-                            addItemList.Append("<li>" + addItem + "</LI>");
-                        } else {
-                            //
-                            // -- legacy add, add edit wrapper
-                            addItemList.Append("<li class=\"ccEditWrapper ccListItemNoBullet\">" + addItem + "</LI>");
-                        }
-                    }
-                }
-                //
-                // -- build Hidden list admin tool here
-                string RequestedListName = "";
-                string resultHtml = ""
-                    + HtmlController.h4("Hidden Child Pages")
-                    + HtmlController.p("This list of pages is hidden but the pages may display in other navigation. Creating a new page here helps organize your pages by keeping them together with the parent content. To display a child page, add a child page widget to the page and add pages there, or drag one of these child pages into that widget.")
-                    + HtmlController.ul(editItemList.ToString() + addItemList.ToString(), "ccChildList", "childPageList_" + core.doc.pageController.page.id + "_" + RequestedListName);
-                resultHtml = EditUIController.getAdminHintWrapper(core, resultHtml);
-                resultHtml = HtmlController.div(resultHtml, "container py-5");
-                return resultHtml;
+                //var editItemList = new StringBuilder();
+                //string sqlCriteria = "(parentid=" + core.doc.pageController.page.id + ")";
+                //var usedPageidList = cp.Doc.GetText("Current Page Child PageId List", "");
+                //if (!string.IsNullOrWhiteSpace(usedPageidList)) {
+                //    sqlCriteria += "and(id not in (" + usedPageidList + "))";
+                //}
+                //foreach (var page in DbBaseModel.createList<PageContentModel>(cp, sqlCriteria, "sortorder")) {
+                //    ContentMetadataModel contentMetadata;
+                //    if (page.contentControlId == 0) {
+                //        contentMetadata = ContentMetadataModel.createByUniqueName(core, "page content");
+                //    } else {
+                //        contentMetadata = ContentMetadataModel.create(core, page.contentControlId);
+
+                //    }
+                //    string pageLink = PageManagerController.getPageLink(core, page.id, "", true, false);
+                //    string pageName = (!string.IsNullOrWhiteSpace(page.name)) ? page.name : "Page " + page.id;
+                //    string pageMenuHeadline = (!string.IsNullOrWhiteSpace(page.menuHeadline)) ? page.menuHeadline : pageName;
+                //    string editAnchorTag = EditUIController.getEditIcon(core, contentMetadata.id, page.id);
+                //    string pageAnchorTag = GenericController.getLinkedText("<a href=\"" + HtmlController.encodeHtml(pageLink) + "\">", pageMenuHeadline);
+                //    editItemList.Append("\r<li name=\"page" + page.id + "\"  id=\"page" + page.id + "\" class=\"ccEditWrapper ccListItem allowSort\">");
+                //    if (!string.IsNullOrEmpty(editAnchorTag)) {
+                //        editItemList.Append(HtmlController.div(iconGrip, "ccListItemDragHandle") + editAnchorTag + "&nbsp;");
+                //    }
+                //    editItemList.Append(pageAnchorTag);
+                //    editItemList.Append("</li>");
+                //}
+                ////
+                //// -- add new link for each associated content
+                //var addItemList = new StringBuilder();
+                //foreach (var addItem in EditUIController.getAddTabList(core, "page content", "parentid=" + core.doc.pageController.page.id, true)) {
+                //    if (!string.IsNullOrEmpty(addItem)) {
+                //        if (core.siteProperties.allowEditModal) {
+                //            //
+                //            // -- beta add, includes its own edit wrapper
+                //            addItemList.Append("<li>" + addItem + "</LI>");
+                //        } else {
+                //            //
+                //            // -- legacy add, add edit wrapper
+                //            addItemList.Append("<li class=\"ccEditWrapper ccListItemNoBullet\">" + addItem + "</LI>");
+                //        }
+                //    }
+                //}
+                ////
+                //// -- build Hidden list admin tool here
+                //string RequestedListName = "";
+                //string resultHtml = ""
+                //    + HtmlController.h4("Hidden Child Pages")
+                //    + HtmlController.p("This list of pages is hidden but the pages may display in other navigation. Creating a new page here helps organize your pages by keeping them together with the parent content. To display a child page, add a child page widget to the page and add pages there, or drag one of these child pages into that widget.")
+                //    + HtmlController.ul(editItemList.ToString() + addItemList.ToString(), "ccChildList", "childPageList_" + core.doc.pageController.page.id + "_" + RequestedListName);
+                //resultHtml = EditUIController.getAdminHintWrapper(core, resultHtml);
+                //resultHtml = HtmlController.div(resultHtml, "container py-5");
+                //return resultHtml;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return string.Empty;

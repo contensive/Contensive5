@@ -4,6 +4,7 @@ using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Twilio.TwiML.Voice;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
@@ -159,7 +160,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
                 string recordGuid = contentMetadata.getRecordGuid(core, recordId);
-                EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, "");
+                EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, []);
                 string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
                 //
                 string[] resultParts = result.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);
@@ -193,7 +194,7 @@ namespace Contensive.Processor.Controllers {
                 editAddModalLayout = getModalFromLayout(editAddModalLayout);
                 //
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
-                EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, "");
+                EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, []);
                 string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
                 return result;
             } catch (Exception ex) {
@@ -212,7 +213,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="recordName"></param>
         /// <param name="customCaption"></param>
         /// <returns></returns>
-        public static string getAddTab_Modal(CoreController core, ContentMetadataModel contentMetadata, bool allowPaste,  string customCaption, string presetNameValuePairs) {
+        public static string getAddTab_Modal(CoreController core, ContentMetadataModel contentMetadata, bool allowPaste,  string customCaption, List<string> presetQSNameValues) {
             try {
                 if (!core.session.isEditing()) { return string.Empty; }
                 if (contentMetadata == null) { return ""; }
@@ -224,7 +225,7 @@ namespace Contensive.Processor.Controllers {
                 editAddModalLayout = getModalFromLayout(editAddModalLayout);
                 //
                 string caption = getEditCaption(core, "Add", contentMetadata.name, customCaption);
-                EditModalViewModel editModalViewData = new(core, contentMetadata, "", allowPaste, "", caption, presetNameValuePairs);
+                EditModalViewModel editModalViewData = new(core, contentMetadata, "", allowPaste, "", caption, presetQSNameValues);
                 string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
                 return result;
             } catch (Exception ex) {
@@ -455,7 +456,7 @@ namespace Contensive.Processor.Controllers {
                 string customCaption = "";
                 string caption = getEditCaption(core, "Add", contentName, customCaption);
                 var metadata = ContentMetadataModel.createByUniqueName(core, contentName);
-                EditModalViewModel dataSet = new(core, metadata, "", false, "record name", caption, presetNameValueList);
+                EditModalViewModel dataSet = new(core, metadata, "", false, "record name", caption, presetNameValueList.Split(['&']).ToList());
                 string layout = removeModalFromLayout(LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename));
                 string renderedLayout = MustacheController.renderStringToString(layout, dataSet);
                 string[] renderedParts = renderedLayout.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);

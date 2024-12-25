@@ -162,13 +162,13 @@
                 <h6>Add New {{contentItemName}}</h6>
             </div>
             <input type="hidden" id="widgetEditModalContentGuid{{editModalSn}}" value="{{contentGuid}}">
-            <input type="hidden" id="widgetEditModalpresetNameValuePairs{{editModalSn}}" value="{{presetNameValuePairs}}">
+            <input type="hidden" id="widgetEditModalPresetNameValueQS{{editModalSn}}" value="{{presetNameValueQS}}">
             <script>
                 document.addEventListener("DOMContentLoaded", function(event) { 
                     $('body').on('click','#widgetEditTab{{editModalSn}}',function(){
                         var sendData = {
                             contentGuid: $('#widgetEditModalContentGuid{{editModalSn}}').val(),
-                            presetNameValuePairs: $('#widgetEditModalpresetNameValuePairs{{editModalSn}}').val()
+                            presetNameValueQS: $('#widgetEditModalPresetNameValueQS{{editModalSn}}').val()
                         };
                         console.log('Add Tag clicked, loading modal, sendData: ', sendData);
                         $.ajax({
