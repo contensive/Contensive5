@@ -397,6 +397,8 @@ namespace Contensive.Processor.Controllers {
                                                 //
                                                 // Get path to this collection and call into it
                                                 //
+                                                if (!reinstallDependencies) { continue;  }
+                                                //
                                                 string ChildCollectionName = XmlController.getXMLAttribute(core, MetaDataSection, "name", "");
                                                 string ChildCollectionGUId = XmlController.getXMLAttribute(core, MetaDataSection, "guid", MetaDataSection.InnerText);
                                                 if (string.IsNullOrEmpty(ChildCollectionGUId)) {

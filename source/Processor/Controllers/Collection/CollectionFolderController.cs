@@ -129,7 +129,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             string Collectionname = XmlController.getXMLAttribute(core, CollectionFile.DocumentElement, "name", "");
                             string collectionGuid = XmlController.getXMLAttribute(core, CollectionFile.DocumentElement, "guid", Collectionname);
-                            if ((!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (!collectionsDownloaded.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture)))) {
+                            if ((!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (!collectionsDownloaded.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (reinstallDependencies || collectionGuid.ToLowerInvariant().Equals(baseCollectionGuid))) {
                                 if (string.IsNullOrEmpty(Collectionname)) {
                                     //
                                     // ----- Error condition -- it must have a collection name

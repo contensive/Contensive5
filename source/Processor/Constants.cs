@@ -156,7 +156,7 @@ namespace Contensive.Processor {
         internal const string adminIndexFilterClosedLabel = "<div style=\"font-size:9px;text-align:center;\">&nbsp;<br>F<br>i<br>l<br>t<br>e<br>r<br>s</div>";
         //
         internal const string IconWidthHeight = " width=21 height=22 ";
-        internal const string baseCollectionGuid = "{7C6601A7-9D52-40A3-9570-774D0D43D758}"; // part of software dist - base cdef plus addons with classes in in core library, plus depenancy on coreCollection
+        public const string baseCollectionGuid = "{7c6601a7-9d52-40a3-9570-774d0d43d758}"; // part of software dist - base cdef plus addons with classes in in core library, plus depenancy on coreCollection
         internal const string ApplicationCollectionGuid = "{C58A76E2-248B-4DE8-BF9C-849A960F79C6}"; // exported from application during upgrade
         internal const string AdminNavigatorGuid = "{5168964F-B6D2-4E9F-A5A8-BB1CF908A2C9}";
         internal const string fontAwesomeCollectionGuid = "{3db6a433-59ca-43d1-9fb6-a539b6b947f2}";

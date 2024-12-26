@@ -90,7 +90,8 @@ namespace Contensive.Processor.Addons.Housekeeping {
                         } catch (Exception ex) {
                             logger.Error(ex, $"Housekeep Error updating table {tableName}, ex [{ex}], last sql {sql}, {env.core.logCommonMessage}");
                             LogController.logAlarm(env.core, $"Housekeep Error updating table {tableName}, ex [{ex}], last sql {sql}, {env.core.logCommonMessage}");
-                            throw;
+                            // -- no not throw, test the other tables
+                            continue;
                         }
                     }
                 }

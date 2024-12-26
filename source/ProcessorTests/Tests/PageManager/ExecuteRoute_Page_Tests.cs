@@ -23,7 +23,7 @@ namespace Tests {
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
                 cp.core.siteProperties.anonymousUserResponseID = 0;
                 // -- addon collection
-                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                const string guidBaseCollection = Contensive.Processor.Constants.baseCollectionGuid;
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 // -- test addon returns testString
                 AddonModel testAddon = DbBaseModel.addDefault<AddonModel>(cp);
@@ -80,7 +80,7 @@ namespace Tests {
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
                 //
                 // -- addon collection
-                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                const string guidBaseCollection = Contensive.Processor.Constants.baseCollectionGuid;
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 //
                 // -- test addon returns testString
@@ -177,7 +177,7 @@ namespace Tests {
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
                 //
                 // -- addon collection
-                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                const string guidBaseCollection = Contensive.Processor.Constants.baseCollectionGuid;
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 //
                 //
@@ -241,7 +241,7 @@ namespace Tests {
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
                 //
                 // -- addon collection
-                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                const string guidBaseCollection = Contensive.Processor.Constants.baseCollectionGuid;
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 //
                 // -- test addon returns testString
@@ -320,7 +320,7 @@ namespace Tests {
                 cp.Site.SetProperty("ALLOW HTML MINIFY", false);
                 //
                 // -- addon collection
-                const string guidBaseCollection = "{7C6601A7-9D52-40A3-9570-774D0D43D758}";
+                const string guidBaseCollection = Contensive.Processor.Constants.baseCollectionGuid;
                 AddonCollectionModel baseCollection = DbBaseModel.create<AddonCollectionModel>(cp, guidBaseCollection);
                 //
                 // -- test addon returns testString
