@@ -520,14 +520,16 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- get template
                 {
+                    core.html.addHeadTag(core.doc.pageController.template.OtherHeadTags, "template head tags");
+                    //
                     string templateHtml = core.doc.pageController.template.bodyHTML;
                     if (string.IsNullOrEmpty(templateHtml)) { templateHtml = Properties.Resources.DefaultTemplateHtml; }
                     string templateName = core.doc.pageController.template.name;
                     if (string.IsNullOrEmpty(templateName)) { templateName = "Template " + core.doc.pageController.template.id; }
                     //
-                    // -- Mustache encoding
                     if (core.doc.pageController.template.mustacheDataSetAddonId > 0) {
                         //
+                        // -- Mustache encoding
                         // -- need a method that executes an addon and returns an object, not a string
                         string dataSetJson = core.addon.execute(core.doc.pageController.template.mustacheDataSetAddonId, new CPUtilsBaseClass.addonExecuteContext {
                             addonType = CPUtilsBaseClass.addonContext.ContextTemplate

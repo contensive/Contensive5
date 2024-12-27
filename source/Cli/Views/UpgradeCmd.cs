@@ -22,7 +22,7 @@ namespace Contensive.CLI {
         /// Upgrade a single or all apps, optionally forcing full install to include up-to-date collections (to fix broken collection addons)
         /// </summary>
         /// <param name="appName"></param>
-        /// <param name="repair"></param>
+        /// <param name="repair">if true, install base dependencies, reset critical site properties and reinstall all library collections.</param>
         public static void execute(Contensive.Processor.CPClass cp, string appName, bool repair) {
             //
             // -- verify program files folder
@@ -38,6 +38,7 @@ namespace Contensive.CLI {
                 if (upgradeApp.GetAppConfig().enabled) {
                     BuildController.upgrade(upgradeApp.core, false, repair);
                     upgradeApp.Cache.InvalidateAll();
+                
                 }
             } else {
                 //

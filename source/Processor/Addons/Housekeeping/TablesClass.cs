@@ -59,6 +59,11 @@ namespace Contensive.Processor.Addons.Housekeeping {
                                 logger.Error(msg);
                                 continue;
                             }
+                            //
+                            // -- create and verify missing sql tables found in cctables
+                            env.core.db.createSQLTable(tableName);
+                            //
+                            // -- test success
                             if (!env.core.db.isSQLTable(tableName)) {
                                 string msg = $"Housekeep, TablesClass, ERROR, ccTable record [{tableName}] but Db catalog [{env.core.appConfig.name}] does not include this table. Create this table in the database and all ccfields records assocated to it.";
                                 env.log(msg);

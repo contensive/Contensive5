@@ -217,12 +217,12 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionGuid"></param>
         /// <param name="return_ErrorMessage"></param>
         /// <param name="IsNewBuild"></param>
-        /// <param name="repair"></param>
+        /// <param name="installDependencies"></param>
         /// <param name="nonCriticalErrorList"></param>
         /// <param name="logPrefix"></param>
         /// <param name="collectionsInstalledList"></param>
         /// <returns></returns>
-        public static bool installCollectionFromLibrary(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref ErrorReturnModel return_ErrorMessage, bool IsNewBuild, bool repair, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool skipCdefInstall) {
+        public static bool installCollectionFromLibrary(CoreController core, bool isDependency, Stack<string> contextLog, string collectionGuid, ref ErrorReturnModel return_ErrorMessage, bool IsNewBuild, bool installDependencies, ref List<string> nonCriticalErrorList, string logPrefix, ref List<string> collectionsInstalledList, bool skipCdefInstall) {
             bool UpgradeOK = true;
             try {
                 //
@@ -243,7 +243,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- build the collection folders for all collection files in the download path and created a list of collection Guids that need to be installed
                         var collectionsDownloaded = new List<string>();
-                        CollectionInstallController.installCollectionsFromTempFolder(core, isDependency, contextLog, tempFilesDownloadPath, ref return_ErrorMessage, ref collectionsInstalledList, IsNewBuild, repair, ref nonCriticalErrorList, logPrefix, true, ref collectionsDownloaded, skipCdefInstall);
+                        CollectionInstallController.installCollectionsFromTempFolder(core, isDependency, contextLog, tempFilesDownloadPath, ref return_ErrorMessage, ref collectionsInstalledList, IsNewBuild, installDependencies, ref nonCriticalErrorList, logPrefix, true, ref collectionsDownloaded, skipCdefInstall);
                     }
                     //
                     // -- delete the temporary install folder

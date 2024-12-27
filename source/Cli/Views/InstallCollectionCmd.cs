@@ -60,7 +60,7 @@ namespace Contensive.CLI {
                             var context = new Stack<string>();
                             context.Push("command line interface install command [" + collectionName + ", " + collectionGuid + "]");
                             ErrorReturnModel returnErrorMessage = new();
-                            CollectionLibraryController.installCollectionFromLibrary(cpApp.core, false, context, collectionGuid, ref returnErrorMessage, false, false, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
+                            CollectionLibraryController.installCollectionFromLibrary(cpApp.core, false, context, collectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
                             if (returnErrorMessage.hasErrors) {
                                 Console.WriteLine("There was an error installing the collection: " + returnErrorMessage);
                             }
@@ -72,7 +72,7 @@ namespace Contensive.CLI {
                         var context = new Stack<string>();
                         context.Push("command line interface install command [" + collectionName + ", " + collectionGuid + "]");
                         ErrorReturnModel returnErrorMessage = new();
-                        CollectionLibraryController.installCollectionFromLibrary(cpApp.core, false, context, collectionGuid, ref returnErrorMessage, false, false, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
+                        CollectionLibraryController.installCollectionFromLibrary(cpApp.core, false, context, collectionGuid, ref returnErrorMessage, false, true, ref nonCritialErrorList, logPrefix, ref collectionsInstalledList, skipCdefInstall);
                         if (returnErrorMessage.hasErrors) {
                             Console.WriteLine("***** Error installing the collection: " + returnErrorMessage);
                         }

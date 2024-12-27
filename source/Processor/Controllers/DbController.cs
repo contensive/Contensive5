@@ -580,17 +580,16 @@ namespace Contensive.Processor.Controllers {
                 if (fieldType == 0) { throw new ArgumentException("invalid fieldtype[" + fieldType + "]"); }
                 if (GenericController.strInstr(1, tableName, ".") != 0) { throw new ArgumentException("Table name cannot include a period(.)"); }
                 if (string.IsNullOrEmpty(fieldName)) { throw new ArgumentException("Field name cannot be blank"); }
-                if (!isSQLTableField(tableName, fieldName)) {
-                    //
-                    logger.Info($"{core.logCommonMessage},creating sql table field[" + fieldName + "],table[" + tableName + "], datasource[" + dataSourceName + "]");
-                    //
-                    executeNonQuery("ALTER TABLE " + tableName + " ADD " + fieldName + " " + getSQLAlterColumnType(fieldType));
-                    TableSchemaModel.tableSchemaListClear(core);
-                    //
-                    if (clearMetadataCache) {
-                        core.cache.invalidateAll();
-                        core.cacheRuntime.clear();
-                    }
+                if (isSQLTableField(tableName, fieldName)) { return; }
+                //
+                logger.Info($"{core.logCommonMessage},creating sql table field[" + fieldName + "],table[" + tableName + "], datasource[" + dataSourceName + "]");
+                //
+                executeNonQuery("ALTER TABLE " + tableName + " ADD " + fieldName + " " + getSQLAlterColumnType(fieldType));
+                TableSchemaModel.tableSchemaListClear(core);
+                //
+                if (clearMetadataCache) {
+                    core.cache.invalidateAll();
+                    core.cacheRuntime.clear();
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

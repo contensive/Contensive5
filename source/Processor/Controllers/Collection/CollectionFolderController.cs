@@ -30,7 +30,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsInstalledList"></param>
         /// <param name="collectionsBuildingFolder">list of collection guids in the process of folder building. use to block recursive loop.</param>
         /// <returns></returns>
-        public static bool buildCollectionFoldersFromCollectionZips(CoreController core, Stack<string> contextLog, string sourceTempFolderPath, DateTime CollectionLastChangeDate, ref List<string> collectionsToInstall, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder, bool reinstallDependencies) {
+        public static bool buildCollectionFoldersFromCollectionZips(CoreController core, Stack<string> contextLog, string sourceTempFolderPath, DateTime CollectionLastChangeDate, ref List<string> collectionsToInstall, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder, bool installDependencies) {
             bool success = false;
             try {
                 //
@@ -42,7 +42,7 @@ namespace Contensive.Processor.Controllers {
                     List<CPFileSystemClass.FileDetail> SrcFileNamelist = core.tempFiles.getFileList(sourceTempFolderPath);
                     foreach (CPFileSystemClass.FileDetail file in SrcFileNamelist) {
                         if ((file.Extension == ".zip") || (file.Extension == ".xml")) {
-                            success = buildCollectionFolderFromCollectionZip(core, contextLog, sourceTempFolderPath + file.Name, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsToInstall, ref collectionsInstalledList, ref collectionsBuildingFolder, reinstallDependencies);
+                            success = buildCollectionFolderFromCollectionZip(core, contextLog, sourceTempFolderPath + file.Name, CollectionLastChangeDate, ref return_ErrorMessage, ref collectionsToInstall, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies);
                         }
                     }
                 }
@@ -69,7 +69,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="collectionsInstalledList">collection guids that have been saved to the database during this install.</param>
         /// <param name="collectionsBuildingFolder">folder building is recursive. These are the collection guids whose folders are currently being built.</param>
         /// <returns></returns>
-        public static bool buildCollectionFolderFromCollectionZip(CoreController core, Stack<string> contextLog, string sourceTempFolderPathFilename, DateTime CollectionLastChangeDate, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsDownloaded, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder, bool reinstallDependencies) {
+        public static bool buildCollectionFolderFromCollectionZip(CoreController core, Stack<string> contextLog, string sourceTempFolderPathFilename, DateTime CollectionLastChangeDate, ref ErrorReturnModel return_ErrorMessage, ref List<string> collectionsDownloaded, ref List<string> collectionsInstalledList, ref List<string> collectionsBuildingFolder, bool installDependencies) {
             try {
                 //
                 contextLog.Push(MethodInfo.GetCurrentMethod().Name + ", [" + sourceTempFolderPathFilename + "]");
@@ -129,7 +129,7 @@ namespace Contensive.Processor.Controllers {
                             //
                             string Collectionname = XmlController.getXMLAttribute(core, CollectionFile.DocumentElement, "name", "");
                             string collectionGuid = XmlController.getXMLAttribute(core, CollectionFile.DocumentElement, "guid", Collectionname);
-                            if ((!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (!collectionsDownloaded.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (reinstallDependencies || collectionGuid.ToLowerInvariant().Equals(baseCollectionGuid))) {
+                            if ((!collectionsInstalledList.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (!collectionsDownloaded.Contains(collectionGuid.ToLower(CultureInfo.InvariantCulture))) && (installDependencies || collectionGuid.ToLowerInvariant().Equals(baseCollectionGuid))) {
                                 if (string.IsNullOrEmpty(Collectionname)) {
                                     //
                                     // ----- Error condition -- it must have a collection name
@@ -158,7 +158,7 @@ namespace Contensive.Processor.Controllers {
                                 core.tempFiles.copyPath(tmpInstallPath, CollectionVersionFolder, core.privateFiles);
                                 //
                                 // -- iterate through all nodes of this collection xml file and install all dependencies
-                                if (!reinstallDependencies) {
+                                if (!installDependencies) {
                                     //
                                     // -- skip dependencies
                                     logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, skip dependencies");
@@ -232,7 +232,7 @@ namespace Contensive.Processor.Controllers {
                                                                         //
                                                                         // -- install the downloaded file
                                                                         logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, collection missing or needs to be updated.");
-                                                                        if (!buildCollectionFoldersFromCollectionZips(core, contextLog, workingTempPath, libraryCollectionLastModifiedDate, ref collectionsDownloaded, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder, reinstallDependencies)) {
+                                                                        if (!buildCollectionFoldersFromCollectionZips(core, contextLog, workingTempPath, libraryCollectionLastModifiedDate, ref collectionsDownloaded, ref return_ErrorMessage, ref collectionsInstalledList, ref collectionsBuildingFolder, installDependencies)) {
                                                                             logger.Info($"{core.logCommonMessage}, BuildLocalCollectionFolder, [" + statusMsg + "], BuildLocalCollectionFolder returned error state, message [" + return_ErrorMessage + "]");
                                                                             return_ErrorMessage.errors.Add(statusMsg + ". The installation can not continue because there was an unknown error installing the included collection file, guid [" + ChildCollectionGUID + "].");
                                                                         }

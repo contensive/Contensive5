@@ -24,5 +24,6 @@ namespace Contensive.Models.Db {
         /// if not empty, this addon returns an object that is used as the data source for a mustance rendering of this template
         /// </summary>
         public int mustacheDataSetAddonId { get; set; }
+        public string OtherHeadTags { get; set; }
     }
 }

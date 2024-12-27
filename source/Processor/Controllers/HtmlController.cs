@@ -988,7 +988,7 @@ namespace Contensive.Processor.Controllers {
             StringBuilder result = new("<form");
             result.Append((string.IsNullOrWhiteSpace(attributes.acceptcharset)) ? "" : $" accept-charset=\"{attributes.acceptcharset}\"");
             result.Append($" action=\"{(string.IsNullOrWhiteSpace(attributes.action) ? "?" + core.doc.refreshQueryString : attributes.action)}\"");
-            result.Append((!attributes.autocomplete) ? "" : " autocomplete=\"on\"");
+            result.Append((attributes.autocomplete) ? " autocomplete=\"on\"" : " autocomplete=\"off\"");
             switch (attributes.enctype) {
                 case HtmlAttributesForm.HtmlEncTypeEnum.application_x_www_form_urlencoded: {
                         result.Append(" enctype=\"application/x-www-form-urlencoded\"");
@@ -1074,7 +1074,7 @@ namespace Contensive.Processor.Controllers {
                         result = $"<input type=\"password\" value=\"{editValue}\"{attrList}>";
                     } else {
                         attrList += (widthCharacters <= 0) ? " size=\"" + core.siteProperties.defaultFormInputWidth.ToString() + "\"" : " size=\"" + widthCharacters.ToString() + "\"";
-                        result = $"<input TYPE=\"Text\" value=\"{editValue}\"{attrList}>";
+                        result = $"<input type=\"Text\" value=\"{editValue}\"{attrList}>";
                     }
                     core.doc.formInputTextCnt += 1;
                 }
@@ -1858,7 +1858,7 @@ namespace Contensive.Processor.Controllers {
                                     }
                                 }
                             }
-                            if(ContentName.ToLowerInvariant().Equals("wrappers")) {
+                            if (ContentName.ToLowerInvariant().Equals("wrappers")) {
                                 //
                                 // -- deprecate wrappers
                                 return "";
@@ -2602,7 +2602,7 @@ namespace Contensive.Processor.Controllers {
                             string DivName = htmlNamePrefix + ".All";
                             bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
                             string editLink = EditUIController.getEditUrl(core, secondaryMeta.id, -1);
-                            string editLinkTemplate = !isAdmin ? "" : EditUIController.getEditIcon(core, editLink,"","");
+                            string editLinkTemplate = !isAdmin ? "" : EditUIController.getEditIcon(core, editLink, "", "");
                             //string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getLegacyRecordEditAnchorTag(core, secondaryMeta, -1, "", "");
                             while (csData.ok()) {
                                 string OptionName = csData.getText("OptionName");
@@ -2854,10 +2854,10 @@ namespace Contensive.Processor.Controllers {
                 string htmlBeforeEndOfBody = getHtmlBodyEnd(allowLogin, allowTools);
                 //
                 // -- add beta-mode classes
-                if (core.siteProperties.allowEditModal) { 
+                if (core.siteProperties.allowEditModal) {
                     // 
                     // -- add beta style wrapper to add styles
-                    core.doc.bodyClassList.Add("ccBetaEditModal");  
+                    core.doc.bodyClassList.Add("ccBetaEditModal");
                 }
                 //
                 // -- add user errors that were not handled during page process
@@ -3216,12 +3216,12 @@ namespace Contensive.Processor.Controllers {
         //
         public void addHeadTag(string headTag, string addedByMessage) {
             try {
-                if (!string.IsNullOrWhiteSpace(headTag)) {
-                    core.doc.htmlMetaContent_OtherTags.Add(new HtmlMetaClass {
-                        addedByMessage = addedByMessage,
-                        content = headTag
-                    });
-                }
+                if (string.IsNullOrWhiteSpace(headTag)) { return; }
+                //
+                core.doc.htmlMetaContent_OtherTags.Add(new HtmlMetaClass {
+                    addedByMessage = addedByMessage,
+                    content = headTag
+                });
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
@@ -4045,7 +4045,7 @@ namespace Contensive.Processor.Controllers {
                     result.Append(segment);
                     continue;
                 }
-                if(posTagClose<posCurlyOpen) {
+                if (posTagClose < posCurlyOpen) {
                     // -- curly brace in content, not tag
                     result.Append(segment);
                     continue;
@@ -4064,7 +4064,7 @@ namespace Contensive.Processor.Controllers {
                     result.Append(segment);
                     continue;
                 }
-                string innerTag = HttpUtility.HtmlEncode(segment.Substring(posFirstSpace+1, innerLen));
+                string innerTag = HttpUtility.HtmlEncode(segment.Substring(posFirstSpace + 1, innerLen));
                 segment = $"{segment.Substring(0, posFirstSpace)} data-wrapper=\"{innerTag}\"{segment.Substring(posTagClose)}";
                 result.Append(segment);
             }
@@ -4098,14 +4098,14 @@ namespace Contensive.Processor.Controllers {
                 }
                 int innerStart = posWrapStart + 14;
                 int innerLen = posWrapEnd - posWrapStart - 14;
-                if (innerStart< 0 || innerLen < 0) {
+                if (innerStart < 0 || innerLen < 0) {
                     // -- invalid wrap, skip
                     result.Append(segment);
                     continue;
                 }
                 string inner = segment.Substring(innerStart, innerLen);
                 inner = HttpUtility.HtmlDecode(inner);
-                segment = $"{segment.Substring(0, posWrapStart-1)} {inner}{segment.Substring(posWrapEnd + 1)}";
+                segment = $"{segment.Substring(0, posWrapStart - 1)} {inner}{segment.Substring(posWrapEnd + 1)}";
                 result.Append(segment);
                 continue;
             }

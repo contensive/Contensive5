@@ -83,7 +83,7 @@ namespace Contensive.CLI {
                 var nonCriticalErrorList = new List<string>();
                 var collectionsInstalled = new List<string>();
                 string collectionGuidsInstalled = "";
-                if (!CollectionInstallController.installCollectionFromTempFile(cpApp.core, false, contextLog, tempPathFilename, ref errorMessage, ref collectionGuidsInstalled, false, false, ref nonCriticalErrorList, logPrefix, ref collectionsInstalled, skipCdefInstall)) {
+                if (!CollectionInstallController.installCollectionFromTempFile(cpApp.core, false, contextLog, tempPathFilename, ref errorMessage, ref collectionGuidsInstalled, false, true, ref nonCriticalErrorList, logPrefix, ref collectionsInstalled, skipCdefInstall)) {
                     if (errorMessage.hasErrors) {
                         Console.WriteLine("***** Error installing the collection: " + errorMessage);
                     } else {

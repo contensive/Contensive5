@@ -25,10 +25,10 @@ namespace Contensive.Processor.Controllers {
         //
         //======================================================================================================
         //
-        internal static void installMetaDataMiniCollectionFromXml(CoreController core, string srcXml, bool isNewBuild, bool reinstallDependencies, bool isBaseCollection, string logPrefix) {
+        internal static void installMetaDataMiniCollectionFromXml(CoreController core, string srcXml, bool isNewBuild, bool installDependencies, bool isBaseCollection, string logPrefix) {
             try {
                 MetadataMiniCollectionModel newCollection = loadXML(core, srcXml, isBaseCollection, true, isNewBuild, logPrefix);
-                installMetaDataMiniCollection_BuildDb(core, isBaseCollection, newCollection, isNewBuild, reinstallDependencies, logPrefix);
+                installMetaDataMiniCollection_BuildDb(core, isBaseCollection, newCollection, isNewBuild, installDependencies, logPrefix);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -436,7 +436,7 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Verify ccContent and ccFields records from the metadata nodes of a a collection file. This is the last step of loading teh metadata nodes of a collection file. ParentId field is set based on ParentName node.
         /// </summary>
-        private static void installMetaDataMiniCollection_BuildDb(CoreController core, bool isBaseCollection, MetadataMiniCollectionModel Collection, bool isNewBuild, bool reinstallDependencies, string logPrefix) {
+        private static void installMetaDataMiniCollection_BuildDb(CoreController core, bool isBaseCollection, MetadataMiniCollectionModel Collection, bool isNewBuild, bool installDependencies, string logPrefix) {
             try {
                 //
                  string logMsgContext = "installing MetaDataMiniCollection BuildDb, collection [" + Collection.name + "]";

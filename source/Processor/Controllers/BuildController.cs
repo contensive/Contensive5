@@ -22,7 +22,9 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Reinstall the core collectin. If repair true, include all dependencies and all updatable installed collections that come from the library
+        /// Reinstall the core collectin. 
+        /// if repair false, only install the base collection without any dependencies
+        /// If repair true, include all dependencies from base install, plus reinstall all collections installed
         /// </summary>
         /// <param name="core"></param>
         /// <param name="isNewBuild"></param>
@@ -30,7 +32,7 @@ namespace Contensive.Processor.Controllers {
         public static void upgrade(CoreController core, bool isNewBuild, bool repair) {
             try {
                 //
-                logger.Info($"{core.logCommonMessage},AppBuilderController.upgrade, app [" + core.appConfig.name + "], repair [" + repair + "]");
+                logger.Info($"{core.logCommonMessage},AppBuilderController.upgrade, app [" + core.appConfig.name + "], repair (reinstall base with dependencies, update critical site properties, and reinstall all Library collections) [" + repair + "]");
                 string logPrefix = "upgrade[" + core.appConfig.name + "]";
                 //
                 {

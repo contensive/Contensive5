@@ -2434,15 +2434,19 @@
     <Field Name="mustacheDataSetAddonId" Active="true" AdminOnly="0" Authorable="1" Caption="Mustache Rendering Dataset" DeveloperOnly="0" EditSortPriority="1000" FieldType="Lookup" HtmlContent="0" IndexColumn="" IndexSortDirection="" IndexSortOrder="" IndexWidth="" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Mustache" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="Add-ons" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault><![CDATA[Templates may contain mustache elements (see mustache.github.io). If so, create an addon that returns the dataset needed to render the mustache properties, and select it here.]]></HelpDefault>
     </Field>
-    
-    <!-- deprecated or not implemented yet -->
-    <Field Name="IsSecure" Active="true" AdminOnly="0" Authorable="0" Caption="deprected" DeveloperOnly="0" EditSortPriority="1120" FieldType="Boolean" HtmlContent="0" IndexColumn="1" IndexSortDirection="0" IndexSortOrder="1" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+    <Field Name="OtherHeadTags" Active="true" AdminOnly="0" Authorable="true" Caption="Head Tags" DeveloperOnly="0" EditSortPriority="9999" FieldType="LongText" HtmlContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="Meta Content" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[Html included here will be added to the document head tag. Use for tags like Base and Meta where the order of appearance doesn't matter. Do not add Style or Javascript library tags here, instead create an addon with Style and Javascript and mark this template dependent on it, to maintain the required order. Non-library Script and Javascript shoudl be added in the template Html.]]></HelpDefault>
+    </Field>
+    <!-- 
+      deprecated or not implemented yet 
+    -->
+    <Field Name="IsSecure" Active="true" AdminOnly="0" Authorable="0" Caption="" DeveloperOnly="0" EditSortPriority="1120" FieldType="Boolean" HtmlContent="0" IndexColumn="1" IndexSortDirection="0" IndexSortOrder="1" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[Deprecated. protocol controlled by webserver.]]></HelpDefault>
     </Field>
-    <Field Name="Source" Active="true" AdminOnly="0" Authorable="0" Caption="Body Source File" DeveloperOnly="0" EditSortPriority="1050" FieldType="Text" HtmlContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="1" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+    <Field Name="Source" Active="true" AdminOnly="0" Authorable="0" Caption="deprecated" DeveloperOnly="0" EditSortPriority="1050" FieldType="Text" HtmlContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="1" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
-    <Field Name="addonList" Active="true" AdminOnly="0" Authorable="0" Caption="Add-on List" DeveloperOnly="0" EditSortPriority="2000" FieldType="LongText" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+    <Field Name="addonList" Active="true" AdminOnly="0" Authorable="0" Caption="deprecated" DeveloperOnly="0" EditSortPriority="2000" FieldType="LongText" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
     <Field Name="SharedStyles" Active="true" AdminOnly="0" Authorable="0" Caption="deprecated" DeveloperOnly="0" EditSortPriority="9999" FieldType="ManyToMany" HtmlContent="0" IndexColumn="" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitleField="0" RSSDescriptionField="0" MemberSelectGroup="" EditGroup="" EditTab="Styles" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
@@ -2455,9 +2459,6 @@
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
     <Field Name="StylesFilename" Active="true" AdminOnly="0" Authorable="0" Caption="deprecated" DeveloperOnly="0" EditSortPriority="9999" FieldType="CssFile" HtmlContent="0" IndexColumn="" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitleField="0" RSSDescriptionField="0" MemberSelectGroup="" EditGroup="" EditTab="Styles" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
-      <HelpDefault><![CDATA[ ]]></HelpDefault>
-    </Field>
-    <Field Name="OtherHeadTags" Active="true" AdminOnly="0" Authorable="0" Caption="deprecated" DeveloperOnly="0" EditSortPriority="9999" FieldType="LongText" HtmlContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="Meta Content" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
     <Field Name="MobileBodyHTML" Active="true" AdminOnly="0" Authorable="0" Caption="deprecated" DeveloperOnly="0" EditSortPriority="9999" FieldType="LongText" HtmlContent="0" IndexColumn="0" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="Mobile" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
@@ -3214,79 +3215,6 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.setAdminSiteFieldHelpClass]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
-  </Addon>
-  <Addon Name="Child Page List" Guid="{D291F133-AB50-4640-9A9A-18DB68FF363B}" Type="Widget">
-    <Category>Extras.Navigation</Category>
-    <Admin>No</Admin>
-    <Content>Yes</Content>
-    <Template>Yes</Template>
-    <Email>No</Email>
-    <BlockEditTools>No</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.getChildPageList]]></DotNetClass>
-    <CopyText></CopyText>
-    <ArgumentList><![CDATA[List Name]]></ArgumentList>
-    <IncludeAddon Name="JQuery UI" Guid="{840B9AEF-9470-4599-BD47-7EC0C9298614}"/>
-    <JavascriptForceHead>Yes</JavascriptForceHead>
-    <JavascriptInHead><![CDATA[
-//
-// --------------------
-// -- server post
-// server reads data from cp.request.body then deserializes to a request object of type that matches this data object
-// on success, callback with responseData
-// on fail, callback with error message
-function serverPost(url, requestData, successCallBack, errorCallback) {
-    console.log("serverPost, url [" + url + "], data [" + requestData + "]");
-    $.ajax({
-        type: "POST",
-        url: url,
-        data: JSON.stringify(requestData),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            if (response.errors.length > 0) {
-                errorCallback(response.errors[0]);
-                return;
-            }
-            // -- update seat buttons
-            successCallBack(response.data);
-        },
-        error: function (xhr) {
-            if(xhr.responseText) {
-                errorCallback(xhr.responseText);
-                return;
-            }
-            errorCallback("Please try again. There was an unexpected error from " + url + ".");
-        }
-    });
-}
-//
-// --------------------
-//	-- child list methods
-//
-function saveSortable(listId) {
-    let e, c, requestData = {};
-    requestData.listId = listId;
-    requestData.childList = "";
-    e = document.getElementById(listId);
-    for (i = 0; i < e.childNodes.length; i++) {
-        c = e.childNodes[i];
-        if (c.id) { requestData.childList += "," + c.id }
-    }
-  serverPost("savePageManagerChildListSort", requestData, function(){}, function(){});
-}
-$(function () {
-    jQuery(".ccEditWrapper .ccChildList").sortable({
-        items: "li.allowSort",
-        stop: function (event, ui) {
-            saveSortable(jQuery(this).attr("id"));
-        },
-        connectWith: ".ccChildList",
-		receive: function(event,ui) {
-            saveSortable(jQuery(this).attr("id"));
-		},		
-		placeholder: "ui-state-highlight"
-    });
-})]]></JavascriptInHead>
   </Addon>
   <Addon Name="/set-Password" Guid="{F9FF6026-3DB0-4870-848C-493FCC50A026}" Type="Add-on">
     <RemoteMethod>Yes</RemoteMethod>
