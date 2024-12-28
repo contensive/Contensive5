@@ -25,7 +25,10 @@ namespace Contensive.Models.Db {
         public bool allowMessageFooter { get; set; }
         public bool allowMetaContentNoFollow { get; set; }
         public bool allowMoreInfo { get; set; }
-        public bool allowReturnLinkDisplay { get; set; }
+        /// <summary>
+        /// deprecated
+        /// </summary>
+         public bool allowReturnLinkDisplay { get; set; }
         public bool allowReviewedFooter { get; set; }
         public bool allowSeeAlso { get; set; }
         public int archiveParentId { get; set; }

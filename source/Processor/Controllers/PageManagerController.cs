@@ -1025,13 +1025,16 @@ namespace Contensive.Processor.Controllers {
                 bool isRootPage = core.doc.pageController.pageToRootList.Count.Equals(1);
                 if (core.doc.pageController.page.allowReturnLinkDisplay && (!isRootPage)) {
                     //
-                    // -- add Breadcrumb
-                    string BreadCrumbPrefix = core.siteProperties.getText("BreadCrumbPrefix", "Return to");
-                    string breadCrumb = core.doc.pageController.getReturnBreadcrumb(core);
-                    if (!string.IsNullOrEmpty(breadCrumb)) {
-                        breadCrumb = "\r<p class=\"container pt-4 ccPageListNavigation\">" + BreadCrumbPrefix + " " + breadCrumb + "</p>";
-                    }
-                    result.Append(breadCrumb);
+                    // -- send support email, this site needs to be upgraded
+                    core.cpParent.Email.send("support@contensive.com", "jay@contensive.com", $"Site [{core.cpParent.Site.Name}] includes page [{core.cpParent.Doc.PageId}] with breadcrumb", $"Site [{core.cpParent.Site.Name}] includes page [{core.cpParent.Doc.PageId}] with breadcrumb");
+                    ////
+                    //// -- add Breadcrumb
+                    //string BreadCrumbPrefix = core.siteProperties.getText("BreadCrumbPrefix", "Return to");
+                    //string breadCrumb = core.doc.pageController.getReturnBreadcrumb(core);
+                    //if (!string.IsNullOrEmpty(breadCrumb)) {
+                    //    breadCrumb = "\r<p class=\"container pt-4 ccPageListNavigation\">" + BreadCrumbPrefix + " " + breadCrumb + "</p>";
+                    //}
+                    //result.Append(breadCrumb);
                 }
                 //
                 // -- add Page Content

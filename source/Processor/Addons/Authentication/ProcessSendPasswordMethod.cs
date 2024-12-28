@@ -19,22 +19,21 @@ namespace Contensive.Processor.Addons.Primitives {
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
-                // -- setup passwordToken and send reset link and code
-                string userEmail = core.docProperties.getText("email");
-                if (string.IsNullOrEmpty(userEmail)) { return ""; }
-                //
+                core.doc.continueProcessing = false;
                 string userErrorMessage = "";
-                List<PersonModel> userList = DbBaseModel.createList<PersonModel>(core.cpParent, $"email={DbController.encodeSQLText(userEmail)}");
-                foreach (PersonModel user in userList) {
-                    var passwordToken = new PasswordTokenModel(cp, user);
-                    PasswordRecoveryWorkflowController.trySendPasswordReset(core, user, passwordToken, ref userErrorMessage, userList.Count>1);
+                string userEmail = core.docProperties.getText("email");
+                if (!PasswordRecoveryWorkflowController.trySendPasswordReset(core, userEmail, ref userErrorMessage)) {
+                    return ""
+                        + "<div style=\"width:300px;margin:100px auto 0 auto;\">"
+                        + $"<p>There was a problem sending login information for email address '{userEmail}'. {userErrorMessage}</p>"
+                        + "<p><a href=\"?" + core.doc.refreshQueryString + "\">Return to the site and try again.</a></p>"
+                        + "</div>";
                 }
                 //
-                core.doc.continueProcessing = false;
                 return ""
                     + "<div style=\"width:300px;margin:100px auto 0 auto;\">"
-                    + "<p>An attempt to send login information for email address '" + userEmail + "' has been made.</p>"
-                    + "<p><a href=\"?" + core.doc.refreshQueryString + "\">Return to the Site.</a></p>"
+                    + "<p>An attempt to send login information for email address '" + userEmail + "' has been made. Check your email for instructions to continue.</p>"
+                    + "<p><a href=\"?" + core.doc.refreshQueryString + "\">Return to the site.</a></p>"
                     + "</div>";
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
