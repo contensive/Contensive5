@@ -64,12 +64,12 @@ a.ccGridCaption {
 }
 
 /*
-    Edit Wrapper, ccEditWrapperBeta added to body
+    Edit Wrapper
 */
 
 .ccEditWrapper {
     border: 2px dashed #297de2;
-	margin: 0;
+	margin: 0 .25rem .25rem;
     padding: 5px;
 }
 
@@ -87,12 +87,6 @@ a.ccGridCaption {
 	padding: 4px;
 	color: black;
 	background-color: #4c4;
-}
-
-.ccEditWrapper .ccChildList li {
-	/* border-top: 2px dashed #297de2;
-	border-right:2px dashed #297de2;
-	border-left: 2px dashed #297de2; */
 }
 
 .ccEditWrapper .ccChildList li:last-child,
@@ -118,7 +112,7 @@ a.ccGridCaption {
 /*
 * Record add link
 */
-.ccBetaEditModal .addNewItemTag {
+.addNewItemTag {
     background-color: #EEEEEE;
     border: 2px dashed #297de2;
     width: 100%;

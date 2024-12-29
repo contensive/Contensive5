@@ -1452,7 +1452,7 @@ div.ccDialogPageNotFound {
 /*
     Edit Wrapper
 */
-.ccEditWrapper { 
+/* .ccEditWrapper { 
     border: 1px dashed #808080;
     margin: 1px;   
 }
@@ -1490,7 +1490,7 @@ div.ccDialogPageNotFound {
 
 .ccEditWrapper .ccChildList li {
     border: 1px dashed #262;
-}
+} */
 /*
 * Content and Addon Icons
 */ 

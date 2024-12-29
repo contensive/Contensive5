@@ -156,12 +156,44 @@ namespace Contensive.Processor.Controllers {
                 // -- edit record plus edit modal (blue pencil)
                 // -- get layout and remove the modal. Modal is delivered ajax from /getEditModal
                 string editAddModalLayout = LayoutController.getLayout(core.cpParent, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
+                //
+                // -- remove modal before the render, it is faster
                 editAddModalLayout = removeModalFromLayout(editAddModalLayout);
                 //
                 string caption = getEditCaption(core, "Edit", contentMetadata.name, customCaption);
                 string recordGuid = contentMetadata.getRecordGuid(core, recordId);
                 EditModalViewModel editModalViewData = new(core, contentMetadata, recordGuid, allowCut, recordName, caption, []);
+                //
                 string result = MustacheController.renderStringToString(editAddModalLayout, editModalViewData);
+                //
+                // -- execute all the custom editors because all js and css from the editors and thier dependencies need to be added to this page, so the modals added by ajax can call them
+                var fieldTypeEditors = core.cacheRuntime.fieldEditorAddonList;
+                foreach (var fieldKvp in contentMetadata.fields) {
+                    ContentFieldMetadataModel field = fieldKvp.Value;
+                    //
+                    // -- determine custom editor addon
+                    AddonModel editorAddon = null;
+                    if (!string.IsNullOrEmpty(field.editorAddonGuid)) {
+                        //
+                        // -- set editor from field
+                        editorAddon = core.cacheRuntime.addonCache.create(field.editorAddonGuid);
+                    }
+                    var fieldEditor = fieldTypeEditors.Find(x => (x.fieldTypeId == (int)field.fieldTypeId));
+                    if (fieldEditor != null) {
+                        //
+                        // -- set editor from field type
+                        int fieldTypeDefaultEditorAddonId = (int)fieldEditor.editorAddonId;
+                        editorAddon = core.cacheRuntime.addonCache.create(fieldTypeDefaultEditorAddonId);
+                    }
+                    if (editorAddon is null) { continue; }
+                    core.cpParent.Addon.Execute(editorAddon.id, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                        addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextEditor,
+                        isDependency = true  
+                    });
+                }
+                //
+                // -- remove modal after the render, and it includes all the library dependencies that will be needed when the modal delivers ajax
+                //editAddModalLayout = removeModalFromLayout(editAddModalLayout);
                 //
                 string[] resultParts = result.Split(new string[] { "<!-- modal-start -->" }, StringSplitOptions.None);
                 core.cpParent.Doc.AddBodyEnd(resultParts[1]);

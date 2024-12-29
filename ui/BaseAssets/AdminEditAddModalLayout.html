@@ -18,11 +18,6 @@
         -->
         {{#includeEditTag}}
             <style>
-                .ccEditWrapper { 
-                    border: 2px dashed #297de2;
-                    margin: 0;
-                    padding: 5px;   
-                }
                 .editBtn {
                     display: flex;
                     border-top-left-radius: 8px;
@@ -91,7 +86,7 @@
                 }
 
             </style>    
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-between mx-1 mt-1">
                 <a id="widgetEditTab{{editModalSn}}" type="button" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editModalSn}}">
                     <div class="btn-group editModalBtn ccRecordLinkCon" role="group">
                         <div class="btn editBtn" ><img src="BaseAssets/light-edit-pencil.svg" alt="pencil icon"></div>
@@ -866,14 +861,13 @@
                                                                     <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
                                                                     {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
                                                                     {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
-                                                                    <label class="form-check-label d-flex" for="checkbox{{fieldId}}">
+                                                                    <label class="form-check-label d-flex" for="{{fieldId}}">
                                                                         <h6 class="mb-0">{{caption}}</h6>
                                                                         {{#isHelp}}
                                                                         <a type="button" class="helpIcon ms-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
                                                                             <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                                         </a>
-                                                                        {{/isHelp}}
-                                                                    
+                                                                        {{/isHelp}}                                                                    
                                                                     </label>
                                                                 </div>
                                                             {{/isBoolean}}
