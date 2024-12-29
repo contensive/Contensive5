@@ -1,12 +1,14 @@
 ﻿
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
+using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using Contensive.Processor.Properties;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
+using System.Linq;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -439,6 +441,42 @@ namespace Contensive.Processor.Controllers {
                         string returnErrorMessage = "";
                         cp.Addon.InstallCollectionFromLibrary(Constants.redactorCollectionGuid, ref returnErrorMessage);
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.12.28.0")) {
+                        //
+                        // -- Sort Methods created without name caused duplicates
+                        // -- merging will cause issues, but they have a blank name anyway
+                        cp.Db.ExecuteNonQuery("delete from ccSortMethods where (name is null)or(name='')or(orderbyclause is null)or(orderbyclause='')");
+                        BuildController.verifySortMethod(core, "By Name", "name");
+                        BuildController.verifySortMethod(core, "By Alpha Sort Order Field", "sortorder");
+                        BuildController.verifySortMethod(core, "By Date", "dateadded");
+                        BuildController.verifySortMethod(core, "By Date Reverse", "dateadded desc");
+                        BuildController.verifySortMethod(core, "By Alpha Sort Order Then Oldest First", "sortorder,id");
+                        //
+                        // -- staff and site manager groups have duplicates because xml installed records by guid after build created them programmatically
+                        mergeGroupFixCase(cp, "Staff");
+                        mergeGroupFixCase(cp, "Site Managers");
+                    }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "24.12.28.3")) {
+                        //
+                        // -- append breadcrumb widget to all pages with feature set
+                        foreach (var page in DbBaseModel.createList<PageContentModel>(cp, "allowReturnLinkDisplay>0")) {
+                            List<AddonListItemModel> addonList = cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
+                            if (addonList is null) { addonList = []; }
+                            if (addonList.Count == 0 || addonList[0].designBlockTypeGuid != Constants.addonGuidBreadcrumbWidget) {
+                                addonList.Insert(0, new AddonListItemModel {
+                                    designBlockTypeGuid = Constants.addonGuidBreadcrumbWidget,
+                                    designBlockTypeName = Constants.addonNameBreadcrumbWidget,
+                                    instanceGuid = GenericController.getGUID()
+                                });
+                            }
+                            page.allowReturnLinkDisplay = false;
+                            page.addonList = cp.JSON.Serialize(addonList);
+                            page.save(cp);
+                        }
+
+                        mergeGroupFixCase(cp, "Staff");
+                        mergeGroupFixCase(cp, "Site Managers");
+                    }
                 }
                 //
                 // -- Reload
@@ -448,6 +486,26 @@ namespace Contensive.Processor.Controllers {
                 logger.Error($"{core.logCommonMessage}", ex, "Warning during upgrade, data migration");
             }
         }
+        //
+        // ====================================================================================================
+        //
+        private static void mergeGroupFixCase(CPClass cp, string groupName) {
+            List<GroupModel> groups = DbBaseModel.createList<GroupModel>(cp, $"name='{groupName}'");
+            foreach (GroupModel group in groups.Skip(1)) {
+                using (DataTable dt = cp.Db.ExecuteQuery("select t.name from ccfields f left join cccontent c on c.id=f.ContentID left join cctables t on t.id=c.ContentTableID where f.name='groupid'")) {
+                    if (dt?.Rows != null) {
+                        foreach (DataRow row in dt.Rows) {
+                            string tableName = cp.Utils.EncodeText(row["name"]);
+                            cp.Db.ExecuteNonQuery($"update {tableName} set groupid={groups.First().id} where groupId={group.id}");
+                        }
+                    }
+                    cp.Db.Delete("ccgroups", group.id);
+                }
+                cp.Db.ExecuteNonQuery($"update ccgroups set name={cp.Db.EncodeSQLText(groupName)} where name={cp.Db.EncodeSQLText(groupName)}");
+            };
+        }
+        //
+        // ====================================================================================================
         //
         public static void convertPageContentToAddonList(CoreController core, PageContentModel page) {
             // 
@@ -463,7 +521,6 @@ namespace Contensive.Processor.Controllers {
             string addonList = Resources.defaultAddonListJson.replace("{textBlockInstanceGuid}", textBlockInstanceGuid, StringComparison.InvariantCulture).replace("{childListInstanceGuid}", childListInstanceGuid, StringComparison.InvariantCulture);
             core.cpParent.Db.ExecuteNonQuery("update ccpagecontent set addonList=" + core.cpParent.Db.EncodeSQLText(addonList) + " where (id=" + page.id + ")");
         }
-
         //
         //====================================================================================================
         /// <summary>

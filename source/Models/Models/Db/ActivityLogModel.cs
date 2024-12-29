@@ -39,7 +39,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int visitorId { get; set; }
         /// <summary>
-        /// for meetings, this is the person in the staff group who is to meet. 
+        /// for meetings, this is the person in the Staff group who is to meet. 
         /// </summary>
         public int scheduledStaffId { get; set; }
         /// <summary>

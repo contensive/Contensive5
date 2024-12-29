@@ -202,6 +202,9 @@ namespace Contensive.Processor {
         internal const string addonGuidExportXML = "{DC7EF1EE-20EE-4468-BEB1-0DC30AC8DAD6}";
         internal const string addonGuidRenderAddonList = "{A94419A3-5554-471A-A7C8-385124E8374A}";
         //
+        internal const string addonGuidBreadcrumbWidget = "{8DA03E99-A66F-4851-B41F-B069B7714CF0}";
+        internal const string addonNameBreadcrumbWidget = "Breadcrumb Widget";
+        //
         internal const int addonRecursionLimit = 5;
         //
         internal const string defaultLandingPageName = "Home";

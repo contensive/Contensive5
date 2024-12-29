@@ -143,15 +143,13 @@ namespace Contensive.Processor.Controllers {
                         DataBuildVersion = CoreController.codeVersion();
                         core.siteProperties.dataBuildVersion = CoreController.codeVersion();
                     }
-                    if (versionIsOlder(DataBuildVersion, CoreController.codeVersion())) {
-                        //
-                        // -- data updates
-                        logger.Info($"{core.logCommonMessage},{logPrefix}, run database conversions, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
-                        BuildDataMigrationController.migrateData(core, DataBuildVersion, logPrefix);
-                    }
-                    logger.Info($"{core.logCommonMessage},{logPrefix}, verify records required");
+                    //
+                    // -- data updates
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, run database conversions, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
+                    BuildDataMigrationController.migrateData(core, DataBuildVersion, logPrefix);
                     //
                     //  menus are created in ccBase.xml, this just checks for dups
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, verify records required");
                     verifyAdminMenus(core, DataBuildVersion);
                     verifyLanguageRecords(core);
                     verifyCountries(core);
@@ -928,26 +926,27 @@ namespace Contensive.Processor.Controllers {
         /// <summary>
         /// Create an entry in the Sort Methods Table
         /// </summary>
-        private static void verifySortMethod(CoreController core, string Name, string OrderByCriteria) {
+        internal static void verifySortMethod(CoreController core, string name, string orderByCriteria) {
             try {
                 //
                 NameValueCollection sqlList = new() {
-                    { "orderbyclause", DbController.encodeSQLText(OrderByCriteria) }
+                    { "name", DbController.encodeSQLText(name) },
+                    { "orderbyclause", DbController.encodeSQLText(orderByCriteria) }
                 };
                 //
-                using (DataTable dt = core.db.openTable("ccSortMethods", "name=" + DbController.encodeSQLText(Name), "id", "id", 1, 1)) {
-                    if (dt.Rows.Count > 0) {
+                using (DataTable dt = core.db.openTable("ccSortMethods", "name=" + DbController.encodeSQLText(name), "id", "id", 1, 1)) {
+                    if (dt?.Rows is not null && dt.Rows.Count > 0) {
                         //
                         // update sort method
-                        int recordId = GenericController.encodeInteger(dt.Rows[0]["id"]);
+                        int recordId = encodeInteger(dt.Rows[0]["id"]);
                         core.db.update("ccsortmethods", "id=" + recordId.ToString(), sqlList);
                         DbBaseModel.invalidateCacheOfRecord<SortMethodModelx>(core.cpParent, recordId);
-                    } else {
-                        //
-                        // Create the new sort method
-                        core.db.insert("ccSortMethods", sqlList, 0);
+                        return;
                     }
                 }
+                //
+                // Create the new sort method
+                core.db.insert("ccSortMethods", sqlList, 0);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

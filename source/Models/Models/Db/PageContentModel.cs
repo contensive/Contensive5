@@ -14,6 +14,9 @@ namespace Contensive.Models.Db {
         public static DbBaseTableMetadataModel tableMetadata { get; } = new DbBaseTableMetadataModel("page content", "ccpagecontent", "default", true);
         //
         //====================================================================================================
+        /// <summary>
+        /// JSON for List<AddonListItemModel>
+        /// </summary>
         public string addonList { get; set; }
         public bool allowBrief { get; set; }
         public bool allowChildListDisplay { get; set; }

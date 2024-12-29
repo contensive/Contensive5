@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.Diagnostics {
                 resultList.Append(Environment.NewLine + "IsDebugging: " + cp.User.IsDebugging.ToString());
                 resultList.Append(Environment.NewLine + "IsDeveloper: " + cp.User.IsDeveloper.ToString());
                 resultList.Append(Environment.NewLine + "IsGuest: " + cp.User.IsGuest.ToString());
-                resultList.Append(Environment.NewLine + "IsInGroup(\"staff\": " + cp.User.IsInGroup("staff").ToString());
+                resultList.Append(Environment.NewLine + "IsInGroup(\"Staff\": " + cp.User.IsInGroup("Staff").ToString());
                 resultList.Append(Environment.NewLine + "IsNew:" + cp.User.IsNew.ToString());
                 resultList.Append(Environment.NewLine + "cp.User.IsNewLoginOK(\"root\",\"contensive\"):" + cp.User.IsNewLoginOK("root", "contensive").ToString());
                 resultList.Append(Environment.NewLine + "cp.User.IsPageBuilderEditing:" + cp.User.IsPageBuilderEditing.ToString());

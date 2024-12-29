@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-a lydiakidwell --install ecommerce",
+      "commandLineArgs": "-a lydiakidwell -u",
       "jsWebView2Debugging": false
     }
   }
