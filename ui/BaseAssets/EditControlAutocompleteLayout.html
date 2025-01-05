@@ -1,0 +1,28 @@
+<div class="form-inline ml-2 ms-2 my-2 my-lg-0">
+    <input id="editControl{{id}}" class="form-control" type="search" placeholder="Search" value="{{initialValueName}}">
+    <input id="editControlValue{{id}}" type="hidden" name="{{htmlName}}" value="{{initialValueId}}">
+</div>
+<script>
+    /*
+    * admin header command
+    */
+    document.addEventListener('DOMContentLoaded', function(){
+        $( "#editControl{{id}}" ).autocomplete({
+        source: function (request, response) {
+            $.ajax({
+                dataType: "json",
+                type : 'Get',
+                url: '/EditControlAutocomplete?token={{tokenUrlEncoded}}&term='+encodeURIComponent(request.term),
+                success: function(data) { response(data); },
+                error: function(data) { console.log("error in editControl{{id}}"); }
+            });
+        },
+        select: function( event, ui ) { 
+            console.log("editControl{{id}} select name:" + ui.item.label + ", value: " + ui.item.value); 
+            $( "#editControlValue{{id}}" ).val(ui.item.value);
+            $( "#editControl{{id}}" ).val(ui.item.label);
+            return false;
+        }
+        });
+    })
+</script>

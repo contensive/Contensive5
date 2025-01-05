@@ -11,6 +11,7 @@ using System.Xml;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using NLog;
+using Contensive.Processor.Controllers.Build;
 
 namespace Contensive.Processor.Controllers {
     //

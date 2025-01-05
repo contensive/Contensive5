@@ -808,7 +808,8 @@
                                             </label>
                                             {{#customEditor}}{{{customEditor}}}{{/customEditor}}
                                             {{^customEditor}}
-                                                redirect-editor
+                                                {{#redirectUrl}}<a href="{{{redirectUrl}}}" target="_blank">Open in New Window</a>{{/redirectUrl}}
+                                                {{^redirectUrl}}(redirect list not supported){{/redirectUrl}}
                                             {{/customEditor}}
                                         </div>
                                     </div>

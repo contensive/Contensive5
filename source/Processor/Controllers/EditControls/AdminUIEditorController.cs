@@ -1,5 +1,4 @@
-﻿
-using Contensive.Models.Db;
+﻿using Contensive.Models.Db;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Addons.AdminSite.Models;
 using Contensive.Processor.Models.Domain;
@@ -11,7 +10,7 @@ using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 
-namespace Contensive.Processor.Controllers {
+namespace Contensive.Processor.Controllers.EditControls {
     //
     //====================================================================================================
     /// <summary>
@@ -48,13 +47,13 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getCurrencyEditor(CoreController core, string fieldName, double? fieldValue, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
             if (readOnly) {
-                double FieldValueNumber = GenericController.encodeNumber(fieldValue);
-                string EditorString = (HtmlController.inputHidden(fieldName.ToLowerInvariant(), encodeText(FieldValueNumber)));
-                EditorString += (HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), FieldValueNumber, htmlId, "text form-control", readOnly, required));
+                double FieldValueNumber = encodeNumber(fieldValue);
+                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), encodeText(FieldValueNumber));
+                EditorString += HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), FieldValueNumber, htmlId, "text form-control", readOnly, required);
                 EditorString += whyReadOnlyMsg;
                 return EditorString;
             } else {
-                return (HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, false));
+                return HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, false);
             }
         }
         //
@@ -70,9 +69,9 @@ namespace Contensive.Processor.Controllers {
                 if (testTime.Hour.Equals(0) && testTime.Minute.Equals(0) && testTime.Second.Equals(0)) { FieldValueTime = null; }
             }
             string inputTime = HtmlController.inputTime(core, fieldName + "-time", FieldValueTime, "component-" + htmlId + "-time", "form-control", readOnly, fieldRequired, false);
-            string dateTimeString = (FieldValueDate != null) ? ((DateTime)FieldValueDate).ToString("o", CultureInfo.InvariantCulture) : "";
+            string dateTimeString = FieldValueDate != null ? ((DateTime)FieldValueDate).ToString("o", CultureInfo.InvariantCulture) : "";
             string inputDateTime = HtmlController.inputHidden(fieldName, dateTimeString, "", htmlId);
-            string clearCheck = readOnly? "" : "" +
+            string clearCheck = readOnly ? "" : "" +
                 "<div class=\"ms-4 mt-2\">" +
                 "<div class=\"form-check\">" +
                 $"<input type=\"checkbox\" id=\"{fieldName}.clearFlag\" name=\"{fieldName}.clearFlag\" value=\"1\" class=\"form-check-input\"><label for=\"deleteCheckbox1608141220\" class=\"form-check-label\">Clear</label>" +
@@ -190,7 +189,7 @@ namespace Contensive.Processor.Controllers {
             string result = "";
             if (readOnly) {
                 result += HtmlController.inputHidden(fieldName, fieldValue);
-                result += AdminUIEditorController.getHtmlCodeEditor(core, fieldName, fieldValue, readOnly, htmlId, false);
+                result += getHtmlCodeEditor(core, fieldName, fieldValue, readOnly, htmlId, false);
                 return result;
             }
             if (string.IsNullOrEmpty(fieldValue)) {
@@ -206,10 +205,10 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         //
         public static string getImageEditor(CoreController core, string fieldName, string imagePathFilename, string thumbnailPathFilename, bool readOnly, string htmlId) {
-            if (readOnly && string.IsNullOrEmpty(imagePathFilename)) { 
+            if (readOnly && string.IsNullOrEmpty(imagePathFilename)) {
                 //
                 // -- read-only and no current image, show [no image]
-                return HtmlController.div("[no image]") + HtmlController.inputHidden(fieldName, imagePathFilename); 
+                return HtmlController.div("[no image]") + HtmlController.inputHidden(fieldName, imagePathFilename);
             }
             if (string.IsNullOrEmpty(imagePathFilename)) {
                 //
@@ -219,7 +218,7 @@ namespace Contensive.Processor.Controllers {
             if (string.IsNullOrEmpty(imagePathFilename)) {
                 //
                 // -- thumbnail required
-                thumbnailPathFilename = imagePathFilename; 
+                thumbnailPathFilename = imagePathFilename;
             }
             //
             // -- show current thumbnail, link to current image, and file input
@@ -251,12 +250,12 @@ namespace Contensive.Processor.Controllers {
         //
         public static string getIntegerEditor(CoreController core, string fieldName, int? fieldValue, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
             if (readOnly) {
-                string EditorString = (HtmlController.inputHidden(fieldName.ToLowerInvariant(), GenericController.encodeText(fieldValue)));
-                EditorString += (HtmlController.inputInteger(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, required));
+                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), encodeText(fieldValue));
+                EditorString += HtmlController.inputInteger(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, required);
                 EditorString += whyReadOnlyMsg;
                 return EditorString;
             } else {
-                return (HtmlController.inputInteger(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, false));
+                return HtmlController.inputInteger(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, false);
             }
         }
         //
@@ -284,36 +283,36 @@ namespace Contensive.Processor.Controllers {
             if (readOnly) {
                 //
                 // -- lookup readonly
-                result += (HtmlController.inputHidden(fieldName, GenericController.encodeText(fieldValue)));
+                result += HtmlController.inputHidden(fieldName, encodeText(fieldValue));
                 using (var csData = new CsModel(core)) {
                     csData.openRecord(lookupContentMetacontent.name, fieldValue, "Name,ContentControlID");
                     if (csData.ok()) {
                         if (string.IsNullOrEmpty(csData.getText("Name"))) {
-                            result += AdminUIEditorController.getTextEditor(core, fieldName + "-readonly-fpo", "No Name", readOnly, htmlId);
+                            result += getTextEditor(core, fieldName + "-readonly-fpo", "No Name", readOnly, htmlId);
                         } else {
-                            result += AdminUIEditorController.getTextEditor(core, fieldName + "-readonly-fpo", csData.getText("Name"), readOnly, htmlId);
+                            result += getTextEditor(core, fieldName + "-readonly-fpo", csData.getText("Name"), readOnly, htmlId);
                         }
-                        result += ("&nbsp;[<a TabIndex=-1 href=\"?" + rnAdminForm + "=4&cid=" + lookupContentMetacontent.id + "&id=" + fieldValue + "\" target=\"_blank\">View details in new window</a>]");
+                        result += "&nbsp;[<a TabIndex=-1 href=\"?" + rnAdminForm + "=4&cid=" + lookupContentMetacontent.id + "&id=" + fieldValue + "\" target=\"_blank\">View details in new window</a>]";
                     } else {
-                        result += ("None");
+                        result += "None";
                     }
                 }
-                result += ("&nbsp;[<a TabIndex=-1 href=\"?cid=" + lookupContentMetacontent.id + "\" target=\"_blank\">See all " + lookupContentMetacontent.name + "</a>]");
+                result += "&nbsp;[<a TabIndex=-1 href=\"?cid=" + lookupContentMetacontent.id + "\" target=\"_blank\">See all " + lookupContentMetacontent.name + "</a>]";
                 result += WhyReadOnlyMsg;
             } else {
                 //
                 // -- not readonly
-                string nonLabel = (fieldRequired) ? "" : "None";
+                string nonLabel = fieldRequired ? "" : "None";
                 result += core.html.selectFromContent(fieldName, fieldValue, lookupContentMetacontent.name, lookupContentSqlFilter, nonLabel, "", ref IsEmptyList, "select form-control");
                 if (fieldValue != 0) {
                     using (var csData = new CsModel(core)) {
                         if (csData.openRecord(lookupContentMetacontent.name, fieldValue, "ID")) {
-                            result += ("&nbsp;[<a TabIndex=-1 href=\"?" + rnAdminForm + "=4&cid=" + lookupContentMetacontent.id + "&id=" + fieldValue + "\" target=\"_blank\">Details</a>]");
+                            result += "&nbsp;[<a TabIndex=-1 href=\"?" + rnAdminForm + "=4&cid=" + lookupContentMetacontent.id + "&id=" + fieldValue + "\" target=\"_blank\">Details</a>]";
                         }
                         csData.close();
                     }
                 }
-                result += ("&nbsp;[<a TabIndex=-1 href=\"?cid=" + lookupContentMetacontent.id + "\" target=\"_blank\">See all " + lookupContentMetacontent.name + "</a>]");
+                result += "&nbsp;[<a TabIndex=-1 href=\"?cid=" + lookupContentMetacontent.id + "\" target=\"_blank\">See all " + lookupContentMetacontent.name + "</a>]";
 
             }
             return result;
@@ -369,10 +368,10 @@ namespace Contensive.Processor.Controllers {
             if (readOnly) {
                 //
                 // ----- Lookup ReadOnly
-                result += (HtmlController.inputHidden(htmlName, index.ToString()));
+                result += HtmlController.inputHidden(htmlName, index.ToString());
                 if (index < 1) {
                     result += getTextEditor(core, htmlName + "-readonly-fpo", "None", readOnly, htmlId);
-                } else if (index > (lookupList.Count)) {
+                } else if (index > lookupList.Count) {
                     result += getTextEditor(core, htmlName + "-readonly-fpo", "None", readOnly, htmlId);
                 } else {
                     result += getTextEditor(core, htmlName + "-readonly-fpo", lookupList[index - 1], readOnly, htmlId);
@@ -394,7 +393,7 @@ namespace Contensive.Processor.Controllers {
             if (readOnly) {
                 //
                 // ----- Lookup ReadOnly
-                result += (HtmlController.inputHidden(htmlName, GenericController.encodeText(currentValue)));
+                result += HtmlController.inputHidden(htmlName, encodeText(currentValue));
                 if (currentValue == null) {
                     result += getTextEditor(core, htmlName + "-readonly-fpo", "None", readOnly, htmlId);
                 } else {
@@ -440,27 +439,27 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     var selectedUser = DbBaseModel.create<PersonModel>(core.cpParent, selectedRecordId);
                     if (selectedUser == null) {
-                        EditorString += AdminUIEditorController.getTextEditor(core, htmlName + "-readonly-fpo", "(deleted)", readOnly, htmlId);
+                        EditorString += getTextEditor(core, htmlName + "-readonly-fpo", "(deleted)", readOnly, htmlId);
                     } else {
-                        EditorString += AdminUIEditorController.getTextEditor(core, htmlName + "-readonly-fpo", (string.IsNullOrWhiteSpace(selectedUser.name)) ? "No Name" : HtmlController.encodeHtml(selectedUser.name), readOnly, htmlId);
-                        EditorString += ("&nbsp;[<a TabIndex=-1 href=\"?af=4&cid=" + selectedUser.contentControlId + "&id=" + selectedRecordId + "\" target=\"_blank\">View details in new window</a>]");
+                        EditorString += getTextEditor(core, htmlName + "-readonly-fpo", string.IsNullOrWhiteSpace(selectedUser.name) ? "No Name" : HtmlController.encodeHtml(selectedUser.name), readOnly, htmlId);
+                        EditorString += "&nbsp;[<a TabIndex=-1 href=\"?af=4&cid=" + selectedUser.contentControlId + "&id=" + selectedRecordId + "\" target=\"_blank\">View details in new window</a>]";
                     }
                 }
                 EditorString += WhyReadOnlyMsg;
             } else {
                 //
                 // -- editable
-                EditorString += core.html.selectUserFromGroup(htmlName, selectedRecordId, group.id, "", (fieldRequired) ? "" : "None", htmlId, "select form-control");
+                EditorString += core.html.selectUserFromGroup(htmlName, selectedRecordId, group.id, "", fieldRequired ? "" : "None", htmlId, "select form-control");
                 if (selectedRecordId != 0) {
                     var selectedUser = DbBaseModel.create<PersonModel>(core.cpParent, selectedRecordId);
                     if (selectedUser == null) {
                         EditorString += "Deleted";
                     } else {
-                        string recordName = (string.IsNullOrWhiteSpace(selectedUser.name)) ? "No Name" : HtmlController.encodeHtml(selectedUser.name);
+                        string recordName = string.IsNullOrWhiteSpace(selectedUser.name) ? "No Name" : HtmlController.encodeHtml(selectedUser.name);
                         EditorString += "&nbsp;[Edit <a TabIndex=-1 href=\"?af=4&cid=" + selectedUser.contentControlId + "&id=" + selectedRecordId + "\">" + HtmlController.encodeHtml(recordName) + "</a>]";
                     }
                 }
-                EditorString += ("&nbsp;[Select from members of <a TabIndex=-1 href=\"?cid=" + ContentMetadataModel.getContentId(core, "groups") + "\">" + group.name + "</a>]");
+                EditorString += "&nbsp;[Select from members of <a TabIndex=-1 href=\"?cid=" + ContentMetadataModel.getContentId(core, "groups") + "\">" + group.name + "</a>]";
             }
             return EditorString;
         }
@@ -472,7 +471,7 @@ namespace Contensive.Processor.Controllers {
             if (groupId > 0) {
                 group = DbBaseModel.create<GroupModel>(core.cpParent, groupId);
             }
-            if ((group == null) && string.IsNullOrWhiteSpace(groupName)) {
+            if (group == null && string.IsNullOrWhiteSpace(groupName)) {
                 //
                 // -- groupId invalid and groupname empty
                 return "No selection can be made because this Member Select field does not have a group assigned." + HtmlController.inputHidden(htmlName, groupId);
@@ -497,7 +496,7 @@ namespace Contensive.Processor.Controllers {
             if (!string.IsNullOrWhiteSpace(groupGuid)) {
                 group = DbBaseModel.create<GroupModel>(core.cpParent, groupGuid);
             }
-            if ((group == null) && string.IsNullOrWhiteSpace(groupName)) {
+            if (group == null && string.IsNullOrWhiteSpace(groupName)) {
                 //
                 // -- groupGuid invalid and groupname empty
                 return string.Empty;
@@ -531,12 +530,12 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getNumberEditor(CoreController core, string fieldName, double? fieldValue, bool readOnly, string htmlId, bool required, string whyReadOnlyMsg) {
             if (readOnly) {
-                string EditorString = (HtmlController.inputHidden(fieldName.ToLowerInvariant(), GenericController.encodeText(fieldValue)));
-                EditorString += (HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, required));
+                string EditorString = HtmlController.inputHidden(fieldName.ToLowerInvariant(), encodeText(fieldValue));
+                EditorString += HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, required);
                 EditorString += whyReadOnlyMsg;
                 return EditorString;
             } else {
-                return (HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, false));
+                return HtmlController.inputNumber(core, fieldName.ToLowerInvariant(), fieldValue, htmlId, "text form-control", readOnly, false);
             }
         }
         //
@@ -555,7 +554,14 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="SitePropertyName"></param>
+        /// <param name="SitePropertyValue"></param>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public static string getSelectorStringEditor(CoreController core, string SitePropertyName, string SitePropertyValue, string selector) {
             var result = new StringBuilder();
             try {
@@ -565,30 +571,30 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- 
                 string ExpandedSelector = "";
-                Dictionary<string, string> addonInstanceProperties = new Dictionary<string, string>();
+                Dictionary<string, string> addonInstanceProperties = [];
                 core.addon.buildAddonOptionLists(ref addonInstanceProperties, ref ExpandedSelector, SitePropertyName + "=" + selector, instanceOptions, "0", true);
-                int Pos = GenericController.strInstr(1, ExpandedSelector, "[");
+                int Pos = strInstr(1, ExpandedSelector, "[");
                 if (Pos == 0) {
                     //
                     // -- EXIT with Text addon_execute_result
-                    selector = GenericController.decodeNvaArgument(selector);
-                    return AdminUIEditorController.getTextEditor(core, SitePropertyName, selector);
+                    selector = decodeNvaArgument(selector);
+                    return getTextEditor(core, SitePropertyName, selector);
                 }
                 //
                 // List of Options, might be select, radio or checkbox
                 //
-                string LCaseOptionDefault = GenericController.toLCase(ExpandedSelector.left(Pos - 1));
-                int PosEqual = GenericController.strInstr(1, LCaseOptionDefault, "=");
+                string LCaseOptionDefault = toLCase(ExpandedSelector.left(Pos - 1));
+                int PosEqual = strInstr(1, LCaseOptionDefault, "=");
                 if (PosEqual > 0) {
                     LCaseOptionDefault = LCaseOptionDefault.Substring(PosEqual);
                 }
-                LCaseOptionDefault = GenericController.decodeNvaArgument(LCaseOptionDefault);
+                LCaseOptionDefault = decodeNvaArgument(LCaseOptionDefault);
                 ExpandedSelector = ExpandedSelector.Substring(Pos);
-                Pos = GenericController.strInstr(1, ExpandedSelector, "]");
+                Pos = strInstr(1, ExpandedSelector, "]");
                 string OptionSuffix = "";
                 if (Pos > 0) {
                     if (Pos < ExpandedSelector.Length) {
-                        OptionSuffix = GenericController.toLCase((ExpandedSelector.Substring(Pos)).Trim(' '));
+                        OptionSuffix = toLCase(ExpandedSelector.Substring(Pos).Trim(' '));
                     }
                     ExpandedSelector = ExpandedSelector.left(Pos - 1);
                 }
@@ -598,22 +604,22 @@ namespace Contensive.Processor.Controllers {
                 for (OptionPtr = 0; OptionPtr < OptionCnt; OptionPtr++) {
                     string OptionValue_AddonEncoded = OptionValues[OptionPtr].Trim(' ');
                     if (!string.IsNullOrEmpty(OptionValue_AddonEncoded)) {
-                        Pos = GenericController.strInstr(1, OptionValue_AddonEncoded, ":");
+                        Pos = strInstr(1, OptionValue_AddonEncoded, ":");
                         string OptionCaption = null;
                         string OptionValue = null;
                         if (Pos == 0) {
-                            OptionValue = GenericController.decodeNvaArgument(OptionValue_AddonEncoded);
+                            OptionValue = decodeNvaArgument(OptionValue_AddonEncoded);
                             OptionCaption = OptionValue;
                         } else {
-                            OptionCaption = GenericController.decodeNvaArgument(OptionValue_AddonEncoded.left(Pos - 1));
-                            OptionValue = GenericController.decodeNvaArgument(OptionValue_AddonEncoded.Substring(Pos));
+                            OptionCaption = decodeNvaArgument(OptionValue_AddonEncoded.left(Pos - 1));
+                            OptionValue = decodeNvaArgument(OptionValue_AddonEncoded.Substring(Pos));
                         }
                         switch (OptionSuffix) {
                             case "checkbox": {
                                     //
                                     // Create checkbox addon_execute_getFormContent_decodeSelector
                                     //
-                                    bool selected = (GenericController.strInstr(1, "," + LCaseOptionDefault + ",", "," + GenericController.toLCase(OptionValue) + ",") != 0);
+                                    bool selected = strInstr(1, "," + LCaseOptionDefault + ",", "," + toLCase(OptionValue) + ",") != 0;
                                     result.Append(HtmlController.checkbox(SitePropertyName + OptionPtr, selected, "", false, "", false, OptionValue, OptionCaption));
                                     break;
                                 }
@@ -621,7 +627,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // Create Radio addon_execute_getFormContent_decodeSelector
                                     //
-                                    if (GenericController.toLCase(OptionValue) == LCaseOptionDefault) {
+                                    if (toLCase(OptionValue) == LCaseOptionDefault) {
                                         result.Append("<div style=\"white-space:nowrap\"><input type=\"radio\" name=\"" + SitePropertyName + "\" value=\"" + OptionValue + "\" checked=\"checked\" >" + OptionCaption + "</div>");
                                     } else {
                                         result.Append("<div style=\"white-space:nowrap\"><input type=\"radio\" name=\"" + SitePropertyName + "\" value=\"" + OptionValue + "\" >" + OptionCaption + "</div>");
@@ -632,7 +638,7 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     // Create select addon_execute_result
                                     //
-                                    if (GenericController.toLCase(OptionValue) == LCaseOptionDefault) {
+                                    if (toLCase(OptionValue) == LCaseOptionDefault) {
                                         result.Append("<option value=\"" + OptionValue + "\" selected>" + OptionCaption + "</option>");
                                     } else {
                                         result.Append("<option value=\"" + OptionValue + "\">" + OptionCaption + "</option>");
@@ -683,12 +689,12 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getTextEditor(CoreController core, string fieldName, string fieldValue, bool readOnly, string htmlId, bool required = false) {
             string editValue = fieldValue ?? "";
-            if ((editValue.IndexOf("\n", StringComparison.InvariantCulture) == -1) && (editValue.Length < 80)) {
+            if (editValue.IndexOf("\n", StringComparison.InvariantCulture) == -1 && editValue.Length < 80) {
                 //
                 // text field shorter then 40 characters without a CR
                 return HtmlController.inputText_Legacy(core, fieldName, editValue, 1, -1, htmlId, false, readOnly, "text form-control", 255, false, "", required);
             }
-            return AdminUIEditorController.getHtmlCodeEditor(core, fieldName, editValue, readOnly, htmlId, required);
+            return getHtmlCodeEditor(core, fieldName, editValue, readOnly, htmlId, required);
         }
         //
         // ====================================================================================================
@@ -749,9 +755,9 @@ namespace Contensive.Processor.Controllers {
                 Dictionary<string, bool> FieldUsedInColumns = new Dictionary<string, bool>(); // used to prevent select SQL from being sorted by a field that does not appear
                 Dictionary<string, bool> IsLookupFieldValid = new Dictionary<string, bool>();
                 ListView.setIndexSQL(core, redirectContent_adminData, gridConfig, ref AllowAccessToContent, ref sqlFieldList, ref sqlFrom, ref sqlWhere, ref sqlOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
-                bool allowAdd = redirectContent_adminData.adminContent.allowAdd && (!IsLimitedToSubContent) && (userContentPermissions.allowAdd);
-                bool allowDelete = (redirectContent_adminData.adminContent.allowDelete) && (userContentPermissions.allowDelete);
-                if ((!userContentPermissions.allowEdit) || (!AllowAccessToContent)) {
+                bool allowAdd = redirectContent_adminData.adminContent.allowAdd && !IsLimitedToSubContent && userContentPermissions.allowAdd;
+                bool allowDelete = redirectContent_adminData.adminContent.allowDelete && userContentPermissions.allowDelete;
+                if (!userContentPermissions.allowEdit || !AllowAccessToContent) {
                     //
                     // two conditions should be the same -- but not time to check - This user does not have access to this content
                     ErrorController.addUserError(core, "Your account does not have access to any records in '" + redirectContent_adminData.adminContent.name + "'.");
@@ -759,7 +765,7 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     //
                     // -- for redirect fields, only include connected records that match the redirect criteria
-                    sqlWhere += (string.IsNullOrEmpty(field.redirectId)) ? "" : "and(" + redirectContent_adminData.adminContent.tableName + "." + field.redirectId + "=" + editRecordId + ")";
+                    sqlWhere += string.IsNullOrEmpty(field.redirectId) ? "" : "and(" + redirectContent_adminData.adminContent.tableName + "." + field.redirectId + "=" + editRecordId + ")";
                     //
                     // Get the total record count
                     string sql = "select count(" + redirectContent_adminData.adminContent.tableName + ".ID) as cnt from " + sqlFrom;
@@ -803,12 +809,12 @@ namespace Contensive.Processor.Controllers {
                         if (editRecordId == 0) {
                             return "[available after save]";
                         }
-                        string RedirectPath = (string.IsNullOrEmpty(field.redirectPath)) ? core.appConfig.adminRoute : field.redirectPath;
-                        RedirectPath += "?" + RequestNameTitleExtension + "=" + GenericController.encodeRequestVariable(" For " + editRecordNameLc + editViewTitleSuffix) + "&wl0=" + field.redirectId + "&wr0=" + editRecordId;
+                        string RedirectPath = string.IsNullOrEmpty(field.redirectPath) ? core.appConfig.adminRoute : field.redirectPath;
+                        RedirectPath += "?" + RequestNameTitleExtension + "=" + encodeRequestVariable(" For " + editRecordNameLc + editViewTitleSuffix) + "&wl0=" + field.redirectId + "&wr0=" + editRecordId;
                         if (field.redirectContentId != 0) {
                             RedirectPath += "&cid=" + field.redirectContentId;
                         } else {
-                            RedirectPath += "&cid=" + ((editRecordContentControlId.Equals(0)) ? contentId : editRecordContentControlId);
+                            RedirectPath += "&cid=" + (editRecordContentControlId.Equals(0) ? contentId : editRecordContentControlId);
                         }
                         RedirectPath = strReplace(RedirectPath, "'", "\\'");
                         return HtmlController.a("Open in New Window", RedirectPath, "", "", "", "_blank");
@@ -856,7 +862,7 @@ namespace Contensive.Processor.Controllers {
                                 Array.Resize(ref membershipListRoleId, membershipSize + 1);
                             }
                             membershipListGroupId[membershipCount] = memberRule.groupId;
-                            membershipListDateExpires[membershipCount] = GenericController.encodeDate(memberRule.dateExpires);
+                            membershipListDateExpires[membershipCount] = encodeDate(memberRule.dateExpires);
                             membershipListActive[membershipCount] = memberRule.active;
                             membershipListRoleId[membershipCount] = memberRule.groupRoleId;
                             membershipCount += 1;
@@ -869,7 +875,7 @@ namespace Contensive.Processor.Controllers {
                         csGroups.openSql("select id,name as groupName,caption as groupCaption from ccgroups where (active>0) order by caption,name,id");
                         while (csGroups.ok()) {
                             string GroupName = csGroups.getText("GroupName");
-                            if ((GroupName.left(1) != "_") || canSeeHiddenGroups) {
+                            if (GroupName.left(1) != "_" || canSeeHiddenGroups) {
                                 string GroupCaption = csGroups.getText("GroupCaption");
                                 int GroupID = csGroups.getInteger("ID");
                                 if (string.IsNullOrEmpty(GroupCaption)) {
@@ -888,7 +894,7 @@ namespace Contensive.Processor.Controllers {
                                             GroupActive = membershipListActive[MembershipPointer];
                                             if (membershipListDateExpires[MembershipPointer] > DateTime.MinValue) {
                                                 DateExpire = membershipListDateExpires[MembershipPointer];
-                                                DateExpireValue = GenericController.encodeText(DateExpire);
+                                                DateExpireValue = encodeText(DateExpire);
                                             }
                                             groupRoleId = membershipListRoleId[MembershipPointer];
                                             break;
@@ -897,7 +903,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                                 string relatedButtonList = "";
                                 relatedButtonList += AdminUIController.getButtonPrimaryAnchor("Edit", "?af=4&cid=" + ContentMetadataModel.getContentId(core, "Groups") + "&id=" + GroupID);
-                                relatedButtonList += AdminUIController.getButtonPrimaryAnchor("Members", "?af=1&cid=" + ContentMetadataModel.getContentId(core, "people") + "&IndexFilterAddGroup=" + GenericController.encodeURL(GroupName));
+                                relatedButtonList += AdminUIController.getButtonPrimaryAnchor("Members", "?af=1&cid=" + ContentMetadataModel.getContentId(core, "people") + "&IndexFilterAddGroup=" + encodeURL(GroupName));
                                 //
                                 var row = new GroupRuleEditorRowModel {
                                     idHidden = HtmlController.inputHidden("Memberrules." + GroupCount + ".ID", GroupID),

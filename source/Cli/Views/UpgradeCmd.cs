@@ -2,7 +2,7 @@
 using System;
 using System.Reflection;
 using Contensive.Processor;
-using Contensive.Processor.Controllers;
+using Contensive.Processor.Controllers.Build;
 
 namespace Contensive.CLI {
     static class UpgradeCmd {

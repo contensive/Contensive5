@@ -324,7 +324,16 @@ namespace Contensive.CLI {
                     }
                     //
                     logger.Info($"{cp.core.logCommonMessage},Run db upgrade.");
+
+/* Unmerged change from project 'Cli (net9.0-windows)'
+Before:
                     Processor.Controllers.BuildController.upgrade(cp.core, true, true);
+                    //
+After:
+                    BuildController.upgrade(cp.core, true, true);
+                    //
+*/
+                    Processor.Controllers.Build.BuildController.upgrade(cp.core, true, true);
                     //
                     // -- set the application back to normal mode
                     cp.core.serverConfig.save(cp.core);

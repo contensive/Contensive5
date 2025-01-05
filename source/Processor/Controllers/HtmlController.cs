@@ -16,6 +16,7 @@ using static Contensive.Processor.Controllers.GenericController;
 using static Contensive.BaseClasses.CPContentBaseClass;
 using System.Text.Encodings.Web;
 using System.Web;
+using Contensive.Processor.Models.Domain.EditControl;
 
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -234,18 +235,52 @@ namespace Contensive.Processor.Controllers {
         /// <param name="MenuName"></param>
         /// <param name="CurrentValue"></param>
         /// <param name="ContentName"></param>
-        /// <param name="lookupContentEditor"></param>
+        /// <param name="contentSqlCriteria"></param>
         /// <param name="NoneCaption"></param>
         /// <param name="htmlId"></param>
         /// <param name="return_IsEmptyList"></param>
         /// <param name="HtmlClass"></param>
         /// <returns></returns>
-        public string selectFromContent(string MenuName, int CurrentValue, string ContentName, string lookupContentEditor, string NoneCaption, string htmlId, ref bool return_IsEmptyList, string HtmlClass = "") {
+        public string selectAutocompleteFromContent(string MenuName, int CurrentValue, string ContentName, string contentSqlCriteria, string NoneCaption, string htmlId, ref bool return_IsEmptyList, string HtmlClass = "") {
+            EditControlAutocompleteSettingsModel token = new() {
+                content = ContentName,
+                idField = "id",
+                nameField = "name",
+                sortFieldList = "name,id",
+                sqlCriteria = contentSqlCriteria
+            };
+            string tokenString = core.cpParent.JSON.Serialize(token);
+            string tokenEncrypted = core.cpParent.Security.EncryptTwoWay(tokenString);
+            var viewModel = new {
+                id = GenericController.getRandomString(4),
+                tokenUrlEncoded = core.cpParent.Utils.EncodeRequestVariable(tokenEncrypted),
+                htmlName = MenuName,
+                initialValueName = core.cpParent.Content.GetRecordName(ContentName, CurrentValue),
+                initialValueId = CurrentValue
+            };
+            string layout = LayoutController.getLayout(core.cpParent, Constants.layoutEditControlAutocompleteGuid, Constants.layoutEditControlAutocompleteName, Constants.layoutEditControlAutocompleteCdnPathFilename, Constants.layoutEditControlAutocompleteCdnPathFilename);
+            string result = core.cpParent.Mustache.Render(layout,viewModel);
+            return result;
+        }
+        //
+        //====================================================================================================
+            /// <summary>
+            /// Select list from a content
+            /// </summary>
+            /// <param name="MenuName"></param>
+            /// <param name="CurrentValue"></param>
+            /// <param name="ContentName"></param>
+            /// <param name="contentSqlCriteria"></param>
+            /// <param name="NoneCaption"></param>
+            /// <param name="htmlId"></param>
+            /// <param name="return_IsEmptyList"></param>
+            /// <param name="HtmlClass"></param>
+            /// <returns></returns>
+        public string selectFromContent(string MenuName, int CurrentValue, string ContentName, string contentSqlCriteria, string NoneCaption, string htmlId, ref bool return_IsEmptyList, string HtmlClass = "") {
             string result = "";
             try {
                 const string MenuNameFPO = "<MenuName>";
                 const string NoneCaptionFPO = "<NoneCaption>";
-                string LcaseCriteria = toLCase(lookupContentEditor);
                 return_IsEmptyList = true;
                 if (string.IsNullOrEmpty(MenuName)) { return $"Selection html name cannot be blank."; }
                 if (string.IsNullOrEmpty(ContentName)) { return $"Selection content cannot be blank."; }
@@ -287,157 +322,173 @@ namespace Contensive.Processor.Controllers {
                     //
                     if (RowCnt > core.siteProperties.selectFieldLimit) {
                         //
-                        // -- Selection is too big
-                        ErrorController.addUserError(core, "The drop down list for " + ContentName + " called " + MenuName + " is too long to display. The site administrator has been notified and the problem will be resolved shortly. To fix this issue temporarily, go to the admin tab of the Preferences page and set the Select Field Limit larger than " + RowCnt + ".");
-                        logger.Error($"{core.logCommonMessage}", new Exception("Error creating select list from content [" + ContentName + "] called [" + MenuName + "]. Selection of [" + RowCnt + "] records exceeds [" + core.siteProperties.selectFieldLimit + "], the current Site Property SelectFieldLimit."));
-                        result += inputHidden(MenuNameFPO, CurrentValue);
-                        if (CurrentValue == 0) {
-                            result = inputText_Legacy(core, MenuName, "0");
-                        } else {
-                            using (var csData = new CsModel(core)) {
-                                if (csData.openRecord(ContentName, CurrentValue)) {
-                                    result = csData.getText("name") + "&nbsp;";
-                                }
-                            }
-                        }
-                        result += "(Selection is too large to display option list)";
-                    } else {
-                        //
-                        // -- Generate Drop Down Field Names
-                        string DropDownFieldList = metaData.dropDownFieldList;
-                        if (string.IsNullOrEmpty(DropDownFieldList)) { DropDownFieldList = "NAME"; }
-                        int DropDownFieldCount = 0;
-                        string CharAllowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                        int DropDownFieldListLength = DropDownFieldList.Length;
-                        string[] DropDownDelimiter = { };
-                        string[] DropDownFieldName = { };
-                        string DropDownPreField = "";
-                        string FieldName = "";
-                        int CharPointer = 0;
-                        string SortFieldList = "";
-                        for (CharPointer = 1; CharPointer <= DropDownFieldListLength; CharPointer++) {
-                            string CharTest = DropDownFieldList.Substring(CharPointer - 1, 1);
-                            if (GenericController.strInstr(1, CharAllowed, CharTest) == 0) {
+                        // -- Selection is too big, convert to autocomplete
+                        return selectAutocompleteFromContent(MenuName, CurrentValue, ContentName, contentSqlCriteria, NoneCaption, htmlId, ref return_IsEmptyList, HtmlClass);
+                    }
+                    //
+                    // -- Generate Drop Down Field Names
+                    string DropDownFieldList = metaData.dropDownFieldList;
+                    if (string.IsNullOrEmpty(DropDownFieldList)) { DropDownFieldList = "NAME"; }
+                    int DropDownFieldCount = 0;
+                    string CharAllowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+                    int DropDownFieldListLength = DropDownFieldList.Length;
+                    string[] DropDownDelimiter = { };
+                    string[] DropDownFieldName = { };
+                    string DropDownPreField = "";
+                    string FieldName = "";
+                    int CharPointer = 0;
+                    string SortFieldList = "";
+                    for (CharPointer = 1; CharPointer <= DropDownFieldListLength; CharPointer++) {
+                        string CharTest = DropDownFieldList.Substring(CharPointer - 1, 1);
+                        if (GenericController.strInstr(1, CharAllowed, CharTest) == 0) {
+                            //
+                            // Character not allowed, delimit Field name here
+                            //
+                            if (!string.IsNullOrEmpty(FieldName)) {
                                 //
-                                // Character not allowed, delimit Field name here
+                                // ----- main_Get new Field Name and save it
                                 //
-                                if (!string.IsNullOrEmpty(FieldName)) {
-                                    //
-                                    // ----- main_Get new Field Name and save it
-                                    //
-                                    if (string.IsNullOrEmpty(SortFieldList)) {
-                                        SortFieldList = FieldName;
-                                    }
-                                    Array.Resize(ref DropDownFieldName, DropDownFieldCount + 1);
-                                    Array.Resize(ref DropDownDelimiter, DropDownFieldCount + 1);
-                                    DropDownFieldName[DropDownFieldCount] = FieldName;
-                                    DropDownDelimiter[DropDownFieldCount] = CharTest;
-                                    DropDownFieldCount = DropDownFieldCount + 1;
-                                    FieldName = "";
-                                } else {
-                                    //
-                                    // ----- Save Field Delimiter
-                                    //
-                                    if (DropDownFieldCount == 0) {
-                                        //
-                                        // ----- Before any field, add to DropDownPreField
-                                        //
-                                        DropDownPreField = DropDownPreField + CharTest;
-                                    } else {
-                                        //
-                                        // ----- after a field, add to last DropDownDelimiter
-                                        //
-                                        DropDownDelimiter[DropDownFieldCount - 1] = DropDownDelimiter[DropDownFieldCount - 1] + CharTest;
-                                    }
+                                if (string.IsNullOrEmpty(SortFieldList)) {
+                                    SortFieldList = FieldName;
                                 }
+                                Array.Resize(ref DropDownFieldName, DropDownFieldCount + 1);
+                                Array.Resize(ref DropDownDelimiter, DropDownFieldCount + 1);
+                                DropDownFieldName[DropDownFieldCount] = FieldName;
+                                DropDownDelimiter[DropDownFieldCount] = CharTest;
+                                DropDownFieldCount = DropDownFieldCount + 1;
+                                FieldName = "";
                             } else {
                                 //
-                                // Character Allowed, Put character into fieldname and continue
+                                // ----- Save Field Delimiter
                                 //
-                                FieldName = FieldName + CharTest;
-                            }
-                        }
-                        if (!string.IsNullOrEmpty(FieldName)) {
-                            if (string.IsNullOrEmpty(SortFieldList)) {
-                                SortFieldList = FieldName;
-                            }
-                            Array.Resize(ref DropDownFieldName, DropDownFieldCount + 1);
-                            Array.Resize(ref DropDownDelimiter, DropDownFieldCount + 1);
-                            DropDownFieldName[DropDownFieldCount] = FieldName;
-                            DropDownDelimiter[DropDownFieldCount] = "";
-                            DropDownFieldCount = DropDownFieldCount + 1;
-                        }
-                        if (DropDownFieldCount == 0) {
-                            logger.Error($"{core.logCommonMessage}", new Exception("No drop down field names found for content [" + ContentName + "]."));
-                        } else {
-                            int[] DropDownFieldPointer = new int[DropDownFieldCount];
-                            string SelectFields = "ID";
-                            int Ptr = 0;
-                            for (Ptr = 0; Ptr < DropDownFieldCount; Ptr++) {
-                                SelectFields = SelectFields + "," + DropDownFieldName[Ptr];
-                            }
-                            //
-                            // ----- Start select box
-                            //
-                            string TagId = "";
-                            if (!string.IsNullOrEmpty(htmlId)) {
-                                TagId = " ID=\"" + htmlId + "\"";
-                            }
-                            StringBuilderLegacyController FastString = new StringBuilderLegacyController();
-                            FastString.add("<select size=\"1\" name=\"" + MenuNameFPO + "\"" + TagId + ">");
-                            FastString.add("<option value=\"\">" + NoneCaptionFPO + "</option>");
-                            //
-                            // ----- select values
-                            using (var csData = new CsModel(core)) {
-                                if (csData.open(ContentName, lookupContentEditor, SortFieldList, false, 0, SelectFields)) {
-                                    string[,] RowsArray = csData.getRows();
-                                    string[] RowFieldArray = csData.getSelectFieldList().Split(',');
-                                    int ColumnMax = RowsArray.GetUpperBound(0);
-                                    RowMax = RowsArray.GetUpperBound(1);
+                                if (DropDownFieldCount == 0) {
                                     //
-                                    // -- setup IDFieldPointer
-                                    string UcaseFieldName = "ID";
-                                    int IDFieldPointer = 0;
-                                    int ColumnPointer = 0;
+                                    // ----- Before any field, add to DropDownPreField
+                                    //
+                                    DropDownPreField = DropDownPreField + CharTest;
+                                } else {
+                                    //
+                                    // ----- after a field, add to last DropDownDelimiter
+                                    //
+                                    DropDownDelimiter[DropDownFieldCount - 1] = DropDownDelimiter[DropDownFieldCount - 1] + CharTest;
+                                }
+                            }
+                        } else {
+                            //
+                            // Character Allowed, Put character into fieldname and continue
+                            //
+                            FieldName = FieldName + CharTest;
+                        }
+                    }
+                    if (!string.IsNullOrEmpty(FieldName)) {
+                        if (string.IsNullOrEmpty(SortFieldList)) {
+                            SortFieldList = FieldName;
+                        }
+                        Array.Resize(ref DropDownFieldName, DropDownFieldCount + 1);
+                        Array.Resize(ref DropDownDelimiter, DropDownFieldCount + 1);
+                        DropDownFieldName[DropDownFieldCount] = FieldName;
+                        DropDownDelimiter[DropDownFieldCount] = "";
+                        DropDownFieldCount = DropDownFieldCount + 1;
+                    }
+                    if (DropDownFieldCount == 0) {
+                        logger.Error($"{core.logCommonMessage}", new Exception("No drop down field names found for content [" + ContentName + "]."));
+                    } else {
+                        int[] DropDownFieldPointer = new int[DropDownFieldCount];
+                        string SelectFields = "ID";
+                        int Ptr = 0;
+                        for (Ptr = 0; Ptr < DropDownFieldCount; Ptr++) {
+                            SelectFields = SelectFields + "," + DropDownFieldName[Ptr];
+                        }
+                        //
+                        // ----- Start select box
+                        //
+                        string TagId = "";
+                        if (!string.IsNullOrEmpty(htmlId)) {
+                            TagId = " ID=\"" + htmlId + "\"";
+                        }
+                        StringBuilderLegacyController FastString = new StringBuilderLegacyController();
+                        FastString.add("<select size=\"1\" name=\"" + MenuNameFPO + "\"" + TagId + ">");
+                        FastString.add("<option value=\"\">" + NoneCaptionFPO + "</option>");
+                        //
+                        // ----- select values
+                        using (var csData = new CsModel(core)) {
+                            if (csData.open(ContentName, contentSqlCriteria, SortFieldList, false, 0, SelectFields)) {
+                                string[,] RowsArray = csData.getRows();
+                                string[] RowFieldArray = csData.getSelectFieldList().Split(',');
+                                int ColumnMax = RowsArray.GetUpperBound(0);
+                                RowMax = RowsArray.GetUpperBound(1);
+                                //
+                                // -- setup IDFieldPointer
+                                string UcaseFieldName = "ID";
+                                int IDFieldPointer = 0;
+                                int ColumnPointer = 0;
+                                for (ColumnPointer = 0; ColumnPointer <= ColumnMax; ColumnPointer++) {
+                                    if (UcaseFieldName == GenericController.toUCase(RowFieldArray[ColumnPointer])) {
+                                        IDFieldPointer = ColumnPointer;
+                                        break;
+                                    }
+                                }
+                                //
+                                // setup DropDownFieldPointer()
+                                //
+                                for (var FieldPointer = 0; FieldPointer < DropDownFieldCount; FieldPointer++) {
+                                    UcaseFieldName = GenericController.toUCase(DropDownFieldName[FieldPointer]);
                                     for (ColumnPointer = 0; ColumnPointer <= ColumnMax; ColumnPointer++) {
                                         if (UcaseFieldName == GenericController.toUCase(RowFieldArray[ColumnPointer])) {
-                                            IDFieldPointer = ColumnPointer;
+                                            DropDownFieldPointer[FieldPointer] = ColumnPointer;
                                             break;
                                         }
                                     }
-                                    //
-                                    // setup DropDownFieldPointer()
-                                    //
+                                }
+                                //
+                                // output select
+                                //
+                                bool SelectedFound = false;
+                                string Copy = null;
+                                int RowPointer = 0;
+                                int RecordID = 0;
+                                for (RowPointer = 0; RowPointer <= RowMax; RowPointer++) {
+                                    RecordID = GenericController.encodeInteger(RowsArray[IDFieldPointer, RowPointer]);
+                                    Copy = DropDownPreField;
                                     for (var FieldPointer = 0; FieldPointer < DropDownFieldCount; FieldPointer++) {
-                                        UcaseFieldName = GenericController.toUCase(DropDownFieldName[FieldPointer]);
-                                        for (ColumnPointer = 0; ColumnPointer <= ColumnMax; ColumnPointer++) {
-                                            if (UcaseFieldName == GenericController.toUCase(RowFieldArray[ColumnPointer])) {
-                                                DropDownFieldPointer[FieldPointer] = ColumnPointer;
-                                                break;
-                                            }
+                                        Copy += RowsArray[DropDownFieldPointer[FieldPointer], RowPointer] + DropDownDelimiter[FieldPointer];
+                                    }
+                                    if (string.IsNullOrEmpty(Copy)) {
+                                        Copy = "no name";
+                                    }
+                                    FastString.add(Environment.NewLine + "<option value=\"" + RecordID + "\" ");
+                                    if (RecordID == CurrentValue) {
+                                        FastString.add("selected");
+                                        SelectedFound = true;
+                                    }
+                                    if (core.siteProperties.selectFieldWidthLimit != 0) {
+                                        if (Copy.Length > core.siteProperties.selectFieldWidthLimit) {
+                                            Copy = Copy.left(core.siteProperties.selectFieldWidthLimit) + "...+";
                                         }
                                     }
-                                    //
-                                    // output select
-                                    //
-                                    bool SelectedFound = false;
-                                    string Copy = null;
-                                    int RowPointer = 0;
-                                    int RecordID = 0;
-                                    for (RowPointer = 0; RowPointer <= RowMax; RowPointer++) {
-                                        RecordID = GenericController.encodeInteger(RowsArray[IDFieldPointer, RowPointer]);
+                                    FastString.add(">" + HtmlController.encodeHtml(Copy) + "</option>");
+                                }
+                                if (!SelectedFound && (CurrentValue != 0)) {
+                                    csData.close();
+                                    if (!string.IsNullOrEmpty(contentSqlCriteria)) {
+                                        contentSqlCriteria = contentSqlCriteria + "and";
+                                    }
+                                    contentSqlCriteria = contentSqlCriteria + "(id=" + GenericController.encodeInteger(CurrentValue) + ")";
+                                    if (csData.open(ContentName, contentSqlCriteria, SortFieldList, false, 0, SelectFields)) {
+                                        RowsArray = csData.getRows();
+                                        RowFieldArray = csData.getSelectFieldList().Split(',');
+                                        RowMax = RowsArray.GetUpperBound(1);
+                                        ColumnMax = RowsArray.GetUpperBound(0);
+                                        RecordID = GenericController.encodeInteger(RowsArray[IDFieldPointer, 0]);
                                         Copy = DropDownPreField;
                                         for (var FieldPointer = 0; FieldPointer < DropDownFieldCount; FieldPointer++) {
-                                            Copy += RowsArray[DropDownFieldPointer[FieldPointer], RowPointer] + DropDownDelimiter[FieldPointer];
+                                            Copy += RowsArray[DropDownFieldPointer[FieldPointer], 0] + DropDownDelimiter[FieldPointer];
                                         }
                                         if (string.IsNullOrEmpty(Copy)) {
                                             Copy = "no name";
                                         }
-                                        FastString.add(Environment.NewLine + "<option value=\"" + RecordID + "\" ");
-                                        if (RecordID == CurrentValue) {
-                                            FastString.add("selected");
-                                            SelectedFound = true;
-                                        }
+                                        FastString.add(Environment.NewLine + "<option value=\"" + RecordID + "\" selected");
+                                        SelectedFound = true;
                                         if (core.siteProperties.selectFieldWidthLimit != 0) {
                                             if (Copy.Length > core.siteProperties.selectFieldWidthLimit) {
                                                 Copy = Copy.left(core.siteProperties.selectFieldWidthLimit) + "...+";
@@ -445,40 +496,11 @@ namespace Contensive.Processor.Controllers {
                                         }
                                         FastString.add(">" + HtmlController.encodeHtml(Copy) + "</option>");
                                     }
-                                    if (!SelectedFound && (CurrentValue != 0)) {
-                                        csData.close();
-                                        if (!string.IsNullOrEmpty(lookupContentEditor)) {
-                                            lookupContentEditor = lookupContentEditor + "and";
-                                        }
-                                        lookupContentEditor = lookupContentEditor + "(id=" + GenericController.encodeInteger(CurrentValue) + ")";
-                                        if (csData.open(ContentName, lookupContentEditor, SortFieldList, false, 0, SelectFields)) {
-                                            RowsArray = csData.getRows();
-                                            RowFieldArray = csData.getSelectFieldList().Split(',');
-                                            RowMax = RowsArray.GetUpperBound(1);
-                                            ColumnMax = RowsArray.GetUpperBound(0);
-                                            RecordID = GenericController.encodeInteger(RowsArray[IDFieldPointer, 0]);
-                                            Copy = DropDownPreField;
-                                            for (var FieldPointer = 0; FieldPointer < DropDownFieldCount; FieldPointer++) {
-                                                Copy += RowsArray[DropDownFieldPointer[FieldPointer], 0] + DropDownDelimiter[FieldPointer];
-                                            }
-                                            if (string.IsNullOrEmpty(Copy)) {
-                                                Copy = "no name";
-                                            }
-                                            FastString.add(Environment.NewLine + "<option value=\"" + RecordID + "\" selected");
-                                            SelectedFound = true;
-                                            if (core.siteProperties.selectFieldWidthLimit != 0) {
-                                                if (Copy.Length > core.siteProperties.selectFieldWidthLimit) {
-                                                    Copy = Copy.left(core.siteProperties.selectFieldWidthLimit) + "...+";
-                                                }
-                                            }
-                                            FastString.add(">" + HtmlController.encodeHtml(Copy) + "</option>");
-                                        }
-                                    }
                                 }
                             }
-                            FastString.add("</select>");
-                            SelectRaw = FastString.text;
                         }
+                        FastString.add("</select>");
+                        SelectRaw = FastString.text;
                     }
                     //
                     // Save the SelectRaw
@@ -486,7 +508,7 @@ namespace Contensive.Processor.Controllers {
                     if (!return_IsEmptyList) {
                         core.doc.inputSelectCache.Add(new CacheInputSelectClass {
                             contentName = ContentName,
-                            criteria = lookupContentEditor,
+                            criteria = contentSqlCriteria,
                             currentValue = CurrentValue.ToString(),
                             selectRaw = SelectRaw
                         });
@@ -498,11 +520,11 @@ namespace Contensive.Processor.Controllers {
                 if (!string.IsNullOrEmpty(HtmlClass)) {
                     SelectRaw = GenericController.strReplace(SelectRaw, "<select ", "<select class=\"" + HtmlClass + "\"");
                 }
-                result = SelectRaw;
+                return SelectRaw;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
-            return result;
         }
         //
         //====================================================================================================

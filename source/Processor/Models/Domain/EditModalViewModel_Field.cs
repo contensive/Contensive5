@@ -2,6 +2,7 @@
 using Contensive.BaseClasses;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Controllers.EditControls;
 using NUglify.JavaScript.Syntax;
 using System;
 using System.Collections.Generic;
@@ -89,6 +90,7 @@ namespace Contensive.Processor.Models.Domain {
                 imageUrl = !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "/baseassets/picturePlaceholder.jpg" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
                 fileUrl = !isFile && !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "" : core.cpParent.Http.CdnFilePathPrefixAbsolute + currentValue;
                 fileName = !isFile && !isImage ? "" : string.IsNullOrEmpty(currentValue) ? "" : Path.GetFileName(currentValue);
+                redirectUrl = isRedirect ? field.redirectPath : "";
             } catch (Exception ex) {
                 LogController.log(core, "exception [" + ex + "]", BaseClasses.CPLogBaseClass.LogLevel.Error);
                 throw;
@@ -149,6 +151,10 @@ namespace Contensive.Processor.Models.Domain {
         /// if isFile or isImage, this is the name of the file without path
         /// </summary>
         public string fileName { get; }
+        /// <summary>
+        /// if isRedirect, and this redirectpath is not null, the editor is an anchor tag to this url
+        /// </summary>
+        public string redirectUrl { get; }
         //
         // ====================================================================================================
         //

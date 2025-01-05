@@ -1,7 +1,7 @@
 ﻿
 using System;
 using Contensive.Processor;
-using Contensive.Processor.Controllers;
+using Contensive.Processor.Controllers.Build;
 
 namespace Contensive.CLI {
     //

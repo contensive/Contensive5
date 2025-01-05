@@ -1,9 +1,9 @@
-﻿
+﻿using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using System;
 using static Contensive.Processor.Constants;
 
-namespace Contensive.Processor.Addons.AdminSite {
+namespace Contensive.Processor.Controllers.EditControls {
     public class LinkAliasEditor {
         //
         //========================================================================

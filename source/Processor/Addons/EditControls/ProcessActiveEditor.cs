@@ -2,8 +2,8 @@
 using System;
 using Contensive.Processor.Controllers;
 //
-namespace Contensive.Processor.Addons.Primitives {
-    public class processHelpBubbleEditorClass : Contensive.BaseClasses.AddonBaseClass {
+namespace Contensive.Processor.Addons.EditControls {
+    public class ProcessActiveEditorClass : BaseClasses.AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
@@ -11,12 +11,13 @@ namespace Contensive.Processor.Addons.Primitives {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public override object Execute(Contensive.BaseClasses.CPBaseClass cp) {
+        public override object Execute(BaseClasses.CPBaseClass cp) {
             string result = "";
             try {
                 CoreController core = ((CPClass)cp).core;
                 //
-                core.html.processHelpBubbleEditor();
+                // ----- Active Editor
+                ActiveEditorController.processActiveEditor(core);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
             }

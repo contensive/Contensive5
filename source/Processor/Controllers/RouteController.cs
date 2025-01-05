@@ -389,17 +389,17 @@ namespace Contensive.Processor.Controllers {
                         }
                     case FormTypeActiveEditor: {
                             //
-                            (new Contensive.Processor.Addons.Primitives.ProcessActiveEditorClass()).Execute(core.cpParent);
+                            (new Contensive.Processor.Addons.EditControls.ProcessActiveEditorClass()).Execute(core.cpParent);
                             return;
                         }
                     case FormTypeSiteStyleEditor: {
                             //
-                            (new Contensive.Processor.Addons.Primitives.ProcessSiteStyleEditorClass()).Execute(core.cpParent);
+                            (new Contensive.Processor.Addons.EditControls.ProcessSiteStyleEditorClass()).Execute(core.cpParent);
                             return;
                         }
                     case FormTypeHelpBubbleEditor: {
                             //
-                            (new Contensive.Processor.Addons.Primitives.processHelpBubbleEditorClass()).Execute(core.cpParent);
+                            (new Contensive.Processor.Addons.EditControls.processHelpBubbleEditorClass()).Execute(core.cpParent);
                             return;
                         }
                     case FormTypeRegister: {

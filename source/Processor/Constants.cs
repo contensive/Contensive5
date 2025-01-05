@@ -1096,7 +1096,6 @@ namespace Contensive.Processor {
         //
         // Edit Modal layouts, all come from the same file
 
-        // baseAssets/LinkAliasPreviewEditor.html
         public const string layoutAdminSiteGuid = "{06CF29A1-B5E9-4170-894B-069CF36C7E7D}";
         public const string layoutAdminSiteName = "Admin Site Layout";
         public const string layoutAdminSiteCdnPathFilename = @"adminsite\AdminSiteLayout.html";
@@ -1114,18 +1113,6 @@ namespace Contensive.Processor {
         public const string layoutEditAddModalName = "Admin Edit Add Record Layout";
         public const string layoutEditAddModalCdnPathFilename = "baseAssets\\AdminEditAddModalLayout.html";
         //
-        //public const string layoutEditRecordGuid = "{696D98A6-1454-45CD-B478-2D40B96940D9}";
-        //public const string layoutEditRecordName = "Admin Edit Record Layout";
-        //public const string layoutEditRecordGuidCdnPathFilename = "baseAssets\\AdminEditRecordLayout.html";
-        ////
-        //public const string layoutAddRecordGuid = "{FF2DFF28-AF79-4147-B9FF-B0A89AC5F054}";
-        //public const string layoutAddRecordName = "Admin Add Record Layout";
-        //public const string layoutAddRecordCdnPathFilename = "baseAssets\\AdminAddRecordLayout.html";
-        ////
-        //public const string layoutEditModalGuid = "{F6167221-8034-4781-837F-927E159B1685}";
-        //public const string layoutEditModalName = "Admin Edit Modal Layout";
-        //public const string layoutEditModalCdnPathFilename = "baseAssets\\AdminEditModalLayout.html";
-        //
         public const string layoutAdminUITwoColumnLeftGuid = "{6B0B5593-49A9-45A9-AF64-9A14B34ACB44}";
         public const string layoutAdminUITwoColumnLeftName = "AdminUI Two Column Left";
         public const string layoutAdminUITwoColumnLeftCdnPathFilename = "portalframework\\AdminUITwoColumnLeftLayout.html";
@@ -1133,6 +1120,10 @@ namespace Contensive.Processor {
         public const string layoutAdminUITwoColumnRightGuid = "{41C1F5F9-9AAC-418D-8C05-8B558A02BAF2}";
         public const string layoutAdminUITwoColumnRightName = "AdminUI Two Column Right";
         public const string layoutAdminUITwoColumnRightCdnPathFilename = "portalframework\\AdminUITwoColumnRightLayout.html";
+        //
+        public const string layoutEditControlAutocompleteGuid = "{79A26D0C-1752-4077-935C-AA74A3B7D42C}";
+        public const string layoutEditControlAutocompleteName = "Edit Control Autocomplete";
+        public const string layoutEditControlAutocompleteCdnPathFilename = "baseAssets\\EditControlAutocompleteLayout.html";
         //
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

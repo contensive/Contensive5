@@ -3142,7 +3142,7 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PersonalizeDefaultAddon]]></DotNetClass>
   </Addon>
 	<Addon Name="People Email Block Editor" Guid="{a0c2cde5-074e-4124-a0e6-58d540c08ce6}" Type="Widget">
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.PeopleEmailBlockEditor]]></DotNetClass>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.EditControls.PeopleEmailBlockEditor]]></DotNetClass>
 		<ProcessInterval></ProcessInterval>
 	</Addon>
 	<Addon Name="AWS SES Email Bounce Process" Guid="{279DEE1C-1FC9-46E9-99C3-A6CA05954352}" Type="Task">
@@ -3201,6 +3201,10 @@
     <HtmlDocument>Yes</HtmlDocument>
 	  <JavascriptInHead><![CDATA[]]></JavascriptInHead>
     <JavascriptForceHead>Yes</JavascriptForceHead>
+  </Addon>
+  <Addon Name="EditControlAutocomplete" Guid="{ae04ca9f-f5da-4189-bc68-921db1efca75}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.EditControls.EditControlAutocompleteRemote]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
   </Addon>
   <Addon Name="AdminAutocompleteCommands" Guid="{FBD591E1-F1CD-4E7D-BD2B-F760C313C568}" Type="Add-on">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.AdminAutocompleteCommands]]></DotNetClass>

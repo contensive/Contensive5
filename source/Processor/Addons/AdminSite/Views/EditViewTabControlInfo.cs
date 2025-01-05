@@ -7,6 +7,7 @@ using System.Net;
 using Contensive.Models.Db;
 using System.Collections.Generic;
 using NLog;
+using Contensive.Processor.Controllers.EditControls;
 
 namespace Contensive.Processor.Addons.AdminSite {
     public class EditViewTabControlInfo {

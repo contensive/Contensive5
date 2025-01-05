@@ -1,5 +1,4 @@
-﻿
-using Contensive.BaseClasses;
+﻿using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
@@ -10,7 +9,7 @@ using System.Data;
 using System.Globalization;
 using System.Linq;
 
-namespace Contensive.Processor.Controllers {
+namespace Contensive.Processor.Controllers.Build {
     //
     //====================================================================================================
     /// <summary>
@@ -83,18 +82,18 @@ namespace Contensive.Processor.Controllers {
                         }
                         //
                         // -- remove all addon content fieldtype rules
-                        Contensive.Models.Db.DbBaseModel.deleteRows<Contensive.Models.Db.AddonContentFieldTypeRulesModel>(cp, "(1=1)");
+                        DbBaseModel.deleteRows<AddonContentFieldTypeRulesModel>(cp, "(1=1)");
                         //
                         // -- delete /admin www subfolder
                         core.wwwFiles.deleteFolder("admin");
                         //
                         // -- delete .asp and .php files
-                        foreach (BaseClasses.CPFileSystemBaseClass.FileDetail file in core.wwwFiles.getFileList("")) {
+                        foreach (CPFileSystemBaseClass.FileDetail file in core.wwwFiles.getFileList("")) {
                             if (file == null) { continue; }
                             if (string.IsNullOrWhiteSpace(file.Name)) { continue; }
                             if (file.Name.Length < 4) { continue; }
                             string extension = System.IO.Path.GetExtension(file.Name).ToLower(CultureInfo.InvariantCulture);
-                            if ((extension == ".php") || (extension == ".asp")) {
+                            if (extension == ".php" || extension == ".asp") {
                                 core.wwwFiles.deleteFile(file.Name);
                             }
                         }
@@ -104,7 +103,7 @@ namespace Contensive.Processor.Controllers {
                         core.wwwFiles.unzipFile("cclib.zip");
                         //
                         // -- remove all the old menu entries and leave the navigation entries
-                        var navContent = DbBaseModel.createByUniqueName<ContentModel>(cp, Contensive.Models.Db.NavigatorEntryModel.tableMetadata.contentName);
+                        var navContent = DbBaseModel.createByUniqueName<ContentModel>(cp, NavigatorEntryModel.tableMetadata.contentName);
                         if (navContent != null) {
                             core.db.executeNonQuery("delete from ccMenuEntries where ((contentcontrolid<>0)and(contentcontrolid<>" + navContent.id + ")and(contentcontrolid is not null))");
                         }
@@ -558,8 +557,8 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing) {
-            if (!this.disposed) {
-                this.disposed = true;
+            if (!disposed) {
+                disposed = true;
                 if (disposing) {
                 }
                 //

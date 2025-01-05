@@ -4,7 +4,7 @@ using Contensive.Processor.Controllers;
 using Contensive.BaseClasses;
 using System.Data;
 //
-namespace Contensive.Processor.Addons {
+namespace Contensive.Processor.Addons.EditControls {
     public class PeopleEmailBlockEditor : AddonBaseClass {
         //
         //====================================================================================================
@@ -27,7 +27,7 @@ namespace Contensive.Processor.Addons {
                             if (dt2?.Rows != null && dt2.Rows.Count != 0) {
                                 string recipientEmail = cp.Utils.EncodeText(dt2.Rows[0][0]);
                                 string webAddressProtocolDomain = HttpController.getWebAddressProtocolDomain(core);
-                                return result + "<div><a target=\"_blank\" href=\"" + webAddressProtocolDomain + "?" + Constants.rnEmailBlockRecipientEmail + "=" + GenericController.encodeRequestVariable( recipientEmail ) + "\" class=\"btn btn-sm btn-success my-2\">User Block Request</a></div>";
+                                return result + "<div><a target=\"_blank\" href=\"" + webAddressProtocolDomain + "?" + Constants.rnEmailBlockRecipientEmail + "=" + GenericController.encodeRequestVariable(recipientEmail) + "\" class=\"btn btn-sm btn-success my-2\">User Block Request</a></div>";
                             }
                         }
                         return result;

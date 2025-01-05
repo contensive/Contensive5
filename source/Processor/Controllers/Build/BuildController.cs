@@ -10,8 +10,9 @@ using System.Data;
 using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
+using System.Xml.Linq;
 
-namespace Contensive.Processor.Controllers {
+namespace Contensive.Processor.Controllers.Build {
     //
     //====================================================================================================
     /// <summary>
@@ -54,8 +55,8 @@ namespace Contensive.Processor.Controllers {
                     // if anything is needed that is not there yet, I need to build a list of adds to run after the app goes to app status ok
                     // -- Update server config file
                     logger.Info($"{core.logCommonMessage},{logPrefix}, update configuration file");
-                    if (!core.appConfig.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
-                        core.appConfig.appStatus = AppConfigModel.AppStatusEnum.ok;
+                    if (!core.appConfig.appStatus.Equals(BaseModels.AppConfigBaseModel.AppStatusEnum.ok)) {
+                        core.appConfig.appStatus = BaseModels.AppConfigBaseModel.AppStatusEnum.ok;
                         core.serverConfig.save(core);
                     }
                     //
@@ -127,7 +128,7 @@ namespace Contensive.Processor.Controllers {
                                 logger.Info($"{core.logCommonMessage},{logPrefix}, error creating site managers group. " + ex);
                             }
                         }
-                        if ((root != null) && (group != null)) {
+                        if (root != null && group != null) {
                             //
                             // -- verify root is in site managers
                             var memberRuleList = DbBaseModel.createList<MemberRuleModel>(core.cpParent, "(groupid=" + group.id + ")and(MemberID=" + root.id + ")");
@@ -148,7 +149,7 @@ namespace Contensive.Processor.Controllers {
                     logger.Info($"{core.logCommonMessage},{logPrefix}, run database conversions, DataBuildVersion [" + DataBuildVersion + "], software version [" + CoreController.codeVersion() + "]");
                     BuildDataMigrationController.migrateData(core, DataBuildVersion, logPrefix);
                     //
-                    //  menus are created in ccBase.xml, this just checks for dups
+                    //  verify data
                     logger.Info($"{core.logCommonMessage},{logPrefix}, verify records required");
                     verifyAdminMenus(core, DataBuildVersion);
                     verifyLanguageRecords(core);
@@ -157,6 +158,7 @@ namespace Contensive.Processor.Controllers {
                     verifyLibraryFolders(core);
                     verifyLibraryFileTypes(core);
                     verifyDefaultGroups(core);
+                    verifyLayouts(core);
                     //
                     // -- verify many to many triggers for all many-to-many fields
                     verifyManyManyDeleteTriggers(core);
@@ -224,7 +226,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                     //
-                    int StyleSN = (core.siteProperties.getInteger("StylesheetSerialNumber"));
+                    int StyleSN = core.siteProperties.getInteger("StylesheetSerialNumber");
                     if (StyleSN > 0) {
                         StyleSN += 1;
                         core.siteProperties.setProperty("StylesheetSerialNumber", StyleSN.ToString());
@@ -262,9 +264,9 @@ namespace Contensive.Processor.Controllers {
                 if (dt.Rows.Count > 0) {
                     string FieldLast = "";
                     for (var rowptr = 0; rowptr < dt.Rows.Count; rowptr++) {
-                        string FieldNew = GenericController.encodeText(dt.Rows[rowptr]["name"]) + "." + GenericController.encodeText(dt.Rows[rowptr]["parentid"]);
+                        string FieldNew = encodeText(dt.Rows[rowptr]["name"]) + "." + encodeText(dt.Rows[rowptr]["parentid"]);
                         if (FieldNew == FieldLast) {
-                            int FieldRecordId = GenericController.encodeInteger(dt.Rows[rowptr]["ID"]);
+                            int FieldRecordId = encodeInteger(dt.Rows[rowptr]["ID"]);
                             core.db.executeNonQuery("Update ccMenuEntries set active=0 where ID=" + FieldRecordId + ";");
                         }
                         FieldLast = FieldNew;
@@ -336,13 +338,13 @@ namespace Contensive.Processor.Controllers {
                 var tableList = DbBaseModel.createList<TableModel>(core.cpParent, "(1=1)", "dataSourceId");
                 foreach (TableModel table in tableList) {
                     hint = "1";
-                    var tableSchema = Models.Domain.TableSchemaModel.getTableSchema(core, table.name, "default");
+                    var tableSchema = TableSchemaModel.getTableSchema(core, table.name, "default");
                     hint = "2";
                     if (tableSchema != null) {
                         hint = "3";
-                        foreach (Models.Domain.TableSchemaModel.ColumnSchemaModel column in tableSchema.columns) {
+                        foreach (TableSchemaModel.ColumnSchemaModel column in tableSchema.columns) {
                             hint = "4";
-                            if ((column.DATA_TYPE.ToLowerInvariant() == "datetime2") && (column.DATETIME_PRECISION < 3)) {
+                            if (column.DATA_TYPE.ToLowerInvariant() == "datetime2" && column.DATETIME_PRECISION < 3) {
                                 //
                                 logger.Info($"{core.logCommonMessage},{logPrefix}, verifySqlFieldCompatibility, conversion required, table [" + table.name + "], field [" + column.COLUMN_NAME + "], reason [datetime precision too low (" + column.DATETIME_PRECISION.ToString() + ")]");
                                 //
@@ -353,7 +355,7 @@ namespace Contensive.Processor.Controllers {
                                 // drop any indexes that use this field
                                 hint = "5";
                                 bool indexDropped = false;
-                                foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
+                                foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
                                     if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
                                         //
                                         logger.Info($"{core.logCommonMessage},{logPrefix}, verifySqlFieldCompatibility, index [" + index.index_name + "] must be dropped");
@@ -366,7 +368,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 // -- datetime2(0)...datetime2(2) need to be converted to datetime2(7)
                                 // -- rename column to tempName
-                                string tempName = "tempDateTime" + GenericController.getRandomInteger().ToString();
+                                string tempName = "tempDateTime" + getRandomInteger().ToString();
                                 core.db.executeNonQuery("sp_rename '" + table.name + "." + column.COLUMN_NAME + "', '" + tempName + "', 'COLUMN';");
                                 core.db.executeNonQuery("ALTER TABLE " + table.name + " ADD " + column.COLUMN_NAME + " DateTime2(7) NULL;");
                                 core.db.executeNonQuery("update " + table.name + " set " + column.COLUMN_NAME + "=" + tempName + " ");
@@ -375,7 +377,7 @@ namespace Contensive.Processor.Controllers {
                                 hint = "7";
                                 // recreate dropped indexes
                                 if (indexDropped) {
-                                    foreach (Models.Domain.TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
+                                    foreach (TableSchemaModel.IndexSchemaModel index in tableSchema.indexes) {
                                         if (index.indexKeyList.Contains(column.COLUMN_NAME)) {
                                             //
                                             logger.Info($"{core.logCommonMessage},{logPrefix}, verifySqlFieldCompatibility, recreating index [" + index.index_name + "]");
@@ -664,7 +666,7 @@ namespace Contensive.Processor.Controllers {
                 appendUpgradeLogAddStep(core, core.appConfig.name, "VerifyCountries", "Verify Countries");
                 //
                 string list = core.programFiles.readFileText("DefaultCountryList.txt");
-                string[] rows = GenericController.stringSplit(list, Environment.NewLine);
+                string[] rows = stringSplit(list, Environment.NewLine);
                 foreach (var row in rows) {
                     if (string.IsNullOrEmpty(row)) { continue; }
                     string[] attrs = row.Split(';');
@@ -835,8 +837,8 @@ namespace Contensive.Processor.Controllers {
                     if (!string.IsNullOrWhiteSpace(menu.addonGuid)) {
                         returnEntry = 0;
                     }
-                    AddonModel addon = ((!string.IsNullOrWhiteSpace(menu.addonGuid)) ? core.cacheRuntime.addonCache.create(menu.addonGuid) : null);
-                    addon ??= ((!string.IsNullOrWhiteSpace(menu.addonName)) ? core.cacheRuntime.addonCache.createByUniqueName(menu.addonName) : null);
+                    AddonModel addon = !string.IsNullOrWhiteSpace(menu.addonGuid) ? core.cacheRuntime.addonCache.create(menu.addonGuid) : null;
+                    addon ??= (!string.IsNullOrWhiteSpace(menu.addonName) ? core.cacheRuntime.addonCache.createByUniqueName(menu.addonName) : null);
                     int parentId = verifyNavigatorEntry_getParentIdFromNameSpace(core, menu.menuNameSpace);
                     int contentId = ContentMetadataModel.getContentId(core, menu.contentName);
                     string listCriteria = "(name=" + DbController.encodeSQLText(menu.name) + ")and(Parentid=" + parentId + ")";
@@ -860,7 +862,7 @@ namespace Contensive.Processor.Controllers {
                     entry.developerOnly = menu.developerOnly;
                     entry.newWindow = menu.newWindow;
                     entry.active = menu.active;
-                    entry.addonId = (addon == null) ? 0 : addon.id;
+                    entry.addonId = addon == null ? 0 : addon.id;
                     entry.ccguid = menu.guid;
                     entry.navIconTitle = menu.navIconTitle;
                     entry.navIconType = getListIndex(menu.navIconType, NavIconTypeList);
@@ -899,7 +901,7 @@ namespace Contensive.Processor.Controllers {
                             using (var csData = new CsModel(core)) {
                                 csData.open(NavigatorEntryModel.tableMetadata.contentName, Criteria, "ID", true, 0, "ID", 1);
                                 if (csData.ok()) {
-                                    RecordId = (csData.getInteger("ID"));
+                                    RecordId = csData.getInteger("ID");
                                 }
                                 csData.close();
                                 if (RecordId == 0) {
@@ -993,7 +995,7 @@ namespace Contensive.Processor.Controllers {
                         RowsFound = 0;
                         foreach (DataRow dr in rs.Rows) {
                             RowsFound = RowsFound + 1;
-                            if (RowsFound != GenericController.encodeInteger(dr["ID"])) {
+                            if (RowsFound != encodeInteger(dr["ID"])) {
                                 //
                                 // Bad Table
                                 //
@@ -1071,14 +1073,14 @@ namespace Contensive.Processor.Controllers {
             string primaryDomain = core.appConfig.name;
             var domain = DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, primaryDomain);
             if (DbBaseModel.createByUniqueName<DomainModel>(core.cpParent, primaryDomain) == null) {
-                domain = DomainModel.addDefault<DomainModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "domains"));
+                domain = DbBaseModel.addDefault<DomainModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "domains"));
                 domain.name = primaryDomain;
             }
             //
             // -- Landing Page
             PageContentModel landingPage = DbBaseModel.create<PageContentModel>(core.cpParent, defaultLandingPageGuid);
             if (landingPage == null) {
-                landingPage = PageContentModel.addDefault<PageContentModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "page content"));
+                landingPage = DbBaseModel.addDefault<PageContentModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "page content"));
                 landingPage.name = "Home";
                 landingPage.ccguid = defaultLandingPageGuid;
             }
@@ -1096,18 +1098,18 @@ namespace Contensive.Processor.Controllers {
             }
             //
             // -- verify menu record
-            var menu = MenuModel.create<MenuModel>(core.cpParent, "Header Nav Menu");
+            var menu = DbBaseModel.create<MenuModel>(core.cpParent, "Header Nav Menu");
             if (menu == null) {
-                menu = MenuModel.addDefault<MenuModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "Menus"));
+                menu = DbBaseModel.addDefault<MenuModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "Menus"));
                 menu.ccguid = "Header Nav Menu";
                 menu.name = "Header Nav Menu";
                 menu.save(core.cpParent);
             }
             //
             // -- create menu record
-            var menuPageRule = MenuPageRuleModel.createFirstOfList<MenuPageRuleModel>(core.cpParent, "(menuid=" + menu.id + ")and(pageid=" + landingPage.id + ")", "id");
+            var menuPageRule = DbBaseModel.createFirstOfList<MenuPageRuleModel>(core.cpParent, "(menuid=" + menu.id + ")and(pageid=" + landingPage.id + ")", "id");
             if (menuPageRule == null) {
-                menuPageRule = MenuPageRuleModel.addDefault<MenuPageRuleModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "Menu Page Rules"));
+                menuPageRule = DbBaseModel.addDefault<MenuPageRuleModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, "Menu Page Rules"));
                 menuPageRule.menuId = menu.id;
                 menuPageRule.pageId = landingPage.id;
                 menuPageRule.save(core.cpParent);
@@ -1123,7 +1125,7 @@ namespace Contensive.Processor.Controllers {
             domain.save(core.cpParent);
             //
             landingPage.templateId = defaultTemplate.id;
-            landingPage.copyfilename.content = Constants.defaultLandingPageHtml;
+            landingPage.copyfilename.content = defaultLandingPageHtml;
             landingPage.save(core.cpParent);
             //
             if (core.siteProperties.getInteger("LandingPageID", landingPage.id) == 0) {
@@ -1132,6 +1134,28 @@ namespace Contensive.Processor.Controllers {
             //
             // -- convert the data to textblock and addonlist
             BuildDataMigrationController.convertPageContentToAddonList(core, landingPage);
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// add and upgrade layouts used in base platform
+        /// </summary>
+        /// <param name="core"></param>
+        public static void verifyLayouts(CoreController core) {
+            try {
+                appendUpgradeLogAddStep(core, core.appConfig.name, "verifyLayouts", "add and upgrade layouts used in base platform");
+                //
+                core.cpParent.Layout.updateLayout(layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutAdminUITwoColumnLeftGuid, layoutAdminUITwoColumnLeftName, layoutAdminUITwoColumnLeftCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutAdminUITwoColumnRightGuid, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutEditControlAutocompleteGuid, layoutEditControlAutocompleteName, layoutEditControlAutocompleteCdnPathFilename);
+        } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
+            }
         }
         //
         //====================================================================================================
