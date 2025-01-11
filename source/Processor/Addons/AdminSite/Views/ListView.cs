@@ -422,7 +422,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (paginationPageNumber > 0) {
                     gridConfig.pageNumber = paginationPageNumber;
                     gridConfig.recordTop = DbController.getStartRecord(gridConfig.recordsPerPage, gridConfig.pageNumber);
-                } else {
+                }
+                {
                     //
                     // ----- Read filter changes and First/Next/Previous from form
                     string Button = core.docProperties.getText(RequestNameButton);
