@@ -332,48 +332,48 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         [Obsolete("use CreateTabledependencyKey() instead", false)] public abstract string CreateDependencyKeyInvalidateOnChange(string tablename, string datasource);
         /// <summary>
-        /// use Store() instead
+        /// 
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
-        [Obsolete("use Store() instead", false)] public abstract void SetKey(string key, object Value);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void SetKey(string key, object Value);
         /// <summary>
-        /// use Store() instead
+        /// Deprecated. Use Store().
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
         /// <param name="invalidationDate"></param>
-        [Obsolete("use Store() instead", false)] public abstract void SetKey(string key, object Value, DateTime invalidationDate);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void SetKey(string key, object Value, DateTime invalidationDate);
         /// <summary>
-        /// use Store() instead
+        /// Deprecated. Use Store().
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
         /// <param name="tagList"></param>
-        [Obsolete("use Store() instead", false)] public abstract void SetKey(string key, object Value, List<string> tagList);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void SetKey(string key, object Value, List<string> tagList);
         /// <summary>
-        /// use Store() instead
+        /// Deprecated. Use Store().
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
         /// <param name="invalidationDate"></param>
         /// <param name="tagList"></param>
-        [Obsolete("use Store() instead", false)] public abstract void SetKey(string key, object Value, DateTime invalidationDate, List<string> tagList);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void SetKey(string key, object Value, DateTime invalidationDate, List<string> tagList);
         /// <summary>
-        /// use Store() instead
+        /// Deprecated. Use Store().
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
         /// <param name="tag"></param>
-        [Obsolete("use Store() instead", false)] public abstract void SetKey(string key, object Value, string tag);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void SetKey(string key, object Value, string tag);
         /// <summary>
-        /// use Store() instead
+        /// Deprecated. Use Store().
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
         /// <param name="invalidationDate"></param>
         /// <param name="tag"></param>
-        [Obsolete("use Store() instead", false)] public abstract void SetKey(string key, object Value, DateTime invalidationDate, string tag);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void SetKey(string key, object Value, DateTime invalidationDate, string tag);
         /// <summary>
         /// Use Clear(dependentKeyList)
         /// </summary>
@@ -395,14 +395,14 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
-        [Obsolete("Use Store()", false)] public abstract void Save(string key, string Value);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void Save(string key, string Value);
         /// <summary>
         /// Use Store()
         /// </summary>
         /// <param name="key"></param>
         /// <param name="Value"></param>
         /// <param name="tagCommaList"></param>
-        [Obsolete("Use Store()", false)] public abstract void Save(string key, string Value, string tagCommaList);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void Save(string key, string Value, string tagCommaList);
         /// <summary>
         /// Use Store()
         /// </summary>
@@ -410,7 +410,7 @@ namespace Contensive.BaseClasses {
         /// <param name="Value"></param>
         /// <param name="tagCommaList"></param>
         /// <param name="ClearOnDate"></param>
-        [Obsolete("Use Store()", false)] public abstract void Save(string key, string Value, string tagCommaList, DateTime ClearOnDate);
+        [Obsolete("Deprecated. Use Store().", false)] public abstract void Save(string key, string Value, string tagCommaList, DateTime ClearOnDate);
     }
 
 }

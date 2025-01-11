@@ -1,4 +1,5 @@
 ﻿using Contensive.BaseClasses;
+using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace Contensive.Processor.LayoutBuilder {
     /// </summary>
     class LayoutBuilderHtmlController {
         //
-        [Obsolete("Use getRandomHtmlId with no argument.", false)]
+        [Obsolete("Use getRandomHtmlId().", false)]
         public static string getRandomHtmlId(CPBaseClass cp) {
             return getRandomHtmlId();
         }
@@ -27,7 +28,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="link"></param>
         /// <returns></returns>
         public static string a(string buttonCaption, string link) {
-            return a(buttonCaption,link, "", "");
+            return a(buttonCaption, link, "", "");
         }
         //
         /// <summary>
@@ -80,47 +81,60 @@ namespace Contensive.Processor.LayoutBuilder {
             return "<div class=\"border bg-white p-2\">" + buttons + "</div>";
         }
         //
-        public static string getReportDoc(CPBaseClass cp, AdminUIHtmlDocRequest request) {
-            string result = "";
+        public static string getReportDoc(CPBaseClass cpBase, AdminUIHtmlDocRequest request) {
+            CPClass cp = (CPClass)cpBase;
             //
+            //
+            // -- report head
+            string result = "";
             string warningMessage = request.warningMessage;
             string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
-            if (!string.IsNullOrWhiteSpace(userErrors)) {
-                warningMessage += userErrors;
-            }
+            if (!string.IsNullOrWhiteSpace(userErrors)) { warningMessage += userErrors; }
             //
             result += (string.IsNullOrWhiteSpace(request.title) ? "" : Constants.cr + "<h2>" + request.title + "</h2>");
             result += (string.IsNullOrWhiteSpace(request.successMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-success text-white\">" + request.successMessage + "</div>");
             result += (string.IsNullOrWhiteSpace(request.infoMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-info text-white\">" + request.infoMessage + "</div>");
-            result += (string.IsNullOrWhiteSpace(request.warningMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-warning text-dark\">" + warningMessage + "</div>");
+            result += (string.IsNullOrWhiteSpace(warningMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-warning text-dark\">" + warningMessage + "</div>");
             result += (string.IsNullOrWhiteSpace(request.failMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-danger text-white\">" + request.failMessage + "</div>");
             result += (string.IsNullOrWhiteSpace(request.description) ? "" : Constants.cr + "<p>" + request.description + "</p>");
             if (!string.IsNullOrEmpty(request.csvDownloadFilename)) {
                 result += "<p id=\"afwDescription\"><a href=\"" + cp.Http.CdnFilePathPrefix + request.csvDownloadFilename + "\">Click here</a> to download the data.</p>";
             }
-            string resultBody = request.body;
-            if (!string.IsNullOrEmpty(request.htmlLeftOfBody)) {
-                resultBody = ""
-                    + "<div class=\"afwLeftSideHtml\">" + request.htmlLeftOfBody + "</div>"
-                    + "<div class=\"afwRightSideHtml\">" + resultBody + "</div>"
-                    + "<div style=\"clear:both\"></div>"
-                    + "";
+            //
+            // -- client pre-body html
+            if (!string.IsNullOrEmpty(request.htmlBeforeBody)) { 
+                result += "<div class=\"afwBeforeHtml\">" + request.htmlBeforeBody + "</div>"; 
             }
-            if (!string.IsNullOrEmpty(request.htmlBeforeBody)) { resultBody = "<div class=\"afwBeforeHtml\">" + request.htmlBeforeBody + "</div>" + resultBody; }
-            if (!string.IsNullOrEmpty(request.htmlAfterBody)) { resultBody += "<div class=\"afwAfterHtml\">" + request.htmlAfterBody + "</div>"; }
-            result += resultBody;
+            //
+            // -- add grid
+            {
+                string resultBody = request.body;
+                if (!string.IsNullOrEmpty(request.htmlLeftOfBody)) {
+                    resultBody = ""
+                        + "<div class=\"afwLeftSideHtml\">" + request.htmlLeftOfBody + "</div>"
+                        + "<div class=\"afwRightSideHtml\">" + resultBody + "</div>"
+                        + "<div style=\"clear:both\"></div>"
+                        + "";
+                }
+                result += resultBody;
+            }
+            //
+            // -- client post-body html
+            if (!string.IsNullOrEmpty(request.htmlAfterBody)) { 
+                result += "<div class=\"afwAfterHtml\">" + request.htmlAfterBody + "</div>"; 
+            }
             //
             // -- add padding
             if (request.includeBodyPadding) {
                 result = cp.Html.div(result, "", "m-4", "");
             };
             //
-            // -- add buttons
+            // -- wrap with buttons
             if (!string.IsNullOrEmpty(request.buttonList)) {
                 result = getButtonSection(request.buttonList) + result + getButtonSection(request.buttonList);
             }
             //
-            // -- add form
+            // -- wrap with form
             if (request.includeForm && !request.blockFormTag) {
                 string action = !string.IsNullOrEmpty(request.formActionQueryString) ? request.formActionQueryString : (!string.IsNullOrEmpty(request.refreshQueryString) ? request.refreshQueryString : cp.Doc.RefreshQueryString);
                 result = cp.Html.Form(result + request.hiddenList, "", "", "", action, "");
@@ -227,7 +241,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public bool blockFormTag { get; set; }
         //
-        [Obsolete("deprecated. Use warningMessage instead", false)]
+        [Obsolete("deprecated. Use warningMessage", false)]
         public string warning { get; set; }
     }
 }

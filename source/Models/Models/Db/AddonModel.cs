@@ -87,7 +87,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// deprecated
         /// </summary>
-        [Obsolete("Deprecated",false)] public string objectProgramId { get; set; }
+        [Obsolete("Deprecated. ActiveX is no longer supported.",false)] public string objectProgramId { get; set; }
         public bool onBodyEnd { get; set; }
         public bool onBodyStart { get; set; }
         public bool onNewVisitEvent { get; set; }
@@ -165,11 +165,11 @@ namespace Contensive.Models.Db {
         /// </summary>
         public int? contentSourceId { get; set; }
         //
-        [Obsolete("Use javascriptInHead to hold local javascript content", false)] 
+        [Obsolete("Deprecated. Use javascriptInHead.", false)] 
         public string javaScriptBodyEnd { get; set; }
         //
         // -- deprecated, use jsHeadScriptSrc to hold URL to external scripts
-        [Obsolete("Use jsHeadScriptSrc to hold URL to external scripts", false)] 
+        [Obsolete("Deprecated. Use jsHeadScriptSrc.", false)] 
         public string jsBodyScriptSrc { get; set; }
         //
         // -- deprecated

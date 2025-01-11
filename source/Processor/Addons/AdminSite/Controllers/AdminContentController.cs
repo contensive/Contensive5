@@ -634,7 +634,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             // --Find words
             string SubList = "";
             foreach (var kvp in gridConfig.findWords) {
-                IndexConfigFindWordClass findWord = kvp.Value;
+                GridConfigFindWordClass findWord = kvp.Value;
                 if ((!string.IsNullOrEmpty(findWord.Name)) && (findWord.MatchOption != FindWordMatchEnum.MatchIgnore)) {
                     SubList += Environment.NewLine + findWord.Name + "\t" + findWord.Value + "\t" + (int)findWord.MatchOption;
                 }
@@ -717,7 +717,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             //
             SubList = "";
             foreach (var kvp in gridConfig.sorts) {
-                IndexConfigSortClass sort = kvp.Value;
+                GridConfigSortClass sort = kvp.Value;
                 if (!string.IsNullOrEmpty(sort.fieldName)) {
                     SubList += Environment.NewLine + sort.fieldName + "\t" + sort.direction;
                 }

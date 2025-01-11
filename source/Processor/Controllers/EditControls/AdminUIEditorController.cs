@@ -739,7 +739,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                     // -- if hardcoded redirect link, create open-in-new-windows
                     return "This field is not configured correctly.";
                 }
-                GridConfigClass gridConfig = GridConfigClass.get(core, redirectContent_adminData);
+                GridConfigClass gridConfig = new(core, redirectContent_adminData);
                 var userContentPermissions = PermissionController.getUserContentPermissions(core, ContentMetadataModel.create(core, field.redirectContentId));
                 List<string> tmp = default;
                 DataSourceModel datasource = DataSourceModel.create(core.cpParent, redirectContent_adminData.adminContent.dataSourceId, ref tmp);

@@ -1,4 +1,5 @@
 ﻿
+using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.BaseModels;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,12 @@ namespace Contensive.BaseClasses {
         //====================================================================================================
         //
         public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList();
+        ////
+        //public abstract LayoutBuilder.LayoutBuilderListBaseClass CreateLayoutBuilderList(LayoutBuilderGridConfigRequestBaseClass request);
+        //
+        //====================================================================================================
+        //
+        public abstract LayoutBuilder.LayoutBuilderNameValueBaseClass CreateLayoutBuilderNameValue();
         //
         //====================================================================================================
         /// <summary>
@@ -781,13 +788,13 @@ namespace Contensive.BaseClasses {
         /// Create a new instance of a Tool Form. Tool Forms are simple forms with key elements like buttons and header with a simple body
         /// </summary>
         /// <returns></returns>
-        [Obsolete("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi.", true)]
+        [Obsolete("Deprecated. All report and tool helper classes are implemented through Contensive.AdminUI.", true)]
         public abstract LayoutBuilder.LayoutBuilderToolFormBaseClass NewToolForm();
         /// <summary>
         /// Create a new instance of a List Report. List reports have a list of data rows with filters on the left
         /// </summary>
         /// <returns></returns>
-        [Obsolete("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi.", true)]
+        [Obsolete("Deprecated. All report and tool helper classes are implemented through Contensive.AdminUI.", true)]
         public abstract LayoutBuilder.LayoutBuilderListBaseClass NewListReport();
         //
     }

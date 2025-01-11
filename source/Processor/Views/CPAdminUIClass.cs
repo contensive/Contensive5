@@ -29,10 +29,12 @@ namespace Contensive.Processor {
         }
 
         public override LayoutBuilderListBaseClass CreateLayoutBuilderList() {
-            return new LayoutBuilder.LayoutBuilderListClass();
+            return new LayoutBuilder.LayoutBuilderListClass(core.cpParent);
         }
 
-
+        public override LayoutBuilderNameValueBaseClass CreateLayoutBuilderNameValue() {
+            return new LayoutBuilder.LayoutBuilderNameValueClass(core.cpParent);
+        }
         //
         // ====================================================================================================
         //

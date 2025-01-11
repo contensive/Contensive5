@@ -356,65 +356,65 @@ namespace Contensive.Processor {
         public override string InputText(string HtmlName, string HtmlValue, string Height)
             => InputText(HtmlName, HtmlValue);
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string RadioBox(string HtmlName, int HtmlValue, int CurrentValue, string HtmlClass = "", string HtmlId = "") {
             return HtmlController.inputRadio(HtmlName, HtmlValue, CurrentValue, HtmlId, HtmlClass);
         }
         //
         //
         // removed optional width and class because there is already a signature for (string) and (string, string)
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue ) 
             => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue));
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue, string Width)
             => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue));
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue, string Width, string HtmlClass  )
             => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue), "", "", HtmlClass);
         //
 
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string InputDate(string HtmlName, string HtmlValue, string Width, string HtmlClass, string HtmlId)
     => HtmlController.inputDate(cp.core, HtmlName, encodeDate(HtmlValue), "", HtmlId, HtmlClass);
         //
         //
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, int HtmlValue)
             => HtmlController.inputHidden(HtmlName, HtmlValue);
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, int HtmlValue, string HtmlClass)
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass);
         // removed last optional because there is already (string, int, string)
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, int HtmlValue, string HtmlClass, string HtmlId) 
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass, HtmlId);
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, bool HtmlValue)
             => HtmlController.inputHidden(HtmlName, HtmlValue);
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, bool HtmlValue, string HtmlClass)
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass);
         // removed last optional becuase there is already a signature for (string,bool,string)
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, bool HtmlValue, string HtmlClass, string HtmlId)
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass, HtmlId);
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, DateTime HtmlValue)
             => HtmlController.inputHidden(HtmlName, HtmlValue);
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, DateTime HtmlValue, string HtmlClass)
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass);
         //
-        [Obsolete("Use html5 methods instead", false)]
+        [Obsolete("Deprecated. Use html5 methods instead.", false)]
         public override string Hidden(string HtmlName, DateTime HtmlValue, string HtmlClass, string HtmlId = "")
             => HtmlController.inputHidden(HtmlName, HtmlValue, HtmlClass, HtmlId);
         //

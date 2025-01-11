@@ -89,7 +89,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         // If subforms return empty, go to parent form
                         //
                         // -- Load Index page customizations
-                        GridConfigClass gridConfig = GridConfigClass.get(core, adminData);
+                        GridConfigClass gridConfig = new(core, adminData);
                         setIndexSQL_ProcessIndexConfigRequests(core, adminData, ref gridConfig);
                         AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, gridConfig);
                         //
@@ -246,7 +246,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                             Stream.add(ButtonBar);
                             Stream.add(HtmlController.inputHidden(rnAdminSourceForm, AdminFormIndex));
                             Stream.add(HtmlController.inputHidden("cid", adminData.adminContent.id));
-                            Stream.add(HtmlController.inputHidden("indexGoToPage", ""));
                             Stream.add(HtmlController.inputHidden("Columncnt", gridConfig.columns.Count));
                             core.html.addTitle(adminData.adminContent.name, "admin list view");
                         }
@@ -291,7 +290,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 filterLine.Append(", last edited" + filterLastEdited);
             }
             foreach (var kvp in gridConfig.findWords) {
-                IndexConfigFindWordClass findWord = kvp.Value;
+                GridConfigFindWordClass findWord = kvp.Value;
                 if (!string.IsNullOrEmpty(findWord.Name)) {
                     var fieldMeta = ContentMetadataModel.getField(core, content, findWord.Name);
                     if (fieldMeta != null) {
@@ -363,7 +362,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             //
             string sortLine = "";
             foreach (var kvp in gridConfig.sorts) {
-                IndexConfigSortClass sort = kvp.Value;
+                GridConfigSortClass sort = kvp.Value;
                 if (sort.direction > 0) {
                     sortLine = sortLine + ", then " + content.fields[sort.fieldName].caption;
                     if (sort.direction > 1) {
@@ -371,10 +370,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             }
-            string pageNavigation = getForm_index_pageNavigation(core, gridConfig.pageNumber, gridConfig.recordsPerPage, recordCnt, content.name);
+            string pageNavigation = getPageNavigation(core, gridConfig.pageNumber, gridConfig.recordsPerPage, recordCnt);
             //
-            // ----- TitleBar
-            //
+            // -- TitleBar
             string Title = HtmlController.div("<strong>" + content.name + "</strong><div style=\"float:right;\">" + pageNavigation + "</div>");
             if (!filterLine.Length.Equals(0)) {
                 string link = "/" + core.appConfig.adminRoute + "?cid=" + content.id + "&af=1&IndexFilterRemoveAll=1";
@@ -400,7 +398,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static void setIndexSQL_ProcessIndexConfigRequests(CoreController core, AdminDataModel adminData, ref GridConfigClass gridConfig) {
             try {
                 if (!gridConfig.loaded) {
-                    gridConfig = GridConfigClass.get(core, adminData);
+                    gridConfig = new(core, adminData);
                 }
                 //
                 // ----- Page number
@@ -419,10 +417,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                 gridConfig.pageNumber = encodeInteger(1 + Math.Floor(gridConfig.recordTop / (double)gridConfig.recordsPerPage));
                 //
                 //
-                // ----- Process indexGoToPage value
-                int TestInteger = core.docProperties.getInteger("indexGoToPage");
-                if (TestInteger > 0) {
-                    gridConfig.pageNumber = TestInteger;
+                // ----- Process paginationPageNumber value
+                int paginationPageNumber = core.docProperties.getInteger("paginationPageNumber");
+                if (paginationPageNumber > 0) {
+                    gridConfig.pageNumber = paginationPageNumber;
                     gridConfig.recordTop = DbController.getStartRecord(gridConfig.recordsPerPage, gridConfig.pageNumber);
                 } else {
                     //
@@ -479,7 +477,7 @@ namespace Contensive.Processor.Addons.AdminSite {
 
                                                     }
                                                     ContentFieldMetadataModel field = adminData.adminContent.fields[FindName.ToLowerInvariant()];
-                                                    var findWord = new IndexConfigFindWordClass {
+                                                    var findWord = new GridConfigFindWordClass {
                                                         Name = FindName,
                                                         Value = FindValue
                                                     };
@@ -524,7 +522,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (core.docProperties.getBoolean("IndexFilterRemoveAll")) {
                     //
                     // Remove all filters
-                    gridConfig.findWords = new Dictionary<string, IndexConfigFindWordClass>();
+                    gridConfig.findWords = new Dictionary<string, GridConfigFindWordClass>();
                     gridConfig.groupListCnt = 0;
                     gridConfig.subCDefID = 0;
                     gridConfig.activeOnly = false;
@@ -641,7 +639,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (core.docProperties.getBoolean("IndexSortRemoveAll")) {
                         //
                         // Remove all filters
-                        gridConfig.sorts = new Dictionary<string, IndexConfigSortClass>();
+                        gridConfig.sorts = new Dictionary<string, GridConfigSortClass>();
                     } else {
                         //
                         // SortField
@@ -650,7 +648,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             bool sortFound = gridConfig.sorts.ContainsKey(setSortField);
                             int sortDirection = core.docProperties.getInteger("SetSortDirection");
                             if (!sortFound) {
-                                gridConfig.sorts.Add(setSortField, new IndexConfigSortClass {
+                                gridConfig.sorts.Add(setSortField, new GridConfigSortClass {
                                     fieldName = setSortField,
                                     direction = 1,
                                     order = gridConfig.sorts.Count + 1
@@ -886,7 +884,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Where Clause: findwords
                 if (gridConfig.findWords.Count > 0) {
                     foreach (var kvp in gridConfig.findWords) {
-                        IndexConfigFindWordClass findword = kvp.Value;
+                        GridConfigFindWordClass findword = kvp.Value;
                         int FindMatchOption = (int)findword.MatchOption;
                         if (FindMatchOption != (int)FindWordMatchEnum.MatchIgnore) {
                             string FindWordNameLc = GenericController.toLCase(findword.Name);
@@ -1143,7 +1141,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 return_SQLOrderBy = "";
                 string orderByDelim = " ";
                 foreach (var kvp in gridConfig.sorts) {
-                    IndexConfigSortClass sort = kvp.Value;
+                    GridConfigSortClass sort = kvp.Value;
                     string SortFieldName = GenericController.toLCase(sort.fieldName);
                     //
                     // Get FieldType
@@ -1176,7 +1174,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string getForm_IndexFilterContent(CoreController core, AdminDataModel adminData) {
             string returnContent = "";
             try {
-                var gridConfig = GridConfigClass.get(core, adminData);
+                GridConfigClass gridConfig = new(core, adminData);
                 string RQS = "cid=" + adminData.adminContent.id + "&af=1";
                 string Link = string.Empty;
                 string QS = string.Empty;
@@ -1277,7 +1275,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // FindWords
                     //
                     foreach (var findWordKvp in gridConfig.findWords) {
-                        IndexConfigFindWordClass findWord = findWordKvp.Value;
+                        GridConfigFindWordClass findWord = findWordKvp.Value;
                         string fieldCaption = (!adminData.adminContent.fields.ContainsKey(findWord.Name.ToLower(CultureInfo.InvariantCulture))) ? findWord.Name : adminData.adminContent.fields[findWord.Name.ToLower(CultureInfo.InvariantCulture)].caption;
                         QS = RQS;
                         QS = GenericController.modifyQueryString(QS, "IndexFilterRemoveFind", findWord.Name);

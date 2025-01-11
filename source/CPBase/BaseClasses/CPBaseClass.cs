@@ -144,7 +144,7 @@ namespace Contensive.BaseClasses {
         /// <value></value>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Obsolete("Legacy file object. Use FileCdn, FileAppRoot, FilePrivate and tempFiles.")]
+        [Obsolete("Deprecated. Use cp.CdnFiles, cp.wwwFiles, cp.privateFiles and cp.TempFiles.")]
         public abstract CPFileBaseClass File { get; }
         //
         //====================================================================================================
@@ -361,7 +361,7 @@ namespace Contensive.BaseClasses {
         /// <value></value>
         /// <returns></returns>
         /// <remarks></remarks>
-        [Obsolete("Legacy object. To determine addon properties of the current addon, use CP.Addon.id to create a model.", false)]
+        [Obsolete("Deprecated. Use CP.Addon.id to create a model.", false)]
         public abstract CPAddonBaseClass MyAddon { get; }
         //
     }

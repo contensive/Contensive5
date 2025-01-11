@@ -39,7 +39,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // -- Process reset
                     core.userProperty.setProperty(AdminDataModel.IndexConfigPrefix + adminContent.id.ToString(), "");
                 }
-                GridConfigClass gridConfig = GridConfigClass.get(core, adminData);
+                GridConfigClass gridConfig = new(core, adminData);
                 int ToolsAction = core.docProperties.getInteger("dta");
                 int TargetFieldId = core.docProperties.getInteger("fi");
                 string TargetFieldName = core.docProperties.getText("FieldName");
@@ -238,7 +238,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 column.Width = encodeInteger((1000 * column.Width) / (double)ColumnWidthTotal);
                             }
                             AdminContentController.setIndexSQL_SaveIndexConfig(cp, core, gridConfig);
-                            gridConfig = GridConfigClass.get(core, adminData);
+                            gridConfig = new(core, adminData);
                         }
                     }
                     //

@@ -1,12 +1,12 @@
 
 using Contensive.BaseClasses;
+using Contensive.Processor.Addons.AdminSite;
+using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-
 namespace Contensive.Processor.LayoutBuilder {
-    //
     /// <summary>
     /// Create a layout with a data grid
     /// </summary>
@@ -15,118 +15,60 @@ namespace Contensive.Processor.LayoutBuilder {
         // ====================================================================================================
         // constructors
         //
+        //
         /// <summary>
         /// prefered constructor
         /// </summary>
         /// <param name="cp"></param>
         public LayoutBuilderListClass(CPBaseClass cp) {
-            this.cp = cp;
+            this.cp = (CPClass)cp;
         }
         //
         /// <summary>
         /// legacy constructor, without cp. (cp needed for pagination)
         /// </summary>
-        [Obsolete("Use constructor with cp arguemnt, New ReportListClass(cp)", false)] public LayoutBuilderListClass() { }
+        [Obsolete("Deprecated. Use LayoutBuilderListClass(cp)", false)] public LayoutBuilderListClass() { }
         //
         // ====================================================================================================
         // privates
-        /// <summary>
-        /// used for pagination and export
-        /// </summary>
-        private CPBaseClass cp { get; }
         //
-        //
-        // ====================================================================================================
-        // publics
-        //
-        /// <summary>
-        /// if set true, the pageSize and pageNumber will control pagination
-        /// The grid will include pagination controls, and the client application should read pageSize and pageNumber when setting up the query
-        /// </summary>
-        public bool allowPagination { get; set; }
-        //
-        /// <summary>
-        /// Only valid if allowPagination is set to true.
-        /// Set the pageSize used by default.
-        /// The user may select a different page size.
-        /// </summary>
-        public int paginationPageSizeDefault {
+        private GridConfigClass gridConfig {
             get {
-                if (_paginationPageSizeDefault != null) { return (int)_paginationPageSizeDefault; }
-                _paginationPageSizeDefault = 50;
-                return (int)_paginationPageSizeDefault;
-            }
-            set {
-                _paginationPageSizeDefault = value;
+                var request = new GridConfigRequest {
+                    defaultRecordsPerPage = paginationPageSizeDefault,
+                    gridPropertiesSaveName = "",
+                    sortableFields = []
+                };
+                return new GridConfigClass(cp.core, request);
             }
         }
-        private int? _paginationPageSizeDefault;
         //
         /// <summary>
-        /// if allowPagination false, this will will be 9999999. 
-        /// If allowPagination true, this is the number of rows in the display, and should be used as the pageSize in the query
+        /// used for pagination and export. Setter included to support older legacy code that used cp parameter in getHtml(cp).
         /// </summary>
-        public int paginationPageSize {
-            get {
-                if (_paginationPageSize != null) { return (int)_paginationPageSize; }
-                _paginationPageSize = paginationPageSizeDefault;
-                return (int)_paginationPageSize;
-            }
-            set {
-                if (value < 1) { value = 1; }
-                if (value > 9999999) { value = 9999999; }
-                _paginationPageSize = value;
-            }
-        }
-        private int? _paginationPageSize;
-        //
-        /// <summary>
-        /// The 0-based page number being displayed
-        /// if allowPagination false, this will will be 0 (the first page). 
-        /// If allowPagination true, this is the page shown in the display, and should be used as the pageNumber in the query
-        /// </summary>
-        public int paginationPageNumber {
-            get {
-                if (_paginationPageNumber != null) { return (int)_paginationPageNumber; }
-                if (!allowPagination || cp == null) {
-                    return 0;
-                }
-                _paginationPageNumber = cp.Request.GetInteger("paginationPageNumber");
-                return (int)_paginationPageSize;
-            }
-            set {
-                if (value < 0) { value = 0; }
-                if (value > 9999999) { value = 9999999; }
-                _paginationPageNumber = value;
-            }
-        }
-        private int? _paginationPageNumber;
-        //
-        /// <summary>
-        /// Add an ellipse menu entry for the current row
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="url"></param>
-        public void addRowEllipseMenuItem(string name, string url) {
-            if (rowEllipseMenuDict == null) { rowEllipseMenuDict = new Dictionary<int, List<EllipseMenuItem>>(); }
-            if (!rowEllipseMenuDict.ContainsKey(rowCnt)) { rowEllipseMenuDict[rowCnt] = new List<EllipseMenuItem>(); }
-            rowEllipseMenuDict[rowCnt].Add(new EllipseMenuItem {
-                name = name,
-                url = url
-            });
-        }
-        //
-        // --- privates
+        private CPClass cp { get; set; }
+        ///// <summary>
+        ///// if true, the grid is paginated
+        ///// </summary>
+        //private bool paginationEnabled { get; set; } = false;
+        ///// <summary>
+        ///// if true, the grid is sortable
+        ///// </summary>
+        //private bool sortEnabled { get; set; } = false;
+        ///// <summary>
+        ///// if true, the grid is user-save enabled
+        ///// </summary>
+        //private bool userSaveEnabled { get; set; } = false;
         //
         /// <summary>
         /// The report grid data
         /// </summary>
-        private readonly string[,] localReportCells = new string[rowSize, columnSize];
+        private string[,] localReportCells { get; } = new string[rowSize, columnSize];
         //
         /// <summary>
         /// the report download data
         /// </summary>
-        private readonly string[,] localDownloadData = new string[rowSize, columnSize];
+        private string[,] localDownloadData { get; } = new string[rowSize, columnSize];
         //
         /// <summary>
         /// add indent to the source
@@ -158,7 +100,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// list of elipse menu items added to the rightmost column
         /// </summary>
-        private Dictionary<int, List<EllipseMenuItem>> rowEllipseMenuDict { get; set; } = new Dictionary<int, List<EllipseMenuItem>>();
+        private Dictionary<int, List<EllipseMenuItem>> rowEllipseMenuDict { get; set; } = [];
         //
         /// <summary>
         /// maximum columns allowed
@@ -174,43 +116,136 @@ namespace Contensive.Processor.LayoutBuilder {
         /// todo deprecate - use ReportListColumnClass
         /// </summary>
         private struct ColumnStruct {
-            public string name;
-            public string caption;
-            public string captionClass;
-            public string cellClass;
-            public bool sortable;
-            public bool visible;
-            public bool downloadable;
-            public int columnWidthPercent;
+            public string name { get; set; }
+            public string caption { get; set; }
+            public string captionClass { get; set; }
+            public string cellClass { get; set; }
+            public bool sortable { get; set; }
+            public bool visible { get; set; }
+            public bool downloadable { get; set; }
+            public int columnWidthPercent { get; set; }
         }
         /// <summary>
         /// when true, the report has exceeded the rowSize and future columns will populate on top of each other
         /// </summary>
-        private bool ReportTooLong = false;
+        private bool ReportTooLong { get; set; } = false;
         /// <summary>
         /// storage for the current column
         /// </summary>
-        private readonly ColumnStruct[] columns = new ColumnStruct[columnSize];
+        private ColumnStruct[] columns { get; set; } = new ColumnStruct[columnSize];
         //
         /// <summary>
         /// true if the caption or captionclass has been initialized
         /// </summary>
-        private bool captionIncluded = false;
+        private bool captionIncluded { get; set; } = false;
         //
         /// <summary>
         /// the highest column count of any row
         /// </summary>
-        private int columnMax = -1;
+        private int columnMax { get; set; } = -1;
         //
         /// <summary>
         /// pointer to the current column
         /// </summary>
-        private int columnPtr = -1;
+        private int columnPtr { get; set; } = -1;
         //
         /// <summary>
         /// the number of rows in the report
         /// </summary>
-        private int rowCnt = -1;
+        private int rowCnt { get; set; } = -1;
+        //
+        // ====================================================================================================
+        // publics
+        //
+        //
+        public override string sqlOrderBy {
+            get {
+                if (_sqlOrderBy != null) { return _sqlOrderBy; }
+                _sqlOrderBy = "";
+                string orderByDelim = " ";
+                foreach (var kvp in gridConfig.sorts) {
+                    _sqlOrderBy += orderByDelim + kvp.Value.fieldName;
+                    if (kvp.Value.direction > 1) { _sqlOrderBy += " Desc"; }
+                    orderByDelim = ",";
+                }
+                return _sqlOrderBy;
+            }
+        }
+        private string? _sqlOrderBy;
+        /// <summary>
+        /// if set true, the pageSize and pageNumber will control pagination
+        /// The grid will include pagination controls, and the client application should read pageSize and pageNumber when setting up the query
+        /// </summary>
+        public override bool allowPagination { 
+            get {
+                return cp.Site.GetBoolean("allow afw pagination beta", false);
+            }
+        }
+        //
+        /// <summary>
+        /// Only valid if allowPagination is set to true.
+        /// Set the pageSize used by default.
+        /// The user may select a different page size.
+        /// </summary>
+        public override int paginationPageSizeDefault {
+            get {
+                if (_paginationPageSizeDefault != null) { return (int)_paginationPageSizeDefault; }                
+                _paginationPageSizeDefault = 50;
+                return (int)_paginationPageSizeDefault;
+            }
+            set {
+                _paginationPageSizeDefault = value;
+            }
+        }
+        private int? _paginationPageSizeDefault;
+        //
+        /// <summary>
+        /// if allowPagination false, this will will be 9999999. 
+        /// If allowPagination true, this is the number of rows in the display, and should be used as the pageSize in the query
+        /// </summary>
+        public override int paginationPageSize {
+            get {
+                if (_paginationPageSize != null) { return (int)_paginationPageSize; }
+                if (!allowPagination) {
+                    _paginationPageSize = 9999999;
+                    return (int)_paginationPageSize;
+                }
+                _paginationPageSize = paginationPageSizeDefault;
+                return (int)_paginationPageSize;
+            }
+        }
+        private int? _paginationPageSize;
+        //
+        /// <summary>
+        /// The 0-based page number being displayed
+        /// if allowPagination false, this will will be 0 (the first page). 
+        /// If allowPagination true, this is the page shown in the display, and should be used as the pageNumber in the query
+        /// </summary>
+        public override int paginationPageNumber {
+            get {
+                if (_paginationPageNumber != null) { return (int)_paginationPageNumber; }
+                if (!allowPagination || cp == null) {
+                    return 0;
+                }
+                _paginationPageNumber = cp.Request.GetInteger("paginationPageNumber");
+                return (int)_paginationPageNumber;
+            }
+        }
+        private int? _paginationPageNumber;
+        //
+        /// <summary>
+        /// Add an ellipse menu entry for the current row
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="url"></param>
+        public override void addRowEllipseMenuItem(string name, string url) {
+            if (rowEllipseMenuDict == null) { rowEllipseMenuDict = new Dictionary<int, List<EllipseMenuItem>>(); }
+            if (!rowEllipseMenuDict.ContainsKey(rowCnt)) { rowEllipseMenuDict[rowCnt] = new List<EllipseMenuItem>(); }
+            rowEllipseMenuDict[rowCnt].Add(new EllipseMenuItem {
+                name = name,
+                url = url
+            });
+        }
         //
         //====================================================================================================
         /// <summary>
@@ -235,36 +270,43 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         //
         //====================================================================================================
+        /// <summary>
+        /// The maximum number of rows allowed
+        /// </summary>
+        public override int recordCount { get; set; }
+        //
+        //====================================================================================================
         //
         /// <summary>
         /// render the report
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public string GetHtml(CPBaseClass cp) {
+        public override string getHtml() {
             int hint = 0;
             try {
-                StringBuilder rowBuilder;
                 string columnSort = cp.Doc.GetText("columnSort");
                 string csvDownloadContent = "";
                 DateTime rightNow = DateTime.Now;
                 hint = 10;
                 //
-                // add user errors
+                // -- set the optional title of the portal subnav
+                if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
                 //
+                // add user errors
                 string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
                 if (!string.IsNullOrEmpty(userErrors)) {
                     warningMessage += userErrors;
                 }
                 int colPtr;
                 int colPtrDownload;
-                StringBuilder result = new StringBuilder("");
+                StringBuilder resultBody = new("");
                 hint = 20;
                 //
                 // headers
                 //
+                StringBuilder rowBuilder = new();
                 if (captionIncluded) {
-                    rowBuilder = new StringBuilder("");
                     string xrefreshQueryString = (!string.IsNullOrEmpty(refreshQueryString) ? refreshQueryString : cp.Doc.RefreshQueryString);
                     for (colPtr = 0; colPtr <= columnMax; colPtr++) {
                         if (columns[colPtr].visible) {
@@ -277,12 +319,7 @@ namespace Contensive.Processor.LayoutBuilder {
                             if (content == "") {
                                 content = "&nbsp;";
                             } else if (columns[colPtr].sortable) {
-                                string sortLink;
-                                sortLink = "?" + refreshQueryString + "&columnSort=" + sortField;
-                                if (columnSort == sortField) {
-                                    sortLink += "Desc";
-                                }
-                                content = "<a href=\"" + sortLink + "\">" + content + "</a>";
+                                content = $"<a class=\"columnSort\" data-columnSort=\"{sortField}\" href=\"#\">" + content + "</a>";
                             }
                             string styleAttribute = "";
                             if (columns[colPtr].columnWidthPercent > 0) {
@@ -291,13 +328,25 @@ namespace Contensive.Processor.LayoutBuilder {
                             rowBuilder.Append(Constants.cr + "<th" + classAttribute + styleAttribute + ">" + content + "</th>");
                         }
                     }
-                    result.Append(""
+                    resultBody.Append(""
                         + Constants.cr + "<thead>"
                         + Constants.cr2 + "<tr>"
                         + indent(indent(rowBuilder.ToString()))
                         + Constants.cr2 + "</tr>"
-                        + Constants.cr + "</thead>"
-                        + "");
+                        + Constants.cr + "</thead>");
+                    //
+                    // -- append hidden field for column sort
+                    resultBody.Append(""
+                        + $"<input type=hidden name=columnSort value=\"{columnSort}\">"
+                        + "<script>"
+                        + "document.addEventListener('DOMContentLoaded', function(event) {"
+                        + "   $('.sortLink').on('click',function(p){"
+                        + "       document.getElementsByName('columnSort')[0].value=$(this).data('columnSort');"
+                        + "       $(this).closest(\"form\").submit();"
+                        + "   });"
+                        + "});"
+                        + "</script>" 
+                        +"");
                     if (addCsvDownloadCurrentPage) {
                         colPtrDownload = 0;
                         for (colPtr = 0; colPtr <= columnMax; colPtr++) {
@@ -313,6 +362,13 @@ namespace Contensive.Processor.LayoutBuilder {
                     }
                 }
                 hint = 30;
+                //
+                // -- page navigation
+                if (cp.Site.GetBoolean("allow afw pagination beta", false) && recordCount > paginationPageSize) {
+                    //
+                    // -- prepend navigation to before-table
+                    htmlBeforeTable = AdminUIController.getPageNavigation(cp.core, paginationPageNumber, paginationPageSize, recordCount) + htmlBeforeTable;
+                }
                 //
                 // body
                 //
@@ -371,7 +427,7 @@ namespace Contensive.Processor.LayoutBuilder {
                                         ellipseMenu.menuList.Add(new Contensive.BaseClasses.LayoutBuilder.EllipseMenuDataItemModel {
                                             menuName = menuItem.name,
                                             menuHref = menuItem.url
-                                         });
+                                        });
                                     }
                                     rowContent = cp.Mustache.Render(Processor.Properties.Resources.ellipseMenu, ellipseMenu);
                                 }
@@ -424,18 +480,48 @@ namespace Contensive.Processor.LayoutBuilder {
                     csDownloads.Close();
                 }
                 hint = 70;
-                result.Append(""
+                resultBody.Append(""
                     + Constants.cr + "<tbody>"
                     + indent(rowBuilder.ToString())
                     + Constants.cr + "</tbody>"
                     + "");
-                result = new StringBuilder(Constants.cr + "<table class=\"afwListReportTable\">" + indent(result.ToString()) + Constants.cr + "</table>");
-                body = result.ToString();
-                return getHtml(cp);
+                resultBody = new StringBuilder(Constants.cr + "<table class=\"afwListReportTable\">" + indent(resultBody.ToString()) + Constants.cr + "</table>");
+                body = resultBody.ToString();
+                //
+                // -- construct page
+                AdminUIHtmlDocRequest request = new() {
+                    body = body,
+                    includeBodyPadding = includeBodyPadding,
+                    includeBodyColor = includeBodyColor,
+                    buttonList = buttonList,
+                    csvDownloadFilename = csvDownloadFilename,
+                    description = description,
+                    formActionQueryString = formActionQueryString,
+                    refreshQueryString = refreshQueryString,
+                    hiddenList = hiddenList,
+                    includeForm = includeForm,
+                    isOuterContainer = isOuterContainer,
+                    title = title,
+                    warningMessage = warningMessage,
+                    failMessage = failMessage,
+                    infoMessage = infoMessage,
+                    successMessage = successMessage,
+                    htmlAfterBody = htmlAfterTable,
+                    htmlBeforeBody = htmlBeforeTable,
+                    htmlLeftOfBody = htmlLeftOfTable,
+                    blockFormTag = blockFormTag
+                };
+                string result = LayoutBuilderHtmlController.getReportDoc(cp, request);
+                return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "hint [" + hint + "]");
                 throw;
             }
+        }
+        [Obsolete("Deprecated. Use getHtml() with construction LayoutBuilderListClass(cp, gridConfigRequest)", false)]
+        public override string getHtml(CPBaseClass cp) {
+            this.cp = (CPClass)cp;
+            return getHtml();
         }
         /// <summary>
         /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
@@ -460,7 +546,8 @@ namespace Contensive.Processor.LayoutBuilder {
         //====================================================================================================
         /// <summary>
         /// The name of the current column.
-        /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
+        /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. 
+        /// When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
         public override string columnName {
             get {
@@ -784,7 +871,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// populate a cell.
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
-        public override void setCell(DateTime? content, DateTime? downloadContent) => setCell((content == null) ? "" : content.ToString(), downloadContent==null ? "" : downloadContent.ToString());
+        public override void setCell(DateTime? content, DateTime? downloadContent) => setCell((content == null) ? "" : content.ToString(), downloadContent == null ? "" : downloadContent.ToString());
         //
         //====================================================================================================
         //
@@ -826,7 +913,8 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         //-------------------------------------------------
         /// <summary>
-        /// if true, this layoutBuilder will not be contained in other layoutBuilder content. This is used by the default getHtml() to include an outer div with the htmlId "afw", and the styles and javascript
+        /// if true, this layoutBuilder will not be contained in other layoutBuilder content. 
+        /// This is used by the default getHtml() to include an outer div with the htmlId "afw", and the styles and javascript
         /// </summary>
         public override bool isOuterContainer { get; set; } = false;
         //
@@ -879,7 +967,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public override string styleSheet =>  Processor.Properties.Resources.layoutBuilderStyles;
+        public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
         //
         //-------------------------------------------------
         /// <summary>
@@ -898,44 +986,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
         public override string csvDownloadFilename { get; set; }
-        // 
-        //-------------------------------------------------
-        /// <summary>
-        /// The default body. Typically you would create a layout by adding content to the individual elements and calling this method. Oveerride this method and consider using AdminUIHtmlController.getReportDoc()
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <returns></returns>
-        public override string getHtml(CPBaseClass cp) {
-            //
-            // -- construct body
-            AdminUIHtmlDocRequest request = new() {
-                body = body,
-                includeBodyPadding = includeBodyPadding,
-                includeBodyColor = includeBodyColor,
-                buttonList = buttonList,
-                csvDownloadFilename = csvDownloadFilename,
-                description = description,
-                formActionQueryString = formActionQueryString,
-                refreshQueryString = refreshQueryString,
-                hiddenList = hiddenList,
-                includeForm = includeForm,
-                isOuterContainer = isOuterContainer,
-                title = title,
-                warningMessage = warningMessage,
-                failMessage = failMessage,
-                infoMessage = infoMessage,
-                successMessage = successMessage,
-                htmlAfterBody = htmlAfterTable,
-                htmlBeforeBody = htmlBeforeTable,
-                htmlLeftOfBody = htmlLeftOfTable,
-                blockFormTag = blockFormTag
-            };
-            string result = LayoutBuilderHtmlController.getReportDoc(cp, request);
-            //
-            // -- set the optional title of the portal subnav
-            if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
-            return result;
-        }
         //
         //-------------------------------------------------
         /// <summary>

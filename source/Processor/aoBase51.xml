@@ -3131,7 +3131,8 @@
 				<SiteProperty Caption="(legacy) AWS Secret Access Key" Name="AWS Secret Access Key" ReadOnly="1" Type="text" Selector="" Description="This key is deprecated. It had been used for AWS SES email. Use the AWS credentials in the server configuration file in d:\contensive\config.json managed with the cc.exe command line program. Give this credentials the permissions for any resource needed on the site. Access the credentials programmatically with cp.ServerConfig."></SiteProperty>
 			</Tab>
 			<Tab Name="Beta" heading="Beta features" description="Settings the affect unreleased and soft-released features. Only enable/disable if you understand the affects.">
-				<SiteProperty Caption="Website Edit/Add Enhancements" Name="allow edit modal beta" ReadOnly="0" Type="Boolean" Description="When checked, the website edit and add tags change appearance and use the edit modal.">0</SiteProperty>
+				<SiteProperty Caption="Website Edit/Add Enhancements" Name="allow edit modal beta" ReadOnly="0" Type="Boolean" Description="When checked, the website edit and add tags change appearance and use the edit modal.">1</SiteProperty>
+				<SiteProperty Caption="Portal Pagination" Name="allow afw pagination beta" ReadOnly="0" Type="Boolean" Description="When checked, The portal list page will be limited to 50 rows per page, and the user can navigate between pages.">0</SiteProperty>
 			</Tab>
 		</Form>
 		]]></FormXML>

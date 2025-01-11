@@ -218,7 +218,16 @@ namespace Contensive.Processor.Controllers {
         }
         //
         //====================================================================================================
-        public static string getForm_index_pageNavigation(CoreController core, int PageNumber, int recordsPerPage, int recordCnt, string contentName) {
+        /// <summary>
+        /// get the pagination list of clickable page numbers
+        /// when pagination button is clicked, the nearest form is submitted, including a hidden field paginationPageNumber with the page number
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="PageNumber"></param>
+        /// <param name="recordsPerPage"></param>
+        /// <param name="recordCnt"></param>
+        /// <returns></returns>
+        public static string getPageNavigation(CoreController core, int PageNumber, int recordsPerPage, int recordCnt) {
             try {
                 int PageCount = 1;
                 if (recordCnt > 1) {
@@ -237,19 +246,19 @@ namespace Contensive.Processor.Controllers {
                         NavStart = 1;
                     }
                 }
-                var Nav = new StringBuilder();
+                var listItems = new StringBuilder();
                 if (NavStart > 1) {
-                    Nav.Append(cr3 + "<li onclick=\"bbj(this);\">1</li><li class=\"delim\">&#171;</li>");
+                    listItems.Append(cr3 + "<li class=\"paginationLink\">1</li><li class=\"delim\">&#171;</li>");
                 }
                 for (int Ptr = NavStart; Ptr <= NavEnd; Ptr++) {
                     if (Ptr.Equals(PageNumber)) {
-                        Nav.Append(cr3 + "<li onclick=\"bbj(this);\" class=\"hit\">" + Ptr + "</li>");
+                        listItems.Append(cr3 + "<li class=\"paginationLink hit\">" + Ptr + "</li>");
                         continue;
                     }
-                    Nav.Append(cr3 + "<li onclick=\"bbj(this);\">" + Ptr + "</li>");
+                    listItems.Append(cr3 + "<li class=\"paginationLink\">" + Ptr + "</li>");
                 }
                 if (NavEnd < PageCount) {
-                    Nav.Append(cr3 + "<li class=\"delim\">&#187;</li><li onclick=\"bbj(this);\">" + PageCount + "</li>");
+                    listItems.Append(cr3 + "<li class=\"delim\">&#187;</li><li class=\"paginationLink\">" + PageCount + "</li>");
                 }
                 string recordDetails = "";
                 switch (recordCnt) {
@@ -267,13 +276,21 @@ namespace Contensive.Processor.Controllers {
                         }
                 }
                 return ""
-                    + cr + "<script language=\"javascript\">function bbj(p){document.getElementsByName('indexGoToPage')[0].value=p.innerHTML;document.adminForm.submit();}</script>"
-                    + cr + "<div class=\"ccJumpCon\">"
-                    + cr2 + "<ul>"
-                    + cr3 + "<li class=\"caption\">" + recordDetails + ", page</li>"
-                    + cr3 + Nav
-                    + cr2 + "</ul>"
-                    + cr + "</div>";
+                    + "<div class=\"ccJumpCon\">"
+                    + " <ul>"
+                    + "     <li class=\"caption\">" + recordDetails + ", page</li>"
+                    +       listItems
+                    + " </ul>"
+                    + "</div>"
+                    + $"<input type=hidden name=paginationPageNumber id=paginationPageNumber value=\"{PageNumber}\">"
+                    + "<script>"
+                    + "document.addEventListener('DOMContentLoaded', function(event) {"
+                    + "   $('.paginationLink').on('click',function(p){"
+                    + "       document.getElementsByName('paginationPageNumber')[0].value=Number($(this).html())-1;"
+                    + "       $(this).closest(\"form\").submit();"
+                    + "   });"
+                    + "});"
+                    + "</script>";
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
@@ -737,7 +754,7 @@ namespace Contensive.Processor.Controllers {
         // ====================================================================================================
         //
         public static string getEditRow(CoreController core, string editHtml, string label, string help, bool isRequired, bool ignore, string htmlId) {
-            return getEditRow(core, editHtml, label, help, isRequired, ignore, htmlId,"",false,"");
+            return getEditRow(core, editHtml, label, help, isRequired, ignore, htmlId, "", false, "");
         }
         //
         // ====================================================================================================

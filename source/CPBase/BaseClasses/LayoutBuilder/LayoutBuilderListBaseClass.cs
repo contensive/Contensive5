@@ -1,12 +1,17 @@
 ﻿
 using System;
-using Contensive.BaseClasses;
 
 namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// A tabular list of data rows with filters on the left.
     /// </summary>
-    public abstract class LayoutBuilderListBaseClass {
+    public abstract class LayoutBuilderListBaseClass() {
+        public abstract string  sqlOrderBy { get; }
+        public abstract bool allowPagination { get;}
+        public abstract int paginationPageSizeDefault { get; set; }
+        public abstract int paginationPageSize { get; }
+        public abstract int paginationPageNumber { get; }
+        public abstract void addRowEllipseMenuItem(string name, string url);
         //
         //-------------------------------------------------
         /// <summary>
@@ -19,6 +24,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// Add padding around the body
         /// </summary>
         public abstract int reportRowLimit { get; }
+        //
+        //-------------------------------------------------
+        /// <summary>
+        /// The total records in the dataset, not just what is displayed on the page
+        /// </summary>
+        public abstract int recordCount { get; set; }
         //
         //-------------------------------------------------
         /// <summary>
@@ -39,7 +50,8 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public abstract string getHtml(CPBaseClass cp);
+        [Obsolete("Deprecated. Use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
+        public abstract string getHtml();
         //
         //-------------------------------------------------
         /// <summary>

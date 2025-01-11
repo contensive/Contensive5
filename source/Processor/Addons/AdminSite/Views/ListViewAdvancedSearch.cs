@@ -66,7 +66,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!string.IsNullOrEmpty(Button)) {
                     switch (Button) {
                         case ButtonSearch:
-                            gridConfig = GridConfigClass.get(core, adminData);
+                            gridConfig = new(core, adminData);
                             FormFieldCnt = core.docProperties.getInteger("fieldcnt");
                             if (FormFieldCnt > 0) {
                                 for (FormFieldPtr = 0; FormFieldPtr < FormFieldCnt; FormFieldPtr++) {
@@ -88,7 +88,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         // fieldname not found, save if not FindWordMatchEnum.MatchIgnore
                                         //
                                         if (MatchOption != FindWordMatchEnum.MatchIgnore) {
-                                            gridConfig.findWords.Add(FieldName, new IndexConfigFindWordClass {
+                                            gridConfig.findWords.Add(FieldName, new GridConfigFindWordClass {
                                                 Name = FieldName,
                                                 MatchOption = MatchOption,
                                                 Value = SearchValue
@@ -109,7 +109,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             return string.Empty;
                     }
                 }
-                gridConfig = GridConfigClass.get(core, adminData);
+                gridConfig = new(core, adminData);
                 Button = "CriteriaSelect";
                 RQS = core.doc.refreshQueryString;
                 //

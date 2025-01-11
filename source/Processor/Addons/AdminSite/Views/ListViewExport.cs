@@ -88,7 +88,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //
                         // Get the SQL parts
                         //
-                        gridConfig = GridConfigClass.get(core, adminData);
+                        gridConfig = new(core, adminData);
                         ListView.setIndexSQL(core, adminData, gridConfig, ref AllowContentAccess, ref sqlFieldList, ref SQLFrom, ref SQLWhere, ref SQLOrderBy, ref IsLimitedToSubContent, ref ContentAccessLimitMessage, ref FieldUsedInColumns, IsLookupFieldValid);
                         if (!AllowContentAccess) {
                             //

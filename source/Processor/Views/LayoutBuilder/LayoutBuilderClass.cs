@@ -340,7 +340,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use warningMessage instead", false)]
+        [Obsolete("Deprecated. Use warningMessage.", false)]
         public override string warning {
             get {
                 return warningMessage;
@@ -354,7 +354,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Use htmlAfterTable instead
         /// </summary>
-        [Obsolete("deprecated. Use htmlAfterTable instead", false)]
+        [Obsolete("Deprecated. Use htmlAfterTable", false)]
         public override string footer {
             get {
                 return htmlAfterTable;
@@ -368,7 +368,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use addFormHidden instead", false)]
+        [Obsolete("Deprecated. Use addFormHidden.", false)]
         public override string formid {
             get {
                 return formid_local;
