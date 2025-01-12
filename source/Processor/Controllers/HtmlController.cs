@@ -2978,7 +2978,7 @@ namespace Contensive.Processor.Controllers {
                         headList.Add("<link rel=\"icon\" type=\"image/jpg\" href=\"" + GenericController.getCdnFileLink(core, VirtualFilename) + "\" >");
                         break;
                 }
-                headList.Add("<meta name=\"generator\" content=\"Contensive\">");
+                headList.Add($"<meta name=\"generator\" content=\"Contensive v{core.cpParent.Version}\">");
                 //
                 // -- no-follow
                 if (core.doc.noFollow) {

@@ -109,9 +109,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <None Update="AdminSite.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="BaseAssets.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

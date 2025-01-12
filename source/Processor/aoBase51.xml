@@ -3720,11 +3720,9 @@
   <ImportCollection Name="File Manager">{0A080FBC-2814-407F-8F8C-CD06F422789D}</ImportCollection>
   <ImportCollection Name="Site Explorer">{5426E6D5-05A8-4A87-B535-CD0FABA04F29}</ImportCollection>
   -->
-	<Resource Name="baseassets.zip" Type="www" Path="baseAssets" />
-	<Resource Name="baseassets.zip" Type="files" Path="baseAssets" />
+	<Resource Name="baseassets.zip" Type="www" Path="BaseAssets" />
+	<Resource Name="baseassets.zip" Type="files" Path="BaseAssets" />
   <!---->
-	<Resource Name="adminsite.zip" Type="www" Path="adminsite" />
-	<Resource Name="adminsite.zip" Type="files" Path="adminsite" />
 	<!-- zip of help files for this collection, plus the default.md file that describes the help system -->
 	<Resource Name="HelpFiles.zip" Type="privatefiles" Path="helpfiles/Base5" />
 </Collection>

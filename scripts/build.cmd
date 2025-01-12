@@ -162,26 +162,17 @@ rem
 @echo on
 
 c:
-cd "C:\Git\Contensive5\ui\BaseAssets\"
-del BaseAssets.zip /Q
-"c:\program files\7-zip\7z.exe" a "BaseAssets.zip"
-"c:\program files\7-zip\7z.exe" d BaseAssets.zip BaseAssets\
-"c:\program files\7-zip\7z.exe" d BaseAssets.zip ".DS_Store"
-cd BaseAssets
-"c:\program files\7-zip\7z.exe" a "..\BaseAssets.zip"
-move /y "..\BaseAssets.zip"  "C:\Git\Contensive5\source\Processor\"
+cd "C:\Git\Contensive5\ui\baseassets\"
+del baseassets.zip /Q
+"c:\program files\7-zip\7z.exe" a "baseassets.zip"
+"c:\program files\7-zip\7z.exe" d baseassets.zip baseassets\
+"c:\program files\7-zip\7z.exe" d baseassets.zip ".DS_Store"
+cd baseassets
+"c:\program files\7-zip\7z.exe" a "..\baseassets.zip"
+move /y "..\baseassets.zip"  "C:\Git\Contensive5\source\Processor\"
 
 rem pause
-
-c:
-cd "C:\Git\Contensive5\ui\AdminSite\"
-del AdminSite.zip /Q
-"c:\program files\7-zip\7z.exe" a "AdminSite.zip"
-move /y "AdminSite.zip"  "C:\Git\Contensive5\source\Processor\"
-
 cd "C:\Git\Contensive5\scripts"
-
-rem pause
 
 rem ==============================================================
 rem

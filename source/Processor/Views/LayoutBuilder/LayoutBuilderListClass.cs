@@ -5,6 +5,7 @@ using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Twilio.Rest.Messaging.V1;
 
 namespace Contensive.Processor.LayoutBuilder {
     /// <summary>
@@ -176,7 +177,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// if set true, the pageSize and pageNumber will control pagination
         /// The grid will include pagination controls, and the client application should read pageSize and pageNumber when setting up the query
         /// </summary>
-        public override bool allowPagination { 
+        public override bool allowPagination {
             get {
                 return cp.Site.GetBoolean("allow afw pagination beta", false);
             }
@@ -189,7 +190,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override int paginationPageSizeDefault {
             get {
-                if (_paginationPageSizeDefault != null) { return (int)_paginationPageSizeDefault; }                
+                if (_paginationPageSizeDefault != null) { return (int)_paginationPageSizeDefault; }
                 _paginationPageSizeDefault = 50;
                 return (int)_paginationPageSizeDefault;
             }
@@ -217,17 +218,26 @@ namespace Contensive.Processor.LayoutBuilder {
         private int? _paginationPageSize;
         //
         /// <summary>
-        /// The 0-based page number being displayed
-        /// if allowPagination false, this will will be 0 (the first page). 
+        /// The 1-based page number being displayed
+        /// if allowPagination false, this will will be 1 (the first page). 
         /// If allowPagination true, this is the page shown in the display, and should be used as the pageNumber in the query
         /// </summary>
         public override int paginationPageNumber {
             get {
                 if (_paginationPageNumber != null) { return (int)_paginationPageNumber; }
                 if (!allowPagination || cp == null) {
-                    return 0;
+                    _paginationPageNumber = 1;
+                    return (int)_paginationPageNumber;
                 }
+                //
+                // -- if request includes setPaginationPageNumber, use it. Else use paginationPageNumber or 1
+                _paginationPageNumber = cp.Request.GetInteger("setPaginationPageNumber");
+                if ((int)_paginationPageNumber >= 1) { return (int)_paginationPageNumber; }
+                //
                 _paginationPageNumber = cp.Request.GetInteger("paginationPageNumber");
+                if ((int)_paginationPageNumber >= 1) { return (int)_paginationPageNumber; }
+                //
+                _paginationPageNumber = 1;
                 return (int)_paginationPageNumber;
             }
         }
@@ -289,6 +299,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 string csvDownloadContent = "";
                 DateTime rightNow = DateTime.Now;
                 hint = 10;
+                RenderData renderData = new() {
+                };
                 //
                 // -- set the optional title of the portal subnav
                 if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
@@ -345,8 +357,8 @@ namespace Contensive.Processor.LayoutBuilder {
                         + "       $(this).closest(\"form\").submit();"
                         + "   });"
                         + "});"
-                        + "</script>" 
-                        +"");
+                        + "</script>"
+                        + "");
                     if (addCsvDownloadCurrentPage) {
                         colPtrDownload = 0;
                         for (colPtr = 0; colPtr <= columnMax; colPtr++) {
@@ -364,10 +376,15 @@ namespace Contensive.Processor.LayoutBuilder {
                 hint = 30;
                 //
                 // -- page navigation
+                string bodyPagination = ""; 
                 if (cp.Site.GetBoolean("allow afw pagination beta", false) && recordCount > paginationPageSize) {
                     //
                     // -- prepend navigation to before-table
-                    htmlBeforeTable = AdminUIController.getPageNavigation(cp.core, paginationPageNumber, paginationPageSize, recordCount) + htmlBeforeTable;
+                    _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
+                    //
+                    // -- prepend search and pagination
+                    string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListGuid, Constants.layoutAdminUILayoutBuilderListName, Constants.layoutAdminUILayoutBuilderListCdnPathFilename);
+                    bodyPagination = cp.Mustache.Render(layout, renderData);
                 }
                 //
                 // body
@@ -490,7 +507,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 //
                 // -- construct page
                 AdminUIHtmlDocRequest request = new() {
-                    body = body,
+                    body = bodyPagination + body,
                     includeBodyPadding = includeBodyPadding,
                     includeBodyColor = includeBodyColor,
                     buttonList = buttonList,
@@ -1195,23 +1212,18 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string refreshQueryString_Local = "";
     }
-    //
-    //====================================================================================================
     /// <summary>
-    /// The data used to build a column
+    /// data model used for mustache rendering
     /// </summary>
-    public class ReportListColumnClass : BaseClasses.LayoutBuilder.ReportListColumnBaseClass {
-        public string name { get; set; }
-        public string caption { get; set; }
-        public string captionClass { get; set; }
-        public string cellClass { get; set; }
-        public bool sortable { get; set; } = false;
-        public bool visible { get; set; } = true;
-        public bool downloadable { get; set; } = false;
-        /// <summary>
-        /// set as an integer between 1 and 100. This value will be added as the width of the column in a style tag
-        /// </summary>
-        public int columnWidthPercent { get; set; } = 10;
+    public class RenderData {
+        public List<RenderData_Link> links { get; set; }
+        public int paginationPageNumber { get; set; }
+
+    }
+    public class RenderData_Link {
+        public string css { get; set; }
+        public string content { get; set; }
+
     }
     //
     public class EllipseMenuItem {

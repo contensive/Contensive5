@@ -10,6 +10,7 @@ using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using Contensive.Processor.Addons.AdminSite;
+using Contensive.Processor.LayoutBuilder;
 
 namespace Contensive.Processor.Controllers {
     //
@@ -220,73 +221,117 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// get the pagination list of clickable page numbers
+        /// [1] [... then 20 page numbers with the current in the middle, then ...] [last]
         /// when pagination button is clicked, the nearest form is submitted, including a hidden field paginationPageNumber with the page number
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="PageNumber"></param>
+        /// <param name="pageNumber">1-based page currently being displayed.</param>
         /// <param name="recordsPerPage"></param>
         /// <param name="recordCnt"></param>
         /// <returns></returns>
-        public static string getPageNavigation(CoreController core, int PageNumber, int recordsPerPage, int recordCnt) {
+        public static string getPageNavigation(CoreController core, RenderData renderData, int pageNumber, int recordsPerPage, int recordCnt) {
             try {
-                int PageCount = 1;
+                renderData.paginationPageNumber = pageNumber;
+                //
+                // pageCount = total pages for all records in the dataset
+                int pageCount = 1;
                 if (recordCnt > 1) {
-                    PageCount = encodeInteger(1 + encodeInteger(Math.Floor(encodeNumber((recordCnt - 1) / recordsPerPage))));
+                    pageCount = encodeInteger(1 + encodeInteger(Math.Floor(encodeNumber((recordCnt - 1) / recordsPerPage))));
                 }
-
-                int NavStart = PageNumber - 9;
-                if (NavStart < 1) {
-                    NavStart = 1;
+                //
+                // 1-based navStart is the first page number in the navigation list (after [1] which always displays)
+                int navStart = pageNumber - 9;
+                if (navStart < 1) {
+                    navStart = 1;
                 }
-                int NavEnd = NavStart + 20;
-                if (NavEnd > PageCount) {
-                    NavEnd = PageCount;
-                    NavStart = NavEnd - 20;
-                    if (NavStart < 1) {
-                        NavStart = 1;
+                //
+                // 1-based navEnd is the last page number in the navigation list (before [last] which always displays)
+                int navEnd = navStart + 20;
+                if (navEnd > pageCount) {
+                    navEnd = pageCount;
+                    navStart = navEnd - 20;
+                    if (navStart < 1) {
+                        navStart = 1;
                     }
                 }
                 var listItems = new StringBuilder();
-                if (NavStart > 1) {
+                if (navStart > 1) {
+                    //
+                    // -- add [1] if navStart is >1
+                    renderData.links.Add(new RenderData_Link {
+                        css = "paginationLink",
+                        content = "1"
+                    });
+                    renderData.links.Add(new RenderData_Link {
+                        css = "delim",
+                        content = "&#171;"
+                    });
                     listItems.Append(cr3 + "<li class=\"paginationLink\">1</li><li class=\"delim\">&#171;</li>");
                 }
-                for (int Ptr = NavStart; Ptr <= NavEnd; Ptr++) {
-                    if (Ptr.Equals(PageNumber)) {
-                        listItems.Append(cr3 + "<li class=\"paginationLink hit\">" + Ptr + "</li>");
-                        continue;
-                    }
-                    listItems.Append(cr3 + "<li class=\"paginationLink\">" + Ptr + "</li>");
-                }
-                if (NavEnd < PageCount) {
-                    listItems.Append(cr3 + "<li class=\"delim\">&#187;</li><li class=\"paginationLink\">" + PageCount + "</li>");
-                }
+                //
+                // -- add the page links before and after the current page
                 string recordDetails = "";
                 switch (recordCnt) {
                     case 0: {
-                            recordDetails = "no records found";
+                            recordDetails = "no records found, page";
                             break;
                         }
                     case 1: {
-                            recordDetails = "1 record found";
+                            recordDetails = "1 record found, page";
                             break;
                         }
                     default: {
-                            recordDetails = recordCnt + " records found";
+                            recordDetails = recordCnt + " records found, page";
                             break;
                         }
                 }
+                renderData.links = [];
+                renderData.links.Add( new RenderData_Link { 
+                        css = "caption", 
+                        content = recordDetails
+                });
+                for (int pagePtr = navStart; pagePtr <= navEnd; pagePtr++) {
+                    if (pagePtr.Equals(pageNumber)) {
+                        renderData.links.Add( new RenderData_Link { 
+                             css = "paginationLink hit", 
+                             content = pagePtr.ToString()
+                        });
+                        listItems.Append(cr3 + "<li class=\"paginationLink hit\">" + pagePtr + "</li>");
+                        continue;
+                    }
+                    renderData.links.Add(new RenderData_Link {
+                        css = "paginationLink",
+                        content = pagePtr.ToString()
+                    });
+                    listItems.Append(cr3 + "<li class=\"paginationLink\">" + pagePtr + "</li>");
+                }
+                if (navEnd < pageCount) {
+                    renderData.links.Add(new RenderData_Link {
+                        css = "delim",
+                        content = "&#187;"
+                    });
+                    renderData.links.Add(new RenderData_Link {
+                        css = "paginationLink",
+                        content = pageCount.ToString()
+                    });
+                    listItems.Append(cr3 + "<li class=\"delim\">&#187;</li><li class=\"paginationLink\">" + pageCount + "</li>");
+                }
+                // -- hidden paginationPageNumber (1-based) is the current page number 
+                // -- hidden setPaginationPageNumber (1-based) is the page number to submit when a paginationLink is clicked
                 return ""
-                    + "<div class=\"ccJumpCon\">"
+                    + ""
+                    + "<div class=\"text-end ccJumpCon\">"
                     + " <ul>"
                     + "     <li class=\"caption\">" + recordDetails + ", page</li>"
                     +       listItems
                     + " </ul>"
                     + "</div>"
-                    + $"<input type=hidden name=paginationPageNumber id=paginationPageNumber value=\"{PageNumber}\">"
+                    + $"<input type=hidden name=paginationPageNumber id=paginationPageNumber value=\"{pageNumber}\">"
+                    + $"<input type=hidden name=setPaginationPageNumber id=setPaginationPageNumber value=\"0\">"
                     + "<script>"
                     + "document.addEventListener('DOMContentLoaded', function(event) {"
                     + "   $('.paginationLink').on('click',function(p){"
-                    + "       document.getElementsByName('paginationPageNumber')[0].value=Number($(this).html())-1;"
+                    + "       document.getElementsByName('setPaginationPageNumber')[0].value=Number($(this).html());"
                     + "       $(this).closest(\"form\").submit();"
                     + "   });"
                     + "});"

@@ -2,6 +2,7 @@
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.LayoutBuilder;
 using Contensive.Processor.Models.Domain;
 using NLog;
 using System;
@@ -370,7 +371,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
             }
-            string pageNavigation = getPageNavigation(core, gridConfig.pageNumber, gridConfig.recordsPerPage, recordCnt);
+            RenderData renderData = new();
+            string pageNavigation = getPageNavigation(core, renderData, gridConfig.pageNumber, gridConfig.recordsPerPage, recordCnt);
             //
             // -- TitleBar
             string Title = HtmlController.div("<strong>" + content.name + "</strong><div style=\"float:right;\">" + pageNavigation + "</div>");
@@ -418,7 +420,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 //
                 // ----- Process paginationPageNumber value
-                int paginationPageNumber = core.docProperties.getInteger("paginationPageNumber");
+                int paginationPageNumber = core.docProperties.getInteger("setPaginationPageNumber");
                 if (paginationPageNumber > 0) {
                     gridConfig.pageNumber = paginationPageNumber;
                     gridConfig.recordTop = DbController.getStartRecord(gridConfig.recordsPerPage, gridConfig.pageNumber);

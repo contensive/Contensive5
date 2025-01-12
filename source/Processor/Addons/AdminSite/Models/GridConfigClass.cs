@@ -17,9 +17,21 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         public bool loaded { get; set; }
         public int contentID { get; set; }
+        /// <summary>
+        /// 1-based page number (records are 0-based, pages are 1-based to be consistent with pageination display)
+        /// </summary>
         public int pageNumber { get; set; }
+        /// <summary>
+        /// records per page
+        /// </summary>
         public int recordsPerPage { get; set; }
+        /// <summary>
+        /// 0-based record number of the first record on the page (records are 0-based, pages are 1-based to be consistent with pageination display)
+        /// </summary>
         public int recordTop { get; set; }
+        /// <summary>
+        /// search terms
+        /// </summary>
         public Dictionary<string, GridConfigFindWordClass> findWords { get; set; }
         public bool activeOnly { get; set; }
         public bool lastEditedByMe { get; set; }

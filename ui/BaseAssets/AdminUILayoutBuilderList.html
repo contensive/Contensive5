@@ -1,0 +1,50 @@
+<style>
+.search-container {
+    position: relative;
+}
+
+.search-input {
+    height: 50px;
+    border-radius: 30px;
+    padding-left: 35px;
+    border: none;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.search-icon {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    color: #888;
+}
+</style>
+<div class="container-fluid">
+	<div class="row justify-content-center">
+		<div class="col-md-6 my-auto">
+			<div class="search-container">
+				<input type="text" class="form-control search-input" placeholder="Search...">
+				<i class="fas fa-search search-icon"></i>
+			</div>       
+		</div>
+		<div class="col-md-6 my-auto">
+			<div class="text-end ccJumpCon"> 
+				<ul>
+					{{#links}}
+						<li class="{{css}}">{{content}}</li>
+					{{/links}}
+				</ul>
+			</div>
+			<input type="hidden" name="paginationPageNumber" id="paginationPageNumber" value="{{paginationPageNumber}}">
+			<input type="hidden" name="setPaginationPageNumber" id="setPaginationPageNumber" value="0">       
+		</div>   
+	</div>
+</div>
+<script>
+	document.addEventListener('DOMContentLoaded', function(event) {
+		$('.paginationLink').on('click',function(p){
+			document.getElementsByName('setPaginationPageNumber')[0].value=Number($(this).html());
+			$(this).closest("form").submit();   
+		});
+	});
+</script>

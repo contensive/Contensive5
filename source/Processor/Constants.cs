@@ -1098,7 +1098,7 @@ namespace Contensive.Processor {
 
         public const string layoutAdminSiteGuid = "{06CF29A1-B5E9-4170-894B-069CF36C7E7D}";
         public const string layoutAdminSiteName = "Admin Site Layout";
-        public const string layoutAdminSiteCdnPathFilename = @"adminsite\AdminSiteLayout.html";
+        public const string layoutAdminSiteCdnPathFilename = @"baseAssets\AdminSiteLayout.html";
         //
         public const string layoutLinkAliasPreviewEditorGuid = "{276A953D-BE40-4181-9749-56D8680455FA}";
         public const string layoutLinkAliasPreviewEditorName = "Link Alias Preview Editor";
@@ -1115,15 +1115,19 @@ namespace Contensive.Processor {
         //
         public const string layoutAdminUITwoColumnLeftGuid = "{6B0B5593-49A9-45A9-AF64-9A14B34ACB44}";
         public const string layoutAdminUITwoColumnLeftName = "AdminUI Two Column Left";
-        public const string layoutAdminUITwoColumnLeftCdnPathFilename = "portalframework\\AdminUITwoColumnLeftLayout.html";
+        public const string layoutAdminUITwoColumnLeftCdnPathFilename = "baseAssets\\AdminUITwoColumnLeftLayout.html";
         //
         public const string layoutAdminUITwoColumnRightGuid = "{41C1F5F9-9AAC-418D-8C05-8B558A02BAF2}";
         public const string layoutAdminUITwoColumnRightName = "AdminUI Two Column Right";
-        public const string layoutAdminUITwoColumnRightCdnPathFilename = "portalframework\\AdminUITwoColumnRightLayout.html";
+        public const string layoutAdminUITwoColumnRightCdnPathFilename = "baseAssets\\AdminUITwoColumnRightLayout.html";
         //
         public const string layoutEditControlAutocompleteGuid = "{79A26D0C-1752-4077-935C-AA74A3B7D42C}";
         public const string layoutEditControlAutocompleteName = "Edit Control Autocomplete";
         public const string layoutEditControlAutocompleteCdnPathFilename = "baseAssets\\EditControlAutocompleteLayout.html";
+        //
+        public const string layoutAdminUILayoutBuilderListGuid = "{13DB2AF2-A835-4E00-A932-7F5C036312AF}";
+        public const string layoutAdminUILayoutBuilderListName = "AdminUI LayoutBuilder List";
+        public const string layoutAdminUILayoutBuilderListCdnPathFilename = "baseAssets\\AdminUILayoutBuilderList.html";
         //
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

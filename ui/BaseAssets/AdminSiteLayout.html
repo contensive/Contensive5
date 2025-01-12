@@ -1370,34 +1370,34 @@
         /*vertical-align: middle;*/
         border-radius: 5px;
     }
-    .mr-1 {
+    .me-1 {
         margin-right: 0.25rem!important;
     } 
-    .mr-2 {
+    .me-2 {
         margin-right: 0.5rem!important;
     }
-    .mr-3 {
+    .me-3 {
         margin-right: 0.75rem!important;
     }
-    .mr-4 {
+    .me-4 {
         margin-right: 1rem!important;
     }
-    .ml-1 {
+    .ms-1 {
         margin-left: 0.25rem!important;
     } 
-    .ml-2 {
+    .ms-2 {
         margin-left: 0.5rem!important;
     }
-    .ml-3 {
+    .ms-3 {
         margin-left: 0.75rem!important;
     }
-    .ml-4 {
+    .ms-4 {
         margin-left: 1rem!important;
     }
-    .mr-auto {
+    .me-auto {
         margin-right: auto!important;
     }
-    .ml-auto {
+    .ms-auto {
         margin-left: auto!important;
     }
     </style>
@@ -1405,14 +1405,14 @@
     {{{adminExceptions}}}
     <nav class="navbar navbar-expand-md navbar-dark bg-dark justify-content-center ccAdminHeaderNav pe-4 ps-2">
         <!-- <a class="navbar-brand abs" href="{{adminRoute}}">{{{leftSideMessage}}}</a> -->
-        <button class="ms-auto navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#collapsingNavbar" data-bs-target="#collapsingNavbar">
+        <button class="ms-auto navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsingNavbar">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="navbar-collapse collapse" id="collapsingNavbar">
             <!-- public links -->
             <ul class="navbar-nav ps-2">
                 <li class="nav-item text-center my-0">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarCommDropdown" role="button" data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarCommDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-globe fa-lg m-0 mb-1"></i>
                         <br><small>Sites</small>
                     </a>
@@ -1427,14 +1427,14 @@
                 </li>
             </ul>
             <!-- addon/table search -->
-            <form class="form-inline ml-2 ms-2 my-2 my-lg-0">
+            <form class="form-inline ms-2 my-2 my-lg-0">
                 <input id="cmdSearch" class="form-control" type="search" placeholder="Search">
             </form>
             <!-- recent list -->
-            <ul class="ml-2 ms-2 navbar-nav">
+            <ul class="ms-2 navbar-nav">
 				{{#hasRecentList}}
                 <li class="nav-item text-center my-0 dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						<i class="fa-solid fa-clock-rotate-left"></i>
 						<br><small>Recent</small>
 					</a>
@@ -1446,7 +1446,7 @@
                 </li>
 				{{/hasRecentList}}
                 <li class="nav-item text-center my-0 dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-toggle="dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 						<i class="fa-solid fa-circle-question"></i>
 						<br><small>Help</small>
 					</a>
@@ -1468,10 +1468,10 @@
 				</li>
 				{{/siteWarningCount}}
             </ul>
-            <ul class="navbar-nav ms-auto ml-auto pe-2">
+            <ul class="navbar-nav ms-auto pe-2">
                 {{#categoryList}}
                 <li class="nav-item dropdown text-center my-0">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-{{listName}}" role="button" data-toggle="dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-{{listName}}" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="{{listIcon}} m-0 mb-1"></i>
                         <br><small>{{listName}}</small>
                     </a>

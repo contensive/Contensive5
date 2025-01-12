@@ -8,9 +8,23 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     public abstract class LayoutBuilderListBaseClass() {
         public abstract string  sqlOrderBy { get; }
         public abstract bool allowPagination { get;}
+        /// <summary>
+        /// The default records per page to be displayed. The user may make changes, reflected in paginationPageSize
+        /// </summary>
         public abstract int paginationPageSizeDefault { get; set; }
+        /// <summary>
+        /// records per page to be displayed. If the user has not changed it, this is paginationPageSizeDefault
+        /// </summary>
         public abstract int paginationPageSize { get; }
+        /// <summary>
+        /// 1-based page number
+        /// </summary>
         public abstract int paginationPageNumber { get; }
+        /// <summary>
+        /// adds this name/url as an ellipse menu item to the current column
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="url"></param>
         public abstract void addRowEllipseMenuItem(string name, string url);
         //
         //-------------------------------------------------
