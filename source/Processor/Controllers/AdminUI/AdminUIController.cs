@@ -232,6 +232,7 @@ namespace Contensive.Processor.Controllers {
         public static string getPageNavigation(CoreController core, RenderData renderData, int pageNumber, int recordsPerPage, int recordCnt) {
             try {
                 renderData.paginationPageNumber = pageNumber;
+                renderData.searchTerm = core.cpParent.Site.GetText("searchTerm");
                 //
                 // pageCount = total pages for all records in the dataset
                 int pageCount = 1;

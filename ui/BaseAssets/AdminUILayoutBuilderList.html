@@ -23,7 +23,7 @@
 	<div class="row justify-content-center">
 		<div class="col-md-6 my-auto">
 			<div class="search-container">
-				<input type="text" class="form-control search-input" placeholder="Search...">
+				<input type="text" name="searchTerm" value="{{searchTerm}}" id="searchControl" class="form-control search-input" placeholder="Search...">
 				<i class="fas fa-search search-icon"></i>
 			</div>       
 		</div>
@@ -42,9 +42,29 @@
 </div>
 <script>
 	document.addEventListener('DOMContentLoaded', function(event) {
+		console.log("AdminUILayoutBuilderList, binding");
+		// -- click pagination link
 		$('.paginationLink').on('click',function(p){
+			console.log("AdminUILayoutBuilderList, paginationLink click");
 			document.getElementsByName('setPaginationPageNumber')[0].value=Number($(this).html());
 			$(this).closest("form").submit();   
+		});
+		// -- search 
+		$("#searchControl").on("keyup", function() {
+			var query = $(this).val();
+			console.log(`AdminUILayoutBuilderList, searchControl value:[${query}]`); 
+			// -- wait for 2 characters
+			if (query.length > 2) { 
+				console.log(`AccountManager_AccountList, searchTerm [${query}]`);
+        		let qs = `srcFormId=10`;
+				qs += `&frameRqs=${encodeURIComponent(afwFrameRqs)}`;
+				qs += `&accountListAllowOpenOnly=${$('#accountListAllowOpenOnly').is(":checked")}`;
+				qs += `&searchTerm=${query}`;
+        		abUpdateFrame('ecommerceAjaxHtml', qs, 'afwBodyFrame');
+			} else {
+				// -- Clear results if query is too short
+				//$("#results").empty(); 
+			}
 		});
 	});
 </script>

@@ -925,15 +925,15 @@ function cjRemote(options) {
                         sLen = scripts.length;
                         if (sLen > 0) {
                             for (i = 0; i < sLen; i++) {
-                                if (scripts[i].src) {
+                                if (scripts[0].src) {
                                     isSrcArray.push(true);
-                                    codeArray.push(scripts[i].src);
-                                    scripts[i].parentNode.removeChild(scripts[i]);
+                                    codeArray.push(scripts[0].src);
+                                    scripts[0].parentNode.removeChild(scripts[0]);
                                 }
                                 else {
                                     isSrcArray.push(false);
-                                    codeArray.push(scripts[i].innerHTML);
-                                    scripts[i].parentNode.removeChild(scripts[i]);
+                                    codeArray.push(scripts[0].innerHTML);
+                                    scripts[0].parentNode.removeChild(scripts[0]);
                                 }
                             }
                             serverResponse = e.innerHTML;

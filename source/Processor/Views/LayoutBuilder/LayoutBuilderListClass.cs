@@ -48,18 +48,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// used for pagination and export. Setter included to support older legacy code that used cp parameter in getHtml(cp).
         /// </summary>
         private CPClass cp { get; set; }
-        ///// <summary>
-        ///// if true, the grid is paginated
-        ///// </summary>
-        //private bool paginationEnabled { get; set; } = false;
-        ///// <summary>
-        ///// if true, the grid is sortable
-        ///// </summary>
-        //private bool sortEnabled { get; set; } = false;
-        ///// <summary>
-        ///// if true, the grid is user-save enabled
-        ///// </summary>
-        //private bool userSaveEnabled { get; set; } = false;
         //
         /// <summary>
         /// The report grid data
@@ -159,6 +147,15 @@ namespace Contensive.Processor.LayoutBuilder {
         // publics
         //
         //
+        public override string sqlSearchTerm {
+            get {
+                if (_sqlSearchTerm != null) { return _sqlSearchTerm; }
+                _sqlSearchTerm = cp.Request.GetText("searchTerm");
+                return _sqlSearchTerm;
+            }
+        }
+        private string? _sqlSearchTerm;
+        //
         public override string sqlOrderBy {
             get {
                 if (_sqlOrderBy != null) { return _sqlOrderBy; }
@@ -173,6 +170,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         private string? _sqlOrderBy;
+        //
         /// <summary>
         /// if set true, the pageSize and pageNumber will control pagination
         /// The grid will include pagination controls, and the client application should read pageSize and pageNumber when setting up the query
@@ -312,12 +310,12 @@ namespace Contensive.Processor.LayoutBuilder {
                 }
                 int colPtr;
                 int colPtrDownload;
-                StringBuilder resultBody = new("");
+                StringBuilder dataGridBuilder = new("");
                 hint = 20;
                 //
                 // headers
                 //
-                StringBuilder rowBuilder = new();
+                StringBuilder dataGridRowsBuilder = new();
                 if (captionIncluded) {
                     string xrefreshQueryString = (!string.IsNullOrEmpty(refreshQueryString) ? refreshQueryString : cp.Doc.RefreshQueryString);
                     for (colPtr = 0; colPtr <= columnMax; colPtr++) {
@@ -337,18 +335,18 @@ namespace Contensive.Processor.LayoutBuilder {
                             if (columns[colPtr].columnWidthPercent > 0) {
                                 styleAttribute = " style=\"width:" + columns[colPtr].columnWidthPercent.ToString() + "%;\"";
                             }
-                            rowBuilder.Append(Constants.cr + "<th" + classAttribute + styleAttribute + ">" + content + "</th>");
+                            dataGridRowsBuilder.Append(Constants.cr + "<th" + classAttribute + styleAttribute + ">" + content + "</th>");
                         }
                     }
-                    resultBody.Append(""
+                    dataGridBuilder.Append(""
                         + Constants.cr + "<thead>"
                         + Constants.cr2 + "<tr>"
-                        + indent(indent(rowBuilder.ToString()))
+                        + indent(indent(dataGridRowsBuilder.ToString()))
                         + Constants.cr2 + "</tr>"
                         + Constants.cr + "</thead>");
                     //
                     // -- append hidden field for column sort
-                    resultBody.Append(""
+                    dataGridBuilder.Append(""
                         + $"<input type=hidden name=columnSort value=\"{columnSort}\">"
                         + "<script>"
                         + "document.addEventListener('DOMContentLoaded', function(event) {"
@@ -389,10 +387,10 @@ namespace Contensive.Processor.LayoutBuilder {
                 //
                 // body
                 //
-                rowBuilder = new StringBuilder("");
+                dataGridRowsBuilder = new StringBuilder("");
                 if (localIsEmptyReport) {
                     hint = 40;
-                    rowBuilder.Append(""
+                    dataGridRowsBuilder.Append(""
                         + Constants.cr + "<tr>"
                         + Constants.cr + "<td style=\"text-align:left\" colspan=\"" + (columnMax + 1) + "\">[empty]</td>"
                         + Constants.cr + "</tr>");
@@ -403,7 +401,7 @@ namespace Contensive.Processor.LayoutBuilder {
                     if (classAttribute != "") {
                         classAttribute = " class=\"" + classAttribute + "\"";
                     }
-                    rowBuilder.Append(""
+                    dataGridRowsBuilder.Append(""
                         + Constants.cr + "<tr>"
                         + Constants.cr + "<td style=\"text-align:left\" " + classAttribute + " colspan=\"" + (columnMax + 1) + "\">There are too many rows in this report. Please consider filtering the data.</td>"
                         + Constants.cr + "</tr>");
@@ -471,7 +469,7 @@ namespace Contensive.Processor.LayoutBuilder {
                         if (classAttribute != "") {
                             classAttribute = " class=\"" + classAttribute + "\"";
                         }
-                        rowBuilder.Append(""
+                        dataGridRowsBuilder.Append(""
                             + Constants.cr + "<tr" + classAttribute + ">"
                             + indent(row)
                             + Constants.cr + "</tr>");
@@ -497,17 +495,22 @@ namespace Contensive.Processor.LayoutBuilder {
                     csDownloads.Close();
                 }
                 hint = 70;
-                resultBody.Append(""
-                    + Constants.cr + "<tbody>"
-                    + indent(rowBuilder.ToString())
-                    + Constants.cr + "</tbody>"
+                dataGridBuilder.Append(""
+                    + "<div id=\"afwListReportDataGrid\">"
+                    + "<table class=\"afwListReportTable\">"
+                    + "<tbody>"
+                    + dataGridRowsBuilder.ToString()
+                    + "</tbody>"
+                    + "</table>"
+                    + "</div>"
                     + "");
-                resultBody = new StringBuilder(Constants.cr + "<table class=\"afwListReportTable\">" + indent(resultBody.ToString()) + Constants.cr + "</table>");
-                body = resultBody.ToString();
+                //dataGridBuilder = new StringBuilder(Constants.cr + "<table class=\"afwListReportTable\">" + indent(dataGridBuilder.ToString()) + Constants.cr + "</table>");
+                //dataGrid = dataGridBuilder.ToString();
+                dataGrid = dataGridBuilder.ToString();
                 //
                 // -- construct page
                 AdminUIHtmlDocRequest request = new() {
-                    body = bodyPagination + body,
+                    body = bodyPagination + dataGrid,
                     includeBodyPadding = includeBodyPadding,
                     includeBodyColor = includeBodyColor,
                     buttonList = buttonList,
@@ -1174,7 +1177,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The body of the layout.
         /// </summary>
-        public override string body { get; set; } = "";
+        public override string dataGrid { get; set; } = "";
         //
         //-------------------------------------------------
         //
@@ -1218,6 +1221,7 @@ namespace Contensive.Processor.LayoutBuilder {
     public class RenderData {
         public List<RenderData_Link> links { get; set; }
         public int paginationPageNumber { get; set; }
+        public string searchTerm { get; set; }
 
     }
     public class RenderData_Link {

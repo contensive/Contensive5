@@ -6,7 +6,21 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// A tabular list of data rows with filters on the left.
     /// </summary>
     public abstract class LayoutBuilderListBaseClass() {
+        //
+        /// <summary>
+        /// The sql search term used to filter the data set when a user types the term into the search box.
+        /// </summary>
+        public abstract string sqlSearchTerm { get; }
+        //
+        /// <summary>
+        /// The sql orderby clause used to order the data set. Created from the user clicking on a column header.
+        /// </summary>
         public abstract string  sqlOrderBy { get; }
+        //
+        /// <summary>
+        /// if true, the data set is paginated. If false, all records are displayed.
+        /// 
+        /// </summary>
         public abstract bool allowPagination { get;}
         /// <summary>
         /// The default records per page to be displayed. The user may make changes, reflected in paginationPageSize
@@ -377,7 +391,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The body of the layout.
         /// </summary>
-        public abstract string body { get; set; }
+        public abstract string dataGrid { get; set; }
         //
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
