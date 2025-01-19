@@ -1,11 +1,12 @@
 
+using Amazon.S3.Model;
 using Contensive.BaseClasses;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
+using Microsoft.ClearScript.Windows;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Twilio.Rest.Messaging.V1;
 
 namespace Contensive.Processor.LayoutBuilder {
     /// <summary>
@@ -147,6 +148,12 @@ namespace Contensive.Processor.LayoutBuilder {
         // publics
         //
         //
+        /// <summary>
+        /// a url to refresh the grid provided by the client application.
+        /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
+        /// </summary>
+        public override string ajaxRefreshUrl { get; set; }
+        //
         public override string sqlSearchTerm {
             get {
                 if (_sqlSearchTerm != null) { return _sqlSearchTerm; }
@@ -260,12 +267,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// create csv download as form is build
         /// </summary>
         public override bool addCsvDownloadCurrentPage { get; set; } = false;
-        ////
-        //// ====================================================================================================
-        ///// <summary>
-        ///// Optional. If set, this value will populate the title in the subnav of the portalbuilder
-        ///// </summary>
-        //public override string portalSubNavTitle { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -283,6 +284,10 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override int recordCount { get; set; }
         //
+        public override string getGridHtml() {
+            return getDataGrid();
+        }
+        //
         //====================================================================================================
         //
         /// <summary>
@@ -293,32 +298,80 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getHtml() {
             int hint = 0;
             try {
-                string columnSort = cp.Doc.GetText("columnSort");
-                string csvDownloadContent = "";
-                DateTime rightNow = DateTime.Now;
-                hint = 10;
+                //
+                // -- page navigation
+                string bodyPagination = "";
                 RenderData renderData = new() {
+                    grid = getDataGrid()
                 };
                 //
-                // -- set the optional title of the portal subnav
-                if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
+                // -- the calling client added their ajaxRefreshUrl to this object, add it to the layout so the javascript created within LayoutBuilder make ajax calls and refresh the view
+                renderData.ajaxRefreshUrl = ajaxRefreshUrl;
+                if (cp.Site.GetBoolean("allow afw pagination beta", false) && recordCount > paginationPageSize) {
+                    //
+                    // -- prepend navigation to before-table
+                    _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
+                }
+                //
+                // -- render the layout
+                string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListGuid, Constants.layoutAdminUILayoutBuilderListName, Constants.layoutAdminUILayoutBuilderListCdnPathFilename);
+                bodyPagination = cp.Mustache.Render(layout, renderData);
                 //
                 // add user errors
                 string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
                 if (!string.IsNullOrEmpty(userErrors)) {
                     warningMessage += userErrors;
                 }
-                int colPtr;
+                //
+                // -- construct page
+                AdminUIHtmlDocRequest request = new() {
+                    body = bodyPagination,
+                    includeBodyPadding = includeBodyPadding,
+                    includeBodyColor = includeBodyColor,
+                    buttonList = buttonList,
+                    csvDownloadFilename = csvDownloadFilename,
+                    description = description,
+                    formActionQueryString = formActionQueryString,
+                    refreshQueryString = refreshQueryString,
+                    hiddenList = hiddenList,
+                    includeForm = includeForm,
+                    isOuterContainer = isOuterContainer,
+                    title = title,
+                    warningMessage = warningMessage,
+                    failMessage = failMessage,
+                    infoMessage = infoMessage,
+                    successMessage = successMessage,
+                    htmlAfterBody = htmlAfterTable,
+                    htmlBeforeBody = htmlBeforeTable,
+                    htmlLeftOfBody = htmlLeftOfTable,
+                    blockFormTag = blockFormTag
+                };
+                string listReport = LayoutBuilderHtmlController.getReportDoc(cp, request);
+                return listReport;
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex, "hint [" + hint + "]");
+                throw;
+            }
+        }
+        //
+        /// <summary>
+        /// Build the data grid part of the layout (the table)
+        /// Built 
+        /// </summary>
+        /// <param name="renderData"></param>
+        /// <param name="bodyPagination"></param>
+        private string getDataGrid() {
+            int hint = 0;
+            try {
                 int colPtrDownload;
-                StringBuilder dataGridBuilder = new("");
-                hint = 20;
-                //
-                // headers
-                //
-                StringBuilder dataGridRowsBuilder = new();
+                StringBuilder tableHeader = new();
+                string csvDownloadContent = "";
                 if (captionIncluded) {
+                    //
+                    // -- build grid headers
+                    tableHeader.Append("<thead><tr>");
                     string xrefreshQueryString = (!string.IsNullOrEmpty(refreshQueryString) ? refreshQueryString : cp.Doc.RefreshQueryString);
-                    for (colPtr = 0; colPtr <= columnMax; colPtr++) {
+                    for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                         if (columns[colPtr].visible) {
                             string classAttribute = columns[colPtr].captionClass;
                             if (classAttribute != "") {
@@ -335,31 +388,15 @@ namespace Contensive.Processor.LayoutBuilder {
                             if (columns[colPtr].columnWidthPercent > 0) {
                                 styleAttribute = " style=\"width:" + columns[colPtr].columnWidthPercent.ToString() + "%;\"";
                             }
-                            dataGridRowsBuilder.Append(Constants.cr + "<th" + classAttribute + styleAttribute + ">" + content + "</th>");
+                            tableHeader.Append(Constants.cr + "<th" + classAttribute + styleAttribute + ">" + content + "</th>");
                         }
                     }
-                    dataGridBuilder.Append(""
-                        + Constants.cr + "<thead>"
-                        + Constants.cr2 + "<tr>"
-                        + indent(indent(dataGridRowsBuilder.ToString()))
-                        + Constants.cr2 + "</tr>"
-                        + Constants.cr + "</thead>");
+                    tableHeader.Append("</tr></thead>");
                     //
-                    // -- append hidden field for column sort
-                    dataGridBuilder.Append(""
-                        + $"<input type=hidden name=columnSort value=\"{columnSort}\">"
-                        + "<script>"
-                        + "document.addEventListener('DOMContentLoaded', function(event) {"
-                        + "   $('.sortLink').on('click',function(p){"
-                        + "       document.getElementsByName('columnSort')[0].value=$(this).data('columnSort');"
-                        + "       $(this).closest(\"form\").submit();"
-                        + "   });"
-                        + "});"
-                        + "</script>"
-                        + "");
+                    // -- build download headers (might be different from display)
                     if (addCsvDownloadCurrentPage) {
                         colPtrDownload = 0;
-                        for (colPtr = 0; colPtr <= columnMax; colPtr++) {
+                        for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                             if (columns[colPtr].downloadable) {
                                 if (colPtrDownload == 0) {
                                     csvDownloadContent += "\"" + columns[colPtr].caption.Replace("\"", "\"\"") + "\"";
@@ -373,27 +410,15 @@ namespace Contensive.Processor.LayoutBuilder {
                 }
                 hint = 30;
                 //
-                // -- page navigation
-                string bodyPagination = ""; 
-                if (cp.Site.GetBoolean("allow afw pagination beta", false) && recordCount > paginationPageSize) {
-                    //
-                    // -- prepend navigation to before-table
-                    _ = AdminUIController.getPageNavigation(cp.core, renderData, paginationPageNumber, paginationPageSize, recordCount);
-                    //
-                    // -- prepend search and pagination
-                    string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListGuid, Constants.layoutAdminUILayoutBuilderListName, Constants.layoutAdminUILayoutBuilderListCdnPathFilename);
-                    bodyPagination = cp.Mustache.Render(layout, renderData);
-                }
-                //
                 // body
                 //
-                dataGridRowsBuilder = new StringBuilder("");
+                StringBuilder tableBodyRows = new();
                 if (localIsEmptyReport) {
                     hint = 40;
-                    dataGridRowsBuilder.Append(""
-                        + Constants.cr + "<tr>"
-                        + Constants.cr + "<td style=\"text-align:left\" colspan=\"" + (columnMax + 1) + "\">[empty]</td>"
-                        + Constants.cr + "</tr>");
+                    tableBodyRows.Append(""
+                        + "<tr>"
+                        + "<td style=\"text-align:left\" colspan=\"" + (columnMax + 1) + "\">[empty]</td>"
+                        + "</tr>");
                 } else if (ReportTooLong) {
                     //
                     // -- report is too long
@@ -401,16 +426,16 @@ namespace Contensive.Processor.LayoutBuilder {
                     if (classAttribute != "") {
                         classAttribute = " class=\"" + classAttribute + "\"";
                     }
-                    dataGridRowsBuilder.Append(""
-                        + Constants.cr + "<tr>"
-                        + Constants.cr + "<td style=\"text-align:left\" " + classAttribute + " colspan=\"" + (columnMax + 1) + "\">There are too many rows in this report. Please consider filtering the data.</td>"
-                        + Constants.cr + "</tr>");
+                    tableBodyRows.Append(""
+                        + "<tr>"
+                        + "<td style=\"text-align:left\" " + classAttribute + " colspan=\"" + (columnMax + 1) + "\">There are too many rows in this report. Please consider filtering the data.</td>"
+                        + "</tr>");
                 } else {
                     hint = 50;
                     //
                     // -- if ellipse needed, determine last visible column
                     int colPtrLastVisible = -1;
-                    for (colPtr = 0; colPtr <= columnMax; colPtr++) {
+                    for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                         if (columns[colPtr].visible) {
                             colPtrLastVisible = colPtr;
                         }
@@ -421,7 +446,7 @@ namespace Contensive.Processor.LayoutBuilder {
                         string row = "";
                         colPtrDownload = 0;
                         int colVisibleCnt = 0;
-                        for (colPtr = 0; colPtr <= columnMax; colPtr++) {
+                        for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                             if (columns[colPtr].visible) {
                                 colVisibleCnt++;
                                 string classAttribute2 = columns[colPtr].cellClass;
@@ -469,10 +494,7 @@ namespace Contensive.Processor.LayoutBuilder {
                         if (classAttribute != "") {
                             classAttribute = " class=\"" + classAttribute + "\"";
                         }
-                        dataGridRowsBuilder.Append(""
-                            + Constants.cr + "<tr" + classAttribute + ">"
-                            + indent(row)
-                            + Constants.cr + "</tr>");
+                        tableBodyRows.Append( $"<tr {classAttribute}>{row}</tr>");
                     }
                 }
                 hint = 60;
@@ -495,49 +517,33 @@ namespace Contensive.Processor.LayoutBuilder {
                     csDownloads.Close();
                 }
                 hint = 70;
-                dataGridBuilder.Append(""
+                string dataGrid  = ""
                     + "<div id=\"afwListReportDataGrid\">"
                     + "<table class=\"afwListReportTable\">"
+                    + tableHeader.ToString()
                     + "<tbody>"
-                    + dataGridRowsBuilder.ToString()
+                    + tableBodyRows.ToString()
                     + "</tbody>"
                     + "</table>"
                     + "</div>"
-                    + "");
-                //dataGridBuilder = new StringBuilder(Constants.cr + "<table class=\"afwListReportTable\">" + indent(dataGridBuilder.ToString()) + Constants.cr + "</table>");
-                //dataGrid = dataGridBuilder.ToString();
-                dataGrid = dataGridBuilder.ToString();
-                //
-                // -- construct page
-                AdminUIHtmlDocRequest request = new() {
-                    body = bodyPagination + dataGrid,
-                    includeBodyPadding = includeBodyPadding,
-                    includeBodyColor = includeBodyColor,
-                    buttonList = buttonList,
-                    csvDownloadFilename = csvDownloadFilename,
-                    description = description,
-                    formActionQueryString = formActionQueryString,
-                    refreshQueryString = refreshQueryString,
-                    hiddenList = hiddenList,
-                    includeForm = includeForm,
-                    isOuterContainer = isOuterContainer,
-                    title = title,
-                    warningMessage = warningMessage,
-                    failMessage = failMessage,
-                    infoMessage = infoMessage,
-                    successMessage = successMessage,
-                    htmlAfterBody = htmlAfterTable,
-                    htmlBeforeBody = htmlBeforeTable,
-                    htmlLeftOfBody = htmlLeftOfTable,
-                    blockFormTag = blockFormTag
-                };
-                string result = LayoutBuilderHtmlController.getReportDoc(cp, request);
-                return result;
+                    + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
+                    + $"<input type=hidden name=ajaxRefreshUrl value=\"{cp.Utils.EncodeHTML( ajaxRefreshUrl)}\">"
+                    + "<script>"
+                    + "document.addEventListener('DOMContentLoaded', function(event) {"
+                    + "   $('.sortLink').on('click',function(p){"
+                    + "       document.getElementsByName('columnSort')[0].value=$(this).data('columnSort');"
+                    + "       $(this).closest(\"form\").submit();"
+                    + "   });"
+                    + "});"
+                    + "</script>"
+                    + "";
+                return dataGrid;
             } catch (Exception ex) {
-                cp.Site.ErrorReport(ex, "hint [" + hint + "]");
+                cp.Site.ErrorReport(ex, $"hint {hint}");
                 throw;
             }
         }
+
         [Obsolete("Deprecated. Use getHtml() with construction LayoutBuilderListClass(cp, gridConfigRequest)", false)]
         public override string getHtml(CPBaseClass cp) {
             this.cp = (CPClass)cp;
@@ -999,7 +1005,16 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
-        public override string portalSubNavTitle { get; set; }
+        public override string portalSubNavTitle {
+            get {
+                return _portalSubNavTitle;
+            }
+            set {
+                _portalSubNavTitle = value;
+                cp.Doc.SetProperty("portalSubNavTitle", value);
+            }
+        }
+        private string _portalSubNavTitle = "";
         //
         //-------------------------------------------------
         /// <summary>
@@ -1174,12 +1189,6 @@ namespace Contensive.Processor.LayoutBuilder {
         private string formActionQueryString_local;
         //
         //-------------------------------------------------
-        /// <summary>
-        /// The body of the layout.
-        /// </summary>
-        public override string dataGrid { get; set; } = "";
-        //
-        //-------------------------------------------------
         //
         /// <summary>
         /// An html block added to the left of the table. Typically used for filters.
@@ -1219,9 +1228,11 @@ namespace Contensive.Processor.LayoutBuilder {
     /// data model used for mustache rendering
     /// </summary>
     public class RenderData {
-        public List<RenderData_Link> links { get; set; }
+        public List<RenderData_Link> links { get; set; } = [];
         public int paginationPageNumber { get; set; }
         public string searchTerm { get; set; }
+        public string grid { get; set; }
+        public string ajaxRefreshUrl { set; get; }
 
     }
     public class RenderData_Link {

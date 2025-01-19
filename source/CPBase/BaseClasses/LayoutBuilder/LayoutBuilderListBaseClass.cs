@@ -8,6 +8,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     public abstract class LayoutBuilderListBaseClass() {
         //
         /// <summary>
+        /// A remote method that returns the current view. If present, layoutbuilder will call this remote
+        /// to refresh the view, passing search terms and orderby clauses.
+        /// </summary>
+        public abstract string ajaxRefreshUrl  { get; set; }
+        //
+        /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.
         /// </summary>
         public abstract string sqlSearchTerm { get; }
@@ -70,7 +76,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// Add background color to the body
         /// </summary>
         public abstract bool includeBodyColor { get; set; }
-
         // 
         //-------------------------------------------------
         /// <summary>
@@ -79,7 +84,20 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <param name="cp"></param>
         /// <returns></returns>
         [Obsolete("Deprecated. Use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
+        // 
+        //-------------------------------------------------
+        /// <summary>
+        /// Method retrieves the rendered html. Call this method after populating all object elements
+        /// </summary>
+        /// <returns></returns>
         public abstract string getHtml();
+        // 
+        //-------------------------------------------------
+        /// <summary>
+        /// return the html forthe grid. Use this method to update just the grid dynamically
+        /// </summary>
+        /// <returns></returns>
+        public abstract string getGridHtml();
         //
         //-------------------------------------------------
         /// <summary>
@@ -387,11 +405,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <param name="htmlId"></param>
         /// <param name="htmlClass"></param>
         public abstract void addLinkButton(string buttonCaption, string link, string htmlId, string htmlClass);
-        //
-        /// <summary>
-        /// The body of the layout.
-        /// </summary>
-        public abstract string dataGrid { get; set; }
         //
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS

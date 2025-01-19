@@ -21,25 +21,27 @@
 </style>
 <div class="container-fluid">
 	<div class="row justify-content-center">
-		<div class="col-md-6 my-auto">
+		<div class="js-afwListReportSearchCon col-md-6 my-auto">
 			<div class="search-container">
 				<input type="text" name="searchTerm" value="{{searchTerm}}" id="searchControl" class="form-control search-input" placeholder="Search...">
 				<i class="fas fa-search search-icon"></i>
 			</div>       
 		</div>
-		<div class="col-md-6 my-auto">
+		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
 			<div class="text-end ccJumpCon"> 
 				<ul>
 					{{#links}}
-						<li class="{{css}}">{{content}}</li>
+						<li class="{{css}}">{{{content}}}</li>
 					{{/links}}
 				</ul>
 			</div>
 			<input type="hidden" name="paginationPageNumber" id="paginationPageNumber" value="{{paginationPageNumber}}">
-			<input type="hidden" name="setPaginationPageNumber" id="setPaginationPageNumber" value="0">       
+			<input type="hidden" name="setPaginationPageNumber" id="setPaginationPageNumber" value="0">
+			<input type="hidden" name="ajaxRefreshUrl" id="ajaxRefreshUrl" value="{{ajaxRefreshUrl}}">
 		</div>   
 	</div>
 </div>
+<div class="js-afwListReportGridCon">{{{grid}}}</div>
 <script>
 	document.addEventListener('DOMContentLoaded', function(event) {
 		console.log("AdminUILayoutBuilderList, binding");
@@ -50,21 +52,42 @@
 			$(this).closest("form").submit();   
 		});
 		// -- search 
+		// -- populate hidden div, then copy grid and pagination to visible areas
 		$("#searchControl").on("keyup", function() {
 			var query = $(this).val();
-			console.log(`AdminUILayoutBuilderList, searchControl value:[${query}]`); 
+			console.log(`AccountManager_AccountList, searchTerm [${query}]`);
 			// -- wait for 2 characters
-			if (query.length > 2) { 
-				console.log(`AccountManager_AccountList, searchTerm [${query}]`);
-        		let qs = `srcFormId=10`;
+			if (query.length > -1) { 
+				// -- create work area, populate, move content and delete
+				addDiv('js-afwListWorkArea');
+        		let qs = `srcFormId=0`;
+				qs += `&dstFormId=10`;
 				qs += `&frameRqs=${encodeURIComponent(afwFrameRqs)}`;
 				qs += `&accountListAllowOpenOnly=${$('#accountListAllowOpenOnly').is(":checked")}`;
-				qs += `&searchTerm=${query}`;
-        		abUpdateFrame('ecommerceAjaxHtml', qs, 'afwBodyFrame');
+				qs += `&searchTerm=${encodeURIComponent(query)}`;
+				abUpdateFrame('ecommerceAjaxHtml', qs, 'js-afwListWorkArea');
+				$('#afwBodyFrame .js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
+				$('#afwBodyFrame .js-afwListReportPaginationCon').html($('#js-afwListWorkArea .js-afwListReportPaginationCon').html());
+				deleteDiv('js-afwListWorkArea');
 			} else {
 				// -- Clear results if query is too short
 				//$("#results").empty(); 
 			}
 		});
 	});
+	function addDiv(divId) {
+  		// Create the div element
+  		const div = document.createElement('div');
+  		div.id = divId;
+  		div.style.display = 'none';
+  		// Append the div to the end of the body
+  		document.body.appendChild(div);
+	}
+	function deleteDiv(divId) {
+  		// Remove the div element
+  		const div = document.getElementById(divId);
+  		if (div) {
+			document.body.removeChild(div);
+  		}
+	}
 </script>

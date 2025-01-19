@@ -241,56 +241,63 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // 1-based navStart is the first page number in the navigation list (after [1] which always displays)
-                int navStart = pageNumber - 9;
+                int navStart = pageNumber - 5;
                 if (navStart < 1) {
                     navStart = 1;
                 }
                 //
                 // 1-based navEnd is the last page number in the navigation list (before [last] which always displays)
-                int navEnd = navStart + 20;
+                int navEnd = navStart + 10;
                 if (navEnd > pageCount) {
                     navEnd = pageCount;
-                    navStart = navEnd - 20;
+                    navStart = navEnd - 10;
                     if (navStart < 1) {
                         navStart = 1;
                     }
                 }
+                renderData.links = [];
                 var listItems = new StringBuilder();
-                if (navStart > 1) {
-                    //
-                    // -- add [1] if navStart is >1
-                    renderData.links.Add(new RenderData_Link {
-                        css = "paginationLink",
-                        content = "1"
-                    });
-                    renderData.links.Add(new RenderData_Link {
-                        css = "delim",
-                        content = "&#171;"
-                    });
-                    listItems.Append(cr3 + "<li class=\"paginationLink\">1</li><li class=\"delim\">&#171;</li>");
-                }
                 //
-                // -- add the page links before and after the current page
+                // -- description to the left of pagination
                 string recordDetails = "";
                 switch (recordCnt) {
                     case 0: {
-                            recordDetails = "no records found, page";
+                            recordDetails = "no records, page";
                             break;
                         }
                     case 1: {
-                            recordDetails = "1 record found, page";
+                            recordDetails = "1 record, page";
                             break;
                         }
                     default: {
-                            recordDetails = recordCnt + " records found, page";
+                            recordDetails = recordCnt + " records, page";
                             break;
                         }
                 }
-                renderData.links = [];
                 renderData.links.Add( new RenderData_Link { 
                         css = "caption", 
                         content = recordDetails
                 });
+                //
+                // -- add link to first page
+                if (navStart > 1) {
+                    //
+                    // -- add [1] if navStart is > 2
+                    renderData.links.Add(new RenderData_Link {
+                        css = "paginationLink",
+                        content = "1"
+                    });
+                    listItems.Append(cr3 + "<li class=\"paginationLink\">1</li>");
+                }
+                if (navStart > 2) {
+                    renderData.links.Add(new RenderData_Link {
+                        css = "delim",
+                        content = "&#171;"
+                    });
+                    listItems.Append(cr3 + "<li class=\"delim\">&#171;</li>");
+                }
+                //
+                // -- add the page numbers
                 for (int pagePtr = navStart; pagePtr <= navEnd; pagePtr++) {
                     if (pagePtr.Equals(pageNumber)) {
                         renderData.links.Add( new RenderData_Link { 
@@ -306,11 +313,15 @@ namespace Contensive.Processor.Controllers {
                     });
                     listItems.Append(cr3 + "<li class=\"paginationLink\">" + pagePtr + "</li>");
                 }
-                if (navEnd < pageCount) {
+                //
+                // -- add link to last page
+                if (navEnd < pageCount-1) {
                     renderData.links.Add(new RenderData_Link {
                         css = "delim",
                         content = "&#187;"
                     });
+                }
+                if (navEnd < pageCount) {
                     renderData.links.Add(new RenderData_Link {
                         css = "paginationLink",
                         content = pageCount.ToString()
