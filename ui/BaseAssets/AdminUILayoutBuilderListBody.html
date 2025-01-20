@@ -37,7 +37,6 @@
 			</div>
 			<input type="hidden" name="paginationPageNumber" id="paginationPageNumber" value="{{paginationPageNumber}}">
 			<input type="hidden" name="setPaginationPageNumber" id="setPaginationPageNumber" value="0">
-			<input type="hidden" name="ajaxRefreshUrl" id="ajaxRefreshUrl" value="{{ajaxRefreshUrl}}">
 		</div>   
 	</div>
 </div>
@@ -47,47 +46,43 @@
 		console.log("AdminUILayoutBuilderList, binding");
 		$('#afw').on('click','.sortLink',function(p){
 			console.log("AdminUILayoutBuilderList, sortLink click");
-			refreshView();
+			submitAfwAjaxListForm();
 		});
 		// -- click pagination link
 		$('#afw').on('click','.paginationLink',function(p){
 			// -- pageination click, convert to ajax submit
             document.getElementsByName('setPaginationPageNumber')[0].value=Number($(this).html());
 			console.log("AdminUILayoutBuilderList, paginationLink click");
-			refreshView();  
+			submitAfwAjaxListForm();  
 		});
 		// -- search 
-		// -- populate hidden div, then copy grid and pagination to visible areas
+		var myTimer = 0;
 		$('#afw').on('keyup','#searchControl', function() {
-			// -- search click
-			var query = $('#searchControl').val();
-			console.log("AdminUILayoutBuilderList, searchControl keyup");
-			refreshView(); 
+			// -- delay the search until the user stops typing
+			if (myTimer) {
+				clearTimeout(myTimer);
+			}
+			myTimer = setTimeout(function() {
+				// -- reset the pagination on search
+				document.getElementsByName('setPaginationPageNumber')[0].value='1';
+				submitAfwAjaxListForm(); 
+			}, 200);
 		});
 	});
-	// -- refresh view
-	function refreshView() {
-		addDiv('js-afwListWorkArea');
-		let ajaxRefreshUrl = $('#ajaxRefreshUrl').val();
-		ajaxRefreshUrl += `&frameRqs=${encodeURIComponent(afwFrameRqs)}`;
-		ajaxRefreshUrl += `&accountListAllowOpenOnly=${$('#accountListAllowOpenOnly').is(":checked")}`;
-		ajaxRefreshUrl += `&searchTerm=${encodeURIComponent($('#searchControl').val())}`;
-		ajaxRefreshUrl += `&sort=${encodeURIComponent(document.getElementsByName('columnSort')[0].value=$(this).data('columnSort'))}`;
-		ajaxRefreshUrl += `&paginationPageNumber=${encodeURIComponent(  $('#paginationPageNumber').val()  )}`;
-		ajaxRefreshUrl += `&setPaginationPageNumber=${encodeURIComponent(  $('#setPaginationPageNumber').val()  )}`;
-		console.log(`AccountManager_AccountList, call ajax, ajaxRefreshUrl: ${ajaxRefreshUrl}`);
-		$.ajax({
-			url: ajaxRefreshUrl, 
-			success: function(result){
-				console.log(`AccountManager_AccountList, ajax success`);
-				$("#js-afwListWorkArea").html(result);
-				$('#afwBodyFrame .js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
-				$('#afwBodyFrame .js-afwListReportPaginationCon').html($('#js-afwListWorkArea .js-afwListReportPaginationCon').html());
-				deleteDiv('js-afwListWorkArea');
-			}
+	// -- submit the list form
+	function submitAfwAjaxListForm() {
+		console.log(`LayoutBuilder List, submitAfwAjaxListForm`);
+		// -- populate hidden div, then copy grid and pagination to visible areas
+		let workingDiv = 'js-afwListWorkArea'
+		addHiddenDiv(workingDiv);
+		submitAfwAjaxForm( workingDiv, function() {
+			console.log(`LayoutBuilder List, onCompleteMethod`);
+			$('#afwBodyFrame .js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
+			$('#afwBodyFrame .js-afwListReportPaginationCon').html($('#js-afwListWorkArea .js-afwListReportPaginationCon').html());
+			deleteDiv(workingDiv);
 		});
 	}
-	function addDiv(divId) {
+	function addHiddenDiv(divId) {
   		// Create the div element
   		const div = document.createElement('div');
   		div.id = divId;
@@ -102,4 +97,5 @@
 			document.body.removeChild(div);
   		}
 	}
+
 </script>

@@ -171,7 +171,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// a url to refresh the grid provided by the client application.
         /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
         /// </summary>
-        public override string ajaxRefreshUrl { get; set; }
+        public override string ajaxSubmitUrl { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         //
@@ -328,8 +328,8 @@ namespace Contensive.Processor.LayoutBuilder {
                     grid = getGridHtml()
                 };
                 //
-                // -- the calling client added their ajaxRefreshUrl to this object, add it to the layout so the javascript created within LayoutBuilder make ajax calls and refresh the view
-                renderData.ajaxRefreshUrl = ajaxRefreshUrl;
+                // -- the calling client added their ajaxSubmitUrl to this object, add it to the layout so the javascript created within LayoutBuilder make ajax calls and refresh the view
+                renderData.ajaxSubmitUrl = ajaxSubmitUrl;
                 if (cp.Site.GetBoolean("allow afw pagination beta", false) && recordCount > paginationPageSize) {
                     //
                     // -- prepend navigation to before-table
@@ -348,7 +348,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 //
                 // -- add hidden for ajax function in javascript
                 // -- this might need a serial number to prevent collisions if this layout is used 2+ times
-                addFormHidden("ajaxRefreshUrl", ajaxRefreshUrl);
+                addFormHidden("ajaxSubmitUrl", ajaxSubmitUrl);
                 //
                 // -- construct page
                 LayoutBuilderBaseHtmlRequest request = new() {
@@ -372,7 +372,7 @@ namespace Contensive.Processor.LayoutBuilder {
                     htmlBeforeBody = htmlBeforeTable,
                     htmlLeftOfBody = htmlLeftOfTable,
                     blockFormTag = blockFormTag,
-                    ajaxRefreshUrl = ajaxRefreshUrl
+                    ajaxSubmitUrl = ajaxSubmitUrl
                 };
                 string listReport = LayoutBuilderController.getBaseHtml(cp, request);
                 return listReport;
@@ -556,7 +556,7 @@ namespace Contensive.Processor.LayoutBuilder {
                     + "</table>"
                     + "</div>"
                     + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
-                    + $"<input type=hidden name=ajaxRefreshUrl value=\"{cp.Utils.EncodeHTML( ajaxRefreshUrl)}\">"
+                    + $"<input type=hidden name=ajaxSubmitUrl value=\"{cp.Utils.EncodeHTML( ajaxSubmitUrl)}\">"
                     + "";
                 return dataGrid;
             } catch (Exception ex) {
@@ -1252,7 +1252,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public int paginationPageNumber { get; set; }
         public string searchTerm { get; set; }
         public string grid { get; set; }
-        public string ajaxRefreshUrl { set; get; }
+        public string ajaxSubmitUrl { set; get; }
 
     }
     public class RenderData_Link {

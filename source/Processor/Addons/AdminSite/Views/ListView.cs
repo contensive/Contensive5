@@ -372,7 +372,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
             }
             RenderData renderData = new();
-            renderData.ajaxRefreshUrl = core.webServer.requestPathPage + "?" + core.doc.refreshQueryString;
+            renderData.ajaxSubmitUrl = core.webServer.requestPathPage + "?" + core.doc.refreshQueryString;
             string pageNavigation = getPageNavigation(core, renderData, gridConfig.pageNumber, gridConfig.recordsPerPage, recordCnt);
             //
             // -- TitleBar

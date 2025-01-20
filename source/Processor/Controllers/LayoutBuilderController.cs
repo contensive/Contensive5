@@ -90,7 +90,7 @@ namespace Contensive.Processor.Controllers {
             // -- wrap with form
             if (request.includeForm && !request.blockFormTag) {
                 string action = !string.IsNullOrEmpty(request.formActionQueryString) ? request.formActionQueryString : !string.IsNullOrEmpty(request.refreshQueryString) ? request.refreshQueryString : cp.Doc.RefreshQueryString;
-                result = cp.Html.Form(result + request.hiddenList, "", "", "", action, "");
+                result = cp.Html.Form(result, "", "", "afwForm", action, "");
             }
             return result;
             ////
@@ -258,7 +258,7 @@ namespace Contensive.Processor.Controllers {
         /// This url calls back to the client software to request a refresh of the page
         /// AdminUI adds parameters to the querystring that it reads and updates pageNumber, etc.
         /// </summary>
-        public string ajaxRefreshUrl { get; set; }
+        public string ajaxSubmitUrl { get; set; }
         //
         [Obsolete("deprecated. Use warningMessage", false)]
         public string warning { get; set; }

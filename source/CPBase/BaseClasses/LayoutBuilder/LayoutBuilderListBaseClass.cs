@@ -11,7 +11,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// A remote method that returns the current view. If present, layoutbuilder will call this remote
         /// to refresh the view, passing search terms and orderby clauses.
         /// </summary>
-        public abstract string ajaxRefreshUrl  { get; set; }
+        public abstract string ajaxSubmitUrl  { get; set; }
         //
         /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.

@@ -28,3 +28,29 @@
 		</div>
 	</div>
 </div>
+<script>
+	// -- This html snippet is wrapped with a form tag
+	// -- this method submits an ajax call to the client-programs method (hidden in ajaxSubmitUrl)
+	// -- and stores the resulting html in the elementId argument
+	// -- then calls the complete
+	function submitAfwAjaxForm( destinationElementId, onSuccessMethod ) {
+		console.log(`LayoutBuilder Base, submitAfwAjaxForm`);
+		$('#js-afwFormContent').block();
+		let ajaxSubmitUrl = $('[name="ajaxSubmitUrl"]').val();
+		ajaxSubmitUrl += '&'+$( "#js-afwFormContent" ).closest("form").serialize();
+		console.log(`LayoutBuilder Base, call ajax, ajaxSubmitUrl: ${ajaxSubmitUrl}`);
+		$.ajax({
+			url: ajaxSubmitUrl, 
+			success: function(result){
+				console.log(`LayoutBuilder Base, ajax success`);
+				$("#"+destinationElementId).html(result);
+				onSuccessMethod();
+				$('#js-afwFormContent').unblock();
+			},
+			error: function(result){
+				console.log(`LayoutBuilder Base, ajax error`);
+				$('#js-afwFormContent').unblock();
+			}
+		});
+	}
+</script>
