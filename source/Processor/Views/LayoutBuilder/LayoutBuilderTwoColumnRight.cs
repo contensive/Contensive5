@@ -1,5 +1,6 @@
 
 using Contensive.BaseClasses;
+using Contensive.Processor.Controllers;
 using System;
 
 namespace Contensive.Processor.LayoutBuilder {
@@ -119,7 +120,7 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- render layout
             string layout = cp.Layout.GetLayout(Constants.layoutAdminUITwoColumnRightGuid, Constants.layoutAdminUITwoColumnRightName, Constants.layoutAdminUITwoColumnRightCdnPathFilename);
             //
-            AdminUIHtmlDocRequest request = new() {
+            LayoutBuilderBaseHtmlRequest request = new() {
                 body = cp.Mustache.Render(layout, this),
                 includeBodyPadding = includeBodyPadding,
                 includeBodyColor = includeBodyColor,
@@ -141,7 +142,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlLeftOfBody = htmlLeftOfTable,
                 blockFormTag = blockFormTag
             };
-            string result = LayoutBuilderHtmlController.getReportDoc(cp, request);
+            string result = LayoutBuilderController.getBaseHtml(cp, request);
             //
             // -- set the optional title of the portal subnav
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
@@ -239,7 +240,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonCaption"></param>
         /// <param name="link"></param>
         public override void addLinkButton(string buttonCaption, string link) {
-            buttonList += LayoutBuilderHtmlController.a(buttonCaption, link);
+            buttonList += LayoutBuilderController.a(buttonCaption, link);
         }
         //
         /// <summary>
@@ -249,7 +250,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="link"></param>
         /// <param name="htmlId"></param>
         public override void addLinkButton(string buttonCaption, string link, string htmlId) {
-            buttonList += LayoutBuilderHtmlController.a(buttonCaption, link, htmlId);
+            buttonList += LayoutBuilderController.a(buttonCaption, link, htmlId);
         }
         //
         /// <summary>
@@ -260,7 +261,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="htmlId"></param>
         /// <param name="htmlClass"></param>
         public override void addLinkButton(string buttonCaption, string link, string htmlId, string htmlClass) {
-            buttonList += LayoutBuilderHtmlController.a(buttonCaption, link, htmlId, htmlClass);
+            buttonList += LayoutBuilderController.a(buttonCaption, link, htmlId, htmlClass);
         }
         //
         //-------------------------------------------------
@@ -298,7 +299,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonId"></param>
         /// <param name="buttonClass"></param>
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
-            buttonList += LayoutBuilderHtmlController.getButton(buttonName, buttonValue, buttonId, buttonClass);
+            buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
             includeForm = true;
         }
         private string buttonList = "";

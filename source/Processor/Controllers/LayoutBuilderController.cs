@@ -1,16 +1,15 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contensive.Processor.LayoutBuilder {
+namespace Contensive.Processor.Controllers {
     /// <summary>
-    /// Html handling for the entire Portal system.
+    /// Construct the basic layoutBuilder view
     /// </summary>
-    class LayoutBuilderHtmlController {
+    class LayoutBuilderController {
         //
         [Obsolete("Use getRandomHtmlId().", false)]
         public static string getRandomHtmlId(CPBaseClass cp) {
@@ -81,80 +80,91 @@ namespace Contensive.Processor.LayoutBuilder {
             return "<div class=\"border bg-white p-2\">" + buttons + "</div>";
         }
         //
-        public static string getReportDoc(CPBaseClass cpBase, AdminUIHtmlDocRequest request) {
+        public static string getBaseHtml(CPBaseClass cpBase, LayoutBuilderBaseHtmlRequest request) {
+            //
+            // -- base report layout
             CPClass cp = (CPClass)cpBase;
-            //
-            //
-            // -- report head
-            string result = "";
-            string warningMessage = request.warningMessage;
-            string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
-            if (!string.IsNullOrWhiteSpace(userErrors)) { warningMessage += userErrors; }
-            //
-            result += (string.IsNullOrWhiteSpace(request.title) ? "" : Constants.cr + "<h2>" + request.title + "</h2>");
-            result += (string.IsNullOrWhiteSpace(request.successMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-success text-white\">" + request.successMessage + "</div>");
-            result += (string.IsNullOrWhiteSpace(request.infoMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-info text-white\">" + request.infoMessage + "</div>");
-            result += (string.IsNullOrWhiteSpace(warningMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-warning text-dark\">" + warningMessage + "</div>");
-            result += (string.IsNullOrWhiteSpace(request.failMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-danger text-white\">" + request.failMessage + "</div>");
-            result += (string.IsNullOrWhiteSpace(request.description) ? "" : Constants.cr + "<p>" + request.description + "</p>");
-            if (!string.IsNullOrEmpty(request.csvDownloadFilename)) {
-                result += "<p id=\"afwDescription\"><a href=\"" + cp.Http.CdnFilePathPrefix + request.csvDownloadFilename + "\">Click here</a> to download the data.</p>";
-            }
-            //
-            // -- client pre-body html
-            if (!string.IsNullOrEmpty(request.htmlBeforeBody)) { 
-                result += "<div class=\"afwBeforeHtml\">" + request.htmlBeforeBody + "</div>"; 
-            }
-            //
-            // -- add grid
-            {
-                string resultBody = request.body;
-                if (!string.IsNullOrEmpty(request.htmlLeftOfBody)) {
-                    resultBody = ""
-                        + "<div class=\"afwLeftSideHtml\">" + request.htmlLeftOfBody + "</div>"
-                        + "<div class=\"afwRightSideHtml\">" + resultBody + "</div>"
-                        + "<div style=\"clear:both\"></div>"
-                        + "";
-                }
-                result += resultBody;
-            }
-            //
-            // -- client post-body html
-            if (!string.IsNullOrEmpty(request.htmlAfterBody)) { 
-                result += "<div class=\"afwAfterHtml\">" + request.htmlAfterBody + "</div>"; 
-            }
-            //
-            // -- add padding
-            if (request.includeBodyPadding) {
-                result = cp.Html.div(result, "", "m-4", "");
-            };
-            //
-            // -- wrap with buttons
-            if (!string.IsNullOrEmpty(request.buttonList)) {
-                result = getButtonSection(request.buttonList) + result + getButtonSection(request.buttonList);
-            }
+            string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderBaseGuid,Constants.layoutAdminUILayoutBuilderBaseName,Constants.layoutAdminUILayoutBuilderBaseCdnPathFilename);
+            string result = cp.Mustache.Render(layout, request);
             //
             // -- wrap with form
             if (request.includeForm && !request.blockFormTag) {
-                string action = !string.IsNullOrEmpty(request.formActionQueryString) ? request.formActionQueryString : (!string.IsNullOrEmpty(request.refreshQueryString) ? request.refreshQueryString : cp.Doc.RefreshQueryString);
+                string action = !string.IsNullOrEmpty(request.formActionQueryString) ? request.formActionQueryString : !string.IsNullOrEmpty(request.refreshQueryString) ? request.refreshQueryString : cp.Doc.RefreshQueryString;
                 result = cp.Html.Form(result + request.hiddenList, "", "", "", action, "");
             }
-            //
-            // -- add background color
-            if (request.includeBodyColor) {
-                result = cp.Html.div(result, "", "bg-light", "");
-            };
-            //
-            if (request.isOuterContainer) {
-                cp.Doc.AddHeadJavascript(Properties.Resources.layoutBuilderJavaScript);
-                cp.Doc.AddHeadStyle(Properties.Resources.layoutBuilderStyles);
-                result = "<div id=\"afw\">" + result + "</div>";
-            }
             return result;
+            ////
+            ////
+            //// -- report head
+            //string result = "";
+            //string warningMessage = request.warningMessage;
+            //string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
+            //if (!string.IsNullOrWhiteSpace(userErrors)) { warningMessage += userErrors; }
+            ////
+            //result += string.IsNullOrWhiteSpace(request.title) ? "" : Constants.cr + "<h2>" + request.title + "</h2>";
+            //result += string.IsNullOrWhiteSpace(request.successMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-success text-white\">" + request.successMessage + "</div>";
+            //result += string.IsNullOrWhiteSpace(request.infoMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-info text-white\">" + request.infoMessage + "</div>";
+            //result += string.IsNullOrWhiteSpace(warningMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-warning text-dark\">" + warningMessage + "</div>";
+            //result += string.IsNullOrWhiteSpace(request.failMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-danger text-white\">" + request.failMessage + "</div>";
+            //result += string.IsNullOrWhiteSpace(request.description) ? "" : Constants.cr + "<p>" + request.description + "</p>";
+            //if (!string.IsNullOrEmpty(request.csvDownloadFilename)) {
+            //    result += "<p id=\"afwDescription\"><a href=\"" + cp.Http.CdnFilePathPrefix + request.csvDownloadFilename + "\">Click here</a> to download the data.</p>";
+            //}
+            ////
+            //// -- client pre-body html
+            //if (!string.IsNullOrEmpty(request.htmlBeforeBody)) {
+            //    result += "<div class=\"afwBeforeHtml\">" + request.htmlBeforeBody + "</div>";
+            //}
+            ////
+            //// -- add grid
+            //{
+            //    string resultBody = request.body;
+            //    if (!string.IsNullOrEmpty(request.htmlLeftOfBody)) {
+            //        resultBody = ""
+            //            + "<div class=\"afwLeftSideHtml\">" + request.htmlLeftOfBody + "</div>"
+            //            + "<div class=\"afwRightSideHtml\">" + resultBody + "</div>"
+            //            + "<div style=\"clear:both\"></div>"
+            //            + "";
+            //    }
+            //    result += resultBody;
+            //}
+            ////
+            //// -- client post-body html
+            //if (!string.IsNullOrEmpty(request.htmlAfterBody)) {
+            //    result += "<div class=\"afwAfterHtml\">" + request.htmlAfterBody + "</div>";
+            //}
+            ////
+            //// -- add padding
+            //if (request.includeBodyPadding) {
+            //    result = cp.Html.div(result, "", "m-4", "");
+            //};
+            ////
+            //// -- wrap with buttons
+            //if (!string.IsNullOrEmpty(request.buttonList)) {
+            //    result = getButtonSection(request.buttonList) + result + getButtonSection(request.buttonList);
+            //}
+            ////
+            //// -- wrap with form
+            //if (request.includeForm && !request.blockFormTag) {
+            //    string action = !string.IsNullOrEmpty(request.formActionQueryString) ? request.formActionQueryString : !string.IsNullOrEmpty(request.refreshQueryString) ? request.refreshQueryString : cp.Doc.RefreshQueryString;
+            //    result = cp.Html.Form(result + request.hiddenList, "", "", "", action, "");
+            //}
+            ////
+            //// -- add background color
+            //if (request.includeBodyColor) {
+            //    result = cp.Html.div(result, "", "bg-light", "");
+            //};
+            ////
+            //if (request.isOuterContainer) {
+            //    cp.Doc.AddHeadJavascript(Properties.Resources.layoutBuilderJavaScript);
+            //    cp.Doc.AddHeadStyle(Properties.Resources.layoutBuilderStyles);
+            //    result = "<div id=\"afw\">" + result + "</div>";
+            //}
+            //return result;
         }
     }
     //
-    public class AdminUIHtmlDocRequest {
+    public class LayoutBuilderBaseHtmlRequest {
         /// <summary>
         /// The body of the document
         /// </summary>
@@ -240,6 +250,15 @@ namespace Contensive.Processor.LayoutBuilder {
         /// if true, the form tag will not be added
         /// </summary>
         public bool blockFormTag { get; set; }
+        //
+        /// <summary>
+        /// This html layout includes functions like search, pagination and sort. 
+        /// It includes javascript that calls the server back whent these features are clicked.
+        /// This url is stored in a hidden field in the form so the server knows where to call back to.
+        /// This url calls back to the client software to request a refresh of the page
+        /// AdminUI adds parameters to the querystring that it reads and updates pageNumber, etc.
+        /// </summary>
+        public string ajaxRefreshUrl { get; set; }
         //
         [Obsolete("deprecated. Use warningMessage", false)]
         public string warning { get; set; }

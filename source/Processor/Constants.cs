@@ -1125,9 +1125,15 @@ namespace Contensive.Processor {
         public const string layoutEditControlAutocompleteName = "Edit Control Autocomplete";
         public const string layoutEditControlAutocompleteCdnPathFilename = "baseAssets\\EditControlAutocompleteLayout.html";
         //
-        public const string layoutAdminUILayoutBuilderListGuid = "{13DB2AF2-A835-4E00-A932-7F5C036312AF}";
-        public const string layoutAdminUILayoutBuilderListName = "AdminUI LayoutBuilder List";
-        public const string layoutAdminUILayoutBuilderListCdnPathFilename = "baseAssets\\AdminUILayoutBuilderList.html";
+        // -- The body of the list layout
+        public const string layoutAdminUILayoutBuilderListBodyGuid = "{13DB2AF2-A835-4E00-A932-7F5C036312AF}";
+        public const string layoutAdminUILayoutBuilderListBodyName = "AdminUI LayoutBuilder List Body";
+        public const string layoutAdminUILayoutBuilderListBodyCdnPathFilename = "baseAssets\\AdminUILayoutBuilderListBody.html";
+        //
+        // -- basic layout that wraps all reports
+        public const string layoutAdminUILayoutBuilderBaseGuid = "{54C3AAD0-B517-4490-9FF6-54D294EB6B50}";
+        public const string layoutAdminUILayoutBuilderBaseName = "AdminUI LayoutBuilder Base";
+        public const string layoutAdminUILayoutBuilderBaseCdnPathFilename = "baseAssets\\AdminUILayoutBuilderBase.html";
         //
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

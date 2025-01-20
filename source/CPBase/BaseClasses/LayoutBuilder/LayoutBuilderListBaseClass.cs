@@ -91,13 +91,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         /// <returns></returns>
         public abstract string getHtml();
-        // 
-        //-------------------------------------------------
-        /// <summary>
-        /// return the html forthe grid. Use this method to update just the grid dynamically
-        /// </summary>
-        /// <returns></returns>
-        public abstract string getGridHtml();
         //
         //-------------------------------------------------
         /// <summary>

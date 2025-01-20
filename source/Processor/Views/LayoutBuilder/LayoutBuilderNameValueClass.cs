@@ -1,6 +1,7 @@
 
 using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
+using Contensive.Processor.Controllers;
 using System;
 using System.Collections;
 
@@ -216,7 +217,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             //
             // -- construct report
-            AdminUIHtmlDocRequest request = new() {
+            LayoutBuilderBaseHtmlRequest request = new() {
                 body = result.ToString(),
                 includeBodyPadding = includeBodyPadding,
                 includeBodyColor = includeBodyColor,
@@ -231,7 +232,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 failMessage = warning,
                 successMessage = successMessage
             };
-            return LayoutBuilderHtmlController.getReportDoc(cp, request);
+            return LayoutBuilderController.getBaseHtml(cp, request);
         }
         //
         //-------------------------------------------------
@@ -307,7 +308,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonId"></param>
         /// <param name="buttonClass"></param>
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
-            buttonList += LayoutBuilderHtmlController.getButton(buttonName, buttonValue, buttonId, buttonClass);
+            buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
             includeForm = true;
         }
         private string buttonList = "";

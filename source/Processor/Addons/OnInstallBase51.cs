@@ -32,7 +32,8 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUITwoColumnRightGuid, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename, layoutAdminUITwoColumnRightCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderListGuid, layoutAdminUILayoutBuilderListName, layoutAdminUILayoutBuilderListCdnPathFilename, layoutAdminUILayoutBuilderListCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderBaseGuid, layoutAdminUILayoutBuilderBaseName, layoutAdminUILayoutBuilderBaseCdnPathFilename, layoutAdminUILayoutBuilderBaseCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderListBodyGuid, layoutAdminUILayoutBuilderListBodyName, layoutAdminUILayoutBuilderListBodyCdnPathFilename, layoutAdminUILayoutBuilderListBodyCdnPathFilename);
                 //
                 // -- 
                 return "ok";

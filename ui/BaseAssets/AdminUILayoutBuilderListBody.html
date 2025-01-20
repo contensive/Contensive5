@@ -45,36 +45,48 @@
 <script>
 	document.addEventListener('DOMContentLoaded', function(event) {
 		console.log("AdminUILayoutBuilderList, binding");
+		$('#afw').on('click','.sortLink',function(p){
+			console.log("AdminUILayoutBuilderList, sortLink click");
+			refreshView();
+		});
 		// -- click pagination link
-		$('.paginationLink').on('click',function(p){
+		$('#afw').on('click','.paginationLink',function(p){
+			// -- pageination click, convert to ajax submit
+            document.getElementsByName('setPaginationPageNumber')[0].value=Number($(this).html());
 			console.log("AdminUILayoutBuilderList, paginationLink click");
-			document.getElementsByName('setPaginationPageNumber')[0].value=Number($(this).html());
-			$(this).closest("form").submit();   
+			refreshView();  
 		});
 		// -- search 
 		// -- populate hidden div, then copy grid and pagination to visible areas
-		$("#searchControl").on("keyup", function() {
-			var query = $(this).val();
-			console.log(`AccountManager_AccountList, searchTerm [${query}]`);
-			// -- wait for 2 characters
-			if (query.length > -1) { 
-				// -- create work area, populate, move content and delete
-				addDiv('js-afwListWorkArea');
-        		let qs = `srcFormId=0`;
-				qs += `&dstFormId=10`;
-				qs += `&frameRqs=${encodeURIComponent(afwFrameRqs)}`;
-				qs += `&accountListAllowOpenOnly=${$('#accountListAllowOpenOnly').is(":checked")}`;
-				qs += `&searchTerm=${encodeURIComponent(query)}`;
-				abUpdateFrame('ecommerceAjaxHtml', qs, 'js-afwListWorkArea');
+		$('#afw').on('keyup','#searchControl', function() {
+			// -- search click
+			var query = $('#searchControl').val();
+			console.log("AdminUILayoutBuilderList, searchControl keyup");
+			refreshView(); 
+		});
+	});
+	// -- refresh view
+	function refreshView() {
+		addDiv('js-afwListWorkArea');
+		let ajaxRefreshUrl = $('#ajaxRefreshUrl').val();
+		ajaxRefreshUrl += `&frameRqs=${encodeURIComponent(afwFrameRqs)}`;
+		ajaxRefreshUrl += `&accountListAllowOpenOnly=${$('#accountListAllowOpenOnly').is(":checked")}`;
+		ajaxRefreshUrl += `&searchTerm=${encodeURIComponent($('#searchControl').val())}`;
+		ajaxRefreshUrl += `&sort=${encodeURIComponent(document.getElementsByName('columnSort')[0].value=$(this).data('columnSort'))}`;
+		ajaxRefreshUrl += `&paginationPageNumber=${encodeURIComponent(  $('#paginationPageNumber').val()  )}`;
+		ajaxRefreshUrl += `&setPaginationPageNumber=${encodeURIComponent(  $('#setPaginationPageNumber').val()  )}`;
+		console.log(`AccountManager_AccountList, call ajax, ajaxRefreshUrl: ${ajaxRefreshUrl}`);
+		$.ajax({
+			url: ajaxRefreshUrl, 
+			success: function(result){
+				console.log(`AccountManager_AccountList, ajax success`);
+				$("#js-afwListWorkArea").html(result);
 				$('#afwBodyFrame .js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
 				$('#afwBodyFrame .js-afwListReportPaginationCon').html($('#js-afwListWorkArea .js-afwListReportPaginationCon').html());
 				deleteDiv('js-afwListWorkArea');
-			} else {
-				// -- Clear results if query is too short
-				//$("#results").empty(); 
 			}
 		});
-	});
+	}
 	function addDiv(divId) {
   		// Create the div element
   		const div = document.createElement('div');

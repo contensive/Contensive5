@@ -2146,7 +2146,7 @@ namespace Contensive.Processor {
         /// <param name="sql"></param>
         /// <param name="dataSourceName"></param>
         /// <param name="pageSize">records per page</param>
-        /// <param name="pageNumber">1 based page number</param>
+        /// <param name="pageNumber">1-based page number</param>
         /// <returns></returns>
         public bool openSql(string sql, string dataSourceName, int pageSize, int pageNumber) {
             try {

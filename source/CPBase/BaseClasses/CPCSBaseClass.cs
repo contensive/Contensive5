@@ -83,7 +83,7 @@ namespace Contensive.BaseClasses {
         /// <param name="activeOnly"></param>
         /// <param name="selectFieldList"></param>
         /// <param name="pageSize"></param>
-        /// <param name="pageNumber"></param>
+        /// <param name="pageNumber">1-based page number</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract bool Open(string contentName, string sqlCriteria, string sortFieldList, bool activeOnly, string selectFieldList, int pageSize, int pageNumber);
@@ -148,7 +148,7 @@ namespace Contensive.BaseClasses {
         /// <param name="sortFieldList"></param>
         /// <param name="activeOnly"></param>
         /// <param name="pageSize"></param>
-        /// <param name="pageNumber"></param>
+        /// <param name="pageNumber">1-based page number</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract bool OpenGroupUsers(string groupName, string sqlCriteria, string sortFieldList, bool activeOnly, int pageSize, int pageNumber);
@@ -202,7 +202,7 @@ namespace Contensive.BaseClasses {
         /// <param name="sortFieldList"></param>
         /// <param name="activeOnly"></param>
         /// <param name="pageSize"></param>
-        /// <param name="pageNumber"></param>
+        /// <param name="pageNumber">1-based page number</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract bool OpenGroupUsers(List<string> groupList, string sqlCriteria, string sortFieldList, bool activeOnly, int pageSize, int pageNumber);
@@ -249,12 +249,12 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
-        /// Opens a record set based on an sql statement
+        /// Opens a record set based on an sql statement. The result is paged based on the pageSize and pageNumber parameters. The pageNumber is 1-based.
         /// </summary>
         /// <param name="sql"></param>
         /// <param name="dataSourcename"></param>
         /// <param name="pageSize"></param>
-        /// <param name="pageNumber"></param>
+        /// <param name="pageNumber">1-based page number</param>
         /// <returns></returns>
         /// <remarks></remarks>
         public abstract bool OpenSQL(string sql, string dataSourcename, int pageSize, int pageNumber);
