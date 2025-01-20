@@ -33,11 +33,15 @@
                 .editBtn:hover {
                     background-color: #1f74c9 !important;
                 }
-                .editBtn img {
+                .editBtn img.editBtnIcon {
                     height: 100% !important;
                     width: 16px !important;
                     position: relative;
-
+                    object-fit: fill !important;
+                    margin: 0 !important;
+                    border-radius: 0 !important;
+                    border: 0 !important;
+                    padding: 0 !important;
                 }
                 .btn-group.editModalBtn {
                     position: relative;
@@ -94,7 +98,7 @@
             <div class="d-flex justify-content-between">
                 <a id="widgetEditTab{{editModalSn}}" type="button" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editModalSn}}">
                     <div class="btn-group editModalBtn ccRecordLinkCon" role="group">
-                        <div class="btn editBtn" ><img src="BaseAssets/light-edit-pencil.svg" alt="pencil icon"></div>
+                        <div class="btn editBtn" ><img src="BaseAssets/light-edit-pencil.svg" alt="pencil icon" class="editBtnIcon"></div>
                         <div class="widgetName">{{{dialogCaption}}}</div>
                     </div>
                 </a>
