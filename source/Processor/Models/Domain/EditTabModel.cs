@@ -49,14 +49,9 @@ namespace Contensive.Processor.Models.Domain {
             }
         }
         //
-        public void addEntry(string Caption, string LiveBody) {
-            addEntry(Caption, "", "", LiveBody, false, "ccAdminTab");
-        }
-        //
         public void addEntry(string Caption, string LiveBody, string StylePrefix) {
             addEntry(Caption, "", "", LiveBody, false, "ccAdminTab");
         }
-
         //
         //====================================================================================================
         /// <summary>

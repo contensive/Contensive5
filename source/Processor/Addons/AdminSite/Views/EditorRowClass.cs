@@ -120,19 +120,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                     fieldCaption = "",
                     fieldHtmlId = ""
                 };
-                ////
-                //// -- get current value
-                //if (!request.editRecord.fieldsLc.ContainsKey(request.field.nameLc)) {
-                //    //
-                //    // -- field not found in edit record. Report and exit with blank editor
-                //    logger.Error($"{core.logCommonMessage}", new GenericException("getEditorRow, field [" + request.field.nameLc + "] not found in editRecord collection for content [" + request.contentName + "]"));
-                //    return new editorResponse {
-                //        editorString = "<!-- no editor row available because field not found -->"
-                //    };
-                //}
-                ////
-                //object fieldValueObject = request.editRecord.fieldsLc[request.field.nameLc].value_content;
-                //string fieldValue_text = encodeText(fieldValueObject);
                 //
                 string whyReadOnlyMsg = "";
                 int fieldRows = 1;

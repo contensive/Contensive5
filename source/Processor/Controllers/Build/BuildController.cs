@@ -202,7 +202,7 @@ namespace Contensive.Processor.Controllers.Build {
                     core.siteProperties.getText("TextSearchEndTag", "<!-- TextSearchEnd -->");
                     core.siteProperties.getText("TextSearchStartTag", "<!-- TextSearchStart -->");
                     core.siteProperties.getBoolean("AllowLinkAlias", true);
-                    // -- initialize for Page Builder for new sites
+                    core.siteProperties.getBoolean("allow plain text password", false);
                     core.siteProperties.getBoolean("ALLOW ADDONLIST EDITOR FOR QUICK EDITOR", true);
                     //
                     AddonModel defaultRouteAddon = core.cacheRuntime.addonCache.create(core.siteProperties.defaultRouteId);

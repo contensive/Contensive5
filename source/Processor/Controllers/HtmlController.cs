@@ -1074,7 +1074,25 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public static string inputText_Legacy(CoreController core, string htmlName, string defaultValue = "", int heightRows = 1, int widthCharacters = 20, string htmlId = "", bool passwordField = false, bool readOnly = false, string htmlClass = "", int maxLength = -1, bool disabled = false, string placeholder = "", bool required = false) {
+        /// <summary>
+        /// Create a text input that accomodates both a single line and a multi-line input
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="defaultValue"></param>
+        /// <param name="heightRows"></param>
+        /// <param name="widthCharacters"></param>
+        /// <param name="htmlId"></param>
+        /// <param name="passwordField"></param>
+        /// <param name="readOnly"></param>
+        /// <param name="htmlClass"></param>
+        /// <param name="maxLength"></param>
+        /// <param name="disabled"></param>
+        /// <param name="placeholder"></param>
+        /// <param name="required"></param>
+        /// <param name="autocomplete">set autocomplete to 'off' to block the prepopulate of username and password from the browser. Leave blank, or see w3c spec for allowed terms</param>
+        /// <returns></returns>
+        public static string inputText_Legacy(CoreController core, string htmlName, string defaultValue = "", int heightRows = 1, int widthCharacters = 20, string htmlId = "", bool passwordField = false, bool readOnly = false, string htmlClass = "", int maxLength = -1, bool disabled = false, string placeholder = "", bool required = false, string autocomplete = "") {
             string result = "";
             try {
                 string editValue = defaultValue ?? "";
@@ -1091,6 +1109,7 @@ namespace Contensive.Processor.Controllers {
                     attrList += (maxLength <= 0) ? "" : " maxlength=" + maxLength.ToString();
                     attrList += (string.IsNullOrEmpty(placeholder)) ? "" : " placeholder=\"" + placeholder + "\"";
                     attrList += (!required) ? "" : " required";
+                    attrList += (string.IsNullOrEmpty(autocomplete)) ? "" : $" autocomplete=\"{autocomplete}\"";
                     if (passwordField) {
                         attrList += (widthCharacters <= 0) ? " size=\"" + core.siteProperties.defaultFormInputWidth.ToString() + "\"" : " size=\"" + widthCharacters.ToString() + "\"";
                         result = $"<input type=\"password\" value=\"{editValue}\"{attrList}>";
@@ -1108,7 +1127,22 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public static string inputText(CoreController core, string htmlName, string defaultValue = "", string htmlClass = "", string htmlId = "", bool readOnly = false, int maxLength = -1, bool disabled = false, string placeholder = "", bool required = false) {
+        /// <summary>
+        /// input text field with 1-line height. Use text area for multi-line input
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="htmlName"></param>
+        /// <param name="defaultValue"></param>
+        /// <param name="htmlClass"></param>
+        /// <param name="htmlId"></param>
+        /// <param name="readOnly"></param>
+        /// <param name="maxLength"></param>
+        /// <param name="disabled"></param>
+        /// <param name="placeholder"></param>
+        /// <param name="required"></param>
+        /// <param name="autocomplete">set autocomplete to 'off' to block the prepopulate of username and password from the browser. Leave blank, or see w3c spec for allowed terms</param>
+        /// <returns></returns>
+        public static string inputText(CoreController core, string htmlName, string defaultValue = "", string htmlClass = "", string htmlId = "", bool readOnly = false, int maxLength = -1, bool disabled = false, string placeholder = "", bool required = false, string autocomplete = "") {
             string result = "";
             try {
                 defaultValue = HtmlController.encodeHtml(defaultValue);
@@ -1121,6 +1155,7 @@ namespace Contensive.Processor.Controllers {
                 attrList += (maxLength <= 0) ? "" : " maxlength=" + maxLength.ToString();
                 attrList += (string.IsNullOrEmpty(placeholder)) ? "" : " placeholder=\"" + placeholder + "\"";
                 attrList += (!required) ? "" : " required";
+                attrList += (string.IsNullOrEmpty(autocomplete)) ? "" : $" autocomplete=\"{autocomplete}\"";
                 result = "<input TYPE=\"Text\" value=\"" + defaultValue + "\"" + attrList + ">";
                 core.doc.formInputTextCnt += 1;
             } catch (Exception ex) {

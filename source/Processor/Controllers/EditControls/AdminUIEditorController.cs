@@ -550,7 +550,15 @@ namespace Contensive.Processor.Controllers.EditControls {
         /// <param name="htmlId"></param>
         /// <returns></returns>
         public static string getPasswordEditor(CoreController core, string fieldName, string fieldValue, bool readOnly, string htmlId) {
-            return HtmlController.inputText_Legacy(core, fieldName, fieldValue, -1, -1, htmlId, true, readOnly, "password form-control", 255);
+            return HtmlController.inputText_Legacy(core, fieldName, fieldValue,
+                heightRows: -1,
+                widthCharacters: -1, 
+                htmlId: htmlId,
+                passwordField: true, 
+                readOnly: readOnly,
+                htmlClass: "password form-control",
+                maxLength: 255,
+                autocomplete: "off");
         }
         //
         //====================================================================================================
@@ -692,7 +700,11 @@ namespace Contensive.Processor.Controllers.EditControls {
             if (editValue.IndexOf("\n", StringComparison.InvariantCulture) == -1 && editValue.Length < 80) {
                 //
                 // text field shorter then 40 characters without a CR
-                return HtmlController.inputText_Legacy(core, fieldName, editValue, 1, -1, htmlId, false, readOnly, "text form-control", 255, false, "", required);
+                string autocomplete = "on";
+                if (fieldName.ToLowerInvariant().Equals("username") || fieldName.ToLowerInvariant().Equals("password") || fieldName.ToLowerInvariant().Equals("passwordhash")) {
+                    autocomplete = "off";
+                }
+                return HtmlController.inputText_Legacy(core, fieldName, editValue, 1, -1, htmlId, false, readOnly, "text form-control", 255, false, "", required, autocomplete);
             }
             return getHtmlCodeEditor(core, fieldName, editValue, readOnly, htmlId, required);
         }

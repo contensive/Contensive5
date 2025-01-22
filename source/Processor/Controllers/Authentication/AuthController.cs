@@ -586,7 +586,7 @@ namespace Contensive.Processor.Controllers {
                     userGuid = user.ccguid;
                 }
                 //
-                if (cp.Site.GetBoolean("allow plain text password", true)) {
+                if (cp.Site.GetBoolean("allow plain text password", false)) {
                     //
                     // -- set plain-text password
                     user.passwordHash = null;
