@@ -20,7 +20,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
         /// </summary>
-        public override string baseUrl { get; set; }
+        public override string baseUrl { get; }
         //
         //-------------------------------------------------
         /// <summary>

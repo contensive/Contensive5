@@ -12,6 +12,9 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
             baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
             if (string.IsNullOrEmpty(baseUrl)) {
+                //
+                // -- if request is not present then this is the original page render. Populate with the current page
+                // -- if however it is present, then this is the ajax callback, and the value in the request was the original page url
                 baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
             }
             addFormHidden("layoutBuilderBaseUrl", baseUrl);
@@ -21,7 +24,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
         /// </summary>
-        public override string baseUrl { get; set; }
+        public override string baseUrl { get; }
         //
         //-------------------------------------------------
         /// <summary>
@@ -121,9 +124,11 @@ namespace Contensive.Processor.LayoutBuilder {
             string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderBaseGuid, Constants.layoutAdminUILayoutBuilderBaseName, Constants.layoutAdminUILayoutBuilderBaseCdnPathFilename);
             string result = cp.Mustache.Render(layout, this);
             //
-            // -- add hiddens that are used in js, and not replaced during ajax redraw
-            result += hiddenList;
+            // -- add the baseAjaxUrl to the form
             addFormHidden("baseAjaxUrl", baseAjaxUrl);
+            //
+            // -- add all hiddens to the html
+            result += hiddenList;
             //
             // -- wrap with form
             if (includeForm && !blockFormTag) {

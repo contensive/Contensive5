@@ -17,7 +17,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// 
         /// </summary>
-        public abstract string baseUrl { get; set; }
+        public abstract string baseUrl { get; }
         //
         //-------------------------------------------------
         /// <summary>

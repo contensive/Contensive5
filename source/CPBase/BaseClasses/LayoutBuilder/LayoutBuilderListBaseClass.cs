@@ -16,12 +16,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// The area where the hiddens are saved is not repainted duting ajax refreshes, so this value is set one time when the page is first drawn.
         /// When a user clicks on a feature on the view, like pagination, the view is redrawn with an ajax call. That call has a different baseUrlf so links created during that call need the baseUrl of the view.
         /// </summary>
-        public abstract string baseUrl { get; set; }
+        public abstract string baseUrl { get; }
         /// <summary>
         /// A remote method that returns the current view. If present, layoutbuilder will call this remote
         /// to refresh the view, passing search terms and orderby clauses.
         /// </summary>
-        public abstract string baseAjaxUrl  { get; set; }
+        public abstract string baseAjaxUrl { get; set; }
         //
         /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.
@@ -31,13 +31,18 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The sql orderby clause used to order the data set. Created from the user clicking on a column header.
         /// </summary>
-        public abstract string  sqlOrderBy { get; }
+        public abstract string sqlOrderBy { get; }
+        /// <summary>
+        /// reset pagination back to page 1. Use to force the view to page when when the query filter changes.
+        /// Mus tbe called before accessing pagination fields or query elements.
+        /// </summary>
+        public abstract void paginationReset();
         //
         /// <summary>
         /// if true, the data set is paginated. If false, all records are displayed.
         /// 
         /// </summary>
-        public abstract bool allowPagination { get;}
+        public abstract bool allowPagination { get; }
         /// <summary>
         /// The default records per page to be displayed. The user may make changes, reflected in paginationPageSize
         /// </summary>
@@ -206,7 +211,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         //-------------------------------------------------
         //
-        public abstract string warning { get;  }
+        public abstract string warning { get; }
         //
         //-------------------------------------------------
         //
@@ -436,5 +441,5 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     public class EllipseMenuItem {
         public string name { get; set; }
         public string url { get; set; }
-    } 
+    }
 }

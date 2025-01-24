@@ -22,7 +22,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// the base layout builder used to assemble the components of this builder.
         /// initialized in constructor so it can read the request for baseUrl
         /// </summary>
-        private LayoutBuilderClass layoutBuilder { get; set; }
+        private LayoutBuilderClass layoutBuilderBase { get; set; }
         //
         // ====================================================================================================
         // constructors
@@ -34,14 +34,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="cp"></param>
         public LayoutBuilderListClass(CPBaseClass cp) :base(cp) {
             this.cp = (CPClass)cp;
-            layoutBuilder = new(cp);
-            //
-            // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
-            baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
-            if (string.IsNullOrEmpty(baseUrl)) {
-                baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
-            }
-            addFormHidden("layoutBuilderBaseUrl", baseUrl);
+            layoutBuilderBase = new(cp);
         }
         //
         // ====================================================================================================
@@ -178,7 +171,11 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The url of the page. Needed because the page is rendered with ajax, and the original page's url is used as the base for calls
         /// </summary>
-        public override string baseUrl { get; set; }
+        public override string baseUrl { 
+            get {
+                return layoutBuilderBase.baseUrl;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -186,7 +183,14 @@ namespace Contensive.Processor.LayoutBuilder {
         /// Required for pagination and search. If empty, pagination and search are disabled.
         /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
         /// </summary>
-        public override string baseAjaxUrl { get; set; }
+        public override string baseAjaxUrl {
+            get {
+                return layoutBuilderBase.baseAjaxUrl;
+            }
+            set {
+                layoutBuilderBase.baseAjaxUrl = value;
+            }
+        }
 
         //
         // ----------------------------------------------------------------------------------------------------
@@ -216,6 +220,16 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         private string? _sqlOrderBy;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        public override void paginationReset() {
+            if(_paginationPageSize != null) {
+                //
+                // -- cannot reset after the pagination has been used
+                cp.Log.Warn($"LayoutBuilderListClass.pageinationReset cannot be called after pagination has been used. Call reset before accessing pagination or query elements.");
+            }
+            _paginationPageNumber = 1;
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -343,9 +357,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 // -- page navigation
                 RenderData renderData = new() {
                     grid = getGridHtml(),
-                    baseAjaxUrl = baseAjaxUrl,
-                    allowSearch = !string.IsNullOrEmpty(baseAjaxUrl),
-                    allowPagination = !string.IsNullOrEmpty(baseAjaxUrl) && (recordCount > paginationPageSize)
+                    allowSearch = !string.IsNullOrEmpty(layoutBuilderBase.baseAjaxUrl),
+                    allowPagination = !string.IsNullOrEmpty(layoutBuilderBase.baseAjaxUrl) && (recordCount > paginationPageSize)
                 };
                 //
                 // -- prepend navigation to before-table
@@ -365,59 +378,36 @@ namespace Contensive.Processor.LayoutBuilder {
                 //
                 // -- add hidden for ajax function in javascript
                 // -- this might need a serial number to prevent collisions if this layout is used 2+ times
-                addFormHidden("baseAjaxUrl", baseAjaxUrl);
-                ////
-                //// -- construct page
-                //LayoutBuilderClass layoutBase = new(cp) {
-                //    body = body,
-                //    includeBodyPadding = includeBodyPadding,
-                //    includeBodyColor = includeBodyColor,
-                //    buttonList = buttonList,
-                //    csvDownloadFilename = csvDownloadFilename,
-                //    description = description,
-                //    formActionQueryString = formActionQueryString,
-                //    refreshQueryString = refreshQueryString,
-                //    hiddenList = hiddenList,
-                //    includeForm = includeForm,
-                //    isOuterContainer = isOuterContainer,
-                //    title = title,
-                //    warningMessage = warningMessage,
-                //    failMessage = failMessage,
-                //    infoMessage = infoMessage,
-                //    successMessage = successMessage,
-                //    htmlAfterBody = htmlAfterBody,
-                //    htmlBeforeBody = htmlBeforeBody,
-                //    htmlLeftOfBody = htmlLeftOfBody,
-                //    blockFormTag = blockFormTag,
-                //    baseAjaxUrl = baseAjaxUrl
-                //};
 
-                layoutBuilder.body = body;
-                layoutBuilder.includeBodyPadding = includeBodyPadding;
-                layoutBuilder.includeBodyColor = includeBodyColor;
-                layoutBuilder.buttonList = buttonList;
-                layoutBuilder.csvDownloadFilename = csvDownloadFilename;
-                layoutBuilder.description = description;
-                layoutBuilder.formActionQueryString = formActionQueryString;
-                layoutBuilder.refreshQueryString = refreshQueryString;
-                layoutBuilder.hiddenList = hiddenList;
-                layoutBuilder.includeForm = includeForm;
-                layoutBuilder.isOuterContainer = isOuterContainer;
-                layoutBuilder.title = title;
-                layoutBuilder.warningMessage = warningMessage;
-                layoutBuilder.failMessage = failMessage;
-                layoutBuilder.infoMessage = infoMessage;
-                layoutBuilder.successMessage = successMessage;
-                layoutBuilder.htmlAfterBody = htmlAfterBody;
-                layoutBuilder.htmlBeforeBody = htmlBeforeBody;
-                layoutBuilder.htmlLeftOfBody = htmlLeftOfBody;
-                layoutBuilder.blockFormTag = blockFormTag;
-                layoutBuilder.baseAjaxUrl = baseAjaxUrl;
+                layoutBuilderBase.body = body;
+                layoutBuilderBase.includeBodyPadding = includeBodyPadding;
+                layoutBuilderBase.includeBodyColor = includeBodyColor;
+                layoutBuilderBase.buttonList = buttonList;
+                layoutBuilderBase.csvDownloadFilename = csvDownloadFilename;
+                layoutBuilderBase.description = description;
+                layoutBuilderBase.formActionQueryString = formActionQueryString;
+                layoutBuilderBase.refreshQueryString = refreshQueryString;
+                layoutBuilderBase.isOuterContainer = isOuterContainer;
+                layoutBuilderBase.title = title;
+                layoutBuilderBase.warningMessage = warningMessage;
+                layoutBuilderBase.failMessage = failMessage;
+                layoutBuilderBase.infoMessage = infoMessage;
+                layoutBuilderBase.successMessage = successMessage;
+                layoutBuilderBase.htmlAfterBody = htmlAfterBody;
+                layoutBuilderBase.htmlBeforeBody = htmlBeforeBody;
+                layoutBuilderBase.htmlLeftOfBody = htmlLeftOfBody;
+                layoutBuilderBase.blockFormTag = blockFormTag;
+                //
+                // -- handled within base as pass-through properties
+                //layoutBuilderBase.baseAjaxUrl = baseAjaxUrl;
+                //layoutBuilder.hiddenList = hiddenList;
+                //layoutBuilderBase.includeForm = includeForm;
+                //addFormHidden("baseAjaxUrl", baseAjaxUrl);
 
 
 
 
-                string listReport = layoutBuilder.getHtml(cp);
+                string listReport = layoutBuilderBase.getHtml(cp);
                 return listReport;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "hint [" + hint + "]");
@@ -589,9 +579,6 @@ namespace Contensive.Processor.LayoutBuilder {
                     csDownloads.Close();
                 }
                 hint = 70;
-                addFormHidden("baseUrl", baseAjaxUrl);
-                addFormHidden("baseAjaxUrl", baseAjaxUrl);
-
                 string dataGrid  = ""
                     + "<div id=\"afwListReportDataGrid\">"
                     + "<table class=\"afwListReportTable\">"
@@ -602,8 +589,11 @@ namespace Contensive.Processor.LayoutBuilder {
                     + "</table>"
                     + "</div>"
                     + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
-                    + $"<input type=hidden name=baseAjaxUrl value=\"{cp.Utils.EncodeHTML( baseAjaxUrl)}\">"
                     + "";
+
+                    //$"<input type=hidden name=baseAjaxUrl value=\"{cp.Utils.EncodeHTML(baseAjaxUrl)}\">"
+
+
                 return dataGrid;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"hint {hint}");
@@ -616,13 +606,13 @@ namespace Contensive.Processor.LayoutBuilder {
             this.cp = (CPClass)cp;
             return getHtml();
         }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
-        /// consider a pattern that blocks the include form if this layout is called form the portal system, where the portal methods create the entire strucuture
-        /// </summary>
-        private bool includeForm { get; set; } = false;
+        ////
+        //// ----------------------------------------------------------------------------------------------------
+        ///// <summary>
+        ///// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
+        ///// consider a pattern that blocks the include form if this layout is called form the portal system, where the portal methods create the entire strucuture
+        ///// </summary>
+        //private bool includeForm { get; set; } = false;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -960,7 +950,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             set {
                 localFormId_Local = value;
-                includeForm = !string.IsNullOrEmpty(value);
+                layoutBuilderBase.includeForm = !string.IsNullOrEmpty(value);
             }
         }
         private string localFormId_Local = "";
@@ -1082,8 +1072,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="Value"></param>
         /// <param name="htmlId"></param>
         public override void addFormHidden(string Name, string Value, string htmlId) {
-            hiddenList += "<input type=\"hidden\" name=\"" + Name + "\" value=\"" + Value + "\" id=\"" + htmlId + "\">";
-            includeForm = true;
+            layoutBuilderBase.addFormHidden(Name, Value, htmlId);
         }
         private string hiddenList = "";
         //
@@ -1235,8 +1224,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonId"></param>
         /// <param name="buttonClass"></param>
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
-            buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
-            includeForm = true;
+            layoutBuilderBase.addFormButton(buttonValue,buttonName, buttonId, buttonClass);
         }
         private string buttonList = "";
         //
@@ -1250,7 +1238,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             set {
                 formActionQueryString_local = value;
-                includeForm |= !string.IsNullOrEmpty(value);
+                layoutBuilderBase.includeForm = true;
             }
         }
         private string formActionQueryString_local;
@@ -1300,7 +1288,6 @@ namespace Contensive.Processor.LayoutBuilder {
         public int paginationPageNumber { get; set; }
         public string searchTerm { get; set; }
         public string grid { get; set; }
-        public string baseAjaxUrl { set; get; }
         public bool allowSearch { set; get; }
         public bool allowPagination { set; get; }
 
