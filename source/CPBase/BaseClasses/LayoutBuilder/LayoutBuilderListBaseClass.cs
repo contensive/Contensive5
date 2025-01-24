@@ -5,13 +5,23 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// A tabular list of data rows with filters on the left.
     /// </summary>
-    public abstract class LayoutBuilderListBaseClass() {
+    public abstract class LayoutBuilderListBaseClass(CPBaseClass cp) {
+        private CPBaseClass cp { get; set; } = cp;
         //
+        /// <summary>
+        /// This property is setup by the constructor to the base url
+        /// (Previously this was the refreshQueryString.)
+        /// Set the url to the url of the current view. This is used to refresh the view when a user clicks on a link, like a column header to sort the data.
+        /// This url is saved as a hidden in submitted forms and should be read and used to create links that refresh the view.
+        /// The area where the hiddens are saved is not repainted duting ajax refreshes, so this value is set one time when the page is first drawn.
+        /// When a user clicks on a feature on the view, like pagination, the view is redrawn with an ajax call. That call has a different baseUrlf so links created during that call need the baseUrl of the view.
+        /// </summary>
+        public abstract string baseUrl { get; set; }
         /// <summary>
         /// A remote method that returns the current view. If present, layoutbuilder will call this remote
         /// to refresh the view, passing search terms and orderby clauses.
         /// </summary>
-        public abstract string ajaxSubmitUrl  { get; set; }
+        public abstract string baseAjaxUrl  { get; set; }
         //
         /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.
@@ -96,19 +106,19 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// use this area for optional filters
         /// </summary>
-        public abstract string htmlLeftOfTable { get; set; }
+        public abstract string htmlLeftOfBody { get; set; }
         //
         //-------------------------------------------------
         /// <summary>
-        /// optional html before the table
+        /// optional html before the Body
         /// </summary>
-        public abstract string htmlBeforeTable { get; set; }
+        public abstract string htmlBeforeBody { get; set; }
         //
         //-------------------------------------------------
         /// <summary>
-        /// optional html after the table
+        /// optional html after the Body
         /// </summary>
-        public abstract string htmlAfterTable { get; set; }
+        public abstract string htmlAfterBody { get; set; }
         //
         //-------------------------------------------------
         /// <summary>

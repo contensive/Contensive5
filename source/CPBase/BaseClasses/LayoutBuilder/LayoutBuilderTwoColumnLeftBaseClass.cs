@@ -2,6 +2,7 @@ using System;
 
 namespace Contensive.BaseClasses.LayoutBuilder {
     public abstract class LayoutBuilderTwoColumnLeftBaseClass : LayoutBuilderBaseClass {
+        protected LayoutBuilderTwoColumnLeftBaseClass(CPBaseClass cp) : base(cp) {        }
         //
         //====================================================================================================
         //

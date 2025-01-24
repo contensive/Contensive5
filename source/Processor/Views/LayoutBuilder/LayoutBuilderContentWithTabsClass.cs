@@ -4,6 +4,16 @@ using Contensive.BaseClasses.LayoutBuilder;
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderContentWithTabsClass : LayoutBuilderContentWithTabsBaseClass {
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// used for pagination and export. Setter included to support older legacy code that used cp parameter in getHtml(cp).
+        /// </summary>
+        private CPClass cp { get; set; }
+        //
+        public LayoutBuilderContentWithTabsClass(CPBaseClass cp) : base(cp) {
+            this.cp = (CPClass)cp;
+        }
+        //
         const int tabSize = 99;
         struct navStruct {
             public string caption;

@@ -17,15 +17,15 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override LayoutBuilderBaseClass CreateLayoutBuilder() {
-            return new LayoutBuilder.LayoutBuilderClass();
+            return new LayoutBuilder.LayoutBuilderClass(core.cpParent);
         }
 
         public override LayoutBuilderTwoColumnLeftBaseClass CreateLayoutBuilderTwoColumnLeft() {
-            return new LayoutBuilder.LayoutBuilderTwoColumnLeft();
+            return new LayoutBuilder.LayoutBuilderTwoColumnLeft(core.cpParent);
         }
 
         public override LayoutBuilderTwoColumnRightBaseClass CreateLayoutBuilderTwoColumnRight() {
-            return new LayoutBuilder.LayoutBuilderTwoColumnRight();
+            return new LayoutBuilder.LayoutBuilderTwoColumnRight(core.cpParent);
         }
 
         public override LayoutBuilderListBaseClass CreateLayoutBuilderList() {

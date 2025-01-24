@@ -20,13 +20,16 @@
 }
 </style>
 <div class="container-fluid">
-	<div class="row justify-content-center">
-		<div class="js-afwListReportSearchCon col-md-6 my-auto">
-			<div class="search-container">
-				<input type="text" name="searchTerm" value="{{searchTerm}}" id="searchControl" class="form-control search-input" placeholder="Search...">
-				<i class="fas fa-search search-icon"></i>
-			</div>       
-		</div>
+	<div class="row">
+		{{#allowSearch}}
+			<div class="js-afwListReportSearchCon col-md-6 my-auto">
+				<div class="search-container">
+					<input type="text" name="searchTerm" value="{{searchTerm}}" id="searchControl" class="form-control search-input" placeholder="Search...">
+					<i class="fas fa-search search-icon"></i>
+				</div>       
+			</div>
+		{{/allowSearch}}
+		{{#allowPagination}}
 		<div class="js-afwListReportPaginationCon col-md-6 my-auto">
 			<div class="text-end ccJumpCon"> 
 				<ul>
@@ -38,6 +41,7 @@
 			<input type="hidden" name="paginationPageNumber" id="paginationPageNumber" value="{{paginationPageNumber}}">
 			<input type="hidden" name="setPaginationPageNumber" id="setPaginationPageNumber" value="0">
 		</div>   
+		{{/allowPagination}}
 	</div>
 </div>
 <div class="js-afwListReportGridCon">{{{grid}}}</div>
@@ -51,20 +55,22 @@
 		// -- click pagination link
 		$('#afw').on('click','.paginationLink',function(p){
 			// -- pageination click, convert to ajax submit
-            document.getElementsByName('setPaginationPageNumber')[0].value=Number($(this).html());
+			let pageNumber = document.getElementsByName('setPaginationPageNumber');
+			if(pageNumber.length>0) {pageNumber[0].value=Number($(this).html());}
 			console.log("AdminUILayoutBuilderList, paginationLink click");
 			submitAfwAjaxListForm();  
 		});
 		// -- search 
 		var myTimer = 0;
 		$('#afw').on('keyup','#searchControl', function() {
-			// -- delay the search until the user stops typing
+			// -- search term key, delay search until the user stops typing
 			if (myTimer) {
 				clearTimeout(myTimer);
 			}
 			myTimer = setTimeout(function() {
 				// -- reset the pagination on search
-				document.getElementsByName('setPaginationPageNumber')[0].value='1';
+				let pageNumber = document.getElementsByName('setPaginationPageNumber');
+				if(pageNumber.length>0) {pageNumber[0].value='1';}
 				submitAfwAjaxListForm(); 
 			}, 1000);
 		});

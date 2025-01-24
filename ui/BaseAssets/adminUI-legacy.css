@@ -53,7 +53,7 @@ html,body{
 .ccCon .ccHeaderCon {
     width: 100%;
     color: #eee;
-    background-color: #343a40;	border-top: 1px solid #282828;	border-left: 1px solid #282828;
+    background-color: #343a40;	border-top: 1px solid #444;	border-left: 1px solid #444;
     /*background-color: #233;*/
     clear: both;
     vertical-align: middle;
@@ -80,7 +80,7 @@ html,body{
 
 .ccCon .ccHeaderCon .cchSingle {
     color: #eee;
-    background-color: #343a40;	border-top: 1px solid #282828;	border-left: 1px solid #282828;
+    background-color: #343a40;	border-top: 1px solid #444;	border-left: 1px solid #444;
     /*background-color: #233;*/
     text-align: left;
     padding: 10px;
@@ -89,7 +89,7 @@ html,body{
 
 .ccCon .ccHeaderCon .cchClosed {
     color: #eee;
-    background-color: #343a40;	border-top: 1px solid #282828;	border-left: 1px solid #282828;
+    background-color: #343a40;	border-top: 1px solid #444;	border-left: 1px solid #444;
     /*background-color: #233;*/
     text-align: right;
     padding: 10px
@@ -142,13 +142,13 @@ html,body{
 
 .ccCon .ccToolsCon .ccHeaderCon {
     color: #eee;
-	background-color: #343a40;	border-top: 1px solid #282828;	border-left: 1px solid #282828;
+	background-color: #343a40;	border-top: 1px solid #444;	border-left: 1px solid #444;
     /* background-color: #233; */
 }
 
 .ccCon .ccToolsCon .ccHeaderCon .closed {
     color: #eee;
-    background-color: #343a40;	border-top: 1px solid #282828;	border-left: 1px solid #282828;
+    background-color: #343a40;	border-top: 1px solid #444;	border-left: 1px solid #444;
     /*background-color: #233;*/
     text-align: left;
     padding: 10px;

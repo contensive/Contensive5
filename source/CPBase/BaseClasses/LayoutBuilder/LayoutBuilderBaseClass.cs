@@ -1,7 +1,30 @@
 using System;
 
 namespace Contensive.BaseClasses.LayoutBuilder {
-    public abstract class LayoutBuilderBaseClass {
+    /// <summary>
+    /// LayoutBuilders create the html for common Admin UI cases.
+    /// They must be implemented 2 ways, first called by the page during the initial page load, and second called by the ajax refresh methods.
+    /// Both methods return the exact same html, but the javascript that calls the ajax methods selectively replaces the important content.
+    /// Set the constructor arguments baseUrl and baseAjaxUrl to manage these calls.
+    /// baseUrl is the url of the initial page load and is used as the base url for links included on the page.
+    /// It is set during the constructor, and should be read from the proproperty when used because when for example, the initial page might be /admin?srcViewId=10.
+    /// baseAjaxUrl is the url to an ajax method that just returns the html for this form.
+    /// </summary>
+    public abstract class LayoutBuilderBaseClass(CPBaseClass cp) {
+        private CPBaseClass cp { get; set; } = cp;
+        //
+        //-------------------------------------------------
+        /// <summary>
+        /// 
+        /// </summary>
+        public abstract string baseUrl { get; set; }
+        //
+        //-------------------------------------------------
+        /// <summary>
+        /// LayoutBuilder layouts require html page redraw with an ajax method. 
+        /// Set this to the url of the ajax method that returns the html for the form.
+        /// </summary>
+        public abstract string baseAjaxUrl { get; set; }
         //
         //-------------------------------------------------
         /// <summary>
@@ -236,23 +259,23 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //-------------------------------------------------
         //
         /// <summary>
-        /// An html block added to the left of the table. Typically used for filters.
+        /// An html block added to the left of the Body. Typically used for filters.
         /// </summary>
-        public abstract string htmlLeftOfTable { get; set; }
+        public abstract string htmlLeftOfBody { get; set; }
         //
         //-------------------------------------------------
         //
         /// <summary>
-        /// An html block added above the table. Typically used for filters.
+        /// An html block added above the Body. Typically used for filters.
         /// </summary>
-        public abstract string htmlBeforeTable { get; set; }
+        public abstract string htmlBeforeBody { get; set; }
         //
         //-------------------------------------------------
         //
         /// <summary>
-        /// An html block added below the table. Typically used for filters.
+        /// An html block added below the Body. Typically used for filters.
         /// </summary>
-        public abstract string htmlAfterTable { get; set; }
+        public abstract string htmlAfterBody { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -269,9 +292,9 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         //-------------------------------------------------
         /// <summary>
-        /// deprecated. Use htmlAfterTable instead
+        /// deprecated. Use htmlAfterBody instead
         /// </summary>
-        [Obsolete("deprecated. Use htmlAfterTable instead", false)]
+        [Obsolete("deprecated. Use htmlAfterBody instead", false)]
         public abstract string footer { get; set; }
         //
         //-------------------------------------------------

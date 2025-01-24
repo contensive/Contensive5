@@ -5,6 +5,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// layout split right and left, right larger
     /// </summary>
     public abstract class LayoutBuilderTwoColumnRightBaseClass : LayoutBuilderBaseClass {
+        protected LayoutBuilderTwoColumnRightBaseClass(CPBaseClass cp) : base(cp) { }
         //
         //====================================================================================================
         /// <summary>

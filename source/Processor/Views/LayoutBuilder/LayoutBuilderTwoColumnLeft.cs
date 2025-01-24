@@ -4,8 +4,29 @@ using Contensive.Processor.Controllers;
 using System;
 
 namespace Contensive.Processor.LayoutBuilder {
-    public class LayoutBuilderTwoColumnLeft : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass
-    {
+    public class LayoutBuilderTwoColumnLeft : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass {
+        //
+        public LayoutBuilderTwoColumnLeft(CPBaseClass cp) : base(cp) {
+            //
+            // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
+            baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
+            if (string.IsNullOrEmpty(baseUrl)) {
+                baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
+            }
+            addFormHidden("layoutBuilderBaseUrl", baseUrl);
+        }
+        //
+        //-------------------------------------------------
+        /// <summary>
+        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
+        /// </summary>
+        public override string baseUrl { get; set; }
+        //
+        //-------------------------------------------------
+        /// <summary>
+        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
+        /// </summary>
+        public override string baseAjaxUrl { get; set; }
         //
         //====================================================================================================
         //
@@ -120,7 +141,7 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- render layout
             string layout = cp.Layout.GetLayout(Constants.layoutAdminUITwoColumnLeftGuid, Constants.layoutAdminUITwoColumnLeftName, Constants.layoutAdminUITwoColumnLeftCdnPathFilename);
             //
-            LayoutBuilderBaseHtmlRequest request = new() {
+            LayoutBuilderClass layoutBase = new(cp) {
                 body = cp.Mustache.Render(layout, this),
                 includeBodyPadding = includeBodyPadding,
                 includeBodyColor = includeBodyColor,
@@ -137,12 +158,12 @@ namespace Contensive.Processor.LayoutBuilder {
                 failMessage = failMessage,
                 infoMessage = infoMessage,
                 successMessage = successMessage,
-                htmlAfterBody = htmlAfterTable,
-                htmlBeforeBody = htmlBeforeTable,
-                htmlLeftOfBody = htmlLeftOfTable,
+                htmlAfterBody = htmlAfterBody,
+                htmlBeforeBody = htmlBeforeBody,
+                htmlLeftOfBody = htmlLeftOfBody,
                 blockFormTag = blockFormTag
             };
-            string result = LayoutBuilderController.getBaseHtml(cp, request);
+            string result = layoutBase.getHtml(cp);
             //
             // -- set the optional title of the portal subnav
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
@@ -330,21 +351,21 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// An html block added to the left of the table. Typically used for filters.
         /// </summary>
-        public override string htmlLeftOfTable { get; set; } = "";
+        public override string htmlLeftOfBody { get; set; } = "";
         //
         //-------------------------------------------------
         //
         /// <summary>
         /// An html block added above the table. Typically used for filters.
         /// </summary>
-        public override string htmlBeforeTable { get; set; } = "";
+        public override string htmlBeforeBody { get; set; } = "";
         //
         //-------------------------------------------------
         //
         /// <summary>
         /// An html block added below the table. Typically used for filters.
         /// </summary>
-        public override string htmlAfterTable { get; set; } = "";
+        public override string htmlAfterBody { get; set; } = "";
         //
         //====================================================================================================
         /// <summary>
@@ -382,10 +403,10 @@ namespace Contensive.Processor.LayoutBuilder {
         [Obsolete("deprecated. Use htmlAfterTable instead", false)]
         public override string footer {
             get {
-                return htmlAfterTable;
+                return htmlAfterBody;
             }
             set {
-                htmlAfterTable = value;
+                htmlAfterBody = value;
             }
         }
         //

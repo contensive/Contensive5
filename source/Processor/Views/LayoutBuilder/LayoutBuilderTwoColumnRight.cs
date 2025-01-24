@@ -4,18 +4,37 @@ using Contensive.Processor.Controllers;
 using System;
 
 namespace Contensive.Processor.LayoutBuilder {
-    public class LayoutBuilderTwoColumnRight : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnRightBaseClass
-    {
+    public class LayoutBuilderTwoColumnRight : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnRightBaseClass {
         //
-        //====================================================================================================
+        public LayoutBuilderTwoColumnRight(CPBaseClass cp) : base(cp) {
+            //
+            // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
+            baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
+            if (string.IsNullOrEmpty(baseUrl)) {
+                baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
+            }
+            addFormHidden("layoutBuilderBaseUrl", baseUrl);
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
+        /// </summary>
+        public override string baseUrl { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override string baseAjaxUrl { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
         //
         public override string contentRight { get; set; } = "";
         //
-        //====================================================================================================
+        // ----------------------------------------------------------------------------------------------------
         //
         public override string contentLeft { get; set; } = "";
         //
-        //====================================================================================================
+        // ----------------------------------------------------------------------------------------------------
         //
         [Obsolete("deprecated, Use title", false)]
         public override string headline {
@@ -120,7 +139,7 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- render layout
             string layout = cp.Layout.GetLayout(Constants.layoutAdminUITwoColumnRightGuid, Constants.layoutAdminUITwoColumnRightName, Constants.layoutAdminUITwoColumnRightCdnPathFilename);
             //
-            LayoutBuilderBaseHtmlRequest request = new() {
+            LayoutBuilderClass layoutBase = new(cp) {
                 body = cp.Mustache.Render(layout, this),
                 includeBodyPadding = includeBodyPadding,
                 includeBodyColor = includeBodyColor,
@@ -137,12 +156,12 @@ namespace Contensive.Processor.LayoutBuilder {
                 failMessage = failMessage,
                 infoMessage = infoMessage,
                 successMessage = successMessage,
-                htmlAfterBody = htmlAfterTable,
-                htmlBeforeBody = htmlBeforeTable,
-                htmlLeftOfBody = htmlLeftOfTable,
+                htmlAfterBody = htmlAfterBody,
+                htmlBeforeBody = htmlBeforeBody,
+                htmlLeftOfBody = htmlLeftOfBody,
                 blockFormTag = blockFormTag
             };
-            string result = LayoutBuilderController.getBaseHtml(cp, request);
+            string result = layoutBase.getHtml(cp);
             //
             // -- set the optional title of the portal subnav
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
@@ -330,23 +349,23 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// An html block added to the left of the table. Typically used for filters.
         /// </summary>
-        public override string htmlLeftOfTable { get; set; } = "";
+        public override string htmlLeftOfBody { get; set; } = "";
         //
         //-------------------------------------------------
         //
         /// <summary>
         /// An html block added above the table. Typically used for filters.
         /// </summary>
-        public override string htmlBeforeTable { get; set; } = "";
+        public override string htmlBeforeBody { get; set; } = "";
         //
         //-------------------------------------------------
         //
         /// <summary>
         /// An html block added below the table. Typically used for filters.
         /// </summary>
-        public override string htmlAfterTable { get; set; } = "";
+        public override string htmlAfterBody { get; set; } = "";
         //
-        //====================================================================================================
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
@@ -382,10 +401,10 @@ namespace Contensive.Processor.LayoutBuilder {
         [Obsolete("deprecated. Use htmlAfterTable instead", false)]
         public override string footer {
             get {
-                return htmlAfterTable;
+                return htmlAfterBody;
             }
             set {
-                htmlAfterTable = value;
+                htmlAfterBody = value;
             }
         }
         //

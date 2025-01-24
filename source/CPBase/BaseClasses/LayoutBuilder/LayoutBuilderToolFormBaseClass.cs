@@ -8,6 +8,8 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// </summary>
     public abstract class LayoutBuilderToolFormBaseClass : LayoutBuilderBaseClass {
         //
+        public LayoutBuilderToolFormBaseClass(CPBaseClass cp) : base(cp) { }
+        //
         //-------------------------------------------------
         /// <summary>
         /// Add padding around the body

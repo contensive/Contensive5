@@ -1,7 +1,8 @@
 using Contensive.BaseClasses;
 
 namespace Contensive.BaseClasses.LayoutBuilder {
-    public abstract class LayoutBuilderContentWithTabsBaseClass {
+    public abstract class LayoutBuilderContentWithTabsBaseClass(CPBaseClass cp) {
+        private CPBaseClass cp { get; set; } = cp;
         //
         // ====================================================================================================
         /// <summary>

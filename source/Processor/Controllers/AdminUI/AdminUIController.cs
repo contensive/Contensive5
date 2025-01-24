@@ -220,6 +220,8 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
+        /// create the pagination elements of renderData, plus returns the pagination html for the admin list page
+        /// 
         /// get the pagination list of clickable page numbers
         /// [1] [... then 20 page numbers with the current in the middle, then ...] [last]
         /// when pagination button is clicked, the nearest form is submitted, including a hidden field paginationPageNumber with the page number
@@ -255,31 +257,31 @@ namespace Contensive.Processor.Controllers {
                         navStart = 1;
                     }
                 }
-                renderData.links = [];
-                var listItems = new StringBuilder();
                 //
                 // -- description to the left of pagination
-                string recordDetails = "";
+                string renderData_content = "";
                 switch (recordCnt) {
                     case 0: {
-                            recordDetails = "no records, page";
+                            renderData_content = "no records, page";
                             break;
                         }
                     case 1: {
-                            recordDetails = "1 record, page";
+                            renderData_content = "1 record, page";
                             break;
                         }
                     default: {
-                            recordDetails = recordCnt + " records, page";
+                            renderData_content = recordCnt + " records, page";
                             break;
                         }
                 }
+                renderData.links = [];
                 renderData.links.Add( new RenderData_Link { 
                         css = "caption", 
-                        content = recordDetails
+                        content = renderData_content
                 });
                 //
                 // -- add link to first page
+                var listItemHtml = new StringBuilder();
                 if (navStart > 1) {
                     //
                     // -- add [1] if navStart is > 2
@@ -287,14 +289,14 @@ namespace Contensive.Processor.Controllers {
                         css = "paginationLink",
                         content = "1"
                     });
-                    listItems.Append(cr3 + "<li class=\"paginationLink\">1</li>");
+                    listItemHtml.Append(cr3 + "<li class=\"paginationLink\">1</li>");
                 }
                 if (navStart > 2) {
                     renderData.links.Add(new RenderData_Link {
                         css = "delim",
                         content = "&#171;"
                     });
-                    listItems.Append(cr3 + "<li class=\"delim\">&#171;</li>");
+                    listItemHtml.Append(cr3 + "<li class=\"delim\">&#171;</li>");
                 }
                 //
                 // -- add the page numbers
@@ -304,14 +306,14 @@ namespace Contensive.Processor.Controllers {
                              css = "paginationLink hit", 
                              content = pagePtr.ToString()
                         });
-                        listItems.Append(cr3 + "<li class=\"paginationLink hit\">" + pagePtr + "</li>");
+                        listItemHtml.Append(cr3 + "<li class=\"paginationLink hit\">" + pagePtr + "</li>");
                         continue;
                     }
                     renderData.links.Add(new RenderData_Link {
                         css = "paginationLink",
                         content = pagePtr.ToString()
                     });
-                    listItems.Append(cr3 + "<li class=\"paginationLink\">" + pagePtr + "</li>");
+                    listItemHtml.Append(cr3 + "<li class=\"paginationLink\">" + pagePtr + "</li>");
                 }
                 //
                 // -- add link to last page
@@ -326,7 +328,7 @@ namespace Contensive.Processor.Controllers {
                         css = "paginationLink",
                         content = pageCount.ToString()
                     });
-                    listItems.Append(cr3 + "<li class=\"delim\">&#187;</li><li class=\"paginationLink\">" + pageCount + "</li>");
+                    listItemHtml.Append(cr3 + "<li class=\"delim\">&#187;</li><li class=\"paginationLink\">" + pageCount + "</li>");
                 }
                 // -- hidden paginationPageNumber (1-based) is the current page number 
                 // -- hidden setPaginationPageNumber (1-based) is the page number to submit when a paginationLink is clicked
@@ -334,8 +336,8 @@ namespace Contensive.Processor.Controllers {
                     + ""
                     + "<div class=\"text-end ccJumpCon\">"
                     + " <ul>"
-                    + "     <li class=\"caption\">" + recordDetails + ", page</li>"
-                    +       listItems
+                    + "     <li class=\"caption\">" + renderData_content + ", page</li>"
+                    +       listItemHtml
                     + " </ul>"
                     + "</div>"
                     + $"<input type=hidden name=paginationPageNumber id=paginationPageNumber value=\"{pageNumber}\">"

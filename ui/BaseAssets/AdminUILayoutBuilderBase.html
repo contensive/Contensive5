@@ -4,43 +4,42 @@
 			{{#buttonList}}<div class="border bg-white p-2">{{{buttonList}}}</div>{{/buttonList}}		
 			<div class="{{#includeBodyPadding}} m-4 {{/includeBodyPadding}}">
 				{{#title}}<h2>{{{title}}}</h2>{{/title}}
-				{{#successMessage}}<div class="p-3 mb-2 bg-success text-white">{{{successMessage}}}</div>{{/successMessage}}
-				{{#infoMessage}}<div class="p-3 mb-2 bg-info text-white">{{{infoMessage}}}</div>{{/infoMessage}}
-				{{#warningMessage}}<div class="p-3 mb-2 bg-warning text-dark">{{{warningMessage}}}</div>{{/warningMessage}}
-				{{#failMessage}}<div class="p-3 mb-2 bg-danger text-white">{{{failMessage}}}</div>{{/failMessage}}
-				{{#description}}<p class="">{{{description}}}</p>{{/description}}
-				{{#csvDownloadFilename}}<p id="afwDescription"><a href="{{{csvDownloadFilename}}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
-				{{#htmlBeforeBody}}<div class=\"afwBeforeHtml\">{{{htmlBeforeBody}}}</div>{{/htmlBeforeBody}}
+				{{#successMessage}}<div class="p-3 mb-2 bg-success text-white my-2">{{{successMessage}}}</div>{{/successMessage}}
+				{{#infoMessage}}<div class="p-3 mb-2 bg-info text-white my-2">{{{infoMessage}}}</div>{{/infoMessage}}
+				{{#warningMessage}}<div class="p-3 mb-2 bg-warning text-dark my-2">{{{warningMessage}}}</div>{{/warningMessage}}
+				{{#failMessage}}<div class="p-3 mb-2 bg-danger text-white my-2">{{{failMessage}}}</div>{{/failMessage}}
+				{{#description}}<p class="my-2">{{{description}}}</p>{{/description}}
+				{{#csvDownloadFilename}}<p id="afwDescription my-2"><a href="{{{csvDownloadFilename}}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
+				{{#htmlBeforeBody}}<div class="afwBeforeHtml my-2">{{{htmlBeforeBody}}}</div>{{/htmlBeforeBody}}
 				{{#htmlLeftOfBody}}
-					<div class="afwLeftSideHtml">{{{htmlLeftOfBody}}}</div>
-					<div class="afwRightSideHtml">{{{body}}}</div>
+					<div class="afwLeftSideHtml my-2">{{{htmlLeftOfBody}}}</div>
+					<div class="afwRightSideHtml my-2">{{{body}}}</div>
 					<div style="clear:both"></div>
 				{{/htmlLeftOfBody}}
 				{{^htmlLeftOfBody}}
-					<div>
+					<div class="my-2">
 						{{{body}}}
 					</div>
 				{{/htmlLeftOfBody}}
 				{{#htmlAfterBody}}<div class=\"afwBeforeHtml\">{{{htmlAfterBody}}}</div>{{/htmlAfterBody}}
 			</div>
 			{{#buttonList}}<div class="border bg-white p-2">{{{buttonList}}}</div>{{/buttonList}}
-			{{{hiddenList}}}
 		</div>
 	</div>
 </div>
 <script>
 	// -- This html snippet is wrapped with a form tag
-	// -- this method submits an ajax call to the client-programs method (hidden in ajaxSubmitUrl)
+	// -- this method submits an ajax call to the client-programs method (hidden in baseAjaxUrl)
 	// -- and stores the resulting html in the elementId argument
 	// -- then calls the complete
 	function submitAfwAjaxForm( destinationElementId, onSuccessMethod ) {
 		console.log(`LayoutBuilder Base, submitAfwAjaxForm`);
 		$('#js-afwFormContent').block();
-		let ajaxSubmitUrl = $('[name="ajaxSubmitUrl"]').val();
-		ajaxSubmitUrl += '&'+$( "#js-afwFormContent" ).closest("form").serialize();
-		console.log(`LayoutBuilder Base, call ajax, ajaxSubmitUrl: ${ajaxSubmitUrl}`);
+		let baseAjaxUrl = $('[name="baseAjaxUrl"]').val();
+		baseAjaxUrl += '&'+$( "#js-afwFormContent" ).closest("form").serialize();
+		console.log(`LayoutBuilder Base, call ajax, baseAjaxUrl: ${baseAjaxUrl}`);
 		$.ajax({
-			url: ajaxSubmitUrl, 
+			url: baseAjaxUrl, 
 			success: function(result){
 				console.log(`LayoutBuilder Base, ajax success`);
 				$("#"+destinationElementId).html(result);
