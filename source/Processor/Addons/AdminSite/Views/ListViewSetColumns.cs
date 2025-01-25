@@ -55,9 +55,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string Description = "Use the icons to add, remove and modify your personal column prefernces for this content (" + adminContent.name + "). Hit OK when complete. Hit Reset to restore your column preferences for this content to the site's default column preferences.";
                 Stream.add(AdminUIController.getHeaderTitleDescription(Title, Description));
                 //
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 // Process actions
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 //
                 if (adminContent.id != 0) {
                     var CDef = ContentMetadataModel.create(core, adminContent.id);
@@ -242,9 +242,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                         }
                     }
                     //
-                    //--------------------------------------------------------------------------------
+                    // -----------------------------------------------------------------------------------------------------------------------------------
                     //   Display the form
-                    //--------------------------------------------------------------------------------
+                    // -----------------------------------------------------------------------------------------------------------------------------------
                     //
                     Stream.add("<table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"99%\"><tr>");
                     Stream.add("<td width=\"5%\">&nbsp;</td>");
@@ -447,9 +447,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                 }
                 //
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 // print the content tables that have index forms to Configure
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 //
                 core.siteProperties.setProperty("AllowContentAutoLoad", GenericController.encodeText(AllowContentAutoLoad));
                 string Content = ""

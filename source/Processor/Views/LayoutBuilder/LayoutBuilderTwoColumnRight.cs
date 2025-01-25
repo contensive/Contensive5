@@ -46,31 +46,31 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
         /// </summary>
         public override bool blockFormTag { get; set; }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, the container between the button rows will include default padding
         /// </summary>
         public override bool includeBodyPadding { get; set; } = true;
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, the container between the button rows will include the default background color. Else it is transparent.
         /// </summary>
         public override bool includeBodyColor { get; set; } = true;
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, this layoutBuilder will not be contained in other layoutBuilder content. This is used by the default getHtml() to include an outer div with the htmlId "afw", and the styles and javascript
         /// </summary>
         public override bool isOuterContainer { get; set; } = false;
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The headline at the top of the form
         /// </summary>
@@ -96,37 +96,37 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override string successMessage { get; set; } = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// simple description text. Will be wrapped in an html paragraph tag.
         /// </summary>
         public override string description { get; set; } = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
         public override string styleSheet => Properties.Resources.layoutBuilderStyles;
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
         public override string javascript => Properties.Resources.layoutBuilderJavaScript;
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
         public override string portalSubNavTitle { get; set; }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
         public override string csvDownloadFilename { get; set; }
         // 
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default body. Typically you would create a layout by adding content to the individual elements and calling this method. Oveerride this method and consider using AdminUIHtmlController.getReportDoc()
         /// </summary>
@@ -168,7 +168,7 @@ namespace Contensive.Processor.LayoutBuilder {
             return result;
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
@@ -283,7 +283,7 @@ namespace Contensive.Processor.LayoutBuilder {
             buttonList += LayoutBuilderController.a(buttonCaption, link, htmlId, htmlClass);
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// add a form button to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
@@ -323,7 +323,7 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string buttonList = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
@@ -338,27 +338,27 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string formActionQueryString_local;
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The body of the layout.
         /// </summary>
         public override string body { get; set; } = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         /// <summary>
         /// An html block added to the left of the table. Typically used for filters.
         /// </summary>
         public override string htmlLeftOfBody { get; set; } = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         /// <summary>
         /// An html block added above the table. Typically used for filters.
         /// </summary>
         public override string htmlBeforeBody { get; set; } = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         /// <summary>
         /// An html block added below the table. Typically used for filters.
@@ -380,7 +380,7 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string refreshQueryString_Local = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
@@ -394,7 +394,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Use htmlAfterTable instead
         /// </summary>
@@ -408,7 +408,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>

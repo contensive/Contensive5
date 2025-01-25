@@ -6,7 +6,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         public LayoutBuilderNameValueBaseClass(CPBaseClass cp) : base(cp) { }
 
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Use htmlAfterTable instead
         /// </summary>

@@ -31,13 +31,13 @@ namespace Contensive.Processor.LayoutBuilder {
             addFormHidden("layoutBuilderBaseUrl", baseUrl);
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
         /// </summary>
         public override string baseUrl { get; }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
         /// </summary>
@@ -103,7 +103,7 @@ namespace Contensive.Processor.LayoutBuilder {
         private readonly RowStruct[] rows = new RowStruct[rowSize];
         //
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
         /// consider a pattern that blocks the include form if this layout is called form the portal system, where the portal methods create the entire strucuture
@@ -253,9 +253,9 @@ namespace Contensive.Processor.LayoutBuilder {
             return layoutBase.getHtml(cp);
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         // add a form hidden
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Add hidden field. Also creates a form element wrapping the layout.
         /// </summary>
@@ -291,9 +291,9 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="value"></param>
         public override void addFormHidden(string name, bool value) => addFormHidden(name, value.ToString());
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         // add a form button
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Adds a button to the button panel. Also creates a form element wrapping the layout.
         /// </summary>
@@ -331,9 +331,9 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string buttonList = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         // setForm
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         /// <summary>
         /// Sets the action attribute to the layout's form.
@@ -350,15 +350,15 @@ namespace Contensive.Processor.LayoutBuilder {
         private string formAction_Local = "";
         //
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         // body
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         public override string body { get; set; }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         // add a row
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         public override void addRow() {
             if (rowCnt < rowSize) {
@@ -370,9 +370,9 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         public override string rowHtmlId {
             get {
@@ -385,9 +385,9 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         public override string rowName {
             get {
@@ -400,9 +400,9 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         public override string rowValue {
             get {
@@ -415,7 +415,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         public override string rowHelp {
             get {
@@ -428,9 +428,9 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         //
         private void checkRowCnt() {
             if (rowCnt < 0) {
@@ -497,7 +497,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string csvDownloadFilename { get; set; }
         private string formId_local = "";
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
         /// </summary>
@@ -522,7 +522,7 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         public override string successMessage { get; set; }
         //
-        //-------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>

@@ -227,9 +227,9 @@ namespace Contensive.Processor.Controllers {
                         if (loadOK) {
                             if ((Doc.DocumentElement.Name.ToLowerInvariant() == GenericController.toLCase(CollectionFileRootNode)) || (Doc.DocumentElement.Name.ToLowerInvariant() == GenericController.toLCase(CollectionFileRootNodeOld))) {
                                 //
-                                //------------------------------------------------------------------------------------------------------
+                                // ---------------------------------------------------------------------------------------------------------------------------------------------------------
                                 // Collection File - import from sub so it can be re-entrant
-                                //------------------------------------------------------------------------------------------------------
+                                // ---------------------------------------------------------------------------------------------------------------------------------------------------------
                                 //
                                 string CollectionName = XmlController.getXMLAttribute(core, Doc.DocumentElement, "name", "");
                                 if (string.IsNullOrEmpty(CollectionName)) {
@@ -288,13 +288,13 @@ namespace Contensive.Processor.Controllers {
                                     return true;
                                 }
                                 //
-                                //-------------------------------------------------------------------------------
+                                // ----------------------------------------------------------------------------------------------------------------------------------
                                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-1, save resourses and process collection dependencies");
                                 // Go through all collection nodes
                                 // Process ImportCollection Nodes - so includeaddon nodes will work
                                 // these must be processes regardless of the state of this collection in this app
                                 // Get Resource file list
-                                //-------------------------------------------------------------------------------
+                                // ----------------------------------------------------------------------------------------------------------------------------------
                                 //
                                 string wwwFileList = "";
                                 string ContentFileList = "";
@@ -429,9 +429,9 @@ namespace Contensive.Processor.Controllers {
                                     ExecFileList = ExecFileList + Environment.NewLine + filename;
                                 }
                                 //
-                                //-------------------------------------------------------------------------------
+                                // ----------------------------------------------------------------------------------------------------------------------------------
                                 logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-2, determine if this collection is already installed");
-                                //-------------------------------------------------------------------------------
+                                // ----------------------------------------------------------------------------------------------------------------------------------
                                 //
                                 bool OKToInstall = false;
                                 if (collection != null) {
@@ -469,9 +469,9 @@ namespace Contensive.Processor.Controllers {
                                     //
                                 } else {
                                     //
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-3, prepare to import full collection");
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
                                     {
                                         string CollectionHelpLink = "";
@@ -511,9 +511,9 @@ namespace Contensive.Processor.Controllers {
                                         collection.save(core.cpParent);
                                     }
                                     //
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-4, isolate and process schema-relatednodes (metadata,index,etc)");
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
                                     bool isBaseCollection = (baseCollectionGuid.ToLowerInvariant() == collectionGuid.ToLowerInvariant());
                                     if (!skipCdefInstall && (!isBaseCollection || includeBaseMetaDataInstall)) {
@@ -602,9 +602,9 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                     //
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-5, create data records from data nodes, ignore fields");
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
                                     {
                                         if (!skipCdefInstall) {
@@ -667,9 +667,9 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                     //
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-6, install addon nodes, set importcollection relationships");
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
                                     foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
                                         switch (GenericController.toLCase(metaDataSection.Name)) {
@@ -762,9 +762,9 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                     //
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-7, set addon dependency relationships");
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
                                     foreach (XmlNode collectionNode in Doc.DocumentElement.ChildNodes) {
                                         switch (collectionNode.Name.ToLowerInvariant()) {
@@ -793,9 +793,9 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                     //
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     logger.Info($"{core.logCommonMessage}, installCollectionFromAddonCollectionFolder [" + CollectionName + "], stage-8, process data nodes, set record fields");
-                                    //-------------------------------------------------------------------------------
+                                    // ----------------------------------------------------------------------------------------------------------------------------------
                                     //
                                     if (!skipCdefInstall) {
                                         foreach (XmlNode metaDataSection in Doc.DocumentElement.ChildNodes) {
@@ -805,9 +805,9 @@ namespace Contensive.Processor.Controllers {
                                         }
                                     }
                                     //
-                                    //----------------------------------------------------------------------------------------------------------------------
+                                    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                                     logger.Info($"{core.logCommonMessage}, verify all navigator menu entries for updated addons");
-                                    //----------------------------------------------------------------------------------------------------------------------
+                                    // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                                     //
                                     if (!skipCdefInstall) {
                                         MetadataMiniCollectionModel Collection = CollectionInstallMetadataController.loadXML(core, collectionFileContent, isBaseCollection, false, IsNewBuild, "");

@@ -337,7 +337,7 @@ namespace Contensive.Processor {
         internal const string rnRedirectRecordId = "ri";
         internal const string rnPageId = "bid";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //   Form Contension Strategy
         //        '       elements of the form are named  "ElementName"
         //
@@ -362,7 +362,7 @@ namespace Contensive.Processor {
         //       cmc.main_init because no .asp page exists that might contain a call
         //       the process section.
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string FormTypeToolsPanel = "do30a8vl29";
         internal const string FormTypeActiveEditor = "l1gk70al9n";
@@ -376,13 +376,13 @@ namespace Contensive.Processor {
         internal const string FormTypeAddonStyleEditor = "ar5028jklkfd0s";
         internal const string FormTypeSiteStyleEditor = "fjkq4w8794kdvse";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //   Hardcoded profile form const
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string rnMyProfileTopics = "profileTopics";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         // Legacy - replaced with HardCodedPages
         //   Intercept Page Strategy
         //
@@ -391,7 +391,7 @@ namespace Contensive.Processor {
         //
         //       Intercept pages are complete pages that appear instead of what
         //       the physical page calls.
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string LegacyInterceptPageSNResourceLibrary = "s033l8dm15";
         internal const string LegacyInterceptPageSNSiteExplorer = "kdif3318sd";
@@ -400,7 +400,7 @@ namespace Contensive.Processor {
         internal const string LegacyInterceptPageSNLogin = "6ge42an09a";
         internal const string LegacyInterceptPageSNUploadEditor = "k0hxp2aiOZ";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         // Ajax functions intercepted during init, answered and response closed
         // todo - convert built-in request name functions to remoteMethods
         //   These are hard-coded internal Contensive functions
@@ -408,7 +408,7 @@ namespace Contensive.Processor {
         //   They should all be prefixed "cc"
         //   They are called with cj.ajax.qs(), setting RequestNameAjaxFunction=name in the qs
         //   These name=value pairs go in the QueryString argument of the javascript cj.ajax.qs() function
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string RequestNameAjaxFunction = "ajaxfn";
         internal const string RequestNameAjaxFastFunction = "ajaxfastfn";
@@ -422,21 +422,21 @@ namespace Contensive.Processor {
         internal const string AjaxGetVisitProperty = "getvisitproperty";
         internal const string AjaxSetVisitProperty = "setvisitproperty";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //   Remote Methods
         //       ?RemoteMethodAddon=string
         //       calls an addon (if marked to run as a remote method)
         //       blocks all other Contensive output (tools panel, javascript, etc)
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string RequestNameRemoteMethodAddon = "remotemethodaddon";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //   Hard Coded Pages
         //       ?Method=string
         //       Querystring based so they can be added to URLs, preserving the current page for a return
         //       replaces output stream with html output
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string RequestNameHardCodedPage = "method";
         //
@@ -452,10 +452,10 @@ namespace Contensive.Processor {
         internal const string HardCodedPageRedirect = "redirect";
         internal const string HardCodedPageExportAscii = "exportascii";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //   Option values
         //       does not effect output directly
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string RequestNamePageOptions = "ccoptions";
         //
@@ -467,13 +467,13 @@ namespace Contensive.Processor {
         //
         internal const string RequestNameDashboardReset = "ResetDashboard";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //   DataSource constants
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const int DefaultDataSourceId = -1;
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         // ----- Type compatibility between databases
         //       Boolean
         //           Access      YesNo       true=1, false=0
@@ -496,7 +496,7 @@ namespace Contensive.Processor {
         //           SQL Server
         //           MySQL
         //           Oracle
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         // ----- Style sheet definitions
         internal const string defaultStyleFilename = "ccDefault.r5.css";
@@ -572,16 +572,16 @@ namespace Contensive.Processor {
         internal const string FieldTypeNameLcaseHTMLFile = "htmlfile";
         internal const string FieldTypeNameLcaseHTMLCodeFile = "htmlcodefile";
         //
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         // Debugging info
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         //
         internal const int TestPointTab = 2;
         internal const char debug_TestPointTabChr = '-';
         //
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         //   project width button defintions
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         //
         internal const string ButtonApply = "  Apply ";
         internal const string ButtonLogin = "  Login  ";
@@ -635,9 +635,9 @@ namespace Contensive.Processor {
         internal const string ButtonMarkReviewed = " Mark Reviewed ";
         internal const string ButtonModifyEditForm = " Modify Form ";
         //
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         //   member actions
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         //
         internal const int MemberActionNOP = 0;
         internal const int MemberActionLogin = 1;
@@ -650,9 +650,9 @@ namespace Contensive.Processor {
         internal const int MemberActionSaveProfile = 8;
         internal const int MemberActionEditProfile = 9;
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         // ----- note pad info
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const int NoteFormList = 1;
         internal const int NoteFormRead = 2;
@@ -664,9 +664,9 @@ namespace Contensive.Processor {
         //                       ' Submit button is created in CommonDim, so it is simple
         internal const string NoteButtonSubmit = "Submit";
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         // ----- Admin site storage
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const int AdminMenuModeHidden = 0; // menu is hidden
         internal const int AdminMenuModeLeft = 1; // menu on the left
@@ -778,9 +778,9 @@ namespace Contensive.Processor {
         internal const int MeetingFormHotel = 4;
         internal const int MeetingFormDetails = 5;
         //
-        //------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------------
         // Form actions
-        //------------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------------
         //
         // ----- DataSource Types
         //
@@ -800,9 +800,9 @@ namespace Contensive.Processor {
         //
         internal static readonly string EmailTextHTMLDelimiter = Environment.NewLine + " ----- End Text Begin HTML -----\r\n";
         //
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         //   Common RequestName Variables
-        //------------------------------------------------------------------------
+        // ---------------------------------------------------------------------------------------------------------------------------
         //
         internal const string rnAdminForm = "af";
         internal const string rnAdminSourceForm = "asf";
@@ -910,9 +910,9 @@ namespace Contensive.Processor {
         internal const string TextSearchStartTagDefault = "<!--TextSearchStart-->";
         internal const string TextSearchEndTagDefault = "<!--TextSearchEnd-->";
         //
-        //-------------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------------------------------------------
         //   Email
-        //-------------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------------------------------------------
         //
         internal const string emailGuidResetPassword = "{6A27F2BF-AAC0-4338-AAAD-FC374544D7B6}";
         //
@@ -924,9 +924,9 @@ namespace Contensive.Processor {
         internal const int EmailLogTypeImmediateSend = 6; // Email was dropped                                                        
         internal const string DefaultSpamFooter = "<p><link>Unsubscribe</link> to block all future emails from this site.</p>";
         //
-        //-------------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------------------------------------------
         //   Page Content constants
-        //-------------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------------------------------------------
         //
         internal const string ContentBlockCopyName = "Content Block Copy";
         //
@@ -1014,9 +1014,9 @@ namespace Contensive.Processor {
         internal const string kmaEndTableRow = "</tr>";
 
         //
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //   Messages
-        //-----------------------------------------------------------------------
+        // --------------------------------------------------------------------------------------------------------------------------
         //
         internal const string landingPageDefaultHtml = "<h1>Lorem Ipsum</h1><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce venenatis enim non magna porta, quis ultricies magna tincidunt. Nam vel lobortis quam. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Praesent accumsan lectus nec viverra condimentum. Morbi non ante vitae mauris mollis venenatis. Nulla tincidunt sapien in pulvinar sollicitudin. Mauris nec mattis sem. Nullam dapibus commodo nunc. Quisque sit amet massa vitae metus volutpat laoreet non sit amet tortor. Proin scelerisque justo eros, nec rhoncus magna pellentesque id. Nunc et aliquet est, ac cursus arcu.</p><p>Suspendisse potenti. Vivamus finibus libero et lobortis efficitur. Ut felis nisi, lobortis sed justo tempus, maximus placerat erat. Nunc elit lacus, condimentum ut malesuada ullamcorper, sodales sed nibh. Aliquam scelerisque lectus vitae mattis suscipit. Phasellus lobortis imperdiet nibh. Morbi ut est euismod, semper lectus nec, tempor quam. Pellentesque auctor bibendum nisl, in pulvinar elit scelerisque quis. Quisque ultrices nulla quis fringilla condimentum. Pellentesque venenatis quam non arcu venenatis, eget consectetur ante luctus. Sed non porta ante.</p><p>Aenean sagittis semper commodo. Suspendisse elementum dignissim sagittis. Etiam aliquet nisl vitae vestibulum sodales. Aenean tristique tristique quam ut faucibus. In hac habitasse platea dictumst. Fusce id est nisi. Nullam posuere ex nibh, id ornare ipsum pretium id. Maecenas ut nunc pellentesque mi tincidunt faucibus. Donec eget laoreet nisi. Nam vel tincidunt risus. Etiam faucibus tortor a sollicitudin accumsan.</p>";
         internal const string Msg_AuthoringDeleted = "<b>Record Deleted</b><br>" + SpanClassAdminSmall + "This record was deleted and will be removed when publishing is complete.</SPAN>";

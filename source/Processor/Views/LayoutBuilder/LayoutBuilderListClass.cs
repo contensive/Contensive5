@@ -67,16 +67,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// add indent to the source
-        /// </summary>
-        /// <param name="src"></param>
-        /// <returns></returns>
-        private string indent(string src) {
-            return src.Replace(Constants.cr, Constants.cr2);
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// check if first column has been added. If not add the first column.
         /// </summary>
         private void checkColumnPtr() {
@@ -115,7 +105,7 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// todo deprecate - use ReportListColumnClass
+        /// internal storage for grid column
         /// </summary>
         private struct ColumnStruct {
             public string name { get; set; }
@@ -132,7 +122,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// when true, the report has exceeded the rowSize and future columns will populate on top of each other
         /// </summary>
-        private bool ReportTooLong { get; set; } = false;
+        private bool reportTooLong { get; set; } = false;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -191,7 +181,6 @@ namespace Contensive.Processor.LayoutBuilder {
                 layoutBuilderBase.baseAjaxUrl = value;
             }
         }
-
         //
         // ----------------------------------------------------------------------------------------------------
         //
@@ -202,7 +191,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 return _sqlSearchTerm;
             }
         }
-        private string? _sqlSearchTerm;
+        private string _sqlSearchTerm = null;
         //
         // ----------------------------------------------------------------------------------------------------
         //
@@ -219,7 +208,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 return _sqlOrderBy;
             }
         }
-        private string? _sqlOrderBy;
+        private string _sqlOrderBy = null;
         //
         // ----------------------------------------------------------------------------------------------------
         public override void paginationReset() {
@@ -368,47 +357,9 @@ namespace Contensive.Processor.LayoutBuilder {
                 //
                 // -- render the body of the list view
                 string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListBodyGuid, Constants.layoutAdminUILayoutBuilderListBodyName, Constants.layoutAdminUILayoutBuilderListBodyCdnPathFilename);
-                string body = cp.Mustache.Render(layout, renderData);
+                layoutBuilderBase.body = cp.Mustache.Render(layout, renderData);
                 //
-                // add user errors
-                string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
-                if (!string.IsNullOrEmpty(userErrors)) {
-                    warningMessage += userErrors;
-                }
-                //
-                // -- add hidden for ajax function in javascript
-                // -- this might need a serial number to prevent collisions if this layout is used 2+ times
-
-                layoutBuilderBase.body = body;
-                layoutBuilderBase.includeBodyPadding = includeBodyPadding;
-                layoutBuilderBase.includeBodyColor = includeBodyColor;
-                layoutBuilderBase.buttonList = buttonList;
-                layoutBuilderBase.csvDownloadFilename = csvDownloadFilename;
-                layoutBuilderBase.description = description;
-                layoutBuilderBase.formActionQueryString = formActionQueryString;
-                layoutBuilderBase.refreshQueryString = refreshQueryString;
-                layoutBuilderBase.isOuterContainer = isOuterContainer;
-                layoutBuilderBase.title = title;
-                layoutBuilderBase.warningMessage = warningMessage;
-                layoutBuilderBase.failMessage = failMessage;
-                layoutBuilderBase.infoMessage = infoMessage;
-                layoutBuilderBase.successMessage = successMessage;
-                layoutBuilderBase.htmlAfterBody = htmlAfterBody;
-                layoutBuilderBase.htmlBeforeBody = htmlBeforeBody;
-                layoutBuilderBase.htmlLeftOfBody = htmlLeftOfBody;
-                layoutBuilderBase.blockFormTag = blockFormTag;
-                //
-                // -- handled within base as pass-through properties
-                //layoutBuilderBase.baseAjaxUrl = baseAjaxUrl;
-                //layoutBuilder.hiddenList = hiddenList;
-                //layoutBuilderBase.includeForm = includeForm;
-                //addFormHidden("baseAjaxUrl", baseAjaxUrl);
-
-
-
-
-                string listReport = layoutBuilderBase.getHtml(cp);
-                return listReport;
+                return layoutBuilderBase.getHtml(cp);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "hint [" + hint + "]");
                 throw;
@@ -481,7 +432,7 @@ namespace Contensive.Processor.LayoutBuilder {
                         + "<tr>"
                         + "<td style=\"text-align:left\" colspan=\"" + (columnMax + 1) + "\">[empty]</td>"
                         + "</tr>");
-                } else if (ReportTooLong) {
+                } else if (reportTooLong) {
                     //
                     // -- report is too long
                     string classAttribute = columns[0].cellClass;
@@ -817,7 +768,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 localExcludeRowFromDownload[rowCnt] = false;
                 localRowClasses[rowCnt] = "";
             } else {
-                ReportTooLong = true;
+                reportTooLong = true;
             }
             checkColumnPtr();
             columnPtr = 0;
@@ -873,7 +824,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// To define a column, first call addColumn(), then set its name, caption, captionclass, cellclass, visible, sortable, width, downloadable. When columns are defined, use addRow() to create a row, then addCell() repeately to create a cell for each column.
         /// </summary>
         public override void setCell(string reportContent, string downloadContent) {
-            if (!ReportTooLong) {
+            if (!reportTooLong) {
                 localIsEmptyReport = false;
                 checkColumnPtr();
                 checkRowCnt();
@@ -959,32 +910,67 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
         /// </summary>
-        public override bool blockFormTag { get; set; }
+        public override bool blockFormTag {
+            get {
+                return layoutBuilderBase.blockFormTag;
+            }
+            set {
+                layoutBuilderBase.blockFormTag = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, the container between the button rows will include default padding
         /// </summary>
-        public override bool includeBodyPadding { get; set; } = true;
+        public override bool includeBodyPadding { 
+            get {
+                return layoutBuilderBase.includeBodyPadding;
+            } 
+            set {
+                layoutBuilderBase.includeBodyPadding = value;
+            } 
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, the container between the button rows will include the default background color. Else it is transparent.
         /// </summary>
-        public override bool includeBodyColor { get; set; } = true;
+        public override bool includeBodyColor {
+            get {
+                return layoutBuilderBase.includeBodyColor;
+            }
+            set {
+                layoutBuilderBase.includeBodyColor = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, this layoutBuilder will not be contained in other layoutBuilder content. 
         /// This is used by the default getHtml() to include an outer div with the htmlId "afw", and the styles and javascript
         /// </summary>
-        public override bool isOuterContainer { get; set; } = false;
+        public override bool isOuterContainer {
+            get {
+                return layoutBuilderBase.isOuterContainer;
+            }
+            set {
+                layoutBuilderBase.isOuterContainer = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The headline at the top of the form
         /// </summary>
-        public override string title { get; set; } = "";
+        public override string title {
+            get {
+                return layoutBuilderBase.title;
+            }
+            set {
+                layoutBuilderBase.title = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -992,18 +978,17 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override string warningMessage {
             get {
-                return _warningMessage;
+                return layoutBuilderBase.warningMessage;
             }
             set {
-                _warningMessage = value;
+                layoutBuilderBase.warningMessage = value;
             }
         }
-        private string _warningMessage = "";
         //
         // ----------------------------------------------------------------------------------------------------
         public override string warning {
             get {
-                return _warningMessage;
+                return layoutBuilderBase.warningMessage;
             }
         }
         //
@@ -1011,25 +996,53 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// message displayed as a fail message. Data is wrong
         /// </summary>
-        public override string failMessage { get; set; } = "";
+        public override string failMessage {
+            get {
+                return layoutBuilderBase.failMessage;
+            }
+            set {
+                layoutBuilderBase.failMessage = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// message displayed as an informational message. Nothing is wrong, but the user should know
         /// </summary>
-        public override string infoMessage { get; set; } = "";
+        public override string infoMessage {
+            get {
+                return layoutBuilderBase.infoMessage;
+            }
+            set {
+                layoutBuilderBase.infoMessage = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// message displayed as a success message.
         /// </summary>
-        public override string successMessage { get; set; } = "";
+        public override string successMessage {
+            get {
+                return layoutBuilderBase.successMessage;
+            }
+            set {
+                layoutBuilderBase.successMessage = value;
+            }
+        } 
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// simple description text. Will be wrapped in an html paragraph tag.
         /// </summary>
-        public override string description { get; set; } = "";
+        public override string description {
+            get {
+                return layoutBuilderBase.description;
+            }
+            set {
+                layoutBuilderBase.description = value;
+            }
+        } 
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1062,7 +1075,14 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
-        public override string csvDownloadFilename { get; set; }
+        public override string csvDownloadFilename {
+            get {
+                return layoutBuilderBase.csvDownloadFilename;
+            }
+            set {
+                layoutBuilderBase.csvDownloadFilename = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1159,7 +1179,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonCaption"></param>
         /// <param name="link"></param>
         public override void addLinkButton(string buttonCaption, string link) {
-            buttonList += LayoutBuilderController.a(buttonCaption, link);
+          layoutBuilderBase.addLinkButton(buttonCaption, link );
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -1170,7 +1190,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="link"></param>
         /// <param name="htmlId"></param>
         public override void addLinkButton(string buttonCaption, string link, string htmlId) {
-            buttonList += LayoutBuilderController.a(buttonCaption, link, htmlId);
+            layoutBuilderBase.addLinkButton(buttonCaption, link, htmlId);
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -1182,7 +1202,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="htmlId"></param>
         /// <param name="htmlClass"></param>
         public override void addLinkButton(string buttonCaption, string link, string htmlId, string htmlClass) {
-            buttonList += LayoutBuilderController.a(buttonCaption, link, htmlId, htmlClass);
+            layoutBuilderBase.addLinkButton(buttonCaption, link, htmlId, htmlClass);
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -1226,7 +1246,6 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
             layoutBuilderBase.addFormButton(buttonValue,buttonName, buttonId, buttonClass);
         }
-        private string buttonList = "";
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1234,49 +1253,65 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override string formActionQueryString {
             get {
-                return formActionQueryString_local;
+                return layoutBuilderBase.formActionQueryString;
             }
             set {
-                formActionQueryString_local = value;
-                layoutBuilderBase.includeForm = true;
+                layoutBuilderBase.formActionQueryString = value;
             }
         }
-        private string formActionQueryString_local;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// An html block added to the left of the table. Typically used for filters.
         /// </summary>
-        public override string htmlLeftOfBody { get; set; } = "";
+        public override string htmlLeftOfBody {
+            get {
+                return layoutBuilderBase.htmlLeftOfBody;
+            }
+            set {
+                layoutBuilderBase.htmlLeftOfBody = value;
+            }
+        } 
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// An html block added above the table. Typically used for filters.
         /// </summary>
-        public override string htmlBeforeBody { get; set; } = "";
+        public override string htmlBeforeBody {
+            get {
+                return layoutBuilderBase.htmlBeforeBody;
+            }
+            set {
+                layoutBuilderBase.htmlBeforeBody = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// An html block added below the table. Typically used for filters.
         /// </summary>
-        public override string htmlAfterBody { get; set; } = "";
+        public override string htmlAfterBody {
+            get {
+                return layoutBuilderBase.htmlAfterBody;
+            }
+            set {
+                layoutBuilderBase.htmlAfterBody = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
+        [Obsolete("Instead use baseUrl.", false)]
         public override string refreshQueryString {
             get {
-                return refreshQueryString_Local;
+                return layoutBuilderBase.refreshQueryString;
             }
             set {
-                refreshQueryString_Local = value;
-                //refreshQueryStringSet_Local = true;
+                layoutBuilderBase.refreshQueryString = value;
             }
         }
-
-
-        private string refreshQueryString_Local = "";
     }
     //
     // ====================================================================================================

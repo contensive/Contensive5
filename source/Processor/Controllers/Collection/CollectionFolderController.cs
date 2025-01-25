@@ -139,9 +139,9 @@ namespace Contensive.Processor.Controllers {
                                     continue;
                                 }
                                 //
-                                //------------------------------------------------------------------
+                                // ---------------------------------------------------------------------------------------------------------------------
                                 // Build Collection folder structure in /Add-ons folder
-                                //------------------------------------------------------------------
+                                // ---------------------------------------------------------------------------------------------------------------------
                                 //
                                 collectionsDownloaded.Add(collectionGuid.ToLower(CultureInfo.InvariantCulture));
                                 CollectionXmlFileFound = true;

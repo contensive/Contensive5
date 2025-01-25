@@ -55,9 +55,9 @@ namespace Contensive.Processor.Addons.Tools {
                 bool ReloadCDef = core.docProperties.getBoolean("ReloadCDef");
                 bool AllowContentAutoLoad = false;
                 //
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 // Process actions
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 //
                 if (ContentId != 0) {
                     ButtonList = ButtonCancel + "," + ButtonSaveandInvalidateCache;
@@ -286,9 +286,9 @@ namespace Contensive.Processor.Addons.Tools {
                         return core.webServer.redirect("?af=" + AdminFormToolConfigureListing + "&ContentID=" + ContentId, "Tools-ConfigureListing, Save and Invalidate Cache, Go to back ConfigureListing tools");
                     }
                     //
-                    //--------------------------------------------------------------------------------
+                    // -----------------------------------------------------------------------------------------------------------------------------------
                     //   Display the form
-                    //--------------------------------------------------------------------------------
+                    // -----------------------------------------------------------------------------------------------------------------------------------
                     //
                     if (!string.IsNullOrEmpty(ContentName)) {
                         Stream.add("<br><br><B>" + ContentName + "</b><br>");
@@ -444,9 +444,9 @@ namespace Contensive.Processor.Addons.Tools {
                     }
                 }
                 //
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 // print the content tables that have Listing Pages to Configure
-                //--------------------------------------------------------------------------------
+                // -----------------------------------------------------------------------------------------------------------------------------------
                 //
                 string FormPanel = SpanClassAdminNormal + "Select a Content Definition to Configure its Listing Page<br>";
                 FormPanel += core.html.selectFromContent("ContentID", ContentId, "Content");

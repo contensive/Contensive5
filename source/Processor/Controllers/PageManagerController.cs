@@ -1359,9 +1359,9 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                //---------------------------------------------------------------------------------
+                // ------------------------------------------------------------------------------------------------------------------------------------
                 // ----- Set Headers
-                //---------------------------------------------------------------------------------
+                // ------------------------------------------------------------------------------------------------------------------------------------
                 //
                 DateTime pageModifiedDate = (core.doc.pageController.page.modifiedDate != null) ? encodeDate(core.doc.pageController.page.modifiedDate) : DateTime.MinValue;
                 core.cpParent.Content.LatestContentModifiedDate.Track(pageModifiedDate);
@@ -1370,9 +1370,9 @@ namespace Contensive.Processor.Controllers {
                     core.webServer.addResponseHeader("LAST-MODIFIED", GenericController.getRFC1123PatternDateFormat(encodeDate(pageModifiedDate)));
                 }
                 //
-                //---------------------------------------------------------------------------------
+                // ------------------------------------------------------------------------------------------------------------------------------------
                 // ----- Store page javascript
-                //---------------------------------------------------------------------------------
+                // ------------------------------------------------------------------------------------------------------------------------------------
                 // todo -- assets should all come from addons !!!
                 //
                 core.html.addScriptCode_onLoad(core.doc.pageController.page.jSOnLoad, "page content");
@@ -1382,9 +1382,9 @@ namespace Contensive.Processor.Controllers {
                 }
                 core.html.addScriptCode(core.doc.pageController.page.jSEndBody, "page content");
                 //
-                //---------------------------------------------------------------------------------
+                // ------------------------------------------------------------------------------------------------------------------------------------
                 // add open graph properties
-                //---------------------------------------------------------------------------------
+                // ------------------------------------------------------------------------------------------------------------------------------------
                 //
                 core.docProperties.setProperty("Open Graph Site Name", core.siteProperties.getText("Open Graph Site Name", core.appConfig.name));
                 core.docProperties.setProperty("Open Graph Content Type", "website");

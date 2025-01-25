@@ -213,9 +213,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                 bool editorReadOnly = (request.record_readOnly || request.field.readOnly || (request.editRecordId != 0 && request.field.notEditable) || (fieldForceReadOnly));
                 if (editorAddon != null) {
                     //
-                    //--------------------------------------------------------------------------------------------
+                    // -----------------------------------------------------------------------------------------------------------------------------------------------
                     // ----- Custom Editor
-                    //--------------------------------------------------------------------------------------------
+                    // -----------------------------------------------------------------------------------------------------------------------------------------------
                     //
                     core.docProperties.setProperty("editorRecordId", request.editRecordId);
                     core.docProperties.setProperty("editorName", request.htmlName);
@@ -308,9 +308,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                         response.editorString = AdminUIEditorController.getRedirectEditor(core, request.field, request.contentId, request.editViewTitleSuffix, request.editRecordNameLc, request.editRecordId, request.editRecordContentControlId, request.currentValue, editorReadOnly, response.fieldHtmlId, request.field.required);
                     } else if (editorReadOnly) {
                         //
-                        //--------------------------------------------------------------------------------------------
+                        // -----------------------------------------------------------------------------------------------------------------------------------------------
                         // ----- Display fields as read only
-                        //--------------------------------------------------------------------------------------------
+                        // -----------------------------------------------------------------------------------------------------------------------------------------------
                         //
                         if (!string.IsNullOrEmpty(whyReadOnlyMsg)) {
                             whyReadOnlyMsg = "<span class=\"ccDisabledReason\">" + whyReadOnlyMsg + "</span>";
