@@ -1965,9 +1965,6 @@
     </Field>
 
     <!-- Features -->
-    <Field Name="ArgumentList" Active="true" AdminOnly="0" Authorable="1" Caption="Argument List" DeveloperOnly="0" EditSortPriority="1100" FieldType="LongText" HtmlContent="0" IndexColumn="1" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Features" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
-      <HelpDefault><![CDATA[The argument list is a set of Name=value pairs seperated by new line. When addons are added to a page with the wysiwyg editor, the administrator will have a tool to edit the values for these arguments. The Name=value pairs are provided to code through the cp.doc properties, and the content is find-replaced with $name$.]]></HelpDefault>
-    </Field>
     <Field Name="instanceSettingPrimaryContentId" Active="true" AdminOnly="0" Authorable="1" Caption="Instance Setting Primary Content" DeveloperOnly="0" EditSortPriority="1110" FieldType="Lookup" HtmlContent="0" IndexColumn="0" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Features" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="Content" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault><![CDATA[If this addon is added to pages or templates and has a primary settings record associated to the instanceId, select the content for that instance. This selection enables the edit link for Page Builder.]]></HelpDefault>
     </Field>
@@ -2129,6 +2126,9 @@
     </Field>
 
     <!-- deprecated -->
+    <Field Name="ArgumentList" Active="true" AdminOnly="0" Authorable="0" Caption="(deprecated )Argument List" DeveloperOnly="0" EditSortPriority="9999" FieldType="LongText" HtmlContent="0" IndexColumn="1" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Features" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
+      <HelpDefault><![CDATA[Replaced with widget model. previously -- The argument list is a set of Name=value pairs seperated by new line. When addons are added to a page with the wysiwyg editor, the administrator will have a tool to edit the values for these arguments. The Name=value pairs are provided to code through the cp.doc properties, and the content is find-replaced with $name$.]]></HelpDefault>
+    </Field>
     <Field Name="inlinescript" Active="0" AdminOnly="0" Authorable="0" Caption="(deprecated)" DeveloperOnly="0" EditSortPriority="9999" FieldType="Text" HtmlContent="0" IndexColumn="99" IndexSortDirection="" IndexSortOrder="0" IndexWidth="0" RedirectId="" RedirectPath="" Required="false" TextBuffered="false" UniqueName="false" DefaultValue="0" RSSTitle="false" RSSDescription="false" MemberSelectGroup="" EditGroup="" EditTab="Features" Scramble="false" LookupList="" NotEditable="false" Password="false" ReadOnly="false" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="" LookupContent="" RedirectContent="" ManyToManyContent="" ManyToManyRuleContent="" >
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
@@ -3292,7 +3292,6 @@
     <RemoteMethod>No</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Login.getLoginFormClass]]></DotNetClass>
-    <ArgumentList>Force Default Login=false</ArgumentList>
     <IncludeAddon Name="Contensive Base Assets" Guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
     <IncludeAddon Name="Bootstrap" Guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>	
   </Addon>

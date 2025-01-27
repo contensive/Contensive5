@@ -189,7 +189,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// This report will be wrapped in a form tag and the action should send traffic back to the same page. If empty, the form uses cp.Doc.RefreshQueryString
         /// </summary>
-        public abstract string formActionQueryString { get; set; }
+        [Obsolete("Deprecated. No longer needed.", false)] public abstract string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -417,7 +417,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        [Obsolete("Instead use baseUrl.", false)] public abstract string refreshQueryString { get; set; }
+        [Obsolete("Deprecated. No longer used. Insead BaseUrl is calculated internally.", false)] public abstract string refreshQueryString { get; set; }
     }
     //
     //====================================================================================================

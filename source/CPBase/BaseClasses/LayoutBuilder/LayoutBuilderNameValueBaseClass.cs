@@ -16,7 +16,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         public abstract void closeFieldSet();
         //
-        public abstract string formAction { get; set; }
+        [Obsolete("Deprecated. Not needed.",false)] public abstract string formAction { get; set; }
         //
         public abstract string rowHtmlId { get; set; }
         public abstract string rowName { get; set; }

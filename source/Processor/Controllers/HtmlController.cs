@@ -259,23 +259,23 @@ namespace Contensive.Processor.Controllers {
                 initialValueId = CurrentValue
             };
             string layout = LayoutController.getLayout(core.cpParent, Constants.layoutEditControlAutocompleteGuid, Constants.layoutEditControlAutocompleteName, Constants.layoutEditControlAutocompleteCdnPathFilename, Constants.layoutEditControlAutocompleteCdnPathFilename);
-            string result = core.cpParent.Mustache.Render(layout,viewModel);
+            string result = core.cpParent.Mustache.Render(layout, viewModel);
             return result;
         }
         //
         //====================================================================================================
-            /// <summary>
-            /// Select list from a content
-            /// </summary>
-            /// <param name="MenuName"></param>
-            /// <param name="CurrentValue"></param>
-            /// <param name="ContentName"></param>
-            /// <param name="contentSqlCriteria"></param>
-            /// <param name="NoneCaption"></param>
-            /// <param name="htmlId"></param>
-            /// <param name="return_IsEmptyList"></param>
-            /// <param name="HtmlClass"></param>
-            /// <returns></returns>
+        /// <summary>
+        /// Select list from a content
+        /// </summary>
+        /// <param name="MenuName"></param>
+        /// <param name="CurrentValue"></param>
+        /// <param name="ContentName"></param>
+        /// <param name="contentSqlCriteria"></param>
+        /// <param name="NoneCaption"></param>
+        /// <param name="htmlId"></param>
+        /// <param name="return_IsEmptyList"></param>
+        /// <param name="HtmlClass"></param>
+        /// <returns></returns>
         public string selectFromContent(string MenuName, int CurrentValue, string ContentName, string contentSqlCriteria, string NoneCaption, string htmlId, ref bool return_IsEmptyList, string HtmlClass = "") {
             string result = "";
             try {
@@ -1795,6 +1795,10 @@ namespace Contensive.Processor.Controllers {
         /// <param name="SrcOptionValueSelector"></param>
         /// <returns></returns>
         public string getAddonSelector(string SrcOptionName, string InstanceOptionValue_AddonEncoded, string SrcOptionValueSelector) {
+            //
+            // todo deprecated -- remove code 250126
+            // 
+            return "";
             string result = "";
             try {
                 //
@@ -2642,7 +2646,9 @@ namespace Contensive.Processor.Controllers {
                             + secondaryMeta.tableName + ".name AS OptionName, "
                             + secondaryMeta.tableName + ".SortOrder"
                         + " from "
-                            + secondaryMeta.tableName + " where (1=1)" + ((!string.IsNullOrEmpty(secondaryContentSelectCriteria)) ? "AND(" + secondaryContentSelectCriteria + ")" : "")
+                            + secondaryMeta.tableName
+                        + " where (1=1)"
+                            + ((!string.IsNullOrEmpty(secondaryContentSelectCriteria)) ? "AND(" + secondaryContentSelectCriteria + ")" : "")
                         + " group by "
                             + secondaryMeta.tableName + ".id, "
                             + secondaryMeta.tableName + "." + captionFieldName + ", "
@@ -2650,110 +2656,111 @@ namespace Contensive.Processor.Controllers {
                             + secondaryMeta.tableName + ".SortOrder"
                         + " order by "
                             + secondaryMeta.tableName + "." + captionFieldName;
-                    using (var csData = new CsModel(core)) {
-                        if (!csData.openSql(sqlSecondaryRecords)) {
+                    using (DataTable dt = core.db.executeQuery(sqlSecondaryRecords)) {
+                        if (dt?.Rows == null || dt.Rows.Count == 0) {
                             result.Append("(No choices are available.)");
                         } else {
-                            int checkBoxPtr = 0;
-                            bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
-                            string DivName = htmlNamePrefix + ".All";
-                            bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
-                            string editLink = EditUIController.getEditUrl(core, secondaryMeta.id, -1);
-                            string editLinkTemplate = !isAdmin ? "" : EditUIController.getEditIcon(core, editLink, "", "");
-                            //string editLinkTemplate = !isAdmin ? "" : AdminUIEditButtonController.getLegacyRecordEditAnchorTag(core, secondaryMeta, -1, "", "");
-                            while (csData.ok()) {
-                                string OptionName = csData.getText("OptionName");
-                                if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {
-                                    //
-                                    // Current checkbox is visible
-                                    int secondaryId = csData.getInteger("ID");
-                                    string OptionCaption = csData.getText("OptionCaption");
-                                    if (string.IsNullOrEmpty(OptionCaption)) {
-                                        OptionCaption = OptionName;
-                                    }
-                                    string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", secondaryId.ToString()));
-                                    if (string.IsNullOrEmpty(OptionCaption)) {
-                                        optionCaptionHtmlEncoded += "&nbsp;" + singularPrefixHtmlEncoded + secondaryId;
-                                    } else {
-                                        optionCaptionHtmlEncoded += "&nbsp;" + encodeHtml(OptionCaption);
-                                    }
-                                    bool ruleFound = secondaryIdDict.ContainsKey(secondaryId);
-                                    //
-                                    // -- build a bootstrap row
-                                    result.Append("<div class=\"row pb-1\">");
-                                    //
-                                    // -- first column is checkbox and label
-                                    result.Append("<div class=\"" + colClass + "\">");
-                                    result.Append("<input type=hidden name=\"" + htmlNamePrefix + "." + checkBoxPtr + ".id\" value=" + secondaryId + ">");
-                                    if (readOnlyfield && !ruleFound) {
+                            if (dt.Rows.Count > 5000) {
+                                result.Append("(Too many choices to display.)");
+                            } else {
+                                int checkBoxPtr = 0;
+                                bool CanSeeHiddenFields = core.session.isAuthenticatedDeveloper();
+                                string DivName = htmlNamePrefix + ".All";
+                                bool isAdmin = !core.webServer.requestPathPage.IndexOf(core.siteProperties.getText("adminUrl"), System.StringComparison.OrdinalIgnoreCase).Equals(-1);
+                                string editLink = EditUIController.getEditUrl(core, secondaryMeta.id, -1);
+                                string editLinkTemplate = !isAdmin ? "" : EditUIController.getEditIcon(core, editLink, "", "");
+                                foreach (DataRow dr in dt.Rows) {
+                                    string OptionName = GenericController.encodeText(dr["OptionName"]);
+                                    if ((OptionName.left(1) != "_") || CanSeeHiddenFields) {
                                         //
-                                        // -- unchecked, disabled
-                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled>" + optionCaptionHtmlEncoded + "</label></div>");
-                                    } else if (readOnlyfield) {
-                                        //
-                                        // -- checked, disabled
-                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled checked>" + optionCaptionHtmlEncoded + "</label></div>");
-                                        result.Append("<input type=\"hidden\" name=\"" + htmlNamePrefix + "." + checkBoxPtr + ".id\" value=" + secondaryId + ">");
-                                    } else if (ruleFound) {
-                                        //
-                                        // -- checked
-                                        result.Append("<div class=\"checkbox\"><label><input type=checkbox name=\"" + htmlNamePrefix + "." + checkBoxPtr + "\" value=\"1\" checked>" + optionCaptionHtmlEncoded + "</label></div>");
-                                    } else {
-                                        //
-                                        // -- unchecked
-                                        result.Append("<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"" + htmlNamePrefix + "." + checkBoxPtr + "\" value=\"1\">" + optionCaptionHtmlEncoded + "</label></div>");
-                                    }
-                                    result.Append("</div>");
-                                    //
-                                    // -- include additional columns from rules
-                                    using (CPCSBaseClass ruleCs = core.cpParent.CSNew()) {
-                                        if (ruleFound) {
-                                            ruleCs.OpenRecord(rulesMeta.name, secondaryIdDict[secondaryId].ruleId);
+                                        // Current checkbox is visible
+                                        int secondaryId = GenericController.encodeInteger(dr["id"]);
+                                        string OptionCaption = GenericController.encodeText(dr["OptionCaption"]);
+                                        if (string.IsNullOrEmpty(OptionCaption)) {
+                                            OptionCaption = OptionName;
                                         }
-                                        foreach (var ruleField in ruleEditFields) {
-                                            result.Append("<div class=\"" + colClass + "\">");
+                                        string optionCaptionHtmlEncoded = (!isAdmin ? "" : "&nbsp;&nbsp;" + editLinkTemplate.Replace("-1", secondaryId.ToString()));
+                                        if (string.IsNullOrEmpty(OptionCaption)) {
+                                            optionCaptionHtmlEncoded += "&nbsp;" + singularPrefixHtmlEncoded + secondaryId;
+                                        } else {
+                                            optionCaptionHtmlEncoded += "&nbsp;" + encodeHtml(OptionCaption);
+                                        }
+                                        bool ruleFound = secondaryIdDict.ContainsKey(secondaryId);
+                                        //
+                                        // -- build a bootstrap row
+                                        result.Append("<div class=\"row pb-1\">");
+                                        //
+                                        // -- first column is checkbox and label
+                                        result.Append("<div class=\"" + colClass + "\">");
+                                        result.Append("<input type=hidden name=\"" + htmlNamePrefix + "." + checkBoxPtr + ".id\" value=" + secondaryId + ">");
+                                        if (readOnlyfield && !ruleFound) {
                                             //
-                                            string htmlNameRuleField = htmlNamePrefix + "." + checkBoxPtr + "." + ruleField.nameLc;
-                                            switch (ruleField.fieldTypeId) {
-                                                case FieldTypeIdEnum.Text: {
-                                                        string htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? "" : ruleCs.GetText(ruleField.nameLc));
-                                                        result.Append(inputText(core, htmlNameRuleField, htmlValue));
-                                                        break;
-                                                    }
-                                                case FieldTypeIdEnum.Date: {
-                                                        DateTime? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetDate(ruleField.nameLc));
-                                                        result.Append(inputDate(core, htmlNameRuleField, htmlValue));
-                                                        break;
-                                                    }
-                                                case FieldTypeIdEnum.Currency:
-                                                case FieldTypeIdEnum.Float: {
-                                                        double? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetNumber(ruleField.nameLc));
-                                                        result.Append(inputNumber(core, htmlNameRuleField, htmlValue));
-                                                        break;
-                                                    }
-                                                case FieldTypeIdEnum.Integer: {
-                                                        int? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetInteger(ruleField.nameLc));
-                                                        result.Append(inputInteger(core, htmlNameRuleField, htmlValue));
-                                                        break;
-                                                    }
-                                                case FieldTypeIdEnum.Boolean: {
-                                                        bool htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? false : ruleCs.GetBoolean(ruleField.nameLc));
-                                                        result.Append(checkbox(htmlNameRuleField, ruleCs.OK() ? (ruleCs.GetBoolean(ruleField.nameLc) ? "1" : "0") : null));
-                                                        break;
-                                                    }
+                                            // -- unchecked, disabled
+                                            result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled>" + optionCaptionHtmlEncoded + "</label></div>");
+                                        } else if (readOnlyfield) {
+                                            //
+                                            // -- checked, disabled
+                                            result.Append("<div class=\"checkbox\"><label><input type=checkbox disabled checked>" + optionCaptionHtmlEncoded + "</label></div>");
+                                            result.Append("<input type=\"hidden\" name=\"" + htmlNamePrefix + "." + checkBoxPtr + ".id\" value=" + secondaryId + ">");
+                                        } else if (ruleFound) {
+                                            //
+                                            // -- checked
+                                            result.Append("<div class=\"checkbox\"><label><input type=checkbox name=\"" + htmlNamePrefix + "." + checkBoxPtr + "\" value=\"1\" checked>" + optionCaptionHtmlEncoded + "</label></div>");
+                                        } else {
+                                            //
+                                            // -- unchecked
+                                            result.Append("<div class=\"checkbox\"><label><input type=\"checkbox\" name=\"" + htmlNamePrefix + "." + checkBoxPtr + "\" value=\"1\">" + optionCaptionHtmlEncoded + "</label></div>");
+                                        }
+                                        result.Append("</div>");
+                                        //
+                                        // -- include additional columns from rules
+                                        using (CPCSBaseClass ruleCs = core.cpParent.CSNew()) {
+                                            if (ruleFound) {
+                                                ruleCs.OpenRecord(rulesMeta.name, secondaryIdDict[secondaryId].ruleId);
                                             }
-                                            //
-                                            result.Append("</div>");
+                                            foreach (var ruleField in ruleEditFields) {
+                                                result.Append("<div class=\"" + colClass + "\">");
+                                                //
+                                                string htmlNameRuleField = htmlNamePrefix + "." + checkBoxPtr + "." + ruleField.nameLc;
+                                                switch (ruleField.fieldTypeId) {
+                                                    case FieldTypeIdEnum.Text: {
+                                                            string htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? "" : ruleCs.GetText(ruleField.nameLc));
+                                                            result.Append(inputText(core, htmlNameRuleField, htmlValue));
+                                                            break;
+                                                        }
+                                                    case FieldTypeIdEnum.Date: {
+                                                            DateTime? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetDate(ruleField.nameLc));
+                                                            result.Append(inputDate(core, htmlNameRuleField, htmlValue));
+                                                            break;
+                                                        }
+                                                    case FieldTypeIdEnum.Currency:
+                                                    case FieldTypeIdEnum.Float: {
+                                                            double? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetNumber(ruleField.nameLc));
+                                                            result.Append(inputNumber(core, htmlNameRuleField, htmlValue));
+                                                            break;
+                                                        }
+                                                    case FieldTypeIdEnum.Integer: {
+                                                            int? htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? null : ruleCs.GetInteger(ruleField.nameLc));
+                                                            result.Append(inputInteger(core, htmlNameRuleField, htmlValue));
+                                                            break;
+                                                        }
+                                                    case FieldTypeIdEnum.Boolean: {
+                                                            bool htmlValue = (!ruleCs.OK() || string.IsNullOrEmpty(ruleCs.GetText(ruleField.nameLc)) ? false : ruleCs.GetBoolean(ruleField.nameLc));
+                                                            result.Append(checkbox(htmlNameRuleField, ruleCs.OK() ? (ruleCs.GetBoolean(ruleField.nameLc) ? "1" : "0") : null));
+                                                            break;
+                                                        }
+                                                }
+                                                result.Append("</div>");
+                                            }
                                         }
+                                        //
+                                        // -- end of row
+                                        result.Append("</div>");
+                                        checkBoxPtr++;
                                     }
-                                    //
-                                    // -- end of row
-                                    result.Append("</div>");
-                                    checkBoxPtr++;
                                 }
-                                csData.goNext();
+                                result.Append(inputHidden(htmlNamePrefix + ".RowCount", checkBoxPtr));
                             }
-                            result.Append(inputHidden(htmlNamePrefix + ".RowCount", checkBoxPtr));
                         }
                     }
                     addScriptCode(jsLegacy, "CheckList Categories");

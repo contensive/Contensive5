@@ -165,16 +165,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        public override string formActionQueryString {
-            get {
-                return _formActionQueryString;
-            }
-            set {
-                _formActionQueryString = value;
-                includeForm |= !string.IsNullOrEmpty(value);
-            }
-        }
-        private string _formActionQueryString;
+        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         //
@@ -203,8 +194,7 @@ namespace Contensive.Processor.LayoutBuilder {
             //
             // -- wrap with form
             if (includeForm && !blockFormTag) {
-                string action = !string.IsNullOrEmpty(formActionQueryString) ? formActionQueryString : !string.IsNullOrEmpty(refreshQueryString) ? refreshQueryString : cp.Doc.RefreshQueryString;
-                result = cp.Html.Form(result, "", "", "afwForm", action, "");
+                result = cp.Html.Form(result, "", "", "afwForm");
             }
             //
             // -- set the optional title of the portal subnav
@@ -366,16 +356,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
         [Obsolete("Instead use baseUrl.", false)]
-        public override string refreshQueryString {
-            get {
-                return refreshQueryString_Local;
-            }
-            set {
-                refreshQueryString_Local = value;
-                //refreshQueryStringSet_Local = true;
-            }
-        }
-        private string refreshQueryString_Local = "";
+        public override string refreshQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

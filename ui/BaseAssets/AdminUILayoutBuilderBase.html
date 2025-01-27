@@ -36,7 +36,7 @@
 		console.log(`LayoutBuilder Base, submitAfwAjaxForm`);
 		$('#js-afwFormContent').block();
 		let baseAjaxUrl = $('[name="baseAjaxUrl"]').val();
-		baseAjaxUrl += '&'+$( "#js-afwFormContent" ).closest("form").serialize();
+		baseAjaxUrl += '?'+$( "#js-afwFormContent" ).closest("form").serialize();
 		console.log(`LayoutBuilder Base, call ajax, baseAjaxUrl: ${baseAjaxUrl}`);
 		$.ajax({
 			url: baseAjaxUrl, 

@@ -136,7 +136,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// This report will be wrapped in a form tag and the action should send traffic back to the same page. If empty, the form uses cp.Doc.RefreshQueryString
         /// </summary>
-        public abstract string FormActionQueryString { get; set; }
+        [Obsolete("Deprecated. No longer needed.", false)] public abstract string FormActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

@@ -57,13 +57,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The report grid data
         /// </summary>
-        private string[,] localReportCells { get; } = new string[rowSize, columnSize];
+        private string[,] localReportCells { get; } = new string[rowSize + 1, columnSize];
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// the report download data
         /// </summary>
-        private string[,] localDownloadData { get; } = new string[rowSize, columnSize];
+        private string[,] localDownloadData { get; } = new string[rowSize+1, columnSize];
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -383,7 +383,6 @@ namespace Contensive.Processor.LayoutBuilder {
                     //
                     // -- build grid headers
                     tableHeader.Append("<thead><tr>");
-                    string xrefreshQueryString = (!string.IsNullOrEmpty(refreshQueryString) ? refreshQueryString : cp.Doc.RefreshQueryString);
                     for (int colPtr = 0; colPtr <= columnMax; colPtr++) {
                         if (columns[colPtr].visible) {
                             string classAttribute = columns[colPtr].captionClass;
@@ -792,7 +791,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 localExcludeRowFromDownload[rowCnt] = value;
             }
         }
-        private readonly bool[] localExcludeRowFromDownload = new bool[rowSize];
+        private readonly bool[] localExcludeRowFromDownload = new bool[rowSize+1];
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -806,7 +805,7 @@ namespace Contensive.Processor.LayoutBuilder {
             checkRowCnt();
             localRowClasses[rowCnt] += " " + styleClass;
         }
-        private readonly string[] localRowClasses = new string[rowSize];
+        private readonly string[] localRowClasses = new string[rowSize+1];
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1251,14 +1250,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        public override string formActionQueryString {
-            get {
-                return layoutBuilderBase.formActionQueryString;
-            }
-            set {
-                layoutBuilderBase.formActionQueryString = value;
-            }
-        }
+        [Obsolete("Deprecated. No longer used. Insead BaseUrl is calculated internally.",false)] public override string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1303,15 +1295,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        [Obsolete("Instead use baseUrl.", false)]
-        public override string refreshQueryString {
-            get {
-                return layoutBuilderBase.refreshQueryString;
-            }
-            set {
-                layoutBuilderBase.refreshQueryString = value;
-            }
-        }
+        [Obsolete("Deprecated. No longer needed.", false)] public override string refreshQueryString { get; set; }
     }
     //
     // ====================================================================================================

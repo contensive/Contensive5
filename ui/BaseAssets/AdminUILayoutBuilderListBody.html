@@ -77,14 +77,18 @@
 	});
 	// -- submit the list form
 	function submitAfwAjaxListForm() {
-		console.log(`LayoutBuilder List, submitAfwAjaxListForm`);
 		// -- populate hidden div, then copy grid and pagination to visible areas
 		let workingDiv = 'js-afwListWorkArea'
 		addHiddenDiv(workingDiv);
 		submitAfwAjaxForm( workingDiv, function() {
-			console.log(`LayoutBuilder List, onCompleteMethod`);
 			$('#afwBodyFrame .js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
-			$('#afwBodyFrame .js-afwListReportPaginationCon').html($('#js-afwListWorkArea .js-afwListReportPaginationCon').html());
+			let src = $('#js-afwListWorkArea .js-afwListReportPaginationCon');
+			let dst = $('#afwBodyFrame .js-afwListReportPaginationCon');
+			if(src.length>0){
+				dst.html(src.html());
+			} else {
+				dst.html('');
+			}
 			deleteDiv(workingDiv);
 		});
 	}

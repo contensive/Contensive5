@@ -248,7 +248,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        public abstract string formActionQueryString { get; set; }
+        [Obsolete("Deprecated. No longer needed.",false)] public abstract string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -281,7 +281,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        public abstract string refreshQueryString { get; set; }
+        [Obsolete("Deprecated. No longer needed.", false)] public abstract string refreshQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

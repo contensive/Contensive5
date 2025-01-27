@@ -242,7 +242,6 @@ namespace Contensive.Processor.LayoutBuilder {
                 buttonList = buttonList,
                 csvDownloadFilename = "",
                 description = description,
-                formActionQueryString = formAction,
                 hiddenList = hiddenList,
                 includeForm = includeForm,
                 isOuterContainer = isOuterContainer,
@@ -338,16 +337,8 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Sets the action attribute to the layout's form.
         /// </summary>
-        public override string formAction {
-            get {
-                return formAction_Local;
-            }
-            set {
-                formAction_Local = value;
-                includeForm = !string.IsNullOrEmpty(value);
-            }
-        }
-        private string formAction_Local = "";
+        [Obsolete("Deprecated. Not needed.", false)]
+        public override string formAction { get; set; }
         //
         //
         // ----------------------------------------------------------------------------------------------------
@@ -526,16 +517,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        public override string formActionQueryString {
-            get {
-                return formActionQueryString_local;
-            }
-            set {
-                formActionQueryString_local = value;
-                includeForm |= !string.IsNullOrEmpty(value);
-            }
-        }
-        private string formActionQueryString_local;
+        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
         /// <summary>
         /// An html block added to the left of the table. Typically used for filters.
         /// </summary>
@@ -553,16 +535,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        public override string refreshQueryString {
-            get {
-                return refreshQueryString_Local;
-            }
-            set {
-                refreshQueryString_Local = value;
-                //refreshQueryStringSet_Local = true;
-            }
-        }
-        private string refreshQueryString_Local = "";
+        [Obsolete("Deprecated. No longer needed.", false)] public override string refreshQueryString { get; set; }
         //
         [Obsolete("Depricated. Use htmlAfterTable",false)] public override string footer { 
             get {

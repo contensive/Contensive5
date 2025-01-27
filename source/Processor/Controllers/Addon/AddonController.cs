@@ -1963,6 +1963,9 @@ namespace Contensive.Processor.Controllers {
             ArgumentList = GenericController.strReplace(ArgumentList, "\r", Environment.NewLine);
             if (string.IsNullOrEmpty(ArgumentList.replace(Environment.NewLine, "", StringComparison.InvariantCultureIgnoreCase))) { return result; }
             //
+            // -- log warnings for addons with argumentlist -- deprecagted
+            LogController.log(core, $"deprected ARGUMENTLIST not empty, long selection lists not rendered, addon [{AddonName}]", CPLogBaseClass.LogLevel.Warn);
+            //
             // Argument list is present, translate from AddonConstructor to AddonOption format (see main_executeAddon for details)
             //
             var argList = new List<NameValueModel>();

@@ -8,21 +8,28 @@
     */
     document.addEventListener('DOMContentLoaded', function(){
         $( "#editControl{{id}}" ).autocomplete({
-        source: function (request, response) {
-            $.ajax({
-                dataType: "json",
-                type : 'Get',
-                url: '/EditControlAutocomplete?token={{tokenUrlEncoded}}&term='+encodeURIComponent(request.term),
-                success: function(data) { response(data); },
-                error: function(data) { console.log("error in editControl{{id}}"); }
-            });
-        },
-        select: function( event, ui ) { 
-            console.log("editControl{{id}} select name:" + ui.item.label + ", value: " + ui.item.value); 
-            $( "#editControlValue{{id}}" ).val(ui.item.value);
-            $( "#editControl{{id}}" ).val(ui.item.label);
-            return false;
-        }
-        });
-    })
+            source: function (request, response) {
+                $.ajax({
+                    dataType: "json",
+                    type : 'Get',
+                    url: '/EditControlAutocomplete?token={{tokenUrlEncoded}}&term='+encodeURIComponent(request.term),
+                    success: function(data) { response(data); },
+                    error: function(data) { console.log("error in editControl{{id}}"); }
+                });
+            },
+            select: function( event, ui ) { 
+                console.log("editControl{{id}} autocomplete-select name:" + ui.item.label + ", value: " + ui.item.value); 
+                $( "#editControlValue{{id}}" ).val(ui.item.value);
+                $( "#editControl{{id}}" ).val(ui.item.label);
+                return false;
+            },
+            change: function( event, ui ) {
+                // change
+                console.log("editControl{{id}} autocomplete-change"); 
+            }
+        }).on("input", function() { 
+            // update panel
+            console.log("editControl{{id}} input-event");
+            $( "#editControlValue{{id}}").val($(this).val());
+        })});
 </script>
