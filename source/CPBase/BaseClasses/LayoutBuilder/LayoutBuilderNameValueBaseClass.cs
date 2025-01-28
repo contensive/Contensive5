@@ -22,7 +22,5 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         public abstract string rowName { get; set; }
         public abstract string rowValue { get; set; }
         public abstract string rowHelp { get; set; }
-        public abstract string formId { get; set; }
-
     }
 }

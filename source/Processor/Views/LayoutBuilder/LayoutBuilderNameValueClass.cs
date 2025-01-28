@@ -471,17 +471,6 @@ namespace Contensive.Processor.LayoutBuilder {
                 formId_local = value;
             }
         }
-        //
-        [Obsolete("Deprecated. Use addFormHidden()", false)]
-        public override string formId {
-            get {
-                return formId_local;
-            }
-            set {
-                addFormHidden("formid", value);
-                formId_local = value;
-            }
-        }
         /// <summary>
         /// A virtual filename to a download of the report data. Leave blank to prevent download file
         /// </summary>
