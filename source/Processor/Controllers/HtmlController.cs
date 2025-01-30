@@ -1796,9 +1796,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public string getAddonSelector(string SrcOptionName, string InstanceOptionValue_AddonEncoded, string SrcOptionValueSelector) {
             //
-            // todo deprecated -- remove code 250126
+            // Used in form settings
             // 
-            return "";
+            //return "";
             string result = "";
             try {
                 //
@@ -1826,7 +1826,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // Break SrcSelectorInner up into individual choices to detect functions
                 //
-                string list = "";
+                StringBuilder list = new();
                 int Pos = 0;
                 if (!string.IsNullOrEmpty(SrcSelectorInner)) {
                     string[] Choices = SrcSelectorInner.Split('|');
@@ -1952,9 +1952,9 @@ namespace Contensive.Processor.Controllers {
                                             RecordName = RecordName.left(50) + "...";
                                         }
                                         RecordName = GenericController.encodeNvaArgument(RecordName);
-                                        list = list + "|" + RecordName;
+                                        list.Append("|" + RecordName);
                                         if (IncludeID) {
-                                            list = list + ":" + RecordID;
+                                            list.Append(":" + RecordID);
                                         }
                                     }
                                 }
@@ -1963,11 +1963,8 @@ namespace Contensive.Processor.Controllers {
                             //
                             // choice is not a function, just add the choice back to the list
                             //
-                            list = list + "|" + Choices[Ptr];
+                            list.Append("|" + Choices[Ptr]);
                         }
-                    }
-                    if (!string.IsNullOrEmpty(list)) {
-                        list = list.Substring(1);
                     }
                 }
                 //
@@ -1977,7 +1974,7 @@ namespace Contensive.Processor.Controllers {
                 if (!string.IsNullOrEmpty(InstanceOptionValue_AddonEncoded)) {
                     result += HtmlController.encodeHtml(InstanceOptionValue_AddonEncoded);
                 }
-                if (string.IsNullOrEmpty(SrcSelectorSuffix) && string.IsNullOrEmpty(list)) {
+                if (string.IsNullOrEmpty(SrcSelectorSuffix) && list.Length==0) {
                     //
                     // empty list with no suffix, return with name=value
                     //
@@ -1990,7 +1987,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     //
                     //
-                    result += "[" + list + "]" + SrcSelectorSuffix;
+                    result += "[" + list.ToString() + "]" + SrcSelectorSuffix;
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
