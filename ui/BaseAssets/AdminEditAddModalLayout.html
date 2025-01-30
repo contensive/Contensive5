@@ -293,6 +293,10 @@
             .modal-open .modal-backdrop {
                 z-index: 998;
             }
+
+            .form-floating label {
+                color: #666666!important;
+            }
         </style>
         <div class="modal fade widgetEditModal" id="widgetEditModal{{editModalSn}}" data-bs-keyboard="false" tabindex="-1" aria-labelledby="widgetEditModalLabel" ><!-- aria-hidden="true" -->
             <div id="widgetEditModalDialog{{editModalSn}}" class="modal-dialog modal-dialog-centered modal-xl  modal-dialog-scrollable">
@@ -846,7 +850,10 @@
                                                                 <!--
                                                                     text field
                                                                 -->
-                                                                <input type="text" class="form-control mb-3" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                                                <div class="form-floating mb-3">
+                                                                    <input type="email" class="form-control"  id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                                                    <label for="{{fieldId}}">{{caption}}</label>
+                                                                </div>
                                                                 {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
                                                                 {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                             {{/isText}}
