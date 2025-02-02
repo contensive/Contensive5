@@ -359,7 +359,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderListBodyGuid, Constants.layoutAdminUILayoutBuilderListBodyName, Constants.layoutAdminUILayoutBuilderListBodyCdnPathFilename);
                 layoutBuilderBase.body = cp.Mustache.Render(layout, renderData);
                 //
-                return layoutBuilderBase.getHtml(cp);
+                return layoutBuilderBase.getHtml();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "hint [" + hint + "]");
                 throw;

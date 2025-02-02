@@ -277,7 +277,6 @@ namespace Contensive.Processor.Controllers {
         /// <param name="HtmlClass"></param>
         /// <returns></returns>
         public string selectFromContent(string MenuName, int CurrentValue, string ContentName, string contentSqlCriteria, string NoneCaption, string htmlId, ref bool return_IsEmptyList, string HtmlClass = "") {
-            string result = "";
             try {
                 const string MenuNameFPO = "<MenuName>";
                 const string NoneCaptionFPO = "<NoneCaption>";
