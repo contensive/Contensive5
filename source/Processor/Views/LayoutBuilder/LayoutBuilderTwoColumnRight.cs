@@ -132,7 +132,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public override string getHtml(CPBaseClass cp) {
+        public override string getHtml() {
             //
             // -- construct body
             //
@@ -159,7 +159,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlLeftOfBody = htmlLeftOfBody,
                 blockFormTag = blockFormTag
             };
-            string result = layoutBase.getHtml(cp);
+            string result = layoutBase.getHtml();
             //
             // -- set the optional title of the portal subnav
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }

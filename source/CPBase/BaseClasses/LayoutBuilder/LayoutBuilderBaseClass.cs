@@ -11,7 +11,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// baseAjaxUrl is the url to an ajax method that just returns the html for this form.
     /// </summary>
     public abstract class LayoutBuilderBaseClass(CPBaseClass cp) {
-        private CPBaseClass cp { get; set; } = cp;
+        public CPBaseClass cp { get; set; } = cp;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -112,7 +112,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public abstract string getHtml(CPBaseClass cp);
+        public abstract string getHtml();
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

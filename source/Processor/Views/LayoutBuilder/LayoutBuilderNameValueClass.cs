@@ -182,7 +182,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public override string getHtml(CPBaseClass cp) {
+        public override string getHtml() {
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
             //
             string result = "";
@@ -249,7 +249,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 failMessage = warningMessage,
                 successMessage = successMessage
             };
-            return layoutBase.getHtml(cp);
+            return layoutBase.getHtml();
         }
         //
         // ----------------------------------------------------------------------------------------------------

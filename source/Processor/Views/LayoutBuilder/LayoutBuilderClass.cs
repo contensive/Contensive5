@@ -7,6 +7,7 @@ using System;
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderClass : Contensive.BaseClasses.LayoutBuilder.LayoutBuilderBaseClass {
         //
+        //
         public LayoutBuilderClass(CPBaseClass cp) : base(cp) {
             //
             // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
@@ -174,7 +175,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public override string getHtml(CPBaseClass cp) {
+        public override string getHtml() {
             //
             // add user errors
             string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
