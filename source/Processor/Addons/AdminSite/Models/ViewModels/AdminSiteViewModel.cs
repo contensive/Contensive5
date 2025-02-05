@@ -390,9 +390,9 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (cp.Doc.IsProperty("dashbeta")) {
                         AddonModel addon = null;
                         if (cp.Doc.GetBoolean("dashbeta")) {
-                            addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidDashboard);
-                        } else {
                             addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidGridStackDemoDashboard);
+                        } else {
+                            addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidDashboard);
                         }
                         if (addon is not null) {
                             dashboardAddonid = addon.id;
