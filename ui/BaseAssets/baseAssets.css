@@ -181,7 +181,7 @@ a.ccRecordPasteLink,
 */
 .ccRecordLinkCon {
 	position: relative;
-	z-index: 999;
+	z-index: 997;
 	/* display: block; */
 	white-space: nowrap;
 	overflow: hidden;
