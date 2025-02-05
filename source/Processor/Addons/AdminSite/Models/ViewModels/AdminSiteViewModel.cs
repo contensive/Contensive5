@@ -250,7 +250,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 navItemDataDragId = navItemDataDragId,
                                 navItemHref = (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
                             };
-                            category.navCategoryItems.Add(navCategoryItem);                            
+                            category.navCategoryItems.Add(navCategoryItem);
                         }
                     }
                 }
@@ -383,13 +383,48 @@ namespace Contensive.Processor.Addons.AdminSite {
                         }
                      }
                 };
-                List<string> cacheKeyList = new List<string> {
+                if (cp.User.IsDeveloper) {
+                    //
+                    // -- beta the Grid-Stack Dashboard
+                    int dashboardAddonid = cp.Site.GetInteger("ADMINROOTADDONID");
+                    if (cp.Doc.IsProperty("dashbeta")) {
+                        AddonModel addon = null;
+                        if (cp.Doc.GetBoolean("dashbeta")) {
+                            addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidDashboard);
+                        } else {
+                            addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidGridStackDemoDashboard);
+                        }
+                        if (addon is not null) {
+                            dashboardAddonid = addon.id;
+                            cp.Site.SetProperty("ADMINROOTADDONID", dashboardAddonid);
+                        }
+                    }
+                    if (cp.Content.GetRecordGuid("add-ons", dashboardAddonid) == Contensive.Processor.Constants.addonGuidDashboard) {
+                        //
+                        // -- link to switch to beta
+                        _navProfileCategoryList.navCategoryItems.Add(new NavCategoryItem {
+                            navItemName = "Try Beta Dashboard",
+                            navItemHref = "?dashbeta=1",
+                            navItemDataDragId = $""
+                        });
+                    } else {
+                        //
+                        // -- link to switch to icon-dashboard
+                        _navProfileCategoryList.navCategoryItems.Add(new NavCategoryItem {
+                            navItemName = "Return to Icon Dash",
+                            navItemHref = "?dashbeta=0",
+                            navItemDataDragId = $""
+                        });
+                    }
+                }
+                List<string> cacheKeyList = [
                     cp.Cache.CreateTableDependencyKey(OrganizationModel.tableMetadata.tableNameLower)
-                };
+                ];
                 cp.Cache.Store(cacheKey, _navProfileCategoryList, DateTime.Now, cacheKeyList);
                 return _navProfileCategoryList;
             }
         }
+
         private NavCategory _navProfileCategoryList = null;
         //
         //====================================================================================================
@@ -465,7 +500,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (cp.User.Id == 0) { return []; }
                 if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return []; }
                 //
-                foreach (string domainName in DomainModel.getPublicDomains(cp )) {
+                foreach (string domainName in DomainModel.getPublicDomains(cp)) {
                     string navItemHref = domainName.Contains("://") ? domainName : (cp.Request.Secure ? "https://" : "http://") + domainName;
                     navDomainList_Local.Add(new NavItem {
                         navDivider = false,

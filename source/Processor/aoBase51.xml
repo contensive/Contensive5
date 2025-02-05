@@ -3696,6 +3696,7 @@
   <ImportCollection Name="Contensive Patch5">{C7308F43-F810-4266-91E0-D4B1F5637BD6}</ImportCollection>
   <ImportCollection Name="Contact Manager">{51A67CB6-EA94-497C-896A-979A851BE3DB}</ImportCollection>
   <ImportCollection Name="Dashboard">{B470C25F-DDBC-4593-8161-1A2FD4A35690}</ImportCollection>
+  <ImportCollection Name="DashboardGridStack">{141797ad-e798-4838-b2e8-2abecfbb0b6a}</ImportCollection>
   <ImportCollection Name="Design Blocks">{fd1685af-bc66-4649-a8f1-1b3c18d59d24}</ImportCollection>
   <ImportCollection Name="Email Bounce Process">{321eb147-d85f-4537-8768-a16067c5ad17}</ImportCollection>
   <ImportCollection Name="Fancy Box">{B59F4D89-ADD9-4FEA-9D3F-B5A44DFD8F39}</ImportCollection>
