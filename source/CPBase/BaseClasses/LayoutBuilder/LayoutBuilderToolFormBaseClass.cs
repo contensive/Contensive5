@@ -63,14 +63,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// Description appears right below title
         /// </summary>
         public abstract string Description { get; set; }
-        // 
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Method retrieves the rendered html. Call this method after populating all object elements
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <returns></returns>
-        public abstract string GetHtml(CPBaseClass cp);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -155,5 +147,13 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// html block below the body
         /// </summary>
         public abstract string Footer { get; set; }
+        // 
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Method retrieves the rendered html. Call this method after populating all object elements
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated. Use getHtml()", false)] public abstract string GetHtml(CPBaseClass cp);
     }
 }

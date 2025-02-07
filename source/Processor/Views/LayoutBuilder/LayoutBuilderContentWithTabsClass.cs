@@ -1,5 +1,6 @@
 using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
+using System;
 
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderContentWithTabsClass : LayoutBuilderContentWithTabsBaseClass {
@@ -214,7 +215,7 @@ namespace Contensive.Processor.LayoutBuilder {
         // get
         // ----------------------------------------------------------------------------------------------------
         //
-        public override string getHtml(CPBaseClass cp) {
+        public override string getHtml() {
             string result = "";
             string list = "";
             string item = "";
@@ -292,10 +293,15 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        // ----------------------------------------------------------------------------------------------------
-        //
         private string indent(string src) {
             return src.Replace(Constants.cr, Constants.cr2);
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+
+        [Obsolete("Deprecated. Use getHtml().",false)] public override string getHtml(CPBaseClass cp) {
+            throw new System.NotImplementedException();
         }
     }
 }

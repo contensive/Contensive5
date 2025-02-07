@@ -23,13 +23,5 @@ namespace Contensive.Exceptions {
         /// </summary>
         public GenericException() : base() {
         }
-        /// <summary>
-        /// Raise generic exception
-        /// </summary>
-        /// <param name="serializationInfo"></param>
-        /// <param name="streamingContext"></param>
-        protected GenericException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) {
-            throw new NotImplementedException();
-        }
     }
 }

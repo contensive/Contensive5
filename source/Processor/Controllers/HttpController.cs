@@ -309,14 +309,6 @@ namespace Contensive.Processor.Controllers {
 
         public HttpException(string message) : base(message) {
         }
-
-        protected HttpException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) {
-            throw new NotImplementedException();
-        }
     }
-
-
-
-
 }
 

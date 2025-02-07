@@ -110,7 +110,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The default body. Typically you would create a layout by adding content to the individual elements and calling this method. Oveerride this method and consider using HtmlController.getReportDoc()
         /// </summary>
-        /// <param name="cp"></param>
         /// <returns></returns>
         public abstract string getHtml();
         //
@@ -303,6 +302,14 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         [Obsolete("deprecated. Use addFormHidden instead", false)]
         public abstract string formid { get; set; }
+        // 
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated. use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
 
     }
 }

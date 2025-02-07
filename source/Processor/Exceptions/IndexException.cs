@@ -18,9 +18,5 @@ namespace Contensive.Exceptions {
         public IndexException(string message, Exception inner) : base(message, inner) {
             // Add implementation.
         }
-
-        protected IndexException(System.Runtime.Serialization.SerializationInfo serializationInfo, System.Runtime.Serialization.StreamingContext streamingContext) {
-            throw new NotImplementedException();
-        }
     }
 }

@@ -1,9 +1,13 @@
 
 using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
+using Contensive.CPBase.BaseModels;
 using Contensive.Processor.Controllers;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
+using System.Windows.Controls.Primitives;
+using System.Xml.Linq;
 
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderNameValueClass : LayoutBuilderNameValueBaseClass {
@@ -429,36 +433,55 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
 
-        public override void addFormHidden(string Name, string Value, string htmlId) {
-            throw new NotImplementedException();
+        public override void addFormHidden(string name, string value, string htmlId) {
+            hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
+            includeForm = true;
         }
 
         public override void addFormHidden(string name, int value, string htmlId) {
-            throw new NotImplementedException();
+            hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
+            includeForm = true;
         }
 
         public override void addFormHidden(string name, double value, string htmlId) {
-            throw new NotImplementedException();
+            hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
+            includeForm = true;
         }
 
         public override void addFormHidden(string name, DateTime value, string htmlId) {
-            throw new NotImplementedException();
+            hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
+            includeForm = true;
         }
 
         public override void addFormHidden(string name, bool value, string htmlId) {
-            throw new NotImplementedException();
+            hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
+            includeForm = true;
         }
 
         public override void addLinkButton(string buttonCaption, string link) {
-            throw new NotImplementedException();
+            buttonList += cp.Html5.A(buttonCaption, new HtmlAttributesA() {
+                href = link,
+            });
         }
 
         public override void addLinkButton(string buttonCaption, string link, string htmlId) {
-            throw new NotImplementedException();
+            buttonList += cp.Html5.A(buttonCaption, new HtmlAttributesA() {
+                href = link,
+                id = htmlId
+            });
         }
 
         public override void addLinkButton(string buttonCaption, string link, string htmlId, string htmlClass) {
-            throw new NotImplementedException();
+            buttonList += cp.Html5.A(buttonCaption, new HtmlAttributesA() {
+                href = link,
+                id = htmlId,
+                @class = htmlClass
+            });
+        }
+
+        [Obsolete("Deprecated. Use getHtml()", false)]
+        public override string getHtml(CPBaseClass cp) {
+            return getHtml();
         }
 
         [Obsolete("Deprecated. Use addFormHidden()", false)]

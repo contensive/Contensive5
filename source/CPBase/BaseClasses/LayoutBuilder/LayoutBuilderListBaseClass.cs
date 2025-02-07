@@ -96,14 +96,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// Method retrieves the rendered html. Call this method after populating all object elements
         /// </summary>
-        /// <param name="cp"></param>
-        /// <returns></returns>
-        [Obsolete("Deprecated. Use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
-        // 
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Method retrieves the rendered html. Call this method after populating all object elements
-        /// </summary>
         /// <returns></returns>
         public abstract string getHtml();
         //
@@ -417,7 +409,14 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        [Obsolete("Deprecated. No longer used. Insead BaseUrl is calculated internally.", false)] public abstract string refreshQueryString { get; set; }
+        [Obsolete("Deprecated. Insead use BaseUrl is calculated internally.", false)] public abstract string refreshQueryString { get; set; }
+        // 
+        /// <summary>
+        /// Method retrieves the rendered html. Call this method after populating all object elements
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated. Use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
     }
     //
     //====================================================================================================

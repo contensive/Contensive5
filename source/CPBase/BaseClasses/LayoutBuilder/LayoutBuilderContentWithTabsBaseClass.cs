@@ -1,4 +1,5 @@
 using Contensive.BaseClasses;
+using System;
 
 namespace Contensive.BaseClasses.LayoutBuilder {
     public abstract class LayoutBuilderContentWithTabsBaseClass(CPBaseClass cp) {
@@ -84,11 +85,20 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// Add a navigation entry. The navCaption and navLink should be set after creating a new entry. The first nav entry does not need to be added.
         /// </summary>
         public abstract void addTab();
-        //
+        // 
         // ----------------------------------------------------------------------------------------------------
-        // get
+        /// <summary>
+        /// render the html
+        /// </summary>
+        /// <returns></returns>
+        public abstract string getHtml();
+        // 
         // ----------------------------------------------------------------------------------------------------
-        //
-        public abstract string getHtml(CPBaseClass cp);
+        /// <summary>
+        /// render the html
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        [Obsolete("Deprecated. use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
     }
 }

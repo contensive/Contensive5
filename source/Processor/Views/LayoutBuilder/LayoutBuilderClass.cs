@@ -351,12 +351,19 @@ namespace Contensive.Processor.LayoutBuilder {
             buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
             includeForm = true;
         }
+
+        [Obsolete("Deprecated. Use getHtml()", false)]
+         public override string getHtml(CPBaseClass cp) {
+            return getHtml();
+        }
+
         //
         //====================================================================================================
+        //
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        [Obsolete("Instead use baseUrl.", false)]
+        [Obsolete("Deprecated. Use baseUrl().", false)]
         public override string refreshQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -402,5 +409,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         private string _formid;
+        //
+
+        }
     }
-}

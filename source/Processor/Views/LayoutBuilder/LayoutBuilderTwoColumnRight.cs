@@ -402,8 +402,11 @@ namespace Contensive.Processor.LayoutBuilder {
                 formid_local = value;
             }
         }
-
-
         private string formid_local;
+
+        [Obsolete("Deprecated. Use getHtml()", false)]
+        public override string getHtml(CPBaseClass cp) {
+            return getHtml();
+        }
     }
 }

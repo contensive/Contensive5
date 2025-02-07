@@ -271,7 +271,7 @@ namespace Contensive.Processor {
             var context = new Stack<string>();
             bool skipCdefInstall = false;
             context.Push("Api call cp.addon.InstallCollectionFromLibrary [" + collectionGuid + "]");
-            bool result = CollectionLibraryController.installCollectionFromLibrary(cp.core, false, context, collectionGuid, ref localUserError, false, false, ref nonCriticalErrorList, logPrefix, ref installedCollections, skipCdefInstall);
+            bool result = CollectionLibraryController.installCollectionFromLibrary(cp.core, false, context, collectionGuid, ref localUserError, false, true, ref nonCriticalErrorList, logPrefix, ref installedCollections, skipCdefInstall);
             returnUserError = string.Join(" ", localUserError);
             return result;
         }
