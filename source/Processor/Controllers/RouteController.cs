@@ -373,15 +373,16 @@ namespace Contensive.Processor.Controllers {
                 //
                 // set the meta content flag to show it is not needed for the head tag
                 switch (formType) {
-                    case FormTypeLogin:
-                    case "l09H58a195": {
-                            //
-                            string requestUsername = core.cpParent.Doc.GetText("username");
-                            string requestPassword = core.cpParent.Doc.GetText("password");
-                            bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
-                            LoginWorkflowController.processLogin(core, requestUsername, requestPassword, requestIncludesPassword, ref userErrorMessage);
-                            return;
-                        }
+                    // -- moved to default-auth-event during core construction
+                    //case FormTypeLogin:
+                    //case "l09H58a195": {
+                    //        //
+                    //        string requestUsername = core.cpParent.Doc.GetText("username");
+                    //        string requestPassword = core.cpParent.Doc.GetText("password");
+                    //        bool requestIncludesPassword = core.cpParent.Doc.IsProperty("password");
+                    //        LoginWorkflowController.processLogin(core, requestUsername, requestPassword, requestIncludesPassword, ref userErrorMessage);
+                    //        return;
+                    //    }
                     case FormTypeToolsPanel: {
                             //
                             (new Contensive.Processor.Addons.Primitives.processFormToolsPanelClass()).Execute(core.cpParent);

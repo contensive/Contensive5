@@ -86,6 +86,12 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- process a previous login for instance, and return blank if it is successful (legacy workflow)
                     string requestUsername = core.cpParent.Doc.GetText("username");
+                    //
+                    if (core.session.user.username == requestUsername && core.session.isAuthenticated) {
+                        //
+                        // -- default login is intercepted during default-auth-event, during core-constructor. If this user is authenticagted, skip process
+                        return "";
+                    }
                     string requestPassword = core.cpParent.Doc.GetText("password");
                     bool passwordRequestValid = core.cpParent.Doc.IsProperty("password");
                     if (LoginWorkflowController.processLogin(core, requestUsername, requestPassword, passwordRequestValid, ref userErrorMessage)) {

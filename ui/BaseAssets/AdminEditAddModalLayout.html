@@ -93,16 +93,16 @@
             <div class="d-flex justify-content-between mx-1 mt-1">
                 <a id="widgetEditTab{{editModalSn}}" type="button" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editModalSn}}">
                     <div class="btn-group editModalBtn ccRecordLinkCon" role="group">
-                        <div class="btn editBtn" ><img src="BaseAssets/light-edit-pencil.svg" alt="pencil icon" class="editBtnIcon"></div>
+                        <div class="btn editBtn" ><img src="/BaseAssets/light-edit-pencil.svg" alt="pencil icon" class="editBtnIcon"></div>
                         <div class="widgetName">{{{dialogCaption}}}</div>
                     </div>
                 </a>
                 {{#isAllowCut}}
-                <a href="#" class="btn cutBtn"><img src="BaseAssets/scissors.svg" alt="scissors icon"></a>
+                <a href="#" class="btn cutBtn"><img src="/BaseAssets/scissors.svg" alt="scissors icon"></a>
                 {{/isAllowCut}}
             </div>
             {{#isAllowPaste}}
-                <a href="#" class="btn pasteBtn"><img src="BaseAssets/paste.svg" alt="paste icon"> Paste Record</a>
+                <a href="#" class="btn pasteBtn"><img src="/BaseAssets/paste.svg" alt="paste icon"> Paste Record</a>
             {{/isAllowPaste}}
             <input type="hidden" id="widgetEditModalContentGuid{{editModalSn}}" value="{{contentGuid}}">
             <input type="hidden" id="widgetEditModalRecordGuid{{editModalSn}}" value="{{recordGuid}}">
@@ -157,7 +157,7 @@
                 }
             </style>
             <div id="widgetEditTab{{editModalSn}}" class="addNewItemTag" data-bs-toggle="modal" data-bs-target="#widgetEditModal{{editModalSn}}">
-                <img src="BaseAssets/circle-plus.svg" alt="add item icon" class="icon">
+                <img src="/BaseAssets/circle-plus.svg" alt="add item icon" class="icon">
                 <h6>Add New {{contentItemName}}</h6>
             </div>
             <input type="hidden" id="widgetEditModalContentGuid{{editModalSn}}" value="{{contentGuid}}">
@@ -311,8 +311,8 @@
                     <input type="hidden" name="recordGuid" value="{{recordGuid}}">
                     <input type="hidden" name="contentGuid" value="{{contentGuid}}">
                     <div class="modal-header d-flex justify-content-between border-0">
-                        <h2 class="modal-title" id="widgetEditModalLabel"><img src="BaseAssets/pencil.svg" alt="edit pencil" class="icon">{{{dialogCaption}}}</h2>
-                        <div class="ccRecordEditLink"><a href="{{adminEditUrl}}" class="openLink">Advanced Edit<img src="BaseAssets/arrow-up-right-from-square.svg" alt="" class="icon"></a> </div>
+                        <h2 class="modal-title" id="widgetEditModalLabel"><img src="/BaseAssets/pencil.svg" alt="edit pencil" class="icon">{{{dialogCaption}}}</h2>
+                        <div class="ccRecordEditLink"><a href="{{adminEditUrl}}" class="openLink">Advanced Edit<img src="/BaseAssets/arrow-up-right-from-square.svg" alt="" class="icon"></a> </div>
                     </div>
                     <div class="modal-body">
                         <div class="row"> 
@@ -334,7 +334,7 @@
                                                 <div class="position-relative">
                                                     {{#isHelp}}
                                                         <a type="button" class="helpIcon position-absolute top-25 start-0 translate-middle" data-bs-custom-class="custom-tooltip" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="{{help}}">
-                                                            <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon">
+                                                            <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon">
                                                         </a>
                                                     {{/isHelp}}
                                                 </div>
@@ -373,7 +373,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -393,7 +393,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
 
@@ -414,7 +414,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
 
@@ -435,7 +435,7 @@
                                             <label for="{{fieldId}}-date" class="form-label d-flex align-items-center">
                                             {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
 
@@ -494,7 +494,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
 
@@ -518,7 +518,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -542,7 +542,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -566,7 +566,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -590,7 +590,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -615,7 +615,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
 
@@ -639,7 +639,7 @@
                                             <h6 class="mb-0">{{caption}}</h6>
                                             {{#isHelp}}
                                             <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                             </a>
                                             {{/isHelp}}
                                         
@@ -655,7 +655,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                     <h6 class="mb-0">{{caption}}</h6>
                                                 {{/isHelp}}                                                
@@ -677,7 +677,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}                                                
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -701,7 +701,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -723,7 +723,7 @@
                                                 <div class="position-relative">
                                                     {{#isHelp}}
                                                         <a type="button" class="helpIcon position-absolute top-25 start-0 translate-middle" data-bs-custom-class="custom-tooltip" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="{{help}}">
-                                                            <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon">
+                                                            <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon">
                                                         </a>
                                                     {{/isHelp}}
                                                     <img src="{{imageUrl}}" alt="placeholder image" class="output">
@@ -767,7 +767,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -788,7 +788,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -809,7 +809,7 @@
                                             <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                 {{#isHelp}}
                                                     <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                        <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                        <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                     </a>
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
@@ -835,7 +835,7 @@
                                                     
                                                         {{#isHelp}}
                                                         <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                            <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                            <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                         </a>
                                                         {{/isHelp}}
 
@@ -877,7 +877,7 @@
                                                                         <h6 class="mb-0">{{caption}}</h6>
                                                                         {{#isHelp}}
                                                                         <a type="button" class="helpIcon ms-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                            <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                                            <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                                         </a>
                                                                         {{/isHelp}}                                                                    
                                                                     </label>
@@ -892,7 +892,7 @@
                                                                         <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                                             {{#isHelp}}
                                                                                 <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                                    <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                                                    <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                                                 </a>
                                                                             {{/isHelp}}
 
@@ -912,7 +912,7 @@
                                                                     <label for="{{fieldId}}" class="form-label d-flex align-items-center">
                                                                         {{#isHelp}}
                                                                             <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                                <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                                                <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                                             </a>
                                                                         {{/isHelp}}
 
@@ -932,7 +932,7 @@
                                                                         <div class="position-relative ms-2">
                                                                             {{#isHelp}}
                                                                                 <a type="button" class="helpIcon position-absolute top-25 start-0 translate-middle" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                                    <img src="BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                                                    <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
                                                                                 </a>
                                                                             {{/isHelp}}
                                                                             <img src="{{imageUrl}}" alt="placeholder image" class="outputBgImg">

@@ -21,7 +21,7 @@ namespace Contensive.Processor.Controllers {
             // -- default username/password login (? /mfa-otp/reset-password)
             string authType = core.docProperties.getText("type");
             if(!string.IsNullOrEmpty(authType)) {
-                if(authType.Equals("login", StringComparison.InvariantCultureIgnoreCase)) {
+                if(authType.Equals("login", StringComparison.InvariantCultureIgnoreCase) || authType.Equals("l09H58a195", StringComparison.InvariantCultureIgnoreCase)) {
                     string requestPassword = core.docProperties.getText("password");
                     if (LoginWorkflowController.processLogin(core, 
                         core.docProperties.getText("username"), 
