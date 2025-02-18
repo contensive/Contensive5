@@ -23,6 +23,9 @@ namespace Contensive.Processor.Controllers {
         public static string getPasswordRecoveryForm(CoreController core) {
             string returnResult = "";
             try {
+                //
+                logger.Trace($"{core.logCommonMessage},PasswordRecoveryWorkflowController.getPasswordRecoveryForm");
+                //
                 if (core.siteProperties.getBoolean("allowPasswordEmail", true)) {
                     returnResult += Properties.Resources.defaultForgetPassword_html;
                     returnResult += HtmlController.inputHidden("Type", FormTypePasswordRecovery);
@@ -59,6 +62,9 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool trySendPasswordReset(CoreController core, string requestEmail, ref string userErrorMessage) {
             try {
+                //
+                logger.Trace($"{core.logCommonMessage},PasswordRecoveryWorkflowController.trySendPasswordReset, requestEmail [{requestEmail}]");
+                //
                 if (string.IsNullOrEmpty(requestEmail)) {
                     userErrorMessage = "The email address cannot be blank";
                     return false;
@@ -92,7 +98,7 @@ namespace Contensive.Processor.Controllers {
                             $"An account was found but the username is blank. " +
                             $"Please contact the site administrator to have the account username updated." +
                             $"</p>";
-                        return EmailController.trySendSystemEmail(core, true, email.id, body, userList.First().id);
+                        return EmailController.trySendSystemEmail(core, true, email.id, body, userList.First().id, ref userErrorMessage);
                     }
                     //
                     // -- one user found, send password reset
@@ -104,7 +110,7 @@ namespace Contensive.Processor.Controllers {
                        $"</p><p>" +
                        $"If you requested this change, <a href=\"{resetUrl}\">please click here</a> to set a new password. If you did not request this change ignore this email." +
                        $"</p>";
-                    return EmailController.trySendSystemEmail(core, true, email.id, body, userList.First().id);
+                    return EmailController.trySendSystemEmail(core, true, email.id, body, userList.First().id, ref userErrorMessage);
                 }
                 //
                 // -- multiple users found for this email address
@@ -131,7 +137,7 @@ namespace Contensive.Processor.Controllers {
                             $"<br>If you requested this change, <a href=\"{resetUrl}\">please click here</a> to set a new password.</p>");
                     }
                 }
-                return EmailController.trySendSystemEmail(core, true, email.id, body + bodyContent.ToString(), userList.First().id);
+                return EmailController.trySendSystemEmail(core, true, email.id, body + bodyContent.ToString(), userList.First().id, ref userErrorMessage);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

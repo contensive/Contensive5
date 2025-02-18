@@ -75,7 +75,6 @@ namespace Contensive.Processor.Controllers {
         private static string processGetAuthWorkflow_default(CoreController core, bool blockNoPasswordMode) {
             try {
                 //
-
                 logger.Trace($"{core.logCommonMessage},loginController.getLoginForm_Default, requirePassword [" + blockNoPasswordMode + "]");
                 //
                 // -- process auth workflow forms
@@ -163,7 +162,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 // -- add user errors
-                layout = layout.Replace("{{userError}}", userErrorMessage);
+                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage });
                 layout += HtmlController.inputHidden("Type", FormTypeLogin);
                 //
                 // -- wrap in form that sumbits to the same request URL, to return to the same page after login

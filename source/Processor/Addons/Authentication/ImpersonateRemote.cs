@@ -53,11 +53,8 @@ namespace Contensive.Processor.Addons {
                 string layout = Properties.Resources.Layout_Impersonate;
                 //
                 // -- add user errors
-                if (!core.doc.userErrorList.Count.Equals(0)) {
-                    layout = layout.Replace("{{userError}}", ErrorController.getUserError(core));
-                } else {
-                    layout = layout.Replace("{{userError}}", "");
-                }
+                string userErrorMessage = core.doc.userErrorList.Count.Equals(0) ? "" : ErrorController.getUserError(core); 
+                layout = MustacheController.renderStringToString(layout, new { userError = userErrorMessage });
                 //
                 // -- wrap in form
                 result += Controllers.HtmlController.form(core, layout);
