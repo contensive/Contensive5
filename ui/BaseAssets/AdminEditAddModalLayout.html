@@ -378,9 +378,12 @@
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
                                             </label>
-                                            <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isText}}
@@ -398,10 +401,13 @@
                                                 {{/isHelp}}
 
                                                 <h6 class="mb-0">{{caption}}</h6>
-                                            </label>
-                                            <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
+                                            </label>                                            
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <textarea name="{{htmlName}}" class="form-control" id="{{fieldId}}" rows="5" placeholder="{{placeholder}}" maxlength="{{textMaxLength}}">{{{currentValue}}}</textarea>
                                             {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
                                             {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isTextLong}}
@@ -419,10 +425,13 @@
                                                 {{/isHelp}}
 
                                                 <h6 class="mb-0">{{caption}}</h6>
-                                            </label>
-                                            <input type="number" step="1" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
-                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            </label>                                           
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <input type="number" step="1" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isInteger}}
@@ -440,21 +449,24 @@
                                                 {{/isHelp}}
 
                                                 <h6 class="mb-0">{{caption}}</h6>
-                                            </label>
-                                            <div class="input-group">
-                                                <!-- date part-->
-                                                <input type="hidden" value="{{currentValue}}" name="{{htmlName}}" id="{{fieldId}}">
-                                                <input type="date" name="{{htmlName}}-date" class="form-control" id="{{fieldId}}-date" value="">
-                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}-date").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-date").readOnly = true;</script>{{/isReadOnly}}
-                                                <!-- time part-->
-                                                <input type="time" step="1" name="{{htmlName}}-time" class="form-control" id="{{fieldId}}-time" value="">
-                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}-time").required = true;</script>{{/isRequired}}
-                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-time").readOnly = true;</script>{{/isReadOnly}}
-                                                <!-- clear both-->
-                                                <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="{{fieldId}}delete" autocomplete="off">
-                                                <label class="btn btn-outline-danger me-3" for="{{fieldId}}delete"><i class="fa-regular fa-trash-can"></i></label>
-                                            </div>
+                                            </label>                                            
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <div class="input-group">
+                                                    <!-- date part-->
+                                                    <input type="hidden" value="{{currentValue}}" name="{{htmlName}}" id="{{fieldId}}">
+                                                    <input type="date" name="{{htmlName}}-date" class="form-control" id="{{fieldId}}-date" value="">
+                                                    {{#isRequired}}<script>document.getElementById("{{fieldId}}-date").required = true;</script>{{/isRequired}}
+                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-date").readOnly = true;</script>{{/isReadOnly}}
+                                                    <!-- time part-->
+                                                    <input type="time" step="1" name="{{htmlName}}-time" class="form-control" id="{{fieldId}}-time" value="">
+                                                    {{#isRequired}}<script>document.getElementById("{{fieldId}}-time").required = true;</script>{{/isRequired}}
+                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}-time").readOnly = true;</script>{{/isReadOnly}}
+                                                    <!-- clear both-->
+                                                    <input type="checkbox" class="btn-check" name="{{fieldClearName}}" value="1" id="{{fieldId}}delete" autocomplete="off">
+                                                    <label class="btn btn-outline-danger me-3" for="{{fieldId}}delete"><i class="fa-regular fa-trash-can"></i></label>
+                                                </div>
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     <script>
@@ -621,9 +633,12 @@
 
                                                 <h6 class="mb-0">{{caption}}</h6>
                                             </label>
-                                            <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <input type="text" class="form-control" id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isLink}}
@@ -660,11 +675,14 @@
                                                     <h6 class="mb-0">{{caption}}</h6>
                                                 {{/isHelp}}                                                
                                             </label>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
-                                                {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").onclick="return false;";</script>{{/isReadOnly}}
-                                            </div>
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
+                                                    {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").onclick="return false;";</script>{{/isReadOnly}}
+                                                </div>
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isBoolean}}
@@ -706,10 +724,13 @@
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
                                             </label>
-                                            <!-- number input hack to allow floating point-->
-                                            <input type="number" step="0.01" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
-                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <!-- number input hack to allow floating point-->
+                                                <input type="number" step="0.01" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isCurrency}}
@@ -772,10 +793,13 @@
                                                 {{/isHelp}}
                                                 <h6 class="mb-0">{{caption}}</h6>
                                             </label>
-                                            <!-- number input hack to allow floating point-->
-                                            <input type="number" step="any" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
-                                            {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
-                                            {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                            {{^customEditor}}
+                                                <!-- number input hack to allow floating point-->
+                                                <input type="number" step="any" class="form-control" placeholder="{{placeholder}}" id="{{fieldId}}" value="{{currentValue}}" name="{{htmlName}}" >
+                                                {{#isRequired}}<script>document.getElementById("{{fieldId}}").required = true;</script>{{/isRequired}}
+                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                            {{/customEditor}}
                                         </div>
                                     </div>
                                     {{/isFloat}}
@@ -851,36 +875,46 @@
                                                                     text field
                                                                 -->
                                                                 <div class="form-floating mb-3">
-                                                                    <input type="text" class="form-control"  id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
-                                                                    <label for="{{fieldId}}">{{caption}}</label>
+                                                                    {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                                                    {{^customEditor}}
+                                                                        <input type="text" class="form-control"  id="{{fieldId}}" placeholder="{{placeholder}}" value="{{currentValue}}" name="{{htmlName}}">
+                                                                        <label for="{{fieldId}}">{{caption}}</label>
+                                                                        {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                                        {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                    {{/customEditor}}
                                                                 </div>
-                                                                {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                                                {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
                                                             {{/isText}}
                                                             {{#isSelect}}
                                                                 <!--
                                                                     select field
                                                                 -->
-                                                                <select type="text" class="form-select custom-select mb-3" id="" placeholder="{{placeholder}}">
-                                                                    <option value="{{currentValue}}" selected>{{currentValue}}</option>
-                                                                </select>
+                                                                {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                                                {{^customEditor}}
+                                                                    <!-- select -->
+                                                                    <select id="{{fieldId}}" name="{{htmlName}}" class="form-select custom-select mb-3" placeholder="{{placeholder}}">
+                                                                        {{{selectOptionList}}}
+                                                                    </select>
+                                                                {{/customEditor}}
                                                             {{/isSelect}}
                                                             {{#isBoolean}}
                                                                 <!--
                                                                     checkbox list
                                                                 -->
                                                                 <div class="form-check mb-3">
-                                                                    <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
-                                                                    {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
-                                                                    {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
-                                                                    <label class="form-check-label d-flex" for="{{fieldId}}">
-                                                                        <h6 class="mb-0">{{caption}}</h6>
-                                                                        {{#isHelp}}
-                                                                        <a type="button" class="helpIcon ms-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                            <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
-                                                                        </a>
-                                                                        {{/isHelp}}                                                                    
-                                                                    </label>
+                                                                    {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                                                    {{^customEditor}}
+                                                                        <input class="form-check-input" type="checkbox" value="1" id="{{fieldId}}" name="{{htmlName}}">
+                                                                        {{#isChecked}}<script>document.getElementById("{{fieldId}}").checked = true;</script>{{/isChecked}}
+                                                                        {{#isReadOnly}}<script>document.getElementById("{{fieldId}}").readOnly = true;</script>{{/isReadOnly}}
+                                                                        <label class="form-check-label d-flex" for="{{fieldId}}">
+                                                                            <h6 class="mb-0">{{caption}}</h6>
+                                                                            {{#isHelp}}
+                                                                            <a type="button" class="helpIcon ms-1" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                                                <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                                            </a>
+                                                                            {{/isHelp}}                                                                    
+                                                                        </label>
+                                                                    {{/customEditor}}                        
                                                                 </div>
                                                             {{/isBoolean}}
                                                             {{#isFile}}
@@ -909,17 +943,19 @@
                                                                     currency field
                                                                 -->
                                                                 <div class="mb-3">
-                                                                    <label for="{{fieldId}}" class="form-label d-flex align-items-center">
-                                                                        {{#isHelp}}
-                                                                            <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
-                                                                                <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
-                                                                            </a>
-                                                                        {{/isHelp}}
+                                                                    {{#customEditor}}<!-- custom select -->{{{customEditor}}}{{/customEditor}}
+                                                                    {{^customEditor}}
+                                                                        <label for="{{fieldId}}" class="form-label d-flex align-items-center">
+                                                                            {{#isHelp}}
+                                                                                <a type="button" class="helpIcon me-1" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-custom-class="custom-tooltip" data-bs-title="{{help}}">
+                                                                                    <img src="/BaseAssets/circle-info.svg" alt="info icon" class="icon"> 
+                                                                                </a>
+                                                                            {{/isHelp}}
 
-                                                                        <h6 class="mb-0">{{caption}}</h6>
-                                                                    </label>
-                                                                    <input type="number" step="any"  name="{{htmlName}}" value="{{currentValue}}" id="{{fieldId}}" class="form-control">
-
+                                                                            <h6 class="mb-0">{{caption}}</h6>
+                                                                        </label>
+                                                                        <input type="number" step="any"  name="{{htmlName}}" value="{{currentValue}}" id="{{fieldId}}" class="form-control">
+                                                                    {{/customEditor}}
                                                                 </div>
                                                             {{/isCurrency}}
                                                             {{#isImage}}                                                            
@@ -937,10 +973,7 @@
                                                                             {{/isHelp}}
                                                                             <img src="{{imageUrl}}" alt="placeholder image" class="outputBgImg">
                                                                         </div>
-                                                                        
-                                                                       
                                                                     </div>
-
                                                                     <div class="d-flex justify-content-between align-items-center mb-2 mx-2">
                                                                         <input class="form-control me-3" type="file" id="{{fieldId}}" name="{{htmlName}}">
 
@@ -949,7 +982,6 @@
                                                                             <label class="btn btn-outline-danger" for="{{fieldId}}delete"><i class="fa-regular fa-trash-can"></i></label>
                                                                         </div>
                                                                     </div>
-
                                                                     <div class="mx-2">
                                                                         {{#currentValue}}<a href="{{imageUrl}}">{{fileName}}</a>{{/currentValue}}
                                                                         {{^currentValue}}<span id="{{fieldId}}-caption" class="text-primary mb-2">No File Chosen...</span>{{/currentValue}}
@@ -967,8 +999,6 @@
                                                                     })                                        
                                                                 </script>
                                                             {{/isImage}}
-                                                            
-
                                                         {{/rightGroupFields}}
                                                     </div>
                                                 </div>

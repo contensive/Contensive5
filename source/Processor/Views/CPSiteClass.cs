@@ -5,6 +5,7 @@ using static Contensive.Processor.Constants;
 using Contensive.Models.Db;
 using System.Threading.Tasks;
 using Amazon.Runtime.Internal.Util;
+using Microsoft.Extensions.Logging;
 
 namespace Contensive.Processor {
     //
@@ -452,8 +453,23 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="eventNameIdOrGuid"></param>
         /// <returns></returns>
-        public override string ThrowEvent(string eventNameIdOrGuid)
-            => EventController.throwEvent(cp.core, eventNameIdOrGuid);
+        [Obsolete("deprecated. Use int, byName or byGuid", false)]
+        public override string ThrowEvent(string eventNameIdOrGuid) {
+            if (eventNameIdOrGuid.isNumeric()) {
+                return EventController.throwEventById(cp.core, cp.Utils.EncodeInteger(eventNameIdOrGuid));
+            } else if (GenericController.isGuid(eventNameIdOrGuid)) {
+                return EventController.throwEventByGuid(cp.core, eventNameIdOrGuid);
+            } else {
+                return EventController.throwEventByName(cp.core, eventNameIdOrGuid);
+            }
+        }
+        public override string ThrowEvent(int  eventId )
+            => EventController.throwEventById(cp.core, eventId);
+        public override string ThrowEventByName(string eventName)
+            => EventController.throwEventByName(cp.core, eventName);
+        public override string ThrowEventByGuid(string eventGuid)
+            => EventController.throwEventByGuid(cp.core, eventGuid);
+
         //
         //====================================================================================================
         // Deprecated

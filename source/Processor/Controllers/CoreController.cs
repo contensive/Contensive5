@@ -691,7 +691,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     string UserErrorMessage = "";
                     if (!AuthEventController.processAuthenticationDefaultEvent(this, ref UserErrorMessage)) {
-                        _ = EventController.throwEvent(this, "authentication event");
+                        _ = EventController.throwEventByName(this, "authentication event");
                     }
                 }
             } catch (Exception ex) {

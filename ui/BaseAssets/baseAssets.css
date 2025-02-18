@@ -393,3 +393,7 @@ for hints created with getAdminHintWrapper
 	background-color: #80E080;
 	color: black;
 }
+.ccTextEditMaxWidth {
+	max-width:750px;
+	
+}

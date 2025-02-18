@@ -308,7 +308,10 @@ namespace Contensive.BaseClasses {
         /// </summary>
         /// <param name="eventNameIdOrGuid"></param>
         /// <returns></returns>
-        public abstract string ThrowEvent(string eventNameIdOrGuid);
+        [Obsolete("Deprecated. Use ThrowEvent(int), ThrowEventByName(string), or ThrowEventByGuid(string)",false)] public abstract string ThrowEvent(string eventNameIdOrGuid);
+        public abstract string ThrowEvent(int  eventId );
+        public abstract string ThrowEventByName(string eventName);
+        public abstract string ThrowEventByGuid(string eventGuid);
         //
         //====================================================================================================
         // deprecated

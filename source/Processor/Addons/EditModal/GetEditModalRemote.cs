@@ -37,7 +37,8 @@ namespace Contensive.Processor.Addons {
                 //
                 // -- edit record
                 string recordName = cp.Content.GetRecordName(contentMetadata.name, request.recordGuid);
-                return AjaxResponse.getResponse(cp, new GetEditModalResponse { modalHtml = EditUIController.getEditTab_Modal(core, contentMetadata, request.recordGuid, false, recordName, $"Edit {contentMetadata.name}") });
+                string singularName = GenericController.getSingular_Sortof(core, contentMetadata.name);
+                return AjaxResponse.getResponse(cp, new GetEditModalResponse { modalHtml = EditUIController.getEditTab_Modal(core, contentMetadata, request.recordGuid, false, recordName, $"Edit {singularName}") });
                 //
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

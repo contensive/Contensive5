@@ -798,9 +798,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="help"></param>
         /// <returns></returns>
         public static string getEditRow(CoreController core, string editHtml, string label, string help, bool isRequired, bool ignore, string htmlId, string editorWrapperStyle, bool blockBottomRule, string editorWrapperClass) {
-            if (string.IsNullOrEmpty(editorWrapperClass)) {
-                editorWrapperClass = "ml-5 ms-5";
-            }
+            editorWrapperClass = $"ml-5 ms-5 {editorWrapperClass}";
             string wrappedLabel = HtmlController.label(label, htmlId);
             string wrappedEditor = HtmlController.div(editHtml, editorWrapperClass, "", editorWrapperStyle);
             string smallHelp = HtmlController.div(HtmlController.small(help, "form-text text-muted"), "ml-5 ms-5");
