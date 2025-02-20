@@ -1030,7 +1030,7 @@ namespace Contensive.Processor.Controllers {
             if (expression == null) { return "null"; }
             string returnResult = GenericController.encodeText(expression);
             if (string.IsNullOrEmpty(returnResult)) { return "null"; }
-            return "'" + GenericController.strReplace(returnResult, "'", "''") + "'";
+            return "N'" + GenericController.strReplace(returnResult, "'", "''") + "'";
         }
         //
         // ====================================================================================================

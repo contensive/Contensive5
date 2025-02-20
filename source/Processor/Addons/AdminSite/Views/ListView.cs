@@ -1039,7 +1039,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                     break;
                                                                 }
                                                             case (int)FindWordMatchEnum.matchincludes: {
-                                                                    sqlWhere.Append("AND(LookupTable" + FieldPtr + ".Name LIKE " + DbController.encodeSQLText("%" + FindWordValue + "%") + ")");
+                                                                    sqlWhere.Append($"AND(LookupTable{FieldPtr}.Name LIKE {DbController.encodeSqlTextLike(FindWordValue)})");
                                                                     break;
                                                                 }
                                                             default:
@@ -1117,7 +1117,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                         case (int)FindWordMatchEnum.matchincludes: {
                                                                 FindWordValue = DbController.encodeSQLText(FindWordValue);
                                                                 FindWordValue = FindWordValue.Substring(1, FindWordValue.Length - 2);
-                                                                sqlWhere.Append("AND(" + adminData.adminContent.tableName + "." + FindWordNameLc + " LIKE '%" + FindWordValue + "%')");
+                                                                sqlWhere.Append( $"AND({adminData.adminContent.tableName}.{FindWordNameLc} LIKE {DbController.encodeSqlTextLike(FindWordValue)})");
                                                                 break;
                                                             }
                                                         default: {

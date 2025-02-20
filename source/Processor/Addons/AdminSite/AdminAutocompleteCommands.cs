@@ -34,7 +34,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 // -- add content links
                 string filterTerm = cp.Doc.GetText("term");
-                string filterSql = string.IsNullOrEmpty(filterTerm) ? "" : "and(name like " + cp.Db.EncodeSQLText("%" + filterTerm + "%") + ")";
+                string filterSql = string.IsNullOrEmpty(filterTerm) ? "" : $"and(name like {cp.Db.EncodeSQLTextLike(filterTerm)})";
                 string contentUrl = "/" + cp.GetAppConfig().adminRoute + "?cid=";
                 string addonUrl = "/" + cp.GetAppConfig().adminRoute + "?addonid=";
                 string sql = ""
