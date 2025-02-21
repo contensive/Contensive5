@@ -1115,8 +1115,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                                                                 break;
                                                             }
                                                         case (int)FindWordMatchEnum.matchincludes: {
-                                                                FindWordValue = DbController.encodeSQLText(FindWordValue);
-                                                                FindWordValue = FindWordValue.Substring(1, FindWordValue.Length - 2);
                                                                 sqlWhere.Append( $"AND({adminData.adminContent.tableName}.{FindWordNameLc} LIKE {DbController.encodeSqlTextLike(FindWordValue)})");
                                                                 break;
                                                             }
