@@ -177,19 +177,13 @@ namespace Contensive.Processor.Controllers {
                     // -- PersonModel
                     if (!isDelete) {
                         LogController.addActivityCompletedEdit(core, "Edit", core.session.user.name + " saved changes to user #" + recordId + " (" + recordName + ")", recordId);
-                        bool allowPlainTextPassword = core.siteProperties .getBoolean(Constants.sitePropertyName_AllowPlainTextPassword, true);
+                        bool allowPlainTextPassword = core.siteProperties.getBoolean(Constants.sitePropertyName_AllowPlainTextPassword, true);
                         if (!allowPlainTextPassword) {
                             //
                             // -- handle auto password hash
                             PersonModel user = DbBaseModel.create<PersonModel>(core.cpParent, recordId);
-                            if (user is null) {
-                                // -- user not valid
-                                ErrorController.addUserError(core, "Could not set password. Error accessing user record.");
-                            } else if (string.IsNullOrEmpty(user.password)) {
-                                user.passwordHash = "";
-                                user.passwordModifiedDate = core.dateTimeNowMockable;
-                                user.save(core.cpParent);
-                            } else {
+                            if (user != null && !string.IsNullOrEmpty(user.password)) {
+                                //
                                 // -- password field set, hash and save to passwordHash, used passwords
                                 string userErrorMessage = "";
                                 if (!AuthController.tryIsValidPassword(core, user, user.password, ref userErrorMessage)) {
@@ -235,7 +229,7 @@ namespace Contensive.Processor.Controllers {
                     } else {
                         //
                         // -- not delete
-                        if (recordParentID > 0 ) {
+                        if (recordParentID > 0) {
                             //
                             // -- set ChildPagesFound true for parent page
                             core.db.executeNonQuery("update ccpagecontent set ChildPagesfound=1 where ID=" + recordParentID);
