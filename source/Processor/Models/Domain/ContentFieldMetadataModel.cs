@@ -466,7 +466,7 @@ namespace Contensive.Processor.Models.Domain {
             }
             //
             // -- memberSelectGroupName provided
-            if (GenericController.isGuid(_memberSelectGroupName)) {
+            if (GuidController.isGuid(_memberSelectGroupName)) {
                 //
                 // -- the name is a guid, attempt to find group with this guid
                 var groupByGuid = DbBaseModel.create<GroupModel>(core.cpParent, _memberSelectGroupName);

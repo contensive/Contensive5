@@ -100,7 +100,7 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="GroupNameIdOrGuid"></param>
         public override void Delete(string GroupNameIdOrGuid) {
-            if (GenericController.isGuid(GroupNameIdOrGuid)) {
+            if (GuidController.isGuid(GroupNameIdOrGuid)) {
                 //
                 // -- guid
                 GroupModel.delete<GroupModel>(core.cpParent, GroupNameIdOrGuid);
@@ -132,7 +132,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         public override int GetId(string GroupNameOrGuid) {
             GroupModel group;
-            if (GenericController.isGuid(GroupNameOrGuid)) {
+            if (GuidController.isGuid(GroupNameOrGuid)) {
                 group = DbBaseModel.create<GroupModel>(cp, GroupNameOrGuid);
             } else {
                 group = DbBaseModel.createByUniqueName<GroupModel>(cp, GroupNameOrGuid);

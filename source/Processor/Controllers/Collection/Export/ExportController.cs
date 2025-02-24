@@ -228,7 +228,7 @@ namespace Contensive.Processor.Controllers {
                             // -- row is just contentName, exports the entire table
                             continue;
                         }
-                        if (GenericController.isGuid(dataRecordCommaRowSplit[1])) {
+                        if (GuidController.isGuid(dataRecordCommaRowSplit[1])) {
                             //
                             // -- row is contentName,Guid
                             if (dataRecordList.Find(x => x.contentName.Equals(dataRecordCommaRowSplit[0], StringComparison.CurrentCultureIgnoreCase) && x.recordGuid.Equals(dataRecordCommaRowSplit[1], StringComparison.CurrentCultureIgnoreCase)) == null) {

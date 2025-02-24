@@ -32,7 +32,7 @@ namespace Contensive.CLI {
                 Console.Write(Environment.NewLine + "Run cc --help for a full list of commands.");
                 return;
             }
-            if (string.IsNullOrEmpty(arg) || !Contensive.Processor.Controllers.GenericController.isGuid(arg)) {
+            if (string.IsNullOrEmpty(arg) || !Contensive.Processor.Controllers.GuidController.isGuid(arg)) {
                 //
                 // -- invalid argument
                 Console.Write(Environment.NewLine + "Invalid argument, task guid [" + arg + "]. Runtask requires a valid task guid argument.");

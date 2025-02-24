@@ -306,11 +306,20 @@ namespace Contensive.BaseClasses {
         /// An addon can throw an Event that then executes other addons that bind to that event in their record. 
         /// For example, ecommerce throws an event 'fulfillment'. An item like a giftcard can be emailed on fulfillment which occurs differently on different types of accounts.
         /// </summary>
-        /// <param name="eventNameIdOrGuid"></param>
+        /// <param name="eventName"></param>
         /// <returns></returns>
-        [Obsolete("Deprecated. Use ThrowEvent(int), ThrowEventByName(string), or ThrowEventByGuid(string)",false)] public abstract string ThrowEvent(string eventNameIdOrGuid);
-        public abstract string ThrowEvent(int  eventId );
         public abstract string ThrowEventByName(string eventName);
+        //
+        //
+        [Obsolete("Deprecated. Use ThrowEventByName(string)",false)] 
+        public abstract string ThrowEvent(string eventNameIdOrGuid);
+        //
+        //
+        [Obsolete("Deprecated. Use ThrowEventByName(string)", false)]
+        public abstract string ThrowEvent(int  eventId );
+        //
+        //
+        [Obsolete("Deprecated. Use ThrowEventByName(string)", false)] 
         public abstract string ThrowEventByGuid(string eventGuid);
         //
         //====================================================================================================

@@ -138,7 +138,7 @@ namespace Contensive.Processor {
                     logger.Debug($"{core.logCommonMessage},cp.executeAddon returned empty because application [" + core.appConfig.name + "] is marked inactive in config.json");
                     return string.Empty;
                 }
-                if (GenericController.isGuid(addonNameOrGuid)) {
+                if (GuidController.isGuid(addonNameOrGuid)) {
                     //
                     // -- call by guid
                     AddonModel addonByGuid = core.cacheRuntime.addonCache.create(addonNameOrGuid);

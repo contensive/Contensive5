@@ -116,7 +116,8 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// true if the email is on the blocked list
+        /// true if the email is on the blocked list.
+        /// Caller must log the error
         /// </summary>
         /// <param name="core"></param>
         /// <param name="friendlyEmailAddress"></param>
@@ -167,25 +168,31 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// return true if the email is valid (to-address and from-address)
+        /// this method handles the logging
         /// </summary>
         /// <param name="core"></param>
-        /// <param name="email"></param>
+        /// <param name="sendRequest"></param>
         /// <param name="returnUserWarning"></param>
         /// <returns></returns>
-        public static bool tryIsValidEmail(CoreController core, EmailSendRequest email, ref string returnUserWarning) {
+        public static bool tryIsValidEmail(CoreController core, EmailSendRequest sendRequest, ref string returnUserWarning) {
             try {
-                if (!verifyEmailAddress(core, email.toAddress)) {
+                if (!verifyEmailAddress(core, sendRequest.toAddress)) {
+                    //
+                    AddEmailLog(core, sendRequest, false, "No email sent because to-address is not valid: " + sendRequest.emailContextMessage);
                     //
                     returnUserWarning = "The to-address is not valid.";
                     return false;
                 }
-                if (!verifyEmailAddress(core, email.fromAddress)) {
+                if (!verifyEmailAddress(core, sendRequest.fromAddress)) {
                     if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        AddEmailLog(core, sendRequest, false, "No email sent because from-address is not valid: " + sendRequest.emailContextMessage);
+                        //
                         //
                         returnUserWarning = "The from-address is not valid.";
                         return false;
                     }
-                    email.fromAddress = core.siteProperties.emailFromAddress;
+                    sendRequest.fromAddress = core.siteProperties.emailFromAddress;
                 }
                 return true;
             } catch (Exception ex) {
@@ -214,6 +221,7 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// email address must have at least one character before the @, and have a valid email domain
+        /// Caller must log the error
         /// </summary>
         public static bool verifyEmailAddress(CoreController core, string EmailAddress) {
             try {
@@ -234,10 +242,14 @@ namespace Contensive.Processor.Controllers {
         //====================================================================================================
         /// <summary>
         /// Server must have at least 3 digits, and one dot in the middle
+        /// The caller must log the error
         /// </summary>
         public static bool verifyEmailDomain(CoreController core, string emailDomain) {
             try {
-                if (string.IsNullOrWhiteSpace(emailDomain)) { return false; }
+                if (string.IsNullOrWhiteSpace(emailDomain)) {
+                    // -- no log, the caller must log
+                    return false;
+                }
                 string[] SplitArray = emailDomain.Split('.');
                 if (SplitArray.GetUpperBound(0) == 0) { return false; }
                 if ((SplitArray[0].Length > 0) && (SplitArray[1].Length > 0)) { return true; }
@@ -259,12 +271,36 @@ namespace Contensive.Processor.Controllers {
                 subject = validateEmailSubject(core, subject);
                 if (!verifyEmailAddress(core, toAddress)) {
                     //
+                    EmailSendRequest sendRequestLog = new() {
+                        attempts = 0,
+                        emailContextMessage = "Adhoc Email",
+                        fromAddress = fromAddress,
+                        subject = subject,
+                        toAddress = toAddress,
+                        emailId = loggedPersonId,
+                        toMemberId = 0
+                    };
+                    AddEmailLog(core, sendRequestLog, false, "No email sent because to-address is not valid: " + sendRequestLog.emailContextMessage);
+                    //
+                    //
                     userErrorMessage = "Email not sent because the to-address is not valid [" + toAddress + "].";
                     logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, fromAddress)) {
                     if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        EmailSendRequest sendRequestLog = new() {
+                            attempts = 0,
+                            emailContextMessage = "Adhoc Email",
+                            fromAddress = fromAddress,
+                            subject = subject,
+                            toAddress = toAddress,
+                            emailId = 0,
+                            toMemberId = 0
+                        };
+                        AddEmailLog(core, sendRequestLog, false, "No email sent because to-address is not valid: " + sendRequestLog.emailContextMessage);
+                        //
                         //
                         userErrorMessage = "Email not sent because the from-address is not valid [" + fromAddress + "].";
                         logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
@@ -273,6 +309,17 @@ namespace Contensive.Processor.Controllers {
                     fromAddress = core.siteProperties.emailFromAddress;
                 }
                 if (isOnBlockedList(core, toAddress)) {
+                    //
+                    EmailSendRequest sendRequest1 = new() {
+                        attempts = 0,
+                        emailContextMessage = "Adhoc Email",
+                        fromAddress = fromAddress,
+                        subject = subject,
+                        toAddress = toAddress,
+                        emailId = 0,
+                        toMemberId = 0
+                    };
+                    AddEmailLog(core, sendRequest1, false, "No email sent because to-address is not valid: " + sendRequest1.emailContextMessage);
                     //
                     userErrorMessage = "Email not sent because the address [" + toAddress + "] is blocked by this application.";
                     logger.Info($"{core.logCommonMessage},queueAdHocEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + toAddress + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
@@ -356,18 +403,53 @@ namespace Contensive.Processor.Controllers {
             try {
                 // -- validate arguments
                 if (recipient == null) {
+                    //
+                    EmailSendRequest sendRequest1 = new() {
+                        attempts = 0,
+                        emailContextMessage = $"Person Email to emailId [{emailId}]",
+                        fromAddress = fromAddress,
+                        subject = subject,
+                        toAddress = recipient.email,
+                        emailId = emailId,
+                        toMemberId = recipient.id
+                    };
+                    AddEmailLog(core, sendRequest1, false, "No email sent because to-address is not valid: " + sendRequest1.emailContextMessage);
+                    //
                     userErrorMessage = "The email was not sent because the recipient is not valid [empty], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "]";
                     logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [null], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 subject = validateEmailSubject(core, subject);
                 if (!verifyEmailAddress(core, recipient.email)) {
+                    //
+                    EmailSendRequest sendRequest1 = new() {
+                        attempts = 0,
+                        emailContextMessage = $"Person Email to emailId [{emailId}]",
+                        fromAddress = fromAddress,
+                        subject = subject,
+                        toAddress = recipient.email,
+                        emailId = emailId,
+                        toMemberId = recipient.id
+                    };
+                    AddEmailLog(core, sendRequest1, false, "No email sent because to-address is not valid: " + sendRequest1.emailContextMessage);
+                    //
                     userErrorMessage = "Email not sent because the to-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                     logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
                     return false;
                 }
                 if (!verifyEmailAddress(core, fromAddress)) {
                     if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
+                        //
+                        EmailSendRequest sendRequest1 = new() {
+                            attempts = 0,
+                            emailContextMessage = $"Person Email to emailId [{emailId}]",
+                            fromAddress = fromAddress,
+                            subject = subject,
+                            toAddress = recipient.email,
+                            emailId = emailId,
+                            toMemberId = recipient.id
+                        };
+                        AddEmailLog(core, sendRequest1, false, "No email sent because from-address is not valid: " + sendRequest1.emailContextMessage);
                         //
                         userErrorMessage = "Email not sent because the from-address is not valid, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                         logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
@@ -376,6 +458,18 @@ namespace Contensive.Processor.Controllers {
                     fromAddress = core.siteProperties.emailFromAddress;
                 }
                 if (isOnBlockedList(core, recipient.email)) {
+                    //
+                    EmailSendRequest sendRequest1 = new() {
+                        attempts = 0,
+                        emailContextMessage = $"Person Email to emailId [{emailId}]",
+                        fromAddress = fromAddress,
+                        subject = subject,
+                        toAddress = recipient.email,
+                        emailId = emailId,
+                        toMemberId = recipient.id
+                    };
+                    AddEmailLog(core, sendRequest1, false, "No email sent because to-address is on blocked list: " + sendRequest1.emailContextMessage);
+                    //
                     //
                     userErrorMessage = "Email not sent because the to-address requested email block. See the Email Bounce List, recipient [" + recipient.id + ", " + recipient.name + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "], emailId [" + emailId + "].";
                     logger.Info($"{core.logCommonMessage},tryQueuePersonEmail, NOT SENT [" + userErrorMessage + "], toAddress [" + recipient.email + "], fromAddress [" + fromAddress + "], subject [" + subject + "]");
@@ -419,7 +513,8 @@ namespace Contensive.Processor.Controllers {
                 };
                 if (!tryIsValidEmail(core, sendRequest, ref userErrorMessage)) {
                     //
-                    // -- error sending
+                    // -- error sending (logging handled in tryIsValidEmail)
+                    //
                     return false;
                 }
                 if (Immediate) {
@@ -490,7 +585,22 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userErrorMessage"></param>
         /// <returns>Admin message if something went wrong (email addresses checked, etc.</returns>
         public static bool trySendSystemEmail(CoreController core, bool immediate, string emailName, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
-            if (!string.IsNullOrEmpty(emailName)) {
+            if (string.IsNullOrEmpty(emailName)) {
+                //
+                EmailSendRequest sendRequest1 = new() {
+                    attempts = 0,
+                    emailContextMessage = $"System Email to emailName [{emailName}]",
+                    fromAddress = "",
+                    subject = "",
+                    toAddress = "",
+                    emailId = 0,
+                    toMemberId = additionalMemberID
+                };
+                AddEmailLog(core, sendRequest1, false, "No email sent because email name is blank: " + sendRequest1.emailContextMessage);
+                //
+                 return false;
+            }
+            {
                 SystemEmailModel email = DbBaseModel.createByUniqueName<SystemEmailModel>(core.cpParent, emailName);
                 if (email == null) {
                     if (emailName.isNumeric()) {
@@ -510,8 +620,6 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 return trySendSystemEmail(core, immediate, email, appendedCopy, additionalMemberID, ref userErrorMessage);
-            } else {
-                return false;
             }
         }
         /// <summary>
@@ -559,10 +667,38 @@ namespace Contensive.Processor.Controllers {
         public static bool trySendSystemEmail(CoreController core, bool immediate, int emailid, string appendedCopy, int additionalMemberID, ref string userErrorMessage) {
             //
             // -- argument check. if emailid is 0, the configuration is set to not send, and this should not have been called. If non-zero and no email found, that is a data error.
-            if (emailid == 0) { return false; }
+            if (emailid == 0) {
+                //
+                EmailSendRequest sendRequest = new() {
+                    attempts = 0,
+                    emailContextMessage = "System Email",
+                    fromAddress = "",
+                    subject = "",
+                    toAddress = "",
+                    emailId = 0,
+                    toMemberId = 0
+                };
+                AddEmailLog(core, sendRequest, false, "No email sent because the system email is not valid: " + sendRequest.emailContextMessage);
+                //
+                userErrorMessage = "The notification email could not be sent.";
+                logger.Error($"{core.logCommonMessage}", new GenericException("No system email was found with the id [" + emailid + "]"));
+                return false;
+            }
             //
             SystemEmailModel email = DbBaseModel.create<SystemEmailModel>(core.cpParent, emailid);
             if (email == null) {
+                //
+                EmailSendRequest sendRequest = new() {
+                    attempts = 0,
+                    emailContextMessage = "System Email",
+                    fromAddress = "",
+                    subject = "",
+                    toAddress = "",
+                    emailId = 0,
+                    toMemberId = 0
+                };
+                AddEmailLog(core, sendRequest, false, "No email sent because the system email is not valid: " + sendRequest.emailContextMessage);
+                //
                 userErrorMessage = "The notification email could not be sent.";
                 logger.Error($"{core.logCommonMessage}", new GenericException("No system email was found with the id [" + emailid + "]"));
                 return false;
@@ -624,6 +760,17 @@ namespace Contensive.Processor.Controllers {
                 if (!verifyEmailAddress(core, email.fromAddress)) {
                     if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
                         //
+                        EmailSendRequest sendRequest = new() {
+                            attempts = 0,
+                            emailContextMessage = $"System Email [{email.id}, {email.name}]",
+                            fromAddress = $"[{email.fromAddress}], default from address [{core.siteProperties.emailFromAddress}]",
+                            subject = email.subject,
+                            toAddress = "",
+                            emailId = email.id,
+                            toMemberId = 0
+                        };
+                        AddEmailLog(core, sendRequest, false, "No email sent because from-address is not valid: " + sendRequest.emailContextMessage);
+                        //
                         userErrorMessage = $"Email not sent because the from-address is not valid [{email.fromAddress}].";
                         logger.Info($"{core.logCommonMessage},tryQueueSystemEmail, NOT SENT [" + userErrorMessage + "], email [" + email.name + "], fromAddress [" + email.fromAddress + "], subject [" + email.subject + "]");
                         return false;
@@ -648,20 +795,59 @@ namespace Contensive.Processor.Controllers {
                 bool emailAllowLinkEId = email.addLinkEId;
                 //
                 // --- Send message to the additional member
+                bool additionalMemberSent = false;
                 if (additionalMemberID != 0) {
                     confirmationMessage.Append(BR + "Primary Recipient:" + BR);
                     PersonModel person = DbBaseModel.create<PersonModel>(core.cpParent, additionalMemberID);
                     if (person == null) {
+                        //
+                        EmailSendRequest sendRequest = new() {
+                            attempts = 0,
+                            emailContextMessage = $"System Email [{email.id}, {email.name}]",
+                            fromAddress = $"[{email.fromAddress}], default from address [{core.siteProperties.emailFromAddress}]",
+                            subject = email.subject,
+                            toAddress = "",
+                            emailId = email.id,
+                            toMemberId = 0
+                        };
+                        AddEmailLog(core, sendRequest, false, $"Email not sent to additional user [{additionalMemberID}] because that user was not found." + sendRequest.emailContextMessage);
+                        //
                         confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because the user record could not be found." + BR);
                     } else {
                         if (string.IsNullOrWhiteSpace(person.email)) {
+                            //
+                            EmailSendRequest sendRequest = new() {
+                                attempts = 0,
+                                emailContextMessage = $"System Email [{email.id}, {email.name}]",
+                                fromAddress = $"[{email.fromAddress}], default from address [{core.siteProperties.emailFromAddress}]",
+                                subject = email.subject,
+                                toAddress = "",
+                                emailId = email.id,
+                                toMemberId = 0
+                            };
+                            AddEmailLog(core, sendRequest, false, $"Email not sent to additional user [{additionalMemberID}] has a blank email address." + sendRequest.emailContextMessage);
+                            //
                             confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because their email address was blank." + BR);
                         } else if (!verifyEmailAddress(core, person.email)) {
+                            //
+                            EmailSendRequest sendRequest = new() {
+                                attempts = 0,
+                                emailContextMessage = $"System Email [{email.id}, {email.name}]",
+                                fromAddress = $"[{email.fromAddress}], default from address [{core.siteProperties.emailFromAddress}]",
+                                subject = email.subject,
+                                toAddress = "",
+                                emailId = email.id,
+                                toMemberId = 0
+                            };
+                            AddEmailLog(core, sendRequest, false, $"Email not sent to additional user [{additionalMemberID}] does not have a valid email address." + sendRequest.emailContextMessage);
+                            //
                             confirmationMessage.Append("&nbsp;&nbsp;Error: Not sent to additional user [#" + additionalMemberID + "] because their email address was invalid [" + person.email + "]." + BR);
                         } else {
                             string EmailStatus = "";
                             string queryStringForLinkAppend = "";
                             trySendPersonEmail(core, person, email.fromAddress, EmailSubjectSource, EmailBodySource, "", "", immediate, true, emailRecordId, EmailTemplateSource, emailAllowLinkEId, ref EmailStatus, queryStringForLinkAppend, "System Email", email.personalizeAddonId);
+                            additionalMemberSent = true;
+                            //
                             confirmationMessage.Append("&nbsp;&nbsp;Sent to " + person.name + " at " + person.email + ", Status = " + EmailStatus + BR);
                             //
                             LogController.addActivityCompleted(core, "System email sent", "System email sent [" + email.name + "]", person.id, (int)ActivityLogModel.ActivityLogTypeEnum.EmailTo);
@@ -673,6 +859,21 @@ namespace Contensive.Processor.Controllers {
                 //
                 confirmationMessage.Append(BR + "Recipients in selected System Email groups:" + BR);
                 List<int> peopleIdList = PersonModel.createidListForEmail(core.cpParent, emailRecordId);
+                if (peopleIdList.Count == 0) {
+                    //
+                    EmailSendRequest sendRequest = new() {
+                        attempts = 0,
+                        emailContextMessage = $"System Email [{email.id}, {email.name}]",
+                        fromAddress = $"[{email.fromAddress}], default from address [{core.siteProperties.emailFromAddress}]",
+                        subject = email.subject,
+                        toAddress = "",
+                        emailId = email.id,
+                        toMemberId = 0
+                    };
+                    AddEmailLog(core, sendRequest, false, "No email sent because no people are in the group(s): " + sendRequest.emailContextMessage);
+                    //
+                    // -- do not return, let the confirmation message be sent to the admin
+                }
                 List<string> usedEmail = new();
                 foreach (var personId in peopleIdList) {
                     var person = DbBaseModel.create<PersonModel>(core.cpParent, personId);
@@ -884,23 +1085,31 @@ namespace Contensive.Processor.Controllers {
         /// <param name="core"></param>
         /// <param name="toAddress"></param>
         /// <param name="fromAddress"></param>
-        /// <param name="emailSubject"></param>
+        /// <param name="subject"></param>
         /// <param name="userErrorMessage"></param>
-        public static bool trySendFormEmail(CoreController core, string toAddress, string fromAddress, string emailSubject, out string userErrorMessage) {
+        public static bool trySendFormEmail(CoreController core, string toAddress, string fromAddress, string subject, out string userErrorMessage) {
             try {
                 // -- validate arguments
                 if (!verifyEmailAddress(core, toAddress)) {
+                    //
+                    EmailSendRequest sendRequest = new() {
+                        attempts = 0,
+                        emailContextMessage = "Form Email",
+                        fromAddress = fromAddress,
+                        subject = subject,
+                        toAddress = toAddress,
+                        emailId = 0,
+                        toMemberId = 0
+                    };
+                    AddEmailLog(core, sendRequest, false, "No email sent because to-address is not valid: " + sendRequest.emailContextMessage);
+                    //
                     userErrorMessage = "The to-address [" + toAddress + "] is not valid.";
                     return false;
                 }
-                if (!verifyEmailAddress(core, toAddress)) {
-                    userErrorMessage = "The from-address [" + fromAddress + "] is not valid.";
-                    return false;
-                }
-                emailSubject = validateEmailSubject(core, emailSubject);
+                subject = validateEmailSubject(core, subject);
                 userErrorMessage = "";
                 string Message = "";
-                string emailSubjectWorking = emailSubject;
+                string emailSubjectWorking = subject;
                 Message += "The form was submitted " + core.doc.profileStartTime + Environment.NewLine;
                 Message += Environment.NewLine;
                 Message += "All text fields are included, completed or not.\r\n";
@@ -940,9 +1149,42 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userErrorMessage"></param>
         public static bool trySendGroupEmail(CoreController core, string groupCommaList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
             try {
-                if (string.IsNullOrWhiteSpace(groupCommaList)) { return true; }
+                if (string.IsNullOrWhiteSpace(groupCommaList)) {
+                    //
+                    EmailSendRequest sendRequest = new() {
+                        attempts = 0,
+                        bounceAddress = "",
+                        emailContextMessage = "Group Email",
+                        fromAddress = fromAddress,
+                        replyToAddress = "",
+                        subject = subject,
+                        toAddress = "",
+                        emailDropId = 0,
+                        emailId = 0,
+                        htmlBody = body,
+                        textBody = "",
+                        toMemberId = 0
+                    };
+                    AddEmailLog(core, sendRequest, false, "No email sent because no groups provided for to-address: " + sendRequest.emailContextMessage);
+                    //
+                    return true;
+                }
                 return trySendGroupEmail(core, groupCommaList.Split(',').ToList<string>().FindAll(t => !string.IsNullOrWhiteSpace(t)), fromAddress, subject, body, isImmediate, isHtml, ref userErrorMessage, personalizeAddonId);
             } catch (Exception ex) {
+                //
+                EmailSendRequest sendRequest = new() {
+                    attempts = 0,
+                    emailContextMessage = "Group Email",
+                    fromAddress = fromAddress,
+                    subject = subject,
+                    toAddress = "",
+                    emailId = 0,
+                    htmlBody = "",
+                    textBody = "",
+                    toMemberId = 0
+                };
+                AddEmailLog(core, sendRequest, false, "No email sent because there was an exception: " + sendRequest.emailContextMessage);
+                //
                 logger.Error(ex, $"{core.logCommonMessage}");
                 userErrorMessage = "There was an unknown error sending the email;";
                 return false;
@@ -979,12 +1221,46 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static bool trySendGroupEmail(CoreController core, List<string> groupNameList, string fromAddress, string subject, string body, bool isImmediate, bool isHtml, ref string userErrorMessage, int personalizeAddonId) {
             try {
-                if (groupNameList.Count <= 0) { return true; }
+                if (groupNameList.Count <= 0) {
+                    EmailSendRequest sendRequest = new() {
+                        attempts = 0,
+                        bounceAddress = "",
+                        emailContextMessage = "Group Email",
+                        fromAddress = fromAddress,
+                        replyToAddress = "",
+                        subject = subject,
+                        toAddress = "",
+                        emailDropId = 0,
+                        emailId = 0,
+                        htmlBody = body,
+                        textBody = "",
+                        toMemberId = 0
+                    };
+                    AddEmailLog(core, sendRequest, true, "No email sent because no groups provided for to-address: " + sendRequest.emailContextMessage);
+                    return true;
+                }
                 foreach (var person in PersonModel.createListFromGroupNameList(core.cpParent, groupNameList, true)) {
                     trySendPersonEmail(core, "Group Email", person, fromAddress, subject, body, "", "", isImmediate, isHtml, 0, "", false, personalizeAddonId);
                 }
                 return true;
             } catch (Exception ex) {
+                //
+                EmailSendRequest sendRequest = new() {
+                    attempts = 0,
+                    bounceAddress = "",
+                    emailContextMessage = "Group Email",
+                    fromAddress = fromAddress,
+                    replyToAddress = "",
+                    subject = subject,
+                    toAddress = "",
+                    emailDropId = 0,
+                    emailId = 0,
+                    htmlBody = body,
+                    textBody = "",
+                    toMemberId = 0
+                };
+                AddEmailLog(core, sendRequest, false, "No email sent because there was an exception: " + sendRequest.emailContextMessage);
+                //
                 logger.Error(ex, $"{core.logCommonMessage}");
                 userErrorMessage = "There was an unknown error sending the email;";
                 return false;
@@ -1012,6 +1288,18 @@ namespace Contensive.Processor.Controllers {
                 }
                 return true;
             } catch (Exception ex) {
+                //
+                EmailSendRequest sendRequest = new() {
+                    attempts = 0,
+                    emailContextMessage = "Group Email",
+                    fromAddress = fromAddress,
+                    subject = subject,
+                    toAddress = "",
+                    emailId = 0,
+                    toMemberId = 0
+                };
+                AddEmailLog(core, sendRequest, false, "No email sent because there was an exception: " + sendRequest.emailContextMessage);
+                //
                 logger.Error(ex, $"{core.logCommonMessage}");
                 userErrorMessage = "There was an unknown error sending the email;";
                 return false;
@@ -1117,19 +1405,13 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public static bool trySendImmediate(CoreController core, EmailSendRequest sendRequest, ref string userErrorMessage) {
             try {
-                //
-                if (!verifyEmailAddress(core, sendRequest.toAddress)) {
-                    //
-                    // -- to address is reasonForFail
-                    userErrorMessage = $"email to-address is invalid [{sendRequest.toAddress}]";
-                    logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
-                    return false;
-                }
                 sendRequest.subject = validateEmailSubject(core, sendRequest.subject);
                 if (!verifyEmailAddress(core, sendRequest.fromAddress)) {
                     if (!verifyEmailAddress(core, core.siteProperties.emailFromAddress)) {
                         //
                         // -- from address is reasonForFail
+                        AddEmailLog(core, sendRequest, false, "No email sent because to-address is not valid: " + sendRequest.emailContextMessage);
+                        //
                         userErrorMessage = $"email from-address is invalid [{sendRequest.fromAddress}]";
                         logger.Info($"{core.logCommonMessage},FAIL send emai:" + userErrorMessage);
                         return false;
@@ -1150,18 +1432,7 @@ namespace Contensive.Processor.Controllers {
                 if (sendSuccess) {
                     //
                     // -- success, log the send
-                    var log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
-                    log.name = "Successfully sent: " + sendRequest.emailContextMessage;
-                    log.toAddress = sendRequest.toAddress;
-                    log.fromAddress = sendRequest.fromAddress;
-                    log.subject = sendRequest.subject;
-                    log.body = sendRequest.htmlBody;
-                    log.sendStatus = "ok";
-                    log.logType = EmailLogTypeImmediateSend;
-                    log.emailId = sendRequest.emailId;
-                    log.memberId = sendRequest.toMemberId;
-                    log.emailDropId = sendRequest.emailDropId;
-                    log.save(core.cpParent);
+                    AddEmailLog(core, sendRequest, true, "Successfully sent: " + sendRequest.emailContextMessage);
                     logger.Info($"{core.logCommonMessage},sendEmailInQueue, send successful, toAddress [" + sendRequest.toAddress + "], fromAddress [" + sendRequest.fromAddress + "], subject [" + sendRequest.subject + "]");
                     return true;
                 }
@@ -1212,6 +1483,29 @@ namespace Contensive.Processor.Controllers {
                 throw;
             }
         }
+        //
+        // ==================================================================================================
+        //
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="sendRequest"></param>
+        private static void AddEmailLog(CoreController core, EmailSendRequest sendRequest, bool success, string logMessage) {
+            var log = DbBaseModel.addDefault<EmailLogModel>(core.cpParent);
+            log.name = logMessage;
+            log.toAddress = sendRequest.toAddress;
+            log.fromAddress = sendRequest.fromAddress;
+            log.subject = sendRequest.subject;
+            log.body = sendRequest.htmlBody;
+            log.sendStatus = success ? "ok" : "fail";
+            log.logType = EmailLogTypeImmediateSend;
+            log.emailId = sendRequest.emailId;
+            log.memberId = sendRequest.toMemberId;
+            log.emailDropId = sendRequest.emailDropId;
+            log.save(core.cpParent);
+        }
+
         //
         //====================================================================================================        
         /// <summary>

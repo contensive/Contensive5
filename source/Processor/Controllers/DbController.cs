@@ -1122,7 +1122,7 @@ namespace Contensive.Processor.Controllers {
                 if (string.IsNullOrWhiteSpace(tableName) || string.IsNullOrWhiteSpace(guid)) {
                     throw new GenericException("tablename and guid cannot be blank");
                 }
-                if (isGuid(tableName) && !isGuid(guid)) {
+                if (GuidController.isGuid(tableName) && !GuidController.isGuid(guid)) {
                     //
                     // legacy api had arguments reversed
                     string tmp = guid;
@@ -1279,7 +1279,7 @@ namespace Contensive.Processor.Controllers {
         public string getNameIdOrGuidSqlCriteria(string nameIdOrGuid) {
             try {
                 if (nameIdOrGuid.isNumeric()) { return "id=" + encodeSQLNumber(double.Parse(nameIdOrGuid)); }
-                if (isGuid(nameIdOrGuid)) { return "ccGuid=" + encodeSQLText(nameIdOrGuid); }
+                if (GuidController.isGuid(nameIdOrGuid)) { return "ccGuid=" + encodeSQLText(nameIdOrGuid); }
                 return "name=" + encodeSQLText(nameIdOrGuid);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");

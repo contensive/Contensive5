@@ -461,16 +461,16 @@ namespace Tests {
             // arrange
             // act
             // assert
-            Assert.IsFalse(GenericController.isGuid(""));
-            Assert.IsFalse(GenericController.isGuid(" "));
-            Assert.IsFalse(GenericController.isGuid("1"));
-            Assert.IsFalse(GenericController.isGuid("a"));
-            Assert.IsFalse(GenericController.isGuid("test"));
-            Assert.IsFalse(GenericController.isGuid("1-2-3-4"));
-            Assert.IsTrue(GenericController.isGuid("{C70BA82B-B314-466E-B29C-EAAD9C788C86}"));
-            Assert.IsTrue(GenericController.isGuid("C70BA82B-B314-466E-B29C-EAAD9C788C86"));
-            Assert.IsTrue(GenericController.isGuid("C70BA82BB314466EB29CEAAD9C788C86"));
-            Assert.IsFalse(GenericController.isGuid("C70BA82BB314466EB29CEAAD9C788C860"));
+            Assert.IsFalse(GuidController.isGuid(""));
+            Assert.IsFalse(GuidController.isGuid(" "));
+            Assert.IsFalse(GuidController.isGuid("1"));
+            Assert.IsFalse(GuidController.isGuid("a"));
+            Assert.IsFalse(GuidController.isGuid("test"));
+            Assert.IsFalse(GuidController.isGuid("1-2-3-4"));
+            Assert.IsTrue(GuidController.isGuid("{C70BA82B-B314-466E-B29C-EAAD9C788C86}"));
+            Assert.IsTrue(GuidController.isGuid("C70BA82B-B314-466E-B29C-EAAD9C788C86"));
+            Assert.IsTrue(GuidController.isGuid("C70BA82BB314466EB29CEAAD9C788C86"));
+            Assert.IsFalse(GuidController.isGuid("C70BA82BB314466EB29CEAAD9C788C860"));
         }
         //
         [TestMethod]
@@ -481,15 +481,15 @@ namespace Tests {
             string test2 = GenericController.getGUID(true);
             string test3 = GenericController.getGUID(false);
             // assert
-            Assert.IsTrue(GenericController.isGuid(test1));
+            Assert.IsTrue(GuidController.isGuid(test1));
             Assert.AreEqual(38, test1.Length);
             //
-            Assert.IsTrue(GenericController.isGuid(test2));
+            Assert.IsTrue(GuidController.isGuid(test2));
             Assert.AreEqual(38, test2.Length);
             Assert.AreEqual("{", test2.Substring(0, 1));
             Assert.AreEqual("}", test2.Substring(37, 1));
             //
-            Assert.IsTrue(GenericController.isGuid(test3));
+            Assert.IsTrue(GuidController.isGuid(test3));
             Assert.AreNotEqual("{", test3.Substring(0, 1));
         }
         //

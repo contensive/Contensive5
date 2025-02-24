@@ -453,23 +453,62 @@ namespace Contensive.Processor {
         /// </summary>
         /// <param name="eventNameIdOrGuid"></param>
         /// <returns></returns>
-        [Obsolete("deprecated. Use int, byName or byGuid", false)]
+        public override string ThrowEventByName(string eventName) {
+            //
+            cp.Log.Trace($"CPSiteClass.throwEventByName(string [{eventName}]) enter");
+            //
+            return EventController.throwEventByName(cp.core, eventName);
+        }
+        //
+        //====================================================================================================
+        //
+        [Obsolete("deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
         public override string ThrowEvent(string eventNameIdOrGuid) {
+            //
+            cp.Log.Trace($"CPSiteClass.ThrowEvent(string [{eventNameIdOrGuid}]) enter");
+            //
             if (eventNameIdOrGuid.isNumeric()) {
-                return EventController.throwEventById(cp.core, cp.Utils.EncodeInteger(eventNameIdOrGuid));
-            } else if (GenericController.isGuid(eventNameIdOrGuid)) {
-                return EventController.throwEventByGuid(cp.core, eventNameIdOrGuid);
+                //
+                // -- int
+                AddonEventModel addonEvent = DbBaseModel.create<AddonEventModel>(cp, cp.Utils.EncodeInteger(eventNameIdOrGuid));
+                if (addonEvent == null) { return ""; }
+                return ThrowEventByName(addonEvent.name);
+            } else if (GuidController.isGuid(eventNameIdOrGuid)) {
+                //
+                // -- guid
+                AddonEventModel addonEvent = DbBaseModel.create<AddonEventModel>(cp, eventNameIdOrGuid);
+                if (addonEvent == null) { return ""; }
+                return ThrowEventByName(addonEvent.name);
             } else {
+                //
+                // -- name
                 return EventController.throwEventByName(cp.core, eventNameIdOrGuid);
             }
         }
-        public override string ThrowEvent(int  eventId )
-            => EventController.throwEventById(cp.core, eventId);
-        public override string ThrowEventByName(string eventName)
-            => EventController.throwEventByName(cp.core, eventName);
-        public override string ThrowEventByGuid(string eventGuid)
-            => EventController.throwEventByGuid(cp.core, eventGuid);
-
+        //
+        //====================================================================================================
+        //
+        [Obsolete("deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
+        public override string ThrowEvent(int eventId) {
+            //
+            cp.Log.Trace($"CPSiteClass.ThrowEvent(int [{eventId}]) enter");
+            //
+            AddonEventModel addonEvent = DbBaseModel.create<AddonEventModel>(cp, eventId);
+            if (addonEvent == null) { return ""; }
+            return ThrowEventByName(addonEvent.name);
+        }
+        //
+        //====================================================================================================
+        //
+        [Obsolete("deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
+        public override string ThrowEventByGuid(string eventGuid) {
+            //
+            cp.Log.Trace($"CPSiteClass.ThrowEventByGuid(string [{eventGuid}]) enter");
+            //
+            AddonEventModel addonEvent = DbBaseModel.create<AddonEventModel>(cp, eventGuid);
+            if (addonEvent == null) { return ""; }
+            return ThrowEventByName(addonEvent.name);
+        }
         //
         //====================================================================================================
         // Deprecated

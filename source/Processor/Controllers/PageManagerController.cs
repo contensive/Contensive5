@@ -1856,66 +1856,67 @@ namespace Contensive.Processor.Controllers {
         //   {{FIELD}} tags -- main_Gets the form field for each instruction line
         //
         internal static PageFormModel loadFormPageInstructions(CoreController core, string FormInstructions, string Formhtml) {
-            PageFormModel result = new PageFormModel();
             try {
                 //
-                {
-                    int PtrFront = GenericController.strInstr(1, Formhtml, "{{REPEATSTART", 1);
-                    if (PtrFront > 0) {
-                        int PtrBack = GenericController.strInstr(PtrFront, Formhtml, "}}");
-                        if (PtrBack > 0) {
-                            result.preRepeat = Formhtml.left(PtrFront - 1);
-                            PtrFront = GenericController.strInstr(PtrBack, Formhtml, "{{REPEATEND", 1);
-                            if (PtrFront > 0) {
-                                result.repeatCell = Formhtml.Substring(PtrBack + 1, PtrFront - PtrBack - 2);
-                                PtrBack = GenericController.strInstr(PtrFront, Formhtml, "}}");
-                                if (PtrBack > 0) {
-                                    result.postRepeat = Formhtml.Substring(PtrBack + 1);
-                                    //
-                                    // Decode instructions and build output
-                                    //
-                                    string[] i = GenericController.splitNewLine(FormInstructions);
-                                    if (i.GetUpperBound(0) > 0) {
-                                        int IStart = 0;
-                                        if (string.CompareOrdinal(i[0].Trim(' '), "1") >= 0) {
-                                            //
-                                            // decode Version 1 arguments, then start instructions line at line 1
-                                            //
-                                            result.addGroupNameList = GenericController.encodeText(i[1]);
-                                            result.authenticateOnFormProcess = GenericController.encodeBoolean(i[2]);
-                                            IStart = 3;
-                                        }
+                PageFormModel result = new() {
+                    formFieldList = []
+                };
+                int PtrFront = GenericController.strInstr(1, Formhtml, "{{REPEATSTART", 1);
+                if (PtrFront > 0) {
+                    int PtrBack = GenericController.strInstr(PtrFront, Formhtml, "}}");
+                    if (PtrBack > 0) {
+                        result.preRepeat = Formhtml.left(PtrFront - 1);
+                        PtrFront = GenericController.strInstr(PtrBack, Formhtml, "{{REPEATEND", 1);
+                        if (PtrFront > 0) {
+                            result.repeatCell = Formhtml.Substring(PtrBack + 1, PtrFront - PtrBack - 2);
+                            PtrBack = GenericController.strInstr(PtrFront, Formhtml, "}}");
+                            if (PtrBack > 0) {
+                                result.postRepeat = Formhtml.Substring(PtrBack + 1);
+                                //
+                                // Decode instructions and build output
+                                //
+                                string[] formInstructionLine = GenericController.splitNewLine(FormInstructions);
+                                if (formInstructionLine.GetUpperBound(0) > 0) {
+                                    int IStart = 0;
+                                    if (string.CompareOrdinal(formInstructionLine[0].Trim(' '), "1") >= 0) {
                                         //
-                                        // read in and compose the repeat lines
+                                        // decode Version 1 arguments, then start instructions line at line 1
                                         //
-                                        int IPtr = 0;
-                                        for (IPtr = 0; IPtr <= i.GetUpperBound(0) - IStart; IPtr++) {
-                                            var tempVar = result.formFieldList[IPtr];
-                                            string[] IArgs = i[IPtr + IStart].Split(',');
-                                            if (IArgs.GetUpperBound(0) >= main_IPosMax) {
-                                                tempVar.caption = IArgs[main_IPosCaption];
-                                                tempVar.type = GenericController.encodeInteger(IArgs[main_IPosType]);
-                                                tempVar.required = GenericController.encodeBoolean(IArgs[main_IPosRequired]);
-                                                switch (tempVar.type) {
-                                                    case 1: {
-                                                            //
-                                                            // People Record
-                                                            //
-                                                            tempVar.peopleFieldName = IArgs[main_IPosPeopleField];
-                                                            break;
-                                                        }
-                                                    case 2: {
-                                                            //
-                                                            // Group main_MemberShip
-                                                            //
-                                                            tempVar.groupName = IArgs[main_IPosGroupName];
-                                                            break;
-                                                        }
-                                                    default: {
-                                                            // do nothing
-                                                            break;
-                                                        }
-                                                }
+                                        result.addGroupNameList = GenericController.encodeText(formInstructionLine[1]);
+                                        result.authenticateOnFormProcess = GenericController.encodeBoolean(formInstructionLine[2]);
+                                        IStart = 3;
+                                    }
+                                    //
+                                    // read in and compose the repeat lines
+                                    //
+                                    int IPtr = 0;
+                                    for (IPtr = 0; IPtr <= formInstructionLine.GetUpperBound(0) - IStart; IPtr++) {
+                                        PageFormFieldModel pageFormField = new PageFormFieldModel();
+                                        result.formFieldList.Add(pageFormField);
+                                        string[] IArgs = formInstructionLine[IPtr + IStart].Split(',');
+                                        if (IArgs.GetUpperBound(0) >= main_IPosMax) {
+                                            pageFormField.caption = IArgs[main_IPosCaption];
+                                            pageFormField.type = GenericController.encodeInteger(IArgs[main_IPosType]);
+                                            pageFormField.required = GenericController.encodeBoolean(IArgs[main_IPosRequired]);
+                                            switch (pageFormField.type) {
+                                                case 1: {
+                                                        //
+                                                        // People Record
+                                                        //
+                                                        pageFormField.peopleFieldName = IArgs[main_IPosPeopleField];
+                                                        break;
+                                                    }
+                                                case 2: {
+                                                        //
+                                                        // Group main_MemberShip
+                                                        //
+                                                        pageFormField.groupName = IArgs[main_IPosGroupName];
+                                                        break;
+                                                    }
+                                                default: {
+                                                        // do nothing
+                                                        break;
+                                                    }
                                             }
                                         }
                                     }
@@ -1924,10 +1925,11 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
+                return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
-            return result;
         }
         //
         //

@@ -345,7 +345,7 @@ namespace Contensive.Processor {
         // ====================================================================================================
         //
         public override bool isGuid(string guid) {
-            return GenericController.isGuid(guid);
+            return GuidController.isGuid(guid);
         }
         //
         //====================================================================================================
@@ -496,7 +496,7 @@ namespace Contensive.Processor {
                 AddonModel addon = null;
                 if (addonIDGuidOrName.isNumeric()) {
                     addon = cp.core.cacheRuntime.addonCache.create(EncodeInteger(addonIDGuidOrName));
-                } else if (GenericController.isGuid(addonIDGuidOrName)) {
+                } else if (GuidController.isGuid(addonIDGuidOrName)) {
                     addon = cp.core.cacheRuntime.addonCache.create(addonIDGuidOrName);
                 } else {
                     addon = cp.core.cacheRuntime.addonCache.createByUniqueName(addonIDGuidOrName);

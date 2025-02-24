@@ -238,9 +238,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Contensive.CPBaseClass" Version="25.2.21.4" />
-    <PackageReference Include="Contensive.DbModels" Version="25.2.21.4" />
-    <PackageReference Include="Contensive.Processor" Version="25.2.21.4" />
+    <PackageReference Include="Contensive.CPBaseClass" Version="25.2.23.5" />
+    <PackageReference Include="Contensive.DbModels" Version="25.2.23.5" />
+    <PackageReference Include="Contensive.Processor" Version="25.2.23.5" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
