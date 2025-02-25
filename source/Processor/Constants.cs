@@ -1137,6 +1137,11 @@ namespace Contensive.Processor {
         public const string layoutAdminUILayoutBuilderBaseName = "AdminUI LayoutBuilder Base";
         public const string layoutAdminUILayoutBuilderBaseCdnPathFilename = "baseAssets\\AdminUILayoutBuilderBase.html";
         //
+        // -- layout for email verification form
+        public const string layoutEmailVerificationBaseGuid = "{F5B69B8F-1D82-4A9E-A0F4-DCD4732B3231}";
+        public const string layoutEmailVerificationLayoutBuilderBaseName = "Email Verification Form Layout";
+        public const string layoutEmailVerificationLayoutBuilderBaseCdnPathFilename = @"baseAssets\EmailVerification.html";
+
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";
         public const string rnFrameRqs = "frameRqs";

@@ -763,10 +763,13 @@ namespace Contensive.Processor.Controllers {
                                         //
                                         // -- Not Authenticated
                                         core.doc.verifyRegistrationFormPage(core);
+                                        BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationBaseGuid, Constants.layoutEmailVerificationLayoutBuilderBaseName, Constants.layoutEmailVerificationLayoutBuilderBaseCdnPathFilename);
+                                        /*
                                         BlockForm = ""
                                             + "<p>This content has limited access. If you have an account, <a href=\"?" + core.doc.refreshQueryString + "&subform=" + ContentBlockWithLogin + "\">click Here to login</a>.</p>"
                                             + "<p>To view this content, please complete this form.</p>"
                                             + getFormPage(core, "Registration Form", RegistrationGroupId) + "";
+                                        */
                                     } else {
                                         //
                                         // -- Authenticated
