@@ -11,6 +11,7 @@ using System.Text;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 using Contensive.Processor.Addons.PageManager;
+using Contensive.Processor.Views;
 //
 namespace Contensive.Processor.Controllers {
     //
@@ -771,10 +772,13 @@ namespace Contensive.Processor.Controllers {
                                             string decryptedToken = core.cpParent.Security.DecryptTwoWay(decodedToken);
                                             var verificationEmailRecord = DbBaseModel.create<DbCustomBlockingVerificationEmailsModel>(core.cpParent, decryptedToken);
                                             if(verificationEmailRecord != null) {
-                                                BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingRegistrationBaseGuid, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseName, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseCdnPathFilename);
+                                                var registrationFormViewModel = new CustomBlockingRegistrationFormViewModel();
+                                                registrationFormViewModel.userEmail = verificationEmailRecord.emailSentTo;
+                                                var layout = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingRegistrationBaseGuid, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseName, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseCdnPathFilename);
+                                                BlockForm = core.cpParent.Mustache.Render(layout, registrationFormViewModel);
                                             }
                                         }
-                                        else {
+                                        else {                                            
                                             BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationBaseGuid, Constants.layoutEmailVerificationLayoutBuilderBaseName, Constants.layoutEmailVerificationLayoutBuilderBaseCdnPathFilename);
                                         }
                                         /*

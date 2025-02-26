@@ -3491,7 +3491,16 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.CustomBlocking.SubmitCustomBlockingEmailVerification]]></DotNetClass>	
   </Addon>
-
+	<Addon Name="SubmitCustomBlockingRegistrationForm" Guid="{C07B5AA5-674C-47EE-A04D-8E9A13DBD868}" Type="Add-on">
+		<Category></Category>
+		<Admin>No</Admin>
+		<Content>No</Content>
+		<Template>No</Template>
+		<Email>No</Email>
+		<RemoteMethod>Yes</RemoteMethod>
+		<BlockEditTools>Yes</BlockEditTools>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.CustomBlocking.SubmitCustomBlockingRegistrationForm]]></DotNetClass>	
+	</Addon>
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />
   <SQLIndex IndexName="ccGroupRulesGroupID" DataSourceName="Default" TableName="ccGroupRules" FieldNameList="GroupID" />
   <SQLIndex IndexName="ccGroupRulesContentID" DataSourceName="Default" TableName="ccGroupRules" FieldNameList="ContentID" />

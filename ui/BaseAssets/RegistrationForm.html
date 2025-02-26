@@ -12,12 +12,12 @@
 <body>
     <div class="container-fluid">
       <div class="card card-body col-sm-10 col-md-7 col-lg-6 m-auto rounded-3 shadow-sm py-4 px-4 mt-5">
-          <form>
+          
             <div class="text-center mb-5 border-bottom pb-3"><h1 class="fs-3">Please Complete Your Registration</h1></div>
               <div class="row g-3">
                   <div class="col-12">
                       <label for="forEmail" class="form-label">Email</label>
-                      <input type="text" class="form-control" id="forEmail" placeholder="example@gmail.com" aria-label="Email" readonly disabled>
+                      <input type="text" class="form-control" id="forEmail" value="{{userEmail}}" aria-label="Email" readonly disabled>
                   </div>
                   <div class="col-md-6">
                       <label for="forFirstName" class="form-label">First Name</label>
@@ -32,12 +32,47 @@
                       <input type="password" class="form-control" id="forPassword" aria-label="Password">
                     </div>
                     <div class="mt-5 mb-3">
-                      <button class="btn btn-primary">Continue to Form</button>
+                      <button onclick="submitRegistration()" class="btn btn-primary">Continue to Form</button>
                     </div>
               </div>
-          </form>
+          
       </div>
     </div>
+
+    <script>
+      function submitRegistration() {
+          var email = document.getElementById('forEmail').value;
+          var firstName = document.getElementById('forFirstName').value;
+          var lastName = document.getElementById('forLastName').value;
+          var password = document.getElementById('forPassword').value;
+          var Link = window.location.href;
+          var formData = new FormData();
+          formData.append('email', email);
+          formData.append('firstname', firstName);
+          formData.append('lastName', lastName);
+          formData.append('password', password);
+          $.ajax({
+            url: "/SubmitCustomBlockingRegistrationForm",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false
+          }).done(function(response) {
+            var obj = JSON.parse(response);
+            console.log(obj);
+            if (obj.success) {           
+              alert(obj.successMessage);
+              location.reload();
+            }else{
+              alert(obj.errorMessage);
+              //return false;
+            }
+          }).fail(function(data) {
+            alert("Error. The server couldn't be reached");
+        });
+      }
+    </script>
+
 </body>
 
 </html>

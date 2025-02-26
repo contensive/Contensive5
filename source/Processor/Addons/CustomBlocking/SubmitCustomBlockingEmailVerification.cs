@@ -1,11 +1,6 @@
 ﻿using Contensive.BaseClasses;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Contensive.Models.Db;
-using Amazon.Auth.AccessControlPolicy.ActionIdentifiers;
 
 namespace Contensive.Processor.Addons.CustomBlocking
 {
@@ -25,12 +20,16 @@ namespace Contensive.Processor.Addons.CustomBlocking
                 }
 
                 if(userEmailFoundId <= 0) {
-                    returnObj.success = false;
-                    returnObj.errorMessage = "Email could not be found";
-                    return returnObj;
+                    var newUser = DbBaseModel.addDefault<PersonModel>(cp);
+                    newUser.email = emailInput;
+                    newUser.save(cp);
+                    //cp.User.LoginByID(newUser.id);
                 }
-                //create new email verification record 
-                var newVerificationEmailRecord = DbBaseModel.addDefault<DbCustomBlockingVerificationEmailsModel>(cp);
+                else {
+                    //cp.User.LoginByID(userEmailFoundId);
+                }
+                    //create new email verification record 
+                    var newVerificationEmailRecord = DbBaseModel.addDefault<DbCustomBlockingVerificationEmailsModel>(cp);
                 newVerificationEmailRecord.emailSentTo = emailInput;
                 newVerificationEmailRecord.name = $"Email Verification sent to {emailInput}";
                 newVerificationEmailRecord.save(cp);
