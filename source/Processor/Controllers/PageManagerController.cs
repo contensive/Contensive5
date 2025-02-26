@@ -739,8 +739,6 @@ namespace Contensive.Processor.Controllers {
                                 // todo -- create registration override system, like login
                                 //
                                 // ----- Registration
-                                logger.Error("Test log before if !core.session.isAuthenticated: " + core.session.isAuthenticated);
-
                                 string BlockForm = "";
                                 if (core.docProperties.getInteger("subform") == ContentBlockWithLogin) {
                                     //
@@ -765,7 +763,6 @@ namespace Contensive.Processor.Controllers {
                                         //
                                         // -- Not Authenticated
                                         core.doc.verifyRegistrationFormPage(core);
-                                        logger.Error("Test log in !core.session.isAuthenticated before layout get");
                                         string encryptedToken = core.docProperties.getText("token");
                                         if (!string.IsNullOrEmpty(encryptedToken)) {
                                             // if there is a token check if it is a valid verification email guid, if it is return the registration form
@@ -789,7 +786,6 @@ namespace Contensive.Processor.Controllers {
                                     } else {
                                         //
                                         // -- Authenticated
-                                        logger.Error("Test log in core.session.isAuthenticated");
                                         core.doc.verifyRegistrationFormPage(core);
                                         string BlockCopy = ""
                                             + "<p>You are currently logged in as \"<b>" + core.session.user.name + "</b>\". If this is not you, please <a href=\"?" + core.doc.refreshQueryString + "&method=logout\" rel=\"nofollow\">click Here</a>.</p>"

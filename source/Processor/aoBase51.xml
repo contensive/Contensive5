@@ -3489,7 +3489,7 @@
     <Email>No</Email>
     <RemoteMethod>Yes</RemoteMethod>
     <BlockEditTools>Yes</BlockEditTools>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.AuthenticateClass]]></DotNetClass>	
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.CustomBlocking.SubmitCustomBlockingEmailVerification]]></DotNetClass>	
   </Addon>
 
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />

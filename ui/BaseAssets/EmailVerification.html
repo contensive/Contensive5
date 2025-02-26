@@ -53,6 +53,7 @@
           processData: false
         }).done(function(response) {
           var obj = JSON.parse(response);
+          console.log(obj);
           if (obj.success) {           
             alert(obj.successMessage);
             return true;
