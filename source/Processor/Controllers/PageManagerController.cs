@@ -739,6 +739,8 @@ namespace Contensive.Processor.Controllers {
                                 // todo -- create registration override system, like login
                                 //
                                 // ----- Registration
+                                logger.Error("Test log before if !core.session.isAuthenticated: " + core.session.isAuthenticated);
+
                                 string BlockForm = "";
                                 if (core.docProperties.getInteger("subform") == ContentBlockWithLogin) {
                                     //
@@ -763,7 +765,21 @@ namespace Contensive.Processor.Controllers {
                                         //
                                         // -- Not Authenticated
                                         core.doc.verifyRegistrationFormPage(core);
-                                        BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationBaseGuid, Constants.layoutEmailVerificationLayoutBuilderBaseName, Constants.layoutEmailVerificationLayoutBuilderBaseCdnPathFilename);
+                                        logger.Error("Test log in !core.session.isAuthenticated before layout get");
+                                        string encryptedToken = core.docProperties.getText("token");
+                                        if (!string.IsNullOrEmpty(encryptedToken)) {
+                                            // if there is a token check if it is a valid verification email guid, if it is return the registration form
+                                            var base64EncodedBytes = System.Convert.FromBase64String(encryptedToken);
+                                            string decodedToken = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+                                            string decryptedToken = core.cpParent.Security.DecryptTwoWay(decodedToken);
+                                            var verificationEmailRecord = DbBaseModel.create<DbCustomBlockingVerificationEmailsModel>(core.cpParent, decryptedToken);
+                                            if(verificationEmailRecord != null) {
+                                                BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingRegistrationBaseGuid, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseName, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseCdnPathFilename);
+                                            }
+                                        }
+                                        else {
+                                            BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationBaseGuid, Constants.layoutEmailVerificationLayoutBuilderBaseName, Constants.layoutEmailVerificationLayoutBuilderBaseCdnPathFilename);
+                                        }
                                         /*
                                         BlockForm = ""
                                             + "<p>This content has limited access. If you have an account, <a href=\"?" + core.doc.refreshQueryString + "&subform=" + ContentBlockWithLogin + "\">click Here to login</a>.</p>"
@@ -773,6 +789,7 @@ namespace Contensive.Processor.Controllers {
                                     } else {
                                         //
                                         // -- Authenticated
+                                        logger.Error("Test log in core.session.isAuthenticated");
                                         core.doc.verifyRegistrationFormPage(core);
                                         string BlockCopy = ""
                                             + "<p>You are currently logged in as \"<b>" + core.session.user.name + "</b>\". If this is not you, please <a href=\"?" + core.doc.refreshQueryString + "&method=logout\" rel=\"nofollow\">click Here</a>.</p>"

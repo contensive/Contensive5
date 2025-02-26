@@ -29,7 +29,7 @@
                 <input type="text" class="form-control" id="forEmail" placeholder="" aria-label="Email">
             </div>
             <div class="mt-3">
-                <button class="btn btn-primary">Verify Email</button>
+                <button onclick="submitEmailVerification()" class="btn btn-primary">Verify Email</button>
             </div>
            
         </div>
@@ -40,6 +40,31 @@
     </div>
   </div>
 
+  <script>
+    function submitEmailVerification() {
+        var email = document.getElementById('forEmail').value;
+        var formData = new FormData();
+        formData.append('email', email);
+        $.ajax({
+          url: "/SubmitCustomBlockingEmailVerification",
+          type: "POST",
+          data: formData,
+          contentType: false,
+          processData: false
+        }).done(function(response) {
+          var obj = JSON.parse(response);
+          if (obj.success) {           
+            alert(obj.successMessage);
+            return true;
+          }else{
+            alert(obj.errorMessage);
+            return false;
+          }
+        }).fail(function(data) {
+          alert("Error. The server couldn't be reached");
+      });
+    }
+  </script>
 
 </body>
 
