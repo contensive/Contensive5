@@ -101,7 +101,14 @@ namespace Contensive.Models.Db {
         public bool processRunOnce { get; set; }
         public string processServerKey { get; set; }
         public string remoteAssetLink { get; set; }
+        /// <summary>
+        /// if true, the remote asset is a method that returns the content
+        /// </summary>
         public bool remoteMethod { get; set; }
+        /// <summary>
+        /// if true, this addon is a dashboard widget
+        /// </summary>
+        public bool dashboardWidget { get; set; }
         public string robotsTxt { get; set; }
         public string scriptingCode { get; set; }
         public string scriptingEntryPoint { get; set; }

@@ -1,5 +1,6 @@
 ﻿
 Imports Contensive
+Imports Contensive.BaseClasses
 Imports Contensive.Processor.Controllers
 
 Public Class Global_asax
@@ -17,8 +18,12 @@ Public Class Global_asax
         Try
             '
             LogController.logShortLine("Global.asax, Application_Start [" & ConfigurationClass.getAppName() & "]", BaseClasses.CPLogBaseClass.LogLevel.Info)
-            '
             Using cp As New Contensive.Processor.CPClass(ConfigurationClass.getAppName())
+                '
+                ' -- validate new fields. Upgrade handles this process, but if the upgrade is not run, this will catch it
+                cp.core.db.createSQLTableField("ccAggregateFunctions", "dashboardWidget", CPContentBaseClass.FieldTypeIdEnum.Boolean)
+                '
+                ' -- load the route map
                 ConfigurationClass.loadRouteMap(cp)
             End Using
         Catch ex As Exception

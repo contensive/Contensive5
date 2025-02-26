@@ -104,6 +104,7 @@ namespace Contensive.Processor.Controllers {
                         result += ExportController.getNode("OnBodyStart", CS.GetBoolean("OnBodyStart"));
                         result += ExportController.getNode("OnBodyEnd", CS.GetBoolean("OnBodyEnd"));
                         result += ExportController.getNode("RemoteMethod", CS.GetBoolean("RemoteMethod"));
+                        result += ExportController.getNode("DashboardWidget", CS.GetBoolean("DashboardWidget"));
                         result += CS.FieldOK("Diagnostic") ? ExportController.getNode("Diagnostic", CS.GetBoolean("Diagnostic")) : "";
                         //
                         // -- Presentation

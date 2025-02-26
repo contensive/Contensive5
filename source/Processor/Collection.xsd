@@ -170,6 +170,7 @@
 									<xs:element name="Admin" minOccurs="0" maxOccurs="1" type="xs:string" />
 									<xs:element name="DotNetClass" minOccurs="0" maxOccurs="1" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="RemoteMethod"  type="xs:boolean" />
+									<xs:element minOccurs="0" maxOccurs="1" name="DashboardWidget"  type="xs:boolean" />
 									<xs:element minOccurs="0" maxOccurs="1" name="FormXML" type="xs:string"  />
 									<xs:element minOccurs="0" maxOccurs="1" name="ProcessInterval"  type="xs:integer" />
 									<xs:element minOccurs="0" maxOccurs="1" name="BlockEditTools"  type="xs:boolean" />
@@ -394,6 +395,7 @@
 		</xs:restriction>
 	  </xs:simpleType>	<xs:element name="HelpDefault" type="xs:string" />
 	<xs:element name="RemoteMethod" type="xs:string" />
+	<xs:element name="DashboardWidget" type="xs:string" />
 	<xs:element name="Category" type="xs:string" />
 	<xs:element name="FormXML" type="xs:string" />
 	<xs:element name="ProcessInterval" type="xs:string" />
