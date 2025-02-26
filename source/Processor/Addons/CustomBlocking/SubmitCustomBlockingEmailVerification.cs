@@ -9,7 +9,7 @@ using Amazon.Auth.AccessControlPolicy.ActionIdentifiers;
 
 namespace Contensive.Processor.Addons.CustomBlocking
 {
-    class SubmitCustomBlockingEmailVerification : Contensive.BaseClasses.AddonBaseClass {
+    public class SubmitCustomBlockingEmailVerification : Contensive.BaseClasses.AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
                 var returnObj = new SubmitCustomBlockingEmailVerificationReturnObj();
