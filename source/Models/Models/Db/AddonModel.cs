@@ -108,7 +108,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// if true, this addon is a dashboard widget
         /// </summary>
-        public bool adminWidget { get; set; }
+        public bool dashboardWidget { get; set; }
         public string robotsTxt { get; set; }
         public string scriptingCode { get; set; }
         public string scriptingEntryPoint { get; set; }

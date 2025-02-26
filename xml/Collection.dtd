@@ -137,13 +137,13 @@
 <!ATTLIST Field IsBaseField (False) #IMPLIED>
 <!ATTLIST Field MemberSelectGroupID CDATA #IMPLIED>
 <!ELEMENT HelpDefault (#PCDATA)>
-<!ELEMENT Addon (DotNetClass?,RemoteMethod?,AdminWidget?,Admin?,category?,FormXML?,ProcessInterval?,admin?,BlockEditTools*,jsheadscriptsrc?,styleslinkhref?,Styles?,IncludeAddon*,htmlDocument?,JavascriptInHead?,javascriptforcehead?,Category?,Content?,Template?,Email?,copytext?,ArgumentList?,htmldocument?,IsInline?,Diagnostic?,CopyText?)>
+<!ELEMENT Addon (DotNetClass?,RemoteMethod?,DashboardWidget?,Admin?,category?,FormXML?,ProcessInterval?,admin?,BlockEditTools*,jsheadscriptsrc?,styleslinkhref?,Styles?,IncludeAddon*,htmlDocument?,JavascriptInHead?,javascriptforcehead?,Category?,Content?,Template?,Email?,copytext?,ArgumentList?,htmldocument?,IsInline?,Diagnostic?,CopyText?)>
 <!ATTLIST Addon name CDATA #REQUIRED>
 <!ATTLIST Addon guid CDATA #REQUIRED>
 <!ATTLIST Addon type (Add-on|Setting|System|Task|Tool|Widget) #REQUIRED>
 <!ELEMENT DotNetClass (#PCDATA)>
 <!ELEMENT RemoteMethod (#PCDATA)>
-<!ELEMENT AdminWidget (#PCDATA)>
+<!ELEMENT DashboardWidget (#PCDATA)>
 <!ELEMENT Admin (#PCDATA)>
 <!ELEMENT category EMPTY>
 <!ELEMENT FormXML EMPTY>

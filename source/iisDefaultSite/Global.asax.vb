@@ -21,7 +21,7 @@ Public Class Global_asax
             Using cp As New Contensive.Processor.CPClass(ConfigurationClass.getAppName())
                 '
                 ' -- validate new fields. Upgrade handles this process, but if the upgrade is not run, this will catch it
-                cp.core.db.createSQLTableField("ccAggregateFunctions", "adminWidget", CPContentBaseClass.FieldTypeIdEnum.Boolean)
+                cp.core.db.createSQLTableField("ccAggregateFunctions", "dashboardWidget", CPContentBaseClass.FieldTypeIdEnum.Boolean)
                 '
                 ' -- load the route map
                 ConfigurationClass.loadRouteMap(cp)
