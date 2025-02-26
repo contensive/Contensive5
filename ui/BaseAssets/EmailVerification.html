@@ -13,7 +13,7 @@
    
 
 
-  <div class="modal " id="verifyEmail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <!--<div class="modal " id="verifyEmail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">-->
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header d-flex justify-content-center mx-3 mb-3">
@@ -38,13 +38,15 @@
         </div>
       </div>
     </div>
-  </div>
+  <!--</div>-->
 
   <script>
     function submitEmailVerification() {
         var email = document.getElementById('forEmail').value;
+        var Link = window.location.href;
         var formData = new FormData();
         formData.append('email', email);
+        formData.append('link', Link);
         $.ajax({
           url: "/SubmitCustomBlockingEmailVerification",
           type: "POST",

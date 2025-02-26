@@ -14,6 +14,7 @@ namespace Contensive.Processor.Addons.CustomBlocking
             try {
                 var returnObj = new SubmitCustomBlockingEmailVerificationReturnObj();
                 string emailInput = cp.Doc.GetText("email");
+                string emailLink = cp.Doc.GetText("link");
                 // check if email is in the system 
                 int userEmailFoundId = 0;
                 string checkForExistingEmailSQL = $"select top 1 id as id from ccmembers where email = {cp.Db.EncodeSQLText(emailInput)} order by dateadded desc";
@@ -37,7 +38,7 @@ namespace Contensive.Processor.Addons.CustomBlocking
                 string token = cp.Security.EncryptTwoWay(newVerificationEmailRecord.ccguid);
                 var encodedLinkStringBytes = System.Text.Encoding.UTF8.GetBytes(token);
                 string encodedLinkString = System.Convert.ToBase64String(encodedLinkStringBytes);
-                string url = cp.Http.WebAddressProtocolDomain + "/" + cp.Request.PathPage + "?token=" + encodedLinkString;
+                string url = emailLink + "?token=" + encodedLinkString;
                 //send the email
                 string emailBody = "<br><b>Click to validate your email: <a href=" + url + "> Validate Email </a></b>";
                 if (!string.IsNullOrEmpty(emailInput)) {
