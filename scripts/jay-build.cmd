@@ -27,7 +27,7 @@ rem
 rem echo on
 
 c:
-cd \Users\kmaadmin\Documents\GitHub\Contensive5\scripts
+cd \Git\Contensive5\scripts
 
 rem @echo off
 rem Setup deployment folder
@@ -162,17 +162,17 @@ rem
 @echo on
 
 c:
-cd "C:\Users\kmaadmin\Documents\GitHub\Contensive5\ui\baseassets\"
+cd "C:\Git\Contensive5\ui\baseassets\"
 del baseassets.zip /Q
 "c:\program files\7-zip\7z.exe" a "baseassets.zip"
 "c:\program files\7-zip\7z.exe" d baseassets.zip baseassets\
 "c:\program files\7-zip\7z.exe" d baseassets.zip ".DS_Store"
 cd baseassets
 "c:\program files\7-zip\7z.exe" a "..\baseassets.zip"
-move /y "..\baseassets.zip"  "C:\Users\kmaadmin\Documents\GitHub\Contensive5\source\Processor\"
+move /y "..\baseassets.zip"  "C:\Git\Contensive5\source\Processor\"
 
 rem pause
-cd "C:\Users\kmaadmin\Documents\GitHub\Contensive5\scripts"
+cd "C:\Git\Contensive5\scripts"
 
 rem ==============================================================
 rem
@@ -181,7 +181,7 @@ rem then the deployment script will copy to aws contensive folder
 rem
 
 c:
-copy "C:\Users\kmaadmin\Documents\GitHub\Contensive5\source\Processor\Collection.xsd" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\source\Processor\Collection.xsd" "%deploymentFolderRoot%%versionNumber%\"
 
 rem pause
 
@@ -192,9 +192,9 @@ rem then the deployment script will copy to aws contensive folder
 rem
 
 c:
-copy "C:\Users\kmaadmin\Documents\GitHub\\Contensive5\etc\install-readme.txt" "%deploymentFolderRoot%%versionNumber%\"
-copy "C:\Users\kmaadmin\Documents\GitHub\\Contensive5\etc\install.cmd" "%deploymentFolderRoot%%versionNumber%\"
-copy "C:\Users\kmaadmin\Documents\GitHub\\Contensive5\etc\uninstall.cmd" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\etc\install-readme.txt" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\etc\install.cmd" "%deploymentFolderRoot%%versionNumber%\"
+copy "C:\Git\Contensive5\etc\uninstall.cmd" "%deploymentFolderRoot%%versionNumber%\"
 
 rem pause
 
@@ -343,7 +343,7 @@ if errorlevel 1 (
 )
 
 xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
-pause
+
 cd ..\scripts
 
 rem pause
