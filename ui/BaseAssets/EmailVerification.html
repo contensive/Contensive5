@@ -12,33 +12,28 @@
 <body>
    
 
-
-  <!--<div class="modal " id="verifyEmail" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">-->
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header d-flex justify-content-center mx-3 mb-3">
-            <div class="text-center">
-                <h1 class="modal-title fs-3">Verify Your Email</h1>
-                <p class="fw-light">First time users, please verify your email address.</p>
-            </div>
+  <div class="container-fluid">
+    <div class="card card-body col-sm-10 col-md-7 col-lg-6 m-auto rounded-3 shadow-sm py-4 px-4 mt-5">
+        <div class="text-center mb-5 border-bottom pb-3">
+          <h1 class="fs-3">Verify Your Email</h1>
+          <p class="fw-light">First time users, please verify your email address.</p>
         </div>
-        <div class="modal-body px-3 mb-4">
-           
-            <div class="mb-4">
-                <label for="forEmail" class="form-label">Email</label>
-                <input type="text" class="form-control" id="forEmail" placeholder="" aria-label="Email">
-            </div>
-            <div class="mt-3">
-                <button onclick="submitEmailVerification()" class="btn btn-primary">Verify Email</button>
-            </div>
-           
+        <div class="">
+          <div class="mb-2">
+            <label for="forEmail" class="form-label">Email</label>
+              <input type="text" class="form-control" id="forEmail" placeholder="" aria-label="Email">
+          </div>
+          
+          <div class="mt-3">
+              <button onclick="submitEmailVerification()" class="btn btn-primary">Verify Email</button>
+          </div> 
+          <div class="d-flex justify-content-center">
+            <p class="fw-light">Already verified your email? <a href="?method=login" class="fst-italic ">Log in</a>.</p> 
+          </div>
         </div>
-        <div class="modal-footer d-flex justify-content-center">
-            <div><p>Already verified your email? <a href="?method=login">Log in</a>.</p> </div>
-        </div>
-      </div>
+        
     </div>
-  <!--</div>-->
+  </div>
 
   <script>
     function submitEmailVerification() {
