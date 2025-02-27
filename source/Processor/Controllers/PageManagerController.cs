@@ -774,12 +774,12 @@ namespace Contensive.Processor.Controllers {
                                             if(verificationEmailRecord != null) {
                                                 var registrationFormViewModel = new CustomBlockingRegistrationFormViewModel();
                                                 registrationFormViewModel.userEmail = verificationEmailRecord.emailSentTo;
-                                                var layout = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingRegistrationBaseGuid, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseName, Constants.layoutCustomBlockingRegistrationLayoutBuilderBaseCdnPathFilename);
+                                                var layout = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingRegistrationGuid, Constants.layoutCustomBlockingRegistrationName, Constants.layoutCustomBlockingRegistrationCdnPathFilename);
                                                 BlockForm = core.cpParent.Mustache.Render(layout, registrationFormViewModel);
                                             }
                                         }
                                         else {                                            
-                                            BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationBaseGuid, Constants.layoutEmailVerificationLayoutBuilderBaseName, Constants.layoutEmailVerificationLayoutBuilderBaseCdnPathFilename);
+                                            BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationGuid, Constants.layoutEmailVerificationName, Constants.layoutEmailVerificationCdnPathFilename);
                                         }
                                         /*
                                         BlockForm = ""
