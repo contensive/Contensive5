@@ -323,20 +323,21 @@ namespace Contensive.Processor.Controllers {
                         WorkingIdList = GenericController.strReplace(WorkingIdList, ",,", ",");
                     }
                     if (!string.IsNullOrEmpty(WorkingIdList)) {
-                        if (strMid(WorkingIdList, 1) == ",") {
-                            if (strLen(WorkingIdList) <= 1) {
+                        if (WorkingIdList.left(1) == ",") {
+                            WorkingIdList = WorkingIdList.Substring(1);
+                            if (WorkingIdList.Length==1) {
                                 WorkingIdList = "";
                             } else {
-                                WorkingIdList = strMid(WorkingIdList, 2);
+                                WorkingIdList = WorkingIdList.Substring(1);
                             }
                         }
                     }
                     if (!string.IsNullOrEmpty(WorkingIdList)) {
                         if (WorkingIdList.right(1) == ",") {
-                            if (strLen(WorkingIdList) <= 1) {
+                            if (WorkingIdList.Length == 1) {
                                 WorkingIdList = "";
                             } else {
-                                WorkingIdList = GenericController.strMid(WorkingIdList, 1, strLen(WorkingIdList) - 1);
+                                WorkingIdList = WorkingIdList.Substring(0, WorkingIdList.Length-1);
                             }
                         }
                     }
@@ -363,7 +364,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // check if they are admin or in the group list
                         //
-                        if (GenericController.strInstr(1, WorkingIdList, ",") != 0) {
+                        if (WorkingIdList.Contains(',') ) {
                             criteria = "r.GroupID in (" + WorkingIdList + ")";
                         } else {
                             criteria = "r.GroupID=" + WorkingIdList;

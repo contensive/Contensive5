@@ -1146,6 +1146,11 @@ namespace Contensive.Processor {
         public const string layoutCustomBlockingRegistrationGuid = "{4921D0C8-41D1-4941-A90C-0AD2E7CD5433}}";
         public const string layoutCustomBlockingRegistrationName = "Registration Form Layout";
         public const string layoutCustomBlockingRegistrationCdnPathFilename = @"baseAssets\RegistrationForm.html";
+        //
+        // -- layout for Site Warning Message Wrapper
+        public const string SiteWarningMessageWrapperLayoutGuid = "{D3D3EB96-A842-4135-8EC2-948055E9838B}";
+        public const string SiteWarningMessageWrapperLayoutName = "Site Warning Message Wrapper Layout";
+        public const string SiteWarningMessageWrapperLayoutCdnPathFilename = @"baseAssets\SiteWarningMessageWrapper.html";
 
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

@@ -609,10 +609,19 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- Determine if Content Blocking
                 bool ContentBlocked = false;
+                bool hasBlockingGroups = false;
                 if (!string.IsNullOrEmpty(BlockedRecordIDList)) {
+                    using (DataTable dt = core.cpParent.Db.ExecuteQuery($"select top 1 id from ccPageContentBlockRules r where r.recordId in ({BlockedRecordIDList})")) {
+                        hasBlockingGroups = dt.Rows.Count > 0;
+                    }
                     if (core.session.isAuthenticatedAdmin()) {
                         //
                         // Administrators are never blocked
+                        //
+                        ContentBlocked = false;
+                    } else if (core.session.isAuthenticated && !hasBlockingGroups) {
+                        //
+                        // authenticated users are never blocked if there are no blocking groups
                         //
                         ContentBlocked = false;
                     } else if (!core.session.isAuthenticated) {
@@ -624,7 +633,8 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Check Access Groups, if in access groups, remove group from BlockedRecordIDList
                         //
-                        string SQL = "SELECT DISTINCT ccPageContentBlockRules.RecordID"
+                        string SQL = "" +
+                            "SELECT DISTINCT ccPageContentBlockRules.RecordID"
                             + " FROM (ccPageContentBlockRules"
                             + " LEFT JOIN ccgroups ON ccPageContentBlockRules.GroupId = ccgroups.ID)"
                             + " LEFT JOIN ccMemberRules ON ccgroups.Id = ccMemberRules.GroupID"
@@ -702,6 +712,7 @@ namespace Contensive.Processor.Controllers {
                                 //
                                 result = string.IsNullOrWhiteSpace(CustomBlockMessageFilename) ? "" : core.cdnFiles.readFileText(CustomBlockMessageFilename);
                                 result = ContentRenderController.renderHtmlForWeb(core, result, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
+                                result = HtmlController.getSiteWarningMessageWrapper(core, "This content is blocked", result, "");
                                 break;
                             }
                         case ContentBlockWithLogin: {
@@ -711,7 +722,7 @@ namespace Contensive.Processor.Controllers {
                                 string blockForm = "";
                                 if (!core.session.isAuthenticated) {
                                     //
-                                    // -- either not authenticated or not authorized
+                                    // -- not authenticated, login
                                     blockForm = ""
                                         + core.addon.execute(core.cacheRuntime.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
@@ -740,17 +751,17 @@ namespace Contensive.Processor.Controllers {
                                 // todo -- create registration override system, like login
                                 //
                                 // ----- Registration
-                                string BlockForm = "";
                                 if (core.docProperties.getInteger("subform") == ContentBlockWithLogin) {
                                     //
                                     // login subform form
-                                    BlockForm = ""
+                                    result = ""
                                         + "<p>This content has limited access. If you have an account, please login using this form.</p>"
                                         + "<p>If you do not have an account, <a href=\"?" + core.doc.refreshQueryString + "&subform=0\">click here to register</a>.</p>"
                                         + core.addon.execute(core.cacheRuntime.addonCache.create(addonGuidLoginForm), new CPUtilsBaseClass.addonExecuteContext {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked for registration"
                                         });
+                                    break;
                                 } else {
                                     //
                                     // Register Form
@@ -760,45 +771,44 @@ namespace Contensive.Processor.Controllers {
                                         // -- Can not take the chance, if you go to a registration page, and you are recognized but not auth -- logout first
                                         AuthController.logout(core, core.session);
                                     }
-                                    if (!core.session.isAuthenticated) {
+                                    if (core.session.isAuthenticated) {
                                         //
-                                        // -- Not Authenticated
-                                        core.doc.verifyRegistrationFormPage(core);
-                                        string encryptedToken = core.docProperties.getText("token");
-                                        if (!string.IsNullOrEmpty(encryptedToken)) {
-                                            // if there is a token check if it is a valid verification email guid, if it is return the registration form
-                                            var base64EncodedBytes = System.Convert.FromBase64String(encryptedToken);
-                                            string decodedToken = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
-                                            string decryptedToken = core.cpParent.Security.DecryptTwoWay(decodedToken);
-                                            var verificationEmailRecord = DbBaseModel.create<DbCustomBlockingVerificationEmailsModel>(core.cpParent, decryptedToken);
-                                            if(verificationEmailRecord != null) {
-                                                var registrationFormViewModel = new CustomBlockingRegistrationFormViewModel();
-                                                registrationFormViewModel.userEmail = verificationEmailRecord.emailSentTo;
-                                                var layout = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingRegistrationGuid, Constants.layoutCustomBlockingRegistrationName, Constants.layoutCustomBlockingRegistrationCdnPathFilename);
-                                                BlockForm = core.cpParent.Mustache.Render(layout, registrationFormViewModel);
-                                            }
-                                        }
-                                        else {                                            
-                                            BlockForm = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationGuid, Constants.layoutEmailVerificationName, Constants.layoutEmailVerificationCdnPathFilename);
-                                        }
-                                        /*
-                                        BlockForm = ""
-                                            + "<p>This content has limited access. If you have an account, <a href=\"?" + core.doc.refreshQueryString + "&subform=" + ContentBlockWithLogin + "\">click Here to login</a>.</p>"
-                                            + "<p>To view this content, please complete this form.</p>"
-                                            + getFormPage(core, "Registration Form", RegistrationGroupId) + "";
-                                        */
-                                    } else {
-                                        //
-                                        // -- Authenticated
-                                        core.doc.verifyRegistrationFormPage(core);
-                                        string BlockCopy = ""
+                                        // -- Authenticated but not in the group
+                                        result = ""
                                             + "<p>You are currently logged in as \"<b>" + core.session.user.name + "</b>\". If this is not you, please <a href=\"?" + core.doc.refreshQueryString + "&method=logout\" rel=\"nofollow\">click Here</a>.</p>"
-                                            + "<p>This account does not have access to this content. To view this content, please complete this form.</p>"
-                                            + getFormPage(core, "Registration Form", RegistrationGroupId) + "";
+                                            + "<p>This account does not have access to this content.</p>";
+                                        result = HtmlController.getSiteWarningMessageWrapper(core, "This content is blocked", ErrorController.getUserError(core) + result, "");
+                                        break;
                                     }
+                                    //
+                                    // -- Not Authenticated
+                                    string encryptedToken = core.docProperties.getText("token");
+                                    if (!string.IsNullOrEmpty(encryptedToken)) {
+                                        //
+                                        // if there is a token check if it is a valid verification email guid, if it is return the registration form
+                                        var base64EncodedBytes = System.Convert.FromBase64String(encryptedToken);
+                                        string decodedToken = System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
+                                        string decryptedToken = core.cpParent.Security.DecryptTwoWay(decodedToken);
+                                        var verificationEmailRecord = DbBaseModel.create<DbCustomBlockingVerificationEmailsModel>(core.cpParent, decryptedToken);
+                                        if (verificationEmailRecord != null) {
+                                            //
+                                            // -- not authenticated and valid token
+                                            var registrationFormViewModel = new CustomBlockingRegistrationFormViewModel();
+                                            registrationFormViewModel.userEmail = verificationEmailRecord.emailSentTo;
+                                            var layout = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingRegistrationGuid, Constants.layoutCustomBlockingRegistrationName, Constants.layoutCustomBlockingRegistrationCdnPathFilename);
+                                            result = core.cpParent.Mustache.Render(layout, registrationFormViewModel);
+                                            break;
+                                        }
+                                        //
+                                        // -- not authenticated and invalid token
+                                        result = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationGuid, Constants.layoutEmailVerificationName, Constants.layoutEmailVerificationCdnPathFilename);
+                                        break;
+                                    }
+                                    //
+                                    // -- not authenticated and no token
+                                    result = core.cpParent.Layout.GetLayout(Constants.layoutEmailVerificationGuid, Constants.layoutEmailVerificationName, Constants.layoutEmailVerificationCdnPathFilename);
+                                    break;
                                 }
-                                result = "<div style=\"margin: 100px, auto, auto, auto;text-align:left;\">" + ErrorController.getUserError(core) + BlockForm + "</div>";
-                                break;
                             }
                         default: {
                                 //
@@ -1178,7 +1188,7 @@ namespace Contensive.Processor.Controllers {
             try {
                 var copyRecord = DbBaseModel.createByUniqueName<CopyContentModel>(core.cpParent, ContentBlockCopyName);
                 if (copyRecord != null) {
-                    return ContentRenderController.renderHtmlForWeb(core, copyRecord.copy, PageContentModel.tableMetadata.contentName, 0, 0, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
+                    return getContentBlockMessage_renderHtmlForWeb(core, copyRecord);
                 }
                 //
                 // ----- Do not allow blank message - if still nothing, create default
@@ -1187,12 +1197,19 @@ namespace Contensive.Processor.Controllers {
                 copyRecord.name = ContentBlockCopyName;
                 copyRecord.copy = result;
                 copyRecord.save(core.cpParent);
-                return result;
+                return getContentBlockMessage_renderHtmlForWeb(core, copyRecord);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        //
+        private static string getContentBlockMessage_renderHtmlForWeb(CoreController core, CopyContentModel copyRecord) {
+            return ContentRenderController.renderHtmlForWeb(core, copyRecord.copy, PageContentModel.tableMetadata.contentName, 0, 0, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
+        }
+
         //
         //====================================================================================================
         //

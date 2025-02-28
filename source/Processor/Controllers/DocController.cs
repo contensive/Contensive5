@@ -424,46 +424,6 @@ namespace Contensive.Processor.Controllers {
             }
         }
         //
-        //=============================================================================
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="core"></param>
-        public void verifyRegistrationFormPage(CoreController core) {
-            try {
-                MetadataController.deleteContentRecords(core, "Form Pages", "name=" + DbController.encodeSQLText("Registration Form"));
-                using (var csData = new CsModel(core)) {
-                    if (!csData.open("Form Pages", "name=" + DbController.encodeSQLText("Registration Form"))) {
-                        //
-                        // create Version 1 template - just to main_Get it started
-                        //
-                        if (csData.insert("Form Pages")) {
-                            csData.set("name", "Registration Form");
-                            string Copy = ""
-                                + Environment.NewLine + "<table border=\"0\" cellpadding=\"2\" cellspacing=\"0\" width=\"100%\">"
-                                + Environment.NewLine + "{{REPEATSTART}}<tr><td align=right style=\"height:22px;\">{{CAPTION}}&nbsp;</td><td align=left>{{FIELD}}</td></tr>{{REPEATEND}}"
-                                + Environment.NewLine + "<tr><td align=right><img alt=\"space\" src=\"" + cdnPrefix + "images/spacer.gif\" width=135 height=1></td><td width=\"100%\">&nbsp;</td></tr>"
-                                + Environment.NewLine + "<tr><td colspan=2>&nbsp;<br>" + core.html.getPanelButtons(ButtonRegister) + "</td></tr>"
-                                + Environment.NewLine + "</table>";
-                            csData.set("Body", Copy);
-                            Copy = ""
-                                + "1"
-                                + Environment.NewLine + "Registered\r\ntrue"
-                                + Environment.NewLine + "1,First Name,true,FirstName"
-                                + Environment.NewLine + "1,Last Name,true,LastName"
-                                + Environment.NewLine + "1,Email Address,true,Email"
-                                + Environment.NewLine + "1,Phone,true,Phone"
-                                + Environment.NewLine + "2,Please keep me informed of news and events,false,Subscribers"
-                                + "";
-                            csData.set("Instructions", Copy);
-                        }
-                    }
-                }
-            } catch (Exception ex) {
-                logger.Error(ex, $"{core.logCommonMessage}");
-            }
-        }
-        //
         //====================================================================================================
         /// <summary>
         /// Add name/value to refresh query string

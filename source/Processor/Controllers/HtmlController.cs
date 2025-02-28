@@ -27,6 +27,16 @@ namespace Contensive.Processor.Controllers {
         private readonly CoreController core;
         //
         // ====================================================================================================
+        public static string getSiteWarningMessageWrapper( CoreController core, string title, string htmlText, string link ) {
+            string layout = core.cpParent.Layout.GetLayout(Constants.SiteWarningMessageWrapperLayoutGuid, Constants.SiteWarningMessageWrapperLayoutName, Constants.SiteWarningMessageWrapperLayoutCdnPathFilename);
+            return core.cpParent.Mustache.Render(layout, new {
+                htmlText,
+                title,
+                link
+            });
+        }
+        //
+        // ====================================================================================================
         /// <summary>
         /// tag
         /// </summary>
