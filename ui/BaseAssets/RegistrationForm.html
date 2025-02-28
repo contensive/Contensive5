@@ -49,12 +49,14 @@
           var firstName = document.getElementById('forFirstName').value;
           var lastName = document.getElementById('forLastName').value;
           var password = document.getElementById('forPassword').value;
+          var userName = document.getElementById('forUsername').value;
           var Link = window.location.href;
           var formData = new FormData();
           formData.append('email', email);
           formData.append('firstname', firstName);
           formData.append('lastName', lastName);
           formData.append('password', password);
+          formData.append('userName', userName);
           $.ajax({
             url: "/SubmitCustomBlockingRegistrationForm",
             type: "POST",

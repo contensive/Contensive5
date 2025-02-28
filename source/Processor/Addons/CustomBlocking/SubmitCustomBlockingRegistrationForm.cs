@@ -15,6 +15,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                 string lastName = cp.Doc.GetText("lastname");
                 string password = cp.Doc.GetText("password");
                 string emailInput = cp.Doc.GetText("email");
+                string userName = cp.Doc.GetText("userName");
                 int userEmailFoundId = 0;
                 string checkForExistingEmailSQL = $"select top 1 id as id from ccmembers where email = {cp.Db.EncodeSQLText(emailInput)} order by dateadded desc";
                 using (var cs = cp.CSNew()) {
@@ -27,6 +28,7 @@ namespace Contensive.Processor.Addons.CustomBlocking {
                 user.lastName = lastName;
                 user.password = password;
                 user.name = firstName + " " + lastName;
+                user.username = userName;
                 user.save(cp);
                 cp.User.LoginByID(user.id);
                 returnObj.success = true;

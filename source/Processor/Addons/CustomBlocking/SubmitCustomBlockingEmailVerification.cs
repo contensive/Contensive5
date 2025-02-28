@@ -44,7 +44,7 @@ namespace Contensive.Processor.Addons.CustomBlocking
                     cp.Email.send(emailInput, cp.Email.fromAddressDefault, "Email verification", emailBody);
                 }
                 returnObj.success = true;
-                returnObj.successMessage = "Email Submitted";
+                returnObj.successMessage = "A verification email was sent to the email address you entered below. Click the link in the email to confirm your email and complete the process.";
                 return returnObj;
             }
             catch(Exception ex) {
