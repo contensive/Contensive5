@@ -3,7 +3,7 @@ rem
 rem Must be run from the projects git\project\scripts folder - everything is relative
 rem run >build [versionNumber]
 rem
-@echo off
+rem @echo off
 cls
  
 @echo +++++++++++++++++++++++++++++
@@ -22,14 +22,17 @@ cls
 @echo When ready, hit any key to continue
 @echo .
 @echo +++++++++++++++++++++++++++++
-pause
-rem 
-rem echo on
 
+pause
+
+rem ==============================================================
+rem
+rem determine version
+rem
+ 
 c:
 cd \Git\Contensive5\scripts
 
-rem @echo off
 rem Setup deployment folder
 set msbuildLocation=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\
 set deploymentFolderRoot=C:\Deployments\Contensive5\Dev\
@@ -57,12 +60,13 @@ set /a versionRevision=%versionRevision%+1
 goto tryagain
 :makefolder
 md "%deploymentFolderRoot%%versionNumber%"
+
+pause
+
 rem ==============================================================
 rem
 rem clean build folders
 rem
-
-@echo on
 
 del /s /q  "..\source\cli\bin"
 rd /s /q  "..\source\cli\bin"
@@ -129,7 +133,7 @@ rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\bin"
 del /s /q "C:\Git\Contensive5\source\Cli.Installer\obj"
 rd /s /q  "C:\Git\Contensive5\source\Cli.Installer\obj"
 
-rem pause
+pause
 
 rem ==============================================================
 rem
@@ -151,7 +155,7 @@ rem copy default article and articles for the  Help Pages collection
 "c:\program files\7-zip\7z.exe" a "C:\Git\Contensive5\source\Processor\HelpFiles.zip" 
 cd ..\scripts
 
-rem pause
+pause
 
 rem ==============================================================
 rem
@@ -159,20 +163,22 @@ rem zip ui files, copy to the placeholders in the folder, move to the bin folder
 rem baseassets need img files copied to root of the zip file.
 rem
 
-@echo on
-
 c:
-cd "C:\Git\Contensive5\ui\baseassets\"
+cd "..\ui\baseassets\"
+
 del baseassets.zip /Q
 "c:\program files\7-zip\7z.exe" a "baseassets.zip"
 "c:\program files\7-zip\7z.exe" d baseassets.zip baseassets\
 "c:\program files\7-zip\7z.exe" d baseassets.zip ".DS_Store"
-cd baseassets
+
+cd baseasset
+
 "c:\program files\7-zip\7z.exe" a "..\baseassets.zip"
 move /y "..\baseassets.zip"  "C:\Git\Contensive5\source\Processor\"
 
-rem pause
-cd "C:\Git\Contensive5\scripts"
+cd "..\..\scripts"
+
+pause
 
 rem ==============================================================
 rem
@@ -183,7 +189,7 @@ rem
 c:
 copy "C:\Git\Contensive5\source\Processor\Collection.xsd" "%deploymentFolderRoot%%versionNumber%\"
 
-rem pause
+pause
 
 rem ==============================================================
 rem
@@ -196,7 +202,7 @@ copy "C:\Git\Contensive5\etc\install-readme.txt" "%deploymentFolderRoot%%version
 copy "C:\Git\Contensive5\etc\install.cmd" "%deploymentFolderRoot%%versionNumber%\"
 copy "C:\Git\Contensive5\etc\uninstall.cmd" "%deploymentFolderRoot%%versionNumber%\"
 
-rem pause
+pause
 
 rem ==============================================================
 rem
@@ -214,12 +220,16 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+pause
+
 dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building CPBase
    pause
    exit /b %errorlevel%
 )
+
+pause
 
 rem asssembly product version was set 20.0.0.0, properties, package, packageid was
 dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
@@ -229,12 +239,16 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+pause
+
 dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building Processor
    pause
    exit /b %errorlevel%
 )
+
+pause
 
 dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
@@ -243,12 +257,16 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+pause
+
 dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building cli
    pause
    exit /b %errorlevel%
 )
+
+pause
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
@@ -257,12 +275,16 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+pause
+
 dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
    echo failure pack Models
    pause
    exit /b %errorlevel%
 )
+
+pause
 
 dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
@@ -271,7 +293,11 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
+pause
+
 cd ..\scripts
+
+pause
 
 rem ==============================================================
 rem
@@ -283,15 +309,23 @@ move /y "CPBase\bin\debug\Contensive.CPBaseClass.%versionNumber%.nupkg" "%deploy
 rem copy this package to the local package source so the next project builds all upgrade the assembly
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
+pause
+
 move /y "Models\Bin\Debug\Contensive.DBModels.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
 rem copy this package to the local package source so the next project builds all upgrade the assembly
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
+
+pause
 
 move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
 rem copy this package to the local package source so the next project builds all upgrade the assembly
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
+pause
+
 cd ..\scripts
+
+pause
 
 rem ==============================================================
 rem
@@ -311,6 +345,8 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
+pause
+
 rem ==============================================================
 rem
 rem update aspx site nuget packages 
@@ -320,14 +356,18 @@ cd ..\source\iisdefaultsite
 dotnet remove package Contensive.CPBaseClass
 dotnet add package Contensive.CPBaseClass --source c:\NuGetLocalPackages
 
+pause
+
 dotnet remove package Contensive.DbModels
 dotnet add package Contensive.DbModels --source c:\NuGetLocalPackages
+
+pause
 
 dotnet remove package Contensive.Processor
 dotnet add package Contensive.Processor --source c:\NuGetLocalPackages
 cd ..\..\scripts
 
-rem pause 
+pause
 
 rem ==============================================================
 rem
@@ -346,7 +386,7 @@ xcopy "..\WebDeploymentPackage\*.zip" "%deploymentFolderRoot%%versionNumber%" /Y
 
 cd ..\scripts
 
-rem pause
+pause
 
 rem ==============================================================
 rem
@@ -360,6 +400,8 @@ nuget update ModelTests.csproj -noninteractive -source nuget.org -source %NuGetL
 nuget update ModelTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
+pause
+
 cd ..\source\Processor
 cd ..\ProcessorTests
 nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.CPBaseClass
@@ -367,7 +409,7 @@ nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %Nu
 nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
-rem pause
+pause
 
 rem ==============================================================
 rem
