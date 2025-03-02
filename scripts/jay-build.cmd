@@ -3,7 +3,7 @@ rem
 rem Must be run from the projects git\project\scripts folder - everything is relative
 rem run >build [versionNumber]
 rem
-rem @echo off
+@echo off
 cls
  
 @echo +++++++++++++++++++++++++++++
@@ -22,17 +22,14 @@ cls
 @echo When ready, hit any key to continue
 @echo .
 @echo +++++++++++++++++++++++++++++
-
 pause
+rem 
+rem echo on
 
-rem ==============================================================
-rem
-rem determine version
-rem
- 
 c:
 cd \Git\Contensive5\scripts
 
+rem @echo off
 rem Setup deployment folder
 set msbuildLocation=C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\
 set deploymentFolderRoot=C:\Deployments\Contensive5\Dev\
@@ -60,13 +57,12 @@ set /a versionRevision=%versionRevision%+1
 goto tryagain
 :makefolder
 md "%deploymentFolderRoot%%versionNumber%"
-
-rem pause
-
 rem ==============================================================
 rem
 rem clean build folders
 rem
+
+@echo on
 
 del /s /q  "..\source\cli\bin"
 rd /s /q  "..\source\cli\bin"
@@ -163,22 +159,20 @@ rem zip ui files, copy to the placeholders in the folder, move to the bin folder
 rem baseassets need img files copied to root of the zip file.
 rem
 
-c:
-cd "..\ui\baseassets\"
+@echo on
 
+c:
+cd "C:\Git\Contensive5\ui\baseassets\"
 del baseassets.zip /Q
 "c:\program files\7-zip\7z.exe" a "baseassets.zip"
 "c:\program files\7-zip\7z.exe" d baseassets.zip baseassets\
 "c:\program files\7-zip\7z.exe" d baseassets.zip ".DS_Store"
-
-cd baseasset
-
+cd baseassets
 "c:\program files\7-zip\7z.exe" a "..\baseassets.zip"
 move /y "..\baseassets.zip"  "C:\Git\Contensive5\source\Processor\"
 
-cd "..\..\scripts"
-
 rem pause
+cd "C:\Git\Contensive5\scripts"
 
 rem ==============================================================
 rem
@@ -220,16 +214,12 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem pause
-
 dotnet build CPBase/CPBase.csproj --no-dependencies /property:AssemblyVersion=4.1.2.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building CPBase
    pause
    exit /b %errorlevel%
 )
-
-rem pause
 
 rem asssembly product version was set 20.0.0.0, properties, package, packageid was
 dotnet build Models/Models.csproj --no-dependencies /property:AssemblyVersion=20.0.0.0 /property:FileVersion=%versionNumber% -p:TargetFramework=net472
@@ -239,16 +229,12 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem pause
-
 dotnet build Processor/Processor.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building Processor
    pause
    exit /b %errorlevel%
 )
-
-rem pause
 
 dotnet build taskservice/taskservice.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
@@ -257,16 +243,12 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem pause
-
 dotnet build cli/cli.csproj --no-dependencies /property:Version=%versionNumber% -p:TargetFramework=net472
 if errorlevel 1 (
    echo failure building cli
    pause
    exit /b %errorlevel%
 )
-
-rem pause
 
 dotnet pack CPBase/CPBase.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
@@ -275,16 +257,12 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem pause
-
 dotnet pack Models/Models.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
    echo failure pack Models
    pause
    exit /b %errorlevel%
 )
-
-rem pause
 
 dotnet pack Processor/Processor.csproj --configuration Debug --no-build --no-restore /property:PackageVersion=%versionNumber%  -p:TargetFrameworks=net472
 if errorlevel 1 (
@@ -293,11 +271,7 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-rem pause
-
 cd ..\scripts
-
-rem pause
 
 rem ==============================================================
 rem
@@ -309,23 +283,15 @@ move /y "CPBase\bin\debug\Contensive.CPBaseClass.%versionNumber%.nupkg" "%deploy
 rem copy this package to the local package source so the next project builds all upgrade the assembly
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.CPBaseClass.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
-rem pause
-
 move /y "Models\Bin\Debug\Contensive.DBModels.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
 rem copy this package to the local package source so the next project builds all upgrade the assembly
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.DBModels.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
-
-rem pause
 
 move /y "Processor\bin\debug\Contensive.Processor.%versionNumber%.nupkg" "%deploymentFolderRoot%%versionNumber%\"
 rem copy this package to the local package source so the next project builds all upgrade the assembly
 xcopy "%deploymentFolderRoot%%versionNumber%\Contensive.Processor.%versionNumber%.nupkg" "%NuGetLocalPackagesFolder%" /Y
 
-rem pause
-
 cd ..\scripts
-
-rem pause
 
 rem ==============================================================
 rem
@@ -345,8 +311,6 @@ xcopy "Cli.Installer\bin\Debug\en-us\*.msi" "%deploymentFolderRoot%%versionNumbe
 
 cd ..\scripts
 
-rem pause
-
 rem ==============================================================
 rem
 rem update aspx site nuget packages 
@@ -356,18 +320,14 @@ cd ..\source\iisdefaultsite
 dotnet remove package Contensive.CPBaseClass
 dotnet add package Contensive.CPBaseClass --source c:\NuGetLocalPackages
 
-rem pause
-
 dotnet remove package Contensive.DbModels
 dotnet add package Contensive.DbModels --source c:\NuGetLocalPackages
-
-rem pause
 
 dotnet remove package Contensive.Processor
 dotnet add package Contensive.Processor --source c:\NuGetLocalPackages
 cd ..\..\scripts
 
-rem pause
+rem pause 
 
 rem ==============================================================
 rem
@@ -400,8 +360,6 @@ nuget update ModelTests.csproj -noninteractive -source nuget.org -source %NuGetL
 nuget update ModelTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.Processor
 cd ..\..\scripts
 
-rem pause
-
 cd ..\source\Processor
 cd ..\ProcessorTests
 nuget update ProcessorTests.csproj -noninteractive -source nuget.org -source %NuGetLocalPackagesFolder% -Id Contensive.CPBaseClass
@@ -416,4 +374,4 @@ rem
 rem done
 rem
 
-rem pause
+pause
