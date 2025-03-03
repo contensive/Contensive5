@@ -410,7 +410,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     response.editorString += HtmlController.inputHidden(request.field.nameLc, request.currentValue);
                                     fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                     response.editorString += HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, editorReadOnly, "form-control");
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.HTML:
@@ -424,13 +424,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         response.editorString += HtmlController.inputHidden(request.field.nameLc, request.currentValue);
                                         fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                         response.editorString += HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, editorReadOnly, "form-control");
-                                        response.editorWrapperClass = "ccTextEditMaxWidth";
+                                        response.editorWrapperClass = "";
                                     } else {
                                         //
                                         // edit html as wysiwyg readonly
                                         request.formFieldList += "," + request.field.nameLc;
                                         response.editorString += AdminUIEditorController.getHtmlEditor(core, request.field.nameLc, request.currentValue, request.editorAddonListJSON, request.styleList, request.styleOptionList, editorReadOnly, response.fieldHtmlId);
-                                        response.editorWrapperClass = "ccTextEditMaxWidth";
+                                        response.editorWrapperClass = "";
                                     }
                                     break;
                                 }
@@ -442,7 +442,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     response.editorString += HtmlController.inputHidden(request.field.nameLc, request.currentValue);
                                     fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                     response.editorString += HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, editorReadOnly, " form-control");
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.File: {
@@ -488,13 +488,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".PixelHeight", 500));
                                         response.editorString += core.html.getFormInputHTML(request.field.nameLc, request.currentValue, "500", "", false, true, request.editorAddonListJSON, request.styleList, request.styleOptionList);
                                         response.editorString = "<div style=\"width:95%\">" + response.editorString + "</div>";
-                                        response.editorWrapperClass = "ccTextEditMaxWidth";
+                                        response.editorWrapperClass = "";
                                     } else {
                                         //
                                         // HTMLContent true, but text editor selected
                                         fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                         response.editorString += HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, editorReadOnly);
-                                        response.editorWrapperClass = "ccTextEditMaxWidth";
+                                        response.editorWrapperClass = "";
                                     }
                                     break;
                                 }
@@ -629,7 +629,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     // View the content as Html, not wysiwyg
                                     request.formFieldList += "," + request.field.nameLc;
                                     response.editorString = AdminUIEditorController.getHtmlCodeEditor(core, request.field.nameLc, request.currentValue, editorReadOnly, response.fieldHtmlId);
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.HTML:
@@ -647,7 +647,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         response.editorString = AdminUIEditorController.getHtmlEditor(core, request.field.nameLc, request.currentValue, request.editorAddonListJSON, request.styleList, request.styleOptionList, editorReadOnly, response.fieldHtmlId);
                                     }
                                     //
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.LongText:
@@ -657,7 +657,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     request.formFieldList += "," + request.field.nameLc;
                                     fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                     response.editorString = HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, false, "text form-control");
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     //
                                     break;
                                 }
@@ -667,7 +667,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     request.formFieldList += "," + request.field.nameLc;
                                     fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                     response.editorString = HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, false, "styles form-control");
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     break;
                                 }
                             case CPContentBaseClass.FieldTypeIdEnum.FileJavaScript: {
@@ -676,7 +676,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     request.formFieldList += "," + request.field.nameLc;
                                     fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                     response.editorString = HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, false, "text form-control");
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     //
                                     break;
                                 }
@@ -686,7 +686,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     request.formFieldList += "," + request.field.nameLc;
                                     fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                     response.editorString = HtmlController.inputTextarea(core, request.field.nameLc, request.currentValue, fieldRows, -1, response.fieldHtmlId, false, false, "text form-control");
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     //
                                     break;
                                 }
@@ -733,7 +733,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                         fieldRows = (core.userProperty.getInteger(request.contentName + "." + request.field.nameLc + ".RowHeight", 10));
                                         response.editorString = HtmlController.inputTextarea(core, request.field.nameLc, HtmlController.encodeHtml(request.currentValue), fieldRows, -1, response.fieldHtmlId, false, false, "text");
                                     }
-                                    response.editorWrapperClass = "ccTextEditMaxWidth";
+                                    response.editorWrapperClass = "";
                                     break;
                                 }
                         }

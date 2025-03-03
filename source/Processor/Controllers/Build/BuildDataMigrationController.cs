@@ -465,7 +465,19 @@ namespace Contensive.Processor.Controllers.Build {
                                 addonList.Insert(0, new AddonListItemModel {
                                     designBlockTypeGuid = Constants.addonGuidBreadcrumbWidget,
                                     designBlockTypeName = Constants.addonNameBreadcrumbWidget,
-                                    instanceGuid = GenericController.getGUID()
+                                    instanceGuid = GenericController.getGUID(),
+                                    renderedHtml = "",
+                                    renderedAssets = new Models.AddonAssetsModel {
+                                        headStyles = [],
+                                        headStylesheetLinks = [],
+                                        headJs = [],
+                                        headJsLinks = [],
+                                        bodyJs = [],
+                                        bodyJsLinks = []
+                                    },
+                                    columns = [],
+                                    settingsEditUrl = "",
+                                    addonEditUrl = ""
                                 });
                             }
                             page.allowReturnLinkDisplay = false;
@@ -476,11 +488,44 @@ namespace Contensive.Processor.Controllers.Build {
                         mergeGroupFixCase(cp, "Staff");
                         mergeGroupFixCase(cp, "Site Managers");
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "25.3.2.2")) {
+                        //
+                        // -- update breadcrumb widget in addonlist to populate null entries
+                        foreach (var page in DbBaseModel.createList<PageContentModel>(cp)) {
+                            bool updated = false;
+                            List<AddonListItemModel> addonList = cp.JSON.Deserialize<List<AddonListItemModel>>(page.addonList);
+                            if (addonList is null) { continue; }
+                            if (addonList.Count == 0) { continue; }
+                            foreach (var addon in addonList) {
+                                if (addon.designBlockTypeGuid == Constants.addonGuidBreadcrumbWidget) {
+                                    if (addon.renderedAssets == null) {
+                                        updated = true;
+                                        addon.renderedAssets = new Models.AddonAssetsModel {
+                                            headStyles = [],
+                                            headStylesheetLinks = [],
+                                            headJs = [],
+                                            headJsLinks = [],
+                                            bodyJs = [],
+                                            bodyJsLinks = []
+                                        };
+                                        if (addon.columns == null) {
+                                            updated = true;
+                                            addon.columns = new List<Models.AddonListColumnItemModel>();
+                                        }
+                                    }
+                                }
+                            }
+                            if (updated) {
+                                page.addonList = cp.JSON.Serialize(addonList);
+                                page.save(cp);
+                            }
+                        }
+                    }
+                    //
+                    // -- Reload
+                    core.cache.invalidateAll();
+                    core.cacheRuntime.clear();
                 }
-                //
-                // -- Reload
-                core.cache.invalidateAll();
-                core.cacheRuntime.clear();
             } catch (Exception ex) {
                 logger.Error($"{core.logCommonMessage}", ex, "Warning during upgrade, data migration");
             }
