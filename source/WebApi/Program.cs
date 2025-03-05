@@ -38,6 +38,10 @@ namespace Contensive.WebApi {
             app.MapPost("/admin", (HttpRequest request, HttpResponse response, HttpContext iisContext) => {
                 return adminRoute(request, response, iisContext);
             });
+
+            // -- query all dynamic routes
+
+
             app.Run("http://localhost:5099");
         }
         public static string someRoute() {
