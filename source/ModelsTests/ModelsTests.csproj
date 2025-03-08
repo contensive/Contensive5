@@ -10,9 +10,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.5.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.5.0" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.409.45" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.402.15" />
+    <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.404.21" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.415.14" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.401.58" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.8.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.8.2" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.9" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
   </ItemGroup>
 
