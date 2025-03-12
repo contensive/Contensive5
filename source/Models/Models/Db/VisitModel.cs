@@ -92,6 +92,10 @@ namespace Contensive.Models.Db {
         /// if true, the visitor was created for this visit
         /// </summary>
         public bool visitorNew { get; set; }
+        /// <summary>
+        /// if true, the user on this visit is able to see age restricted content
+        /// </summary>
+        public bool CanSeeAgeRestrictedContent { get; set; }
         //
         //====================================================================================================
         /// <summary>
