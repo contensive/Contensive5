@@ -822,7 +822,7 @@ namespace Contensive.Processor.Controllers {
                                 }
                             }
                         case ContentBlockWithAgeRestriction:
-                            var currentVisit = DbBaseModel.create<VisitModel>(core.cpParent, $"id = {core.cpParent.Visit.Id}");
+                            var currentVisit = DbBaseModel.create<VisitModel>(core.cpParent, core.cpParent.Visit.Id);
                             if (currentVisit.CanSeeAgeRestrictedContent) {
                                 ContentBlocked = false;
                             }
