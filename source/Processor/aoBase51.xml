@@ -432,6 +432,9 @@
     <Field Name="ExcludeFromAnalytics" Active="true" AdminOnly="0" Authorable="1" Caption="Exclude From Analytics" DeveloperOnly="0" EditSortPriority="1190" FieldType="Boolean" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="10" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[ ]]></HelpDefault>
     </Field>
+	<Field Name="CanSeeAgeRestrictedContent" Active="true" AdminOnly="0" Authorable="1" Caption="Can see age restricted content" DeveloperOnly="0" EditSortPriority="1050" FieldType="Boolean" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="10" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+      <HelpDefault><![CDATA[If true, the user on this vist is able to see age restricted content]]></HelpDefault>
+    </Field>
     <!-- 
       deprecated
     -->
@@ -1126,7 +1129,7 @@
     <Field Name="BlockGroups" Active="true" AdminOnly="0" Authorable="1" Caption="Limit Access to Group Members" DeveloperOnly="0" EditSortPriority="4025" FieldType="ManyToMany" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="Blocking" Scramble="0" LookupList="" ManyToManyContent="Groups" ManyToManyRuleContent="Page Content Block Rules" ManyToManyRulePrimaryField="RecordID" ManyToManyRuleSecondaryField="GroupID" >
       <HelpDefault><![CDATA[If Block Content is checked, the user can see the content on this page if they are members of any of the groups checked in this list. If no groups are checked the user just needs to be logged in. ]]></HelpDefault>
     </Field>
-    <Field Name="BlockSourceID" Active="true" AdminOnly="0" Authorable="1" Caption="Custom Blocking Method" DeveloperOnly="0" EditSortPriority="4030" FieldType="Lookup" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="Blocking" Scramble="0" LookupList="Custom Blocking Message,Login Form,Registration Form" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
+    <Field Name="BlockSourceID" Active="true" AdminOnly="0" Authorable="1" Caption="Custom Blocking Method" DeveloperOnly="0" EditSortPriority="4030" FieldType="Lookup" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="0" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="Blocking" Scramble="0" LookupList="Custom Blocking Message,Login Form,Registration Form,Age Restricted Content Block" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
       <HelpDefault><![CDATA[If the user is blocked from the page, select what the user will see.]]></HelpDefault>
     </Field>
     <Field Name="CustomBlockMessage" Active="true" AdminOnly="0" Authorable="1" Caption="Custom Blocking Message" DeveloperOnly="0" EditSortPriority="4040" FieldType="HtmlFile" HtmlContent="0" IndexColumn="99" IndexSortDirection="0" IndexSortOrder="0" IndexWidth="0" LookupContent="" NotEditable="0" Password="0" ReadOnly="0" RedirectContent="" RedirectId="" RedirectPath="" Required="0" TextBuffered="0" UniqueName="0" DefaultValue="&lt;p style=&quot;text-align:center;margin-top:100px;&quot;&gt;This page is not available.&lt;/p&gt;" RSSTitle="" RSSDescription="" MemberSelectGroup="" EditGroup="" EditTab="Blocking" Scramble="0" LookupList="" ManyToManyContent="" ManyToManyRuleContent="" ManyToManyRulePrimaryField="" ManyToManyRuleSecondaryField="">
@@ -3230,6 +3233,17 @@
     <Email>No</Email>
     <IncludeAddon Name="Contensive Base Assets" Guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>
     <IncludeAddon Name="Bootstrap" Guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
+  </Addon>
+  <Addon Name="SubmitAgeVerification" Guid="{55DB9FDE-A19F-4F2C-B884-16588772FE89}" Type="Add-on">
+    <RemoteMethod>Yes</RemoteMethod>
+    <BlockEditTools>Yes</BlockEditTools>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Authentication.SubmitAgeVerification]]></DotNetClass>
+    <HtmlDocument>No</HtmlDocument>
+    <Category></Category>
+    <Admin>No</Admin>
+    <Content>No</Content>
+    <Template>No</Template>
+    <Email>No</Email>    
   </Addon>
   <Addon Name="/impersonate" Guid="{360877A6-D6DD-42F8-ABFE-206DC3AABBB8}" Type="Add-on">
     <RemoteMethod>Yes</RemoteMethod>
