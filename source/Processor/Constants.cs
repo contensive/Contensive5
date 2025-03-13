@@ -1077,6 +1077,7 @@ namespace Contensive.Processor {
         internal const int ContentBlockWithCustomMessage = 1;
         internal const int ContentBlockWithLogin = 2;
         internal const int ContentBlockWithRegistration = 3;
+        internal const int ContentBlockWithAgeRestriction = 4;
         internal const string main_FieldDelimiter = " , ";
         internal const string main_LineDelimiter = " ,, ";
         internal const int main_IPosType = 0;
@@ -1151,6 +1152,10 @@ namespace Contensive.Processor {
         public const string SiteWarningMessageWrapperLayoutGuid = "{D3D3EB96-A842-4135-8EC2-948055E9838B}";
         public const string SiteWarningMessageWrapperLayoutName = "Site Warning Message Wrapper Layout";
         public const string SiteWarningMessageWrapperLayoutCdnPathFilename = @"baseAssets\SiteWarningMessageWrapper.html";
+        // -- layout for custom blocking age restriction page
+        public const string layoutCustomBlockingAgeRestrictionGuid = "{4BB2B9DB-F50A-4ECE-A78E-69BA4D001914}";
+        public const string layoutCustomBlockingAgeRestrictionName = "Age Verification Layout";
+        public const string layoutCustomBlockingAgeRestrictionCdnPathFilename = @"baseAssets\AgeVerificationLayout.html";
 
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";
