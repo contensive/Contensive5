@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Contensive.Processor.Addons.Authentication
 {
-    class SubmitAgeVerification : Contensive.BaseClasses.AddonBaseClass {
+    public class SubmitAgeVerification : Contensive.BaseClasses.AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             var returnObj = new SubmitAgeVerificationReturnObj();
             try {
