@@ -211,18 +211,36 @@ namespace Contensive.CLI {
                     setupDirectory(appConfig.localTempPath);
                     //
                     // -- configure remote folders
+                    AmazonS3Client s3client = null;
                     if (!cp.core.serverConfig.isLocalFileSystem) {
                         //
                         // -- update the server's bucket policy to make the remoteFilesPath public
+                        string policyString = "";
                         try {
-                            AmazonS3Client s3client = new(cp.core.secrets.awsAccessKey, cp.core.secrets.awsSecretAccessKey);
+                            Amazon.RegionEndpoint region = Amazon.RegionEndpoint.GetBySystemName(cp.core.serverConfig.awsRegionName);
+                            s3client = new(cp.core.secrets.awsAccessKey, cp.core.secrets.awsSecretAccessKey, region);
+                        } catch (Exception ex) {
+                            cp.Log.Error(ex, "NewAppCmd, error getting S3 client.");
+                            //
+                            Console.WriteLine($"\nError getting S3 client, {ex.Message}");
+                            Console.ReadLine();
+                        }
+                        try {
                             //
                             // -- get current policy for this bucket
                             GetBucketPolicyRequest getRequest = new() {
                                 BucketName = cp.core.serverConfig.awsBucketName
                             };
                             GetBucketPolicyResponse getResponse = await s3client.GetBucketPolicyAsync(getRequest);
-                            string policyString = getResponse.Policy;
+                            policyString = getResponse.Policy;
+                        } catch (Exception ex) {
+                            cp.Log.Error(ex, "NewAppCmd, error getting S3 policy.");
+                            //
+                            Console.WriteLine($"\nError creating AWS S3 Policy, {ex.Message}");
+                            Console.ReadLine();
+                        }
+                        try {
+
                             AwsBucketPolicy policy;
                             if (string.IsNullOrEmpty(policyString)) {
                                 //
@@ -242,13 +260,18 @@ namespace Contensive.CLI {
                                 Resource = "arn:aws:s3:::" + cp.core.serverConfig.awsBucketName + appConfig.remoteFilePath + "*",
                                 Sid = "AllowPublicRead"
                             });
+                            string policyJson = cp.JSON.Serialize(policy);
                             PutBucketPolicyRequest putRequest = new() {
                                 BucketName = cp.core.serverConfig.awsBucketName,
-                                Policy = cp.JSON.Serialize(policy)
+                                Policy = policyJson
                             };
                             PutBucketPolicyResponse putResponse = await s3client.PutBucketPolicyAsync(putRequest);
+                            Console.Write("\nAWS S3 Policy Applied:" + policyJson);
                         } catch (Exception ex) {
                             cp.Log.Error(ex, "NewAppCmd, error creating S3 policy, continue.");
+                            //
+                            Console.WriteLine($"\nError creating AWS S3 Policy, {ex.Message}");
+                            Console.ReadLine();
                         }
                     }
                     //
