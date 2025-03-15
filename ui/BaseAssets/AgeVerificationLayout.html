@@ -24,8 +24,8 @@
                 vears old or are sensitive to this material, vou may click CANCEL below to leave this screen.</p>
             <hr>
             <div class="text-center">
-                <button type="submit" class="btn btn-outline-secondary me-3">Cancel</button>
-                <button type="submit" class="btn btn-dark" onclick="submitAgeVerification()" data-bs-dismiss="modal">Yes, I am 18.</button>
+                <button type="button" onclick="cancelVerification()" class="btn btn-outline-secondary me-3">Cancel</button>
+                <button type="button" class="btn btn-dark" onclick="submitAgeVerification(event)" data-bs-dismiss="modal">Yes, I am 18.</button>
             </div>
         </form>
        
@@ -44,12 +44,11 @@
             $('#ageRestrictionModal').modal('show');
         }
 
-        function submitAgeVerification() {
-          var email = document.getElementById('forEmail').value;
+        function submitAgeVerification(e) {
+        e.preventDefault();
         var Link = window.location.href;
         var formData = new FormData();
-        formData.append('email', email);
-        formData.append('link', Link);
+        
         $.ajax({
           url: "/SubmitAgeVerification",
           type: "POST",
@@ -61,6 +60,7 @@
           console.log(obj);
           if (obj.success) {           
             alert(obj.successMessage);
+            location.reload();
             return true;
           }else{
             alert(obj.errorMessage);
@@ -69,6 +69,10 @@
         }).fail(function(data) {
           alert("Error. The server couldn't be reached");
       });
+        }
+
+        function cancelVerification() {
+          window.location.href = "/";
         }
     </script>
 </body>
