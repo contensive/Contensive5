@@ -485,7 +485,7 @@ namespace Contensive.Models.Db {
         /// <param name="userId"></param>
         /// <returns></returns>
         public static T addDefault<T>(CPBaseClass cp, int userId) where T : DbBaseModel {
-            Dictionary<string, string> defaultValues = getDefaultValues<T>(cp);
+            Dictionary<string, string> defaultValues = getDefaultValues<T>(cp, userId);
             return addDefault<T>(cp, defaultValues, userId);
         }
         //
