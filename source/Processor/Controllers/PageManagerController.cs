@@ -66,8 +66,7 @@ namespace Contensive.Processor.Controllers {
                     if ((core.webServer.requestPath != "/") && GenericController.strInstr(1, "/" + core.appConfig.adminRoute, core.webServer.requestPath, 1) != 0) {
                         //
                         // admin page is excluded from custom blocking
-                    }
-                    else {
+                    } else {
                         bool loginAddonBlock = false;
                         switch (core.siteProperties.anonymousUserResponseID) {
                             case 1: {
@@ -188,8 +187,7 @@ namespace Contensive.Processor.Controllers {
                             if (core.webServer.redirectByRecord_ReturnStatus(contentName, core.doc.redirectRecordID, "")) {
                                 core.doc.continueProcessing = false;
                                 return string.Empty;
-                            }
-                            else {
+                            } else {
                                 core.doc.adminWarning = "<p>The site attempted to automatically jump to another page, but there was a problem with the page that included the link.<p>";
                                 core.doc.adminWarningPageID = core.doc.redirectRecordID;
                             }
@@ -384,8 +382,7 @@ namespace Contensive.Processor.Controllers {
                                         string[] nameValueThing = nameValuePair.Split('=');
                                         if (nameValueThing.GetUpperBound(0) == 0) {
                                             core.docProperties.setProperty(nameValueThing[0], "", DocPropertyModel.DocPropertyTypesEnum.userDefined);
-                                        }
-                                        else {
+                                        } else {
                                             core.docProperties.setProperty(nameValueThing[0], nameValueThing[1], DocPropertyModel.DocPropertyTypesEnum.userDefined);
                                         }
                                     }
@@ -482,8 +479,7 @@ namespace Contensive.Processor.Controllers {
                 // -- title tag. If metaTitle is empty, only add page.name if the title is empty
                 if (string.IsNullOrEmpty(page.pageTitle)) {
                     core.html.addTitle(HtmlController.encodeHtml(page.name), "page content");
-                }
-                else {
+                } else {
                     core.html.addTitle(HtmlController.encodeHtml(page.pageTitle), "page content");
                 }
                 if (core.doc.htmlMetaContent_Description.Count == 0) {
@@ -494,8 +490,7 @@ namespace Contensive.Processor.Controllers {
                 core.doc.noFollow |= page.allowMetaContentNoFollow;
                 //
                 return result;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
@@ -564,8 +559,7 @@ namespace Contensive.Processor.Controllers {
                         result = EditUIController.getEditWrapper(core, result);
                     }
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
@@ -625,20 +619,17 @@ namespace Contensive.Processor.Controllers {
                         // Administrators are never blocked
                         //
                         ContentBlocked = false;
-                    }
-                    else if (core.session.isAuthenticated && !hasBlockingGroups) {
+                    } else if (core.session.isAuthenticated && !hasBlockingGroups) {
                         //
                         // authenticated users are never blocked if there are no blocking groups
                         //
                         ContentBlocked = false;
-                    }
-                    else if (!core.session.isAuthenticated) {
+                    } else if (!core.session.isAuthenticated) {
                         //
                         // non-authenticated are always blocked
                         //
                         ContentBlocked = true;
-                    }
-                    else {
+                    } else {
                         //
                         // Check Access Groups, if in access groups, remove group from BlockedRecordIDList
                         //
@@ -737,8 +728,7 @@ namespace Contensive.Processor.Controllers {
                                             addonType = CPUtilsBaseClass.addonContext.ContextPage,
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked and user not authenticated"
                                         });
-                                }
-                                else {
+                                } else {
                                     //
                                     // -- not authorized, login form can detect isAuthenticated and determine authorization
                                     blockForm = ""
@@ -772,8 +762,7 @@ namespace Contensive.Processor.Controllers {
                                             errorContextMessage = "calling login form addon [" + addonGuidLoginPage + "] because content box is blocked for registration"
                                         });
                                     break;
-                                }
-                                else {
+                                } else {
                                     //
                                     // Register Form
                                     //
@@ -825,8 +814,7 @@ namespace Contensive.Processor.Controllers {
                             var currentVisit = DbBaseModel.create<VisitModel>(core.cpParent, core.cpParent.Visit.Id);
                             if (currentVisit.CanSeeAgeRestrictedContent) {
                                 ContentBlocked = false;
-                            }
-                            else {
+                            } else {
                                 result = core.cpParent.Layout.GetLayout(Constants.layoutCustomBlockingAgeRestrictionGuid, Constants.layoutCustomBlockingAgeRestrictionName, Constants.layoutCustomBlockingAgeRestrictionCdnPathFilename);
                             }
                             break;
@@ -855,6 +843,11 @@ namespace Contensive.Processor.Controllers {
                 // -- Encoding, Tracking and Triggers
                 if (!ContentBlocked) {
                     //
+                    // -- if registrationGroupId is set, then verify this user is in the group
+                    if (core.doc.pageController.page.registrationGroupId != 0 && core.session.isAuthenticated) {
+                        core.cpParent.Group.AddUser(core.doc.pageController.page.registrationGroupId);
+                    }
+                    //
                     // -- OnPageStart Event
                     Dictionary<string, string> instanceArguments = new Dictionary<string, string> { { "CSPage", "-1" } };
                     foreach (var addon in core.cacheRuntime.addonCache.getOnPageStartAddonList()) {
@@ -873,8 +866,7 @@ namespace Contensive.Processor.Controllers {
                         //
                         // Quick Editor, no encoding or tracking
                         //
-                    }
-                    else {
+                    } else {
                         //
                         // Live content
                         if (!core.siteProperties.beta200327_BlockCCmdPostPageRender) {
@@ -1060,8 +1052,7 @@ namespace Contensive.Processor.Controllers {
                 if (core.doc.redirectLink != "") {
                     return core.webServer.redirect(core.doc.redirectLink, core.doc.redirectReason, core.doc.redirectBecausePageNotFound);
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
@@ -1118,8 +1109,7 @@ namespace Contensive.Processor.Controllers {
                         htmlPageContent = ContentRenderController.renderHtmlForWeb(core, htmlPageContent, PageContentModel.tableMetadata.contentName, core.doc.pageController.page.id, core.doc.pageController.page.contactMemberId, "http://" + core.webServer.requestDomain, 0, CPUtilsBaseClass.addonContext.ContextPage);
                     }
                     resultInnerContent.Append($"<div class=\"container\">{htmlPageContent}</div>");
-                }
-                else {
+                } else {
                     //
                     // -- addonList mode
                     if (core.cpParent.User.IsPageBuilderEditing) {
@@ -1130,8 +1120,7 @@ namespace Contensive.Processor.Controllers {
                         resultInnerContent.Append(core.addon.execute("{92B75A6A-E84B-4551-BBF3-849E91D084BC}", new CPUtilsBaseClass.addonExecuteContext {
                             addonType = CPUtilsBaseClass.addonContext.ContextSimple
                         }));
-                    }
-                    else {
+                    } else {
                         //
                         // -- render addonList
                         resultInnerContent.Append(AddonListItemModel_Dup.render(core, core.doc.pageController.page.addonList));
@@ -1165,13 +1154,11 @@ namespace Contensive.Processor.Controllers {
                     if (core.session.isAuthenticatedAdmin()) {
                         if (core.doc.pageController.page.reviewedBy == 0) {
                             result.Append(" (by unknown)");
-                        }
-                        else {
+                        } else {
                             string personName = MetadataController.getRecordName(core, "people", core.doc.pageController.page.reviewedBy);
                             if (string.IsNullOrEmpty(personName)) {
                                 result.Append(" (by person with unnamed or deleted record #" + core.doc.pageController.page.reviewedBy + ")");
-                            }
-                            else {
+                            } else {
                                 result.Append(" (by " + personName + ")");
                             }
                         }
@@ -1186,8 +1173,7 @@ namespace Contensive.Processor.Controllers {
                         result.Append("<div class=\"container pt-4\"><p>" + pageContentMessageFooter + "</p></div>");
                     }
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result.ToString();
@@ -1204,8 +1190,7 @@ namespace Contensive.Processor.Controllers {
         internal static string getContentBoxWrapper(CoreController core, string content, int contentPadding) {
             if (contentPadding < 0) {
                 return "<div class=\"contentBox\">" + content + "</div>";
-            }
-            else {
+            } else {
                 return "<div class=\"contentBox\" style=\"padding:" + contentPadding + "px\">" + content + "</div>";
             }
         }
@@ -1226,8 +1211,7 @@ namespace Contensive.Processor.Controllers {
                 copyRecord.copy = result;
                 copyRecord.save(core.cpParent);
                 return getContentBlockMessage_renderHtmlForWeb(core, copyRecord);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
@@ -1252,25 +1236,21 @@ namespace Contensive.Processor.Controllers {
                         Copy += "For more information, please contact " + person.name;
                         if (string.IsNullOrWhiteSpace(person.email)) {
                             if (!string.IsNullOrWhiteSpace(person.phone)) { Copy += " by phone at " + person.phone; }
-                        }
-                        else {
+                        } else {
                             Copy += " by <A href=\"mailto:" + person.email + "\">email</A>";
                             if (!string.IsNullOrWhiteSpace(person.phone)) { Copy += " or by phone at " + person.phone; }
                         }
-                    }
-                    else {
+                    } else {
                         if (string.IsNullOrWhiteSpace(person.email)) {
                             if (!string.IsNullOrWhiteSpace(person.phone)) { Copy += "For more information, please call " + person.phone; }
-                        }
-                        else {
+                        } else {
                             Copy += "For more information, please <A href=\"mailto:" + person.email + "\">email</A>";
                             if (!string.IsNullOrWhiteSpace(person.phone)) { Copy += ", or call " + person.phone; }
                         }
                     }
                 }
                 result = Copy;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
@@ -1346,8 +1326,7 @@ namespace Contensive.Processor.Controllers {
                     PageContentModel targetpage = DbBaseModel.create<PageContentModel>(core.cpParent, targetPageId);
                     if (targetpage == null) {
                         break;
-                    }
-                    else {
+                    } else {
                         core.doc.pageController.pageToRootList.Add(targetpage);
                         targetPageId = targetpage.parentId;
                     }
@@ -1360,8 +1339,7 @@ namespace Contensive.Processor.Controllers {
                     core.doc.pageController.page.copyfilename.content = landingPageDefaultHtml;
                     core.doc.pageController.page.save(core.cpParent);
                     core.doc.pageController.pageToRootList.Add(core.doc.pageController.page);
-                }
-                else {
+                } else {
                     core.doc.pageController.page = core.doc.pageController.pageToRootList.First();
                 }
                 //
@@ -1375,12 +1353,10 @@ namespace Contensive.Processor.Controllers {
                             // -- templateId is not valid
                             page.templateId = 0;
                             page.save(core.cpParent);
-                        }
-                        else {
+                        } else {
                             if (page == core.doc.pageController.pageToRootList.First()) {
                                 core.doc.pageController.templateReason = "This template was used because it is selected by the current page.";
-                            }
-                            else {
+                            } else {
                                 core.doc.pageController.templateReason = "This template was used because it is selected one of this page's parents [" + page.name + "].";
                             }
                             break;
@@ -1416,8 +1392,7 @@ namespace Contensive.Processor.Controllers {
                                 List<PageTemplateModel> templateList = DbBaseModel.createList<PageTemplateModel>(core.cpParent, "", "id desc");
                                 if (templateList.Count > 0) {
                                     core.doc.pageController.template = templateList.First();
-                                }
-                                else {
+                                } else {
                                     //
                                     // -- nothing found, create a new template matching the guid of Full Width template from themes and put just the content box
                                     core.doc.pageController.template = DbBaseModel.addDefault<PageTemplateModel>(core.cpParent);
@@ -1468,8 +1443,7 @@ namespace Contensive.Processor.Controllers {
                 core.docProperties.setProperty("Open Graph Description", HtmlController.encodeHtml(core.doc.pageController.page.metaDescription));
                 core.docProperties.setProperty("Open Graph Image", (string.IsNullOrEmpty(core.doc.pageController.page.imageFilename.filename)) ? string.Empty : core.webServer.requestProtocol + core.appConfig.domainList.First() + core.appConfig.cdnFileUrl + core.doc.pageController.page.imageFilename);
                 return "";
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
@@ -1493,8 +1467,7 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- domain not available
                     logger.Error($"{core.logCommonMessage}", new GenericException("Landing page could not be determined because the domain was not recognized."));
-                }
-                else {
+                } else {
                     //
                     // -- attempt domain landing page
                     if (!domain.rootPageId.Equals(0)) {
@@ -1531,8 +1504,7 @@ namespace Contensive.Processor.Controllers {
                         domain.save(core.cpParent);
                     }
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
@@ -1574,20 +1546,17 @@ namespace Contensive.Processor.Controllers {
                     if (string.IsNullOrEmpty(BackupPageNotFoundLink)) {
                         adminMessage += " The Site Property 'PageNotFoundPageID' is not set so the Landing Page was used.";
                         Link = core.doc.landingLink;
-                    }
-                    else {
+                    } else {
                         adminMessage += " The Site Property 'PageNotFoundPageID' is not set.";
                         Link = BackupPageNotFoundLink;
                     }
-                }
-                else {
+                } else {
                     //
                     // Set link
                     Link = getPageLink(core, PageNotFoundPageId, "", true, false);
                     string DefaultLink = getPageLink(core, 0, "", true, false);
                     if (Link != DefaultLink) {
-                    }
-                    else {
+                    } else {
                         adminMessage += "</p><p>The current 'Page Not Found' could not be used. It is not valid, or it is not associated with a valid site section. To configure a valid 'Page Not Found' page, first create the page as a child page on your site and check the 'Page Not Found' checkbox on it's control tab. The Landing Page was used.";
                     }
                 }
@@ -1630,8 +1599,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 result = Link;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
@@ -1662,8 +1630,7 @@ namespace Contensive.Processor.Controllers {
                     linkPathPage = core.siteProperties.serverPageDefault;
                     if (string.IsNullOrEmpty(linkPathPage)) {
                         linkPathPage = "/" + getDefaultScript();
-                    }
-                    else {
+                    } else {
                         int Pos = GenericController.strInstr(1, linkPathPage, "?");
                         if (Pos != 0) {
                             linkPathPage = linkPathPage.left(Pos - 1);
@@ -1700,20 +1667,17 @@ namespace Contensive.Processor.Controllers {
                     // this template has no domain preference, use current domain
                     //
                     linkDomain = domainDefault;
-                }
-                else if (core.domain.id == 0) {
+                } else if (core.domain.id == 0) {
                     //
                     // the current domain is not recognized, or is default - use it
                     //
                     linkDomain = domainDefault;
-                }
-                else if (templateAllowed) {
+                } else if (templateAllowed) {
                     //
                     // current domain is in the allowed domain list
                     //
                     linkDomain = domainDefault;
-                }
-                else {
+                } else {
                     //
                     // there is an allowed domain list and current domain is not on it, or use first
                     //
@@ -1734,8 +1698,7 @@ namespace Contensive.Processor.Controllers {
                 //
                 // -- assemble
                 result = linkprotocol + linkDomain + linkPathPage;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
@@ -1806,8 +1769,7 @@ namespace Contensive.Processor.Controllers {
                                         if ((formField.required || peopleFieldMeta.required) && string.IsNullOrEmpty(FormValue)) {
                                             Success = false;
                                             ErrorController.addUserError(core, "The field [" + HtmlController.encodeHtml(formField.caption) + "] is required.");
-                                        }
-                                        else {
+                                        } else {
                                             using (var csData = new CsModel(core)) {
                                                 if (!csData.ok()) {
                                                     csData.openRecord("people", core.session.user.id);
@@ -1866,8 +1828,7 @@ namespace Contensive.Processor.Controllers {
                                     WasInGroup = GroupController.isMemberOfGroup(core, formField.groupName);
                                     if (WasInGroup && !IsInGroup) {
                                         GroupController.removeUser(core, formField.groupName);
-                                    }
-                                    else if (IsInGroup && !WasInGroup) {
+                                    } else if (IsInGroup && !WasInGroup) {
                                         GroupController.addUser(core, formField.groupName);
                                     }
                                     break;
@@ -1917,8 +1878,7 @@ namespace Contensive.Processor.Controllers {
                         }
                     }
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
@@ -2016,8 +1976,7 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 return result;
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
@@ -2060,8 +2019,7 @@ namespace Contensive.Processor.Controllers {
                                 var peopleMetaField = Models.Domain.ContentMetadataModel.getField(core, peopleMeta, formField.peopleFieldName);
                                 if (IsRetry && core.docProperties.getText(formField.peopleFieldName) == "") {
                                     CaptionSpan = "<span class=\"ccError\">";
-                                }
-                                else {
+                                } else {
                                     CaptionSpan = "<span>";
                                 }
                                 Caption = formField.caption;
@@ -2116,8 +2074,7 @@ namespace Contensive.Processor.Controllers {
                 result = ""
                     + ErrorController.getUserError(core)
                     + HtmlController.formMultipart(core, innerHtml, core.doc.refreshQueryString, "", "ccForm");
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
@@ -2164,8 +2121,7 @@ namespace Contensive.Processor.Controllers {
                             Copy = core.docProperties.getText("NoteCopy");
                             if (string.IsNullOrEmpty(Copy)) {
                                 NoteCopy += "[no comments entered]" + BR;
-                            }
-                            else {
+                            } else {
                                 NoteCopy += HtmlController.convertNewLineToHtmlBreak(Copy) + BR;
                             }
                             //
@@ -2236,8 +2192,7 @@ namespace Contensive.Processor.Controllers {
                             break;
                         }
                 }
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
@@ -2255,8 +2210,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 if (string.IsNullOrEmpty(returnHtml)) {
                     returnHtml = pageCaption;
-                }
-                else {
+                } else {
                     string BreadCrumbDelimiter = core.siteProperties.getText("BreadCrumbDelimiter", " &gt; ");
                     returnHtml = "<a href=\"" + HtmlController.encodeHtml(PageManagerController.getPageLink(core, testpage.id, "", true, false)) + "\">" + pageCaption + "</a>" + BreadCrumbDelimiter + returnHtml;
                 }
@@ -2287,8 +2241,7 @@ namespace Contensive.Processor.Controllers {
                 int recordsReturned = 0;
                 DataTable dt = core.db.executeQuery(sql, 0, 1, ref recordsReturned);
                 return !recordsReturned.Equals(0);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
             return result;
@@ -2319,8 +2272,7 @@ namespace Contensive.Processor.Controllers {
             {
                 if (!core.session.isAuthenticatedContentManager(pasteParentContentMetadata)) {
                     ErrorController.addUserError(core, "The paste operation failed because you are not a content manager of the Clip Parent");
-                }
-                else {
+                } else {
                     //
                     // -- get the cut contentid and recordId from the clip
                     if (cutClip.IndexOf('.') < 0) { return; }
@@ -2331,8 +2283,7 @@ namespace Contensive.Processor.Controllers {
                     var clipChildContentMetadata = Models.Domain.ContentMetadataModel.create(core, cutClipContentId);
                     if (DbBaseModel.isChildOf<PageManagerController>(core.cpParent, pasteParentRecordId, cutClipRecordId, new List<int>())) {
                         ErrorController.addUserError(core, "The paste operation failed because the destination location is a child of the clipboard data record.");
-                    }
-                    else {
+                    } else {
                         //
                         // the parent record is not a child of the child record (circular check)
                         //
@@ -2341,8 +2292,7 @@ namespace Contensive.Processor.Controllers {
                             csData.openRecord(clipChildContentMetadata.name, cutClipRecordId);
                             if (!csData.ok()) {
                                 ErrorController.addUserError(core, "The paste operation failed because the data record referenced by the clipboard could not found.");
-                            }
-                            else {
+                            } else {
                                 //
                                 // Paste the edit record record
                                 //
@@ -2354,12 +2304,10 @@ namespace Contensive.Processor.Controllers {
                                     //
                                     if (!csData.isFieldSupported("ParentID")) {
                                         ErrorController.addUserError(core, "The paste operation failed because the record you are pasting does not   support the necessary parenting feature.");
-                                    }
-                                    else {
+                                    } else {
                                         csData.set("ParentID", pasteParentRecordId);
                                     }
-                                }
-                                else {
+                                } else {
                                     //
                                     // Fill in the Field List name values
                                     //
@@ -2373,12 +2321,10 @@ namespace Contensive.Processor.Controllers {
                                         string[] NameValues = Pair.Split('=');
                                         if (NameValues.GetUpperBound(0) == 0) {
                                             ErrorController.addUserError(core, "The paste operation failed because the clipboard data Field List is not configured correctly.");
-                                        }
-                                        else {
+                                        } else {
                                             if (!csData.isFieldSupported(encodeText(NameValues[0]))) {
                                                 ErrorController.addUserError(core, "The paste operation failed because the clipboard data Field [" + encodeText(NameValues[0]) + "] is not supported by the location data.");
-                                            }
-                                            else {
+                                            } else {
                                                 csData.set(encodeText(NameValues[0]), encodeText(NameValues[1]));
                                             }
                                         }

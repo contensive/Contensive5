@@ -77,6 +77,12 @@ namespace Contensive.Processor.Controllers.Build {
                         // -- error messages, already reported?
                     }
                     //
+                    // -- verify staff group
+                    GroupModel StaffGroup = verifyGroup(core, logPrefix, defaultStaffGroupGuid, defaultStaffGroupName);
+                    //
+                    // -- verify site managers group
+                    GroupModel SiteManagerGroup = verifyGroup(core, logPrefix, defaultSiteManagerGuid, defaultSiteManagerName);
+                    //
                     // -- upgrade work only for the first build, not upgrades of version 5+
                     if (isNewBuild) {
                         //
@@ -108,33 +114,18 @@ namespace Contensive.Processor.Controllers.Build {
                                 root.save(core.cpParent);
                             } catch (Exception ex) {
                                 string errMsg = "error prevented root user update";
-                                logger.Error($"{core.logCommonMessage},{errMsg}");
+                                logger.Error(ex, $"{core.logCommonMessage},{errMsg}");
                             }
                         }
                         //
-                        // -- verify site managers group
-                        logger.Info($"{core.logCommonMessage},{logPrefix}, verify site managers groups");
-                        var group = DbBaseModel.create<GroupModel>(core.cpParent, defaultSiteManagerGuid);
-                        if (group == null) {
-                            logger.Info($"{core.logCommonMessage},{logPrefix}, verify site manager group");
-                            group = DbBaseModel.addEmpty<GroupModel>(core.cpParent);
-                            group.name = defaultSiteManagerName;
-                            group.caption = defaultSiteManagerName;
-                            group.allowBulkEmail = true;
-                            group.ccguid = defaultSiteManagerGuid;
-                            try {
-                                group.save(core.cpParent);
-                            } catch (Exception ex) {
-                                logger.Info($"{core.logCommonMessage},{logPrefix}, error creating site managers group. " + ex);
-                            }
-                        }
-                        if (root != null && group != null) {
+                        // -- verify root user
+                        if (root != null && SiteManagerGroup != null) {
                             //
                             // -- verify root is in site managers
-                            var memberRuleList = DbBaseModel.createList<MemberRuleModel>(core.cpParent, "(groupid=" + group.id + ")and(MemberID=" + root.id + ")");
+                            var memberRuleList = DbBaseModel.createList<MemberRuleModel>(core.cpParent, "(groupid=" + SiteManagerGroup.id + ")and(MemberID=" + root.id + ")");
                             if (memberRuleList.Count() == 0) {
                                 var memberRule = DbBaseModel.addEmpty<MemberRuleModel>(core.cpParent);
-                                memberRule.groupId = group.id;
+                                memberRule.groupId = SiteManagerGroup.id;
                                 memberRule.memberId = root.id;
                                 memberRule.save(core.cpParent);
                             }
@@ -255,6 +246,50 @@ namespace Contensive.Processor.Controllers.Build {
                 throw;
             }
         }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// verify there is only one group with this name and guid. merge dups to the first.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="logPrefix"></param>
+        /// <param name="groupGuid"></param>
+        /// <param name="groupName"></param>
+        /// <returns></returns>
+        private static GroupModel verifyGroup(CoreController core, string logPrefix, string groupGuid, string groupName) {
+            //
+            // -- site managers group is created in the base collection install, with the wrong guid. fix the guid before verifying the group fix new builds.
+            core.db.executeNonQuery($"update ccGroups set ccguid={DbController.encodeSQLText(groupGuid)} where name={DbController.encodeSQLText(groupName)};");
+
+            logger.Info($"{core.logCommonMessage},{logPrefix}, verify group [{groupName}]");
+            GroupModel group = null;
+            List<GroupModel> groups = DbBaseModel.createList<GroupModel>(core.cpParent, $"ccguid={DbController.encodeSQLText(groupGuid)}");
+            if (groups.Count == 0) {
+                logger.Info($"{core.logCommonMessage},{logPrefix}, create group [{groupName}]");
+                group = DbBaseModel.addEmpty<GroupModel>(core.cpParent);
+                group.name = groupName;
+                group.caption = groupName;
+                group.allowBulkEmail = true;
+                group.ccguid = groupGuid;
+                try {
+                    group.save(core.cpParent);
+                } catch (Exception ex) {
+                    logger.Info($"{core.logCommonMessage},{logPrefix}, error creating site managers group. " + ex);
+                }
+            } else if (groups.Count == 1) {
+                group = groups.First();
+            } else {
+                //
+                // -- merge 2+ to the first
+                group = groups.First();
+                foreach (GroupModel groupDup in groups.Skip(1)) {
+                    core.db.executeNonQuery("update ccMemberRules set groupid=" + group.id + " where groupid=" + groupDup.id + ";");
+                    DbBaseModel.delete<GroupModel>(core.cpParent, groupDup.id);
+                }
+            }
+            return group;
+        }
+
         //
         //====================================================================================================
         //
@@ -1155,7 +1190,7 @@ namespace Contensive.Processor.Controllers.Build {
                 //
                 core.cpParent.Layout.updateLayout(layoutEmailVerificationGuid, layoutEmailVerificationName, layoutEmailVerificationCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutCustomBlockingRegistrationGuid, layoutCustomBlockingRegistrationName, layoutCustomBlockingRegistrationCdnPathFilename);
-        } catch (Exception ex) {
+            } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }

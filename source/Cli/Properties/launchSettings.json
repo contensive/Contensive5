@@ -2,7 +2,7 @@
   "profiles": {
     "Cli": {
       "commandName": "Project",
-      "commandLineArgs": "-n",
+      "commandLineArgs": "-a veronica -u",
       "jsWebView2Debugging": false
     }
   }

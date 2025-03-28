@@ -333,6 +333,11 @@ namespace Contensive.Processor {
         internal const string defaultSiteManagerName = "Site Managers";
         internal const string defaultSiteManagerGuid = "{0685bd36-fe24-4542-be42-27337af50da8}";
         //
+        // -- Staff group
+        //
+        internal const string defaultStaffGroupName = "Staff";
+        internal const string defaultStaffGroupGuid = "{13920933-22ec-4314-b8cf-5b8d6a25901e}";
+        //
         // -- Request Names
         //
         internal const string rnRedirectContentId = "rc";

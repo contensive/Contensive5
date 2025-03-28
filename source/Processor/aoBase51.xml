@@ -3189,8 +3189,8 @@
   </Addon>
   <Addon Name="Contensive Base Assets" Guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}" Type="Add-on">
     <BlockEditTools>Yes</BlockEditTools>
-    <jsheadscriptsrc>/baseassets/baseAssets.js?refresh=240616</jsheadscriptsrc>
-    <styleslinkhref>/baseassets/baseAssets.css?refresh=240616</styleslinkhref>
+    <jsheadscriptsrc>/baseassets/baseAssets.js</jsheadscriptsrc>
+    <styleslinkhref>/baseassets/baseAssets.css</styleslinkhref>
     <Styles><![CDATA[]]></Styles>
   </Addon>
   <Addon Name="Admin Site" Guid="{c2de2acf-ca39-4668-b417-aa491e7d8460}" Type="Add-on">
@@ -3707,7 +3707,7 @@
     <Record Content="groups" Guid="{0685bd36-fe24-4542-be42-27337af50da8}" Name="Site Managers">
       <field Name="caption">Site Managers</field>
     </Record>
-    <Record Content="groups" Guid="{13920933-22EC-4314-B8CF-5B8D6A25901E}" Name="Staff">
+    <Record Content="groups" Guid="{13920933-22ec-4314-b8cf-5b8d6a25901e}" Name="Staff">
       <field Name="caption">Staff</field>
     </Record>
     <Record Content="add-on categories" Guid="{3e6055bf-7e7c-41fc-94b1-1d1a81c2842b}" Name="Applications">
