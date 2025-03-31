@@ -556,13 +556,6 @@ namespace Contensive.Processor.LayoutBuilder {
             this.cp = (CPClass)cp;
             return getHtml();
         }
-        ////
-        //// ----------------------------------------------------------------------------------------------------
-        ///// <summary>
-        ///// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
-        ///// consider a pattern that blocks the include form if this layout is called form the portal system, where the portal methods create the entire strucuture
-        ///// </summary>
-        //private bool includeForm { get; set; } = false;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -955,6 +948,19 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             set {
                 layoutBuilderBase.isOuterContainer = value;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
+        /// </summary>
+        public override bool includeForm {
+            get {
+                return layoutBuilderBase.includeForm;
+            }
+            set {
+                layoutBuilderBase.includeForm = value;
             }
         }
         //

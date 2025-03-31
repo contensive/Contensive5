@@ -72,6 +72,12 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
+        /// </summary>
+        public override bool includeForm { get; set; } = false;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The headline at the top of the form
         /// </summary>
         public override string title { get; set; } = "";
@@ -175,14 +181,9 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="htmlId"></param>
         public override void addFormHidden(string Name, string Value, string htmlId) {
             hiddenList += "<input type=\"hidden\" name=\"" + Name + "\" value=\"" + Value + "\" id=\"" + htmlId + "\">";
-            includeForm = true;
         }
         //
         private string hiddenList = "";
-        /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        private bool includeForm { get; set; } = false;
         //
         /// <summary>
         /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
@@ -317,7 +318,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonClass"></param>
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
             buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
-            includeForm = true;
         }
         private string buttonList = "";
         //

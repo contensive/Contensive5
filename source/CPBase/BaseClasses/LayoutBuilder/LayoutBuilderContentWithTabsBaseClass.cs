@@ -18,6 +18,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         public abstract bool isOuterContainer { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
+        /// </summary>
+        public abstract bool includeForm { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
         //
         // ----------------------------------------------------------------------------------------------------
         //

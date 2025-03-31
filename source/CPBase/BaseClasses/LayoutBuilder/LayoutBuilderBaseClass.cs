@@ -52,6 +52,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
+        /// </summary>
+        public abstract bool includeForm { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The headline at the top of the form
         /// </summary>
         public abstract string title { get; set; }

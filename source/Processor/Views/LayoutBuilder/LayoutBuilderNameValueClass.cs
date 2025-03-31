@@ -106,13 +106,11 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         private readonly RowStruct[] rows = new RowStruct[rowSize];
         //
-        //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
-        /// consider a pattern that blocks the include form if this layout is called form the portal system, where the portal methods create the entire strucuture
+        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        private bool includeForm { get; set; } = false;
+        public override bool includeForm { get; set; } = false;
         //
         // ====================================================================================================
         //
@@ -266,7 +264,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="value"></param>
         public override void addFormHidden(string name, string value) {
             hiddenList += Constants.cr + "<input type=\"hidden\" name=\"" + name + "\" value=\"" + value + "\">";
-            includeForm = true;
         }
         private string hiddenList = "";
         /// <summary>
@@ -330,7 +327,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonClass"></param>
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
             buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
-            includeForm = true;
         }
         private string buttonList = "";
         //
@@ -435,27 +431,22 @@ namespace Contensive.Processor.LayoutBuilder {
 
         public override void addFormHidden(string name, string value, string htmlId) {
             hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
-            includeForm = true;
         }
 
         public override void addFormHidden(string name, int value, string htmlId) {
             hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
-            includeForm = true;
         }
 
         public override void addFormHidden(string name, double value, string htmlId) {
             hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
-            includeForm = true;
         }
 
         public override void addFormHidden(string name, DateTime value, string htmlId) {
             hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
-            includeForm = true;
         }
 
         public override void addFormHidden(string name, bool value, string htmlId) {
             hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
-            includeForm = true;
         }
 
         public override void addLinkButton(string buttonCaption, string link) {

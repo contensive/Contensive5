@@ -39,8 +39,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        // ----------------------------------------------------------------------------------------------------
-        //
         public override bool isOuterContainer {
             get {
                 return localIsOuterContainer;
@@ -49,6 +47,12 @@ namespace Contensive.Processor.LayoutBuilder {
                 localIsOuterContainer = value;
             }
         }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
+        /// </summary>
+        public override bool includeForm { get; set; } = false;
         //
         // ----------------------------------------------------------------------------------------------------
         //
