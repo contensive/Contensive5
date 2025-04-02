@@ -71,8 +71,8 @@
             var obj = JSON.parse(response);
             console.log(obj);
             if (obj.success) {           
-              //alert(obj.successMessage);
-              location.reload();
+              alert(obj.successMessage);
+              window.location.href = "/"; 
             }else{
               alert(obj.errorMessage);
               //return false;
