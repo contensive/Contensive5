@@ -470,31 +470,35 @@
                                         </div>
                                     </div>
                                     <script>
-                                    document.addEventListener('DOMContentLoaded', function(){
-                                        let initialValue = $('#{{fieldId}}').val();
-                                        console.log("set initialValue: ["+initialValue+"]");
-
-                                        //let fieldValue = new Date($('#{{fieldId}}').val());
-                                        //console.log("set fieldValue: ["+fieldValue+"]");
-                                        //
-                                        let dateString = initialValue.substring(0,10);
-                                        //let dateString = fieldValue.toISOString().substring(0,10);
-                                        $('#{{fieldId}}-date').val(dateString);
-                                        console.log("dateString: ["+dateString+"]");
-                                        //
-                                        let timeString = initialValue.substring(11,22);
-                                        //let timeString = fieldValue.toISOString().substring(11,22);
-                                        $('#{{fieldId}}-time').val(timeString);
-                                        console.log("timeString: ["+timeString+"]");
-                                        //
-                                        $('body').on('change','#{{fieldId}}-date,#{{fieldId}}-time',function(e){
-                                            let dateVal = $("#{{fieldId}}-date").val();
-                                            let timeVal = $("#{{fieldId}}-time").val();
-                                            console.log('date/time change, dateVal: ['+dateVal+'], timeVal ['+timeVal+']');
-                                            $('#{{fieldId}}').val(dateVal + ((timeVal) ? "T" + timeVal : "" ));
-                                            console.log("new value: ["+$('#{{fieldId}}').val()+"]");
-                                        });
-                                    });
+                                        (function(){
+                                            function initDateTime(){
+                                                let initialValue = $('#{{fieldId}}').val();
+                                                console.log("set initialValue: ["+initialValue+"]");
+                                                //
+                                                let dateString = initialValue.substring(0,10);
+                                                $('#{{fieldId}}-date').val(dateString);
+                                                console.log("date part: ["+dateString+"]");
+                                                //
+                                                let timeString = initialValue.substring(11,22);
+                                                $('#{{fieldId}}-time').val(timeString);
+                                                console.log("time part: ["+timeString+"]");
+                                                //
+                                                $('body').on('change','#{{fieldId}}-date,#{{fieldId}}-time',function(e){
+                                                    let dateVal = $("#{{fieldId}}-date").val();
+                                                    let timeVal = $("#{{fieldId}}-time").val();
+                                                    console.log('date/time change, dateVal: ['+dateVal+'], timeVal ['+timeVal+']');
+                                                    $('#{{fieldId}}').val(dateVal + ((timeVal) ? "T" + timeVal : "" ));
+                                                    console.log("new value: ["+$('#{{fieldId}}').val()+"]");
+                                                });
+                                            };
+                                            if (document.readyState === "complete" || document.readyState === "interactive") {
+                                                // Call the initDateTime immediately with the argument if the document is ready
+                                                initDateTime();
+                                            } else {
+                                                // Otherwise, wait for the DOMContentLoaded event and pass the argument
+                                                document.addEventListener("DOMContentLoaded", () => initDateTime());
+                                            }
+                                        })();
                                     </script>
                                     {{/isDate}}
                                     {{#isHtml}}

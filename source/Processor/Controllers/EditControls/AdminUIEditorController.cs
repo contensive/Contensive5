@@ -77,14 +77,12 @@ namespace Contensive.Processor.Controllers.EditControls {
                 $"<input type=\"checkbox\" id=\"{fieldName}.clearFlag\" name=\"{fieldName}.clearFlag\" value=\"1\" class=\"form-check-input\"><label for=\"deleteCheckbox1608141220\" class=\"form-check-label\">Clear</label>" +
                 "</div>" +
                 "</div>";
-            // todo move to adminUI script
-            string js = HtmlController.scriptCode(core, ""
+            string js = ""
                 + "document.addEventListener('DOMContentLoaded', function(){"
-                + "$('body').on('change','#component-" + htmlId + "-date,#component-" + htmlId + "-time',function(e){console.log('date/time change');setDateTimeEditorHidden('" + htmlId + "');});"
-                + $"$('body').on('change','#{fieldName}.clearFlag',function(e){{console.log('date/time clear');}});"
-                + "});"
-                + "");
-            return HtmlController.div(HtmlController.div(inputDate + inputTime + clearCheck, "input-group") + inputDateTime + js);
+                    + $"$('body').on('change','#component-{htmlId}-date,#component-{htmlId}-time',function(e){{console.log('date/time change');setDateTimeEditorHidden('{htmlId}');}});"
+                    + $"$('body').on('change','#{fieldName}.clearFlag',function(e){{console.log('date/time clear');}});"
+                + "}";
+            return HtmlController.div(HtmlController.div(inputDate + inputTime + clearCheck, "input-group") + inputDateTime + HtmlController.scriptCode(core, js));
         }
         //
         // ====================================================================================================
