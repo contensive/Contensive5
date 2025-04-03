@@ -491,12 +491,6 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string csvDownloadFilename { get; set; }
         private string formId_local = "";
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        public override bool blockFormTag { get; set; }
-        //
         /// <summary>
         /// message displayed as a warning message. Not an error, but an issue of some type
         /// </summary>
@@ -516,11 +510,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         public override string successMessage { get; set; }
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
         /// <summary>
         /// An html block added to the left of the table. Typically used for filters.
         /// </summary>
@@ -533,6 +522,17 @@ namespace Contensive.Processor.LayoutBuilder {
         /// An html block added below the table. Typically used for filters.
         /// </summary>
         public override string htmlAfterBody { get; set; } = "";
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
+        /// </summary>
+        [Obsolete("Deprecated. Use includeForm.", false)] public override bool blockFormTag { get; set; }
+        //
+        /// <summary>
+        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
+        /// </summary>
+        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
         //
         //====================================================================================================
         /// <summary>

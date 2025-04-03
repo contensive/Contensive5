@@ -35,6 +35,9 @@ namespace Contensive.Processor.LayoutBuilder {
         public LayoutBuilderListClass(CPBaseClass cp) :base(cp) {
             this.cp = (CPClass)cp;
             layoutBuilderBase = new(cp);
+            //
+            // -- set includeForm default true
+            includeForm = true;
         }
         //
         // ====================================================================================================
@@ -897,19 +900,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         private string localFormId_Local = "";
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        public override bool blockFormTag {
-            get {
-                return layoutBuilderBase.blockFormTag;
-            }
-            set {
-                layoutBuilderBase.blockFormTag = value;
-            }
-        }
+       
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1294,6 +1285,20 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             set {
                 layoutBuilderBase.htmlAfterBody = value;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
+        /// </summary>
+        [Obsolete("Deprecated. Use includeform to block the form tag.", false)]
+        public override bool blockFormTag {
+            get {
+                return !layoutBuilderBase.includeForm;
+            }
+            set {
+                layoutBuilderBase.includeForm = !value;
             }
         }
         //

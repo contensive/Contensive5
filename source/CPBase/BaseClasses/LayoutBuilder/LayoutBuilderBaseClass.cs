@@ -28,12 +28,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        public abstract bool blockFormTag { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// if true, the container between the button rows will include default padding
         /// </summary>
         public abstract bool includeBodyPadding { get; set; }
@@ -283,6 +277,13 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         public abstract string htmlAfterBody { get; set; }
         //
         //====================================================================================================
+        //
+        /// <summary>
+        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
+        /// </summary>
+        [Obsolete("Deprecated. To prevent the form tag set includeForm=false.", false)] public abstract bool blockFormTag { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>

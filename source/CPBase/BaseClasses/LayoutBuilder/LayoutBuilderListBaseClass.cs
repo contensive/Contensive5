@@ -297,12 +297,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
 
 
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        public abstract bool blockFormTag { get; set; }
-        //
         /// <summary>
         /// message displayed as a warning message. Not an error, but an issue of some type
         /// </summary>
@@ -412,10 +406,16 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <param name="htmlClass"></param>
         public abstract void addLinkButton(string buttonCaption, string link, string htmlId, string htmlClass);
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
+        /// </summary>
+        [Obsolete("Deprecated. To prevent the form tag set includeForm=false.", false)] public abstract bool blockFormTag { get; set; }
+        //
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        [Obsolete("Deprecated. Insead use BaseUrl is calculated internally.", false)] public abstract string refreshQueryString { get; set; }
+        [Obsolete("Deprecated. Instead use BaseUrl.", false)] public abstract string refreshQueryString { get; set; }
         // 
         /// <summary>
         /// Method retrieves the rendered html. Call this method after populating all object elements
