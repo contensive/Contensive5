@@ -159,13 +159,14 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool IsEditing() {
-                if (cp?.core?.session == null) { return false; }
-                return cp.core.session.isEditing();
+            if (cp?.core?.session == null) { return false; }
+            return cp.core.session.isEditing();
         }
         //
         //====================================================================================================
         //
-        [Obsolete("Use IsEditing()", false)] public override bool IsEditingAnything {
+        [Obsolete("Use IsEditing()", false)]
+        public override bool IsEditingAnything {
             get {
                 if (cp?.core?.session == null) { return false; }
                 return cp.core.session.isEditing();
@@ -333,7 +334,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public override bool LoginByID(int userId) {
-            return AuthController.loginById(cp.core, cp.core.session, userId, false );
+            return AuthController.loginById(cp.core, cp.core.session, userId, false);
         }
         //
         //====================================================================================================
@@ -379,7 +380,18 @@ namespace Contensive.Processor {
             if (cp?.core?.session == null) { return false; }
             string errorMessage = "";
             int errorCode = 0;
-            return cp.core.session.isNewCredentialOK(username, password, ref errorMessage, ref errorCode);
+            return cp.core.session.isNewCredentialOK(cp.User.Id, username, password, ref errorMessage, ref errorCode);
+        }
+        //
+        //====================================================================================================
+        //
+        public override bool IsNewLoginOK(int userId, string username, string password, ref string errorMessage) {
+            if (cp?.core?.session == null) {
+                errorMessage = "There is a problem understanding the request";
+                return false;
+            }
+            int errorCode = 0;
+            return cp.core.session.isNewCredentialOK(userId, username, password, ref errorMessage, ref errorCode);
         }
         //
         //====================================================================================================

@@ -235,6 +235,17 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// returns true if the credentials are valid, and not currently in user (the current user can use them)
+        /// </summary>
+        /// <param name="userId">The id of the user who wants to update their username and password</param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="errorMessage">if the result is false, this is a user compatible message that explains how they can fix the issue</param>
+        /// <returns></returns>
+        public abstract bool IsNewLoginOK(int userId, string username, string password, ref string errorMessage);
+        //
+        //====================================================================================================
+        /// <summary>
         /// The language relfected in the browser metadata
         /// </summary>
         public abstract string Language { get; }

@@ -641,7 +641,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="returnErrorMessage"></param>
         /// <param name="returnErrorCode"></param>
         /// <returns></returns>
-        public bool isNewCredentialOK(string Username, string Password, ref string returnErrorMessage, ref int returnErrorCode) {
+        public bool isNewCredentialOK(int userId, string Username, string Password, ref string returnErrorMessage, ref int returnErrorCode) {
             try {
                 //
                 logger.Trace($"{core.logCommonMessage},SessionController.isNewCredentialOK enter");
@@ -659,7 +659,7 @@ namespace Contensive.Processor.Controllers {
                     returnErrorMessage = "A valid login requires a non-blank password.";
                 } else {
                     using (var csData = new CsModel(core)) {
-                        if (csData.open("People", "username=" + DbController.encodeSQLText(Username), "id", false, 2, "ID")) {
+                        if (csData.open("People", $"(id<>{userId})and(username={DbController.encodeSQLText(Username)})", "id", false, 2, "ID")) {
                             //
                             // ----- username was found, stop here
                             returnErrorCode = 3;

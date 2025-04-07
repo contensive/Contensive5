@@ -780,6 +780,15 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string GetTextEditor(string htmlName, string htmlValue);
         //
+        /// <summary>
+        /// create a dashboard with a list of widgets
+        /// </summary>
+        /// <param name="dashName">a unique name for this dashboard, used to save user settings</param>
+        /// <param name="dashTitle">The title that appears to the user in the dashboard</param>
+        /// <param name="widgetGuidList">A list of widgets supported by this dashboard. For example the billing dashboard may support 10 billing widgets.</param>
+        /// <returns></returns>
+        public abstract string GetWidgetDashboard(string dashName, string dashTitle, List<string> widgetGuidList);
+        //
         //==========================================================================================
         //
         // deprecated

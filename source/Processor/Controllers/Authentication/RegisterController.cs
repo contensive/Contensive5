@@ -34,7 +34,7 @@ namespace Contensive.Processor.Controllers {
                 int errorCode = 0;
                 string loginForm_Username = core.docProperties.getText("username");
                 string loginForm_Password = core.docProperties.getText("password");
-                if (!core.session.isNewCredentialOK(loginForm_Username, loginForm_Password, ref ErrorMessage, ref errorCode)) {
+                if (!core.session.isNewCredentialOK(core.session.user.id, loginForm_Username, loginForm_Password, ref ErrorMessage, ref errorCode)) {
                     //
                     // -- credentials are not valid
                     ErrorController.addUserError(core, ErrorMessage);

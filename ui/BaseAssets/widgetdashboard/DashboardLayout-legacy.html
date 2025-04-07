@@ -1,0 +1,225 @@
+
+<script src="/dashboard/gridstack-all.js"></script>
+<link href="/dashboard/gridstack.min.css" rel="stylesheet"/>
+
+<style type="text/css">
+  .card-tool { 
+    position: absolute;
+    z-index: 1;
+    background-color: #fff;
+    right: 0;
+    top: 0;
+  }
+  .card-grab { 
+    float:right;
+    cursor: grab; 
+  }
+  .card-close { 
+    float:right;
+    cursor: pointer; 
+  }
+  .dropdown-toggle.no-caret::after {
+      display: none;
+  }
+</style>
+<div id="dashboard" class="d-flex grid-stack h-100">
+  <div class="me-4 ms-auto dropdown">
+    <button class="btn btn-secondary dropdown-toggle no-caret" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+      <i class="fa-regular fa-square-plus"></i>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+      {{#addWidgetList}}
+        <li><a class="dropdown-item add-widget" href="#" data-guid="{{guid}}">{{name}}</a></li>
+      {{/addWidgetList}}
+    </ul>
+  </div>
+  {{#widgets}}
+    <div class="grid-stack-item overflow-hidden" id="{{key}}" gs-w="{{width}}" gs-h="{{height}}" gs-x="{{x}}" gs-y="{{y}}" data-addonGuid="{{addonGuid}}">
+      <div class="grid-stack-item-content bg-white rounded-2 p-2 border border-2 overflow-hidden">
+        <div class="card-tool">
+          <div class="card-grab pe-1"><i class="fa-solid fa-grip-vertical"></i></div>
+          <div class="card-close pe-1"><i class="fa-solid fa-square-xmark"></i></div>
+        </div>
+        <div class="card h-100">{{{htmlContent}}}</div>
+      </div>      
+    </div>
+    {{#link}}
+      <script>
+        document.addEventListener('DOMContentLoaded', function(event) {
+          jQuery('#{{key}} .card').on('click', function() { window.location.href='{{link}}'; });
+        });
+      </script>
+    {{/link}}
+  {{/widgets}}
+</div>  
+<div id="newWidgetHtmlId" style="display:none;">
+  <div class="grid-stack-item overflow-hidden" id="idPlaceholder" data-addonGuid="guidPlaceholder">
+    <div class="grid-stack-item-content bg-white rounded-2 p-2 border border-2 overflow-hidden">
+      <div class="card-tool">
+        <div class="card-grab pe-1"><i class="fa-solid fa-grip-vertical"></i></div>
+        <div class="card-close pe-1"><i class="fa-solid fa-square-xmark"></i></div>
+      </div>
+      <div class="dashWidgetContent card h-100"></div>
+    </div>      
+  </div>
+</div>  
+  <script type="text/javascript">
+    // https://github.com/gridstack/gridstack.js/tree/master/doc#changeevent-items
+    //
+    // -- on-ready
+    document.addEventListener('DOMContentLoaded', function(event) {
+      //
+      // -- close
+      $('#dashboard').on('click', '.card-close', function() {
+        console.log('card-close click');
+        var el = $(this).closest('.grid-stack-item');
+        grid.removeWidget(el.get(0));
+      });
+      //
+      // -- add widget button
+      $('#dashboard').on('click', '.add-widget', function() {
+        var element = $(this);
+        console.log('add-widget, guid:'+element.attr('data-guid')); 
+        let newWidgetHtml = document.getElementById('newWidgetHtmlId').innerHTML;
+        newWidgetHtml = newWidgetHtml.replace('idPlaceholder', generateKey());
+        newWidgetHtml = newWidgetHtml.replace('guidPlaceholder', element.attr('data-guid'));
+        let newWidget = grid.addWidget(newWidgetHtml,{h:2,w:2});
+        widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
+      });
+      //
+      document.getElementsByClass('.add-widget').addEventListener('click', function() {
+      });
+      //
+      // -- add sample widget
+      document.getElementById('add-sample-widget-btn').addEventListener('click', function() {
+        let newWidgetHtml = document.getElementById('newWidgetHtmlId').innerHTML;
+        newWidgetHtml = newWidgetHtml.replace('idPlaceholder', generateKey());
+        newWidgetHtml = newWidgetHtml.replace('guidPlaceholder', '{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}');
+        let newWidget = grid.addWidget(newWidgetHtml,{h:2,w:2});
+        widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
+      });
+      //
+      // -- add number widget
+      document.getElementById('add-number-widget-btn').addEventListener('click', function() {
+        let newWidgetHtml = document.getElementById('newWidgetHtmlId').innerHTML;
+        newWidgetHtml = newWidgetHtml.replace('idPlaceholder', generateKey());
+        newWidgetHtml = newWidgetHtml.replace('guidPlaceholder', '{224E4CE6-4D3A-41A8-A501-1C2DBD456EE9}');
+        let newWidget = grid.addWidget(newWidgetHtml,{h:2,w:2});
+        widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
+      });
+    });
+    //
+    // -- init grid
+    var grid = GridStack.init({ 
+      handle: '.card-grab',
+      container: '#dashboard',
+      width: 12,
+      height: 10,
+      margin: 10,
+      float: true   
+    });
+    //
+    // -- execute server command
+    function widgetDashboardCmd(cmd, items) { 
+      console.log('saveItems'); 
+      if(!Array.isArray(items)) {
+        console.error("widgetDashboardCmd, items is not an array");
+        return;
+      }   
+      postData = [];
+      items.forEach(function(item) {
+        console.log('widgetDashboardCmd, el.id:'+item.el.id+' _id:'+item._id+' x:'+item.x + ' y:'+item.y + ' w:'+item.w + ' h:'+item.h);
+        postData.push({cmd: cmd, key: item.el.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.el.getAttribute('data-addonGuid')});
+      });
+      $.ajax({
+        type: 'POST',
+        url: "/widgetDashboardCmd",
+        contentType: "application/json",
+        data: JSON.stringify(postData),
+        success: function(resultJson){
+          console.log('widgetDashboardCmd success');
+          let result = JSON.parse(resultJson);
+          if(result){
+            result.forEach(function(widget) {
+            items.forEach(function(item) {
+              if(item.el.id==widget.key) {
+                document.querySelector('#'+item.el.id+' .card').innerHTML = widget.htmlContent;
+                if(widget.link) {
+                  let script = document.createElement('script');
+                  script.innerHTML = "document.addEventListener('DOMContentLoaded', function(event) { jQuery('#"+widget.key+" .card').on('click', function() { window.location.href='"+widget.link+"'; }); });";
+                  document.body.appendChild(script);
+                }
+            }}); 
+          });
+          };
+        },
+        error: function(result){
+          console.log('widgetDashboardCmd error');
+        }
+      }); 
+    }
+    //
+    // -- event handlers
+    grid.on('added', function(event, items ) {
+      console.log('added');
+    });
+    grid.on('change', function(event, items ) {
+      console.log('change');
+      widgetDashboardCmd('save', items);
+    });
+    grid.on('disable', function(event, items ) {
+      console.log('disable');
+    });
+    grid.on('dragstart', function(event, items ) {
+      console.log('dragstart');
+    });
+    grid.on('drag', function(event, items ) {
+      console.log('drag');
+    });
+    grid.on('dragstop', function(event, items ) {
+      console.log('dragstop');
+    });
+    grid.on('dropped', function(event, items ) {
+      console.log('dropped');
+    });
+    grid.on('enable', function(event, items ) {
+      console.log('enable');
+    });
+    grid.on('removed', function(event, items ) {
+      console.log('removed');
+      widgetDashboardCmd('delete', items);
+    });
+    grid.on('resizestart', function(event, items ) {
+      console.log('resizestart');
+    });
+    grid.on('resize', function(event, items ) {
+      console.log('resize');
+    });
+    grid.on('resizestop', function(event, items ) {
+      console.log('resizestop');
+    });
+    //
+    // create GridStackWidget object from HTML element
+    function createGridStackWidgetFromElement(element) {
+      if(element==null) { return null; }
+      //
+      // Create GridStackWidget object
+      const widget = {
+          x: parseInt(element.getAttribute('gs-x')) || 0,
+          y: parseInt(element.getAttribute('gs-y')) || 0,
+          w: parseInt(element.getAttribute('gs-w')) || 1,
+          h: parseInt(element.getAttribute('gs-h')) || 1,
+          el: element // Attach the HTML element
+      };
+      return widget;
+    }
+    //
+    // -- create non-secure guid
+    function generateKey() {
+      return '_xxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0,
+            v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+</script>
