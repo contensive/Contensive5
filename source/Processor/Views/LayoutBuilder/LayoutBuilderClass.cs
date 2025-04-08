@@ -35,12 +35,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        public override bool blockFormTag { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// if true, the container between the button rows will include default padding
         /// </summary>
         public override bool includeBodyPadding { get; set; } = true;
@@ -169,6 +163,12 @@ namespace Contensive.Processor.LayoutBuilder {
         [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
+        /// </summary>
+        [Obsolete("Deprecated. Use includeForm to prevent the form tag.", false)] public override bool blockFormTag { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
         //
         /// <summary>
         /// The default body. Typically you would create a layout by adding content to the individual elements and calling this method. Oveerride this method and consider using AdminUIHtmlController.getReportDoc()
@@ -194,7 +194,7 @@ namespace Contensive.Processor.LayoutBuilder {
             result += hiddenList;
             //
             // -- wrap with form
-            if (includeForm && !blockFormTag) {
+            if (includeForm) {
                 result = cp.Html.Form(result, "", "", "afwForm");
             }
             //

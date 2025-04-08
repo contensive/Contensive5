@@ -35,6 +35,14 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderBaseGuid, layoutAdminUILayoutBuilderBaseName, layoutAdminUILayoutBuilderBaseCdnPathFilename, layoutAdminUILayoutBuilderBaseCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderListBodyGuid, layoutAdminUILayoutBuilderListBodyName, layoutAdminUILayoutBuilderListBodyCdnPathFilename, layoutAdminUILayoutBuilderListBodyCdnPathFilename);
                 //
+                // -- widget dashboard layout(s)
+                _ = LayoutController.updateLayout(core.cpParent, 0, Contensive.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.WidgetDashboard.Constants.dashboardLayoutName, Contensive.WidgetDashboard.Constants.dashboardLayoutPathFilename, Contensive.WidgetDashboard.Constants.dashboardLayoutPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutGuid, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutName, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutPathFilename, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutGuid, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutName, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutPathFilename, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutPathFilename);
+
+                _ = LayoutController.updateLayout(core.cpParent, 0, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutGuid, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutName, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutPathFilename, Contensive.WidgetDashboard.Constants.dashboardWidgetNumberLayoutPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutGuid, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutName, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutPathFilename, Contensive.WidgetDashboard.Constants.dashboardWidgetHtmlContentLayoutPathFilename);
+                //
                 // -- 
                 return "ok";
             } catch (Exception ex) {

@@ -1,6 +1,7 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Models.Db;
+using Contensive.WidgetDashboard.Models;
 using NLog.LayoutRenderers.Wrappers;
 using System;
 using System.Collections.Generic;
@@ -398,7 +399,24 @@ namespace Contensive.Processor {
         public override string GetTextEditor(string htmlName, string htmlValue) {
             return Controllers.EditControls.AdminUIEditorController.getTextEditor(core, htmlName, htmlValue);
         }
-
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// implement widget dashboard
+        /// </summary>
+        /// <param name="dashName"></param>
+        /// <param name="dashTitle"></param>
+        /// <param name="widgetGuidList"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override string GetWidgetDashboard(string dashName, string dashTitle, List<string> widgetGuidList) {
+            string layout = core.cpParent.Layout.GetLayout(Contensive.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.WidgetDashboard.Constants.dashboardLayoutName, Contensive.WidgetDashboard.Constants.dashboardLayoutPathFilename);
+            DashboardConfigModel viewModel = DashboardConfigModel.create(core.cpParent, dashName);
+            viewModel.title = dashTitle;
+            return core.cpParent.Mustache.Render(layout, viewModel);
+        }
+        //
+        // ====================================================================================================
         /// <summary>
         /// deprecated
         /// </summary>

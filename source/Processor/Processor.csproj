@@ -3,9 +3,9 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-	  <UseWPF>true</UseWPF>
-	  <TargetFrameworks>net472;net9.0-windows</TargetFrameworks>
-	  <RootNamespace>Contensive.Processor</RootNamespace>
+	<UseWPF>true</UseWPF>
+	<TargetFrameworks>net472;net9.0-windows</TargetFrameworks>
+	<RootNamespace>Contensive.Processor</RootNamespace>
     <AssemblyName>Processor</AssemblyName>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>http://contensive.io</PackageProjectUrl>
@@ -130,6 +130,7 @@
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\WidgetDashboard\WidgetDashboard.csproj" />
   </ItemGroup>
 
   <ItemGroup>

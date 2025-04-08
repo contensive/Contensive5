@@ -1089,7 +1089,6 @@ namespace Contensive.Processor.Models.Domain {
                     }
                     contentMetadata.id = content.id;
                     string contentGuid = content.ccguid;
-                    bool ContentIsBaseContent = content.isBaseContent;
                     int ContentIDofContent = ContentMetadataModel.getContentId(core, "content");
                     //
                     // get parentId

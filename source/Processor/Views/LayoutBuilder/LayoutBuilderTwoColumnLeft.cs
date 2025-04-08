@@ -50,12 +50,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        public override bool blockFormTag { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// if true, the container between the button rows will include default padding
         /// </summary>
         public override bool includeBodyPadding { get; set; } = true;
@@ -164,8 +158,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 successMessage = successMessage,
                 htmlAfterBody = htmlAfterBody,
                 htmlBeforeBody = htmlBeforeBody,
-                htmlLeftOfBody = htmlLeftOfBody,
-                blockFormTag = blockFormTag
+                htmlLeftOfBody = htmlLeftOfBody
             };
             string result = layoutBase.getHtml();
             //
@@ -410,5 +403,12 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getHtml(CPBaseClass cp) {
             return getHtml();
         }
+
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 
+        /// </summary>
+        [Obsolete("Deprecated. Use includeForm.", false)] public override bool blockFormTag { get; set; }
     }
 }

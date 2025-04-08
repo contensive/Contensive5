@@ -34,7 +34,12 @@ namespace Contensive.Models.Db {
         public int iconSprites { get; set; }
         public int iconWidth { get; set; }
         public int installedByCollectionId { get; set; }
-        public bool isBaseContent { get; set; }
+        ///// <summary>
+        ///// deprecated. this is not a field property, internally it represents if the field belongs to a table that installs with the base collection.
+        ///// (do not remove for compatibilty)
+        ///The choice is to add the cdef field back in because is was previously removed and it is causing an error now -- not sure why it was not breaking all along
+        ///// </summary>
+        //public bool isBaseContent { get; set; }
         public int parentId { get; set; }
         /// <summary>
         /// html to be used for the icon. The icon is for the dashboard and addon manager, etc
