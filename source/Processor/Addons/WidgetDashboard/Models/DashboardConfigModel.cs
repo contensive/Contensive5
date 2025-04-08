@@ -1,12 +1,11 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.WidgetDashboard.Controllers;
-using Contensive.WidgetDashboard.Models;
+using Contensive.Processor.Addons.WidgetDashboard.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
 
-namespace Contensive.WidgetDashboard.Models {
+namespace Contensive.Processor.Addons.WidgetDashboard.Models {
     public class DashboardConfigModel {
         //
         private CPBaseClass cp;

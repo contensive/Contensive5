@@ -1,7 +1,7 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Models.Db;
-using Contensive.WidgetDashboard.Models;
+using Contensive.Processor.Addons.WidgetDashboard.Models;
 using NLog.LayoutRenderers.Wrappers;
 using System;
 using System.Collections.Generic;
@@ -410,7 +410,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override string GetWidgetDashboard(string dashName, string dashTitle, List<string> widgetGuidList) {
-            string layout = core.cpParent.Layout.GetLayout(Contensive.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.WidgetDashboard.Constants.dashboardLayoutName, Contensive.WidgetDashboard.Constants.dashboardLayoutPathFilename);
+            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutName, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutPathFilename);
             DashboardConfigModel viewModel = DashboardConfigModel.create(core.cpParent, dashName);
             viewModel.title = dashTitle;
             return core.cpParent.Mustache.Render(layout, viewModel);

@@ -1,5 +1,5 @@
 ﻿
-namespace Contensive.WidgetDashboard {
+namespace Contensive.Processor.Addons.WidgetDashboard {
 
     public static class Constants {
         //

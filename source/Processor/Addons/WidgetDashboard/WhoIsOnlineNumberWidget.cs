@@ -1,11 +1,10 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.WidgetDashboard.Models;
-using Contensive.WidgetDashboard.Models;
+using Contensive.Processor.Addons.WidgetDashboard.Models;
 using System;
 using System.Data;
 
-namespace Contensive.WidgetDashboard.Addons {
-    public class WhoIsOnlineNumberWidget : Contensive.BaseClasses.AddonBaseClass {
+namespace Contensive.Processor.Addons.WidgetDashboard {
+    public class WhoIsOnlineNumberWidget : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
                 return new WidgetNumberModel() {
@@ -25,7 +24,7 @@ namespace Contensive.WidgetDashboard.Addons {
         //
         public static int getUsersOnline(CPBaseClass cp) {
             using DataTable dt = cp.Db.ExecuteQuery("select count(*) as cnt from ccvisits where (lastVisitTime > " + cp.Db.EncodeSQLDate(DateTime.Now.AddMinutes(-30)) + ")");
-            if(dt?.Rows != null  ) {
+            if (dt?.Rows != null) {
                 return cp.Utils.EncodeInteger(dt.Rows[0]["cnt"]);
             }
             return 0;

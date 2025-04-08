@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contensive.WidgetDashboard.Models {
+namespace Contensive.Processor.Addons.WidgetDashboard.Models {
     //
     /// <summary>
     /// The data structure stored in the DashboardViewModel, which is stored in the config file, and used to render the dashboard.

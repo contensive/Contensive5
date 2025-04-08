@@ -1,9 +1,8 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.WidgetDashboard.Models;
-using Contensive.WidgetDashboard.Models;
+using Contensive.Processor.Addons.WidgetDashboard.Models;
 using System;
 
-namespace Contensive.WidgetDashboard.Controllers {
+namespace Contensive.Processor.Addons.WidgetDashboard.Controllers {
     internal class WidgetRenderController {
         //
         // ====================================================================================================
@@ -39,8 +38,8 @@ namespace Contensive.WidgetDashboard.Controllers {
             WidgetBaseModel addonBaseWidget = null;
             try {
                 addonBaseWidget = cp.JSON.Deserialize<WidgetBaseModel>(addonWidgetJson);
-                widget.width = (widget.width > addonBaseWidget.minWidth) ? widget.width : addonBaseWidget.minWidth;
-                widget.height = (widget.height > addonBaseWidget.minHeight) ? widget.height : addonBaseWidget.minHeight;
+                widget.width = widget.width > addonBaseWidget.minWidth ? widget.width : addonBaseWidget.minWidth;
+                widget.height = widget.height > addonBaseWidget.minHeight ? widget.height : addonBaseWidget.minHeight;
                 widget.refreshSeconds = addonBaseWidget.refreshSeconds;
                 // Check the type
                 if (addonBaseWidget.widgetType == WidgetTypeEnum.htmlContent) {

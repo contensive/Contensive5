@@ -1,10 +1,9 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.WidgetDashboard.Models;
 using System;
 using System.Collections.Generic;
 
-namespace Contensive.WidgetDashboard.Addons {
-    public class AdminWidgetDashboard : Contensive.BaseClasses.AddonBaseClass {
+namespace Contensive.Processor.Addons.WidgetDashboard {
+    public class AdminWidgetDashboard : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
                 List<string> widgetList = new List<string>();

@@ -130,7 +130,6 @@
   <ItemGroup>
     <ProjectReference Include="..\CPBase\CPBase.csproj" />
     <ProjectReference Include="..\Models\Models.csproj" />
-    <ProjectReference Include="..\WidgetDashboard\WidgetDashboard.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -146,7 +145,6 @@
     <PackageReference Include="AWSSDK.SQS" Version="3.7.400.109" />
     <PackageReference Include="Handlebars.Net" Version="2.1.6" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.74" />
-    <PackageReference Include="M2Mqtt" Version="4.3.0" />
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="9.0.2" />
     <PackageReference Include="Microsoft.ClearScript" Version="7.5.0" />
     <PackageReference Include="Microsoft.Web.Administration" Version="11.1.0" />

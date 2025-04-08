@@ -1,9 +1,10 @@
 ﻿
 using Contensive.Processor.Controllers;
 using NLog;
+using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using uPLibrary.Networking.M2Mqtt;
+//using uPLibrary.Networking.M2Mqtt;
 
 namespace Contensive.Processor {
     //
@@ -90,45 +91,46 @@ namespace Contensive.Processor {
         //====================================================================================================
         //
         public  bool publish(string message, string topic, string clientId) {
-            try {
-                //
-                // -- convert to pfx using openssl - see confluence
-                // -- you'll need to add these two files to the project and copy them to the output (not included in source control deliberately!)
-                if (string.IsNullOrEmpty(mqttEndpoint)) {
-                    throw new System.Exception("MQTT Publish failed because the endpoint in site property [" + spMQTTEndpoint + "] was empty");
-                }
-                if ( mqttBrokerPort==0 ){
-                    throw new System.Exception("MQTT Publish failed because the broker port in site property [" + spMQTTBrokerPort + "] was empty");
-                }
-                if (!cp.PrivateFiles.FileExists(mqttCertificateFilename)) {
-                    throw new System.Exception("MQTT Publish failed because no private key was found in privateFiles " + mqttCertificateFilename);
-                }
-                logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call X509Certificate2, filename[" + cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash(mqttCertificateFilename) + "], mqttCertificatePassword[" + mqttCertificatePassword + "]");
-                var clientCert = new X509Certificate2(cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash( mqttCertificateFilename), mqttCertificatePassword);
-                //
-                if (!cp.PrivateFiles.FileExists(mqttRootCertFilename)) {
-                    throw new System.Exception("MQTT Publish failed because no root certificate was found in privateFiles " + mqttRootCertFilename);
-                }
-                logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call CreateFromSignedFile, filename[" + cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash(mqttRootCertFilename) + "]");
-                var caCert = X509Certificate.CreateFromSignedFile(cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash(mqttRootCertFilename));
-                //
-                // -- create the client
-                logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call MqTTClient(), mqttEndpoint[" + mqttEndpoint + "], mqttBrokerPort[" + mqttBrokerPort + "]");
-                var client = new MqttClient(mqttEndpoint, mqttBrokerPort, true, caCert,clientCert, MqttSslProtocols.TLSv1_2);
-                // 
-                // -- client naming has to be unique if there was more than one publisher
-                logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call connect, clientId[" + clientId + "]");
-                client.Connect(clientId);
-                //
-                // -- publish to the topic
-                client.Publish(topic, Encoding.UTF8.GetBytes(message));
-                //
-                // -- return status
-                return client.IsConnected;
-            } catch (System.Exception ex) {
-                cp.Site.ErrorReport(ex);
-                throw;
-            }
+            throw new NotImplementedException();
+            //try {
+            //    //
+            //    // -- convert to pfx using openssl - see confluence
+            //    // -- you'll need to add these two files to the project and copy them to the output (not included in source control deliberately!)
+            //    if (string.IsNullOrEmpty(mqttEndpoint)) {
+            //        throw new System.Exception("MQTT Publish failed because the endpoint in site property [" + spMQTTEndpoint + "] was empty");
+            //    }
+            //    if ( mqttBrokerPort==0 ){
+            //        throw new System.Exception("MQTT Publish failed because the broker port in site property [" + spMQTTBrokerPort + "] was empty");
+            //    }
+            //    if (!cp.PrivateFiles.FileExists(mqttCertificateFilename)) {
+            //        throw new System.Exception("MQTT Publish failed because no private key was found in privateFiles " + mqttCertificateFilename);
+            //    }
+            //    logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call X509Certificate2, filename[" + cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash(mqttCertificateFilename) + "], mqttCertificatePassword[" + mqttCertificatePassword + "]");
+            //    var clientCert = new X509Certificate2(cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash( mqttCertificateFilename), mqttCertificatePassword);
+            //    //
+            //    if (!cp.PrivateFiles.FileExists(mqttRootCertFilename)) {
+            //        throw new System.Exception("MQTT Publish failed because no root certificate was found in privateFiles " + mqttRootCertFilename);
+            //    }
+            //    logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call CreateFromSignedFile, filename[" + cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash(mqttRootCertFilename) + "]");
+            //    var caCert = X509Certificate.CreateFromSignedFile(cp.PrivateFiles.PhysicalFilePath + FileController.convertToDosSlash(mqttRootCertFilename));
+            //    //
+            //    // -- create the client
+            //    logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call MqTTClient(), mqttEndpoint[" + mqttEndpoint + "], mqttBrokerPort[" + mqttBrokerPort + "]");
+            //    var client = new MqttClient(mqttEndpoint, mqttBrokerPort, true, caCert,clientCert, MqttSslProtocols.TLSv1_2);
+            //    // 
+            //    // -- client naming has to be unique if there was more than one publisher
+            //    logger.Debug($"{cp.core.logCommonMessage},MQTTController.publish - call connect, clientId[" + clientId + "]");
+            //    client.Connect(clientId);
+            //    //
+            //    // -- publish to the topic
+            //    client.Publish(topic, Encoding.UTF8.GetBytes(message));
+            //    //
+            //    // -- return status
+            //    return client.IsConnected;
+            //} catch (System.Exception ex) {
+            //    cp.Site.ErrorReport(ex);
+            //    throw;
+            //}
         }
     }
 }
