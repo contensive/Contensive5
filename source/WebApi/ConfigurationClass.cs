@@ -4,7 +4,7 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Net;
 using System.Text;
-using Contensive.Processor.Models.Domain;
+using Contensive.Processor.Models;
 
 namespace Contensive.WebApi {
     public class ConfigurationClass {

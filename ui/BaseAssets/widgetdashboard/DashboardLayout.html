@@ -198,7 +198,7 @@
         </div>
 
         <div id="dashboard" class="d-flex grid-stack h-100">
-    
+          <input type="hidden" id="portalGuid" value="{{portalGuid}}">    
                 {{#widgets}}
                     
                         <div class="grid-stack-item overflow-hidden" id="{{key}}" gs-w="{{width}}" gs-h="{{height}}" gs-x="{{x}}" gs-y="{{y}}" data-addonGuid="{{addonGuid}}">
@@ -319,10 +319,12 @@
             console.error("widgetDashboardCmd, items is not an array");
             return;
           }   
-          postData = [];
+          postData = {};
+          postData.portalGuid = document.getElementById('portalGuid').value;
+          postData.widgets = [];
           items.forEach(function(item) {
             console.log('widgetDashboardCmd, el.id:'+item.el.id+' _id:'+item._id+' x:'+item.x + ' y:'+item.y + ' w:'+item.w + ' h:'+item.h);
-            postData.push({cmd: cmd, key: item.el.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.el.getAttribute('data-addonGuid')});
+            postData.widgets.push({cmd: cmd, key: item.el.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.el.getAttribute('data-addonGuid')});
           });
           $.ajax({
             type: 'POST',

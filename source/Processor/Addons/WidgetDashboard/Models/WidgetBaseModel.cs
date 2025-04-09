@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contensive.WidgetDashboard.Models {
+namespace Contensive.Processor.Addons.WidgetDashboard.Models {
     /// <summary>
     /// This is the data base model returned by addons used for dashboard widgets.
     /// There are mulitple types an addon can return, but they all must inherit from this base class.

@@ -2976,7 +2976,7 @@
 
     addons
 
-  -->  
+  --> 
   <Addon Name="getEditModal" Guid="{912B6877-FF92-4E2F-81F0-16A3988424E2}" Type="Add-on">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.GetEditModalRemote]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
@@ -3517,6 +3517,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.CustomBlocking.SubmitCustomBlockingEmailVerification]]></DotNetClass>	
   </Addon>
+  
 	<Addon Name="SubmitCustomBlockingRegistrationForm" Guid="{C07B5AA5-674C-47EE-A04D-8E9A13DBD868}" Type="Add-on">
 		<Category></Category>
 		<Admin>No</Admin>
@@ -3527,6 +3528,33 @@
 		<BlockEditTools>Yes</BlockEditTools>
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.CustomBlocking.SubmitCustomBlockingRegistrationForm]]></DotNetClass>	
 	</Addon>
+  
+	<Addon Name="Widget Dashboard" Guid="{b146d928-f1f1-4e8c-bdfb-0abfc21bccbe}" Type="Add-on">
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.AdminWidgetDashboard]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+		<IncludeAddon Name="JQuery" Guid="{9C882078-0DAC-48E3-AD4B-CF2AA230DF80} "/>
+		<IncludeAddon Name="Bootstrap" Guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
+	</Addon> 
+
+	<Addon Name="widgetDashboardCmd" Guid="{E4EFE94E-DFCE-42B5-A54E-9ABF97250249}" Type="Add-on">
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboardCmdRemote]]></DotNetClass>
+		<RemoteMethod>yes</RemoteMethod>
+	</Addon>
+
+	<Addon Name="Sample Dashboard Widget" Guid="{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}" Type="Add-on">
+		<AdminWidget>Yes</AdminWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.SampleWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
+
+	<Addon Name="Who is Online Number Dashboard Widget" Guid="{224E4CE6-4D3A-41A8-A501-1C2DBD456EE9}" Type="Add-on">
+		<AdminWidget>Yes</AdminWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WhoIsOnlineNumberWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
+
+
+
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />
   <SQLIndex IndexName="ccGroupRulesGroupID" DataSourceName="Default" TableName="ccGroupRules" FieldNameList="GroupID" />
   <SQLIndex IndexName="ccGroupRulesContentID" DataSourceName="Default" TableName="ccGroupRules" FieldNameList="ContentID" />
@@ -3738,7 +3766,9 @@
   <ImportCollection Name="Contensive Patch5">{C7308F43-F810-4266-91E0-D4B1F5637BD6}</ImportCollection>
   <ImportCollection Name="Contact Manager">{51A67CB6-EA94-497C-896A-979A851BE3DB}</ImportCollection>
   <ImportCollection Name="Dashboard">{B470C25F-DDBC-4593-8161-1A2FD4A35690}</ImportCollection>
+  <!-- 
   <ImportCollection Name="Widget Dashboard">{12B9936A-5C0B-4154-AE1F-037D1C2CD29D}</ImportCollection>
+  -->
   <ImportCollection Name="Design Blocks">{fd1685af-bc66-4649-a8f1-1b3c18d59d24}</ImportCollection>
   <ImportCollection Name="Email Bounce Process">{321eb147-d85f-4537-8768-a16067c5ad17}</ImportCollection>
   <ImportCollection Name="Fancy Box">{B59F4D89-ADD9-4FEA-9D3F-B5A44DFD8F39}</ImportCollection>

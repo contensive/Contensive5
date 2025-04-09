@@ -1,15 +1,15 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.WidgetDashboard.Controllers;
-using Contensive.WidgetDashboard.Models;
+using Contensive.Processor.Addons.WidgetDashboard.Controllers;
+using Contensive.Processor.Addons.WidgetDashboard.Models;
 using System;
 using System.Collections.Generic;
-using System.Drawing.Printing;
+//using System.Drawing.Printing;
 
-namespace Contensive.WidgetDashboard.Addons {
+namespace Contensive.Processor.Addons.WidgetDashboard {
     /// <summary>
     /// Remote Method called from the dashboard with commands
     /// </summary>
-    public class WidgetDashboardCmdRemote : Contensive.BaseClasses.AddonBaseClass {
+    public class WidgetDashboardCmdRemote : AddonBaseClass {
         /// <summary>
         /// addon interface
         /// all commands return a result as type DashboardViewModel, with a widget list that needs to be updated on the UI. 
@@ -23,9 +23,9 @@ namespace Contensive.WidgetDashboard.Addons {
             try {
                 string requestJson = cp.Request.Body;
                 WDS_Request request = cp.JSON.Deserialize<WDS_Request>(requestJson);
-                if (request == null ) { return ""; }
+                if (request == null) { return ""; }
                 //
-                DashboardConfigModel userDashboardConfig = DashboardConfigModel.create(cp,request.dashboardName);
+                DashboardConfigModel userDashboardConfig = DashboardConfigModel.create(cp, request.portalGuid);
                 if (userDashboardConfig is null) { return ""; }
                 //
                 List<WDS_Response> result = [];
@@ -67,7 +67,7 @@ namespace Contensive.WidgetDashboard.Addons {
                         continue;
                     }
                 }
-                userDashboardConfig.save(cp, request.dashboardName);
+                userDashboardConfig.save(cp, DashboardConfigModel.getPortalName(cp, request.portalGuid));
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -80,11 +80,11 @@ namespace Contensive.WidgetDashboard.Addons {
         /// <summary>
         /// dashboard name passed from addon render execution. needed for save folder name
         /// </summary>
-        public string dashboardName { get; set; }
+        public string portalGuid { get; set; }
         /// <summary>
         /// list of widgets on the dashboard
         /// </summary>
-        public List<WDS_Request_Widget> widgets { get; set;}
+        public List<WDS_Request_Widget> widgets { get; set; }
     }
     public class WDS_Request_Widget {
         //

@@ -1,15 +1,21 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.WidgetDashboard.Controllers;
-using Contensive.WidgetDashboard.Models;
+using Contensive.Processor.Addons.WidgetDashboard.Controllers;
+using Microsoft.Web.Administration;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
 
-namespace Contensive.WidgetDashboard.Models {
+namespace Contensive.Processor.Addons.WidgetDashboard.Models {
     public class DashboardConfigModel {
         //
         private CPBaseClass cp;
+        /// <summary>
+        /// the name of the dashboard. This is used to create the folder name for the config file.
+        /// It has to be sent to the UI so it can be returned in commands and used to load the config file.
+        /// </summary>
+        public string dashboardName { get; set; }
         /// <summary>
         /// the title that apears on the dashboard at the top.
         /// </summary>
@@ -30,14 +36,18 @@ namespace Contensive.WidgetDashboard.Models {
         /// <param name="cp"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public static DashboardConfigModel create(CPBaseClass cp, string dashboardName) {
+        public static DashboardConfigModel create(CPBaseClass cp, string portalGuid) {
             try {
-                DashboardConfigModel config = loadUsersConfig(cp, dashboardName);
+                string portalName = string.IsNullOrEmpty(portalGuid) ? "Admin Dashboard" : getPortalName(cp, portalGuid);
+                DashboardConfigModel config = loadUsersConfig(cp, portalName);
+                DashboardConfigModel result = null;
                 if (config?.widgets != null && config.widgets.Count > 0) {
                     //
                     // -- render the htmlcontent and return
-                    DashboardConfigModel result = WidgetRenderController.renderWidgets(cp, config);
-                    buildAddWidgetList(cp, result);
+                    result = WidgetRenderController.renderWidgets(cp, config);
+                    result.dashboardName = portalName;
+                    result.title = portalName;
+                    buildAddWidgetList(cp, portalGuid, result);
                     return result;
                 }
                 //
@@ -62,36 +72,83 @@ namespace Contensive.WidgetDashboard.Models {
                 };
                 //
                 // -- save the new view model before rendering the htmlcontent
+                string dashboardName = getPortalName(cp, portalGuid);
                 config.save(cp, dashboardName);
                 //
                 // -- after save, render the htmlContent and get the widget list
-                DashboardConfigModel result2 = WidgetRenderController.renderWidgets(cp, config);
-                buildAddWidgetList(cp, result2);
-                return result2;
+                result = WidgetRenderController.renderWidgets(cp, config);
+                buildAddWidgetList(cp, portalGuid, result);
+                result.dashboardName = portalName;
+                result.title = portalName;
+                return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
         }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// get portal name from portal guid
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalGuid"></param>
+        /// <returns></returns>
+        public static string getPortalName(CPBaseClass cp, string portalGuid) {
+            using var dataTable = cp.Db.ExecuteQuery($"select name from ccPortals where ccguid={cp.Db.EncodeSQLText(portalGuid)}");
+            if (dataTable == null) { return ""; }
+            if (dataTable.Rows.Count > 0) {
+                return cp.Utils.EncodeText(dataTable.Rows[0][0]);
+            } else {
+                return "Admin Dashboard";
+            }
+        }
 
-        private static void buildAddWidgetList(CPBaseClass cp, DashboardConfigModel result) {
+        private static void buildAddWidgetList(CPBaseClass cp, string portalGuid, DashboardConfigModel result) {
             //
             if (cp.Db.IsTableField("ccAggregateFunctions", "dashboardWidget")) {
-                result.addWidgetList = new List<addWidget>();
-                using (DataTable dt = cp.Db.ExecuteQuery("select name,ccguid from ccAggregateFunctions where dashboardWidget>0 order by name")) {
+                result.addWidgetList = [];
+                string sql;
+                if (string.IsNullOrEmpty(portalGuid)) {
+                    sql = $@"
+                        select
+                            'Admin Dashboard' as portalName,
+                            a.name as addonName, a.ccguid as addonGuid
+                        from
+                            ccAggregateFunctions a  
+                        where
+                            a.dashboardWidget>0
+                        order by 
+                            a.name";
+                } else {
+                    sql = $@"
+                        select
+                            p.name as portalName,
+                            a.name as addonName, a.ccguid as addonGuid
+                        from
+                            ccPortals p
+                            left join ccPortalFeatures f  on p.id=f.portalid
+                            left join  ccAggregateFunctions a on f.addonid=a.id 
+                        where
+                            a.dashboardWidget>0
+                            and p.ccguid={cp.Db.EncodeSQLText(portalGuid)}
+                        order by 
+                            a.name";
+                }
+                using (DataTable dt = cp.Db.ExecuteQuery(sql)) {
                     if (dt.Rows.Count > 0) {
-                        result.addWidgetList = new List<addWidget>();
+                        result.title = cp.Utils.EncodeText(dt.Rows[0]["portalName"]);
+                        result.dashboardName = result.title;
                         foreach (DataRow row in dt.Rows) {
                             result.addWidgetList.Add(new addWidget() {
-                                name = cp.Utils.EncodeText(row["name"]),
-                                guid = cp.Utils.EncodeText(row["ccguid"])
+                                name = cp.Utils.EncodeText(row["addonName"]),
+                                guid = cp.Utils.EncodeText(row["addonGuid"])
                             });
                         }
                     }
                 }
             }
         }
-
         //
         // ====================================================================================================
         /// <summary>
@@ -99,10 +156,10 @@ namespace Contensive.WidgetDashboard.Models {
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="userId"></param>
-        /// <param name="dashboardName">unique name of this dash. </param>
+        /// <param name="portalName">unique name of this dash. </param>
         /// <returns></returns>
-        private static DashboardConfigModel loadUsersConfig(CPBaseClass cp, string dashboardName) {
-            string jsonConfigText = cp.PrivateFiles.Read(getConfigFilename(cp, dashboardName));
+        private static DashboardConfigModel loadUsersConfig(CPBaseClass cp, string portalName) {
+            string jsonConfigText = cp.PrivateFiles.Read(getConfigFilename(cp, portalName));
             if (string.IsNullOrWhiteSpace(jsonConfigText)) { return null; }
             return cp.JSON.Deserialize<DashboardConfigModel>(jsonConfigText);
         }
@@ -112,8 +169,8 @@ namespace Contensive.WidgetDashboard.Models {
         /// save config for the current user
         /// </summary>
         /// <param name="cp"></param>
-        public void save(CPBaseClass cp, string dashboardName) {
-            cp.PrivateFiles.Save(getConfigFilename(cp, dashboardName), cp.JSON.Serialize(this));
+        public void save(CPBaseClass cp, string portalName) {
+            cp.PrivateFiles.Save(getConfigFilename(cp, portalName), cp.JSON.Serialize(this));
         }
         //
         // ====================================================================================================
