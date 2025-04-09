@@ -25,7 +25,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                 WDS_Request request = cp.JSON.Deserialize<WDS_Request>(requestJson);
                 if (request == null) { return ""; }
                 //
-                DashboardConfigModel userDashboardConfig = DashboardConfigModel.create(cp, request.dashboardName);
+                DashboardConfigModel userDashboardConfig = DashboardConfigModel.create(cp, request.portalGuid);
                 if (userDashboardConfig is null) { return ""; }
                 //
                 List<WDS_Response> result = [];
@@ -67,7 +67,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         continue;
                     }
                 }
-                userDashboardConfig.save(cp, request.dashboardName);
+                userDashboardConfig.save(cp, DashboardConfigModel.getPortalName(cp, request.portalGuid));
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -80,7 +80,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         /// <summary>
         /// dashboard name passed from addon render execution. needed for save folder name
         /// </summary>
-        public string dashboardName { get; set; }
+        public string portalGuid { get; set; }
         /// <summary>
         /// list of widgets on the dashboard
         /// </summary>

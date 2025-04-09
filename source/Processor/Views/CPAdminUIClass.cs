@@ -409,10 +409,24 @@ namespace Contensive.Processor {
         /// <param name="widgetGuidList"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public override string GetWidgetDashboard(string dashName, string dashTitle, List<string> widgetGuidList) {
+        public override string GetWidgetDashboard() {
             string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutName, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutPathFilename);
-            DashboardConfigModel viewModel = DashboardConfigModel.create(core.cpParent, dashName);
-            viewModel.title = dashTitle;
+            DashboardConfigModel viewModel = DashboardConfigModel.create(core.cpParent, "");
+            return core.cpParent.Mustache.Render(layout, viewModel);
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// implement widget dashboard
+        /// </summary>
+        /// <param name="dashName"></param>
+        /// <param name="dashTitle"></param>
+        /// <param name="widgetGuidList"></param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override string GetWidgetDashboard(string portalGuid) {
+            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutName, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutPathFilename);
+            DashboardConfigModel viewModel = DashboardConfigModel.create(core.cpParent, portalGuid);
             return core.cpParent.Mustache.Render(layout, viewModel);
         }
         //

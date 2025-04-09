@@ -3530,7 +3530,7 @@
 	</Addon>
   
 	<Addon Name="Widget Dashboard" Guid="{b146d928-f1f1-4e8c-bdfb-0abfc21bccbe}" Type="Add-on">
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboardAddon]]></DotNetClass>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.AdminWidgetDashboard]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 		<IncludeAddon Name="JQuery" Guid="{9C882078-0DAC-48E3-AD4B-CF2AA230DF80} "/>
 		<IncludeAddon Name="Bootstrap" Guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
@@ -3540,6 +3540,19 @@
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboardCmdRemote]]></DotNetClass>
 		<RemoteMethod>yes</RemoteMethod>
 	</Addon>
+
+	<Addon Name="Sample Dashboard Widget" Guid="{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}" Type="Add-on">
+		<AdminWidget>Yes</AdminWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.SampleWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
+
+	<Addon Name="Who is Online Number Dashboard Widget" Guid="{224E4CE6-4D3A-41A8-A501-1C2DBD456EE9}" Type="Add-on">
+		<AdminWidget>Yes</AdminWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WhoIsOnlineNumberWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
+
 
 
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />
