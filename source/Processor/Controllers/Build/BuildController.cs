@@ -1187,6 +1187,7 @@ namespace Contensive.Processor.Controllers.Build {
                 core.cpParent.Layout.updateLayout(layoutAdminUITwoColumnLeftGuid, layoutAdminUITwoColumnLeftName, layoutAdminUITwoColumnLeftCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutAdminUITwoColumnRightGuid, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutEditControlAutocompleteGuid, layoutEditControlAutocompleteName, layoutEditControlAutocompleteCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
                 //
                 core.cpParent.Layout.updateLayout(layoutEmailVerificationGuid, layoutEmailVerificationName, layoutEmailVerificationCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutCustomBlockingRegistrationGuid, layoutCustomBlockingRegistrationName, layoutCustomBlockingRegistrationCdnPathFilename);

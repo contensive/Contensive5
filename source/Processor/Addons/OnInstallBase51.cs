@@ -34,6 +34,7 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderBaseGuid, layoutAdminUILayoutBuilderBaseName, layoutAdminUILayoutBuilderBaseCdnPathFilename, layoutAdminUILayoutBuilderBaseCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderListBodyGuid, layoutAdminUILayoutBuilderListBodyName, layoutAdminUILayoutBuilderListBodyCdnPathFilename, layoutAdminUILayoutBuilderListBodyCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
                 //
                 // -- widget dashboard layout(s)
                 _ = LayoutController.updateLayout(core.cpParent, 0, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutName, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutPathFilename, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutPathFilename);

@@ -634,10 +634,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         public string adminNav {
             get {
-                return cp.core.addon.execute(cp.core.cacheRuntime.addonCache.create(AdminNavigatorGuid), new CPUtilsBaseClass.addonExecuteContext {
-                    addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
-                    errorContextMessage = "executing Admin Navigator in Admin"
-                });
+                string layout = cp.Layout.GetLayout(layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
+                return cp.Mustache.Render(layout, new object());
+                //return cp.core.addon.execute(cp.core.cacheRuntime.addonCache.create(AdminNavigatorGuid), new CPUtilsBaseClass.addonExecuteContext {
+                //    addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
+                //    errorContextMessage = "executing Admin Navigator in Admin"
+                //});
             }
         }
         /// <summary>
