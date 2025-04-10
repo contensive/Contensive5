@@ -177,6 +177,10 @@
             font-weight: 600;
         }
 
+        #dashboard .card-body {
+          cursor: pointer;
+        }
+
     </style>
     <script src="/dashboard/gridstack-all.js"></script>
     <link href="/dashboard/gridstack.min.css" rel="stylesheet"/>
@@ -222,9 +226,9 @@
                 
                     {{#link}}
                         <script>
-                        document.addEventListener('DOMContentLoaded', function(event) {
-                            jQuery('#{{key}} .card').on('click', function() { window.location.href='{{link}}'; });
-                        });
+                          document.addEventListener('DOMContentLoaded', function(event) {
+                              jQuery('#{{key}} .card-body').on('click', function() { window.location.href='{{link}}'; });
+                          });
                         </script>
                     {{/link}}
                 {{/widgets}} 
