@@ -1,0 +1,71 @@
+
+<style>
+     @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+</style>
+<div>
+    <canvas id="membershipPieChart"></canvas>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <script>
+    
+    const ctx = document.getElementById('membershipPieChart');
+    const myChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Active', 'Inactive'],
+        datasets: [{
+          label: 'Membership Status',
+       
+          data: [300, 50],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: {
+                font: {
+                  family: 'Poppins' ,
+                }
+              }
+          },
+          title: {
+              display: true,
+              text: 'Active Memberships',
+              font: {
+                size: function(context) {
+                    let width = context.chart.width;
+                    return width < 400 ? 14 : 16;
+                },
+                family: 'Poppins',
+                weight: '600',
+              }
+            },
+            subtitle: {
+              responsive: true,
+              display: true,
+              text: 'Lorem ipsum dolor sit amet.',
+              color: 'grey',
+              padding: {
+                top: 0,
+                bottom: 10 
+              },
+              font: {
+                size: function(context) {
+                    let width = context.chart.width;
+                    return width < 400 ? 12 : 14;
+                },
+                family: 'Poppins',
+                weight: 'normal',
+            }
+          },
+        }
+      }
+    });
+  
+  </script>
