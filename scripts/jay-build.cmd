@@ -171,7 +171,7 @@ cd baseassets
 "c:\program files\7-zip\7z.exe" a "..\baseassets.zip"
 move /y "..\baseassets.zip"  "C:\Git\Contensive5\source\Processor\"
 
-rem pause
+ pause
 cd "C:\Git\Contensive5\scripts"
 
 rem ==============================================================
