@@ -201,27 +201,27 @@
             </div>
         </div>
 
-        <div id="dashboard" class="d-flex grid-stack h-100">
+        <div id="dashboard" class="row">
           <input type="hidden" id="portalGuid" value="{{portalGuid}}">    
                 {{#widgets}}
                     
-                        <div class="grid-stack-item overflow-hidden" id="{{key}}" gs-w="{{width}}" gs-h="{{height}}" gs-x="{{x}}" gs-y="{{y}}" data-addonGuid="{{addonGuid}}">
-                            <div class="grid-stack-item-content overflow-hidden p-2">
-                                <div class="card shadow-sm mb-4 h-100">
-                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <div class="card-tool"><div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div></div>
-                                            <h6 class="m-0 text-primary">Widget Name</h6>
-                                        </div>
-                                        <div class="card-tool">
-                                            <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div> 
-                                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3 mb-4" id="{{key}}" data-addonGuid="{{addonGuid}}">
+                            
+                            <div class="card shadow-sm h-100">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <div class="card-tool"><div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div></div>
+                                        <h6 class="m-0 text-primary">Widget Name</h6>
                                     </div>
-                                    <div class="card-body">
-                                        {{{htmlContent}}}
+                                    <div class="card-tool">
+                                        <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div> 
                                     </div>
                                 </div>
+                                <div class="card-body">
+                                    {{{htmlContent}}}
+                                </div>
                             </div>
+                         
                         </div>
                 
                     {{#link}}
