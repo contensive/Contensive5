@@ -3530,7 +3530,7 @@
 	</Addon>
   
 	<Addon Name="Widget Dashboard" Guid="{b146d928-f1f1-4e8c-bdfb-0abfc21bccbe}" Type="Add-on">
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.AdminWidgetDashboard]]></DotNetClass>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboard]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 		<IncludeAddon Name="JQuery" Guid="{9C882078-0DAC-48E3-AD4B-CF2AA230DF80} "/>
 		<IncludeAddon Name="Bootstrap" Guid="{EF1FD66C-D62F-4BD2-BF07-38F47996EBB3}"/>
@@ -3539,20 +3539,24 @@
 	<Addon Name="widgetDashboardCmd" Guid="{E4EFE94E-DFCE-42B5-A54E-9ABF97250249}" Type="Add-on">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboardCmdRemote]]></DotNetClass>
 		<RemoteMethod>yes</RemoteMethod>
-	</Addon>
-
+	</Addon>	
 	<Addon Name="Sample Dashboard Widget" Guid="{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}" Type="Add-on">
-		<AdminWidget>Yes</AdminWidget>
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.SampleWidget]]></DotNetClass>
+		<DashboardWidget>Yes</DashboardWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SampleWidget]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
-	<Addon Name="Who is Online Number Dashboard Widget" Guid="{224E4CE6-4D3A-41A8-A501-1C2DBD456EE9}" Type="Add-on">
-		<AdminWidget>Yes</AdminWidget>
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WhoIsOnlineNumberWidget]]></DotNetClass>
+	<Addon Name="Who is Online Dashboard Widget" Guid="{224E4CE6-4D3A-41A8-A501-1C2DBD456EE9}" Type="Add-on">
+		<DashboardWidget>Yes</DashboardWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.WhoIsOnlineWidget]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
+	<Addon Name="Pages To Review Dashboard Widget" Guid="{BF25F9DE-02B3-4DDE-91AC-42AB66BF8049}" Type="Add-on">
+		<DashboardWidget>Yes</DashboardWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.PagesToReviewWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
 
 
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />

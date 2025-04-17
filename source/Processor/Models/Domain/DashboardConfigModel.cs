@@ -1,5 +1,5 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.Processor.Addons.WidgetDashboard.Controllers;
+using Contensive.Processor.Controllers;
 using Microsoft.Web.Administration;
 using System;
 using System.CodeDom.Compiler;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
 
-namespace Contensive.Processor.Addons.WidgetDashboard.Models {
+namespace Contensive.Processor.Models.Domain {
     public class DashboardConfigModel {
         //
         private CPBaseClass cp;
@@ -44,7 +44,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard.Models {
                 if (config?.widgets != null && config.widgets.Count > 0) {
                     //
                     // -- render the htmlcontent and return
-                    result = WidgetRenderController.renderWidgets(cp, config);
+                    result = DashboardWidgetRenderController.renderWidgets(cp, config);
                     result.dashboardName = portalName;
                     result.title = portalName;
                     buildAddWidgetList(cp, portalGuid, result);
@@ -55,19 +55,20 @@ namespace Contensive.Processor.Addons.WidgetDashboard.Models {
                 config = new DashboardConfigModel() {
                     widgets = [
                         new DashboardConfigWidgetModel() {
+                            widgetName = "Sample",
                             x=0,
                             y=0,
                             width = 2,
                             height = 2,
                             htmlContent = cp.CdnFiles.Read("dashboard\\sampleWidget.html"),
                             key="E928",
-                            link="https://www.contensive.com",
+                            url="https://www.contensive.com",
                             addonGuid = Constants.sampleDashboardWidgetGuid
                         },
-                        new DashboardConfigWidgetModel() { x=2,y=0, width = 2, height = 2, htmlContent = "Widget 2", key="6E52", link="https://www.contensive.com" },
-                        new DashboardConfigWidgetModel() { x=4,y=0, width = 1, height = 1, htmlContent = "Widget 3", key="D512", link="https://www.contensive.com" },
-                        new DashboardConfigWidgetModel() { x=4,y=1, width = 1, height = 1, htmlContent = "Widget 4", key="0380", link="https://www.contensive.com" },
-                        new DashboardConfigWidgetModel() { x=5,y=0, width = 2, height = 2, htmlContent = "Widget 5", key="AC55", link="https://www.contensive.com" }
+                        new DashboardConfigWidgetModel() { widgetName="Widget 2",x=2,y=0, width = 2, height = 2, htmlContent = "Content 2", key="6E52", url="https://www.contensive.com" },
+                        new DashboardConfigWidgetModel() { widgetName="Widget 3",x=4,y=0, width = 2, height = 2, htmlContent = "Content 3", key="D512", url="https://www.contensive.com" },
+                        new DashboardConfigWidgetModel() { widgetName="Widget 4",x=6,y=0, width = 2, height = 2, htmlContent = "Content 4", key="0380", url="https://www.contensive.com" },
+                        new DashboardConfigWidgetModel() { widgetName="Widget 5",x=0,y=2, width = 2, height = 2, htmlContent = "Content 5", key="AC55", url="https://www.contensive.com" }
                     ]
                 };
                 //
@@ -76,7 +77,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard.Models {
                 config.save(cp, dashboardName);
                 //
                 // -- after save, render the htmlContent and get the widget list
-                result = WidgetRenderController.renderWidgets(cp, config);
+                result = DashboardWidgetRenderController.renderWidgets(cp, config);
                 buildAddWidgetList(cp, portalGuid, result);
                 result.dashboardName = portalName;
                 result.title = portalName;

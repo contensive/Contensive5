@@ -31,7 +31,7 @@ namespace Contensive.Models.Db {
         /// <summary>
         /// deprecated
         /// </summary>
-         public bool allowReturnLinkDisplay { get; set; }
+        public bool allowReturnLinkDisplay { get; set; }
         public bool allowReviewedFooter { get; set; }
         public bool allowSeeAlso { get; set; }
         public int archiveParentId { get; set; }
@@ -82,7 +82,7 @@ namespace Contensive.Models.Db {
         public int triggerConditionId { get; set; }
         public int triggerRemoveGroupId { get; set; }
         public int triggerSendSystemEmailId { get; set; }
-        [Obsolete("deprecated, cached, track externally",false)] public int viewings { get; set; }
+        [Obsolete("deprecated, cached, track externally", false)] public int viewings { get; set; }
         public string link { get; set; }
         //
         //====================================================================================================
@@ -106,11 +106,37 @@ namespace Contensive.Models.Db {
         //
         //====================================================================================================
         /// <summary>
+        /// get the number of pages that have not been reviewed in the last 90 days
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public static int getPagesToReviewCount(CPBaseClass cp) {
+            try {
+                using DataTable dt = cp.Db.ExecuteQuery(@$"
+                    select 
+                        count(*) as cnt 
+                    from 
+                        ccpagecontent 
+                    where 
+                        ((dateReviewed is null) or (dateReviewed<{cp.Db.EncodeSQLDate(DateTime.UtcNow.AddDays(-90))}))
+                        and (dateExpires is null) 
+                        and (active>0)
+                ");
+                if (dt?.Rows != null) { return cp.Utils.EncodeInteger(dt.Rows[0]["cnt"]); }
+                return 0;
+            } catch (Exception ex) {
+                cp.Site.ErrorReport(ex);
+                throw;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
         /// verify all page content has Page URL.
         /// Page URL runs out of a cache. If a Page URL is requested by pageId that is no in linkalis cache, it reloads the addoncache which is expensive.
         /// </summary>
         /// <param name="cp"></param>
-        public static void verifyPageUrl( CPBaseClass cp ) {
+        public static void verifyPageUrl(CPBaseClass cp) {
             string sql = "" +
                 "select " +
                     "p.id,p.name,p.linkalias " +
@@ -121,9 +147,8 @@ namespace Contensive.Models.Db {
                     "and(a.id is null) " +
                     "and(p.active>0) " +
                 "";
-            //"and(p.linkalias is null) " +
-    DataTable dt = cp.Db.ExecuteQuery(sql);
-            if(dt == null || dt.Rows.Count == 0) { return;  }
+            DataTable dt = cp.Db.ExecuteQuery(sql);
+            if (dt == null || dt.Rows.Count == 0) { return; }
             foreach (DataRow dr in dt.Rows) {
                 // -- normalize new linkalis
                 string pageLinkAlias = cp.Utils.EncodeText(dr[2]);
@@ -137,7 +162,7 @@ namespace Contensive.Models.Db {
                 cp.Db.ExecuteNonQuery($"update ccpagecontent set linkalias={cp.Db.EncodeSQLText(pageLinkAlias)} where id={pageId}", ref recordsAffected);
                 // -- create Page URL record
                 LinkAliasModel asdf = addDefault<LinkAliasModel>(cp);
-                if(asdf ==null) { continue; }
+                if (asdf == null) { continue; }
                 asdf.name = linkAliasNormalized;
                 asdf.pageId = pageId;
                 asdf.save(cp);

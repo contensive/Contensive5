@@ -1,7 +1,7 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Models.Db;
-using Contensive.Processor.Addons.WidgetDashboard.Models;
+using Contensive.Processor.Models.Domain;
 using NLog.LayoutRenderers.Wrappers;
 using System;
 using System.Collections.Generic;
@@ -410,7 +410,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override string GetWidgetDashboard() {
-            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutName, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutPathFilename);
+            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Constants.dashboardLayoutGuid, Contensive.Processor.Constants.dashboardLayoutName, Contensive.Processor.Constants.dashboardLayoutPathFilename);
             DashboardConfigModel viewModel = DashboardConfigModel.create(core.cpParent, "");
             return core.cpParent.Mustache.Render(layout, viewModel);
         }
@@ -425,7 +425,7 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override string GetWidgetDashboard(string portalGuid) {
-            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutGuid, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutName, Contensive.Processor.Addons.WidgetDashboard.Constants.dashboardLayoutPathFilename);
+            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Constants.dashboardLayoutGuid, Contensive.Processor.Constants.dashboardLayoutName, Contensive.Processor.Constants.dashboardLayoutPathFilename);
             DashboardConfigModel viewModel = DashboardConfigModel.create(core.cpParent, portalGuid);
             return core.cpParent.Mustache.Render(layout, viewModel);
         }

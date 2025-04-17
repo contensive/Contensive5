@@ -32,6 +32,14 @@ namespace Contensive.Processor.Controllers.Build {
                 //
                 // -- verify ID is primary key on all tables with an id
                 foreach (TableModel table in DbBaseModel.createList<TableModel>(cp)) {
+                    //
+                    // -- hack, ccformset, ccforms, ccformfields were converted in designblocks but not removed
+                    // -- should be removed by that collection, just avoid the error here
+                    if (table.name.Equals("ccformsets", StringComparison.InvariantCultureIgnoreCase)) { continue; }
+                    if (table.name.Equals("ccforms", StringComparison.InvariantCultureIgnoreCase)) { continue; }
+                    if (table.name.Equals("ccformfields", StringComparison.InvariantCultureIgnoreCase)) { continue; }
+                    if (table.name.Equals("ccuserformresponse", StringComparison.InvariantCultureIgnoreCase)) { continue; }
+                    //
                     if (!string.IsNullOrWhiteSpace(table.name)) {
                         bool tableHasId = false;
                         {

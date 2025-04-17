@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 
-namespace Contensive.Processor.Addons.AdminSite {
-    public class AdminWidgetDashboard : AddonBaseClass {
+namespace Contensive.Processor.Addons.WidgetDashboard {
+    public class WidgetDashboard : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
                 return cp.AdminUI.GetWidgetDashboard();

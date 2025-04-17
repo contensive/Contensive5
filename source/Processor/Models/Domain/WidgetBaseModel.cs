@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contensive.Processor.Addons.WidgetDashboard.Models {
+namespace Contensive.Processor.Models.Domain {
     /// <summary>
     /// This is the data base model returned by addons used for dashboard widgets.
     /// There are mulitple types an addon can return, but they all must inherit from this base class.
@@ -30,7 +30,14 @@ namespace Contensive.Processor.Addons.WidgetDashboard.Models {
         /// The number of seconds to refresh the widget. typically 0 for no refresh
         /// </summary>
         public int refreshSeconds { get; set; }
-
+        /// <summary>
+        /// The widget short name that appears at the top of the widget.
+        /// </summary>
+        public string widgetName { get; set; }
+        /// <summary>
+        /// The url used when the user clicks the widget. Leave blank to prevent a click action.
+        /// </summary>
+        public string url { get; set; }
     }
     public enum WidgetTypeEnum {
         htmlContent = 1,

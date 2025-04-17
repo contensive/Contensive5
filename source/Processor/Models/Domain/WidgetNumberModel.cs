@@ -1,4 +1,4 @@
-﻿namespace Contensive.Processor.Addons.WidgetDashboard.Models {
+﻿namespace Contensive.Processor.Models.Domain {
     /// <summary>
     /// This dash widget simple returns html for the content
     /// </summary>

@@ -1109,7 +1109,7 @@ namespace Contensive.Processor {
         public const string layoutAdminSiteCdnPathFilename = @"baseAssets\AdminSiteLayout.html";
         //
         public const string layoutAdminSidebarGuid = "{45CEEED7-48D1-418A-A3CD-BE9FA43CF6FA}";
-        public const string layoutAdminSidebarName = "Admin Sitebar Layout";
+        public const string layoutAdminSidebarName = "Admin Sidebar Layout";
         public const string layoutAdminSidebarCdnPathFilename = @"baseAssets\Admin-Sidebar.html";
         //
         public const string layoutLinkAliasPreviewEditorGuid = "{276A953D-BE40-4181-9749-56D8680455FA}";
@@ -1174,5 +1174,28 @@ namespace Contensive.Processor {
         public const string devToolGuid = "{13511AA1-3A58-4742-B98F-D92AF853989F}";
         public const string rnSetPortalId = "setPortalId";
         public const string rnSetPortalGuid = "setPortalGuid";
+        //
+        // -- Dashboard Widget
+        //
+        public const string sampleDashboardWidgetGuid = "{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}";
+        // 
+        // -- Dashboard Number Widget
+        // 
+        public const string dashboardWidgetNumberLayoutGuid = "{89c19056-8823-4355-a189-bdcd6183e873}";
+        public const string dashboardWidgetNumberLayoutName = "Dashboard Widget Number Layout";
+        public const string dashboardWidgetNumberLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetNumberLayout.html";
+        // 
+        // -- Dashboard Html Content Widget
+        // 
+        public const string dashboardWidgetHtmlContentLayoutGuid = "{1a9cad1e-b1ea-4099-a387-4943e71b9e9e}";
+        public const string dashboardWidgetHtmlContentLayoutName = "Dashboard Widget Html Content Layout";
+        public const string dashboardWidgetHtmlContentLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetHtmlContentLayout.html";
+        // 
+        // -- Dashboard Layout
+        // 
+        public const string dashboardLayoutGuid = "{e4796a0e-ed80-4ffb-8de9-52d7bb4984d8}";
+        public const string dashboardLayoutName = "Dashboard Layout";
+        public const string dashboardLayoutPathFilename = @"baseassets\widgetdashboard\DashboardLayout.html";
+        // 
     }
 }

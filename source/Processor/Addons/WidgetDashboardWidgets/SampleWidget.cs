@@ -1,12 +1,13 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.Processor.Addons.WidgetDashboard.Models;
+using Contensive.Processor.Models.Domain;
 using System;
 
-namespace Contensive.Processor.Addons.WidgetDashboard {
-    public class SampleWidget : Contensive.BaseClasses.AddonBaseClass {
+namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
+    public class SampleWidget : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
-                Contensive.Processor.Addons.WidgetDashboard.Models.WidgetHtmlContentModel result = new() {
+                WidgetHtmlContentModel result = new() {
+                    widgetName = "Sample Widget",
                     minWidth = 2,
                     minHeight = 2,
                     htmlContent = "" +
@@ -16,9 +17,10 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                                 "<br>Widget" +
                             "</h4>" +
                         "</div>",
-                    refreshSeconds = 0
+                    refreshSeconds = 0,
+                    url = "https://www.contensive.com",
                 };
-                return result; 
+                return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

@@ -386,19 +386,26 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (cp.User.IsDeveloper) {
                     //
                     // -- beta the Grid-Stack Dashboard
-                    int dashboardAddonid = cp.Site.GetInteger("ADMINROOTADDONID");
                     if (cp.Doc.IsProperty("dashbeta")) {
+                        //
+                        // -- change dashbeta setting
                         AddonModel addon = null;
                         if (cp.Doc.GetBoolean("dashbeta")) {
+                            //
+                            // -- turn on the dashbeta
                             addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidGridStackDemoDashboard);
+                            cp.Site.SetProperty("Admin Nav Portal Beta", true);
                         } else {
+                            //
+                            // -- turn off the dashbeta
                             addon = DbBaseModel.create<AddonModel>(cp, Contensive.Processor.Constants.addonGuidDashboard);
+                            cp.Site.SetProperty("Admin Nav Portal Beta", false);
                         }
                         if (addon is not null) {
-                            dashboardAddonid = addon.id;
-                            cp.Site.SetProperty("ADMINROOTADDONID", dashboardAddonid);
+                            cp.Site.SetProperty("ADMINROOTADDONID", addon.id);
                         }
                     }
+                    int dashboardAddonid = cp.Site.GetInteger("ADMINROOTADDONID");
                     if (cp.Content.GetRecordGuid("add-ons", dashboardAddonid) == Contensive.Processor.Constants.addonGuidDashboard) {
                         //
                         // -- link to switch to beta
@@ -634,12 +641,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// </summary>
         public string adminNav {
             get {
-                string layout = cp.Layout.GetLayout(layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
-                return cp.Mustache.Render(layout, new object());
-                //return cp.core.addon.execute(cp.core.cacheRuntime.addonCache.create(AdminNavigatorGuid), new CPUtilsBaseClass.addonExecuteContext {
-                //    addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
-                //    errorContextMessage = "executing Admin Navigator in Admin"
-                //});
+                return AdminNav.get(cp);
             }
         }
         /// <summary>

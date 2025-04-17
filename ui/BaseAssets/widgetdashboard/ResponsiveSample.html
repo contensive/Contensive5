@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gridstack Responsive Example</title>
+</head>
+<body>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@6.2.1/dist/gridstack.min.css" />
+  <style>
+    .grid-stack {
+      background: #fafad2;
+    }
+    .grid-stack-item-content {
+      background-color: #18bc9c;
+      text-align: center;
+      padding: 10px;
+    }
+    /* For screens smaller than 768px (e.g., mobile devices) */
+    @media (max-width: 767px) {
+      .grid-stack {
+        width: 100%; /* Ensure the grid takes full width */
+      }
+      .grid-stack-item {
+        width: 100% !important; /* Make items full width */
+      }
+    }
+    /* For screens larger than 768px */
+    @media (min-width: 768px) {
+      .grid-stack {
+        width: auto;
+      }
+    }
+  </style>
+  <div class="grid-stack">
+    <div class="grid-stack-item" data-gs-x="0" data-gs-y="0" data-gs-width="2" data-gs-height="2">
+      <div class="grid-stack-item-content">Item 1</div>
+    </div>
+    <div class="grid-stack-item" data-gs-x="2" data-gs-y="0" data-gs-width="2" data Brownsville-gs-height="2">
+      <div class="grid-stack-item-content">Item 2</div>
+    </div>
+    <div class="grid-stack-item" data-gs-x="0" data-gs-y="2" data-gs-width="4" data-gs-height="1">
+      <div class="grid-stack-item-content">Item 3</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gridstack@6.2.1/dist/gridstack-all.js"></script>
+  <script>
+    const grid = GridStack.init({
+      column: 12, // Default number of columns
+      animate: true,
+      resizable: {
+        handles: 'se'
+      }
+    });
+  </script>
+</body>
+</html>

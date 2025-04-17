@@ -1,6 +1,6 @@
 ﻿using Contensive.BaseClasses;
-using Contensive.Processor.Addons.WidgetDashboard.Controllers;
-using Contensive.Processor.Addons.WidgetDashboard.Models;
+using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
 //using System.Drawing.Printing;
@@ -42,8 +42,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         if (userDashboardConfigWidget is null) { continue; }
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
-                            htmlContent = WidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
-                            link = userDashboardConfigWidget.link
+                            htmlContent = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
+                            link = userDashboardConfigWidget.url
                         });
                         continue;
                     }
@@ -61,8 +61,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         userDashboardConfigWidget.addonGuid = requestWidget.addonGuid;
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
-                            htmlContent = WidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
-                            link = userDashboardConfigWidget.link
+                            htmlContent = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
+                            link = userDashboardConfigWidget.url
                         });
                         continue;
                     }
