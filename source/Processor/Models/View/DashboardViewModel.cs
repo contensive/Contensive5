@@ -1,5 +1,6 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
+using Contensive.Processor.Models.Domain;
 using Microsoft.Web.Administration;
 using System;
 using System.CodeDom.Compiler;
@@ -7,8 +8,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
 
-namespace Contensive.Processor.Models.Domain {
-    public class DashboardConfigModel {
+namespace Contensive.Processor.Models.View {
+    public class DashboardViewModel {
         //
         private CPBaseClass cp;
         /// <summary>
@@ -27,7 +28,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// the current list of widgets this user sees on the dashboard
         /// </summary>
-        public List<DashboardConfigWidgetModel> widgets { get; set; }
+        public List<DashboardWidgetViewModel> widgets { get; set; }
         // 
         // ====================================================================================================
         /// <summary>
@@ -36,15 +37,18 @@ namespace Contensive.Processor.Models.Domain {
         /// <param name="cp"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public static DashboardConfigModel create(CPBaseClass cp, string portalGuid) {
+        public static DashboardViewModel create(CPBaseClass cp, string portalGuid) {
             try {
                 string portalName = string.IsNullOrEmpty(portalGuid) ? "Admin Dashboard" : getPortalName(cp, portalGuid);
-                DashboardConfigModel config = loadUsersConfig(cp, portalName);
-                DashboardConfigModel result = null;
-                if (config?.widgets != null && config.widgets.Count > 0) {
+                DashboardUserConfigModel userConfig = DashboardUserConfigModel.loadUserConfig(cp, portalName);
+                DashboardViewModel result = new DashboardViewModel {
+                    dashboardName = userConfig.dashboardName,
+                    title = userConfig.title                     
+                };
+                if (userConfig?.widgets != null && userConfig.widgets.Count > 0) {
                     //
                     // -- render the htmlcontent and return
-                    result = DashboardWidgetRenderController.renderWidgets(cp, config);
+                    result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
                     result.dashboardName = portalName;
                     result.title = portalName;
                     buildAddWidgetList(cp, portalGuid, result);
@@ -52,9 +56,9 @@ namespace Contensive.Processor.Models.Domain {
                 }
                 //
                 // -- iniitalize with default widgets
-                config = new DashboardConfigModel() {
+                userConfig = new DashboardUserConfigModel() {
                     widgets = [
-                        new DashboardConfigWidgetModel() {
+                        new DashboardWidgetUserConfigModel() {
                             widgetName = "Sample",
                             x=0,
                             y=0,
@@ -62,22 +66,22 @@ namespace Contensive.Processor.Models.Domain {
                             height = 2,
                             htmlContent = cp.CdnFiles.Read("dashboard\\sampleWidget.html"),
                             key="E928",
-                            url="https://www.contensive.com",
+                            remove_url="https://www.contensive.com",
                             addonGuid = Constants.sampleDashboardWidgetGuid
                         },
-                        new DashboardConfigWidgetModel() { widgetName="Widget 2",x=2,y=0, width = 2, height = 2, htmlContent = "Content 2", key="6E52", url="https://www.contensive.com" },
-                        new DashboardConfigWidgetModel() { widgetName="Widget 3",x=4,y=0, width = 2, height = 2, htmlContent = "Content 3", key="D512", url="https://www.contensive.com" },
-                        new DashboardConfigWidgetModel() { widgetName="Widget 4",x=6,y=0, width = 2, height = 2, htmlContent = "Content 4", key="0380", url="https://www.contensive.com" },
-                        new DashboardConfigWidgetModel() { widgetName="Widget 5",x=0,y=2, width = 2, height = 2, htmlContent = "Content 5", key="AC55", url="https://www.contensive.com" }
+                        new DashboardWidgetUserConfigModel() { widgetName="Widget 2",x=2,y=0, width = 2, height = 2, htmlContent = "Content 2", key="6E52", remove_url="https://www.contensive.com" },
+                        new DashboardWidgetUserConfigModel() { widgetName="Widget 3",x=4,y=0, width = 2, height = 2, htmlContent = "Content 3", key="D512", remove_url="https://www.contensive.com" },
+                        new DashboardWidgetUserConfigModel() { widgetName="Widget 4",x=6,y=0, width = 2, height = 2, htmlContent = "Content 4", key="0380", remove_url="https://www.contensive.com" },
+                        new DashboardWidgetUserConfigModel() { widgetName="Widget 5",x=0,y=2, width = 2, height = 2, htmlContent = "Content 5", key="AC55", remove_url="https://www.contensive.com" }
                     ]
                 };
                 //
                 // -- save the new view model before rendering the htmlcontent
                 string dashboardName = getPortalName(cp, portalGuid);
-                config.save(cp, dashboardName);
+                userConfig.save(cp, dashboardName);
                 //
                 // -- after save, render the htmlContent and get the widget list
-                result = DashboardWidgetRenderController.renderWidgets(cp, config);
+                result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
                 buildAddWidgetList(cp, portalGuid, result);
                 result.dashboardName = portalName;
                 result.title = portalName;
@@ -105,7 +109,7 @@ namespace Contensive.Processor.Models.Domain {
             }
         }
 
-        private static void buildAddWidgetList(CPBaseClass cp, string portalGuid, DashboardConfigModel result) {
+        private static void buildAddWidgetList(CPBaseClass cp, string portalGuid, DashboardViewModel result) {
             //
             if (cp.Db.IsTableField("ccAggregateFunctions", "dashboardWidget")) {
                 result.addWidgetList = [];
@@ -150,52 +154,52 @@ namespace Contensive.Processor.Models.Domain {
                 }
             }
         }
-        //
-        // ====================================================================================================
-        /// <summary>
-        /// load config for a user. Returns null if config file not found
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="userId"></param>
-        /// <param name="portalName">unique name of this dash. </param>
-        /// <returns></returns>
-        private static DashboardConfigModel loadUsersConfig(CPBaseClass cp, string portalName) {
-            string jsonConfigText = cp.PrivateFiles.Read(getConfigFilename(cp, portalName));
-            if (string.IsNullOrWhiteSpace(jsonConfigText)) { return null; }
-            return cp.JSON.Deserialize<DashboardConfigModel>(jsonConfigText);
-        }
-        // 
-        // ====================================================================================================
-        /// <summary>
-        /// save config for the current user
-        /// </summary>
-        /// <param name="cp"></param>
-        public void save(CPBaseClass cp, string portalName) {
-            cp.PrivateFiles.Save(getConfigFilename(cp, portalName), cp.JSON.Serialize(this));
-        }
-        //
-        // ====================================================================================================
-        /// <summary>
-        /// create the config filename for the current user and this dashboard type
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <param name="foldername"></param>
-        /// <returns></returns>
-        private static string getConfigFilename(CPBaseClass cp, string dashboardName) {
-            string foldername = normalizeDashboardName(dashboardName);
-            return @$"dashboard\{(string.IsNullOrEmpty(foldername) ? "" : @$"{foldername}\")}config.{cp.User.Id}.json";
-        }
-        // 
-        // ====================================================================================================
-        /// <summary>
-        /// normalize the dashboard name to a valid folder name
-        /// </summary>
-        /// <param name="dashboardName"></param>
-        /// <returns></returns>
-        private static string normalizeDashboardName(string dashboardName) {
-            string result = Regex.Replace(dashboardName.ToLower(), "[^a-zA-Z0-9]", "");
-            return result;
-        }
+        ////
+        //// ====================================================================================================
+        ///// <summary>
+        ///// load config for a user. Returns null if config file not found
+        ///// </summary>
+        ///// <param name="cp"></param>
+        ///// <param name="userId"></param>
+        ///// <param name="portalName">unique name of this dash. </param>
+        ///// <returns></returns>
+        //private static DashboardViewModel loadUserConfig(CPBaseClass cp, string portalName) {
+        //    string jsonConfigText = cp.PrivateFiles.Read(getConfigFilename(cp, portalName));
+        //    if (string.IsNullOrWhiteSpace(jsonConfigText)) { return null; }
+        //    return cp.JSON.Deserialize<DashboardViewModel>(jsonConfigText);
+        //}
+        //// 
+        //// ====================================================================================================
+        ///// <summary>
+        ///// save config for the current user
+        ///// </summary>
+        ///// <param name="cp"></param>
+        //public void save(CPBaseClass cp, string portalName) {
+        //    cp.PrivateFiles.Save(getConfigFilename(cp, portalName), cp.JSON.Serialize(this));
+        //}
+        ////
+        //// ====================================================================================================
+        ///// <summary>
+        ///// create the config filename for the current user and this dashboard type
+        ///// </summary>
+        ///// <param name="cp"></param>
+        ///// <param name="foldername"></param>
+        ///// <returns></returns>
+        //private static string getConfigFilename(CPBaseClass cp, string dashboardName) {
+        //    string foldername = normalizeDashboardName(dashboardName);
+        //    return @$"dashboard\{(string.IsNullOrEmpty(foldername) ? "" : @$"{foldername}\")}config.{cp.User.Id}.json";
+        //}
+        //// 
+        //// ====================================================================================================
+        ///// <summary>
+        ///// normalize the dashboard name to a valid folder name
+        ///// </summary>
+        ///// <param name="dashboardName"></param>
+        ///// <returns></returns>
+        //private static string normalizeDashboardName(string dashboardName) {
+        //    string result = Regex.Replace(dashboardName.ToLower(), "[^a-zA-Z0-9]", "");
+        //    return result;
+        //}
     }
     //
     public class addWidget {

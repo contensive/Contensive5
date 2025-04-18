@@ -226,7 +226,7 @@
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
 
-          <div class="col-12 col-sm-6 col-lg-3 mb-4" id="{{key}}" data-addonGuid="{{addonGuid}}">
+          <div class="card-wrap col-12 col-sm-6 col-lg-3 mb-4" id="{{key}}" data-addonGuid="{{addonGuid}}">
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
@@ -289,11 +289,19 @@
       // -- on-ready
       document.addEventListener('DOMContentLoaded', function (event) {
         //
+        // -- sortable
+        $( "#dashboard" ).sortable({
+          handle: ".card-grab" ,
+          drop: function( event, ui ) {
+            console.log('dropped');
+          }
+        });
+        //
         // -- close
         $('#dashboard').on('click', '.card-close', function () {
           console.log('card-close click');
-          var el = $(this).closest('.grid-stack-item');
-          grid.removeWidget(el.get(0));
+          var el = $(this).closest('.card-wrap');
+          el.remove();
         });
         //
         // -- add widget button
@@ -307,53 +315,6 @@
           widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
         });
       });
-      //
-      // -- init grid
-      var grid = GridStack.init({
-        /*cellHeight: 80,*/
-        animate: true, // show immediate (animate: true is nice for user dragging though)
-        column: 12, // number of columns
-        columnOpts: {
-          columnWidth: 10, // wanted width
-          columnMax: 12, // max number of columns
-          layout: 'none', // auto layout
-
-        },
-        handle: '.card-grab',
-        container: '#dashboard',
-        /*
-        width: 12,
-        height: 10,
-        margin: 10,
-        */
-        float: false
-      });
-      //
-      // -- init grid (original)
-      /*
-      var grid = GridStack.init({ 
-        handle: '.card-grab',
-        container: '#dashboard',
-        width: 12,
-        height: 10,
-        margin: 10,
-        float: true   
-      });
-      */
-      //
-      //
-      /* responsive sample
-      let grid = GridStack.init({
-        cellHeight: 80, // use 'auto' to make square
-        animate: true, // show immediate (animate: true is nice for user dragging though)
-        columnOpts: {
-          columnWidth: 100, // wanted width
-        },
-        children: items,
-        float: true })
-      */
-      //.on('change', (ev, gsItems) => text.innerHTML = grid.getColumn());
-      //text.innerHTML = grid.getColumn();
       //
       // -- execute server command
       function widgetDashboardCmd(cmd, items) {

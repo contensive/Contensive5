@@ -11,7 +11,7 @@ namespace Contensive.Processor.Models.Domain {
     /// The render widget process populates the htmlContent property, and verifies the width and height.
     /// 
     /// </summary>
-    public class DashboardConfigWidgetModel {
+    public class DashboardWidgetUserConfigModel {
         //
         /// <summary>
         /// The name of the widget that appears at the top of the widget
@@ -21,7 +21,7 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// if provided, the widget will be linked to this url
         /// </summary>
-        public string url { get; set; }
+        public string remove_url { get; set; }
         //
         /// <summary>
         /// unique string that identifies this instance of the widget

@@ -25,7 +25,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                 WDS_Request request = cp.JSON.Deserialize<WDS_Request>(requestJson);
                 if (request == null) { return ""; }
                 //
-                DashboardConfigModel userDashboardConfig = DashboardConfigModel.create(cp, request.portalGuid);
+                DashboardUserConfigModel userDashboardConfig = DashboardUserConfigModel.loadUserConfig(cp, request.portalGuid);
+                //DashboardUserConfigModel userDashboardConfig = DashboardUserConfigModel.create(cp, request.portalGuid);
                 if (userDashboardConfig is null) { return ""; }
                 //
                 List<WDS_Response> result = [];
@@ -43,13 +44,13 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
                             htmlContent = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
-                            link = userDashboardConfigWidget.url
+                            link = userDashboardConfigWidget.remove_url
                         });
                         continue;
                     }
                     if (requestWidget.cmd == "save") {
                         if (userDashboardConfigWidget is null) {
-                            userDashboardConfigWidget = new DashboardConfigWidgetModel {
+                            userDashboardConfigWidget = new DashboardWidgetUserConfigModel {
                                 key = requestWidget.key
                             };
                             userDashboardConfig.widgets.Add(userDashboardConfigWidget);
@@ -62,16 +63,33 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
                             htmlContent = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
-                            link = userDashboardConfigWidget.url
+                            link = userDashboardConfigWidget.remove_url
                         });
                         continue;
                     }
                 }
-                userDashboardConfig.save(cp, DashboardConfigModel.getPortalName(cp, request.portalGuid));
+                userDashboardConfig.save(cp, getPortalName(cp, request.portalGuid));
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
+            }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// get portal name from portal guid
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalGuid"></param>
+        /// <returns></returns>
+        public static string getPortalName(CPBaseClass cp, string portalGuid) {
+            using var dataTable = cp.Db.ExecuteQuery($"select name from ccPortals where ccguid={cp.Db.EncodeSQLText(portalGuid)}");
+            if (dataTable == null) { return ""; }
+            if (dataTable.Rows.Count > 0) {
+                return cp.Utils.EncodeText(dataTable.Rows[0][0]);
+            } else {
+                return "Admin Dashboard";
             }
         }
     }
