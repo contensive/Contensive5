@@ -233,7 +233,7 @@
                   <div class="card-tool">
                     <div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
                   </div>
-                  <h6 id="widget-name" class="m-0 text-primary">{{widgetName}}</h6>
+                  <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
                 </div>
                 <div class="card-tool">
                   <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div>
@@ -263,7 +263,7 @@
                 <div class="card-tool">
                   <div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
                 </div>
-                <h6 id="widget-name" class="m-0 text-primary"></h6>
+                <h6 class="widget-name m-0 text-primary"></h6>
               </div>
               <div class="card-tool">
                 <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div>
@@ -317,7 +317,7 @@
         $('#dashboardWrapper').on('click', '.add-widget', function () {
           var element = $(this);
           console.log('add-widget, guid:' + element.attr('data-addonGuid'));
-          let newWidget = document.getElementById('newWidgetHtmlId').firstElementChild;
+          let newWidget = document.getElementById('newWidgetHtmlId').firstElementChild.cloneNode(true);
           newWidget.id = generateKey();
           newWidget.classList.add('widget');
           newWidget.setAttribute("data-addonGuid", element.attr('data-addonGuid'));
@@ -357,6 +357,7 @@
               result.forEach(function (widget) {
                 items.forEach(function (item) {
                   if (item.id == widget.key) {
+                    document.querySelector('#' + item.id + ' .widget-name').innerHTML = widget.widgetName;
                     document.querySelector('#' + item.id + ' .card-body').innerHTML = widget.htmlContent;
                     if (widget.link) {
                       let script = document.createElement('script');

@@ -47,7 +47,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
                             htmlContent = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
-                            link = userDashboardConfigWidget.remove_url
+                            link = userDashboardConfigWidget.remove_url,
+                            widgetName = userDashboardConfigWidget.widgetName
                         });
                         continue;
                     }
@@ -69,10 +70,12 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         userDashboardConfigWidget.width = requestWidget.w;
                         userDashboardConfigWidget.height = requestWidget.h;
                         userDashboardConfigWidget.addonGuid = requestWidget.addonGuid;
+                        var renderedWidget = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget);
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
-                            htmlContent = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
-                            link = userDashboardConfigWidget.remove_url
+                            htmlContent = renderedWidget.htmlContent,
+                            link = renderedWidget.url,
+                            widgetName = renderedWidget.widgetName
                         });
                         continue;
                     }
@@ -134,5 +137,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         public string htmlContent { get; set; }
         //
         public string link { get; set; }
+        //
+        public string widgetName { get; set; }
     }
 }
