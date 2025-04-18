@@ -294,6 +294,7 @@
           handle: ".card-grab" ,
           drop: function( event, ui ) {
             console.log('dropped');
+            widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
           }
         });
         //
@@ -302,17 +303,19 @@
           console.log('card-close click');
           var el = $(this).closest('.card-wrap');
           el.remove();
+          widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
         });
         //
         // -- add widget button
         $('#dashboardWrapper').on('click', '.add-widget', function () {
           var element = $(this);
           console.log('add-widget, guid:' + element.attr('data-guid'));
-          let newWidgetHtml = document.getElementById('newWidgetHtmlId').innerHTML;
+          let newWidget = document.getElementById('newWidgetHtmlId');
+          let newWidgetHtml = newWidget.innerHTML;
           newWidgetHtml = newWidgetHtml.replace('idPlaceholder', generateKey());
           newWidgetHtml = newWidgetHtml.replace('guidPlaceholder', element.attr('data-guid'));
-          let newWidget = grid.addWidget(newWidgetHtml, { h: 2, w: 2 });
-          widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
+          const divList = document.getElementById("dashboard");
+          divList.appendChild(newWidget);
         });
       });
       //
@@ -357,61 +360,6 @@
             console.log('widgetDashboardCmd error');
           }
         });
-      }
-      //
-      // -- event handlers
-      grid.on('added', function (event, items) {
-        console.log('added');
-      });
-      grid.on('change', function (event, items) {
-        console.log('change');
-        widgetDashboardCmd('save', items);
-      });
-      grid.on('disable', function (event, items) {
-        console.log('disable');
-      });
-      grid.on('dragstart', function (event, items) {
-        console.log('dragstart');
-      });
-      grid.on('drag', function (event, items) {
-        console.log('drag');
-      });
-      grid.on('dragstop', function (event, items) {
-        console.log('dragstop');
-      });
-      grid.on('dropped', function (event, items) {
-        console.log('dropped');
-      });
-      grid.on('enable', function (event, items) {
-        console.log('enable');
-      });
-      grid.on('removed', function (event, items) {
-        console.log('removed');
-        widgetDashboardCmd('delete', items);
-      });
-      grid.on('resizestart', function (event, items) {
-        console.log('resizestart');
-      });
-      grid.on('resize', function (event, items) {
-        console.log('resize');
-      });
-      grid.on('resizestop', function (event, items) {
-        console.log('resizestop');
-      });
-      //
-      // create GridStackWidget object from HTML element
-      function createGridStackWidgetFromElement(element) {
-        if (element == null) { return null; }
-        //
-        // Create GridStackWidget object
-        const widget = {
-          x: parseInt(element.getAttribute('gs-x')) || 0,
-          y: parseInt(element.getAttribute('gs-y')) || 0,
-          w: parseInt(element.getAttribute('gs-w')) || 1,
-          h: parseInt(element.getAttribute('gs-h')) || 1,
-          el: element // Attach the HTML element
-        };
-        return widget;
       }
       //
       // -- create non-secure guid
