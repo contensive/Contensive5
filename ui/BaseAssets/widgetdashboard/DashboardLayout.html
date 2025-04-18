@@ -294,16 +294,18 @@
           handle: ".card-grab" ,
           drop: function( event, ui ) {
             console.log('dropped');
-            widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
+            let items = Array.from(document.querySelectorAll(".widget"))
+            widgetDashboardCmd('save',items);
           }
         });
         //
-        // -- close
+        // -- delete
         $('#dashboard').on('click', '.card-close', function () {
           console.log('card-close click');
-          var el = $(this).closest('.card-wrap');
+          var el = this.closest('.card-wrap');
+          let items = [el];
+          widgetDashboardCmd('delete',items);
           el.remove();
-          widgetDashboardCmd('save', new Array(newWidget.gridstackNode));
         });
         //
         // -- add widget button
@@ -316,6 +318,8 @@
           newWidgetHtml = newWidgetHtml.replace('guidPlaceholder', element.attr('data-guid'));
           const divList = document.getElementById("dashboard");
           divList.appendChild(newWidget);
+          let items = [];
+          widgetDashboardCmd('delete',items);
         });
       });
       //
@@ -330,8 +334,8 @@
         postData.portalGuid = document.getElementById('portalGuid').value;
         postData.widgets = [];
         items.forEach(function (item) {
-          console.log('widgetDashboardCmd, el.id:' + item.el.id + ' _id:' + item._id + ' x:' + item.x + ' y:' + item.y + ' w:' + item.w + ' h:' + item.h);
-          postData.widgets.push({ cmd: cmd, key: item.el.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.el.getAttribute('data-addonGuid') });
+          console.log('widgetDashboardCmd, el.id:' + item.id + ' _id:' + item._id + ' x:' + item.x + ' y:' + item.y + ' w:' + item.w + ' h:' + item.h);
+          postData.widgets.push({ cmd: cmd, key: item.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.getAttribute('data-addonGuid') });
         });
         $.ajax({
           type: 'POST',

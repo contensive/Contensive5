@@ -13,6 +13,10 @@ namespace Contensive.Processor.Models.View {
         //
         private CPBaseClass cp;
         /// <summary>
+        /// The portalGuid, set in a hidden and used in the ajax cmd
+        /// </summary>
+        public string portalGuid { get; set; }
+        /// <summary>
         /// the name of the dashboard. This is used to create the folder name for the config file.
         /// It has to be sent to the UI so it can be returned in commands and used to load the config file.
         /// </summary>
@@ -41,7 +45,8 @@ namespace Contensive.Processor.Models.View {
             try {
                 string portalName = string.IsNullOrEmpty(portalGuid) ? "Admin Dashboard" : getPortalName(cp, portalGuid);
                 DashboardUserConfigModel userConfig = DashboardUserConfigModel.loadUserConfig(cp, portalName);
-                DashboardViewModel result = new DashboardViewModel {
+                DashboardViewModel result = new() {
+                    portalGuid = portalGuid,
                     dashboardName = userConfig.dashboardName,
                     title = userConfig.title                     
                 };

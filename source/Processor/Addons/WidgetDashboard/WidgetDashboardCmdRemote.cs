@@ -25,8 +25,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                 WDS_Request request = cp.JSON.Deserialize<WDS_Request>(requestJson);
                 if (request == null) { return ""; }
                 //
-                DashboardUserConfigModel userDashboardConfig = DashboardUserConfigModel.loadUserConfig(cp, request.portalGuid);
-                //DashboardUserConfigModel userDashboardConfig = DashboardUserConfigModel.create(cp, request.portalGuid);
+                string portalName = getPortalName(cp, request.portalGuid);
+                DashboardUserConfigModel userDashboardConfig = DashboardUserConfigModel.loadUserConfig(cp, portalName);
                 if (userDashboardConfig is null) { return ""; }
                 //
                 List<WDS_Response> result = [];

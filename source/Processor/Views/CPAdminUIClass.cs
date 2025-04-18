@@ -403,7 +403,7 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         /// <summary>
-        /// implement widget dashboard
+        /// implement admin site widget dashboard
         /// </summary>
         /// <param name="dashName"></param>
         /// <param name="dashTitle"></param>
@@ -418,7 +418,7 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         /// <summary>
-        /// implement widget dashboard
+        /// implement widget dashboard for a dashboard
         /// </summary>
         /// <param name="dashName"></param>
         /// <param name="dashTitle"></param>
