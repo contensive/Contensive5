@@ -30,16 +30,19 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                 if (userDashboardConfig is null) { return ""; }
                 //
                 List<WDS_Response> result = [];
-                foreach (WDS_Request_Widget requestWidget in request.widgets) {
-                    var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.key);
-                    //
-                    if (requestWidget.cmd == "delete") {
+                //
+                if (request.cmd == "delete") {
+                    foreach (WDS_Request_Widget requestWidget in request.widgets) {
+                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.key);
                         if (userDashboardConfigWidget is null) { continue; }
                         userDashboardConfig.widgets.Remove(userDashboardConfigWidget);
                         continue;
                     }
-                    //
-                    if (requestWidget.cmd == "refresh") {
+                }
+                //
+                if (request.cmd == "refresh") {
+                    foreach (WDS_Request_Widget requestWidget in request.widgets) {
+                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.key);
                         if (userDashboardConfigWidget is null) { continue; }
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
@@ -48,13 +51,19 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         });
                         continue;
                     }
-                    if (requestWidget.cmd == "save") {
+                }
+                if (request.cmd == "save") {
+                    int sort = -1;
+                    foreach (WDS_Request_Widget requestWidget in request.widgets) {
+                        sort++;
+                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.key);
                         if (userDashboardConfigWidget is null) {
                             userDashboardConfigWidget = new DashboardWidgetUserConfigModel {
                                 key = requestWidget.key
                             };
                             userDashboardConfig.widgets.Add(userDashboardConfigWidget);
                         }
+                        userDashboardConfigWidget.sort = sort;
                         userDashboardConfigWidget.x = requestWidget.x;
                         userDashboardConfigWidget.y = requestWidget.y;
                         userDashboardConfigWidget.width = requestWidget.w;
@@ -95,6 +104,11 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
     }
     //
     public class WDS_Request {
+        //
+        /// <summary>
+        /// the command to perform on this widget: save, delete
+        /// </summary>
+        public string cmd { get; set; }
         /// <summary>
         /// dashboard name passed from addon render execution. needed for save folder name
         /// </summary>
@@ -105,11 +119,6 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         public List<WDS_Request_Widget> widgets { get; set; }
     }
     public class WDS_Request_Widget {
-        //
-        /// <summary>
-        /// the command to perform on this widget: save, delete
-        /// </summary>
-        public string cmd { get; set; }
         public int x { get; set; }
         public int y { get; set; }
         public int h { get; set; }

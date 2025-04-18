@@ -62,5 +62,9 @@ namespace Contensive.Processor.Models.Domain {
         /// the html content provided by the addon
         /// </summary>
         public string htmlContent { get; set; }
+        /// <summary>
+        /// int value that represents the display order of widgets. widgets are sorted when the userConfig is loaded
+        /// </summary>
+        public int sort { get; set; }
     }
 }

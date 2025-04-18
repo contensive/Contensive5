@@ -5,6 +5,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Contensive.Processor.Models.Domain {
@@ -145,7 +146,9 @@ namespace Contensive.Processor.Models.Domain {
         public static DashboardUserConfigModel loadUserConfig(CPBaseClass cp, string portalName) {
             string jsonConfigText = cp.PrivateFiles.Read(getConfigFilename(cp, portalName));
             if (string.IsNullOrWhiteSpace(jsonConfigText)) { return null; }
-            return cp.JSON.Deserialize<DashboardUserConfigModel>(jsonConfigText);
+            var userConfig = cp.JSON.Deserialize<DashboardUserConfigModel>(jsonConfigText);
+            userConfig.widgets = userConfig.widgets.OrderBy((x) => x.sort).ToList();
+            return userConfig;
         }
         // 
         // ====================================================================================================
