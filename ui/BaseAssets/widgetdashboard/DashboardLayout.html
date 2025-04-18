@@ -226,14 +226,14 @@
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
 
-          <div class="card-wrap col-12 col-sm-6 col-lg-3 mb-4" id="{{key}}" data-addonGuid="{{addonGuid}}">
+          <div class="widget col-12 col-sm-6 col-lg-3 mb-4" id="{{key}}" data-addonGuid="{{addonGuid}}">
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
                   <div class="card-tool">
                     <div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
                   </div>
-                  <h6 class="m-0 text-primary">{{widgetName}}</h6>
+                  <h6 id="widget-name" class="m-0 text-primary">{{widgetName}}</h6>
                 </div>
                 <div class="card-tool">
                   <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div>
@@ -256,28 +256,25 @@
 
       </div>
       <div id="newWidgetHtmlId" style="display:none;">
-        <div class="grid-stack-item overflow-hidden" id="idPlaceholder" data-addonGuid="guidPlaceholder">
-          <div class="grid-stack-item-content overflow-hidden p-2">
-            <div class="card shadow-sm mb-4 h-100">
-              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                  <div class="card-tool">
-                    <div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
-                  </div>
-                  <h6 class="m-0 text-primary">Widget Name</h6>
-                </div>
+        <div class="col-12 col-sm-6 col-lg-3 mb-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
                 <div class="card-tool">
-                  <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div>
+                  <div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
                 </div>
+                <h6 id="widget-name" class="m-0 text-primary"></h6>
               </div>
-              <div class="card-body">
-                <div class="dashWidgetContent"></div>
+              <div class="card-tool">
+                <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div>
               </div>
-
+            </div>
+            <div class="card-body {{#url}}body-linked{{/url}}">
+              {{{htmlContent}}}
             </div>
           </div>
         </div>
-      </div>
+    </div>
     </div>
 
     <script data-delete src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
@@ -293,7 +290,7 @@
         $( "#dashboard" ).sortable({
           handle: ".card-grab" ,
           drop: function( event, ui ) {
-            console.log('dropped');
+            console.log('sortable drop');
             let items = Array.from(document.querySelectorAll(".widget"))
             widgetDashboardCmd('save',items);
           }
@@ -302,7 +299,7 @@
         // -- delete
         $('#dashboard').on('click', '.card-close', function () {
           console.log('card-close click');
-          var el = this.closest('.card-wrap');
+          var el = this.closest('.widget');
           let items = [el];
           widgetDashboardCmd('delete',items);
           el.remove();
@@ -312,14 +309,17 @@
         $('#dashboardWrapper').on('click', '.add-widget', function () {
           var element = $(this);
           console.log('add-widget, guid:' + element.attr('data-guid'));
-          let newWidget = document.getElementById('newWidgetHtmlId');
-          let newWidgetHtml = newWidget.innerHTML;
-          newWidgetHtml = newWidgetHtml.replace('idPlaceholder', generateKey());
-          newWidgetHtml = newWidgetHtml.replace('guidPlaceholder', element.attr('data-guid'));
+          let newWidget = document.getElementById('newWidgetHtmlId').firstElementChild;
+          newWidget.id = generateKey();
+          newWidget.setAttribute("data-guid", element.attr('data-guid'));
+
+          newWidgetCaption = newWidget.querySelector('#widget-name');
+          newWidgetCaption.innerHTML = element.innerHtml;
+
           const divList = document.getElementById("dashboard");
           divList.appendChild(newWidget);
-          let items = [];
-          widgetDashboardCmd('delete',items);
+          let items = Array.from(document.querySelectorAll(".widget"))
+          widgetDashboardCmd('save',items);
         });
       });
       //
