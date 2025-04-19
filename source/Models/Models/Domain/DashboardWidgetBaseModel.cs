@@ -19,13 +19,11 @@ namespace Contensive.Processor.Models {
         /// </summary>
         public WidgetTypeEnum widgetType { get; set; }
         /// <summary>
-        /// The minimum width of the widget in gridStack units, 12 units is full width
+        /// The width of the widget. 
+        /// 1= 1 column (widgetSmall)
+        /// 2+ 2 columns (!widgetSmall)
         /// </summary>
-        public int minWidth { get; set; }
-        /// <summary>
-        /// The minimum height of the widget in gridStack units, 12 units is full width
-        /// </summary>
-        public int minHeight { get; set; }
+        public int width { get; set; }
         /// <summary>
         /// The number of seconds to refresh the widget. typically 0 for no refresh
         /// </summary>

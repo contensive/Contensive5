@@ -44,11 +44,12 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                     foreach (WDS_Request_Widget requestWidget in request.widgets) {
                         var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.key);
                         if (userDashboardConfigWidget is null) { continue; }
+                        var viewModel = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget);
                         result.Add(new WDS_Response {
                             key = requestWidget.key,
-                            htmlContent = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget).htmlContent,
-                            link = userDashboardConfigWidget.remove_url,
-                            widgetName = userDashboardConfigWidget.widgetName
+                            htmlContent = viewModel.htmlContent,
+                            link = viewModel.url,
+                            widgetName = viewModel.widgetName
                         });
                         continue;
                     }
@@ -65,10 +66,6 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                             userDashboardConfig.widgets.Add(userDashboardConfigWidget);
                         }
                         userDashboardConfigWidget.sort = sort;
-                        userDashboardConfigWidget.x = requestWidget.x;
-                        userDashboardConfigWidget.y = requestWidget.y;
-                        userDashboardConfigWidget.width = requestWidget.w;
-                        userDashboardConfigWidget.height = requestWidget.h;
                         userDashboardConfigWidget.addonGuid = requestWidget.addonGuid;
                         var renderedWidget = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget);
                         result.Add(new WDS_Response {
@@ -122,10 +119,10 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         public List<WDS_Request_Widget> widgets { get; set; }
     }
     public class WDS_Request_Widget {
-        public int x { get; set; }
-        public int y { get; set; }
-        public int h { get; set; }
-        public int w { get; set; }
+        //public int x { get; set; }
+        //public int y { get; set; }
+        //public int h { get; set; }
+        //public int w { get; set; }
         public string key { get; set; }
         public string addonGuid { get; set; }
     }

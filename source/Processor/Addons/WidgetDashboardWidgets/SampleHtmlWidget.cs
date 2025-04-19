@@ -9,8 +9,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
             try {
                 DashboardWidgetHtmlModel result = new() {
                     widgetName = "Sample Html Widget",
-                    minWidth = 2,
-                    minHeight = 2,
+                    width = 1,
                     htmlContent = "" +
                         "<div class=\"d-flex justify-content-center align-items-center\">" +
                             "<h4 class=\"text-center\">" +

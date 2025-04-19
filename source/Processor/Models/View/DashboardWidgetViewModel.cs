@@ -27,26 +27,26 @@ namespace Contensive.Processor.Models.Domain {
         /// unique string that identifies this instance of the widget
         /// </summary>
         public string key { get; set; }
-        //
-        /// <summary>
-        /// The gridstack coordintate
-        /// </summary>
-        public int x { get; set; }
-        //
-        /// <summary>
-        /// The gridstack coordintate
-        /// </summary>
-        public int y { get; set; }
-        //
-        /// <summary>
-        /// The gridstack width
-        /// </summary>
-        public int width { get; set; }
-        //
-        /// <summary>
-        /// The gridstack height
-        /// </summary>
-        public int height { get; set; }
+        ////
+        ///// <summary>
+        ///// The gridstack coordintate
+        ///// </summary>
+        //public int x { get; set; }
+        ////
+        ///// <summary>
+        ///// The gridstack coordintate
+        ///// </summary>
+        //public int y { get; set; }
+        ////
+        ///// <summary>
+        ///// The gridstack width
+        ///// </summary>
+        //public int width { get; set; }
+        ////
+        ///// <summary>
+        ///// The gridstack height
+        ///// </summary>
+        //public int height { get; set; }
         //
         /// <summary>
         /// the number of seconds to refresh the widget. 0 for no refresh

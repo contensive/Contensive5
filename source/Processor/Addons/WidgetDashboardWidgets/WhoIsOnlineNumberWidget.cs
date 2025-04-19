@@ -10,8 +10,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
             try {
                 return new DashboardWidgetNumberModel() {
                     widgetName = "Users Online",
-                    minWidth = 2,
-                    minHeight = 2,
+                    width = 1,
                     number = getUsersOnline(cp).ToString(),
                     subhead = "Users Online",
                     description = "The number of users online over the past 30 minutes",

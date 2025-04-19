@@ -48,7 +48,7 @@ namespace Contensive.Processor.Models.View {
                 DashboardViewModel result = new() {
                     portalGuid = portalGuid,
                     dashboardName = userConfig.dashboardName,
-                    title = userConfig.title                     
+                    title = userConfig.title
                 };
                 if (userConfig?.widgets != null && userConfig.widgets.Count > 0) {
                     //
@@ -65,19 +65,14 @@ namespace Contensive.Processor.Models.View {
                     widgets = [
                         new DashboardWidgetUserConfigModel() {
                             widgetName = "Sample",
-                            x=0,
-                            y=0,
-                            width = 2,
-                            height = 2,
                             htmlContent = cp.CdnFiles.Read("dashboard\\sampleWidget.html"),
                             key="E928",
-                            remove_url="https://www.contensive.com",
                             addonGuid = Constants.sampleDashboardWidgetGuid
                         },
-                        new DashboardWidgetUserConfigModel() { widgetName="Widget 2",x=2,y=0, width = 2, height = 2, htmlContent = "Content 2", key="6E52", remove_url="https://www.contensive.com" },
-                        new DashboardWidgetUserConfigModel() { widgetName="Widget 3",x=4,y=0, width = 2, height = 2, htmlContent = "Content 3", key="D512", remove_url="https://www.contensive.com" },
-                        new DashboardWidgetUserConfigModel() { widgetName="Widget 4",x=6,y=0, width = 2, height = 2, htmlContent = "Content 4", key="0380", remove_url="https://www.contensive.com" },
-                        new DashboardWidgetUserConfigModel() { widgetName="Widget 5",x=0,y=2, width = 2, height = 2, htmlContent = "Content 5", key="AC55", remove_url="https://www.contensive.com" }
+                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 2", htmlContent = "Content 2", key="6E52" },
+                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 3", htmlContent = "Content 3", key = "D512"},
+                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 4", htmlContent = "Content 4", key = "0380"},
+                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 5", htmlContent = "Content 5", key = "AC55"}
                     ]
                 };
                 //

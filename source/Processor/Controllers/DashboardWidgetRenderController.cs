@@ -32,15 +32,9 @@ namespace Contensive.Processor.Controllers {
         public static DashboardWidgetViewModel renderWidget(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
             DashboardWidgetViewModel result = new() {
                 widgetName = userConfigWidget.widgetName,
-                url = userConfigWidget.remove_url,
                 key = userConfigWidget.key,
-                x = userConfigWidget.x,
-                y = userConfigWidget.y,
-                width = userConfigWidget.width,
-                height = userConfigWidget.height,
                 refreshSeconds = userConfigWidget.refreshSeconds,
                 addonGuid = userConfigWidget.addonGuid,
-                widgetSmall = true 
             };
             if (string.IsNullOrWhiteSpace(userConfigWidget.addonGuid)) { return result; }
             //
@@ -54,25 +48,24 @@ namespace Contensive.Processor.Controllers {
                 addonResult = cp.JSON.Deserialize<DashboardWidgetBaseModel>(widgetAddonResultJson);
                 //
                 // -- populate the type-indpendent properties
-                result.width = result.width > addonResult.minWidth ? result.width : addonResult.minWidth;
-                result.height = result.height > addonResult.minHeight ? result.height : addonResult.minHeight;
                 result.refreshSeconds = addonResult.refreshSeconds;
                 result.widgetName = addonResult.widgetName;
                 result.url = addonResult.url;
+                result.widgetSmall = addonResult.width == 1;
                 //
                 // -- populate the type-dependent properties
                 if (addonResult.widgetType == WidgetTypeEnum.htmlContent) {
                     //
                     // -- html content provided by the addon
-                    DashboardWidgetHtmlModel widgetData = cp.JSON.Deserialize<DashboardWidgetHtmlModel>(widgetAddonResultJson);
+                    DashboardWidgetHtmlModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetHtmlModel>(widgetAddonResultJson);
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetHtmlContentLayoutGuid, Constants.dashboardWidgetHtmlContentLayoutName, Constants.dashboardWidgetHtmlContentLayoutPathFilename);
-                    result.htmlContent = cp.Mustache.Render(layout, widgetData);
+                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else if (addonResult.widgetType == WidgetTypeEnum.number) {
                     //
                     // -- simple number widget
-                    DashboardWidgetNumberModel widgetData = cp.JSON.Deserialize<DashboardWidgetNumberModel>(widgetAddonResultJson);
+                    DashboardWidgetNumberModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetNumberModel>(widgetAddonResultJson);
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetNumberLayoutGuid, Constants.dashboardWidgetNumberLayoutName, Constants.dashboardWidgetNumberLayoutPathFilename);
-                    result.htmlContent = cp.Mustache.Render(layout, widgetData);
+                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else {
                     //
                     // -- future growth

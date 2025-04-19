@@ -11,8 +11,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
             try {
                 return new DashboardWidgetNumberModel() {
                     widgetName = "Pages To Review",
-                    minWidth = 2,
-                    minHeight = 2,
+                    width = 1,
                     number = PageContentModel.getPagesToReviewCount(cp).ToString(),
                     subhead = "Pages To Review",
                     description = "Pages not reviewed in the past 90 days. Click to Review.",
