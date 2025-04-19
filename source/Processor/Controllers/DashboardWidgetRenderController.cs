@@ -39,7 +39,8 @@ namespace Contensive.Processor.Controllers {
                 width = userConfigWidget.width,
                 height = userConfigWidget.height,
                 refreshSeconds = userConfigWidget.refreshSeconds,
-                addonGuid = userConfigWidget.addonGuid
+                addonGuid = userConfigWidget.addonGuid,
+                widgetSmall = true 
             };
             if (string.IsNullOrWhiteSpace(userConfigWidget.addonGuid)) { return result; }
             //

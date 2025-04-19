@@ -30,8 +30,18 @@ namespace Contensive.Processor.Addons.AdminSite {
     }
     //
     public class AdminNavViewModel {
-        public readonly  List<AdminNavViewModel_Portal> portals;
+        //
+        public readonly string adminUrl;
+        /// <summary>
+        /// the current url si the admin url
+        /// </summary>
+        public readonly bool isAdminUrl;
+        //
+        public readonly List<AdminNavViewModel_Portal> portals;
+        //
         public AdminNavViewModel(CPBaseClass cp) {
+            adminUrl = cp.Site.GetText("adminurl");
+            isAdminUrl = cp.Request.PathPage.Equals(adminUrl, StringComparison.OrdinalIgnoreCase) && string.IsNullOrEmpty(cp.Request.QueryString) && string.IsNullOrEmpty(cp.Request.Form);
             portals = [];
             string currentPortalGuid = cp.Doc.GetText("setPortalGuid");
             string baseUrl = $"{cp.Site.GetText("adminurl")}?addonGuid=%7BA1BCA00C-2657-42A1-8F98-BED1E5A42025%7D";
@@ -54,7 +64,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         }
     }
     //
-    public class AdminNavViewModel_Portal { 
+    public class AdminNavViewModel_Portal {
         public string name { get; set; }
         public string url { get; set; }
         public bool active { get; set; } = true;

@@ -513,22 +513,36 @@
             <div class="text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
-            <!--
-            <li class="nav-item active">
-                <a class="nav-link" href="/">
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#publicSiteCollapse" aria-expanded="true" aria-controls="publicSiteCollapse">
                     <i class="fa-solid fa-globe"></i>
                     <span>Public Site</span>
                 </a>
+                <div id="publicSiteCollapse" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <div>
+                            <h6 class="collapse-header">Primary</h6>
+                            <a href="https://www.Contensive.com/" class="collapse-item">www.Contensive.com</a>
+                        </div>
+                        <div>
+                            <h6 class="collapse-header">Secondary</h6>
+                            <a href="https://Support.Contensive.com/" class="collapse-item">Support.Contensive.com</a>
+                        </div>
+                        <div>
+                            <h6 class="collapse-header">Forward</h6>
+                            <a href="https://www.Contensive.com/" class="collapse-item">Contensive.com</a>
+                        </div>
+                    </div>
+                </div>
             </li>
             <hr class="sidebar-divider my-0">
-            <li class="nav-item active">
-                <a class="nav-link" href="/admin">
+            <li class="nav-item {{#isAdminUrl}}active{{/isAdminUrl}}">
+                <a class="nav-link" href="{{adminUrl}}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <hr class="sidebar-divider my-0">
-            -->
 
             {{#Portals}}
             {{^active}}<li class="nav-item">{{/active}}
@@ -540,7 +554,7 @@
             </li>
             <hr class="sidebar-divider my-0">
             {{/Portals}}
-
+            <!--
             <li class="nav-item">              
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
                     aria-expanded="true" aria-controls="collapseTwo">
@@ -562,19 +576,11 @@
                         </div>
                     </div>
                 </div>
-            </li>
-
-                        
+            </li>                        
             <hr class="sidebar-divider d-none d-md-block">
-
-         
-
+            -->
         </ul>
-
     </div>
-  
-    
-
     <script data-delete src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script data-delete src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script data-delete src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

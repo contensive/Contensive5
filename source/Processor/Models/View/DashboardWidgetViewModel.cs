@@ -62,5 +62,12 @@ namespace Contensive.Processor.Models.Domain {
         /// the html content provided by the addon
         /// </summary>
         public string htmlContent { get; set; }
+        /// <summary>
+        /// the minimum width of the widget.
+        /// if true, the widget is a square
+        /// if false, the widget is a rectangle 2x the width of a small.
+        /// future growth to 4x a small
+        /// </summary>
+        public bool widgetSmall { get; set; }
     }
 }

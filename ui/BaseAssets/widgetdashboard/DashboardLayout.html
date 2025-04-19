@@ -229,7 +229,10 @@
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
 
-          <div class="widget {{#widgetSmall}}col-12 col-sm-6 col-lg-3 mb-4{{/widgetSmall}} {{^widgetSmall}}col-12 col-lg-6 mb-4{{/widgetSmall}}" id="{{key}}" data-addonGuid="{{addonGuid}}">
+          <div class="widget id="{{key}}" data-addonGuid="{{addonGuid}}"
+            {{#widgetSmall}}col-12 col-sm-6 col-lg-3 mb-4{{/widgetSmall}} 
+            {{^widgetSmall}}col-12 col-lg-6 mb-4{{/widgetSmall}}"
+            >
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
