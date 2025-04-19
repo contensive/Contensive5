@@ -1,9 +1,9 @@
-﻿namespace Contensive.Processor.Models.Domain {
+﻿namespace Contensive.Processor.Models {
     /// <summary>
     /// This dash widget simple returns html for the content
     /// </summary>
-    public class WidgetNumberModel : WidgetBaseModel {
-        public WidgetNumberModel() : base() {
+    public class DashboardWidgetNumberModel : DashboardWidgetBaseModel {
+        public DashboardWidgetNumberModel() : base() {
             widgetType = WidgetTypeEnum.number;
         }
         public string number { get; set; }

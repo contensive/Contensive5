@@ -1,13 +1,14 @@
 ﻿using Contensive.BaseClasses;
+using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using System;
 
 namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
-    public class SampleWidget : AddonBaseClass {
+    public class SampleHtmlWidget : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
-                WidgetHtmlContentModel result = new() {
-                    widgetName = "Sample Widget",
+                DashboardWidgetHtmlModel result = new() {
+                    widgetName = "Sample Html Widget",
                     minWidth = 2,
                     minHeight = 2,
                     htmlContent = "" +

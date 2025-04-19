@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contensive.Processor.Models.Domain {
+namespace Contensive.Processor.Models {
     /// <summary>
     /// This is the data base model returned by addons used for dashboard widgets.
     /// There are mulitple types an addon can return, but they all must inherit from this base class.
     /// Widgets are rendered with the WidgetRenderController, which populates the htmlContent property from 
     /// the return of the addon, combined with the layout determined to be associated with the addon return data.
     /// </summary>
-    public class WidgetBaseModel {
+    public class DashboardWidgetBaseModel {
         /// <summary>
         /// see WidgetTypeEnum, 
         /// 1=htmlContent, 

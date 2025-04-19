@@ -74,8 +74,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\Domain\" />
-  </ItemGroup>
-
 </Project>

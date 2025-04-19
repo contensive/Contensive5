@@ -1,4 +1,5 @@
 ﻿using Contensive.BaseClasses;
+using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using Contensive.Processor.Models.View;
 using System;
@@ -47,9 +48,9 @@ namespace Contensive.Processor.Controllers {
             if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
             //
             // -- apply the addon result to the widget
-            WidgetBaseModel addonResult = null;
+            DashboardWidgetBaseModel addonResult = null;
             try {
-                addonResult = cp.JSON.Deserialize<WidgetBaseModel>(widgetAddonResultJson);
+                addonResult = cp.JSON.Deserialize<DashboardWidgetBaseModel>(widgetAddonResultJson);
                 //
                 // -- populate the type-indpendent properties
                 result.width = result.width > addonResult.minWidth ? result.width : addonResult.minWidth;
@@ -62,13 +63,13 @@ namespace Contensive.Processor.Controllers {
                 if (addonResult.widgetType == WidgetTypeEnum.htmlContent) {
                     //
                     // -- html content provided by the addon
-                    WidgetHtmlContentModel widgetData = cp.JSON.Deserialize<WidgetHtmlContentModel>(widgetAddonResultJson);
+                    DashboardWidgetHtmlModel widgetData = cp.JSON.Deserialize<DashboardWidgetHtmlModel>(widgetAddonResultJson);
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetHtmlContentLayoutGuid, Constants.dashboardWidgetHtmlContentLayoutName, Constants.dashboardWidgetHtmlContentLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetData);
                 } else if (addonResult.widgetType == WidgetTypeEnum.number) {
                     //
                     // -- simple number widget
-                    WidgetNumberModel widgetData = cp.JSON.Deserialize<WidgetNumberModel>(widgetAddonResultJson);
+                    DashboardWidgetNumberModel widgetData = cp.JSON.Deserialize<DashboardWidgetNumberModel>(widgetAddonResultJson);
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetNumberLayoutGuid, Constants.dashboardWidgetNumberLayoutName, Constants.dashboardWidgetNumberLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetData);
                 } else {

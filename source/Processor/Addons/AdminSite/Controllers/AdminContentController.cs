@@ -405,10 +405,10 @@ namespace Contensive.Processor.Addons.AdminSite {
                             addonId = addon.id;
                             addonName = addon.name;
                             cp.core.doc.addRefreshQueryString(RequestNameRunAddon, addonId.ToString());
+                            //
+                            // -- add to admin recents
+                            AdminRecentModel.insertAdminRecentAddon(cp, cp.User.Id, addon.name, "/" + cp.GetAppConfig().adminRoute + "?addonid=" + addon.id, addon.id);
                         }
-                        //
-                        // -- add to admin recents
-                        AdminRecentModel.insertAdminRecentAddon(cp, cp.User.Id, addon.name, "/" + cp.GetAppConfig().adminRoute + "?addonid=" + addon.id, addon.id);
                         //
                         // -- execute
                         string InstanceOptionString = cp.core.userProperty.getText("Addon [" + addonName + "] Options", "");

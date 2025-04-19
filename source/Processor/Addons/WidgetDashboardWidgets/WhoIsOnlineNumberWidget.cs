@@ -1,4 +1,5 @@
 ﻿using Contensive.BaseClasses;
+using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using System;
 using System.Data;
@@ -7,7 +8,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
     public class WhoIsOnlineWidget : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
-                return new WidgetNumberModel() {
+                return new DashboardWidgetNumberModel() {
                     widgetName = "Users Online",
                     minWidth = 2,
                     minHeight = 2,

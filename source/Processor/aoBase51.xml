@@ -3540,9 +3540,10 @@
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboardCmdRemote]]></DotNetClass>
 		<RemoteMethod>yes</RemoteMethod>
 	</Addon>	
-	<Addon Name="Sample Dashboard Widget" Guid="{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}" Type="Add-on">
+
+	<Addon Name="Sample Dashboard Html Widget" Guid="{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}" Type="Add-on">
 		<DashboardWidget>Yes</DashboardWidget>
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SampleWidget]]></DotNetClass>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SampleHtmlWidget]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
