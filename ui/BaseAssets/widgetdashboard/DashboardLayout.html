@@ -43,6 +43,9 @@
       body {
         font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
       }
+      .card-body {
+        height: 200px !important;
+      }
 
       .card-tool {
         /* position: absolute;
@@ -207,7 +210,7 @@
     <link href="/dashboard/gridstack.min.css" rel="stylesheet" />
 
 
-    <div class="container-fluid p-4 mt-3" id="dashboardWrapper">
+    <div class="container float-start p-4 mt-3" id="dashboardWrapper">
       <div class="d-flex align-items-center justify-content-between mb-4 px-3">
         {{#title}}<h1 class="h3 m-0 text-tertiary">{{title}}</h1>{{/title}}
         <div class="dropdown">
@@ -226,7 +229,7 @@
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
 
-          <div class="widget col-12 col-sm-6 col-lg-3 mb-4" id="{{key}}" data-addonGuid="{{addonGuid}}">
+          <div class="widget {{#widgetSmall}}col-12 col-sm-6 col-lg-3 mb-4{{/widgetSmall}} {{^widgetSmall}}col-12 col-lg-6 mb-4{{/widgetSmall}}" id="{{key}}" data-addonGuid="{{addonGuid}}">
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <div class="d-flex align-items-center">
@@ -256,7 +259,7 @@
 
       </div>
       <div id="newWidgetHtmlId" style="display:none;">
-        <div class="col-12 col-sm-6 col-lg-3 mb-4">
+        <div class="{{#widgetSmall}}col-12 col-sm-6 col-lg-3 mb-4{{/widgetSmall}} {{^widgetSmall}}col-12 col-lg-6 mb-4{{/widgetSmall}}">
           <div class="card shadow-sm h-100">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
               <div class="d-flex align-items-center">
