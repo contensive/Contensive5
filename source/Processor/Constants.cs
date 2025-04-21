@@ -1179,17 +1179,23 @@ namespace Contensive.Processor {
         //
         public const string sampleDashboardWidgetGuid = "{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}";
         // 
+        // -- Dashboard Html Content Widget
+        // 
+        public const string dashboardWidgetHtmlContentLayoutGuid = "{1a9cad1e-b1ea-4099-a387-4943e71b9e9e}";
+        public const string dashboardWidgetHtmlContentLayoutName = "Dashboard Widget Html Content Layout";
+        public const string dashboardWidgetHtmlContentLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetHtmlContentLayout.html";
+        // 
         // -- Dashboard Number Widget
         // 
         public const string dashboardWidgetNumberLayoutGuid = "{89c19056-8823-4355-a189-bdcd6183e873}";
         public const string dashboardWidgetNumberLayoutName = "Dashboard Widget Number Layout";
         public const string dashboardWidgetNumberLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetNumberLayout.html";
         // 
-        // -- Dashboard Html Content Widget
+        // -- Dashboard Pie Widget
         // 
-        public const string dashboardWidgetHtmlContentLayoutGuid = "{1a9cad1e-b1ea-4099-a387-4943e71b9e9e}";
-        public const string dashboardWidgetHtmlContentLayoutName = "Dashboard Widget Html Content Layout";
-        public const string dashboardWidgetHtmlContentLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetHtmlContentLayout.html";
+        public const string dashboardWidgetPieChartLayoutGuid = "{319AEB6C-9C06-456F-818E-270200860216}";
+        public const string dashboardWidgetPieChartLayoutName = "Dashboard Widget Pie Chart Layout";
+        public const string dashboardWidgetPieChartLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetPieChartLayout.html";
         // 
         // -- Dashboard Layout
         // 

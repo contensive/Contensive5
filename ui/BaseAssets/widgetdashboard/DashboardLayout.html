@@ -5,15 +5,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard Layout</title>
+    <meta name="layout" content="Dashboard Layout">
+    <!-- added as dependent add-ons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <meta name="layout" content="Dashboard Layout">
-    <link href="css/dashboard-styles.css" rel="stylesheet">
+    <script data-delete src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script data-delete src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script data-delete src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   </head>
 
   <body>
+    <link href="css/dashboard-styles.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');" rel="stylesheet"> 
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
       .ccContentCon#desktop {
         background-color: #f8f9fc;
@@ -206,9 +210,6 @@
         cursor: pointer;
       }
     </style>
-    <script src="/dashboard/gridstack-all.js"></script>
-    <link href="/dashboard/gridstack.min.css" rel="stylesheet" />
-
 
     <div class="container float-start p-4 mt-3" id="dashboardWrapper">
       <div class="d-flex align-items-center justify-content-between mb-4 px-3">
@@ -229,9 +230,9 @@
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
 
-          <div class="widget id="{{key}}" data-addonGuid="{{addonGuid}}"
+          <div id="{{widgetHtmlId}}" data-addonGuid="{{addonGuid}}" class="widget
             {{#widgetSmall}}col-12 col-sm-6 col-lg-3 mb-4{{/widgetSmall}} 
-            {{^widgetSmall}}col-12 col-lg-6 mb-4{{/widgetSmall}}"
+            {{^widgetSmall}}col-12 col-sm-6 col-lg-6 mb-4{{/widgetSmall}}"
             >
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
@@ -254,7 +255,7 @@
           {{#url}}
             <script>
               document.addEventListener('DOMContentLoaded', function (event) {
-                jQuery('#{{key}} .card-body').on('click', function () { window.location.href = '{{url}}'; });
+                jQuery('#{{widgetHtmlId}} .card-body').on('click', function () { window.location.href = '{{url}}'; });
               });
             </script>
           {{/url}}
@@ -262,7 +263,7 @@
 
       </div>
       <div id="newWidgetHtmlId" style="display:none;">
-        <div class="{{#widgetSmall}}col-12 col-sm-6 col-lg-3 mb-4{{/widgetSmall}} {{^widgetSmall}}col-12 col-lg-6 mb-4{{/widgetSmall}}">
+        <div class="col-12 col-sm-6 col-lg-3 mb-4">
           <div class="card shadow-sm h-100">
             <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
               <div class="d-flex align-items-center">
@@ -283,11 +284,8 @@
     </div>
     </div>
 
-    <script data-delete src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-    <script data-delete src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-    <script data-delete src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript">
-      // https://github.com/gridstack/gridstack.js/tree/master/doc#changeevent-items
       //
       // -- on-ready
       document.addEventListener('DOMContentLoaded', function (event) {
@@ -327,8 +325,6 @@
           newWidget.id = generateKey();
           newWidget.classList.add('widget');
           newWidget.setAttribute("data-addonGuid", element.attr('data-addonGuid'));
-          //newWidgetCaption = newWidget.querySelector('#widget-name');
-          //newWidgetCaption.innerHTML = element.innerHtml;
           const divList = document.getElementById("dashboard");
           divList.appendChild(newWidget);
           let items = Array.from(document.querySelectorAll(".widget"))
@@ -349,7 +345,7 @@
         postData.widgets = [];
         items.forEach(function (item) {
           console.log('widgetDashboardCmd, el.id:' + item.id + ' _id:' + item._id + ' x:' + item.x + ' y:' + item.y + ' w:' + item.w + ' h:' + item.h);
-          postData.widgets.push({ key: item.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.getAttribute('data-addonGuid') });
+          postData.widgets.push({ widgetHtmlId: item.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.getAttribute('data-addonGuid') });
         });
         $.ajax({
           type: 'POST',
@@ -362,12 +358,12 @@
             if (result) {
               result.forEach(function (widget) {
                 items.forEach(function (item) {
-                  if (item.id == widget.key) {
+                  if (item.id == widget.widgetHtmlId) {
                     document.querySelector('#' + item.id + ' .widget-name').innerHTML = widget.widgetName;
                     document.querySelector('#' + item.id + ' .card-body').innerHTML = widget.htmlContent;
                     if (widget.link) {
                       let script = document.createElement('script');
-                      script.innerHTML = "document.addEventListener('DOMContentLoaded', function(event) { jQuery('#" + widget.key + " .card').on('click', function() { window.location.href='" + widget.link + "'; }); });";
+                      script.innerHTML = "document.addEventListener('DOMContentLoaded', function(event) { jQuery('#" + widget.widgetHtmlId + " .card').on('click', function() { window.location.href='" + widget.link + "'; }); });";
                       document.body.appendChild(script);
                     }
                   }

@@ -15,7 +15,8 @@ namespace Contensive.Processor.Models {
         /// <summary>
         /// see WidgetTypeEnum, 
         /// 1=htmlContent, 
-        /// 2=Number
+        /// 2=Number, 
+        /// 2=Pie Chart
         /// </summary>
         public WidgetTypeEnum widgetType { get; set; }
         /// <summary>
@@ -39,6 +40,7 @@ namespace Contensive.Processor.Models {
     }
     public enum WidgetTypeEnum {
         htmlContent = 1,
-        number = 2
+        number = 2,
+        pie = 3
     }
 }

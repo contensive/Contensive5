@@ -3541,6 +3541,12 @@
 		<RemoteMethod>yes</RemoteMethod>
 	</Addon>	
 
+	<Addon Name="Sample Dashboard Pie Chart Widget" Guid="{AFDF60F8-4306-4A63-BADE-6D673047F5AA}" Type="Add-on">
+		<DashboardWidget>Yes</DashboardWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SamplePieChartWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
+
 	<Addon Name="Sample Dashboard Html Widget" Guid="{13A4BBF7-738B-4DDF-BD1A-D048FBE51E45}" Type="Add-on">
 		<DashboardWidget>Yes</DashboardWidget>
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SampleHtmlWidget]]></DotNetClass>

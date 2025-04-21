@@ -1,20 +1,12 @@
 
-
+<!-- chart library loaded in dashboard (delete comments)-->
 <div>
   <canvas id="piechart{{uniqueId}}"></canvas>
 </div>
 
 <script>
-  console.log("piechart{{uniqueId}} start");
-  if (document.readyState === "loading") {
-    console.log("piechart{{uniqueId}} wait for ready");
-    document.addEventListener("DOMContentLoaded", callback{{uniqueId}});
-  } else {
-    console.log("piechart{{uniqueId}} no wait");
-    callback{{uniqueId}}();
-  }
-  //
-  function callback{{uniqueId}}() {
+  console.log("piechart{{uniqueId}} load");
+  document.addEventListener("DOMContentLoaded", function() {
     console.log("piechart{{uniqueId}} ready");
     const ctx = document.getElementById('piechart{{uniqueId}}');
     const myChart = new Chart(ctx, {
@@ -50,7 +42,7 @@
           },
           title: {
               display: true,
-              text: '{{subhead}}',
+              text: 'Active Memberships',
               font: {
                 size: function(context) {
                     let width = context.chart.width;
@@ -63,7 +55,7 @@
             subtitle: {
               responsive: true,
               display: true,
-              text: '{{description}}',
+              text: 'Lorem ipsum dolor sit amet.',
               color: 'grey',
               padding: {
                 top: 0,
@@ -81,8 +73,6 @@
         }
       }
     });
-  }
-
-
+  });
 
 </script>

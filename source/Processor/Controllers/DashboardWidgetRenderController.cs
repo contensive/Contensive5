@@ -32,7 +32,7 @@ namespace Contensive.Processor.Controllers {
         public static DashboardWidgetViewModel renderWidget(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
             DashboardWidgetViewModel result = new() {
                 widgetName = userConfigWidget.widgetName,
-                key = userConfigWidget.key,
+                widgetHtmlId = userConfigWidget.key,
                 refreshSeconds = userConfigWidget.refreshSeconds,
                 addonGuid = userConfigWidget.addonGuid,
             };
@@ -62,9 +62,15 @@ namespace Contensive.Processor.Controllers {
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else if (addonResult.widgetType == WidgetTypeEnum.number) {
                     //
-                    // -- simple number widget
+                    // -- number widget
                     DashboardWidgetNumberModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetNumberModel>(widgetAddonResultJson);
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetNumberLayoutGuid, Constants.dashboardWidgetNumberLayoutName, Constants.dashboardWidgetNumberLayoutPathFilename);
+                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                } else if (addonResult.widgetType == WidgetTypeEnum.pie) {
+                    //
+                    // -- pie widget
+                    DashboardWidgetPieChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetPieChartModel>(widgetAddonResultJson);
+                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetPieChartLayoutGuid, Constants.dashboardWidgetPieChartLayoutName, Constants.dashboardWidgetPieChartLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else {
                     //
