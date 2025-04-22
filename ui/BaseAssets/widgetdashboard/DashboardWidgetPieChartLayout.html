@@ -1,7 +1,15 @@
 
+<style>
+  .small {
+    font-size: .8em !important;
+  }
+</style>
 
-<div>
-  <canvas id="piechart{{uniqueId}}"></canvas>
+<div class="h-100 w-100">
+  <div class="h-75 w-100 mb-1">
+    <canvas id="piechart{{uniqueId}}"></canvas>
+  </div>
+  <div class="widgetDescription small lh-1 fw-normal text-center">{{description}}</div>
 </div>
 
 <script>
@@ -22,8 +30,6 @@
       data: {
         labels: [{{#dataLabels}}'{{.}}',{{/dataLabels}}],
         datasets: [{
-          label: 'Membership Status',
-
           data: [{{#dataValues}}{{.}},{{/dataValues}}],
           backgroundColor: [
             'rgba(13, 110, 253, 0.2)',
@@ -40,44 +46,7 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: {
-            position: 'top',
-            labels: {
-                font: {
-                  family: 'Poppins' ,
-                }
-              }
-          },
-          title: {
-              display: true,
-              text: '{{subhead}}',
-              font: {
-                size: function(context) {
-                    let width = context.chart.width;
-                    return width < 400 ? 14 : 16;
-                },
-                family: 'Poppins',
-                weight: '600',
-              }
-            },
-            subtitle: {
-              responsive: true,
-              display: true,
-              text: '{{description}}',
-              color: 'grey',
-              padding: {
-                top: 0,
-                bottom: 10 
-              },
-              font: {
-                size: function(context) {
-                    let width = context.chart.width;
-                    return width < 400 ? 12 : 14;
-                },
-                family: 'Poppins',
-                weight: 'normal',
-            }
-          },
+          legend: false,
         }
       }
     });

@@ -48,7 +48,7 @@
         font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
       }
       .card-body {
-        height: 200px !important;
+        height: 250px !important;
       }
 
       .card-tool {
@@ -209,9 +209,35 @@
       #dashboard .body-linked {
         cursor: pointer;
       }
+      .small {
+        font-size: .8em !important;
+      }
+
+      @media (min-width: 1400px) {
+        .col-xxl-4 {
+            flex: 0 0 auto;
+            width: 50%;
+        }
+        .col-xxl-2 {
+          flex: 0 0 auto;
+          width: 25%;
+      }
+    }
+
+      @media (min-width: 1920px) {
+        .col-xxl-4 {
+            flex: 0 0 auto;
+            width: 33.33333333%;
+        }
+        .col-xxl-2 {
+          flex: 0 0 auto;
+          width: 16.66666667%;
+      }
+    }
+
     </style>
 
-    <div class="container float-start p-4 mt-3" id="dashboardWrapper">
+    <div class="container-fluid mt-5" id="dashboardWrapper">
       <div class="d-flex align-items-center justify-content-between mb-4 px-3">
         {{#title}}<h1 class="h3 m-0 text-tertiary">{{title}}</h1>{{/title}}
         <div class="dropdown">
@@ -231,16 +257,16 @@
         {{#widgets}}
 
           <div id="{{widgetHtmlId}}" data-addonGuid="{{addonGuid}}" class="widget
-            {{#widgetSmall}}col-12 col-sm-6 col-lg-3 mb-4{{/widgetSmall}} 
-            {{^widgetSmall}}col-12 col-sm-6 col-lg-6 mb-4{{/widgetSmall}}"
+            {{#widgetSmall}}col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2 mb-4{{/widgetSmall}} 
+            {{^widgetSmall}}col-12 col-sm-6 col-lg-6 col-xxl-4 mb-4{{/widgetSmall}}"
             >
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <div class="d-flex align-items-center">
-                  <div class="card-tool">
-                    <div class="card-grab pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
-                  </div>
-                  <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
+                <div class="card-tool">
+                  <div class="card-grab d-flex align-items-center">
+                    <div class="pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
+                    <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
+                  </div> 
                 </div>
                 <div class="card-tool">
                   <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div>
