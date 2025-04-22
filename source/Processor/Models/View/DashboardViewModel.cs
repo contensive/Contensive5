@@ -44,18 +44,16 @@ namespace Contensive.Processor.Models.View {
         public static DashboardViewModel create(CPBaseClass cp, string portalGuid) {
             try {
                 string portalName = string.IsNullOrEmpty(portalGuid) ? "Admin Dashboard" : getPortalName(cp, portalGuid);
-                DashboardUserConfigModel userConfig = DashboardUserConfigModel.loadUserConfig(cp, portalName);
+                //
+                // -- render the htmlcontent and return
                 DashboardViewModel result = new() {
                     portalGuid = portalGuid,
-                    dashboardName = userConfig.dashboardName,
-                    title = userConfig.title
+                    dashboardName = portalName,
+                    title = portalName
                 };
+                DashboardUserConfigModel userConfig = DashboardUserConfigModel.loadUserConfig(cp, portalName);
                 if (userConfig?.widgets != null && userConfig.widgets.Count > 0) {
-                    //
-                    // -- render the htmlcontent and return
                     result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
-                    result.dashboardName = portalName;
-                    result.title = portalName;
                     buildAddWidgetList(cp, portalGuid, result);
                     return result;
                 }
@@ -77,15 +75,14 @@ namespace Contensive.Processor.Models.View {
                 };
                 //
                 // -- save the new view model before rendering the htmlcontent
-                string dashboardName = getPortalName(cp, portalGuid);
-                userConfig.save(cp, dashboardName);
+                userConfig.save(cp, portalName);
                 //
                 // -- after save, render the htmlContent and get the widget list
                 result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
                 buildAddWidgetList(cp, portalGuid, result);
-                result.dashboardName = portalName;
-                result.title = portalName;
+                //
                 return result;
+
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

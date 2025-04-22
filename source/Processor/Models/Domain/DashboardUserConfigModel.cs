@@ -13,15 +13,6 @@ namespace Contensive.Processor.Models.Domain {
         //
         private CPBaseClass cp;
         /// <summary>
-        /// the name of the dashboard. This is used to create the folder name for the config file.
-        /// It has to be sent to the UI so it can be returned in commands and used to load the config file.
-        /// </summary>
-        public string dashboardName { get; set; }
-        /// <summary>
-        /// the title that apears on the dashboard at the top.
-        /// </summary>
-        public string title { get; set; }
-        /// <summary>
         /// the list of widgets that can be added to the dashbaord
         /// </summary>
         public List<addWidget> addWidgetList { get; set; }
