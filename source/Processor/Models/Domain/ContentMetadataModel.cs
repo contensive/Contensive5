@@ -345,7 +345,7 @@ namespace Contensive.Processor.Models.Domain {
                         + " left join ccSortMethods ON c.DefaultSortMethodId = ccSortMethods.ID)"
                         + " left join ccGroups ON c.EditorGroupId = ccGroups.ID)"
                         + " left join ccAddonCollections ON c.installedByCollectionId = ccAddonCollections.ID"
-                        + " where (c.Active<>0)"
+                        + " where (1=1)"
                         + " and(c.id=" + content.id.ToString() + ")";
                     using (DataTable dtContent = core.db.executeQuery(sql)) {
                         if (dtContent.Rows.Count == 0) {
@@ -1073,6 +1073,7 @@ namespace Contensive.Processor.Models.Domain {
                 //
                 logMsgContext += ", verifying content [" + contentMetadata.name + "]";
                 //
+                int requestId = contentMetadata.id;
                 if (string.IsNullOrWhiteSpace(contentMetadata.name)) { throw new GenericException("Content name can not be blank"); }
                 if (string.IsNullOrWhiteSpace(contentMetadata.tableName)) { throw new GenericException("Content table name can not be blank"); }
                 using (var db = new DbController(core, contentMetadata.dataSourceName)) {
@@ -1080,7 +1081,24 @@ namespace Contensive.Processor.Models.Domain {
                     // -- verify table
                     db.createSQLTable(contentMetadata.tableName);
                     //
-                    // get contentId, guid, IsBaseContent
+                    // change record to active tmp to support models during update
+                    bool contentActive = true;
+                    int contentId = 0;
+                    using (var dt = db.executeQuery($"select top 1 active,id from ccContent where (name={DbController.encodeSQLText(contentMetadata.name)}) order by id")) {
+                        if (dt.Rows.Count == 0) {
+                            //
+                            // -- not found, create it
+                        } else {
+                            //
+                            // -- found, if inactive, mark active and set flag
+                            contentActive = GenericController.encodeBoolean(dt.Rows[0][0]);
+                            contentId = GenericController.encodeInteger(dt.Rows[0][1]);
+                        }
+                    }
+                    if (!contentActive && contentId > 0) {
+                        db.executeNonQuery($"update cccontent set active=1 where id={contentId}");
+                    }
+                    //
                     var content = DbBaseModel.createByUniqueName<ContentModel>(core.cpParent, contentMetadata.name);
                     if (content == null) {
                         content = ContentModel.addDefault<ContentModel>(core.cpParent, ContentMetadataModel.getDefaultValueDict(core, contentMetadata.name));
@@ -1189,6 +1207,11 @@ namespace Contensive.Processor.Models.Domain {
                     //
                     // -- reload metadata
                     contentMetadata = create(core, contentMetadata.id, false, true);
+                    if(contentMetadata is null) { 
+                        //
+                        // -- metadata was update to be inactive, return the id requested
+                        return requestId;  
+                    }
                     //
                     // Verify Core Content Definition Fields
                     if (parentId < 1) {
@@ -1345,6 +1368,9 @@ namespace Contensive.Processor.Models.Domain {
                             };
                             contentMetadata.verifyContentField(core, fieldMetadata, true, logMsgContext);
                         }
+                    }
+                    if (!contentActive && contentId > 0) {
+                        db.executeNonQuery($"update cccontent set active=0 where id={contentId}");
                     }
                 }
                 //

@@ -479,8 +479,22 @@ namespace Contensive.Processor.Controllers {
                 logger.Info($"{core.logCommonMessage},metadata Load, stage 3: Verify all metadata names in ccContent so GetContentID calls will succeed");
                 // -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                 //
+                // -- handle cdef renames (lookup content by guid and set name)
+                foreach ( var keypairvalue in Collection.metaData) {
+                    if (!string.IsNullOrEmpty(keypairvalue.Value.guid) && !string.IsNullOrEmpty(keypairvalue.Value.guid)) {
+                        core.db.executeNonQuery(@$"
+                            update 
+                                ccContent 
+                            set 
+                                name={DbController.encodeSQLText(keypairvalue.Value.name)} 
+                            where 
+                                ccguid={DbController.encodeSQLText(keypairvalue.Value.guid)}
+                        ");
+                    }
+                }
+                //
                 List<string> installedContentList = new List<string>();
-                using (DataTable rs = core.db.executeQuery("SELECT Name from ccContent where (active<>0)")) {
+                using (DataTable rs = core.db.executeQuery("SELECT Name from ccContent")) {
                     if (DbController.isDataTableOk(rs)) {
                         installedContentList = new List<string>(convertDataTableColumntoItemList(rs));
                     }
