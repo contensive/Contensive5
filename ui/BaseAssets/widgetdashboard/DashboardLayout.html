@@ -48,7 +48,7 @@
         font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
       }
       .card-body {
-        height: 250px !important;
+        height: 240px !important;
       }
 
       .card-tool {
@@ -235,6 +235,15 @@
       }
     }
 
+    #dashboard .card-close i.fa-trash-can, #dashboard .dropdown i.fa-ellipsis-v {
+      opacity: .5;
+    }
+    #dashboard .card-close i.fa-trash-can:hover, #dashboard .dropdown i.fa-ellipsis-v:hover {
+      opacity: 1 !important;
+    }
+
+    
+
     </style>
 
     <div class="container-fluid mt-5" id="dashboardWrapper">
@@ -263,17 +272,37 @@
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <div class="card-tool">
-                  <div class="card-grab d-flex align-items-center">
+                  <div class="card-grab d-flex align-items-center" title="drag widget">
+                    {{#url}}<a href="{{url}}" class="body-linked" title="click to open link"></a>{{/url}}
+                    {{^url}}<a href="#" class="body-linked" title="click to open link"></a>{{/url}}
                     <div class="pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
                     <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
                   </div> 
                 </div>
-                <div class="card-tool">
-                  <div class="card-close pe-1"><i class="fa-solid fa-circle-xmark text-secondary"></i></div>
+                <div class="d-flex align-items-center">
+                  <div class="dropdown">
+                    <a class="" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-ellipsis-v text-muted" title="widget filter"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="widgetFilter">
+                        <a class="dropdown-item" href="#">All Meetings</a>
+                        <a class="dropdown-item" href="#">Last Meeting</a>
+                        <a class="dropdown-item" href="#">Meeting 1</a>
+                        <a class="dropdown-item" href="#">Meeting 2</a>
+                    </div>
+                  </div>
+                  
                 </div>
+                
               </div>
+
               <div class="card-body {{#url}}body-linked{{/url}}">
                 {{{htmlContent}}}
+              </div>
+              <div class="card-footer d-flex justify-content-end bg-transparent border-light">
+                <div class="card-tool">
+                  <div class="card-close"><i class="fa-solid fa-trash-can fa-sm text-danger" title="delete widget"></i></div>
+                </div>
               </div>
             </div>
           </div>
