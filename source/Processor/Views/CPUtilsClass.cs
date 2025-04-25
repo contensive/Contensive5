@@ -422,19 +422,6 @@ namespace Contensive.Processor {
             return UpgradeController.upgrade51ConvertDirectoryInfoArrayToParseString(DirectoryInfo);
         }
         //
-        //====================================================================================================
-        // deprecated
-        //
-        [Obsolete("Installation upgrade through the cp interface is deprecated. Please use the command line tool.", false)]
-        public override void Upgrade(bool isNewApp) {
-            try {
-                throw new GenericException("Installation upgrade through the cp interface is deprecated. Please use the command line tool.");
-                // Controllers.appBuilderController.upgrade(CP.core, isNewApp)
-            } catch (Exception ex) {
-                logger.Error(ex, $"{cp.core.logCommonMessage}");
-            }
-        }
-        //
         public override string DecodeUrl(string Url) {
             return GenericController.decodeURL(Url);
         }
@@ -454,6 +441,23 @@ namespace Contensive.Processor {
         //
         public override string EncodeUrl(string Source) {
             return GenericController.encodeURL(Source);
+        }
+
+        public override bool versionIsOlder(string versionStringToTest, string versionStringToTestAgainst) {
+            return GenericController.versionIsOlder( versionStringToTest, versionStringToTestAgainst);
+        }
+        //
+        //====================================================================================================
+        // deprecated
+        //
+        [Obsolete("Installation upgrade through the cp interface is deprecated. Please use the command line tool.", false)]
+        public override void Upgrade(bool isNewApp) {
+            try {
+                throw new GenericException("Installation upgrade through the cp interface is deprecated. Please use the command line tool.");
+                // Controllers.appBuilderController.upgrade(CP.core, isNewApp)
+            } catch (Exception ex) {
+                logger.Error(ex, $"{cp.core.logCommonMessage}");
+            }
         }
         //
         [Obsolete("deprecated", false)]
