@@ -689,6 +689,17 @@ namespace Contensive.BaseClasses {
         public abstract string DecodeHTML(string source);
         //
         //====================================================================================================
+        /// <summary>
+        /// return true the versionStringToTest is older than the versionStringToTestAgainst. 
+        /// For example, to test if the installed version stored in a site property "installedVersion" is older than version 25.1.1.1, 
+        /// versionIsOlder( cp.Site.GetText( "installedVersion" ), "25.1.1.1")
+        /// </summary>
+        /// <param name="versionStringToTest"></param>
+        /// <param name="versionStringToTestAgainst"></param>
+        /// <returns></returns>
+        public abstract bool versionIsOlder(string versionStringToTest, string versionStringToTestAgainst);
+        //
+        //====================================================================================================
         // deprecated
         /// <summary>
         /// Deprecated, use AppendLog

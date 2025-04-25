@@ -189,7 +189,8 @@ namespace Contensive.Processor.Properties {
         ///                &lt;/tr&gt;
         ///            &lt;/tbody&gt;
         ///        &lt;/table&gt;
-        ///    &lt;/td&gt;        /// [rest of string was truncated]&quot;;.
+        ///    &lt;/td&gt;
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string GroupRuleEditorRow {
             get {
@@ -398,7 +399,8 @@ namespace Contensive.Processor.Properties {
         ///    &lt;/div&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;        /// [rest of string was truncated]&quot;;.
+        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_email_password {
             get {
@@ -416,7 +418,8 @@ namespace Contensive.Processor.Properties {
         ///    &lt;/div&gt;
         ///	&lt;div class=&quot;pt-2&quot;&gt;
         ///		&lt;label for=&quot;inputPassword&quot; class=&quot;sr-only&quot;&gt;Password&lt;/label&gt;
-        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;        /// [rest of string was truncated]&quot;;.
+        ///		&lt;input type=&quot;password&quot; name=&quot;password&quot; id=&quot;inputPassword&quot; class=&quot;form-control&quot; placeholder=&quot;Password&quot; required&gt;
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string login_email_password_auto {
             get {

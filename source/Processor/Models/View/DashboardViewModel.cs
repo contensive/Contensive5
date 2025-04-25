@@ -7,6 +7,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
+using System.Windows.Media.TextFormatting;
 
 namespace Contensive.Processor.Models.View {
     public class DashboardViewModel {
@@ -58,28 +59,20 @@ namespace Contensive.Processor.Models.View {
                     return result;
                 }
                 //
-                // -- iniitalize with default widgets
-                userConfig = new DashboardUserConfigModel() {
-                    widgets = [
-                        new DashboardWidgetUserConfigModel() {
-                            widgetName = "Sample",
-                            htmlContent = cp.CdnFiles.Read("dashboard\\sampleWidget.html"),
-                            key="E928",
-                            addonGuid = Constants.sampleDashboardWidgetGuid
-                        },
-                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 2", htmlContent = "Content 2", key="6E52" },
-                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 3", htmlContent = "Content 3", key = "D512"},
-                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 4", htmlContent = "Content 4", key = "0380"},
-                        new DashboardWidgetUserConfigModel() {widgetName = "Widget 5", htmlContent = "Content 5", key = "AC55"}
-                    ]
-                };
+                // -- initialize with default widgets
+                userConfig = new();
+                DashboardViewModel tmp = new();
+                buildAddWidgetList(cp, portalGuid, tmp);
+                foreach ( var widget in tmp.addWidgetList) {
+                    userConfig.widgets.Add(new DashboardWidgetUserConfigModel() { widgetName = widget.name, key = GenericController.getRandomString(6), addonGuid = widget.guid });
+                }
                 //
                 // -- save the new view model before rendering the htmlcontent
                 userConfig.save(cp, portalName);
                 //
                 // -- after save, render the htmlContent and get the widget list
+                result.addWidgetList = tmp.addWidgetList;
                 result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
-                buildAddWidgetList(cp, portalGuid, result);
                 //
                 return result;
 
@@ -113,7 +106,7 @@ namespace Contensive.Processor.Models.View {
                 string sql;
                 if (string.IsNullOrEmpty(portalGuid)) {
                     sql = $@"
-                        select
+                        select distinct
                             'Admin Dashboard' as portalName,
                             a.name as addonName, a.ccguid as addonGuid
                         from
@@ -124,7 +117,7 @@ namespace Contensive.Processor.Models.View {
                             a.name";
                 } else {
                     sql = $@"
-                        select
+                        select distinct
                             p.name as portalName,
                             a.name as addonName, a.ccguid as addonGuid
                         from

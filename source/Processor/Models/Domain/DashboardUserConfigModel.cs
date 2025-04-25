@@ -15,11 +15,11 @@ namespace Contensive.Processor.Models.Domain {
         /// <summary>
         /// the list of widgets that can be added to the dashbaord
         /// </summary>
-        public List<addWidget> addWidgetList { get; set; }
+        public List<addWidget> addWidgetList { get; set; } = [];
         /// <summary>
         /// the current list of widgets this user sees on the dashboard
         /// </summary>
-        public List<DashboardWidgetUserConfigModel> widgets { get; set; }
+        public List<DashboardWidgetUserConfigModel> widgets { get; set; } = [];
         //
         // ====================================================================================================
         /// <summary>

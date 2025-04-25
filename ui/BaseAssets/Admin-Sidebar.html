@@ -513,6 +513,7 @@
             <div class="text-center">
                 <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
+            {{#publicDomains}}
             <li class="nav-item">
                 <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#publicSiteCollapse" aria-expanded="true" aria-controls="publicSiteCollapse">
                     <i class="fa-solid fa-globe"></i>
@@ -520,22 +521,35 @@
                 </a>
                 <div id="publicSiteCollapse" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
+                        {{#hasPrimaries}}
                         <div>
                             <h6 class="collapse-header">Primary</h6>
-                            <a href="https://www.Contensive.com/" class="collapse-item">www.Contensive.com</a>
+                            {{#primaries}}
+                            <a href="https://{{.}}" class="collapse-item">{{.}}</a>
+                            {{/primaries}}
                         </div>
+                        {{/hasPrimaries}}
+                        {{#hasSecondaries}}
                         <div>
                             <h6 class="collapse-header">Secondary</h6>
-                            <a href="https://Support.Contensive.com/" class="collapse-item">Support.Contensive.com</a>
+                            {{#secondaries}}
+                            <a href="https://{{.}}" class="collapse-item">{{.}}</a>
+                            {{/secondaries}}
                         </div>
+                        {{/hasSecondaries}}
+                        {{#hasForwards}}
                         <div>
                             <h6 class="collapse-header">Forward</h6>
-                            <a href="https://www.Contensive.com/" class="collapse-item">Contensive.com</a>
+                            {{#forwards}}
+                            <a href="https://{{.}}" class="collapse-item">{{.}}</a>
+                            {{/forwards}}
                         </div>
+                        {{/hasForwards}}
                     </div>
                 </div>
             </li>
             <hr class="sidebar-divider my-0">
+            {{/publicDomains}}
             <li class="nav-item {{#isAdminUrl}}active{{/isAdminUrl}}">
                 <a class="nav-link" href="{{adminUrl}}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
