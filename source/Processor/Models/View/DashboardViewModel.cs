@@ -50,23 +50,32 @@ namespace Contensive.Processor.Models.View {
                 DashboardViewModel result = new() {
                     portalGuid = portalGuid,
                     dashboardName = portalName,
-                    title = portalName
+                    title = portalName,
+                    widgets = [],
+                    addWidgetList = []
                 };
                 DashboardUserConfigModel userConfig = DashboardUserConfigModel.loadUserConfig(cp, portalName);
                 if (userConfig?.widgets != null && userConfig.widgets.Count > 0) {
-                    result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
-                    buildAddWidgetList(cp, portalGuid, result);
+                    //
+                    // -- verify unique keys
+                    bool needConfigSave = false;
+                    foreach (var widget in userConfig.widgets) {
+                        if (string.IsNullOrEmpty(widget.widgetHtmlId)) {
+                            widget.widgetHtmlId = GenericController.getRandomString(6);
+                            needConfigSave = true;
+                        }
+                    }
                     //
                     // -- create an empty hidden widget used to add widgets
-                    result.widgets.Add( new DashboardWidgetViewModel() { 
-                        widgetName = "",
-                        widgetHtmlId = "newWidgetHtmlId",
-                        addonGuid = "" ,
-                        htmlContent = "",
+                    result.widgets.Add(new DashboardWidgetViewModel() {
                         widgetSmall = true,
-                        refreshSeconds = 0,
-                        url = ""
+                        isNewWidgetTemplate = true,
+                        widgetHtmlId = "newWidgetTemplate",
                     });
+                    result = DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
+                    buildAddWidgetList(cp, portalGuid, result);
+                    //
+                    if (needConfigSave) { userConfig.save(cp, portalName); }
                     //
                     return result;
                 }
@@ -75,8 +84,12 @@ namespace Contensive.Processor.Models.View {
                 userConfig = new();
                 DashboardViewModel tmp = new();
                 buildAddWidgetList(cp, portalGuid, tmp);
-                foreach ( var widget in tmp.addWidgetList) {
-                    userConfig.widgets.Add(new DashboardWidgetUserConfigModel() { widgetName = widget.name, key = GenericController.getRandomString(6), addonGuid = widget.guid });
+                foreach (var widget in tmp.addWidgetList) {
+                    userConfig.widgets.Add(new DashboardWidgetUserConfigModel() {
+                        widgetHtmlId = GenericController.getRandomString(6),
+                        addonGuid = widget.guid,
+                        refreshSeconds = 0
+                    });
                 }
                 //
                 // -- save the new view model before rendering the htmlcontent
@@ -84,7 +97,7 @@ namespace Contensive.Processor.Models.View {
                 //
                 // -- after save, render the htmlContent and get the widget list
                 result.addWidgetList = tmp.addWidgetList;
-                result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
+                result = DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
                 //
                 return result;
 

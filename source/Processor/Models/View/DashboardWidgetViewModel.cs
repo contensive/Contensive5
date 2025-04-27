@@ -12,6 +12,11 @@ namespace Contensive.Processor.Models.Domain {
     /// 
     /// </summary>
     public class DashboardWidgetViewModel {
+        /// <summary>
+        /// if true, this widget is hidden in the UI and used as a template to make new widgets.
+        /// Creating it this way gives more freedom to the designer
+        /// </summary>
+        public bool isNewWidgetTemplate { set; get; } = false;
         //
         /// <summary>
         /// The name of the widget that appears at the top of the widget

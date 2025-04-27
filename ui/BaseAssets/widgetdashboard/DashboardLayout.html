@@ -355,16 +355,18 @@
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
 
-          <div id="{{widgetHtmlId}}" data-addonGuid="{{addonGuid}}" class="widget
-            {{#widgetSmall}}col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2 mb-4{{/widgetSmall}} 
-            {{^widgetSmall}}col-12 col-sm-6 col-lg-6 col-xxl-4 mb-4{{/widgetSmall}}"
+          <div 
+            id="{{#isNewWidgetTemplate}}newWidgetTemplate{{/isNewWidgetTemplate}}{{^isNewWidgetTemplate}}{{widgetHtmlId}}{{/isNewWidgetTemplate}}" 
+            data-addonGuid="{{addonGuid}}" 
+            style="{{#isNewWidgetTemplate}}display:none;{{/isNewWidgetTemplate}}" 
+            class="{{^isNewWidgetTemplate}}widget{{/isNewWidgetTemplate}} {{#widgetSmall}}col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2 mb-4{{/widgetSmall}} {{^widgetSmall}}col-12 col-sm-6 col-lg-6 col-xxl-4 mb-4{{/widgetSmall}}"
             >
             <div class="card shadow-sm h-100">
               <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                 <div class="card-tool">
                   <div class="card-grab d-flex align-items-center" title="drag widget">
                     {{#url}}<a href="{{url}}" class="body-linked" title="click to open link"></a>{{/url}}
-                    {{^url}}<a href="#" class="body-linked" title="click to open link"></a>{{/url}}
+                    <!--{{^url}}<a href="#" class="body-linked" title="click to open link"></a>{{/url}}-->
                     <div class="pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
                     <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
                   </div> 
@@ -404,42 +406,7 @@
             </script>
           {{/url}}
         {{/widgets}}
-
       </div>
-      <div id="newWidgetHtmlId" style="display:none;">
-        <div class="col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2 mb-4">
-          <div class="card shadow-sm h-100">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-              <div class="d-flex align-items-center">
-                <div class="card-tool">
-                  <div class="card-grab d-flex align-items-center" title="drag widget">
-                    <div class="pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
-                    <h6 class="widget-name m-0 text-primary"></h6>
-                  </div>
-                </div>
-              </div>
-              <div class="d-flex align-items-center">
-                <div class="dropdown">
-                  <a class="" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <i class="fas fa-ellipsis-v text-muted" title="widget filter"></i>
-                  </a>
-                  <div class="dropdown-menu dropdown-menu-end" aria-labelledby="widgetFilter">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="card-body {{#url}}body-linked{{/url}}">
-              {{{htmlContent}}}
-            </div>
-            <div class="card-footer d-flex justify-content-end bg-transparent border-light">
-              <div class="card-tool">
-                <div class="card-close"><i class="fa-solid fa-trash-can fa-sm text-danger" title="delete widget"></i></div>
-              </div>
-            </div>
-          </div>
-        </div>
-    </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -479,10 +446,11 @@
         $('#dashboardWrapper').on('click', '.add-widget', function () {
           var element = $(this);
           console.log('add-widget, guid:' + element.attr('data-addonGuid'));
-          let newWidget = document.getElementById('newWidgetHtmlId').firstElementChild.cloneNode(true);
+          let newWidget = document.getElementById('newWidgetTemplate').cloneNode(true);
           newWidget.id = generateKey();
           newWidget.classList.add('widget');
           newWidget.setAttribute("data-addonGuid", element.attr('data-addonGuid'));
+          newWidget.style.display = '';
           const divList = document.getElementById("dashboard");
           divList.appendChild(newWidget);
           let items = Array.from(document.querySelectorAll(".widget"))
@@ -523,7 +491,7 @@
                       script.innerHTML = "document.addEventListener('DOMContentLoaded', function(event) { jQuery('#" + widget.widgetHtmlId + " .card').on('click', function() { window.location.href='" + widget.link + "'; }); });";
                       document.body.appendChild(script);
                     }
-                    const targetElement = document.getElementById('#' + item.id + ' .card-body');
+                    const targetElement = document.querySelector('#' + item.id + ' .card-body');
                     targetElement.innerHTML = widget.htmlContent;
                     //
                     // Handle <script> tags

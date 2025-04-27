@@ -14,10 +14,9 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="userConfig"></param>
         /// <returns></returns>
-        public static DashboardViewModel renderWidgets(CPBaseClass cp, DashboardViewModel view, DashboardUserConfigModel userConfig) {
-            view.widgets = [];
+        public static DashboardViewModel buildDashboardWidgets(CPBaseClass cp, DashboardViewModel view, DashboardUserConfigModel userConfig) {
             foreach (DashboardWidgetUserConfigModel userConfigWidget in userConfig.widgets) {
-                view.widgets.Add(renderWidget(cp, userConfigWidget));
+                view.widgets.Add(buildDashboardWidget(cp, userConfigWidget));
             }
             return view;
         }
@@ -29,16 +28,23 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="userConfigWidget"></param>
         /// <returns></returns>
-        public static DashboardWidgetViewModel renderWidget(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
+        public static DashboardWidgetViewModel buildDashboardWidget(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
+            ////
+            //// -- repair key if missing
+            //if (string.IsNullOrEmpty(userConfigWidget.widgetHtmlId)) {
+            //    userConfigWidget.widgetHtmlId = GenericController.getRandomString(6);
+            //}
+            //
+            // -- create the widget view model
             DashboardWidgetViewModel result = new() {
-                widgetName = userConfigWidget.widgetName,
-                widgetHtmlId = userConfigWidget.key,
-                refreshSeconds = userConfigWidget.refreshSeconds,
+                widgetHtmlId = userConfigWidget.widgetHtmlId,
                 addonGuid = userConfigWidget.addonGuid,
+                refreshSeconds = userConfigWidget.refreshSeconds
             };
             if (string.IsNullOrWhiteSpace(userConfigWidget.addonGuid)) { return result; }
             //
-            // -- execute the widget addon, the result is a json string that is deserialized into the WidgetBaseModel
+            // -- execute the widget addon and populate the result from the addon
+            // -- the result is a json string that is deserialized into the WidgetBaseModel
             string widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
             if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
             //
@@ -47,11 +53,11 @@ namespace Contensive.Processor.Controllers {
             try {
                 addonResult = cp.JSON.Deserialize<DashboardWidgetBaseModel>(widgetAddonResultJson);
                 //
-                // -- populate the type-indpendent properties
+                // -- populate the type-independent properties
                 result.refreshSeconds = addonResult.refreshSeconds;
                 result.widgetName = addonResult.widgetName;
                 result.url = addonResult.url;
-                result.widgetSmall = addonResult.width == 1;
+                result.widgetSmall = addonResult.width < 2;
                 //
                 // -- populate the type-dependent properties
                 if (addonResult.widgetType == WidgetTypeEnum.htmlContent) {

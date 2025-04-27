@@ -33,7 +33,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                 //
                 if (request.cmd == "delete") {
                     foreach (WDS_Request_Widget requestWidget in request.widgets) {
-                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.widgetHtmlId);
+                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
                         if (userDashboardConfigWidget is null) { continue; }
                         userDashboardConfig.widgets.Remove(userDashboardConfigWidget);
                         continue;
@@ -41,39 +41,33 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                 }
                 //
                 if (request.cmd == "refresh") {
-                    foreach (WDS_Request_Widget requestWidget in request.widgets) {
-                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.widgetHtmlId);
-                        if (userDashboardConfigWidget is null) { continue; }
-                        var viewModel = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget);
-                        result.Add(new WDS_Response {
-                            widgetHtmlId = requestWidget.widgetHtmlId,
-                            htmlContent = viewModel.htmlContent,
-                            link = viewModel.url,
-                            widgetName = viewModel.widgetName
-                        });
-                        continue;
-                    }
+                    buildWidgets(cp, request, userDashboardConfig, result);
                 }
                 if (request.cmd == "save") {
-                    int sort = -1;
+                    //
+                    // -- save the widget sort
+                    // -- create a new widget if the widetHtmlId is not found and return the new widget(s)
+                    int sort = 0;
                     foreach (WDS_Request_Widget requestWidget in request.widgets) {
-                        sort++;
-                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.key == requestWidget.widgetHtmlId);
+                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
                         if (userDashboardConfigWidget is null) {
+                            //
+                            // -- add a new widget, return the result
                             userDashboardConfigWidget = new DashboardWidgetUserConfigModel {
-                                key = requestWidget.widgetHtmlId
+                                widgetHtmlId = requestWidget.widgetHtmlId,
+                                addonGuid = requestWidget.addonGuid
                             };
                             userDashboardConfig.widgets.Add(userDashboardConfigWidget);
+                            //
+                            var viewModel = DashboardWidgetRenderController.buildDashboardWidget(cp, userDashboardConfigWidget);
+                            result.Add(new WDS_Response {
+                                widgetHtmlId = requestWidget.widgetHtmlId,
+                                htmlContent = viewModel.htmlContent,
+                                link = viewModel.url,
+                                widgetName = viewModel.widgetName
+                            });
                         }
-                        userDashboardConfigWidget.sort = sort;
-                        userDashboardConfigWidget.addonGuid = requestWidget.addonGuid;
-                        var renderedWidget = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget);
-                        //result.Add(new WDS_Response {
-                        //    widgetHtmlId = requestWidget.widgetHtmlId,
-                        //    htmlContent = renderedWidget.htmlContent,
-                        //    link = renderedWidget.url,
-                        //    widgetName = renderedWidget.widgetName
-                        //});
+                        userDashboardConfigWidget.sort = sort++;
                         continue;
                     }
                 }
@@ -82,6 +76,29 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;
+            }
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// build the widgets in the request
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="request"></param>
+        /// <param name="userDashboardConfig"></param>
+        /// <param name="result"></param>
+        private static void buildWidgets(CPBaseClass cp, WDS_Request request, DashboardUserConfigModel userDashboardConfig, List<WDS_Response> result) {
+            foreach (WDS_Request_Widget requestWidget in request.widgets) {
+                var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
+                if (userDashboardConfigWidget is null) { continue; }
+                var viewModel = DashboardWidgetRenderController.buildDashboardWidget(cp, userDashboardConfigWidget);
+                result.Add(new WDS_Response {
+                    widgetHtmlId = requestWidget.widgetHtmlId,
+                    htmlContent = viewModel.htmlContent,
+                    link = viewModel.url,
+                    widgetName = viewModel.widgetName
+                });
+                continue;
             }
         }
         //
