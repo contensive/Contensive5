@@ -54,5 +54,29 @@ namespace Contensive.Processor.Models.Domain {
         /// future growth to 4x a small
         /// </summary>
         public bool widgetSmall { get; set; }
+        /// <summary>
+        /// true if there are filters on the widget
+        /// </summary>
+        public bool hasFilter { get; set; } = false;
+        public List<DashboardWidgetViewModel_FilterOptions> filterOptions { get; set; } = [];
+
+    }
+    //
+    /// <summary>
+    /// filter options are created by the addon and passed to the dashboard widget.
+    /// </summary>
+    public class DashboardWidgetViewModel_FilterOptions {
+        /// <summary>
+        /// the name of the filter
+        /// </summary>
+        public string filterCaption { get; set; }
+        /// <summary>
+        /// the value sent to the UI and read in reply. This is the key and must be unique
+        /// </summary>
+        public string filterValue { get; set; }
+        /// <summary>
+        /// the type of filter
+        /// </summary>
+        public bool filterActive { get; set; }
     }
 }

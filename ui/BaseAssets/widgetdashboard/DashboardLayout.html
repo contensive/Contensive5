@@ -371,20 +371,20 @@
                     <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
                   </div> 
                 </div>
+                {{#hasFilter}}
                 <div class="d-flex align-items-center">
                   <div class="dropdown">
                     <a class="" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="fas fa-ellipsis-v text-muted" title="widget filter"></i>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="widgetFilter">
-                        <a class="dropdown-item" href="#">All Meetings</a>
-                        <a class="dropdown-item" href="#">Last Meeting</a>
-                        <a class="dropdown-item" href="#">Meeting 1</a>
-                        <a class="dropdown-item" href="#">Meeting 2</a>
+                      {{#filterOptions}}
+                        <a class="dropdown-item" href="#" data-filterValue="{{filterValue}}" data-filterActive="{{filterActive}}">{{filterCaption}}</a>
+                      {{/filterOptions}}
                     </div>
                   </div>
                 </div>
-                
+                {{/hasFilter}}
               </div>
 
               <div class="card-body {{#url}}body-linked{{/url}}">

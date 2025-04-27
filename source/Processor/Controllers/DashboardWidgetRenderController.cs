@@ -45,6 +45,7 @@ namespace Contensive.Processor.Controllers {
             //
             // -- execute the widget addon and populate the result from the addon
             // -- the result is a json string that is deserialized into the WidgetBaseModel
+            cp.Doc.SetProperty("widgetFilter", userConfigWidget.filterValue);
             string widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
             if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
             //
@@ -58,6 +59,19 @@ namespace Contensive.Processor.Controllers {
                 result.widgetName = addonResult.widgetName;
                 result.url = addonResult.url;
                 result.widgetSmall = addonResult.width < 2;
+                //
+                // -- populate filters
+                if (addonResult.filterOptions != null && addonResult.filterOptions.Count > 0) {
+                    result.hasFilter = true;
+                    foreach (var addonFilterOption in addonResult.filterOptions) {
+                        result.filterOptions.Add(new DashboardWidgetViewModel_FilterOptions() {
+                            filterCaption = addonFilterOption.filterCaption,
+                            filterValue = addonFilterOption.filterValue,
+                            filterActive = userConfigWidget.filterValue == addonFilterOption.filterValue
+                        });
+                    }; 
+                };
+                
                 //
                 // -- populate the type-dependent properties
                 if (addonResult.widgetType == WidgetTypeEnum.htmlContent) {

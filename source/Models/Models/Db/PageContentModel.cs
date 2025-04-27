@@ -110,7 +110,7 @@ namespace Contensive.Models.Db {
         /// </summary>
         /// <param name="cp"></param>
         /// <returns></returns>
-        public static int getPagesToReviewCount(CPBaseClass cp) {
+        public static int getPagesToReviewCount(CPBaseClass cp, int months) {
             try {
                 using DataTable dt = cp.Db.ExecuteQuery(@$"
                     select 
@@ -118,7 +118,7 @@ namespace Contensive.Models.Db {
                     from 
                         ccpagecontent 
                     where 
-                        ((dateReviewed is null) or (dateReviewed<{cp.Db.EncodeSQLDate(DateTime.UtcNow.AddDays(-90))}))
+                        ((dateReviewed is null) or (dateReviewed<{cp.Db.EncodeSQLDate(DateTime.UtcNow.AddMonths(-months))}))
                         and (dateExpires is null) 
                         and (active>0)
                 ");

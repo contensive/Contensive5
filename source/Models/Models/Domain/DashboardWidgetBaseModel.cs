@@ -37,10 +37,35 @@ namespace Contensive.Processor.Models {
         /// The url used when the user clicks the widget. Leave blank to prevent a click action.
         /// </summary>
         public string url { get; set; }
+        /// <summary>
+        /// If the widget includes a filter list, this are the options that will be presented in the list.
+        /// The filterCaption is displayed to the user.
+        /// The current filterValue is passed to the addon when the addon is rendered as cp.doc.gettext("widgetFilter") when the user selects a filter
+        /// If filterActive is true, it will be highlighted in the list as the current selection.
+        /// </summary>
+        public List<DashboardWidgetBaseModel_FilterOptions> filterOptions { get; set; } = [];
     }
     public enum WidgetTypeEnum {
         htmlContent = 1,
         number = 2,
         pie = 3
+    }
+    //
+    /// <summary>
+    /// filter options are created by the addon and passed to the dashboard widget.
+    /// </summary>
+    public class DashboardWidgetBaseModel_FilterOptions {
+        /// <summary>
+        /// the name of the filter
+        /// </summary>
+        public string filterCaption { get; set; }
+        /// <summary>
+        /// the value sent to the UI and read in reply. This is the key and must be unique
+        /// </summary>
+        public string filterValue { get; set; }
+        /// <summary>
+        /// the type of filter
+        /// </summary>
+        public bool filterActive { get; set; }
     }
 }
