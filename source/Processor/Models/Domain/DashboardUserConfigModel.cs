@@ -12,10 +12,10 @@ namespace Contensive.Processor.Models.Domain {
     public class DashboardUserConfigModel {
         //
         private CPBaseClass cp;
-        /// <summary>
-        /// the list of widgets that can be added to the dashbaord
-        /// </summary>
-        public List<addWidget> addWidgetList { get; set; } = [];
+        ///// <summary>
+        ///// the list of widgets that can be added to the dashbaord
+        ///// </summary>
+        //public List<addWidget> addWidgetList { get; set; } = [];
         /// <summary>
         /// the current list of widgets this user sees on the dashboard
         /// </summary>

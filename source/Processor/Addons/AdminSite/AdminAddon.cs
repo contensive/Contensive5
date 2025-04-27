@@ -27,12 +27,18 @@ namespace Contensive.Processor.Addons.AdminSite {
             try {
                 logger.Trace($"{cp.core.logCommonMessage},AdminAddon Enter");
                 //
+                cp.Doc.AddHeadTag("<meta charset=\"UTF-8\">");
+                //
+                // -- responsive
+                cp.Doc.AddHeadTag("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">");
+                //
                 // -- block search engines. This should be blocked anyway.
                 cp.Doc.AddHeadTag("<meta name=\"robots\" content=\"noindex,nofollow\">");
                 //
                 // -- disable tool panel for /help pages
                 cp.Doc.SetProperty("AllowToolPanel", false);
                 //
+                // -- authentication
                 if (!cp.core.session.isAuthenticated) {
                     //
                     // --- must be authenticated to continue. Force a local login
@@ -47,12 +53,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 if (!cp.core.session.isAuthenticatedAdmin()) {
                     //
-                    // --- member must have proper access to continue
+                    // -- authorization, admin only
                     cp.core.html.addTitle("Unauthorized Access", "AdminAddon");
                     return Properties.Resources.Layout_AccessDenied;
                 }
                 //
-                // todo -- plan is to include layout-files with base51.zip file, instead of base51.xml file -- need to review the build process to better understand first
                 // -- get layout - first layout record, then layout-file, then layout-resource
                 string layout = cp.Layout.GetLayout(layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename);
                 if (string.IsNullOrEmpty(layout)) { layout = Processor.Properties.Resources.AdminSiteLayoutBackup; }

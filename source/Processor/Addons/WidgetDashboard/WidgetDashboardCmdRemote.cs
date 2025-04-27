@@ -68,12 +68,12 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         userDashboardConfigWidget.sort = sort;
                         userDashboardConfigWidget.addonGuid = requestWidget.addonGuid;
                         var renderedWidget = DashboardWidgetRenderController.renderWidget(cp, userDashboardConfigWidget);
-                        result.Add(new WDS_Response {
-                            widgetHtmlId = requestWidget.widgetHtmlId,
-                            htmlContent = renderedWidget.htmlContent,
-                            link = renderedWidget.url,
-                            widgetName = renderedWidget.widgetName
-                        });
+                        //result.Add(new WDS_Response {
+                        //    widgetHtmlId = requestWidget.widgetHtmlId,
+                        //    htmlContent = renderedWidget.htmlContent,
+                        //    link = renderedWidget.url,
+                        //    widgetName = renderedWidget.widgetName
+                        //});
                         continue;
                     }
                 }

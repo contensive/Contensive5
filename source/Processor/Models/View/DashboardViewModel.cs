@@ -56,6 +56,18 @@ namespace Contensive.Processor.Models.View {
                 if (userConfig?.widgets != null && userConfig.widgets.Count > 0) {
                     result = DashboardWidgetRenderController.renderWidgets(cp, result, userConfig);
                     buildAddWidgetList(cp, portalGuid, result);
+                    //
+                    // -- create an empty hidden widget used to add widgets
+                    result.widgets.Add( new DashboardWidgetViewModel() { 
+                        widgetName = "",
+                        widgetHtmlId = "newWidgetHtmlId",
+                        addonGuid = "" ,
+                        htmlContent = "",
+                        widgetSmall = true,
+                        refreshSeconds = 0,
+                        url = ""
+                    });
+                    //
                     return result;
                 }
                 //

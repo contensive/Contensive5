@@ -415,12 +415,29 @@
                 items.forEach(function (item) {
                   if (item.id == widget.widgetHtmlId) {
                     document.querySelector('#' + item.id + ' .widget-name').innerHTML = widget.widgetName;
-                    document.querySelector('#' + item.id + ' .card-body').innerHTML = widget.htmlContent;
                     if (widget.link) {
                       let script = document.createElement('script');
                       script.innerHTML = "document.addEventListener('DOMContentLoaded', function(event) { jQuery('#" + widget.widgetHtmlId + " .card').on('click', function() { window.location.href='" + widget.link + "'; }); });";
                       document.body.appendChild(script);
                     }
+                    const targetElement = document.getElementById('#' + item.id + ' .card-body');
+                    targetElement.innerHTML = widget.htmlContent;
+                    //
+                    // Handle <script> tags
+                    const scripts = targetElement.querySelectorAll('script');
+                    scripts.forEach((script) => {
+                        const newScript = document.createElement('script');
+                        if (script.src) {
+                            // If the <script> tag has a 'src' attribute, copy it
+                            newScript.src = script.src;
+                        } else {
+                            // If it's inline script content, copy the inner content
+                            newScript.textContent = script.textContent;
+                        }
+                        document.body.appendChild(newScript); // Execute the script by appending it to the <body>
+                    });
+                    // Remove the original <script> tag from the target element
+                    script.remove();  
                   }
                 });
               });

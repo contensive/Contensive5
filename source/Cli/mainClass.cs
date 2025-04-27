@@ -34,6 +34,16 @@ namespace Contensive.CLI {
                         }
                         string cmd = getNextCmd(args, ref argPtr);
                         switch (cmd.ToLowerInvariant()) {
+                            case "--enable":
+                                //
+                                // -- disable
+                                EnableCmd.execute(cpServer, appName);
+                                break;
+                            case "--disable":
+                                //
+                                // -- disable
+                                DisableCmd.execute(cpServer, appName);
+                                break;
                             case "--domain":
                                 //
                                 // -- require elevated permissions

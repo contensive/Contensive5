@@ -18,7 +18,9 @@ namespace Contensive.CLI {
             Console.Write(NewAppCmd.helpText);
             Console.Write(DeleteAppCmd.helpText);
             Console.Write(DeleteProtectionCmd.helpText);
+            Console.Write(DisableCmd.helpText);
             Console.Write(DomainCmd.helpText);
+            Console.Write(EnableCmd.helpText);
             Console.Write(ExecuteAddonCmd.helpText);
             Console.Write(FileDownloadCmd.helpText);
             Console.Write(FileUploadCmd.helpText);
