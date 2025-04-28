@@ -16,13 +16,13 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     width = 1,
                     number = PageContentModel.getPagesToReviewCount(cp, months).ToString(),
                     subhead = "Pages To Review",
-                    description = "Pages not reviewed in the past 90 days. Click to Review.",
+                    description = $"Pages not reviewed in the past {months} {(months==1 ? "month" : "months")}. Click to Review.",
                     refreshSeconds = 0,
                     widgetType = WidgetTypeEnum.number,
                     url = $"{cp.Site.GetText("adminurl")}?addonguid=%7B6A54A051-6CF6-4D8C-823D-C37741DD072A%7D",
                     filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>() {
                         new DashboardWidgetBaseModel_FilterOptions() {
-                            filterCaption = "Month",
+                            filterCaption = "1 Month",
                             filterValue = "1",
                             filterActive = (months == 1)
                         },
@@ -32,7 +32,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                             filterActive = (months == 3)
                         },
                         new DashboardWidgetBaseModel_FilterOptions() {
-                            filterCaption = "Year",
+                            filterCaption = "1 Year",
                             filterValue = "12",
                             filterActive = (months == 12)
                         }

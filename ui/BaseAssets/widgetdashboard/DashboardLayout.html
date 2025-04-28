@@ -354,7 +354,6 @@
       <div id="dashboard" class="row px-1">
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
-
           <div 
             id="{{#isNewWidgetTemplate}}newWidgetTemplate{{/isNewWidgetTemplate}}{{^isNewWidgetTemplate}}{{widgetHtmlId}}{{/isNewWidgetTemplate}}" 
             data-addonGuid="{{addonGuid}}" 
@@ -379,7 +378,7 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="widgetFilter">
                       {{#filterOptions}}
-                        <a class="dropdown-item" href="#" data-filterValue="{{filterValue}}" data-filterActive="{{filterActive}}">{{filterCaption}}</a>
+                        <a class="widgetFilter dropdown-item" href="#" data-filterValue="{{filterValue}}" data-filterActive="{{filterActive}}">{{filterCaption}}</a>
                       {{/filterOptions}}
                     </div>
                   </div>
@@ -442,6 +441,17 @@
           el.remove();
         });
         //
+        // -- filter
+        $('#dashboard').on('click', '.widgetFilter', function () {
+          console.log('widgetFilter click');
+          const widgetFilter = this.dataset.filtervalue;
+          console.log('widgetFilter:' + widgetFilter);
+          const widget = this.closest('.widget');
+          const widgets = [];
+          widgets.push(widget);
+          widgetDashboardCmd('filter', widgets, widgetFilter);
+        });
+        //
         // -- add widget button
         $('#dashboardWrapper').on('click', '.add-widget', function () {
           var element = $(this);
@@ -459,8 +469,11 @@
       });
       //
       // -- execute server command
-      function widgetDashboardCmd(cmd, items) {
-        console.log('saveItems');
+      // cmd is the command to execute
+      // items is a list of html elements for widgets to save
+      // filterData only valid for filter command
+      function widgetDashboardCmd(cmd, items, widgetFilter) {
+        console.log('widgetDashboardCmd, cmd ['+cmd+'], items.length ['+items.length+'], widgetFilter ['+widgetFilter+']');
         if (!Array.isArray(items)) {
           console.error("widgetDashboardCmd, items is not an array");
           return;
@@ -470,8 +483,8 @@
         postData.cmd = cmd;
         postData.widgets = [];
         items.forEach(function (item) {
-          console.log('widgetDashboardCmd, el.id:' + item.id + ' _id:' + item._id + ' x:' + item.x + ' y:' + item.y + ' w:' + item.w + ' h:' + item.h);
-          postData.widgets.push({ widgetHtmlId: item.id, x: item.x, y: item.y, w: item.w, h: item.h, addonGuid: item.getAttribute('data-addonGuid') });
+          console.log('widgetDashboardCmd, el.id:' + item.id);
+          postData.widgets.push({ widgetHtmlId: item.id, addonGuid: item.getAttribute('data-addonGuid'), widgetFilter: widgetFilter });
         });
         $.ajax({
           type: 'POST',
@@ -506,9 +519,9 @@
                             newScript.textContent = script.textContent;
                         }
                         document.body.appendChild(newScript); // Execute the script by appending it to the <body>
+                      // Remove the original <script> tag from the target element
+                      script.remove();  
                     });
-                    // Remove the original <script> tag from the target element
-                    script.remove();  
                   }
                 });
               });

@@ -47,7 +47,6 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                     //
                     // -- save the widget sort
                     // -- create a new widget if the widetHtmlId is not found and return the new widget(s)
-                    int sort = 0;
                     foreach (WDS_Request_Widget requestWidget in request.widgets) {
                         var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
                         if (userDashboardConfigWidget is null) {
@@ -67,7 +66,27 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                                 widgetName = viewModel.widgetName
                             });
                         }
-                        userDashboardConfigWidget.sort = sort++;
+                        continue;
+                    }
+                }
+                if (request.cmd == "filter") {
+                    //
+                    // -- update widget filter and refresh
+                    foreach (WDS_Request_Widget requestWidget in request.widgets) {
+                        var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
+                        if (userDashboardConfigWidget != null) {
+                            //
+                            userDashboardConfigWidget.filterValue = requestWidget.widgetFilter;
+                            userDashboardConfig.save(cp, portalName);
+                            //
+                            var viewModel = DashboardWidgetRenderController.buildDashboardWidget(cp, userDashboardConfigWidget);
+                            result.Add(new WDS_Response {
+                                widgetHtmlId = requestWidget.widgetHtmlId,
+                                htmlContent = viewModel.htmlContent,
+                                link = viewModel.url,
+                                widgetName = viewModel.widgetName
+                            });
+                        }
                         continue;
                     }
                 }
@@ -142,6 +161,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         //public int w { get; set; }
         public string widgetHtmlId { get; set; }
         public string addonGuid { get; set; }
+        public string widgetFilter { get; set; }
     }
     //
     public class WDS_Response {
