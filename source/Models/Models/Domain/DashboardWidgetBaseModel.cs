@@ -48,7 +48,8 @@ namespace Contensive.Processor.Models {
     public enum WidgetTypeEnum {
         htmlContent = 1,
         number = 2,
-        pie = 3
+        pie = 3,
+        bar = 4
     }
     //
     /// <summary>

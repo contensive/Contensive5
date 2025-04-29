@@ -1197,6 +1197,12 @@ namespace Contensive.Processor {
         public const string dashboardWidgetPieChartLayoutName = "Dashboard Widget Pie Chart Layout";
         public const string dashboardWidgetPieChartLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetPieChartLayout.html";
         // 
+        // -- Dashboard Bar Widget
+        // 
+        public const string dashboardWidgetBarChartLayoutGuid = "{C9E9AFC4-A641-40A1-AA8C-A867584726BE}";
+        public const string dashboardWidgetBarChartLayoutName = "Dashboard Widget Bar Chart Layout";
+        public const string dashboardWidgetBarChartLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetBarChartLayout.html";
+        // 
         // -- Dashboard Layout
         // 
         public const string dashboardLayoutGuid = "{e4796a0e-ed80-4ffb-8de9-52d7bb4984d8}";

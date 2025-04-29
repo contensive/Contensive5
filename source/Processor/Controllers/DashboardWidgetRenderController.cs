@@ -92,6 +92,12 @@ namespace Contensive.Processor.Controllers {
                     DashboardWidgetPieChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetPieChartModel>(widgetAddonResultJson);
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetPieChartLayoutGuid, Constants.dashboardWidgetPieChartLayoutName, Constants.dashboardWidgetPieChartLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                } else if (addonResult.widgetType == WidgetTypeEnum.bar) {
+                    //
+                    // -- bar widget
+                    DashboardWidgetBarChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetBarChartModel>(widgetAddonResultJson);
+                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetBarChartLayoutGuid, Constants.dashboardWidgetBarChartLayoutName, Constants.dashboardWidgetBarChartLayoutPathFilename);
+                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else {
                     //
                     // -- future growth

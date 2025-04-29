@@ -3539,6 +3539,12 @@
 	<Addon Name="widgetDashboardCmd" Guid="{E4EFE94E-DFCE-42B5-A54E-9ABF97250249}" Type="Add-on">
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboard.WidgetDashboardCmdRemote]]></DotNetClass>
 		<RemoteMethod>yes</RemoteMethod>
+	</Addon>
+
+	<Addon Name="Sample Dashboard Bar Chart Widget" Guid="{E36E211F-2855-47AD-BD3B-2ACF6239022D}" Type="Add-on">
+		<DashboardWidget>Yes</DashboardWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SampleBarChartWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>	
 
 	<Addon Name="Sample Dashboard Pie Chart Widget" Guid="{AFDF60F8-4306-4A63-BADE-6D673047F5AA}" Type="Add-on">

@@ -1,91 +1,101 @@
 
-<style>
+<style data-delete>
      @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 </style>
 <div>
     <canvas id="barChart{{key}}"></canvas>
   </div>
   
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script data-delete src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <script>
-    const ctx = document.getElementById('barChart{{key}}');
-    
-  
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        datasets: [{
-          label: 'Authenticated Visits',
-          data: [12, 19, 3, 8, 2, 5, 6],
-          borderWidth: 1,
-          backgroundColor: [
-            'rgba(13, 110, 253, 0.2)'
-          ],
-          borderColor: [
-            'rgba(13, 110, 253, 1)'
-          ],
-        },
-        {
-          label: 'Unauthenticated Visits',
-          data: [15, 6, 2, 5, 2, 3, 9],
-          borderWidth: 1,
-          backgroundColor: [
-            'rgba(220, 53, 69, 0.2)'
-          ],
-          borderColor: [
-            'rgba(220, 53, 69, 1)'
-          ]
-        },
-        {
-          label: 'Bot Visits',
-          data: [2, 9, 4, 22, 1, 17, 0],
-          borderWidth: 1,
-          backgroundColor: [
-            'rgba(253, 126, 20, 0.2)'
-          ],
-          borderColor: [
-            'rgba(253, 126, 20, 1)'
-          ]
-        }],
-      },
-      options: {
-        plugins: {
-            title: {
-                display: true,
-                text: 'Number of Visits by Day',
-                font: {
-                    size: function(context) {
-                        let width = context.chart.width;
-                        return width < 400 ? 14 : 16;
-                    },
-                    family: 'Poppins',
-                    weight: '600',
-                }
-            },
+    console.log("barchart{{uniqueId}} start");
+    if (document.readyState === "loading") {
+      console.log("barchart{{uniqueId}} wait for ready");
+      document.addEventListener("DOMContentLoaded", callback{{uniqueId}});
+    } else {
+      console.log("barchart{{uniqueId}} no wait");
+      callback{{uniqueId}}();
+    }
 
-            legend: {
-            position: 'top',
-            labels: {
-                font: {
-                  family: 'Poppins' ,
+
+    function callback{{uniqueId}}() {
+      const ctx = document.getElementById('barChart{{key}}');
+      new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+          datasets: [{
+            label: 'Authenticated Visits',
+            data: [12, 19, 3, 8, 2, 5, 6],
+            borderWidth: 1,
+            backgroundColor: [
+              'rgba(13, 110, 253, 0.2)'
+            ],
+            borderColor: [
+              'rgba(13, 110, 253, 1)'
+            ],
+          },
+          {
+            label: 'Unauthenticated Visits',
+            data: [15, 6, 2, 5, 2, 3, 9],
+            borderWidth: 1,
+            backgroundColor: [
+              'rgba(220, 53, 69, 0.2)'
+            ],
+            borderColor: [
+              'rgba(220, 53, 69, 1)'
+            ]
+          },
+          {
+            label: 'Bot Visits',
+            data: [2, 9, 4, 22, 1, 17, 0],
+            borderWidth: 1,
+            backgroundColor: [
+              'rgba(253, 126, 20, 0.2)'
+            ],
+            borderColor: [
+              'rgba(253, 126, 20, 1)'
+            ]
+          }],
+        },
+        options: {
+          plugins: {
+              title: {
+                  display: true,
+                  text: 'Number of Visits by Day',
+                  font: {
+                      size: function(context) {
+                          let width = context.chart.width;
+                          return width < 400 ? 14 : 16;
+                      },
+                      family: 'Poppins',
+                      weight: '600',
+                  }
+              },
+
+              legend: {
+              position: 'top',
+              labels: {
+                  font: {
+                    family: 'Poppins' ,
+                  }
                 }
-              }
+            }
+          },
+          responsive: true,
+          scales: {
+          x: {
+              stacked: true,
+          },
+          y: {
+              stacked: true
           }
-        },
-        responsive: true,
-        scales: {
-        x: {
-            stacked: true,
-        },
-        y: {
-            stacked: true
+          },
         }
-        },
-      
+      });    
+    }
 
-        }
-    });
+
 
 </script>

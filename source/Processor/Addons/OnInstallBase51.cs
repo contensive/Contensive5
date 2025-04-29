@@ -41,6 +41,7 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetNumberLayoutGuid, dashboardWidgetNumberLayoutName, dashboardWidgetNumberLayoutPathFilename, dashboardWidgetNumberLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetHtmlContentLayoutGuid, dashboardWidgetHtmlContentLayoutName, dashboardWidgetHtmlContentLayoutPathFilename, dashboardWidgetHtmlContentLayoutPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetPieChartLayoutGuid, dashboardWidgetPieChartLayoutName, dashboardWidgetPieChartLayoutPathFilename, dashboardWidgetPieChartLayoutPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, dashboardWidgetBarChartLayoutGuid, dashboardWidgetBarChartLayoutName, dashboardWidgetBarChartLayoutPathFilename, dashboardWidgetBarChartLayoutPathFilename);
                 //
                 // -- 
                 return "ok";
