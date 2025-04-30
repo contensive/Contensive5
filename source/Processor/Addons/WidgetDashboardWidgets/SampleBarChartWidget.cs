@@ -88,7 +88,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     subhead = "Sample Bar Chart Widget",
                     description = "This is a sample Bar chart widget. It is used to demonstrate how to create a Bar chart widget.",
                     uniqueId = cp.Utils.GetRandomString(4),
-                    width = 1,
+                    width = 2,
                     refreshSeconds = 0,
                     url = "https://www.contensive.com",
                     dataLabels = DefaultDataLabels.Take(segments).ToList(),
