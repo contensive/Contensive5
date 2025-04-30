@@ -1,0 +1,24 @@
+const { chromium } = require('@playwright/test');
+const fs = require('fs');
+
+(async () => {
+  const browser = await chromium.launch({ headless: false }); // So you can see the login
+  const context = await browser.newContext();
+  const page = await context.newPage();
+
+  // Go to login page
+  await page.goto('https://sprint7.sitefpo.com/admin');
+
+  // Fill in login form (update selectors if needed)
+  await page.fill('#username', 'Test'); 
+  await page.fill('#password', 'Admintest@1');
+  await page.click('button[type="submit"]');
+
+  // Wait for successful login (update if needed)
+  await page.waitForURL('**/meeting');
+
+  // Save storage state to file
+  await context.storageState({ path: 'admin-auth.json' });
+
+  await browser.close();
+})();
