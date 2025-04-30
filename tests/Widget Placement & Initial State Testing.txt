@@ -1,0 +1,116 @@
+async function loginAsAdmin(page) {
+  await page.goto('https://sprint7.sitefpo.com/admin');
+
+  await page.fill('#username', 'Test'); // Replace with actual input field selector
+  await page.fill('#password', 'Admintest@1');
+  await page.click('button[type="Login"]'); // Adjust selector to match your login button
+
+  // Wait until you're redirected or some admin-specific UI is visible
+  await page.waitForURL('**/meeting'); // or another post-login page
+}
+
+
+const { test, expect } = require('@playwright/test');
+
+test('Step 1: Widget shows instructional message when no meetings exist', async ({ page }) => {
+  await page.goto('https://sprint7.sitefpo.com/meeting');
+
+  const messageLocator = page.locator('text=Meeting Manager Administration page');
+
+  await expect(messageLocator).toBeVisible();
+  await expect(messageLocator).toContainText('To create or manage meetings');
+});
+
+const { test, expect } = require('@playwright/test');
+
+test.describe('Meeting Registration Widget Flow', () => {
+
+  test('Step 1: Widget on new page with no meetings', async ({ page }) => {
+    await page.goto('https://yourdomain.com/new-page-with-widget');
+    const instructionText = await page.locator('#no-meetings-message');
+    await expect(instructionText).toContainText('create a meeting');
+    await expect(instructionText.locator('a')).toHaveAttribute('href', /create-meeting/);
+  });
+
+  test('Step 2: Create Meeting opens admin in new tab', async ({ context, page }) => {
+    await page.goto('https://yourdomain.com/new-page-with-widget');
+    const [newPage] = await Promise.all([
+      context.waitForEvent('page'),
+      page.click('#create-meeting-btn')
+    ]);
+    await expect(newPage).toHaveURL(/admin\/create-meeting/);
+  });
+
+  test('Step 3: Fill meeting details and check unsaved edit behavior', async ({ page }) => {
+    await page.goto('https://yourdomain.com/admin/create-meeting');
+    await page.fill('#meeting-name', 'Test Meeting');
+    await page.fill('#date', '2025-05-01');
+    await page.click('#edit-thank-you');
+    await expect(page.locator('#meeting-name')).not.toHaveValue('Test Meeting'); // should be blank if unsaved
+  });
+
+  test('Step 4: Add Attendee Types', async ({ page }) => {
+    await page.goto('https://yourdomain.com/admin/edit-meeting');
+    await page.click('#edit-attendee-type');
+    await page.fill('#attendee-name', 'General Admission');
+    await page.fill('#fee', '25');
+    await page.click('#attendee-save-btn');
+    await expect(page.locator('.attendee-list')).toContainText('General Admission');
+    await expect(page.locator('.attendee-list')).toContainText('$25');
+  });
+
+  test('Step 5: Add Sessions', async ({ page }) => {
+    await page.click('#add-session');
+    await page.fill('#session-title', 'Opening Session');
+    await page.fill('#speaker', 'Jane Doe');
+    await page.click('#save-session');
+
+    await page.click('#add-session');
+    await page.fill('#session-title', 'Closing Remarks');
+    await page.click('#save-session');
+
+    await expect(page.locator('.session-list')).toContainText('Opening Session');
+    await expect(page.locator('.session-list')).toContainText('Closing Remarks');
+  });
+
+  test('Step 6: Add Discount Codes', async ({ page }) => {
+    await page.click('#add-discount');
+    await page.fill('#discount-code', 'SAVE10');
+    await page.fill('#discount-amount', '10');
+    await page.click('#save-discount');
+
+    await page.click('#add-discount');
+    await page.fill('#discount-code', 'FREEPASS');
+    await page.check('#free-checkbox');
+    await page.click('#save-discount');
+
+    await expect(page.locator('.discount-list')).toContainText('SAVE10');
+    await expect(page.locator('.discount-list')).toContainText('FREEPASS');
+  });
+
+  test('Step 7: Edit Registration Form', async ({ page }) => {
+    await page.click('#edit-form');
+    const checkboxes = page.locator('.field-toggle');
+    const count = await checkboxes.count();
+    for (let i = 0; i < count; i++) {
+      await checkboxes.nth(i).check(); // Check both Display and Required
+    }
+    await page.click('#form-save');
+    await expect(page.locator('.registration-form .required')).toHaveCount(count);
+  });
+
+  test('Step 8: Add Instructions', async ({ page }) => {
+    const instructionFields = page.locator('.instruction-field');
+    const count = await instructionFields.count();
+    for (let i = 0; i < count; i++) {
+      const field = instructionFields.nth(i);
+      const currentValue = await field.inputValue();
+      await field.fill(currentValue + ' this is a test');
+    }
+    await page.click('#save-instructions');
+    for (let i = 0; i < count; i++) {
+      await expect(instructionFields.nth(i)).toHaveValue(/this is a test/);
+    }
+  });
+
+});
