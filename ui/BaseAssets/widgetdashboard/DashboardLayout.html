@@ -190,12 +190,12 @@
       }
 
       .text-primary {
-        color: #0955d2 !important;
+        color: #0545a2 !important;
       }
 
       a.text-primary:hover,
       a.text-primary:focus {
-        color: #224abe !important;
+        color: #043e94 !important;
       }
 
       .text-tertiary {
@@ -242,12 +242,35 @@
       opacity: 1 !important;
     }
 
-   
+   .dropdown.addWidgetWrpr {
+      position: fixed;
+      bottom: 1.4em;
+      right: 1.8em;
+      z-index: 999;
+    }
+    .dropdown a.addWidgetBtn {
+      opacity: 0.5;
+    }
+    .dropdown a.addWidgetBtn:hover {
+      opacity: 1;
+    }
 
+    .dropdown a.addWidgetBtn.show {
+      opacity: 1;
+    }
     </style>
 
     <div class="container-fluid" id="dashboardWrapper">
-      
+      <div class="dropdown addWidgetWrpr">
+        <a href="#" class="btn btn-sm btn-primary shadow-sm addWidgetBtn" id="dropdownMenuButton1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fa-solid fa-plus text-white"></i>
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+          {{#addWidgetList}}
+          <li><a class="dropdown-item add-widget" href="#" data-addonGuid="{{guid}}">{{name}}</a></li>
+          {{/addWidgetList}}
+        </ul>
+      </div>
       <div id="dashboard" class="row px-1">
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
@@ -283,7 +306,7 @@
                 {{/hasFilter}}
               </div>
 
-              <div class="card-body {{#url}}body-linked{{/url}}">
+              <div class="card-body d-flex align-items-center justify-content-center h-100 {{#url}}body-linked{{/url}}">
                 {{{htmlContent}}}
               </div>
               <div class="card-footer d-flex justify-content-end bg-transparent border-light">

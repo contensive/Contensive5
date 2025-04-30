@@ -28,6 +28,21 @@
         font-size: 1rem;
         text-transform: uppercase;
     }
+
+    /* div {
+        display: inline-grid;
+        grid-template-columns: repeat(3, auto);
+        grid-auto-rows: min-content;
+        grid-auto-flow: row dense;
+        column-gap: 20px;
+        row-gap: 20px;
+         place-items: stretch;
+        
+    } */
+
+    .topnavSubItems {
+        width: 700px;
+    }
     .ccNavColumn {
         width:15em;
         overflow:hidden;
@@ -276,6 +291,7 @@
         width: 100%;
         min-height: 100vh;
         padding-top: 40px;
+        padding-bottom: 40px;
     }
     
     .ccCon .ccControlsCon {
@@ -1595,7 +1611,7 @@
                                         <i class="{{listIcon}} fs-6"></i>
                                         <br><small>{{listName}}</small>
                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown-{{listName}}">
+                                    <div class="dropdown-menu dropdown-menu-end shadow topnavSubItems" aria-labelledby="navbarDropdown-{{listName}}">
                                         <div class="d-lg-flex align-items-start justify-content-start flex-wrap flex-lg-nowrap">
                                             {{#listCategoryList}}
                                             <div class="ccNavColumn">
