@@ -1,3 +1,18 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="css/dashboard-styles.css" rel="stylesheet">
+</head>
+
+
+  <body>
+
+
 <style>
     @media (min-width: 768px) {
         .navbar-brand.abs {
@@ -68,10 +83,10 @@
         padding: 0;
         box-sizing: border-box;
         overflow-y: scroll;
-        padding-right: 17px;       
+        /* padding-right: 17px;        */
     }
     .ccBodyAdmin {
-        font-family: 'Catamaran', sans-serif;
+        font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
         margin: 0;
         padding: 0;
         color: #233;
@@ -235,6 +250,7 @@
         margin: 0;
         background-color: white;
         min-height: 100vh;
+        
     }
     
     .ccCon .ccToolsCon .ccContentCon .opened {
@@ -259,6 +275,7 @@
         background-color: rgb(240,240,240);
         width: 100%;
         min-height: 100vh;
+        padding-top: 40px;
     }
     
     .ccCon .ccControlsCon {
@@ -1407,106 +1424,215 @@
     .ms-auto {
         margin-left: auto!important;
     }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        display: none;
+        float: left;
+        min-width: 10rem;
+        padding: 0.5rem 0;
+        margin: 0.125rem 0 0;
+        font-size: 0.85rem;
+        color: #858796;
+        text-align: left;
+        list-style: none;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #e3e6f0;
+        border-radius: 0.35rem;
+      }
+      .dropdown-item {
+        display: block;
+        width: 100%;
+        padding: 0.25rem 1.5rem;
+        clear: both;
+        font-weight: 400;
+        color: #3a3b45;
+        text-align: inherit;
+        white-space: nowrap;
+        background-color: transparent;
+        border: 0;
+      }
+
+      .dropdown-item:hover,
+      .dropdown-item:focus {
+        color: #2e2f37;
+        text-decoration: none;
+        background-color: #eaecf4;
+      }
+
+      .dropdown-item.active,
+      .dropdown-item:active {
+        color: #fff;
+        text-decoration: none;
+        background-color: #0955d2;
+      }
+
+      .ccAdminHeaderNav .input-group button {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0!important;
+      }
+      .ccAdminHeaderNav .input-group input {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0!important;
+      }
+
+      .navbar {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        align-content: center;
+        justify-content: space-between;
+        padding-right: 20px;
+        position: relative;
+        padding: 0.3rem 1rem;
+      }
+
+      .navbar .dropdown-menu {
+        max-height: 550px;
+        overflow: auto;
+      }
+
+    .navbar-nav {
+      display: flex;
+      flex-direction: column;
+      padding-left: 0;
+      margin-bottom: 0;
+      list-style: none;
+    }
+
+    .navbar-nav .nav-link {
+      padding-right: 0;
+      padding-left: 0;
+      font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    }
+
+    .navbar-nav .dropdown-menu {
+      position: static;
+      float: none;
+    }
+
+    .navbar-collapse {
+      flex-basis: 100%;
+      flex-grow: 1;
+      align-items: center;
+    }
+
+    .navbar-toggler {
+      padding: 0.25rem 0.em;
+      font-size: 1.25rem;
+      line-height: 1;
+      background-color: transparent;
+      border: 1px solid transparent;
+      border-radius: 0.35rem;
+      box-shadow: none !important;
+    }
+
+    .navbar-toggler:hover, .navbar-toggler:focus {
+      text-decoration: none;
+    }
+
+    .navbar.border.border-light {
+      border: 1px solid rgba(0,0,0,.175) !important;
+    }
     </style>
     <div class="container-fluid ccBodyAdmin ccCon">
     {{{adminExceptions}}}
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark justify-content-center ccAdminHeaderNav pe-4 ps-2">
-        <!-- <a class="navbar-brand abs" href="{{adminRoute}}">{{{leftSideMessage}}}</a> -->
-        <button class="ms-auto navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#collapsingNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="navbar-collapse collapse" id="collapsingNavbar">
-            <!-- public links -->
-            <ul class="navbar-nav ps-2">
-                <li class="nav-item text-center my-0">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarCommDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-globe fa-lg m-0 mb-1"></i>
-                        <br><small>Sites</small>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu" aria-labelledby="navbarCommDropdown">
-                        <a class="dropdown-item" href="{{adminRoute}}">{{{leftSideMessage}}}</a>
-                        {{#navDomainList}}
-                        {{#navDivider}}<div class="dropdown-divider"></div>{{/navDivider}}
-                        {{^navDivider}}<a class="dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>{{/navDivider}}
-                        {{/navDomainList}}
-                    </div>
-
-                </li>
-            </ul>
-            <!-- addon/table search -->
-            <form class="form-inline ms-2 my-2 my-lg-0">
-                <input id="cmdSearch" class="form-control" type="search" placeholder="Search">
-            </form>
-            <!-- recent list -->
-            <ul class="ms-2 navbar-nav">
-				{{#hasRecentList}}
-                <li class="nav-item text-center my-0 dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						<i class="fa-solid fa-clock-rotate-left"></i>
-						<br><small>Recent</small>
-					</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm ccAdminHeaderNav">
+            <div class="input-group">
+                <form class="navbar-search ps-2">
+                  <input id="cmdSearch" type="search" class="form-control bg-white" placeholder="Search..." aria-label="Search" aria-describedby="search">
+                </form>
+                {{#hasRecentList}}
+                <div class="dropdown">
+                    <button class="btn btn-light border" id="navbarDropdownMenuLink" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="small"><i class="fa-solid fa-clock-rotate-left"></i> Recent</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownMenuLink">
                         {{#recentList}}
                         <a id="{{navItemDataDragId}}" data-dropid="{{navItemDataDragId}}" class="navDrag dropdown-item" href="{{navItemHref}}">{{navItemName}}</a>
                         {{/recentList}}
                     </div>
-                </li>
-				{{/hasRecentList}}
-                <li class="nav-item text-center my-0 dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownHelp" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						<i class="fa-solid fa-circle-question"></i>
-						<br><small>Help</small>
-					</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownHelp">
-                        <a class="dropdown-item" target="_blank" href="/help">Online Help</a>
-                        <a class="dropdown-item" target="_blank" href="http://wiki.kmacloud.net/">Legacy Wiki Learning Center</a>
-                        <a class="dropdown-item" target="_blank" href="https://support.contensive.com/Contensive-Online-Support">Phone and Email Support</a>
-                        <a class="dropdown-item" target="_blank" href="https://support.contensive.com/Account">Access Your Account</a>
+                </div>
+                {{/hasRecentList}}
+            </div>
+            <div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#collapsingNavbar">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="offcanvas offcanvas-end" id="collapsingNavbar">
+                    <div class="offcanvas-body">
+                        <ul class="navbar-nav justify-content-end flex-grow-1 pe-lg-3" >
+                                <li class="nav-item text-center dropdown mx-1">
+                                    <a class="nav-link" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="fa-solid fa-circle-question"></i>
+                                        <br><small>Help</small>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdownHelp">
+                                        <a class="dropdown-item" target="_blank" href="/help">Online Help</a>
+                                        <a class="dropdown-item" target="_blank" href="http://wiki.kmacloud.net/">Legacy Wiki Learning Center</a>
+                                        <a class="dropdown-item" target="_blank" href="https://support.contensive.com/Contensive-Online-Support">Phone and Email Support</a>
+                                        <a class="dropdown-item" target="_blank" href="https://support.contensive.com/Account">Access Your Account</a>
+                                    </div>
+                                </li>
+                                {{#siteWarningCount}}
+                                <li class="nav-item dropdown text-center  mx-1">
+                                    <a href="{{siteWarningLink}}" class=" position-relative nav-link ">
+                                        <i class="fas fa-bell fa-fw"></i>
+                                        <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
+                                            <span class="visually-hidden">New alerts</span>
+                                        </span>
+                                        <br><small>Warnings</small>
+                                    </a>
+                                </li>
+                                {{/siteWarningCount}}
+                        
+                                {{#categoryList}}
+                                <li class="nav-item dropdown text-center mx-1">
+                                    <a class="nav-link" href="#" id="navbarDropdown-{{listName}}" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="{{listIcon}} fs-6"></i>
+                                        <br><small>{{listName}}</small>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown-{{listName}}">
+                                        <div class="d-lg-flex align-items-start justify-content-start flex-wrap flex-lg-nowrap">
+                                            {{#listCategoryList}}
+                                            <div class="ccNavColumn">
+                                                {{#navCategoryName}}
+                                                <div class="dropdown-header">{{navCategoryName}}</div>
+                                                {{/navCategoryName}}{{#navCategoryItems}}
+                                                <a id="{{navItemDataDragId}}" data-dropid="{{navItemDataDragId}}"  class="{{#navItemDataDragId}}navDrag{{/navItemDataDragId}} dropdown-item" href="{{navItemHref}}" title="{{navItemName}}">{{navItemName}}</a>
+                                                {{/navCategoryItems}}
+                                            </div>
+                                            {{/listCategoryList}}
+                                        </div>
+                                    </div>
+                                </li>
+                                {{/categoryList}}
+                         	
+                            </ul>
                     </div>
-                </li>
-				{{#siteWarningCount}}
-				<li class="nav-item dropdown text-center my-0">
-					<div class="">
-						<a href="{{siteWarningLink}}" class="warn-icon nav-link ">
-							<i class="fas fa-bell warn-icon-badge"></i>
-							<br><small>Warnings</small>
-						</a>
-					</div>
-				</li>
-				{{/siteWarningCount}}
-            </ul>
-            <ul class="navbar-nav ms-auto pe-2">
-                {{#categoryList}}
-                <li class="nav-item dropdown text-center my-0">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-{{listName}}" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="{{listIcon}} m-0 mb-1"></i>
-                        <br><small>{{listName}}</small>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-end" aria-labelledby="navbarDropdown-{{listName}}">
-                        <div class="d-md-flex align-items-start justify-content-start">
-                            {{#listCategoryList}}
-                            <div class="ccNavColumn">
-                                {{#navCategoryName}}
-                                <div class="dropdown-header">{{navCategoryName}}</div>
-                                {{/navCategoryName}}{{#navCategoryItems}}
-                                <a id="{{navItemDataDragId}}" data-dropid="{{navItemDataDragId}}"  class="{{#navItemDataDragId}}navDrag{{/navItemDataDragId}} dropdown-item" href="{{navItemHref}}" title="{{navItemName}}">{{navItemName}}</a>
-                                {{/navCategoryItems}}
-                            </div>
-                            {{/listCategoryList}}
-                        </div>
-                    </div>
-                </li>
-                {{/categoryList}}
-            </ul>		
+                </div>
+            </div>
+        </nav>
+        <div class="table-responsive">
+            <table border="0" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td class="ccToolsCon" valign="top">{{{adminNav}}}</td>
+                    <td class="ccContentCon" valign="top" id="desktop">{{{adminContent}}}</td>
+                </tr>
+            </table>
         </div>
-    </nav>
-    <table border="0" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="ccToolsCon" valign="top">{{{adminNav}}}</td>
-            <td class="ccContentCon" valign="top" id="desktop">{{{adminContent}}}</td>
-        </tr>
-    </table>
-</div>
+    </div>
+
+    <script data-delete src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script data-delete src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <script data-delete src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    
+
+</body>
+</html>
 <script>
 
 //

@@ -242,115 +242,12 @@
       opacity: 1 !important;
     }
 
-    .navbar {
-      position: relative;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.3rem 1rem;
-    }
-    .navbar-nav {
-      display: flex;
-      flex-direction: column;
-      padding-left: 0;
-      margin-bottom: 0;
-      list-style: none;
-    }
-
-    .navbar-nav .nav-link {
-      padding-right: 0;
-      padding-left: 0;
-      font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    }
-
-    .navbar-nav .dropdown-menu {
-      position: static;
-      float: none;
-    }
-
-    .navbar-collapse {
-      flex-basis: 100%;
-      flex-grow: 1;
-      align-items: center;
-    }
-
-    .navbar-toggler {
-      padding: 0.25rem 0.em;
-      font-size: 1.25rem;
-      line-height: 1;
-      background-color: transparent;
-      border: 1px solid transparent;
-      border-radius: 0.35rem;
-      box-shadow: none !important;
-    }
-
-    .navbar-toggler:hover, .navbar-toggler:focus {
-      text-decoration: none;
-    }
-
-    .navbar.border.border-light {
-      border: 1px solid rgba(0,0,0,.175) !important;
-    }
+   
 
     </style>
 
-    <div class="container-fluid mt-5" id="dashboardWrapper">
-      <div class="d-flex align-items-center justify-content-between mb-3 px-3">
-        {{#title}}<h1 class="h3 m-0 text-tertiary">{{title}}</h1>{{/title}}
-        <div class="dropdown">
-          <a href="#" class="btn btn-sm btn-primary shadow-sm" id="dropdownMenuButton1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fa-solid fa-plus text-white"></i>
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-            {{#addWidgetList}}
-            <li><a class="dropdown-item add-widget" href="#" data-addonGuid="{{guid}}">{{name}}</a></li>
-            {{/addWidgetList}}
-          </ul>
-        </div>
-      </div>
-      <div class="px-3 mb-4">
-        <nav class="navbar navbar-expand-lg bg-light rounded-2 border border-light shadow-sm">
-            <div class="container-fluid">
-              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                  <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Overview</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Account</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Items</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Orders</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Data</a>
-                  </li>
-                  <li class="nav-item dropdown">
-                    <a class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Reports</a>
-                    <ul class="dropdown-menu dropdown-menu-start">
-                      <li><a class="dropdown-item" href="#">Example</a></li>
-                      <li><a class="dropdown-item" href="#">Example</a></li>
-                      <li><a class="dropdown-item" href="#">Example</a></li>
-                    </ul>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Settings</a>
-                  </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="#">Tools</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </nav>
-    </div>
+    <div class="container-fluid" id="dashboardWrapper">
+      
       <div id="dashboard" class="row px-1">
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
@@ -408,6 +305,7 @@
       </div>
     </div>
 
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript">
       //
