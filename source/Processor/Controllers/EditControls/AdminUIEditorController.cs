@@ -81,7 +81,7 @@ namespace Contensive.Processor.Controllers.EditControls {
                 + "document.addEventListener('DOMContentLoaded', function(){"
                     + $"$('body').on('change','#component-{htmlId}-date,#component-{htmlId}-time',function(e){{console.log('date/time change');setDateTimeEditorHidden('{htmlId}');}});"
                     + $"$('body').on('change','#{fieldName}.clearFlag',function(e){{console.log('date/time clear');}});"
-                + "}";
+                + "});";
             return HtmlController.div(HtmlController.div(inputDate + inputTime + clearCheck, "input-group") + inputDateTime + HtmlController.scriptCode(core, js));
         }
         //
