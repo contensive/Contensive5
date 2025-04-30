@@ -81,7 +81,8 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
         public override object Execute(CPBaseClass cp) {
             try {
                 int segments = cp.Doc.GetInteger("widgetFilter");
-
+                if(segments==0) { segments = 6; } // default to 2 segments
+                //
                 DashboardWidgetBarChartModel result = new() {
                     widgetName = "Sample Bar Chart Widget",
                     subhead = "Sample Bar Chart Widget",
@@ -93,23 +94,23 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     dataLabels = DefaultDataLabels.Take(segments).ToList(),
                     dataValues = DefaultDataValues.Take(segments).ToList(),
                     widgetType = WidgetTypeEnum.bar,
-                    //filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>() {
-                    //       new() {
-                    //           filterCaption = "2 Segment",
-                    //           filterValue = "2",
-                    //           filterActive = (segments == 2)
-                    //       },
-                    //       new() {
-                    //           filterCaption = "6 Segments",
-                    //           filterValue = "6",
-                    //           filterActive = (segments == 6)
-                    //       },
-                    //       new() {
-                    //           filterCaption = "10 Segments",
-                    //           filterValue = "10",
-                    //           filterActive = (segments == 10)
-                    //       }
-                    //   }
+                    filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>() {
+                           new() {
+                               filterCaption = "2 Segment",
+                               filterValue = "2",
+                               filterActive = (segments == 2)
+                           },
+                           new() {
+                               filterCaption = "6 Segments",
+                               filterValue = "6",
+                               filterActive = (segments == 6)
+                           },
+                           new() {
+                               filterCaption = "10 Segments",
+                               filterValue = "10",
+                               filterActive = (segments == 10)
+                           }
+                       }
                 };
                 return result;
             } catch (Exception ex) {
