@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+    <metadata>
+        <id>Contensive.PortalApi</id>
+        <version>1.0.23</version>
+        <title>Contensive Portal API</title>
+        <authors>Contensive</authors>
+        <owners>Contensive</owners>
+        <licenseUrl>http://Contensive.io/</licenseUrl>
+        <projectUrl>http://Contensive.io/</projectUrl>
+        <iconUrl>http://Contensive.io/img/ContensiveNuGetLogo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>This package installs references for the Contensive Portal API, making it easier to create add-ons that use the Portal Collection.</description>
+        <releaseNotes>Chrome shadow fails for width under 62px..</releaseNotes>
+        <copyright>Copyright 2020</copyright>
+        <tags>Contensive,portal,dotnet,clib,cclib</tags>
+        <dependencies>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="bin\Debug\net472\PortalFramework.dll" target="lib\net472\PortalFramework.dll" />
+    </files>
+</package>

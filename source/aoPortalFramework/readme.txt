@@ -1,0 +1,1 @@
+Portal Framework (aka AdminFramework) is an interface to help create Admin Portals. A portal is a group of addons and functionalities.
