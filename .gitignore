@@ -257,3 +257,9 @@ WebDeploymentPackage/Setup.msi
 /source/Cli.Installer/componentsGenerated.wxs
 WebDeploymentPackage/
 etc/TestApps/TestApps/TestApps.zip
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

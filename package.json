@@ -1,0 +1,25 @@
+{
+  "name": "contensive5",
+  "version": "1.0.0",
+  "description": "The library supports an environment that executes addons and provides hardware abstraction. This architecture simplifies code re-use and resource integration.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/contensive/Contensive5.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/contensive/Contensive5/issues"
+  },
+  "homepage": "https://github.com/contensive/Contensive5#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.3"
+  }
+}

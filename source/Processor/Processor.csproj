@@ -198,4 +198,8 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Addons\PortalFrameworkTmp\" />
+  </ItemGroup>
+
 </Project>
