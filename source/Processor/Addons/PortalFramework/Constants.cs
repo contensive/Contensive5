@@ -11,15 +11,15 @@ namespace Contensive.Processor.Addons.PortalFramework {
         //
         public const string guidLayoutPageWithNav = "{7B4BEE74-A4A1-4641-9745-25960AFD398F}";
         public const string nameLayoutPageWithNav = "AdminUI Page With Nav Layout";
-        public const string pathFilenameLayoutAdminUIPageWithNav = "portalframework\\AdminUIPageWithNavLayout.html";
+        public const string pathFilenameLayoutAdminUIPageWithNav = "BaseAssets\\AdminUIPageWithNavLayout.html";
         //
         public const string guidLayoutAdminUITwoColumnLeft = "{6B0B5593-49A9-45A9-AF64-9A14B34ACB44}";
         public const string nameLayoutAdminUITwoColumnLeft = "AdminUI Two Column Left";
-        public const string pathFilenameLayoutAdminUITwoColumnLeft = "portalframework\\AdminUITwoColumnLeftLayout.html";
+        public const string pathFilenameLayoutAdminUITwoColumnLeft = "BaseAssets\\AdminUITwoColumnLeftLayout.html";
         //
         public const string guidLayoutAdminUITwoColumnRight = "{41C1F5F9-9AAC-418D-8C05-8B558A02BAF2}";
         public const string nameLayoutAdminUITwoColumnRight = "AdminUI Two Column Right";
-        public const string pathFilenameLayoutAdminUITwoColumnRight = "portalframework\\AdminUITwoColumnRightLayout.html";
+        public const string pathFilenameLayoutAdminUITwoColumnRight = "BaseAssets\\AdminUITwoColumnRightLayout.html";
         //
         public const string blockedMessage = "<h2>Blocked Content</h2><p>Your account must have administrator access to view this content.</p>";
         public const string rnDstFeatureGuid = "dstFeatureGuid";

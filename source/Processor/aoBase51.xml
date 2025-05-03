@@ -3074,7 +3074,7 @@
   --> 
 
 	<Addon Name="Portal" Guid="{A1BCA00C-2657-42A1-8F98-BED1E5A42025}" Type="Add-on">
-		<DotNetClass><![CDATA[Contensive.Addons.PortalFramework.PortalAddon]]></DotNetClass>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.PortalFramework.Addons.PortalAddon]]></DotNetClass>
 		<ArgumentList><![CDATA[Portal=[listid(portals)]]]></ArgumentList>
 		<IncludeAddon Name="jQuery BlockUI" Guid="{F6087787-E01E-4E09-AC02-502D0387E048}"/>
 		<IncludeAddon Name="Contensive Base Assets" Guid="{F83EE7F9-79DA-4B3F-A1CD-45AEAD93D70F}"/>

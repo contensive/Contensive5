@@ -66,15 +66,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Controllers {
             return "<input type=\"submit\" name=\"" + buttonName + "\" value=\"" + buttonValue + "\" id=\"" + buttonId + "\" class=\"btn btn-primary mr-1 me-1 btn-sm " + buttonClass + "\">";
         }
         //
-        public static string getButtonBar(List<string> buttons) {
-            if (buttons.Count == 0) { return ""; }
-            StringBuilder result = new StringBuilder();
-            foreach (var button in buttons) {
-                result.Append(button);
-            }
-            return "<div class=\"border-bottom bg-white p-2\">" + result.ToString() + "</div>";
-        }
-        //
         public static string getButtonSection(string buttons) {
             if (string.IsNullOrEmpty(buttons)) { return ""; }
             return "<div class=\"border-bottom bg-white p-2\">" + buttons + "</div>";

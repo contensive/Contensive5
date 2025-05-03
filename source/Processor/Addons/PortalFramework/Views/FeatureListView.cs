@@ -43,11 +43,10 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                         }
                     }
                 }
-                LayoutBuilderSimple content = new LayoutBuilderSimple {
-                    title = feature.heading,
-                    body = "<ul class=\"afwButtonList\">" + items + "</ul>"
-                };
-                return content.getHtml(cp);
+                var content = cp.AdminUI.CreateLayoutBuilder();
+                content.title = feature.heading;
+                content.body = "<ul class=\"afwButtonList\">" + items + "</ul>";
+                return content.getHtml();
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, "portalClass.getFeatureList exception");
                 throw;

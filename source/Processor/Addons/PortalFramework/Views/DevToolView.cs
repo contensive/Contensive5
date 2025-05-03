@@ -17,10 +17,9 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 //
                 // this is a feature list, display the feature list
                 //
-                LayoutBuilderSimple content = new LayoutBuilderSimple {
-                    title = "Developer Tool",
-                    body = ""
-                };
+                var content = CP.AdminUI.CreateLayoutBuilder();
+                content.title = "Developer Tool";
+                content.body = "";
                 //
                 // process snapshot tool
                 //
@@ -51,7 +50,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 //
                 //
                 //
-                return content.getHtml(CP);
+                return content.getHtml();
             } catch (Exception ex) {
                 CP.Site.ErrorReport(ex, "exception in loadPortal");
                 throw;
