@@ -18,10 +18,17 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// </summary>
         public abstract string baseUrl { get; }
         /// <summary>
-        /// A remote method that returns the current view. If present, layoutbuilder will call this remote
-        /// to refresh the view, passing search terms and orderby clauses.
+        /// deprecated. Instead set callbackMethodGuid to the guid of the addon method that returns the current view.
+        /// When a search or pagination is performed, the view is refreshed by calling this method.
         /// </summary>
+        [Obsolete("Deprecated. Instead set callbackMethodGuid to the guid of the addon that creates the updated view on  pagination or search update. Typically this is the same addon tha calls the layout builder.",false)] 
         public abstract string baseAjaxUrl { get; set; }
+        /// <summary>
+        ///  The guid of the addon method that returns the current view.
+        ///  Typically this is the method that calls the layout builder.
+        /// When a search or pagination is performed, the view is refreshed by calling this method.
+        /// </summary>
+        public abstract string callbackMethodGuid { get; set; }
         //
         /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.
@@ -321,13 +328,13 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public abstract string styleSheet { get; }
+        [Obsolete("move javascript and styles to layouts", false)] public abstract string styleSheet { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
-        public abstract string javascript { get; }
+        [Obsolete("move javascript and styles to layouts", false)] public abstract string javascript { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

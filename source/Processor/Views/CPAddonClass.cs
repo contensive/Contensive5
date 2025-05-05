@@ -30,6 +30,15 @@ namespace Contensive.Processor {
         /// <param name="cp"></param>
         public CPAddonClass(CPClass cp) => this.cp = cp;
         //
+        // ====================================================================================================
+        //
+        public override string ExecuteDependency(string addonGuid) {
+            var addon = DbBaseModel.create<AddonModel>(cp, addonGuid);
+            return cp.core.addon.executeDependency(addon, new CPUtilsBaseClass.addonExecuteContext {
+                argumentKeyValuePairs = []
+            });
+        }
+        //
         //====================================================================================================
         /// <summary>
         /// The id of the addon currently executing

@@ -48,12 +48,12 @@
 <script>
 	document.addEventListener('DOMContentLoaded', function(event) {
 		console.log("AdminUILayoutBuilderList, binding");
-		$('#afw').on('click','.sortLink',function(p){
+		$('.afw').on('click','.sortLink',function(p){
 			console.log("AdminUILayoutBuilderList, sortLink click");
 			submitAfwAjaxListForm();
 		});
 		// -- click pagination link
-		$('#afw').on('click','.paginationLink',function(p){
+		$('.afw').on('click','.paginationLink',function(p){
 			// -- pageination click, convert to ajax submit
 			let pageNumber = document.getElementsByName('setPaginationPageNumber');
 			if(pageNumber.length>0) {pageNumber[0].value=Number($(this).html());}
@@ -62,7 +62,7 @@
 		});
 		// -- search 
 		var myTimer = 0;
-		$('#afw').on('keyup','#searchControl', function() {
+		$('.afw').on('keyup','#searchControl', function() {
 			// -- search term key, delay search until the user stops typing
 			if (myTimer) {
 				clearTimeout(myTimer);
@@ -81,9 +81,9 @@
 		let workingDiv = 'js-afwListWorkArea'
 		addHiddenDiv(workingDiv);
 		submitAfwAjaxForm( workingDiv, function() {
-			$('#afwBodyFrame .js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
+			$('.js-afwListReportGridCon').html( $('#js-afwListWorkArea .js-afwListReportGridCon').html());
 			let src = $('#js-afwListWorkArea .js-afwListReportPaginationCon');
-			let dst = $('#afwBodyFrame .js-afwListReportPaginationCon');
+			let dst = $('.js-afwListReportPaginationCon');
 			if(src.length>0){
 				dst.html(src.html());
 			} else {

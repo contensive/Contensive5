@@ -5,10 +5,24 @@ using NLog;
 using static Contensive.Processor.Constants;
 
 namespace Contensive.Processor.Addons.AdminSite {
-    public class QuickStatsView {
+    public class QuickStatsView : Contensive.BaseClasses.AddonBaseClass {
+        //
+        internal const int AdminFormQuickStats = 18; // Quick Stats (from Admin root)
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// addon method 
+        /// blank return on OK or cancel button
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public override object Execute(Contensive.BaseClasses.CPBaseClass cpBase) {
+            return get(((CPClass)cpBase).core);
+        }
+        //
         //
         //====================================================================================================
         //

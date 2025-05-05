@@ -1,0 +1,17 @@
+<style>
+</style>
+<div class="container-fluid">	
+	{{#rowList}}
+	<div class="p-2 border-bottom" id="{{rowHtmlId}}">
+		<label for="{{rowHtmlId}}">{{rowName}}</label>
+		<div class="ml-5 ms-5 ccTextEditMaxWidth">
+			{{{rowValue}}}
+		</div>
+		{{#rowHelp}}
+		<div class="ml-5 ms-5"><small class="form-text text-muted">{{rowHelp}}</small></div>
+		{{/rowHelp}}
+	</div>
+	{{/rowList}}
+</div>
+<script>
+</script>

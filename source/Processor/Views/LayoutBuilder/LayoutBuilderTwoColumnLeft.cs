@@ -24,6 +24,13 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The guid of the addon that refreshes the view for search or pagination update.
+        /// Typically the addon that created the layout.
+        /// </summary>
+        public override string callbackMethodGuid { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
         /// </summary>
         public override string baseAjaxUrl { get; set; }
@@ -108,13 +115,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public override string styleSheet => Properties.Resources.layoutBuilderStyles;
+        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Properties.Resources.layoutBuilderStyles;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
-        public override string javascript => Properties.Resources.layoutBuilderJavaScript;
+        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Properties.Resources.layoutBuilderJavaScript;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

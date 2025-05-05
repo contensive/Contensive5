@@ -225,13 +225,13 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
             // headers
             //
             if (description != "") {
-                result = "<p id=\"afwDescription\">" + description + "</p>" + result;
+                result = "<p class=\"afwDescription\" id=\"afwDescription\">" + description + "</p>" + result;
             }
             if (warning != "") {
-                result = "<div id=\"afwWarning\">" + warning + "</div>" + result;
+                result = "<div class=\"afwWarning\" id=\"afwWarning\">" + warning + "</div>" + result;
             }
             if (title != "") {
-                result = "<h2 id=\"afwTitle\">" + title + "</h2>" + result;
+                result = "<h2 class=\"afwTitle\" id=\"afwTitle\">" + title + "</h2>" + result;
             }
             //
             // add form

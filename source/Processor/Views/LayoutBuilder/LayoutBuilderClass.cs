@@ -29,9 +29,16 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The addon of the Addon to be called to refresh the view on search or pagination. 
+        /// Typically the same method that calls the layoutbuilder
+        /// </summary>
+        public override string callbackMethodGuid { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
         /// </summary>
-        public override string baseAjaxUrl { get; set; }
+        [Obsolete("Deprecated. Use callbackMethodGuid",false)] public override string baseAjaxUrl { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -91,13 +98,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public override string styleSheet => Properties.Resources.layoutBuilderStyles;
+        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Properties.Resources.layoutBuilderStyles;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
-        public override string javascript => Properties.Resources.layoutBuilderJavaScript;
+        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Properties.Resources.layoutBuilderJavaScript;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -125,9 +132,9 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
+        /// Set true to wrap this layout in a form. Default true
         /// </summary>
-        public override bool includeForm { get; set; } = false;
+        public override bool includeForm { get; set; } = true;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -200,6 +207,9 @@ namespace Contensive.Processor.LayoutBuilder {
             //
             // -- set the optional title of the portal subnav
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
+            //
+            // -- add dependency on jQuery BlockUI 
+            cp.Addon.ExecuteDependency(Constants.addonGuidJQueryBlockUI);
             return result;
         }
 

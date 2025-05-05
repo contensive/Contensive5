@@ -251,17 +251,17 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
             // headers
             //
             if (description != "") {
-                result = Constants.cr + "<p id=\"afwDescription\">" + description + "</p>" + result;
+                result = Constants.cr + "<p class=\"afwDescription\" id=\"afwDescription\">" + description + "</p>" + result;
             }
             if (string.IsNullOrEmpty(warning)) {
                 string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
                 if (userErrors != "") { warning = userErrors; }
             }
             if (!string.IsNullOrEmpty(warning)) {
-                result = Constants.cr + "<div id=\"afwWarning\">" + warning + "</div>" + result;
+                result = Constants.cr + "<div class=\"afwWarning\" id=\"afwWarning\">" + warning + "</div>" + result;
             }
             if (localTitle != "") {
-                result = Constants.cr + "<h2 id=\"afwTitle\">" + localTitle + "</h2>" + result;
+                result = Constants.cr + "<h2 class=\"afwTitle\" id=\"afwTitle\">" + localTitle + "</h2>" + result;
             }
             if (localBody != "") {
                 result += localBody;

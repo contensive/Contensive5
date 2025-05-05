@@ -8,6 +8,8 @@ namespace Contensive.Processor.Addons.Tools {
     //
     public class LogFileToolClass : Contensive.BaseClasses.AddonBaseClass {
         //
+        internal const int AdminFormToolLogFileView = 120;
+        //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //

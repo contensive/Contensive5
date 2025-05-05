@@ -27,13 +27,13 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public abstract string styleSheet { get; }
+        [Obsolete("move javascript and styles to layouts", false)] public abstract string styleSheet { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         //
         // ----------------------------------------------------------------------------------------------------
         //
-        public abstract string javascript { get; }
+        [Obsolete("move javascript and styles to layouts", false)] public abstract string javascript { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         // body

@@ -152,7 +152,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 }
                                 //
                                 Content = ""
-                                    + "<p>Your export has been requested and will be available shortly in the <a href=\"?" + rnAdminForm + "=" + AdminFormDownloads + "\">Download Manager</a>. Hit Cancel to return to the " + adminData.adminContent.name + " list page.</p>"
+                                    + "<p>Your export has been requested and will be available shortly in the <a href=\"?addonGuid={55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}\">Download Manager</a>. Hit Cancel to return to the " + adminData.adminContent.name + " list page.</p>"
                                     + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormIndex_SubFormExport) + "";
                                 //
                                 ButtonCommaList = ButtonCancel;

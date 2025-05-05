@@ -165,7 +165,7 @@ namespace Contensive.Processor.Addons.Tools {
                         //
                         ButtonList = ButtonOK + "," + ButtonCancel;
                     }
-                    Content.add(Controllers.HtmlController.inputHidden(rnAdminSourceForm, AdminFormContentChildTool));
+                    //Content.add(Controllers.HtmlController.inputHidden(rnAdminSourceForm, AdminFormContentChildTool));
                 }
                 //
                 Caption = "Create Child Table Metadata";

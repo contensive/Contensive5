@@ -14,6 +14,8 @@ namespace Contensive.Processor.Addons.Tools {
     //
     public class ConfigureListClass : Contensive.BaseClasses.AddonBaseClass {
         //
+        internal const int AdminFormToolConfigureListing = 104;
+        //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         //

@@ -188,11 +188,10 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                             // this is a data content feature -- should not be here, link should have taken them to the content
                             //
                             CP.Response.Redirect("?cid=" + dstDataFeature.dataContentId.ToString());
-                            LayoutBuilderSimple content = new LayoutBuilderSimple {
-                                title = dstDataFeature.heading,
-                                body = "Redirecting to content"
-                            };
-                            body = content.getHtml(CP);
+                            var content = CP.AdminUI.CreateLayoutBuilder();
+                            content.title = dstDataFeature.heading;
+                            content.body = "Redirecting to content";
+                            body = content.getHtml();
                         } else {
                             //
                             // this is a feature list, display the feature list

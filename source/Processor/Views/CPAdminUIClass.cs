@@ -18,6 +18,16 @@ namespace Contensive.Processor {
         //
         // ====================================================================================================
         //
+        //
+        public override string GetPortalHtml(string portalGuid) {
+            // 
+            // -- run portal
+            core.docProperties.setProperty("setPortalGuid", portalGuid);
+            return core.addon.execute(Constants.guidAddonPortalFramework, new CPUtilsBaseClass.addonExecuteContext {
+                addonType = CPUtilsBaseClass.addonContext.ContextAdmin
+            });
+        }
+        //
         public override LayoutBuilderBaseClass CreateLayoutBuilder() {
             return new LayoutBuilder.LayoutBuilderClass(core.cpParent);
         }

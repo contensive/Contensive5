@@ -8,11 +8,22 @@ using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using NLog;
 
-namespace Contensive.Processor.Addons.AdminSite {
-    public class ToolCustomReports {
+namespace Contensive.Processor.Addons.Tools {
+    public class ToolCustomReports : BaseClasses.AddonBaseClass {
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// addon method 
+        /// blank return on OK or cancel button
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public override object Execute(BaseClasses.CPBaseClass cpBase) {
+            return get(((CPClass)cpBase).core);
+        }
         //
         //========================================================================
         //
@@ -94,8 +105,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 Name = core.docProperties.getText("name");
                                 SQL = core.docProperties.getText(SQLFieldName);
                                 if (!string.IsNullOrEmpty(Name) || !string.IsNullOrEmpty(SQL)) {
-                                    if ((string.IsNullOrEmpty(Name)) || (string.IsNullOrEmpty(SQL))) {
-                                        Processor.Controllers.ErrorController.addUserError(core, "A name and SQL Query are required to save a new custom report.");
+                                    if (string.IsNullOrEmpty(Name) || string.IsNullOrEmpty(SQL)) {
+                                        ErrorController.addUserError(core, "A name and SQL Query are required to save a new custom report.");
                                     } else {
                                         int customReportId = 0;
                                         using (var csData = new CsModel(core)) {
@@ -115,7 +126,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 if (RowCnt > 0) {
                                     for (RowPtr = 0; RowPtr < RowCnt; RowPtr++) {
                                         if (core.docProperties.getBoolean("Row" + RowPtr)) {
-                                            int customReportId =core.docProperties.getInteger("RowID" + RowPtr);
+                                            int customReportId = core.docProperties.getInteger("RowID" + RowPtr);
                                             using (var csData = new CsModel(core)) {
                                                 csData.openRecord("Custom Reports", customReportId);
                                                 if (csData.ok()) {
@@ -183,7 +194,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             RowPointer = 1;
                         } else {
                             DataRowCount = csData.getRowCount();
-                            while (csData.ok() && (RowPointer < PageSize)) {
+                            while (csData.ok() && RowPointer < PageSize) {
                                 int customReportId = csData.getInteger("ID");
                                 Cells[RowPointer, 0] = HtmlController.checkbox("Row" + RowPointer) + HtmlController.inputHidden("RowID" + RowPointer, customReportId);
                                 Cells[RowPointer, 1] = csData.getText("name");
@@ -237,12 +248,12 @@ namespace Contensive.Processor.Addons.AdminSite {
         //
         //========================================================================
         //
-        public static void requestDownload( CoreController core, int customReportId ) {
+        public static void requestDownload(CoreController core, int customReportId) {
             //
             // Request the download
             //
             var customReport = DbBaseModel.create<CustomReportModel>(core.cpParent, customReportId);
-            if ( customReport != null) {
+            if (customReport != null) {
                 var ExportCSVAddon = core.cacheRuntime.addonCache.create(addonGuidExportCSV);
                 if (ExportCSVAddon == null) {
                     logger.Error($"{core.logCommonMessage}", new GenericException("ExportCSV addon not found. Task could not be added to task queue."));

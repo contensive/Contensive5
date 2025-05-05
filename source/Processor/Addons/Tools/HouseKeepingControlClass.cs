@@ -149,7 +149,7 @@ namespace Contensive.Processor.Addons.Tools {
                     tableBody += (AdminUIController.getEditRow(cp.core, Copy, Caption));
                     //
                     Content.add(AdminUIController.editTable(tableBody));
-                    Content.add(HtmlController.inputHidden(rnAdminSourceForm, AdminformHousekeepingControl));
+                    //Content.add(HtmlController.inputHidden(rnAdminSourceForm, AdminformHousekeepingControl));
                     ButtonList = ButtonCancel + ",Refresh," + ButtonSave + "," + ButtonOK;
                 }
                 //

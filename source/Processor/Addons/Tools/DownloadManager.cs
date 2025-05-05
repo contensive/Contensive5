@@ -155,7 +155,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     Content = Tab0.text;
                     ButtonListLeft = ButtonCancel + "," + ButtonRefresh + "," + ButtonDelete;
                     ButtonListRight = "";
-                    Content += HtmlController.inputHidden(rnAdminSourceForm, AdminFormDownloads);
+                    //Content += HtmlController.inputHidden(rnAdminSourceForm, AdminFormDownloads);
                 }
                 //
                 string Caption = "Download Manager";

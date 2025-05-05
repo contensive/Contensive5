@@ -576,7 +576,7 @@ namespace Contensive.Processor.Addons.SafeAddonManager {
                         Content.add(adminMenu.getTabs(core));
                         //
                         ButtonList = ButtonCancel + "," + ButtonOK;
-                        Content.add(Controllers.HtmlController.inputHidden(RequestNameAdminSourceForm, AdminFormLegacyAddonManager));
+                        //Content.add(Controllers.HtmlController.inputHidden(RequestNameAdminSourceForm, AdminFormLegacyAddonManager));
                     }
                     //
                     // Output the Add-on

@@ -135,12 +135,12 @@ namespace Contensive.Processor.Addons.AdminSite {
                 }
                 int addonId = cp.core.docProperties.getInteger("addonid");
                 string addonGuid = cp.core.docProperties.getText("addonguid");
-                if (adminData.dstFormId == AdminFormLegacyAddonManager) {
-                    //
-                    // patch out any old links to the legacy addon manager
-                    adminData.dstFormId = 0;
-                    addonGuid = addonGuidAddonManager;
-                }
+                //if (adminData.dstFormId == AdminFormLegacyAddonManager) {
+                //    //
+                //    // patch out any old links to the legacy addon manager
+                //    adminData.dstFormId = 0;
+                //    addonGuid = addonGuidAddonManager;
+                //}
                 //
                 // ----------------------------------------------------------------------------------------------------------------------------------
                 // Edit form but not valid record case
@@ -266,110 +266,110 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 content = EditView.get(cp.core, adminData);
                                 break;
                             }
-                        case AdminFormToolSyncTables: {
-                                content = SyncTablesClass.get(cp.core);
-                                break;
-                            }
-                        case AdminFormToolSchema: {
-                                content = DbSchemaToolClass.get(cp.core);
-                                break;
-                            }
-                        case AdminFormToolDbIndex: {
-                                content = DbIndexToolClass.get(cp.core);
-                                break;
-                            }
-                        case AdminformToolFindAndReplace: {
-                                content = FindAndReplaceToolClass.get(cp.core);
-                                break;
-                            }
-                        case AdminformToolCreateGUID: {
-                                content = CreateGUIDToolClass.get(cp.core);
-                                break;
-                            }
-                        case AdminformToolIISReset: {
-                                content = IISResetToolClass.get(cp.core);
-                                break;
-                            }
-                        case AdminFormToolContentSchema: {
-                                content = ContentSchemaToolClass.get(cp.core);
-                                break;
-                            }
-                        case AdminFormToolManualQuery: {
-                                content = ManualQueryXClass.get(cp);
-                                break;
-                            }
-                        case AdminFormToolDefineContentFieldsFromTable: {
-                                content = DefineContentFieldsFromTableClass.get(cp.core);
-                                break;
-                            }
-                        case AdminFormToolCreateContentDefinition: {
-                                content = CreateContentDefinitionClass.get(cp.core);
-                                break;
-                            }
-                        case AdminFormToolConfigureEdit: {
-                                content = ConfigureEditClass.get(cp);
-                                break;
-                            }
-                        case AdminFormToolConfigureListing: {
-                                content = ConfigureListClass.get(cp.core);
-                                break;
-                            }
-                        case AdminFormClearCache: {
-                                content = cp.core.addon.execute("{7B5B8150-62BE-40F4-A66A-7CC74D99BA76}", new CPUtilsBaseClass.addonExecuteContext {
-                                    addonType = CPUtilsBaseClass.addonContext.ContextAdmin
-                                });
-                                break;
-                            }
-                        case AdminFormResourceLibrary: {
-                                content = cp.core.html.getResourceLibrary("", false, "", "", true);
-                                break;
-                            }
-                        case AdminFormQuickStats: {
-                                content = QuickStatsView.get(cp.core);
-                                break;
-                            }
-                        case AdminFormClose: {
-                                content = "<Script Language=\"JavaScript\" type=\"text/javascript\"> window.close(); </Script>";
-                                break;
-                            }
-                        case AdminFormContentChildTool: {
-                                content = ContentChildToolClass.get(cp);
-                                break;
-                            }
-                        case AdminformHousekeepingControl: {
-                                content = HouseKeepingControlClass.get(cp);
-                                break;
-                            }
-                        case AdminFormDownloads: {
-                                content = (DownloadManagerAddon.get(cp.core));
-                                break;
-                            }
-                        case AdminFormImportWizard: {
-                                content = cp.core.addon.execute(addonGuidImportWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
-                                    addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
-                                    errorContextMessage = "get Import Wizard for Admin"
-                                });
-                                break;
-                            }
-                        case AdminFormCustomReports: {
-                                content = ToolCustomReports.get(cp.core);
-                                break;
-                            }
-                        case AdminFormFormWizard: {
-                                content = cp.core.addon.execute(addonGuidFormWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
-                                    addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
-                                    errorContextMessage = "get Form Wizard for Admin"
-                                });
-                                break;
-                            }
-                        case AdminFormLegacyAddonManager: {
-                                content = AddonController.getAddonManager(cp.core);
-                                break;
-                            }
-                        case AdminFormEditorConfig: {
-                                content = EditorConfigView.get(cp.core);
-                                break;
-                            }
+                        //case AdminFormToolSyncTables: {
+                        //        content = SyncTablesClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormToolSchema: {
+                        //        content = DbSchemaToolClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormToolDbIndex: {
+                        //        content = DbIndexToolClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminformToolFindAndReplace: {
+                        //        content = FindAndReplaceToolClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminformToolCreateGUID: {
+                        //        content = CreateGUIDToolClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminformToolIISReset: {
+                        //        content = IISResetToolClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormToolContentSchema: {
+                        //        content = ContentSchemaToolClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormToolManualQuery: {
+                        //        content = ManualQueryXClass.get(cp);
+                        //        break;
+                        //    }
+                        //case AdminFormToolDefineContentFieldsFromTable: {
+                        //        content = DefineContentFieldsFromTableClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormToolCreateContentDefinition: {
+                        //        content = CreateContentDefinitionClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormToolConfigureEdit: {
+                        //        content = ConfigureEditClass.get(cp);
+                        //        break;
+                        //    }
+                        //case AdminFormToolConfigureListing: {
+                        //        content = ConfigureListClass.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormClearCache: {
+                        //        content = cp.core.addon.execute("{7B5B8150-62BE-40F4-A66A-7CC74D99BA76}", new CPUtilsBaseClass.addonExecuteContext {
+                        //            addonType = CPUtilsBaseClass.addonContext.ContextAdmin
+                        //        });
+                        //        break;
+                        //    }
+                        //case AdminFormResourceLibrary: {
+                        //        content = cp.core.html.getResourceLibrary("", false, "", "", true);
+                        //        break;
+                        //    }
+                        //case AdminFormQuickStats: {
+                        //        content = QuickStatsView.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormClose: {
+                        //        content = "<Script Language=\"JavaScript\" type=\"text/javascript\"> window.close(); </Script>";
+                        //        break;
+                        //    }
+                        //case AdminFormContentChildTool: {
+                        //        content = ContentChildToolClass.get(cp);
+                        //        break;
+                        //    }
+                        //case AdminformHousekeepingControl: {
+                        //        content = HouseKeepingControlClass.get(cp);
+                        //        break;
+                        //    }
+                        //case AdminFormDownloads: {
+                        //        content = (DownloadManagerAddon.get(cp.core));
+                        //        break;
+                        //    }
+                        //case AdminFormImportWizard: {
+                        //        content = cp.core.addon.execute(addonGuidImportWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                        //            addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
+                        //            errorContextMessage = "get Import Wizard for Admin"
+                        //        });
+                        //        break;
+                        //    }
+                        //case AdminFormCustomReports: {
+                        //        content = ToolCustomReports.get(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormFormWizard: {
+                        //        content = cp.core.addon.execute(addonGuidFormWizard, new BaseClasses.CPUtilsBaseClass.addonExecuteContext {
+                        //            addonType = BaseClasses.CPUtilsBaseClass.addonContext.ContextAdmin,
+                        //            errorContextMessage = "get Form Wizard for Admin"
+                        //        });
+                        //        break;
+                        //    }
+                        //case AdminFormLegacyAddonManager: {
+                        //        content = AddonController.getAddonManager(cp.core);
+                        //        break;
+                        //    }
+                        //case AdminFormEditorConfig: {
+                        //        content = EditorConfigView.get(cp.core);
+                        //        break;
+                        //    }
                         default: {
                                 content = "<p>The form requested is not supported</p>";
                                 break;

@@ -169,6 +169,20 @@ namespace Contensive.Processor.LayoutBuilder {
                 return layoutBuilderBase.baseUrl;
             }
         }
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        ///  The guid of the addon method that returns the current view.
+        ///  Typically this is the method that calls the layout builder.
+        /// When a search or pagination is performed, the view is refreshed by calling this method.
+        /// </summary>
+        public override string callbackMethodGuid {
+            get {
+                return layoutBuilderBase.callbackMethodGuid;
+            }
+            set {
+                layoutBuilderBase.callbackMethodGuid = value;
+            }
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -176,7 +190,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// Required for pagination and search. If empty, pagination and search are disabled.
         /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
         /// </summary>
-        public override string baseAjaxUrl {
+        [Obsolete("Deprecated. user callbackMethodGuid",false)] public override string baseAjaxUrl {
             get {
                 return layoutBuilderBase.baseAjaxUrl;
             }
@@ -1038,19 +1052,19 @@ namespace Contensive.Processor.LayoutBuilder {
             set {
                 layoutBuilderBase.description = value;
             }
-        } 
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
+        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
-        public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
+        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

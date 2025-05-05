@@ -6,10 +6,23 @@ using static Contensive.Processor.Constants;
 using NLog;
 //
 namespace Contensive.Processor.Addons.AdminSite {
-    public class EditorConfigView {
+    public class EditorConfigView : Contensive.BaseClasses.AddonBaseClass {
+        //
+        internal const int AdminFormEditorConfig = 43;
         //
         // static logger
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
+        //
+        //====================================================================================================
+        /// <summary>
+        /// addon method 
+        /// blank return on OK or cancel button
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public override object Execute(Contensive.BaseClasses.CPBaseClass cpBase) {
+            return get(((CPClass)cpBase).core);
+        }
         //
         //========================================================================
         //   Editor features are stored in the \config\EditorFeatures.txt file

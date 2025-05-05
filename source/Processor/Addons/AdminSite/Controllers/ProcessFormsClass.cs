@@ -35,37 +35,37 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 }
                                 break;
                             }
-                        case AdminFormQuickStats: {
-                                switch (adminData.srcFormButton) {
-                                    case ButtonCancel: {
-                                            adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.dstFormId = AdminFormRoot;
-                                            break;
-                                        }
-                                    default: {
-                                            // do nothing
-                                            break;
-                                        }
-                                }
-                                break;
-                            }
-                        case AdminFormPublishing: {
-                                //
-                                // Publish Form
-                                //
-                                switch (adminData.srcFormButton) {
-                                    case ButtonCancel: {
-                                            adminData.admin_Action = Constants.AdminActionNop;
-                                            adminData.dstFormId = AdminFormRoot;
-                                            break;
-                                        }
-                                    default: {
-                                            // do nothing
-                                            break;
-                                        }
-                                }
-                                break;
-                            }
+                        //case AdminFormQuickStats: {
+                        //        switch (adminData.srcFormButton) {
+                        //            case ButtonCancel: {
+                        //                    adminData.admin_Action = Constants.AdminActionNop;
+                        //                    adminData.dstFormId = AdminFormRoot;
+                        //                    break;
+                        //                }
+                        //            default: {
+                        //                    // do nothing
+                        //                    break;
+                        //                }
+                        //        }
+                        //        break;
+                        //    }
+                        //case AdminFormPublishing: {
+                        //        //
+                        //        // Publish Form
+                        //        //
+                        //        switch (adminData.srcFormButton) {
+                        //            case ButtonCancel: {
+                        //                    adminData.admin_Action = Constants.AdminActionNop;
+                        //                    adminData.dstFormId = AdminFormRoot;
+                        //                    break;
+                        //                }
+                        //            default: {
+                        //                    // do nothing
+                        //                    break;
+                        //                }
+                        //        }
+                        //        break;
+                        //    }
                         case AdminFormIndex: {
 
                                 switch (adminData.srcFormButton) {
@@ -275,62 +275,62 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 }
                                 break;
                             }
-                        case AdminFormStyleEditor: {
-                                //
-                                // Process actions
-                                //
-                                switch (adminData.srcFormButton) {
-                                    case ButtonSave:
-                                    case ButtonOK: {
-                                            //
-                                            cp.core.siteProperties.setProperty("Allow CSS Reset", cp.core.docProperties.getBoolean(RequestNameAllowCSSReset));
-                                            cp.core.cdnFiles.saveFile(DynamicStylesFilename, cp.core.docProperties.getText("StyleEditor"));
-                                            if (cp.core.docProperties.getBoolean(RequestNameInlineStyles)) {
-                                                //
-                                                // Inline Styles
-                                                //
-                                                cp.core.siteProperties.setProperty("StylesheetSerialNumber", "0");
-                                            } else {
-                                                // mark to rebuild next fetch
-                                                cp.core.siteProperties.setProperty("StylesheetSerialNumber", "-1");
-                                            }
-                                            //
-                                            // delete all templateid based editorstylerule files, build on-demand
-                                            //
-                                            EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", "0", 1, 99, 1);
-                                            cp.core.cdnFiles.deleteFile(EditorStyleRulesFilename);
-                                            //
-                                            using var csData = new CsModel(cp.core);
-                                            csData.openSql("select id from cctemplates");
-                                            while (csData.ok()) {
-                                                EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", csData.getText("ID"), 1, 99, 1);
-                                                cp.core.cdnFiles.deleteFile(EditorStyleRulesFilename);
-                                                csData.goNext();
-                                            }
-                                            csData.close();
-                                            break;
-                                        }
-                                    default: {
-                                            // do nothing
-                                            break;
-                                        }
-                                }
-                                switch (adminData.srcFormButton) {
-                                    case ButtonCancel:
-                                    case ButtonOK: {
-                                            //
-                                            // Process redirects
-                                            //
-                                            adminData.dstFormId = AdminFormRoot;
-                                            break;
-                                        }
-                                    default: {
-                                            // do nothing
-                                            break;
-                                        }
-                                }
-                                break;
-                            }
+                        //case AdminFormStyleEditor: {
+                        //        //
+                        //        // Process actions
+                        //        //
+                        //        switch (adminData.srcFormButton) {
+                        //            case ButtonSave:
+                        //            case ButtonOK: {
+                        //                    //
+                        //                    cp.core.siteProperties.setProperty("Allow CSS Reset", cp.core.docProperties.getBoolean(RequestNameAllowCSSReset));
+                        //                    cp.core.cdnFiles.saveFile(DynamicStylesFilename, cp.core.docProperties.getText("StyleEditor"));
+                        //                    if (cp.core.docProperties.getBoolean(RequestNameInlineStyles)) {
+                        //                        //
+                        //                        // Inline Styles
+                        //                        //
+                        //                        cp.core.siteProperties.setProperty("StylesheetSerialNumber", "0");
+                        //                    } else {
+                        //                        // mark to rebuild next fetch
+                        //                        cp.core.siteProperties.setProperty("StylesheetSerialNumber", "-1");
+                        //                    }
+                        //                    //
+                        //                    // delete all templateid based editorstylerule files, build on-demand
+                        //                    //
+                        //                    EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", "0", 1, 99, 1);
+                        //                    cp.core.cdnFiles.deleteFile(EditorStyleRulesFilename);
+                        //                    //
+                        //                    using var csData = new CsModel(cp.core);
+                        //                    csData.openSql("select id from cctemplates");
+                        //                    while (csData.ok()) {
+                        //                        EditorStyleRulesFilename = GenericController.strReplace(EditorStyleRulesFilenamePattern, "$templateid$", csData.getText("ID"), 1, 99, 1);
+                        //                        cp.core.cdnFiles.deleteFile(EditorStyleRulesFilename);
+                        //                        csData.goNext();
+                        //                    }
+                        //                    csData.close();
+                        //                    break;
+                        //                }
+                        //            default: {
+                        //                    // do nothing
+                        //                    break;
+                        //                }
+                        //        }
+                        //        switch (adminData.srcFormButton) {
+                        //            case ButtonCancel:
+                        //            case ButtonOK: {
+                        //                    //
+                        //                    // Process redirects
+                        //                    //
+                        //                    adminData.dstFormId = AdminFormRoot;
+                        //                    break;
+                        //                }
+                        //            default: {
+                        //                    // do nothing
+                        //                    break;
+                        //                }
+                        //        }
+                        //        break;
+                        //    }
                         default: {
                                 // end case
                                 break;

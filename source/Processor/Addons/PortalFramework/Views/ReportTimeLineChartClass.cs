@@ -312,13 +312,13 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
             // headers
             //
             if (localDescription != "") {
-                result = Constants.cr + "<p id=\"afwDescription\">" + localDescription + "</p>" + result;
+                result = Constants.cr + "<p class=\"afwDescription\" id=\"afwDescription\">" + localDescription + "</p>" + result;
             }
             if (localWarning != "") {
-                result = Constants.cr + "<div id=\"afwWarning\">" + localWarning + "</div>" + result;
+                result = Constants.cr + "<div class=\"afwWarning\" id=\"afwWarning\">" + localWarning + "</div>" + result;
             }
             if (localTitle != "") {
-                result = Constants.cr + "<h2 id=\"afwTitle\">" + localTitle + "</h2>" + result;
+                result = Constants.cr + "<h2 class=\"afwTitle\" id=\"afwTitle\">" + localTitle + "</h2>" + result;
             }
             //
             // add form

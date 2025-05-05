@@ -200,6 +200,7 @@
 
   <ItemGroup>
     <Folder Include="Addons\PortalFrameworkTmp\" />
+    <Folder Include="Addons\tools_tmp\" />
   </ItemGroup>
 
 </Project>

@@ -3068,9 +3068,182 @@
 	</CDef>
 
   <!--
+    tools
+  --> 
 
-    addons
+  <Addon Name="LayoutBuilderCallback" Guid="{99F9CD56-4C99-4E47-9A28-C3350B54285F}" Type="Add-on">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.LayoutBuilderCallback]]></DotNetClass>
+    <RemoteMethod>Yes</RemoteMethod>
+  </Addon>
 
+  <Addon Name="SampleLayoutBuilderList" Guid="{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}" Type="Tool">
+    <Admin>true</Admin>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilderList]]></DotNetClass>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon> 
+
+  <Addon Name="Sample Layout Builder NameValue" Guid="{AB85005F-D715-4566-B85F-757D8A363896}" Type="Tool">
+    <Admin>true</Admin>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilderNameValue]]></DotNetClass>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon>  
+
+  <Addon Name="Sample Layout Builder" Guid="{D5035D17-F114-4FBA-A8BF-943D660DE84E}" Type="Tool">
+    <Admin>true</Admin>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilder]]></DotNetClass>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon> 
+
+  <Addon Name="Download Manager" Guid="{55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}" Type="Tool">
+    <Admin>true</Admin>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.DownloadManagerAddon]]></DotNetClass>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon>
+
+  <Addon Name="Create Guid" Guid="{CFA18140-FBB4-4404-BF02-7B5C82BE2964}" Type="Tool">
+    <Admin>Yes</Admin>
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.CreateGUIDToolClass]]></DotNetClass>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon> 
+
+  <Addon Name="Create Table Metadata" Guid="{6FBF917B-471E-4FA5-96AF-13928E6D3849}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.CreateContentDefinitionClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon>  
+
+  <Addon Name="Create Table Child Metadata" Guid="{A1A2EC13-2DCD-4EC5-84DE-379A09B31517}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ContentChildToolClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon> 
+
+  <Addon Name="Edit Table Metadata" Guid="{f0b07249-86f1-4c1d-8cad-eaa8ebed11a3}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ConfigureEditClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon> 
+
+  <Addon Name="Edit Table List Metadata" Guid="{91373E4C-4562-42DD-A121-C5E09DAF1CFE}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ConfigureListClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[Advanced]]></Category>
+  </Addon> 
+
+  <Addon Name="Housekeep Control Tool" Guid="{04c03ab5-720d-4b9f-b4d9-907cb1912d9e}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.HouseKeepingControlClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+  </Addon>
+
+  <Addon Name="Find and Replace" Guid="{6BAF313C-434A-4530-AB16-708D1D7DF2A1}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.FindAndReplaceToolClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+  </Addon>
+
+  <Addon Name="Update Db from Metadata" Guid="{AD53578B-ED10-4410-BE9C-860DB1A7337C}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.SyncTablesClass]]></DotNetClass>	
+    <Admin>yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Db Schema" Guid="{FB64666D-8FE4-480A-A4FF-F9CD482E4340}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.DbSchemaToolClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+  </Addon>
+
+  <Addon Name="Modify Database Indexes" Guid="{D7332503-1714-4D64-AF66-D3E75DCB24C0}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.DbIndexToolClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="IISReset Tool" Guid="{B8FB9221-5A8E-4A8B-90C1-388F47BB0A02}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.IISResetToolClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Content Schema Tool" Guid="{ADFFC728-3C07-4873-9EFF-65F1DE557376}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ContentSchemaToolClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Manual Query Tool" Guid="{06599137-B3F5-41E7-8D44-FC281D20DEEC}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ManualQueryXClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Define Content Fields From Table Tool" Guid="{AA3E64FB-41A0-45E1-81D6-9B821E56D844}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.DefineContentFieldsFromTableClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Real Time Visits" Guid="{A5439430-ED28-4D72-A9ED-50FB36145955}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.QuickStatsView]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Custom Report Tool" Guid="{D06D7D5D-B100-4E04-82BF-AAF72E5388E6}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ToolCustomReports]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Editor Config Tool" Guid="{C2100D71-8993-4491-8D75-79FCF6B329E9}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.EditorConfigView]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <Addon Name="Log File Tool" Guid="{3CAAFC0C-8AC3-427E-AF73-BA1B7A12514B}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.LogFileToolClass]]></DotNetClass>
+    <Admin>Yes</Admin>
+		<Category><![CDATA[]]></Category>
+    <BlockEditTools>Yes</BlockEditTools>
+  </Addon>
+
+  <NavigatorEntry Name="Import Wizard" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=35" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{5B7E39AC-7C4D-4D08-9EF2-2656B59C3A20}" />
+  <NavigatorEntry Name="Form Wizard" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=37" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{B8D137F9-94C7-40F3-9F32-38ED25D454D8}" />
+  <NavigatorEntry Name="Advanced" NameSpace="Tools" NavIconTitle="Advanced Features" NavIconType="Tools" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{68AE79FA-4778-4969-B003-91D3B6E23760}" />
+  <NavigatorEntry Name="Create Content Definition" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=101" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{CE043E8D-4653-42F3-8F70-5D5F02DBDE5E}" />
+  <NavigatorEntry Name="Manage Admin Listing Columns" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=104" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{4DC5BA40-4AB9-4B97-956F-A7D8D4E5B318}" />
+  <NavigatorEntry Name="Edit Table Metadata" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=105" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{52182E34-2881-4EB9-9B69-F3BCF7D51546}" />
+  <NavigatorEntry Name="Run Manual Query" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=106" ContentName="" AdminOnly="0" DeveloperOnly="1" NewWindow="" Active="true" AddonGuid="" Guid="{B3FF0B25-FF87-4DCA-968D-DD3F762C6853}" />
+  <NavigatorEntry Name="Clear Content Watch Links" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=113" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{D50F464E-4BB7-47C7-B067-E54C1629CEF5}" />
+  <NavigatorEntry Name="Update Tables to Content Definitions" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=114" ContentName="" AdminOnly="0" DeveloperOnly="1" NewWindow="" Active="true" AddonGuid="" Guid="{6A1404A3-421A-42CD-B0E8-EAC744C96383}" />
+  <NavigatorEntry Name="Database Schema" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=116" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{9C620DB1-9A9E-439F-8787-4B81FE2B4743}" />
+  <NavigatorEntry Name="Database Indexes" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=118" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{1B9512B7-3704-492E-B217-FAF228FBB116}" />
+  <NavigatorEntry Name="Content Metadata Schema" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=119" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{24930547-C4C9-49B9-BFCF-B12E87887CE0}" />
+  <NavigatorEntry Name="View Log Files" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=120" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{077271DC-DCE4-4E7F-8B10-5E9BFAD062EF}" />
+  <NavigatorEntry Name="Create GUID" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=124" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{D262939E-1A50-4147-9EC0-681DDE8DED41}" />
+  <NavigatorEntry Name="IIS Reset" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=125" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{AEA5A31F-140C-4DA6-89B0-06F059E850DF}" />
+  <NavigatorEntry Name="Restart Contensive" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=126" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{180F2165-8821-4F88-8648-98D9ABEC40DC}" />
+  <NavigatorEntry Name="Create Content Child" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=112" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{52862208-D2A3-4BB0-84C3-15234831EE46}" />
+  <NavigatorEntry Name="Import Templates" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=122" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{93D62EA2-25CC-4510-ABF5-C3CFA76BD4ED}" />
+  <NavigatorEntry Name="Load Content Definitions" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=121" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{F0276371-8A5D-4922-984E-95D2D40BF94B}" />
+  <NavigatorEntry Name="Quick References" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="0" AddonGuid="" Guid="{7305CDD8-601B-419E-9841-71575431B83E}" />
+  <NavigatorEntry Name="Add-on Collection Builder" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=44" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="0" AddonGuid="" Guid="{B46A5D8D-EA20-41DD-97B2-417ACE2CEE4A}" />
+  <NavigatorEntry Name="Run Content Diagnostics" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=111" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{E37C7D17-C710-49A8-BE50-002E0ABD8A08}" />
+  <NavigatorEntry Name="Run Benchmark" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=115" ContentName="" AdminOnly="0" DeveloperOnly="1" NewWindow="" Active="0" AddonGuid="" Guid="{2249689E-5A98-4BE6-8A4F-95720AB0148B}" />
+  
+  <!-- 
+    Add-ons
   --> 
 
 	<Addon Name="Portal" Guid="{A1BCA00C-2657-42A1-8F98-BED1E5A42025}" Type="Add-on">
@@ -3100,37 +3273,6 @@
     <DotNetClass><![CDATA[Contensive.Processor.Addons.SaveEditModalRemote]]></DotNetClass>
     <RemoteMethod>Yes</RemoteMethod>
   </Addon>
-
-  <Addon Name="Download Manager" Guid="{55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}" Type="Tool">
-    <Admin>true</Admin>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.DownloadManagerAddon]]></DotNetClass>
-		<Category><![CDATA[Advanced]]></Category>
-  </Addon>  
-  <Addon Name="Create Guid" Guid="{CFA18140-FBB4-4404-BF02-7B5C82BE2964}" Type="Tool">
-    <Admin>Yes</Admin>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.CreateGUIDToolClass]]></DotNetClass>
-		<Category><![CDATA[Advanced]]></Category>
-  </Addon>  
-  <Addon Name="Create Table Metadata" Guid="{6FBF917B-471E-4FA5-96AF-13928E6D3849}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.CreateContentDefinitionClass]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[Advanced]]></Category>
-  </Addon>  
-  <Addon Name="Create Table Child Metadata" Guid="{A1A2EC13-2DCD-4EC5-84DE-379A09B31517}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ContentChildToolClass]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[Advanced]]></Category>
-  </Addon>  
-  <Addon Name="Edit Table Metadata" Guid="{f0b07249-86f1-4c1d-8cad-eaa8ebed11a3}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ConfigureEditClass]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[Advanced]]></Category>
-  </Addon>   
-  <Addon Name="Edit Table List Metadata" Guid="{91373E4C-4562-42DD-A121-C5E09DAF1CFE}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ConfigureListClass]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[Advanced]]></Category>
-  </Addon>  
      
 	<Addon Name="Site Settings" Guid="{D9C2D64E-9004-4DBE-806F-60635B9F52C8}" Type="Setting">
 		<FormXML>
@@ -3284,10 +3426,6 @@
 			]]></FormXML>
     <Admin>true</Admin>
 	</Addon>
-  <Addon Name="Housekeep Control Tool" Guid="{04c03ab5-720d-4b9f-b4d9-907cb1912d9e}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.HouseKeepingControlClass]]></DotNetClass>
-    <Admin>Yes</Admin>
-  </Addon>
   <Addon Name="Text Message Process Task" Guid="{62F33A3B-A958-4EB6-942E-ACBA5FC2C914}" Type="Task">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.TextMessage.TextMessageProcessTask]]></DotNetClass>
     <ProcessInterval>1</ProcessInterval>
@@ -3603,18 +3741,6 @@
     <Diagnostic>No</Diagnostic>
     <CopyText><![CDATA[<AC Type="Content" Name="Content" QueryString=""> ]]></CopyText>	
   </Addon>
-  <Addon Name="Update Db from Metadata" Guid="{AD53578B-ED10-4410-BE9C-860DB1A7337C}" Type="System">
-    <Category></Category>
-    <Admin>yes</Admin>
-    <Content>No</Content>
-    <Template>no</Template>
-    <Email>no</Email>
-    <RemoteMethod>No</RemoteMethod>
-    <IsInline>No</IsInline>
-    <BlockEditTools>Yes</BlockEditTools>
-    <Diagnostic>No</Diagnostic>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.SyncTablesClass]]></DotNetClass>	
-  </Addon>
   <Addon Name="submitCustomBlockingEmailVerification" Guid="{D4671732-08E3-4FBF-ACD3-D16F164194A1}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3714,7 +3840,6 @@
   <!-- Manage Add-ons -->
   <NavigatorEntry Name="Manage Add-ons" NameSpace="" NavIconTitle="" NavIconType="Addon" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{DBA354AB-5D3E-4882-8718-CF23CAAB7927}" />
   <NavigatorEntry Name="Advanced" NameSpace="Manage Add-ons" NavIconTitle="Advanced" NavIconType="Advanced" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{CAA8584C-8548-4308-8F56-6BC52B6188EC}" />
-  <NavigatorEntry Name="Add-on Manager" NameSpace="Manage Add-ons" NavIconTitle="" NavIconType="Tools" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="{4DD876E7-BCC4-4AF0-B32E-59FFAB816478}" Guid="{DDF28878-71E5-40F4-B97D-3A1C68FEC691}" />
 
   <!-- Manage Content -->
   <NavigatorEntry Name="Manage Content" NameSpace="" NavIconTitle="" NavIconType="Content" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{78BE3C5E-BB63-4AFD-9FB1-760F541E6735}" />
@@ -3793,39 +3918,10 @@
   <NavigatorEntry Name="Data Sources" NameSpace="Settings.Advanced.Contensive Meta Content" NavIconTitle="" NavIconType="Advanced" LinkPage="" ContentName="Data Sources" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{F13B0E5C-5230-40D5-B6B3-C590A2906E0A}" />
   <NavigatorEntry Name="Database Tables" NameSpace="Settings.Advanced.Contensive Meta Content" NavIconTitle="" NavIconType="Advanced" LinkPage="" ContentName="Tables" AdminOnly="0" DeveloperOnly="1" NewWindow="0" Active="true" AddonGuid="" Guid="{65F4CB9C-1FE6-4AB5-A4F4-120A166A17A7}" />
 
-  <!-- Tools -->
-  <NavigatorEntry Name="Tools" NameSpace="" NavIconTitle="" NavIconType="Tools" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{801F1F07-20E6-4A5D-AF26-71007CCB834F}" />
-  <NavigatorEntry Name="Create Child Content" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=22" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{3474E367-A04C-4F92-9B67-52DD15731B74}" />
-  <NavigatorEntry Name="Download Manager" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=30" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{47FB7E70-915E-4DAA-8CB3-22E0F45007FD}" />
-  <NavigatorEntry Name="Find and Replace" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=123" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{14D714F2-F032-4EC2-A4C0-DEE53F470BD3}" />
-  <NavigatorEntry Name="Import Wizard" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=35" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{5B7E39AC-7C4D-4D08-9EF2-2656B59C3A20}" />
-  <NavigatorEntry Name="Form Wizard" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="?af=37" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{B8D137F9-94C7-40F3-9F32-38ED25D454D8}" />
-  <NavigatorEntry Name="Advanced" NameSpace="Tools" NavIconTitle="Advanced Features" NavIconType="Tools" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{68AE79FA-4778-4969-B003-91D3B6E23760}" />
-  <NavigatorEntry Name="Create Content Definition" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=101" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{CE043E8D-4653-42F3-8F70-5D5F02DBDE5E}" />
-  <NavigatorEntry Name="Manage Admin Listing Columns" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=104" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{4DC5BA40-4AB9-4B97-956F-A7D8D4E5B318}" />
-  <NavigatorEntry Name="Edit Table Metadata" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=105" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{52182E34-2881-4EB9-9B69-F3BCF7D51546}" />
-  <NavigatorEntry Name="Run Manual Query" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=106" ContentName="" AdminOnly="0" DeveloperOnly="1" NewWindow="" Active="true" AddonGuid="" Guid="{B3FF0B25-FF87-4DCA-968D-DD3F762C6853}" />
-  <NavigatorEntry Name="Clear Content Watch Links" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=113" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{D50F464E-4BB7-47C7-B067-E54C1629CEF5}" />
-  <NavigatorEntry Name="Update Tables to Content Definitions" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=114" ContentName="" AdminOnly="0" DeveloperOnly="1" NewWindow="" Active="true" AddonGuid="" Guid="{6A1404A3-421A-42CD-B0E8-EAC744C96383}" />
-  <NavigatorEntry Name="Database Schema" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=116" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{9C620DB1-9A9E-439F-8787-4B81FE2B4743}" />
-  <NavigatorEntry Name="Database Indexes" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=118" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{1B9512B7-3704-492E-B217-FAF228FBB116}" />
-  <NavigatorEntry Name="Content Metadata Schema" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=119" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{24930547-C4C9-49B9-BFCF-B12E87887CE0}" />
-  <NavigatorEntry Name="View Log Files" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=120" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="true" AddonGuid="" Guid="{077271DC-DCE4-4E7F-8B10-5E9BFAD062EF}" />
-  <NavigatorEntry Name="Create GUID" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=124" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{D262939E-1A50-4147-9EC0-681DDE8DED41}" />
-  <NavigatorEntry Name="IIS Reset" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=125" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{AEA5A31F-140C-4DA6-89B0-06F059E850DF}" />
-  <NavigatorEntry Name="Restart Contensive" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=126" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="true" AddonGuid="" Guid="{180F2165-8821-4F88-8648-98D9ABEC40DC}" />
-
   <!-- removed with active -->
-  <NavigatorEntry Name="Create Content Child" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=112" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{52862208-D2A3-4BB0-84C3-15234831EE46}" />
   <NavigatorEntry Name="Email Settings" NameSpace="Manage Email" NavIconTitle="" NavIconType="Settings" LinkPage="?af=28" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="0" AddonGuid="" Guid="{A22B6FC9-5678-46BA-A1EF-AFB93281C4BB}" />
   <NavigatorEntry Name="Styles" NameSpace="Manage Design" NavIconTitle="" NavIconType="Folder" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{C34DF96F-7DEC-4CC7-9979-50BC3069F858}" />
   <NavigatorEntry Name="Other Add-ons" NameSpace="Manage Add-ons" NavIconTitle="" NavIconType="Folder" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="0" AddonGuid="" Guid="{8C98D571-33AD-4C8A-9EA6-03ED55F71C8E}" />
-  <NavigatorEntry Name="Import Templates" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=122" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{93D62EA2-25CC-4510-ABF5-C3CFA76BD4ED}" />
-  <NavigatorEntry Name="Load Content Definitions" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=121" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{F0276371-8A5D-4922-984E-95D2D40BF94B}" />
-  <NavigatorEntry Name="Quick References" NameSpace="Tools" NavIconTitle="" NavIconType="Tools" LinkPage="" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="0" AddonGuid="" Guid="{7305CDD8-601B-419E-9841-71575431B83E}" />
-  <NavigatorEntry Name="Add-on Collection Builder" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=44" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="0" Active="0" AddonGuid="" Guid="{B46A5D8D-EA20-41DD-97B2-417ACE2CEE4A}" />
-  <NavigatorEntry Name="Run Content Diagnostics" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=111" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{E37C7D17-C710-49A8-BE50-002E0ABD8A08}" />
-  <NavigatorEntry Name="Run Benchmark" NameSpace="Tools.Advanced" NavIconTitle="" NavIconType="Tools" LinkPage="?af=115" ContentName="" AdminOnly="0" DeveloperOnly="1" NewWindow="" Active="0" AddonGuid="" Guid="{2249689E-5A98-4BE6-8A4F-95720AB0148B}" />
   <NavigatorEntry Name="Download Log Report" NameSpace="Reports" NavIconTitle="" NavIconType="Reports" LinkPage="?af=12&amp;rid=25" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{6DB8F8EE-33BD-44D2-A64A-3FEEA0C24257}"/>
   <NavigatorEntry Name="Visitor Detail Report" NameSpace="Reports" NavIconTitle="" NavIconType="Reports" LinkPage="?af=12&amp;rid=20" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{D3C7FCC0-01D6-44C7-BDDF-7A67608BEF19}"/>
   <NavigatorEntry Name="Visit Detail Report" NameSpace="Reports" NavIconTitle="" NavIconType="Reports" LinkPage="?af=12&amp;rid=17" ContentName="" AdminOnly="0" DeveloperOnly="0" NewWindow="" Active="0" AddonGuid="" Guid="{5D91CC2F-523F-4FF9-9253-5006A3693A11}"/>

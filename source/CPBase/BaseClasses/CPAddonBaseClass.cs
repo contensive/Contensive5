@@ -14,6 +14,15 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         /// <summary>
+        /// Add this addon as a dependency. The dependency will be executed only once during the process/doc/page.
+        /// If this is the first time it is called, the addon will be executed, assets like js and css added, and the result returned.
+        /// If it has been previously called, the addon is skipped.
+        /// </summary>
+        /// <param name="addonGuid"></param>
+        public abstract string ExecuteDependency(string addonGuid);
+        //
+        //====================================================================================================
+        /// <summary>
         /// Execute an addon in the default addon environment (type=simple, etc) and returns its resulting object. Generally addons return strings.
         /// </summary>
         /// <param name="addonGuid"></param>

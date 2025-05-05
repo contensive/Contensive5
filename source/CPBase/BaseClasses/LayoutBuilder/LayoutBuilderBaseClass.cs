@@ -21,6 +21,13 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// The guid of the addon to be called to update pagination or search.
+        /// Typically the same remote that calls the layout builder.
+        /// </summary>
+        public abstract string callbackMethodGuid { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
         /// LayoutBuilder layouts require html page redraw with an ajax method. 
         /// Set this to the url of the ajax method that returns the html for the form.
         /// </summary>

@@ -1,13 +1,13 @@
 
 using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
-using Contensive.CPBase.BaseModels;
+using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections;
-using System.Windows.Controls.Primitives;
-using System.Xml.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Documents;
 
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderNameValueClass : LayoutBuilderNameValueBaseClass {
@@ -35,11 +35,24 @@ namespace Contensive.Processor.LayoutBuilder {
             addFormHidden("layoutBuilderBaseUrl", baseUrl);
         }
         //
+        // ====================================================================================================
+        /// <summary>
+        /// data structure for mustache rendering a row
+        /// </summary>
+        public List<LayoutBuilderNameValueClass_RowClass> rowList { get; set; } = new List<LayoutBuilderNameValueClass_RowClass>();
+        //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
         /// </summary>
         public override string baseUrl { get; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The guid of the addon that refreshes the view for search or pagination update.
+        /// Typically the addon that created the layout.
+        /// </summary>
+        public override string callbackMethodGuid { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -136,13 +149,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The default Layoutbuilder styles. Override to customize.
         /// </summary>
-        public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
+        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
         //
         // ====================================================================================================
         /// <summary>
         /// The default Layoutbuilder script. Override to customize.
         /// </summary>
-        public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
+        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
         //
         // ====================================================================================================
         /// <summary>
@@ -187,9 +200,9 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getHtml() {
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
             //
-            string result = "";
-            string rowName;
-            string rowValue;
+            //string result = "";
+            //string rowName;
+            //string rowValue;
             //
             // -- add user errors
             string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
@@ -197,48 +210,55 @@ namespace Contensive.Processor.LayoutBuilder {
                 warningMessage += userErrors;
             }
             //
-            // -- add body
-            result += body;
-            for (int rowPtr = 0; rowPtr <= rowCnt; rowPtr++) {
-                //
-                // -- check for fieldSetOpens
-                for (int fieldSetPtrx = 0; fieldSetPtrx <= fieldSetMax; fieldSetPtrx++) {
-                    if (fieldSets[fieldSetPtrx].rowOpen == rowPtr) {
-                        result += Constants.cr + "<fieldset class=\"afwFieldSet\">";
-                        if (fieldSets[fieldSetPtrx].caption != "") {
-                            result += Constants.cr + "<legend>" + fieldSets[fieldSetPtrx].caption + "</legend>";
-                        }
-                    }
-                }
-                //
-                // -- name value row
-                string nameValueRow = "";
-                rowName = (string.IsNullOrWhiteSpace(rows[rowPtr].name) ? "&nbsp;" : rows[rowPtr].name);
-                nameValueRow += cp.Html.div(rowName, "", "afwFormRowName", "");
-                rowValue = (string.IsNullOrWhiteSpace(rows[rowPtr].value) ? "&nbsp;" : rows[rowPtr].value);
-                nameValueRow += cp.Html.div(rowValue, "", "afwFormRowValue", "");
-                result += cp.Html.div(nameValueRow, "", "afwFormRow", rows[rowPtr].htmlId);
-                //
-                // -- help row
-                if (!string.IsNullOrEmpty(rows[rowPtr].help)) {
-                    string helpRow = cp.Html.div("", "", "afwFormRowName", "");
-                    rowValue = "<small class=\"text-muted afwFormRowValuehelp\">" + rows[rowPtr].help + "</small>";
-                    helpRow += cp.Html.div(rowValue, "", "afwFormRowHelp", "");
-                    result += cp.Html.div(helpRow, "", "afwFormRow", rows[rowPtr].htmlId);
-                }
-                //
-                // check for fieldSetCloses
-                //
-                for (int fieldSetPtrx = fieldSetMax; fieldSetPtrx >= 0; fieldSetPtrx--) {
-                    if (fieldSets[fieldSetPtrx].rowClose == rowPtr) {
-                        result += Constants.cr + "</fieldset>";
-                    }
-                }
-            }
+            // -- create body from layout
+            string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderNameValueBodyGuid, Constants.layoutAdminUILayoutBuilderNameValueBodyName, Constants.layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename);
+            string bodyHtml = cp.Mustache.Render(layout, this);
+
+
+
+            ////
+            //// -- add body
+            //result += body;
+            //for (int rowPtr = 0; rowPtr <= rowCnt; rowPtr++) {
+            //    //
+            //    // -- check for fieldSetOpens
+            //    for (int fieldSetPtrx = 0; fieldSetPtrx <= fieldSetMax; fieldSetPtrx++) {
+            //        if (fieldSets[fieldSetPtrx].rowOpen == rowPtr) {
+            //            result += Constants.cr + "<fieldset class=\"afwFieldSet\">";
+            //            if (fieldSets[fieldSetPtrx].caption != "") {
+            //                result += Constants.cr + "<legend>" + fieldSets[fieldSetPtrx].caption + "</legend>";
+            //            }
+            //        }
+            //    }
+            //    //
+            //    // -- name value row
+            //    string nameValueRow = "";
+            //    rowName = (string.IsNullOrWhiteSpace(rows[rowPtr].name) ? "&nbsp;" : rows[rowPtr].name);
+            //    nameValueRow += cp.Html.div(rowName, "", "afwFormRowName", "");
+            //    rowValue = (string.IsNullOrWhiteSpace(rows[rowPtr].value) ? "&nbsp;" : rows[rowPtr].value);
+            //    nameValueRow += cp.Html.div(rowValue, "", "afwFormRowValue", "");
+            //    result += cp.Html.div(nameValueRow, "", "afwFormRow", rows[rowPtr].htmlId);
+            //    //
+            //    // -- help row
+            //    if (!string.IsNullOrEmpty(rows[rowPtr].help)) {
+            //        string helpRow = cp.Html.div("", "", "afwFormRowName", "");
+            //        rowValue = "<small class=\"text-muted afwFormRowValuehelp\">" + rows[rowPtr].help + "</small>";
+            //        helpRow += cp.Html.div(rowValue, "", "afwFormRowHelp", "");
+            //        result += cp.Html.div(helpRow, "", "afwFormRow", rows[rowPtr].htmlId);
+            //    }
+            //    //
+            //    // check for fieldSetCloses
+            //    //
+            //    for (int fieldSetPtrx = fieldSetMax; fieldSetPtrx >= 0; fieldSetPtrx--) {
+            //        if (fieldSets[fieldSetPtrx].rowClose == rowPtr) {
+            //            result += Constants.cr + "</fieldset>";
+            //        }
+            //    }
+            //}
             //
             // -- construct report
             LayoutBuilderClass layoutBase = new(cp) {
-                body = result.ToString(),
+                body = bodyHtml,
                 includeBodyPadding = includeBodyPadding,
                 includeBodyColor = includeBodyColor,
                 buttonList = buttonList,
@@ -248,8 +268,15 @@ namespace Contensive.Processor.LayoutBuilder {
                 includeForm = includeForm,
                 isOuterContainer = isOuterContainer,
                 title = title,
-                failMessage = warningMessage,
-                successMessage = successMessage
+                warningMessage = warningMessage,
+                failMessage = failMessage,
+                infoMessage = infoMessage,
+                successMessage = successMessage,
+                baseAjaxUrl = baseAjaxUrl,
+                htmlLeftOfBody = htmlLeftOfBody,
+                htmlBeforeBody = htmlBeforeBody,
+                htmlAfterBody = htmlAfterBody,
+                portalSubNavTitle = portalSubNavTitle
             };
             return layoutBase.getHtml();
         }
@@ -354,6 +381,12 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addRow() {
             if (rowCnt < rowSize) {
                 rowCnt += 1;
+                rowList.Add(new LayoutBuilderNameValueClass_RowClass() {
+                    rowHelp = "",
+                    rowHtmlId = "",
+                    rowName = "",
+                    rowValue = ""
+                });
                 rows[rowCnt].name = "";
                 rows[rowCnt].value = "";
                 rows[rowCnt].help = "";
@@ -373,6 +406,7 @@ namespace Contensive.Processor.LayoutBuilder {
             set {
                 checkRowCnt();
                 rows[rowCnt].htmlId = value;
+                rowList.Last().rowHtmlId = value;
             }
         }
         //
@@ -388,6 +422,7 @@ namespace Contensive.Processor.LayoutBuilder {
             set {
                 checkRowCnt();
                 rows[rowCnt].name = value;
+                rowList.Last().rowName = value;
             }
         }
         //
@@ -403,6 +438,7 @@ namespace Contensive.Processor.LayoutBuilder {
             set {
                 checkRowCnt();
                 rows[rowCnt].value = value;
+                rowList.Last().rowValue = value;
             }
         }
         //
@@ -416,6 +452,7 @@ namespace Contensive.Processor.LayoutBuilder {
             set {
                 checkRowCnt();
                 rows[rowCnt].help = value;
+                rowList.Last().rowHelp = value;
             }
         }
         //
@@ -450,24 +487,15 @@ namespace Contensive.Processor.LayoutBuilder {
         }
 
         public override void addLinkButton(string buttonCaption, string link) {
-            buttonList += cp.Html5.A(buttonCaption, new HtmlAttributesA() {
-                href = link,
-            });
+            buttonList += LayoutBuilderController.a(buttonCaption, link);
         }
 
         public override void addLinkButton(string buttonCaption, string link, string htmlId) {
-            buttonList += cp.Html5.A(buttonCaption, new HtmlAttributesA() {
-                href = link,
-                id = htmlId
-            });
+            buttonList += LayoutBuilderController.a(buttonCaption, link, htmlId);
         }
 
         public override void addLinkButton(string buttonCaption, string link, string htmlId, string htmlClass) {
-            buttonList += cp.Html5.A(buttonCaption, new HtmlAttributesA() {
-                href = link,
-                id = htmlId,
-                @class = htmlClass
-            });
+            buttonList += LayoutBuilderController.a(buttonCaption, link, htmlId, htmlClass);
         }
 
         [Obsolete("Deprecated. Use getHtml()", false)]
@@ -506,7 +534,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override string infoMessage { get; set; }
         //
-        public override string warning { get; set; }
+        [Obsolete("Deprecated. Use warningMessage", false)] public override string warning { get; set; }
         //
         public override string successMessage { get; set; }
         //
@@ -540,7 +568,8 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         [Obsolete("Deprecated. No longer needed.", false)] public override string refreshQueryString { get; set; }
         //
-        [Obsolete("Depricated. Use htmlAfterTable",false)] public override string footer { 
+        [Obsolete("Depricated. Use htmlAfterTable", false)]
+        public override string footer {
             get {
                 return htmlAfterBody;
             }
@@ -548,5 +577,12 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlAfterBody = value;
             }
         }
+    }
+    //
+    public class LayoutBuilderNameValueClass_RowClass {
+        public string rowName { get; set; } = "";
+        public string rowValue { get; set; } = "";
+        public string rowHelp { get; set; } = "";
+        public string rowHtmlId { get; set; } = "";
     }
 }

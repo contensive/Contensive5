@@ -87,7 +87,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Controllers {
             result += string.IsNullOrWhiteSpace(request.failMessage) ? "" : Constants.cr + "<div class=\"p-3 mb-2 bg-danger text-white\">" + request.failMessage + "</div>";
             result += string.IsNullOrWhiteSpace(request.description) ? "" : Constants.cr + "<p>" + request.description + "</p>";
             if (!string.IsNullOrEmpty(request.csvDownloadFilename)) {
-                result += "<p id=\"afwDescription\"><a href=\"" + cp.Http.CdnFilePathPrefix + request.csvDownloadFilename + "\">Click here</a> to download the data.</p>";
+                result += "<p class=\"afwDescription\" id=\"afwDescription\"><a href=\"" + cp.Http.CdnFilePathPrefix + request.csvDownloadFilename + "\">Click here</a> to download the data.</p>";
             }
             string resultBody = request.body;
             if (!string.IsNullOrEmpty(request.htmlLeftOfBody)) {

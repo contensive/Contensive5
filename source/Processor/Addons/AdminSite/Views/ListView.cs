@@ -1446,15 +1446,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                 returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Set&nbsp;Columns</a></div>";
                 //
                 returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
-                //
-                // Import Link
-                //
-                QS = RQS;
-                QS = GenericController.modifyQueryString(QS, rnAdminForm, AdminFormImportWizard, true);
-                Link = "/" + core.appConfig.adminRoute + "?" + QS;
-                returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Import</a></div>";
-                //
-                returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
+                ////
+                //// Import Link
+                ////
+                //QS = RQS;
+                //QS = GenericController.modifyQueryString(QS, rnAdminForm, AdminFormImportWizard, true);
+                //Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                //returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Import</a></div>";
+                ////
+                //returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
                 //
                 // Export Link
                 //

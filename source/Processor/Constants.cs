@@ -166,9 +166,12 @@ namespace Contensive.Processor {
         // -- navigator entries
         internal const string addonGuidManageAddon = "{DBA354AB-5D3E-4882-8718-CF23CAAB7927}";
         //
-        // -- addons
         public static string addonGuidHousekeep => _addonGuidHousekeep;
         private const string _addonGuidHousekeep = "{7208D069-8FE3-4BD1-AB76-B25C40C89A45}";
+        //
+        // -- addons
+        internal const string guidAddonPortalFramework = "{A1BCA00C-2657-42A1-8F98-BED1E5A42025}";
+        //
         internal const string addonGuidEmailDropReport = "{A10B5F49-3147-4E32-9DCF-76D65CCFF9F1}";
         //
         public static readonly string addonGuidEmailProcessTask = "{E6E82D55-003F-4ED0-B183-5F9D756582FE}";
@@ -191,6 +194,7 @@ namespace Contensive.Processor {
         internal const string addonGuidImportWizard = "{37F66F90-C0E0-4EAF-84B1-53E90A5B3B3F}";
         internal const string addonGuidJQuery = "{9C882078-0DAC-48E3-AD4B-CF2AA230DF80}";
         internal const string addonGuidJQueryUI = "{840B9AEF-9470-4599-BD47-7EC0C9298614}";
+        internal const string addonGuidJQueryBlockUI = "{F6087787-E01E-4E09-AC02-502D0387E048}";
         internal const string addonGuidImportProcess = "{5254FAC6-A7A6-4199-8599-0777CC014A13}";
         internal const string addonGuidStructuredDataProcessor = "{65D58FE9-8B76-4490-A2BE-C863B372A6A4}";
         internal const string addonGuidjQueryFancyBox = "{24C2DBCF-3D84-44B6-A5F7-C2DE7EFCCE3D}";
@@ -675,9 +679,9 @@ namespace Contensive.Processor {
         // ----- Admin site storage
         // --------------------------------------------------------------------------------------------------------------------------
         //
-        internal const int AdminMenuModeHidden = 0; // menu is hidden
-        internal const int AdminMenuModeLeft = 1; // menu on the left
-        internal const int AdminMenuModeTop = 2; // menu as dropdowns from the top
+        //internal const int AdminMenuModeHidden = 0; // menu is hidden
+        //internal const int AdminMenuModeLeft = 1; // menu on the left
+        //internal const int AdminMenuModeTop = 2; // menu as dropdowns from the top
         /// <summary>
         /// dashboard page
         /// </summary>
@@ -690,41 +694,41 @@ namespace Contensive.Processor {
         /// edit a record
         /// </summary>
         internal const int AdminFormEdit = 4; // Edit form for system format records
-        internal const int AdminFormClose = 10; // Special Case - do a window close instead of displaying a form
+        //internal const int AdminFormClose = 10; // Special Case - do a window close instead of displaying a form
         internal const int AdminFormReports = 12; // Call Reports form (admin only)
-        internal const int AdminFormPublishing = 17; // Workflow Authoring Publish Control form
-        internal const int AdminFormQuickStats = 18; // Quick Stats (from Admin root)
-        internal const int AdminFormResourceLibrary = 19; // Resource Library without Selects
-        internal const int AdminFormContentChildTool = 22; // Admin Create Content Child tool
-        internal const int AdminformHousekeepingControl = 24; // Housekeeping control
-        internal const int AdminFormStyleEditor = 27;
-        internal const int AdminFormDownloads = 30;
-        internal const int AdminFormImportWizard = 35;
-        internal const int AdminFormCustomReports = 36;
-        internal const int AdminFormFormWizard = 37;
-        internal const int AdminFormLegacyAddonManager = 38;
+        //internal const int AdminFormPublishing = 17; // Workflow Authoring Publish Control form
+        //internal const int AdminFormQuickStats = 18; // Quick Stats (from Admin root)
+        //internal const int AdminFormResourceLibrary = 19; // Resource Library without Selects
+        //internal const int AdminFormContentChildTool = 22; // Admin Create Content Child tool
+        //internal const int AdminformHousekeepingControl = 24; // Housekeeping control
+        //internal const int AdminFormStyleEditor = 27;
+        //internal const int AdminFormDownloads = 30;
+        //internal const int AdminFormImportWizard = 35;
+        //internal const int AdminFormCustomReports = 36;
+        //internal const int AdminFormFormWizard = 37;
+        //internal const int AdminFormLegacyAddonManager = 38;
         internal const int AdminFormIndex_SubFormAdvancedSearch = 39;
         internal const int AdminFormIndex_SubFormSetColumns = 40;
-        internal const int AdminFormSecurityControl = 42;
-        internal const int AdminFormEditorConfig = 43;
-        internal const int AdminFormClearCache = 45;
+        //internal const int AdminFormSecurityControl = 42;
+        //internal const int AdminFormEditorConfig = 43;
+        //internal const int AdminFormClearCache = 45;
         internal const int AdminFormIndex_SubFormExport = 48;
         //
         // ----- AdminFormTools (11,100-199)
         //
-        internal const int AdminFormToolCreateContentDefinition = 101;
-        internal const int AdminFormToolConfigureListing = 104;
-        internal const int AdminFormToolConfigureEdit = 105;
-        internal const int AdminFormToolManualQuery = 106;
-        internal const int AdminFormToolDefineContentFieldsFromTable = 110;
-        internal const int AdminFormToolSyncTables = 114;
-        internal const int AdminFormToolSchema = 116;
-        internal const int AdminFormToolDbIndex = 118;
-        internal const int AdminFormToolContentSchema = 119;
-        internal const int AdminFormToolLogFileView = 120;
-        internal const int AdminformToolFindAndReplace = 123;
-        internal const int AdminformToolCreateGUID = 124;
-        internal const int AdminformToolIISReset = 125;
+        //internal const int AdminFormToolCreateContentDefinition = 101;
+        //internal const int AdminFormToolConfigureListing = 104;
+        //internal const int AdminFormToolConfigureEdit = 105;
+        //internal const int AdminFormToolManualQuery = 106;
+        //internal const int AdminFormToolDefineContentFieldsFromTable = 110;
+        //internal const int AdminFormToolSyncTables = 114;
+        //internal const int AdminFormToolSchema = 116;
+        //internal const int AdminFormToolDbIndex = 118;
+        //internal const int AdminFormToolContentSchema = 119;
+        //internal const int AdminFormToolLogFileView = 120;
+        //internal const int AdminformToolFindAndReplace = 123;
+        //internal const int AdminformToolCreateGUID = 124;
+        //internal const int AdminformToolIISReset = 125;
         //
         // ----- Define the index column structure
         //       IndexColumnVariant( 0, n ) is the first column on the left
@@ -1141,6 +1145,11 @@ namespace Contensive.Processor {
         public const string layoutAdminUILayoutBuilderListBodyGuid = "{13DB2AF2-A835-4E00-A932-7F5C036312AF}";
         public const string layoutAdminUILayoutBuilderListBodyName = "AdminUI LayoutBuilder List Body";
         public const string layoutAdminUILayoutBuilderListBodyCdnPathFilename = "baseAssets\\AdminUILayoutBuilderListBody.html";
+        //
+        // -- The body of the namevalue layout
+        public const string layoutAdminUILayoutBuilderNameValueBodyGuid = "{23F353C6-33BA-4180-80B2-043B8572D2DA}";
+        public const string layoutAdminUILayoutBuilderNameValueBodyName = "AdminUI LayoutBuilder NameValue Body";
+        public const string layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename = "baseAssets\\AdminUILayoutBuilderNameValueBody.html";
         //
         // -- basic layout that wraps all reports
         public const string layoutAdminUILayoutBuilderBaseGuid = "{54C3AAD0-B517-4490-9FF6-54D294EB6B50}";
