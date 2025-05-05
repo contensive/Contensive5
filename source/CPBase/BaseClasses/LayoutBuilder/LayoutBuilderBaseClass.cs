@@ -24,7 +24,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// The guid of the addon to be called to update pagination or search.
         /// Typically the same remote that calls the layout builder.
         /// </summary>
-        public abstract string callbackMethodGuid { get; set; }
+        public abstract string callbackAddonGuid { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

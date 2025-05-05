@@ -175,12 +175,12 @@ namespace Contensive.Processor.LayoutBuilder {
         ///  Typically this is the method that calls the layout builder.
         /// When a search or pagination is performed, the view is refreshed by calling this method.
         /// </summary>
-        public override string callbackMethodGuid {
+        public override string callbackAddonGuid {
             get {
-                return layoutBuilderBase.callbackMethodGuid;
+                return layoutBuilderBase.callbackAddonGuid;
             }
             set {
-                layoutBuilderBase.callbackMethodGuid = value;
+                layoutBuilderBase.callbackAddonGuid = value;
             }
         }
         //
@@ -190,7 +190,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// Required for pagination and search. If empty, pagination and search are disabled.
         /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
         /// </summary>
-        [Obsolete("Deprecated. user callbackMethodGuid",false)] public override string baseAjaxUrl {
+        [Obsolete("Deprecated. user callbackAddonGuid",false)] public override string baseAjaxUrl {
             get {
                 return layoutBuilderBase.baseAjaxUrl;
             }

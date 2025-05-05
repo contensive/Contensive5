@@ -27,7 +27,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// The guid of the addon that refreshes the view for search or pagination update.
         /// Typically the addon that created the layout.
         /// </summary>
-        public override string callbackMethodGuid { get; set; }
+        public override string callbackAddonGuid { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

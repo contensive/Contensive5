@@ -32,7 +32,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 layoutBuilder.title = "Layout Builder List Sample";
                 layoutBuilder.description = "Description added before body created.";
                 layoutBuilder.baseAjaxUrl = $"/{MethodBase.GetCurrentMethod().DeclaringType.Name}";
-                layoutBuilder.callbackMethodGuid = "{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}";
+                layoutBuilder.callbackAddonGuid = "{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}";
                 layoutBuilder.portalSubNavTitle = "";
                 layoutBuilder.csvDownloadFilename = "CSVDownloadFile.csv";
                 layoutBuilder.addCsvDownloadCurrentPage = true;

@@ -32,13 +32,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// The addon of the Addon to be called to refresh the view on search or pagination. 
         /// Typically the same method that calls the layoutbuilder
         /// </summary>
-        public override string callbackMethodGuid { get; set; }
+        public override string callbackAddonGuid { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
         /// </summary>
-        [Obsolete("Deprecated. Use callbackMethodGuid",false)] public override string baseAjaxUrl { get; set; }
+        [Obsolete("Deprecated. Use callbackAddonGuid",false)] public override string baseAjaxUrl { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
