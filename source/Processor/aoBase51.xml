@@ -3076,7 +3076,7 @@
     <RemoteMethod>Yes</RemoteMethod>
   </Addon>
 
-  <Addon Name="SampleLayoutBuilderList" Guid="{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}" Type="Tool">
+  <Addon Name="Sample Layout Builder List" Guid="{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}" Type="Tool">
     <Admin>true</Admin>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilderList]]></DotNetClass>
 		<Category><![CDATA[Advanced]]></Category>

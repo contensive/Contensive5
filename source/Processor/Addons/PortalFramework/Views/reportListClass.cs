@@ -662,14 +662,14 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// <summary>
         /// deprecated. Had previously been the guid of the saved report record.
         /// </summary>
-        [Obsolete("deprecated. Had previously been the guid of the saved report record.", false)]
+        [Obsolete("Deprecated. Had previously been the guid of the saved report record.", false)]
         public string guid { get; set; } = "";
         //
         //====================================================================================================
         /// <summary>
         /// deprecated. Had previously been the name of the saved report record.
         /// </summary>
-        [Obsolete("deprecated. Had previously been the name of the saved report record.", false)]
+        [Obsolete("Deprecated. Had previously been the name of the saved report record.", false)]
         public string name { get; set; } = "";
         ////
         ////====================================================================================================
@@ -1026,7 +1026,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// <summary>
         /// deprecated. use addHidden() to add a formId hidden tag
         /// </summary>
-        [Obsolete("deprecated. use addHidden() to add a formId hidden tag", false)]
+        [Obsolete("Deprecated. use addHidden() to add a formId hidden tag", false)]
         public string formId {
             get {
                 return localFormId_Local;

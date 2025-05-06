@@ -533,10 +533,10 @@ namespace Contensive.BaseClasses {
         [Obsolete("deprecated", false)]
         public abstract bool IsWorkflowRendering { get; }
         //
-        [Obsolete("deprecated. Use another method to differentiate types of users, like groups, select lists, etc.", false)]
+        [Obsolete("Deprecated. Use another method to differentiate types of users, like groups, select lists, etc.", false)]
         public abstract bool IsMember { get; }
         //
-        [Obsolete("deprecated.", false)]
+        [Obsolete("Deprecated.", false)]
         public abstract string Password { get; }
         //
         [Obsolete("Use the Get method with the correct type.", false)]

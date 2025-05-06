@@ -339,7 +339,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use warningMessage instead", false)]
+        [Obsolete("Deprecated. Use warningMessage instead", false)]
         public string warning {
             get {
                 return warningMessage;
@@ -353,7 +353,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// <summary>
         /// deprecated. Use htmlAfterTable instead
         /// </summary>
-        [Obsolete("deprecated. Use htmlAfterTable instead", false)]
+        [Obsolete("Deprecated. Use htmlAfterTable instead", false)]
         public string footer {
             get {
                 return htmlAfterTable;
@@ -367,7 +367,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use addFormHidden instead", false)]
+        [Obsolete("Deprecated. Use addFormHidden instead", false)]
         public string formid {
             get {
                 return formid_local;

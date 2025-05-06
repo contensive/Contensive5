@@ -218,7 +218,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Controllers {
         /// </summary>
         public bool blockFormTag { get; set; }
         //
-        [Obsolete("deprecated. Use warningMessage instead", false)]
+        [Obsolete("Deprecated. Use warningMessage instead", false)]
         public string warning { get; set; }
     }
 }

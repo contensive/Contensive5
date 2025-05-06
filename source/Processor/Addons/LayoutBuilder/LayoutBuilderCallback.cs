@@ -1,4 +1,5 @@
 ﻿using Contensive.BaseClasses;
+using Contensive.Models.Db;
 using System;
 using System.Reflection;
 using System.Text;
@@ -7,7 +8,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
     /// <summary>
     /// 
     /// </summary>
-    public class SampleLayoutCallback : AddonBaseClass {
+    public class LayoutBuilderCallback : AddonBaseClass {
         //
         //====================================================================================================
         /// <summary>
@@ -21,8 +22,12 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 // -- authenticate/authorize
                 if (!cp.User.IsAdmin) { return "You do not have permission."; }  
                 //
-                // -- return the form
-                return "";
+                // -- get the addon from the callback
+                var callbackAddonGuid = cp.Doc.GetText("callbackAddonGuid");
+                if (string.IsNullOrEmpty(callbackAddonGuid)) { return "<!-- callbackAddonGuid empty -->"; }
+                //
+                // -- execute the addon with the requests filter doc properties
+                return cp.Addon.Execute(callbackAddonGuid);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
                 throw;

@@ -33,7 +33,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
         /// </summary>
-        public override string baseAjaxUrl { get; set; }
+        [Obsolete("Deprecated. use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
         //
         //====================================================================================================
         //
@@ -366,7 +366,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use warningMessage instead", false)]
+        [Obsolete("Deprecated. Use warningMessage instead", false)]
         public override string warning {
             get {
                 return warningMessage;
@@ -380,7 +380,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Use htmlAfterTable instead
         /// </summary>
-        [Obsolete("deprecated. Use htmlAfterTable instead", false)]
+        [Obsolete("Deprecated. Use htmlAfterTable instead", false)]
         public override string footer {
             get {
                 return htmlAfterBody;
@@ -394,7 +394,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use addFormHidden instead", false)]
+        [Obsolete("Deprecated. Use addFormHidden instead", false)]
         public override string formid {
             get {
                 return formid_local;

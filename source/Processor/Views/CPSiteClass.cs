@@ -462,7 +462,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        [Obsolete("deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
+        [Obsolete("Deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
         public override string ThrowEvent(string eventNameIdOrGuid) {
             //
             cp.Log.Trace($"CPSiteClass.ThrowEvent(string [{eventNameIdOrGuid}]) enter");
@@ -488,7 +488,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        [Obsolete("deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
+        [Obsolete("Deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
         public override string ThrowEvent(int eventId) {
             //
             cp.Log.Trace($"CPSiteClass.ThrowEvent(int [{eventId}]) enter");
@@ -500,7 +500,7 @@ namespace Contensive.Processor {
         //
         //====================================================================================================
         //
-        [Obsolete("deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
+        [Obsolete("Deprecated. Use ThrowEventByName. Events are created and called only by name. Do not reference ids or guids.", false)]
         public override string ThrowEventByGuid(string eventGuid) {
             //
             cp.Log.Trace($"CPSiteClass.ThrowEventByGuid(string [{eventGuid}]) enter");

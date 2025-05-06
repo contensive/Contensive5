@@ -31,7 +31,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// LayoutBuilder layouts require html page redraw with an ajax method. 
         /// Set this to the url of the ajax method that returns the html for the form.
         /// </summary>
-        public abstract string baseAjaxUrl { get; set; }
+        [Obsolete("Deprecated. use callbackAddonGuid",false)] public abstract string baseAjaxUrl { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -300,21 +300,21 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use warningMessage instead", false)]
+        [Obsolete("Deprecated. Use warningMessage instead", false)]
         public abstract string warning { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Use htmlAfterBody instead
         /// </summary>
-        [Obsolete("deprecated. Use htmlAfterBody instead", false)]
+        [Obsolete("Deprecated. Use htmlAfterBody instead", false)]
         public abstract string footer { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Use warningMessage instead
         /// </summary>
-        [Obsolete("deprecated. Use addFormHidden instead", false)]
+        [Obsolete("Deprecated. Use addFormHidden instead", false)]
         public abstract string formid { get; set; }
         // 
         // ----------------------------------------------------------------------------------------------------

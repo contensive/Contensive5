@@ -196,6 +196,7 @@ namespace Contensive.Processor.LayoutBuilder {
             //
             // -- add the baseAjaxUrl to the form
             addFormHidden("baseAjaxUrl", baseAjaxUrl);
+            addFormHidden("callbackAddonGuid", callbackAddonGuid);
             //
             // -- add all hiddens to the html
             result += hiddenList;

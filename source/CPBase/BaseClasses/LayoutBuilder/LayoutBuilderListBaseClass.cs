@@ -49,6 +49,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// if true, the data set is paginated. If false, all records are displayed.
         /// 
         /// </summary>
+        [Obsolete("Deprecated. Pagination is enabled if recordCount is set > pageSize and the callbackAddonGuid is not empty.", false)]
         public abstract bool allowPagination { get; }
         /// <summary>
         /// The default records per page to be displayed. The user may make changes, reflected in paginationPageSize

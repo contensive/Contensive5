@@ -58,7 +58,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
         /// </summary>
-        public override string baseAjaxUrl { get; set; }
+        [Obsolete("Deprecated. use callbackAddonGuid",false)] public override string baseAjaxUrl { get; set; }
         //
         /// <summary>
         /// the maximum number of fields allowed
@@ -273,6 +273,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 infoMessage = infoMessage,
                 successMessage = successMessage,
                 baseAjaxUrl = baseAjaxUrl,
+                callbackAddonGuid = callbackAddonGuid,
                 htmlLeftOfBody = htmlLeftOfBody,
                 htmlBeforeBody = htmlBeforeBody,
                 htmlAfterBody = htmlAfterBody,

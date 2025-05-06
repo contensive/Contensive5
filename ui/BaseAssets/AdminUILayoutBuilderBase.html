@@ -735,7 +735,7 @@
 	function submitAfwAjaxForm( destinationElementId, onSuccessMethod ) {
 		console.log(`LayoutBuilder Base, submitAfwAjaxForm`);
 		$('#js-afwFormContent').block();
-		let baseAjaxUrl = $('[name="baseAjaxUrl"]').val();
+		let baseAjaxUrl = "/LayoutBuilderCallback";
 		baseAjaxUrl += '?'+$( "#js-afwFormContent" ).closest("form").serialize();
 		console.log(`LayoutBuilder Base, call ajax, baseAjaxUrl: ${baseAjaxUrl}`);
 		$.ajax({

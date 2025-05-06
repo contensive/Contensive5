@@ -35,6 +35,8 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 // -- good practice is to make this form a remote method and set the baseAjaxUrl to the remote method
                 layoutBuilder.baseAjaxUrl = MethodBase.GetCurrentMethod().DeclaringType.Name;
                 //
+                layoutBuilder.callbackAddonGuid = "{AB85005F-D715-4566-B85F-757D8A363896}";
+                //
                 string baseUrl = layoutBuilder.baseUrl;
                 //
                 // -- includeForm true to have this form automatically wrapped with a form tag

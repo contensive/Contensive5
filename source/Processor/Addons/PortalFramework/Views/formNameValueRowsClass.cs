@@ -416,7 +416,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
             }
         }
         //
-        [Obsolete("deprecated. Add a hidden input tag with addFormHidden.")]
+        [Obsolete("Deprecated. Add a hidden input tag with addFormHidden.")]
         public string formId {
             get {
                 return formId_local;

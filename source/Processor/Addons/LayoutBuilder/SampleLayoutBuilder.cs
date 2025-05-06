@@ -35,6 +35,9 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 // -- good practice is to make this form a remote method and set the baseAjaxUrl to the remote method
                 layoutBuilder.baseAjaxUrl = MethodBase.GetCurrentMethod().DeclaringType.Name;
                 //
+                // -- on change a filter might call this addon back and refresh the view
+                layoutBuilder.callbackAddonGuid = "{D5035D17-F114-4FBA-A8BF-943D660DE84E}";
+                //
                 string baseUrl = layoutBuilder.baseUrl;
                 //
                 // -- includeForm true to have this form automatically wrapped with a form tag

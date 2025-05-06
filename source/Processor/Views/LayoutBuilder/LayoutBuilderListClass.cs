@@ -32,7 +32,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// prefered constructor
         /// </summary>
         /// <param name="cp"></param>
-        public LayoutBuilderListClass(CPBaseClass cp) :base(cp) {
+        public LayoutBuilderListClass(CPBaseClass cp) : base(cp) {
             this.cp = (CPClass)cp;
             layoutBuilderBase = new(cp);
             //
@@ -66,7 +66,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// the report download data
         /// </summary>
-        private string[,] localDownloadData { get; } = new string[rowSize+1, columnSize];
+        private string[,] localDownloadData { get; } = new string[rowSize + 1, columnSize];
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -164,7 +164,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The url of the page. Needed because the page is rendered with ajax, and the original page's url is used as the base for calls
         /// </summary>
-        public override string baseUrl { 
+        public override string baseUrl {
             get {
                 return layoutBuilderBase.baseUrl;
             }
@@ -190,7 +190,8 @@ namespace Contensive.Processor.LayoutBuilder {
         /// Required for pagination and search. If empty, pagination and search are disabled.
         /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
         /// </summary>
-        [Obsolete("Deprecated. user callbackAddonGuid",false)] public override string baseAjaxUrl {
+        [Obsolete("Deprecated. To enable pagination, set callbackAddonGuid and recordCount.", false)]
+        public override string baseAjaxUrl {
             get {
                 return layoutBuilderBase.baseAjaxUrl;
             }
@@ -229,7 +230,7 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         public override void paginationReset() {
-            if(_paginationPageSize != null) {
+            if (_paginationPageSize != null) {
                 //
                 // -- cannot reset after the pagination has been used
                 cp.Log.Warn($"LayoutBuilderListClass.pageinationReset cannot be called after pagination has been used. Call reset before accessing pagination or query elements.");
@@ -238,15 +239,9 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         //
         // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// if set true, the pageSize and pageNumber will control pagination
-        /// The grid will include pagination controls, and the client application should read pageSize and pageNumber when setting up the query
-        /// </summary>
-        public override bool allowPagination {
-            get {
-                return cp.Site.GetBoolean("allow afw pagination beta", false);
-            }
-        }
+        /// <summary></summary> 
+        [Obsolete("Deprecated. Pagination is enabled if recordCount is set > pageSize and the callbackAddonGuid is not empty.", false)]
+        public override bool allowPagination { get { return true; } }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -274,11 +269,8 @@ namespace Contensive.Processor.LayoutBuilder {
         public override int paginationPageSize {
             get {
                 if (_paginationPageSize != null) { return (int)_paginationPageSize; }
-                if (!allowPagination) {
-                    _paginationPageSize = 9999999;
-                    return (int)_paginationPageSize;
-                }
                 _paginationPageSize = paginationPageSizeDefault;
+                if (_paginationPageSize==0) { _paginationPageSize = 9999999; }
                 return (int)_paginationPageSize;
             }
         }
@@ -293,7 +285,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override int paginationPageNumber {
             get {
                 if (_paginationPageNumber != null) { return (int)_paginationPageNumber; }
-                if (!allowPagination || cp == null) {
+                if (cp == null) {
                     _paginationPageNumber = 1;
                     return (int)_paginationPageNumber;
                 }
@@ -363,8 +355,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 // -- page navigation
                 RenderData renderData = new() {
                     grid = getGridHtml(),
-                    allowSearch = !string.IsNullOrEmpty(layoutBuilderBase.baseAjaxUrl),
-                    allowPagination = !string.IsNullOrEmpty(layoutBuilderBase.baseAjaxUrl) && (recordCount > paginationPageSize)
+                    allowSearch = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid),
+                    allowPagination = !string.IsNullOrEmpty(layoutBuilderBase.callbackAddonGuid) && (recordCount > paginationPageSize)
                 };
                 //
                 // -- prepend navigation to before-table
@@ -523,7 +515,7 @@ namespace Contensive.Processor.LayoutBuilder {
                         if (classAttribute != "") {
                             classAttribute = " class=\"" + classAttribute + "\"";
                         }
-                        tableBodyRows.Append( $"<tr {classAttribute}>{row}</tr>");
+                        tableBodyRows.Append($"<tr {classAttribute}>{row}</tr>");
                     }
                 }
                 hint = 60;
@@ -546,7 +538,7 @@ namespace Contensive.Processor.LayoutBuilder {
                     csDownloads.Close();
                 }
                 hint = 70;
-                string dataGrid  = ""
+                string dataGrid = ""
                     + "<div id=\"afwListReportDataGrid\">"
                     + "<table class=\"afwListReportTable\">"
                     + tableHeader.ToString()
@@ -557,10 +549,6 @@ namespace Contensive.Processor.LayoutBuilder {
                     + "</div>"
                     + $"<input type=hidden name=columnSort value=\"{cp.Utils.EncodeHTML(cp.Doc.GetText("columnSort"))}\">"
                     + "";
-
-                    //$"<input type=hidden name=baseAjaxUrl value=\"{cp.Utils.EncodeHTML(baseAjaxUrl)}\">"
-
-
                 return dataGrid;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex, $"hint {hint}");
@@ -578,14 +566,14 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// deprecated. Had previously been the guid of the saved report record.
         /// </summary>
-        [Obsolete("deprecated. Had previously been the guid of the saved report record.", false)]
+        [Obsolete("Deprecated. Had previously been the guid of the saved report record.", false)]
         public override string guid { get; set; } = "";
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// deprecated. Had previously been the name of the saved report record.
         /// </summary>
-        [Obsolete("deprecated. Had previously been the name of the saved report record.", false)]
+        [Obsolete("Deprecated. Had previously been the name of the saved report record.", false)]
         public override string name { get; set; } = "";
         //
         // ----------------------------------------------------------------------------------------------------
@@ -801,7 +789,7 @@ namespace Contensive.Processor.LayoutBuilder {
                 localExcludeRowFromDownload[rowCnt] = value;
             }
         }
-        private readonly bool[] localExcludeRowFromDownload = new bool[rowSize+1];
+        private readonly bool[] localExcludeRowFromDownload = new bool[rowSize + 1];
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -815,7 +803,7 @@ namespace Contensive.Processor.LayoutBuilder {
             checkRowCnt();
             localRowClasses[rowCnt] += " " + styleClass;
         }
-        private readonly string[] localRowClasses = new string[rowSize+1];
+        private readonly string[] localRowClasses = new string[rowSize + 1];
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -903,7 +891,7 @@ namespace Contensive.Processor.LayoutBuilder {
         //====================================================================================================
         // -- deprecated
         //
-        [Obsolete("deprecated. use addHidden() to add a formId hidden tag", false)]
+        [Obsolete("Deprecated. use addHidden() to add a formId hidden tag", false)]
         public override string formId {
             get {
                 return localFormId_Local;
@@ -914,19 +902,19 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         private string localFormId_Local = "";
-       
+
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// if true, the container between the button rows will include default padding
         /// </summary>
-        public override bool includeBodyPadding { 
+        public override bool includeBodyPadding {
             get {
                 return layoutBuilderBase.includeBodyPadding;
-            } 
+            }
             set {
                 layoutBuilderBase.includeBodyPadding = value;
-            } 
+            }
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -1039,7 +1027,7 @@ namespace Contensive.Processor.LayoutBuilder {
             set {
                 layoutBuilderBase.successMessage = value;
             }
-        } 
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1189,7 +1177,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonCaption"></param>
         /// <param name="link"></param>
         public override void addLinkButton(string buttonCaption, string link) {
-          layoutBuilderBase.addLinkButton(buttonCaption, link );
+            layoutBuilderBase.addLinkButton(buttonCaption, link);
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -1254,14 +1242,14 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="buttonId"></param>
         /// <param name="buttonClass"></param>
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
-            layoutBuilderBase.addFormButton(buttonValue,buttonName, buttonId, buttonClass);
+            layoutBuilderBase.addFormButton(buttonValue, buttonName, buttonId, buttonClass);
         }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        [Obsolete("Deprecated. No longer used. Insead BaseUrl is calculated internally.",false)] public override string formActionQueryString { get; set; }
+        [Obsolete("Deprecated. No longer used. Insead BaseUrl is calculated internally.", false)] public override string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1274,7 +1262,7 @@ namespace Contensive.Processor.LayoutBuilder {
             set {
                 layoutBuilderBase.htmlLeftOfBody = value;
             }
-        } 
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

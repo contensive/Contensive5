@@ -304,7 +304,7 @@ namespace Contensive.Processor {
         //====================================================================================================
         // deprecated
         //
-        [Obsolete("deprecated. Convert to datatables and use executeQuery(), executeNonQuery(), or executeNonQueryAsync()", false)]
+        [Obsolete("Deprecated. Convert to datatables and use executeQuery(), executeNonQuery(), or executeNonQueryAsync()", false)]
         public override object ExecuteSQL(string sql, string ignoreDataSourceName, string ignoreRetries, string ignorePageSize, string ignorePageNumber) {
             db.executeNonQuery(sql);
             return null;
