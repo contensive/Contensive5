@@ -46,7 +46,23 @@
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: false,
+          legend: {
+            position: 'right',
+            
+            labels: {
+              usePointStyle: true,
+              pointStyle: 'rect',
+              pointStyleWidth: 8,
+              pointStyleHeight: 5,    
+              boxHeight: 5,
+              boxWidth: 8,
+              padding: 5,
+              font: {
+                size: 11
+              }
+            }
+          },
+          
         }
       }
     });
