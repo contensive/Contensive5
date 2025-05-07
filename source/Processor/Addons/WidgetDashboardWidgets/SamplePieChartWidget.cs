@@ -36,17 +36,17 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                            new() {
                                filterCaption = "2 Segment",
                                filterValue = "2",
-                               filterActive = (segments == 2)
+                               filterActive = (segments < 4)
                            },
                            new() {
                                filterCaption = "6 Segments",
                                filterValue = "6",
-                               filterActive = (segments == 6)
+                               filterActive = (segments >=4) && (segments < 7)
                            },
                            new() {
                                filterCaption = "10 Segments",
                                filterValue = "10",
-                               filterActive = (segments == 10)
+                               filterActive = (segments >=7)
                            }
                        }
                 };
