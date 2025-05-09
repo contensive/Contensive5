@@ -11,6 +11,8 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
         public override object Execute(CPBaseClass cp) {
             try {
                 int months = cp.Doc.GetInteger("widgetFilter");
+                months = (months < 2) ? 1 : (months < 4) ? 3 : 12;
+                //
                 return new DashboardWidgetNumberModel() {
                     widgetName = "Pages To Review",
                     width = 1,
