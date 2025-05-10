@@ -55,14 +55,14 @@ namespace Contensive.Processor.Models.View {
                     addWidgetList = []
                 };
                 DashboardUserConfigModel userConfig = DashboardUserConfigModel.loadUserConfig(cp, portalName);
+                bool needsConfigSave = false;
                 if (userConfig?.widgets != null && userConfig.widgets.Count > 0) {
                     //
                     // -- verify unique keys
-                    bool needConfigSave = false;
                     foreach (var widget in userConfig.widgets) {
                         if (string.IsNullOrEmpty(widget.widgetHtmlId)) {
                             widget.widgetHtmlId = GenericController.getRandomString(6);
-                            needConfigSave = true;
+                            needsConfigSave = true;
                         }
                     }
                     //
@@ -73,9 +73,9 @@ namespace Contensive.Processor.Models.View {
                         widgetHtmlId = "newWidgetTemplate",
                     });
                     //
-                    needConfigSave = needConfigSave || !DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
+                    needsConfigSave = needsConfigSave || !DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
                     //
-                    if (needConfigSave) { userConfig.save(cp, portalName); }
+                    if (needsConfigSave) { userConfig.save(cp, portalName); }
                     buildAddWidgetList(cp, portalGuid, result);
                     return result;
                 }
@@ -96,7 +96,9 @@ namespace Contensive.Processor.Models.View {
                 userConfig.save(cp, portalName);
                 //
                 // -- after save, render the htmlContent and get the widget list
-                bool widgetValid = DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
+                if (!DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig)) {
+                    userConfig.save(cp, portalName);
+                }
                 result.addWidgetList = tmp.addWidgetList;
                 return result;
 

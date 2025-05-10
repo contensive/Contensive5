@@ -9,21 +9,27 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// if false, a widget in the userConfig is not valid and has been removed. The config has to be saved
+        /// if false, there is a problem with a widget in the userConfig and needs to be saved
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="userConfig"></param>
         /// <returns></returns>
         public static bool buildDashboardWidgets(CPBaseClass cp, DashboardViewModel view, DashboardUserConfigModel userConfig) {
+            bool configOk = true;
             foreach (DashboardWidgetUserConfigModel userConfigWidget in userConfig.widgets) {
                 DashboardWidgetViewModel widget = buildDashboardWidgetView(cp, userConfigWidget);
                 if (!string.IsNullOrEmpty(widget.htmlContent)) {
+                    //
                     // -- add to output only if the widget has content
                     view.widgets.Add(widget);
-                    return true;
+                } else {
+                    //
+                    // -- remove the widget from the config if it has no content
+                    userConfig.widgets.Remove(userConfigWidget);
+                    configOk = false;
                 }
             }
-            return false;
+            return configOk;
         }
         //
         // ====================================================================================================
