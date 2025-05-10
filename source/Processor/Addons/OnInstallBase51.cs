@@ -28,8 +28,8 @@ namespace Contensive.Processor.Addons.Base {
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSiteGuid, layoutAdminSiteName, layoutAdminSiteCdnPathFilename, layoutAdminSiteCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename, layoutAdminEditIconCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUITwoColumnLeftGuid, layoutAdminUITwoColumnLeftName, layoutAdminUITwoColumnLeftCdnPathFilename, layoutAdminUITwoColumnLeftCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUITwoColumnRightGuid, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename, layoutAdminUITwoColumnRightCdnPathFilename);
+                _ = LayoutController.updateLayout(core.cpParent, 0, guidLayoutAdminUITwoColumnLeft, nameLayoutAdminUITwoColumnLeft, cdnPathFilenameLayoutAdminUITwoColumnLeft, cdnPathFilenameLayoutAdminUITwoColumnLeft);
+                _ = LayoutController.updateLayout(core.cpParent, 0, guidLayoutAdminUITwoColumnRight, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename, layoutAdminUITwoColumnRightCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename, layoutLinkAliasPreviewEditorCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename, layoutEditAddModalCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminUILayoutBuilderBaseGuid, layoutAdminUILayoutBuilderBaseName, layoutAdminUILayoutBuilderBaseCdnPathFilename, layoutAdminUILayoutBuilderBaseCdnPathFilename);

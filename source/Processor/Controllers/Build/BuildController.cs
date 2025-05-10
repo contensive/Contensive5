@@ -1184,10 +1184,13 @@ namespace Contensive.Processor.Controllers.Build {
                 core.cpParent.Layout.updateLayout(layoutLinkAliasPreviewEditorGuid, layoutLinkAliasPreviewEditorName, layoutLinkAliasPreviewEditorCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutAdminEditIconGuid, layoutAdminEditIconName, layoutAdminEditIconCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutEditAddModalGuid, layoutEditAddModalName, layoutEditAddModalCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutAdminUITwoColumnLeftGuid, layoutAdminUITwoColumnLeftName, layoutAdminUITwoColumnLeftCdnPathFilename);
-                core.cpParent.Layout.updateLayout(layoutAdminUITwoColumnRightGuid, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename);
+                core.cpParent.Layout.updateLayout(guidLayoutAdminUITwoColumnLeft, nameLayoutAdminUITwoColumnLeft, cdnPathFilenameLayoutAdminUITwoColumnLeft);
+                core.cpParent.Layout.updateLayout(guidLayoutAdminUITwoColumnRight, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutEditControlAutocompleteGuid, layoutEditControlAutocompleteName, layoutEditControlAutocompleteCdnPathFilename);
                 _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
+                //
+                _ = LayoutController.updateLayout(core.cpParent, 0, Constants.guidLayoutPageWithNav, Constants.nameLayoutPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav);
+                _ = LayoutController.updateLayout(core.cpParent, 0, Constants.guidLayoutAdminUITwoColumnLeft, Constants.nameLayoutPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav);
                 //
                 core.cpParent.Layout.updateLayout(layoutEmailVerificationGuid, layoutEmailVerificationName, layoutEmailVerificationCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutCustomBlockingRegistrationGuid, layoutCustomBlockingRegistrationName, layoutCustomBlockingRegistrationCdnPathFilename);

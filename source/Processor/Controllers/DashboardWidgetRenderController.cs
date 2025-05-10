@@ -9,16 +9,21 @@ namespace Contensive.Processor.Controllers {
         //
         // ====================================================================================================
         /// <summary>
-        /// render the htmlContent property for all the addons in the view model
+        /// if false, a widget in the userConfig is not valid and has been removed. The config has to be saved
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="userConfig"></param>
         /// <returns></returns>
-        public static DashboardViewModel buildDashboardWidgets(CPBaseClass cp, DashboardViewModel view, DashboardUserConfigModel userConfig) {
+        public static bool buildDashboardWidgets(CPBaseClass cp, DashboardViewModel view, DashboardUserConfigModel userConfig) {
             foreach (DashboardWidgetUserConfigModel userConfigWidget in userConfig.widgets) {
-                view.widgets.Add(buildDashboardWidget(cp, userConfigWidget));
+                DashboardWidgetViewModel widget = buildDashboardWidgetView(cp, userConfigWidget);
+                if (!string.IsNullOrEmpty(widget.htmlContent)) {
+                    // -- add to output only if the widget has content
+                    view.widgets.Add(widget);
+                    return true;
+                }
             }
-            return view;
+            return false;
         }
         //
         // ====================================================================================================
@@ -28,7 +33,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="cp"></param>
         /// <param name="userConfigWidget"></param>
         /// <returns></returns>
-        public static DashboardWidgetViewModel buildDashboardWidget(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
+        public static DashboardWidgetViewModel buildDashboardWidgetView(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
             ////
             //// -- repair key if missing
             //if (string.IsNullOrEmpty(userConfigWidget.widgetHtmlId)) {
@@ -69,9 +74,9 @@ namespace Contensive.Processor.Controllers {
                             filterValue = addonFilterOption.filterValue,
                             filterActive = userConfigWidget.filterValue == addonFilterOption.filterValue
                         });
-                    }; 
+                    };
                 };
-                
+
                 //
                 // -- populate the type-dependent properties
                 if (addonResult.widgetType == WidgetTypeEnum.htmlContent) {

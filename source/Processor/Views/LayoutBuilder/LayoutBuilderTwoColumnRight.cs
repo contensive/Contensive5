@@ -144,7 +144,7 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- construct body
             //
             // -- render layout
-            string layout = cp.Layout.GetLayout(Constants.layoutAdminUITwoColumnRightGuid, Constants.layoutAdminUITwoColumnRightName, Constants.layoutAdminUITwoColumnRightCdnPathFilename);
+            string layout = cp.Layout.GetLayout(Constants.guidLayoutAdminUITwoColumnRight, Constants.layoutAdminUITwoColumnRightName, Constants.layoutAdminUITwoColumnRightCdnPathFilename);
             //
             LayoutBuilderClass layoutBase = new(cp) {
                 body = cp.Mustache.Render(layout, this),

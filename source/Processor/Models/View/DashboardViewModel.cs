@@ -72,11 +72,11 @@ namespace Contensive.Processor.Models.View {
                         isNewWidgetTemplate = true,
                         widgetHtmlId = "newWidgetTemplate",
                     });
-                    result = DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
-                    buildAddWidgetList(cp, portalGuid, result);
+                    //
+                    needConfigSave = needConfigSave || !DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
                     //
                     if (needConfigSave) { userConfig.save(cp, portalName); }
-                    //
+                    buildAddWidgetList(cp, portalGuid, result);
                     return result;
                 }
                 //
@@ -96,9 +96,8 @@ namespace Contensive.Processor.Models.View {
                 userConfig.save(cp, portalName);
                 //
                 // -- after save, render the htmlContent and get the widget list
+                bool widgetValid = DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
                 result.addWidgetList = tmp.addWidgetList;
-                result = DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
-                //
                 return result;
 
             } catch (Exception ex) {

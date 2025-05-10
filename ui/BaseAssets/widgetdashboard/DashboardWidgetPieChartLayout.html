@@ -4,12 +4,44 @@
     font-size: .8em !important;
   }
 </style>
-
-<div class="h-100 w-100">
-  <div class="h-75 w-100 mb-1">
-    <canvas id="piechart{{uniqueId}}"></canvas>
+<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+  <div class="card-tool">
+    <div class="card-grab d-flex align-items-center" title="drag widget">
+      {{#url}}<a href="{{url}}" class="body-linked" title="click to open link"></a>{{/url}}
+      <!--{{^url}}<a href="#" class="body-linked" title="click to open link"></a>{{/url}}-->
+      <div class="pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
+      <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
+    </div> 
   </div>
-  <div class="widgetDescription small lh-1 fw-normal text-center">{{description}}</div>
+  {{#hasFilter}}
+  <div class="d-flex align-items-center">
+    <div class="dropdown">
+      <a class="" role="button" id="widgetFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-ellipsis-v text-muted" title="widget filter"></i>
+      </a>
+      <div class="dropdown-menu dropdown-menu-end" aria-labelledby="widgetFilter">
+        {{#filterOptions}}
+          <a class="widgetFilter dropdown-item" href="#" data-filterValue="{{filterValue}}" data-filterActive="{{filterActive}}">{{filterCaption}}</a>
+        {{/filterOptions}}
+      </div>
+    </div>
+  </div>
+  {{/hasFilter}}
+</div>
+
+<div class="card-body d-flex align-items-center justify-content-center h-100 {{#url}}body-linked{{/url}}">
+  <div class="h-100 w-100">
+    <div class="h-75 w-100 mb-1">
+      <canvas id="piechart{{uniqueId}}"></canvas>
+    </div>
+    <div class="widgetDescription small lh-1 fw-normal text-center">{{description}}</div>
+  </div>  
+</div>
+  
+<div class="card-footer d-flex justify-content-end bg-transparent border-light">
+  <div class="card-tool">
+    <div class="card-close"><i class="fa-solid fa-trash-can fa-sm text-danger" title="delete widget"></i></div>
+  </div>
 </div>
 
 <script>

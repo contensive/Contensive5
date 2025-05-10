@@ -44,6 +44,14 @@ namespace Contensive.Processor.Models {
         /// If filterActive is true, it will be highlighted in the list as the current selection.
         /// </summary>
         public List<DashboardWidgetBaseModel_FilterOptions> filterOptions { get; set; } = [];
+        /// <summary>
+        /// true if there are filter options
+        /// </summary>
+        public bool hasFilter {
+            get {
+                return (filterOptions != null && filterOptions.Count > 0);
+            }
+        }
     }
     public enum WidgetTypeEnum {
         htmlContent = 1,

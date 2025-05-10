@@ -196,7 +196,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 }
                 //
                 // -- render layout
-                string layout = cp.Layout.GetLayout(Constants.guidLayoutPageWithNav, Constants.nameLayoutPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav);
+                string layout = cp.Layout.GetLayout(Contensive.Processor.Constants.guidLayoutPageWithNav, Contensive.Processor.Constants.nameLayoutPageWithNav, Contensive.Processor.Constants.pathFilenameLayoutAdminUIPageWithNav);
                 return cp.Mustache.Render(layout, viewModel);
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

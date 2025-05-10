@@ -1,6 +1,7 @@
 ﻿using Contensive.BaseClasses;
 using Contensive.Processor.Controllers;
 using Contensive.Processor.Models.Domain;
+using Microsoft.ClearScript.JavaScript;
 using System;
 using System.Collections.Generic;
 //using System.Drawing.Printing;
@@ -38,15 +39,18 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         userDashboardConfig.widgets.Remove(userDashboardConfigWidget);
                         continue;
                     }
+                    userDashboardConfig.save(cp, getPortalName(cp, request.portalGuid));
                 }
                 //
                 if (request.cmd == "refresh") {
                     buildWidgets(cp, request, userDashboardConfig, result);
+                    userDashboardConfig.save(cp, getPortalName(cp, request.portalGuid));
                 }
                 if (request.cmd == "save") {
                     //
                     // -- save the widget sort
                     // -- create a new widget if the widetHtmlId is not found and return the new widget(s)
+                    DashboardUserConfigModel saveDashboardConfig = new();
                     foreach (WDS_Request_Widget requestWidget in request.widgets) {
                         var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
                         if (userDashboardConfigWidget is null) {
@@ -56,9 +60,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                                 widgetHtmlId = requestWidget.widgetHtmlId,
                                 addonGuid = requestWidget.addonGuid
                             };
-                            userDashboardConfig.widgets.Add(userDashboardConfigWidget);
                             //
-                            var viewModel = DashboardWidgetRenderController.buildDashboardWidget(cp, userDashboardConfigWidget);
+                            var viewModel = DashboardWidgetRenderController.buildDashboardWidgetView(cp, userDashboardConfigWidget);
                             result.Add(new WDS_Response {
                                 widgetHtmlId = requestWidget.widgetHtmlId,
                                 htmlContent = viewModel.htmlContent,
@@ -66,8 +69,10 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                                 widgetName = viewModel.widgetName
                             });
                         }
+                        saveDashboardConfig.widgets.Add(userDashboardConfigWidget);
                         continue;
                     }
+                    saveDashboardConfig.save(cp, getPortalName(cp, request.portalGuid));
                 }
                 if (request.cmd == "filter") {
                     //
@@ -79,7 +84,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                             userDashboardConfigWidget.filterValue = requestWidget.widgetFilter;
                             userDashboardConfig.save(cp, portalName);
                             //
-                            var viewModel = DashboardWidgetRenderController.buildDashboardWidget(cp, userDashboardConfigWidget);
+                            var viewModel = DashboardWidgetRenderController.buildDashboardWidgetView(cp, userDashboardConfigWidget);
                             result.Add(new WDS_Response {
                                 widgetHtmlId = requestWidget.widgetHtmlId,
                                 htmlContent = viewModel.htmlContent,
@@ -89,8 +94,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                         }
                         continue;
                     }
+                    userDashboardConfig.save(cp, getPortalName(cp, request.portalGuid));
                 }
-                userDashboardConfig.save(cp, getPortalName(cp, request.portalGuid));
                 return result;
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);
@@ -110,7 +115,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
             foreach (WDS_Request_Widget requestWidget in request.widgets) {
                 var userDashboardConfigWidget = userDashboardConfig.widgets.Find(row => row.widgetHtmlId == requestWidget.widgetHtmlId);
                 if (userDashboardConfigWidget is null) { continue; }
-                var viewModel = DashboardWidgetRenderController.buildDashboardWidget(cp, userDashboardConfigWidget);
+                var viewModel = DashboardWidgetRenderController.buildDashboardWidgetView(cp, userDashboardConfigWidget);
                 result.Add(new WDS_Response {
                     widgetHtmlId = requestWidget.widgetHtmlId,
                     htmlContent = viewModel.htmlContent,
