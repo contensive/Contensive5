@@ -57,6 +57,18 @@
       console.log("barchart{{uniqueId}} no wait");
       callback{{uniqueId}}();
     }
+    const backgroundColors = [
+      'rgba(255, 99, 132, 0.6)',  // Red
+      'rgba(54, 162, 235, 0.6)',  // Blue
+      'rgba(255, 206, 86, 0.6)',  // Yellow
+      'rgba(75, 192, 192, 0.6)',  // Teal
+      'rgba(153, 102, 255, 0.6)', // Purple
+      'rgba(255, 159, 64, 0.6)',  // Orange
+      'rgba(201, 203, 207, 0.6)', // Grey
+      'rgba(0, 128, 128, 0.6)',   // Dark Teal
+      'rgba(220, 20, 60, 0.6)',   // Crimson
+      'rgba(50, 205, 50, 0.6)'    // Lime Green
+    ];
 
 
     function callback{{uniqueId}}() {
@@ -66,15 +78,15 @@
         data: {
           labels: [{{#dataLabels}}'{{.}}',{{/dataLabels}}],
           datasets: [
-            {{#dataValues}}
+            {{#dataSets}}
             {
               label: '{{label}}',
               data: [{{#data}}{{.}},{{/data}}],
               borderWidth: 1,
-              backgroundColor: ['{{backgroundColor}}'],
-              borderColor: ['{{borderColor}}']
+              backgroundColor: backgroundColors,
+              borderColor: ['rgba(255, 99, 132, 1)']
             },
-            {{/dataValues}}
+            {{/dataSets}}
           ],
         },
         options: {

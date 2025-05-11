@@ -13,68 +13,15 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                "Lifetime", "Gold", "Premium", "Silver", "Associate",
                "Part-Time", "Foreign", "Canadian", "Misc", "Other", ""
            };
+        private static readonly double[] DefaultDataValueList = [45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0];
 
-        private static readonly DashboardWidgetBarChartModel_DataSets[] DefaultDataValues = {
+        private static readonly DashboardWidgetBarChartModel_DataSets[] DefaultDataetsValues = {
             new() {
-                 backgroundColor = "rgba(255, 99, 132, 0.2)",
+                    backgroundColor = "rgba(255, 99, 132, 0.2)",
                     borderColor = "rgba(255, 99, 132, 1)",
                     borderWidth = 1,
-                    label = "Lifetime",
-                    data = new List<double> { 45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
-           },new() {
-                    backgroundColor = "rgba(54, 162, 235, 0.2)",
-                    borderColor = "rgba(54, 162, 235, 1)",
-                    borderWidth = 1,
-                    label = "Gold",
-                    data = new List<double> { 20, 10, 8, 5, 4, 3, 2, 2, 1, 0 }
+                    label = "",
+                    data = [45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0]
            }
         };
 
@@ -82,6 +29,17 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
             try {
                 int segments = cp.Doc.GetInteger("widgetFilter");
                 if(segments==0) { segments = 6; } // default to 2 segments
+                //
+                double[] DefaultDataValueList = {
+                    45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0
+                };
+                //
+                DashboardWidgetBarChartModel_DataSets[] DefaultDataSets = {
+                    new() {
+                            label = "Data Set",
+                            data = DefaultDataValueList.Take(segments).ToList()
+                   }
+                };
                 //
                 DashboardWidgetBarChartModel result = new() {
                     widgetName = "Sample Bar Chart Widget",
@@ -92,7 +50,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     refreshSeconds = 0,
                     url = "https://www.contensive.com",
                     dataLabels = DefaultDataLabels.Take(segments).ToList(),
-                    dataValues = DefaultDataValues.Take(segments).ToList(),
+                    dataSets = DefaultDataSets.ToList(),
                     widgetType = WidgetTypeEnum.bar,
                     filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>() {
                            new() {

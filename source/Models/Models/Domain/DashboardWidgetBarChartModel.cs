@@ -27,7 +27,7 @@ namespace Contensive.Processor.Models {
         /// labels for each section of the Pie chart
         /// </summary>
         public List<string> dataLabels { get; set; }
-        public List<DashboardWidgetBarChartModel_DataSets> dataValues { get; set; }
+        public List<DashboardWidgetBarChartModel_DataSets> dataSets { get; set; }
         //
         /// <summary>
         /// 
