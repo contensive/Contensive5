@@ -3637,6 +3637,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.FaviconIco.FaviconIcoClass]]></DotNetClass>	
   </Addon>
+
   <Addon Name="downloadLibraryFile" Guid="{C95A019A-70FD-4B03-9080-7106B27ED2D7}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3647,6 +3648,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Primitives.DownloadClass]]></DotNetClass>	
   </Addon>
+
   <Addon Name="Status" Guid="{6444B5C9-36DD-43FF-978C-26650EB2333F}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3658,6 +3660,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass>Contensive.Processor.Addons.Diagnostics.StatusClass</DotNetClass>	
   </Addon>
+
   <Addon Name="AuthStatus" Guid="{AF37902B-BCC2-45E4-AF36-E322346731BD}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3669,6 +3672,7 @@
     <BlockEditTools>Yes</BlockEditTools>
     <DotNetClass>Contensive.Processor.Addons.Diagnostics.AuthStatusClass</DotNetClass>	
   </Addon>
+
   <Addon Name="Server Diagnostic" Guid="{58239C18-1B40-4401-9E6F-25E057327393}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3681,6 +3685,7 @@
     <Diagnostic>Yes</Diagnostic>
     <DotNetClass>Contensive.Processor.Addons.Diagnostics.ServerDiagnosticClass</DotNetClass>	
   </Addon>
+
   <Addon Name="OnInstallBase" Guid="{86739518-9D46-470F-8C76-195D1A19CEDD}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3693,6 +3698,7 @@
     <Diagnostic>No</Diagnostic>
     <DotNetClass>Contensive.Processor.Addons.Base.OnInstallClass</DotNetClass>	
   </Addon>
+
   <Addon Name="NewApp" Guid="{DFE6FD4B-B361-4F9C-BA52-18F6DCFABF56}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3705,6 +3711,7 @@
     <Diagnostic>No</Diagnostic>
     <DotNetClass>Contensive.Processor.Addons.NewApp.NewAppClass</DotNetClass>	
   </Addon>
+
   <Addon Name="See Also" Guid="{C4198871-A848-4B0F-95D4-ADDE08A5620D}" Type="Widget">
     <Category>Extras.Navigation</Category>
     <Admin>No</Admin>
@@ -3717,6 +3724,7 @@
     <Diagnostic>No</Diagnostic>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.SeeAlsoClass]]></DotNetClass>	
   </Addon>
+
   <Addon Name="Whats Related" Guid="{42B8FE19-051B-4E83-8F9A-6BE01AB9A650}" Type="Widget">
     <Category>Extras.Navigation</Category>
     <Admin>No</Admin>
@@ -3729,6 +3737,7 @@
     <Diagnostic>No</Diagnostic>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.PageManager.WhatsRelatedClass]]></DotNetClass>	
   </Addon>
+
   <Addon Name="Content Box" Guid="{E341695F-C444-4E10-9295-9BEEC41874D8}" Type="Widget">
     <Category>Content.Content Box</Category>
     <Admin>No</Admin>
@@ -3741,6 +3750,7 @@
     <Diagnostic>No</Diagnostic>
     <CopyText><![CDATA[<AC Type="Content" Name="Content" QueryString=""> ]]></CopyText>	
   </Addon>
+
   <Addon Name="submitCustomBlockingEmailVerification" Guid="{D4671732-08E3-4FBF-ACD3-D16F164194A1}" Type="Add-on">
     <Category></Category>
     <Admin>No</Admin>
@@ -3805,6 +3815,11 @@
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
+	<Addon Name="Sample Dashboard Line Chart Widget" Guid="{1D3B1AB0-B1E5-4976-B1BB-2D8069E4C0C8}" Type="Add-on">
+		<DashboardWidget>Yes</DashboardWidget>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.SampleLineChartWidget]]></DotNetClass>
+		<BlockEditTools>Yes</BlockEditTools>
+	</Addon>
 
   <SQLIndex IndexName="ccContentContentTableID" DataSourceName="Default" TableName="ccContent" FieldNameList="ContentTableID" />
   <SQLIndex IndexName="ccGroupRulesGroupID" DataSourceName="Default" TableName="ccGroupRules" FieldNameList="GroupID" />
