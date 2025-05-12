@@ -57,7 +57,8 @@ namespace Contensive.Processor.Models {
         htmlContent = 1,
         number = 2,
         pie = 3,
-        bar = 4
+        bar = 4,
+        line = 5
     }
     //
     /// <summary>

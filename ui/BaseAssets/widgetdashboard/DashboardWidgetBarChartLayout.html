@@ -67,7 +67,6 @@
           datasets: [
             {{#dataSets}}
             {
-              label: '{{label}}',
               data: [{{#data}}{{.}},{{/data}}],
               backgroundColor: [
                 'rgba(255, 99, 132, 0.6)',  // Red
@@ -100,26 +99,9 @@
                       weight: '600',
                   }
               },
-
               legend: {
-              
-                position: 'right',
-                padding: 10,
-                labels: {
-                  usePointStyle: true,
-                  pointStyle: 'rect',
-                  pointStyleWidth: 8,
-                  pointStyleHeight: 5,    
-                  boxHeight: 5,
-                  boxWidth: 8,
-                  padding: 5,
-                  font: {
-                    size: 11,
-                    family: 'Poppins' ,
-                  }
-                }
-            }
-           
+                display: false
+            }           
           },
           responsive: true,
           maintainAspectRatio: false,
