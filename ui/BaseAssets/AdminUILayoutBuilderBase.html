@@ -81,18 +81,29 @@
 	  position: static;
 	  float: none;
 	}
-  
+
+    h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6,
+      p,
+      body {
+        font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+      }
+
   /*
 	portal styles
   */
-  .ccCon #desktop 
+  /* .ccCon #desktop 
   {
 	  color: #333;
-	  background-color: white!important;
-  }
+	  background-color: #f8f9fc !important;
+  } */
   #afwBodyFrame 
   {
-	  background-color: white!important;
+	background-color: #f8f9fc !important;
   }
   .afw,.afw p,.afw div,.afw td,.afw li
   {
@@ -108,24 +119,37 @@
   }
   .afw h1
   {
-	  margin: 20px 0 10px 0;
-  /*    font:normal bold 20px/30px Arial, san-serif;*/
+	  /* margin: 20px 0 10px 0; */
+ 	font-size: 2rem;
   }
   .afw h2
   {
-	  margin: 15px 0 5px 0;
-	 /* font:normal bold 18px/24px Arial, san-serif;*/
+	  /* margin: 15px 0 5px 0; */
+	  font-size: 1.75rem;
   }
   .afw h3
   {
-	  margin: 15px 0 5px 0;
-	 /* font:normal bold 15px/20px Arial, san-serif;*/
+	  /* margin: 15px 0 5px 0; */
+	  font-size: 1.5rem;
   }
   .afw h4
   {
-	  margin: 15px 0 5px 0;
-	 /* font:normal bold 13px/20px Arial, san-serif;*/
+	  /* margin: 15px 0 5px 0; */
+	  font-size: 1.2rem;
   }
+
+  .afw h5
+  {
+	  /* margin: 15px 0 5px 0; */
+	  font-size: 1rem;
+  }
+
+  .afw h5
+  {
+	  /* margin: 15px 0 5px 0; */
+	  font-size: .75rem;
+  }
+
   .afwManagerTitle
   {
 	  background-color: #1F70BD;
@@ -177,7 +201,7 @@
 	  border-width: 1px;
 	  border-radius: 2px;
 	  color: #666;
-	  font-family: "Lucida Grande",Tahoma,Arial,Verdana,sans-serif;
+	  font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 	  font-size: 12px;
 	  font-weight: bold;
 	  line-height: 130%;
@@ -700,30 +724,35 @@
 </style>
 <div class="afw" id="{{#isOuterContainer}}afw{{/isOuterContainer}}">
 	<div id="js-afwFormContent">
-		<div class="{{#includeBodyColor}} bg-light {{/includeBodyColor}}">		
-			{{#buttonList}}<div class="border bg-white p-2">{{{buttonList}}}</div>{{/buttonList}}		
-			<div class="{{#includeBodyPadding}} m-4 {{/includeBodyPadding}}">
-				{{#title}}<h2>{{{title}}}</h2>{{/title}}
-				{{#successMessage}}<div class="p-3 mb-2 bg-success text-white my-2">{{{successMessage}}}</div>{{/successMessage}}
-				{{#infoMessage}}<div class="p-3 mb-2 bg-info text-white my-2">{{infoMessage}}</div>{{/infoMessage}}
-				{{#warningMessage}}<div class="p-3 mb-2 bg-warning text-dark my-2">{{warningMessage}}</div>{{/warningMessage}}
-				{{#failMessage}}<div class="p-3 mb-2 bg-danger text-white my-2">{{failMessage}}</div>{{/failMessage}}
-				{{#description}}<p class="my-2">{{{description}}}</p>{{/description}}
-				{{#csvDownloadFilename}}<p class="afwDescription" id="afwDescription my-2"><a href="{{csvDownloadFilename}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
-				{{#htmlBeforeBody}}<div class="afwBeforeHtml my-2">{{{htmlBeforeBody}}}</div>{{/htmlBeforeBody}}
-				{{#htmlLeftOfBody}}
-					<div class="afwLeftSideHtml border-end my-2 pe-1">{{{htmlLeftOfBody}}}</div>
-					<div class="afwRightSideHtml my-2 ps-1">{{{body}}}</div>
-					<div style="clear:both"></div>
-				{{/htmlLeftOfBody}}
-				{{^htmlLeftOfBody}}
-					<div class="my-2">
-						{{{body}}}
-					</div>
-				{{/htmlLeftOfBody}}
-				{{#htmlAfterBody}}<div class=\"afwBeforeHtml\">{{{htmlAfterBody}}}</div>{{/htmlAfterBody}}
+		<div class="{{#includeBodyColor}} bg-transparent {{/includeBodyColor}} container-fluid mt-3">		
+				
+			<div class="{{#includeBodyPadding}} {{/includeBodyPadding}}">
+				<div class="d-flex justify-content-between align-items-center mb-2 border-bottom">
+					{{#title}}<h2 class="h4">{{{title}}}</h2>{{/title}}
+					{{#buttonList}}<div class="ms-auto mb-2">{{{buttonList}}}</div>{{/buttonList}}	
+				</div>
+				<div class="bg-white border rounded-2 shadow-sm p-2 mb-3">
+					{{#successMessage}}<div class="p-3 mb-2 bg-success text-white my-2">{{{successMessage}}}</div>{{/successMessage}}
+					{{#infoMessage}}<div class="p-3 mb-2 bg-info text-white my-2">{{infoMessage}}</div>{{/infoMessage}}
+					{{#warningMessage}}<div class="p-3 mb-2 bg-warning text-dark my-2">{{warningMessage}}</div>{{/warningMessage}}
+					{{#failMessage}}<div class="p-3 mb-2 bg-danger text-white my-2">{{failMessage}}</div>{{/failMessage}}
+					{{#description}}<p class="my-2">{{{description}}}</p>{{/description}}
+					{{#csvDownloadFilename}}<p class="afwDescription" id="afwDescription my-2"><a href="{{csvDownloadFilename}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
+					{{#htmlBeforeBody}}<div class="afwBeforeHtml my-2">{{{htmlBeforeBody}}}</div>{{/htmlBeforeBody}}
+					{{#htmlLeftOfBody}}
+						<div class="afwLeftSideHtml border-end my-2 pe-1">{{{htmlLeftOfBody}}}</div>
+						<div class="afwRightSideHtml my-2 ps-1">{{{body}}}</div>
+						<div style="clear:both"></div>
+					{{/htmlLeftOfBody}}
+					{{^htmlLeftOfBody}}
+						<div class="mb-2">
+							{{{body}}}
+						</div>
+					{{/htmlLeftOfBody}}
+					{{#htmlAfterBody}}<div class=\"afwBeforeHtml\">{{{htmlAfterBody}}}</div>{{/htmlAfterBody}}
+				</div>
 			</div>
-			{{#buttonList}}<div class="border bg-white p-2">{{{buttonList}}}</div>{{/buttonList}}
+			{{#buttonList}}<div class="border-top pt-2 d-flex justify-content-end">{{{buttonList}}}</div>{{/buttonList}}
 		</div>
 	</div>
 </div>
