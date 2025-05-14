@@ -800,16 +800,7 @@ namespace Contensive.Processor.Controllers {
                 TableSchemaModel ts = TableSchemaModel.getTableSchema(core, TableName, dataSourceName);
                 if (ts == null) { return; }
                 if (null == ts.indexes.Find(x => x.index_name.ToLowerInvariant() == IndexName.ToLowerInvariant())) { return; }
-                switch (getDataSourceType()) {
-                    case Constants.DataSourceTypeODBCAccess: {
-                            executeNonQuery("DROP INDEX " + IndexName + " On " + TableName + ";");
-                            break;
-                        }
-                    default: {
-                            executeNonQuery("DROP INDEX [" + TableName + "].[" + IndexName + "];");
-                            break;
-                        }
-                }
+                executeNonQuery("DROP INDEX [" + TableName + "].[" + IndexName + "];");
                 core.cache.invalidateAll();
                 core.cacheRuntime.clear();
             } catch (Exception ex) {
@@ -1331,7 +1322,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="MaxChunkCount"></param>
         public void deleteTableRecordChunks(string TableName, string Criteria, int ChunkSize = 1000, int MaxChunkCount = 1000) {
             int DataSourceType = getDataSourceType();
-            if ((DataSourceType != DataSourceTypeODBCSQLServer) && (DataSourceType != DataSourceTypeODBCAccess)) {
+            if ((DataSourceType != DataSourceTypeODBCSQLServer)) {
                 //
                 // If not SQL server, just delete them
                 //

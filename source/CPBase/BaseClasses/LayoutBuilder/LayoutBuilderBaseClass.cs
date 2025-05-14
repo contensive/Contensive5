@@ -15,23 +15,10 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// 
-        /// </summary>
-        public abstract string baseUrl { get; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The guid of the addon to be called to update pagination or search.
         /// Typically the same remote that calls the layout builder.
         /// </summary>
         public abstract string callbackAddonGuid { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// LayoutBuilder layouts require html page redraw with an ajax method. 
-        /// Set this to the url of the ajax method that returns the html for the form.
-        /// </summary>
-        [Obsolete("Deprecated. use callbackAddonGuid",false)] public abstract string baseAjaxUrl { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -324,6 +311,19 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <param name="cp"></param>
         /// <returns></returns>
         [Obsolete("Deprecated. use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 
+        /// </summary>
+        [Obsolete("Deprecated, use callbackAddonGuid", false)] public abstract string baseUrl { get; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// LayoutBuilder layouts require html page redraw with an ajax method. 
+        /// Set this to the url of the ajax method that returns the html for the form.
+        /// </summary>
+        [Obsolete("Deprecated. use callbackAddonGuid", false)] public abstract string baseAjaxUrl { get; set; }
 
     }
 }

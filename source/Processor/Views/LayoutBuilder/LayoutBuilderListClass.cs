@@ -162,18 +162,10 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The url of the page. Needed because the page is rendered with ajax, and the original page's url is used as the base for calls
-        /// </summary>
-        public override string baseUrl {
-            get {
-                return layoutBuilderBase.baseUrl;
-            }
-        }
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         ///  The guid of the addon method that returns the current view.
         ///  Typically this is the method that calls the layout builder.
         /// When a search or pagination is performed, the view is refreshed by calling this method.
+        /// To enable pagination, set callbackAddonGuid and recordCount.
         /// </summary>
         public override string callbackAddonGuid {
             get {
@@ -181,22 +173,6 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             set {
                 layoutBuilderBase.callbackAddonGuid = value;
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// a url to refresh the grid provided by the client application.
-        /// Required for pagination and search. If empty, pagination and search are disabled.
-        /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
-        /// </summary>
-        [Obsolete("Deprecated. To enable pagination, set callbackAddonGuid and recordCount.", false)]
-        public override string baseAjaxUrl {
-            get {
-                return layoutBuilderBase.baseAjaxUrl;
-            }
-            set {
-                layoutBuilderBase.baseAjaxUrl = value;
             }
         }
         //
@@ -1305,10 +1281,38 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         //
         // ----------------------------------------------------------------------------------------------------
+        //
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
         [Obsolete("Deprecated. No longer needed.", false)] public override string refreshQueryString { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The url of the page. Needed because the page is rendered with ajax, and the original page's url is used as the base for calls
+        /// </summary>
+        [Obsolete("Deprecated. Use callbackAddonGuid", false)]
+        public override string baseUrl {
+            get {
+                return layoutBuilderBase.baseUrl;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// a url to refresh the grid provided by the client application.
+        /// Required for pagination and search. If empty, pagination and search are disabled.
+        /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
+        /// </summary>
+        [Obsolete("Deprecated. To enable pagination, set callbackAddonGuid and recordCount.", false)]
+        public override string baseAjaxUrl {
+            get {
+                return layoutBuilderBase.baseAjaxUrl;
+            }
+            set {
+                layoutBuilderBase.baseAjaxUrl = value;
+            }
+        }
     }
     //
     // ====================================================================================================

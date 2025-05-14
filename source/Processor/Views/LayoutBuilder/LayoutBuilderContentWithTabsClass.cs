@@ -66,28 +66,6 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         //
         // ----------------------------------------------------------------------------------------------------
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        [Obsolete("move javascript and styles to layouts", false)]
-        public override string styleSheet {
-            get {
-                return Processor.Properties.Resources.layoutBuilderStyles;
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        [Obsolete("move javascript and styles to layouts", false)]
-        public override string javascript {
-            get {
-                return Processor.Properties.Resources.layoutBuilderJavaScript;
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
         // body
         // ----------------------------------------------------------------------------------------------------
         //
@@ -308,6 +286,29 @@ namespace Contensive.Processor.LayoutBuilder {
 
         [Obsolete("Deprecated. Use getHtml().",false)] public override string getHtml(CPBaseClass cp) {
             throw new System.NotImplementedException();
+        }
+
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        [Obsolete("move javascript and styles to layouts", false)]
+        public override string styleSheet {
+            get {
+                return Processor.Properties.Resources.layoutBuilderStyles;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        [Obsolete("move javascript and styles to layouts", false)]
+        public override string javascript {
+            get {
+                return Processor.Properties.Resources.layoutBuilderJavaScript;
+            }
         }
     }
 }

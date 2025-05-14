@@ -7,20 +7,14 @@ namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderTwoColumnLeft : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass {
         //
         public LayoutBuilderTwoColumnLeft(CPBaseClass cp) : base(cp) {
-            //
-            // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
-            baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
-            if (string.IsNullOrEmpty(baseUrl)) {
-                baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
-            }
-            addFormHidden("layoutBuilderBaseUrl", baseUrl);
+            ////
+            //// -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
+            //baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
+            //if (string.IsNullOrEmpty(baseUrl)) {
+            //    baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
+            //}
+            //addFormHidden("layoutBuilderBaseUrl", baseUrl);
         }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
-        /// </summary>
-        public override string baseUrl { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -29,12 +23,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override string callbackAddonGuid { get; set; }
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
-        /// </summary>
-        [Obsolete("Deprecated. use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
-        //
         //====================================================================================================
         //
         public override string contentRight { get; set; } = "";
@@ -42,18 +30,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //====================================================================================================
         //
         public override string contentLeft { get; set; } = "";
-        //
-        //====================================================================================================
-        //
-        [Obsolete("deprecated, Use title", false)]
-        public override string headline {
-            get {
-                return title;
-            }
-            set {
-                title = value;
-            }
-        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -110,18 +86,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// simple description text. Will be wrapped in an html paragraph tag.
         /// </summary>
         public override string description { get; set; } = "";
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The default Layoutbuilder styles. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Properties.Resources.layoutBuilderStyles;
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The default Layoutbuilder script. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Properties.Resources.layoutBuilderJavaScript;
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -325,12 +289,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The body of the layout.
         /// </summary>
         public override string body { get; set; } = "";
@@ -360,7 +318,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        public override string refreshQueryString { get; set; }
+        [Obsolete("Deprecated. use callbackAddonGuid.", false)] public override string refreshQueryString { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
+        /// </summary>
+        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -417,5 +381,41 @@ namespace Contensive.Processor.LayoutBuilder {
         /// 
         /// </summary>
         [Obsolete("Deprecated. Use includeForm.", false)] public override bool blockFormTag { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
+        /// </summary>
+        [Obsolete("Deprecated. use callbackAddonGuid", false)] public override string baseUrl { get; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
+        /// </summary>
+        [Obsolete("Deprecated. use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
+        //
+        //====================================================================================================
+        //
+        [Obsolete("deprecated, Use title", false)]
+        public override string headline {
+            get {
+                return title;
+            }
+            set {
+                title = value;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The default Layoutbuilder styles. Override to customize.
+        /// </summary>
+        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Properties.Resources.layoutBuilderStyles;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The default Layoutbuilder script. Override to customize.
+        /// </summary>
+        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Properties.Resources.layoutBuilderJavaScript;
     }
 }

@@ -31,7 +31,6 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 var layoutBuilder = cp.AdminUI.CreateLayoutBuilderList();
                 layoutBuilder.title = "Layout Builder List Sample";
                 layoutBuilder.description = "Description added before body created.";
-                layoutBuilder.baseAjaxUrl = $"/{MethodBase.GetCurrentMethod().DeclaringType.Name}";
                 layoutBuilder.callbackAddonGuid = "{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}";
                 layoutBuilder.portalSubNavTitle = "";
                 layoutBuilder.csvDownloadFilename = "CSVDownloadFile.csv";

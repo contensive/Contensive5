@@ -7,22 +7,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// </summary>
     public abstract class LayoutBuilderListBaseClass(CPBaseClass cp) {
         private CPBaseClass cp { get; set; } = cp;
-        //
-        /// <summary>
-        /// This property is setup by the constructor to the base url
-        /// (Previously this was the refreshQueryString.)
-        /// Set the url to the url of the current view. This is used to refresh the view when a user clicks on a link, like a column header to sort the data.
-        /// This url is saved as a hidden in submitted forms and should be read and used to create links that refresh the view.
-        /// The area where the hiddens are saved is not repainted duting ajax refreshes, so this value is set one time when the page is first drawn.
-        /// When a user clicks on a feature on the view, like pagination, the view is redrawn with an ajax call. That call has a different baseUrlf so links created during that call need the baseUrl of the view.
-        /// </summary>
-        public abstract string baseUrl { get; }
-        /// <summary>
-        /// deprecated. Instead set callbackAddonGuid to the guid of the addon method that returns the current view.
-        /// When a search or pagination is performed, the view is refreshed by calling this method.
-        /// </summary>
-        [Obsolete("Deprecated. Instead set callbackAddonGuid to the guid of the addon that creates the updated view on  pagination or search update. Typically this is the same addon tha calls the layout builder.",false)] 
-        public abstract string baseAjaxUrl { get; set; }
         /// <summary>
         ///  The guid of the addon method that returns the current view.
         ///  Typically this is the method that calls the layout builder.
@@ -44,13 +28,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// Mus tbe called before accessing pagination fields or query elements.
         /// </summary>
         public abstract void paginationReset();
-        //
-        /// <summary>
-        /// if true, the data set is paginated. If false, all records are displayed.
-        /// 
-        /// </summary>
-        [Obsolete("Deprecated. Pagination is enabled if recordCount is set > pageSize and the callbackAddonGuid is not empty.", false)]
-        public abstract bool allowPagination { get; }
         /// <summary>
         /// The default records per page to be displayed. The user may make changes, reflected in paginationPageSize
         /// </summary>
@@ -431,6 +408,28 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <param name="cp"></param>
         /// <returns></returns>
         [Obsolete("Deprecated. Use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
+        /// <summary>
+        /// deprecated. Instead set callbackAddonGuid to the guid of the addon method that returns the current view.
+        /// When a search or pagination is performed, the view is refreshed by calling this method.
+        /// </summary>
+        [Obsolete("Deprecated. Instead set callbackAddonGuid to the guid of the addon that creates the updated view on  pagination or search update. Typically this is the same addon tha calls the layout builder.", false)]
+        public abstract string baseAjaxUrl { get; set; }
+        /// <summary>
+        /// This property is setup by the constructor to the base url
+        /// (Previously this was the refreshQueryString.)
+        /// Set the url to the url of the current view. This is used to refresh the view when a user clicks on a link, like a column header to sort the data.
+        /// This url is saved as a hidden in submitted forms and should be read and used to create links that refresh the view.
+        /// The area where the hiddens are saved is not repainted duting ajax refreshes, so this value is set one time when the page is first drawn.
+        /// When a user clicks on a feature on the view, like pagination, the view is redrawn with an ajax call. That call has a different baseUrlf so links created during that call need the baseUrl of the view.
+        /// </summary>
+        [Obsolete("Deprecated. Use callbackAddonGuid", false)] public abstract string baseUrl { get; }
+        //
+        /// <summary>
+        /// if true, the data set is paginated. If false, all records are displayed.
+        /// 
+        /// </summary>
+        [Obsolete("Deprecated. Pagination is enabled if recordCount is set > pageSize and the callbackAddonGuid is not empty.", false)]
+        public abstract bool allowPagination { get; }
     }
     //
     //====================================================================================================

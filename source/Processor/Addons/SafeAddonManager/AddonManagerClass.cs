@@ -9,6 +9,7 @@ using Contensive.Exceptions;
 using Contensive.Processor.Models.Domain;
 using Contensive.Models.Db;
 using NLog;
+using Twilio.Rest.Trusthub.V1;
 //
 namespace Contensive.Processor.Addons.SafeAddonManager {
     public class AddonManagerClass {

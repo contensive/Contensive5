@@ -26,13 +26,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <param name="cp"></param>
         public LayoutBuilderNameValueClass(CPBaseClass cp) : base(cp) {
             this.cp = cp;
-            //
-            // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
-            baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
-            if (string.IsNullOrEmpty(baseUrl)) {
-                baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
-            }
-            addFormHidden("layoutBuilderBaseUrl", baseUrl);
+            ////
+            //// -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
+            //baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
+            //if (string.IsNullOrEmpty(baseUrl)) {
+            //    baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
+            //}
+            //addFormHidden("layoutBuilderBaseUrl", baseUrl);
         }
         //
         // ====================================================================================================
@@ -43,22 +43,10 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
-        /// </summary>
-        public override string baseUrl { get; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// The guid of the addon that refreshes the view for search or pagination update.
         /// Typically the addon that created the layout.
         /// </summary>
         public override string callbackAddonGuid { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
-        /// </summary>
-        [Obsolete("Deprecated. use callbackAddonGuid",false)] public override string baseAjaxUrl { get; set; }
         //
         /// <summary>
         /// the maximum number of fields allowed
@@ -147,18 +135,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ====================================================================================================
         /// <summary>
-        /// The default Layoutbuilder styles. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
-        //
-        // ====================================================================================================
-        /// <summary>
-        /// The default Layoutbuilder script. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
-        //
-        // ====================================================================================================
-        /// <summary>
         /// start a new html fieldset
         /// </summary>
         /// <param name="caption"></param>
@@ -213,48 +189,6 @@ namespace Contensive.Processor.LayoutBuilder {
             // -- create body from layout
             string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderNameValueBodyGuid, Constants.layoutAdminUILayoutBuilderNameValueBodyName, Constants.layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename);
             string bodyHtml = cp.Mustache.Render(layout, this);
-
-
-
-            ////
-            //// -- add body
-            //result += body;
-            //for (int rowPtr = 0; rowPtr <= rowCnt; rowPtr++) {
-            //    //
-            //    // -- check for fieldSetOpens
-            //    for (int fieldSetPtrx = 0; fieldSetPtrx <= fieldSetMax; fieldSetPtrx++) {
-            //        if (fieldSets[fieldSetPtrx].rowOpen == rowPtr) {
-            //            result += Constants.cr + "<fieldset class=\"afwFieldSet\">";
-            //            if (fieldSets[fieldSetPtrx].caption != "") {
-            //                result += Constants.cr + "<legend>" + fieldSets[fieldSetPtrx].caption + "</legend>";
-            //            }
-            //        }
-            //    }
-            //    //
-            //    // -- name value row
-            //    string nameValueRow = "";
-            //    rowName = (string.IsNullOrWhiteSpace(rows[rowPtr].name) ? "&nbsp;" : rows[rowPtr].name);
-            //    nameValueRow += cp.Html.div(rowName, "", "afwFormRowName", "");
-            //    rowValue = (string.IsNullOrWhiteSpace(rows[rowPtr].value) ? "&nbsp;" : rows[rowPtr].value);
-            //    nameValueRow += cp.Html.div(rowValue, "", "afwFormRowValue", "");
-            //    result += cp.Html.div(nameValueRow, "", "afwFormRow", rows[rowPtr].htmlId);
-            //    //
-            //    // -- help row
-            //    if (!string.IsNullOrEmpty(rows[rowPtr].help)) {
-            //        string helpRow = cp.Html.div("", "", "afwFormRowName", "");
-            //        rowValue = "<small class=\"text-muted afwFormRowValuehelp\">" + rows[rowPtr].help + "</small>";
-            //        helpRow += cp.Html.div(rowValue, "", "afwFormRowHelp", "");
-            //        result += cp.Html.div(helpRow, "", "afwFormRow", rows[rowPtr].htmlId);
-            //    }
-            //    //
-            //    // check for fieldSetCloses
-            //    //
-            //    for (int fieldSetPtrx = fieldSetMax; fieldSetPtrx >= 0; fieldSetPtrx--) {
-            //        if (fieldSets[fieldSetPtrx].rowClose == rowPtr) {
-            //            result += Constants.cr + "</fieldset>";
-            //        }
-            //    }
-            //}
             //
             // -- construct report
             LayoutBuilderClass layoutBase = new(cp) {
@@ -578,6 +512,30 @@ namespace Contensive.Processor.LayoutBuilder {
                 htmlAfterBody = value;
             }
         }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
+        /// </summary>
+        [Obsolete("Deprecated. Use callbackAddonGuid", false)] public override string baseUrl { get; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
+        /// </summary>
+        [Obsolete("Deprecated. use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// The default Layoutbuilder styles. Override to customize.
+        /// </summary>
+        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// The default Layoutbuilder script. Override to customize.
+        /// </summary>
+        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
     }
     //
     public class LayoutBuilderNameValueClass_RowClass {

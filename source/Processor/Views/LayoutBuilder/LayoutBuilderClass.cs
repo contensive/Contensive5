@@ -9,23 +9,17 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         //
         public LayoutBuilderClass(CPBaseClass cp) : base(cp) {
-            //
-            // -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
-            baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
-            if (string.IsNullOrEmpty(baseUrl)) {
-                //
-                // -- if request is not present then this is the original page render. Populate with the current page
-                // -- if however it is present, then this is the ajax callback, and the value in the request was the original page url
-                baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
-            }
-            addFormHidden("layoutBuilderBaseUrl", baseUrl);
+            ////
+            //// -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
+            //baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
+            //if (string.IsNullOrEmpty(baseUrl)) {
+            //    //
+            //    // -- if request is not present then this is the original page render. Populate with the current page
+            //    // -- if however it is present, then this is the ajax callback, and the value in the request was the original page url
+            //    baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
+            //}
+            //addFormHidden("layoutBuilderBaseUrl", baseUrl);
         }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
-        /// </summary>
-        public override string baseUrl { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -33,12 +27,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// Typically the same method that calls the layoutbuilder
         /// </summary>
         public override string callbackAddonGuid { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
-        /// </summary>
-        [Obsolete("Deprecated. Use callbackAddonGuid",false)] public override string baseAjaxUrl { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -419,6 +407,18 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string _formid;
         //
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
+        /// </summary>
+        [Obsolete("Deprecated. use callbackAddonGuid.", false)] public override string baseUrl { get; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
+        /// </summary>
+        [Obsolete("Deprecated. Use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
 
-        }
     }
+}

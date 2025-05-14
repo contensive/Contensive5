@@ -740,72 +740,72 @@ namespace Contensive.Processor {
         internal const int IndexColumnSORTDIRECTION = 3; // direction of the sort on this column
         internal const int IndexColumnSATTRIBUTEMAX = 3; // the number of attributes here
         internal const int IndexColumnsMax = 50;
+        ////
+        //// ----- ReportID Constants, moved to ccCommonModule
+        ////
+        //internal const int ReportFormRoot = 1;
+        //internal const int ReportFormDailyVisits = 2;
+        //internal const int ReportFormWeeklyVisits = 12;
+        //internal const int ReportFormSitePath = 4;
+        //internal const int ReportFormSearchKeywords = 5;
+        //internal const int ReportFormReferers = 6;
+        //internal const int ReportFormBrowserList = 8;
+        //internal const int ReportFormAddressList = 9;
+        //internal const int ReportFormContentProperties = 14;
+        //internal const int ReportFormSurveyList = 15;
+        //internal const int ReportFormOrdersList = 13;
+        //internal const int ReportFormOrderDetails = 21;
+        //internal const int ReportFormVisitorList = 11;
+        //internal const int ReportFormMemberDetails = 16;
+        //internal const int ReportFormPageList = 10;
+        //internal const int ReportFormVisitList = 3;
+        //internal const int ReportFormVisitDetails = 17;
+        //internal const int ReportFormVisitorDetails = 20;
+        //internal const int ReportFormSpiderDocList = 22;
+        //internal const int ReportFormSpiderErrorList = 23;
+        //internal const int ReportFormEDGDocErrors = 24;
+        //internal const int ReportFormDownloadLog = 25;
+        //internal const int ReportFormSpiderDocDetails = 26;
+        //internal const int ReportFormSurveyDetails = 27;
+        //internal const int ReportFormEmailDropList = 28;
+        //internal const int ReportFormPageTraffic = 29;
+        //internal const int ReportFormPagePerformance = 30;
+        //internal const int ReportFormEmailDropDetails = 31;
+        //internal const int ReportFormEmailOpenDetails = 32;
+        //internal const int ReportFormEmailClickDetails = 33;
+        //internal const int ReportFormGroupList = 34;
+        //internal const int ReportFormGroupMemberList = 35;
+        //internal const int ReportFormTrapList = 36;
+        //internal const int ReportFormCount = 36;
+        ////
+        ////=============================================================================
+        //// Page Scope Meetings Related Storage
+        ////=============================================================================
+        ////
+        //internal const int MeetingFormIndex = 0;
+        //internal const int MeetingFormAttendees = 1;
+        //internal const int MeetingFormLinks = 2;
+        //internal const int MeetingFormFacility = 3;
+        //internal const int MeetingFormHotel = 4;
+        //internal const int MeetingFormDetails = 5;
         //
-        // ----- ReportID Constants, moved to ccCommonModule
-        //
-        internal const int ReportFormRoot = 1;
-        internal const int ReportFormDailyVisits = 2;
-        internal const int ReportFormWeeklyVisits = 12;
-        internal const int ReportFormSitePath = 4;
-        internal const int ReportFormSearchKeywords = 5;
-        internal const int ReportFormReferers = 6;
-        internal const int ReportFormBrowserList = 8;
-        internal const int ReportFormAddressList = 9;
-        internal const int ReportFormContentProperties = 14;
-        internal const int ReportFormSurveyList = 15;
-        internal const int ReportFormOrdersList = 13;
-        internal const int ReportFormOrderDetails = 21;
-        internal const int ReportFormVisitorList = 11;
-        internal const int ReportFormMemberDetails = 16;
-        internal const int ReportFormPageList = 10;
-        internal const int ReportFormVisitList = 3;
-        internal const int ReportFormVisitDetails = 17;
-        internal const int ReportFormVisitorDetails = 20;
-        internal const int ReportFormSpiderDocList = 22;
-        internal const int ReportFormSpiderErrorList = 23;
-        internal const int ReportFormEDGDocErrors = 24;
-        internal const int ReportFormDownloadLog = 25;
-        internal const int ReportFormSpiderDocDetails = 26;
-        internal const int ReportFormSurveyDetails = 27;
-        internal const int ReportFormEmailDropList = 28;
-        internal const int ReportFormPageTraffic = 29;
-        internal const int ReportFormPagePerformance = 30;
-        internal const int ReportFormEmailDropDetails = 31;
-        internal const int ReportFormEmailOpenDetails = 32;
-        internal const int ReportFormEmailClickDetails = 33;
-        internal const int ReportFormGroupList = 34;
-        internal const int ReportFormGroupMemberList = 35;
-        internal const int ReportFormTrapList = 36;
-        internal const int ReportFormCount = 36;
-        //
-        //=============================================================================
-        // Page Scope Meetings Related Storage
-        //=============================================================================
-        //
-        internal const int MeetingFormIndex = 0;
-        internal const int MeetingFormAttendees = 1;
-        internal const int MeetingFormLinks = 2;
-        internal const int MeetingFormFacility = 3;
-        internal const int MeetingFormHotel = 4;
-        internal const int MeetingFormDetails = 5;
-        //
-        // ---------------------------------------------------------------------------------------------------------------------------------
-        // Form actions
-        // ---------------------------------------------------------------------------------------------------------------------------------
-        //
-        // ----- DataSource Types
-        //
-        internal const int DataSourceTypeODBCSQL99 = 0;
-        internal const int DataSourceTypeODBCAccess = 1;
+        //// ---------------------------------------------------------------------------------------------------------------------------------
+        //// Form actions
+        //// ---------------------------------------------------------------------------------------------------------------------------------
+        ////
+        //// ----- DataSource Types
+        ////
+        //internal const int DataSourceTypeODBCSQL99 = 0;
+        //internal const int DataSourceTypeODBCAccess = 1;
         internal const int DataSourceTypeODBCSQLServer = 2;
         internal const int DataSourceTypeODBCMySQL = 3;
-        internal const int DataSourceTypeXMLFile = 4; // Use MSXML Interface to open a file
+        //internal const int DataSourceTypeXMLFile = 4; // Use MSXML Interface to open a file
 
-        //
-        // Document (HTML, graphic, etc) retrieved from site
-        //
-        internal const int ResponseHeaderCountMax = 20;
-        internal const int ResponseCookieCountMax = 20;
+        ////
+        //// Document (HTML, graphic, etc) retrieved from site
+        ////
+        //internal const int ResponseHeaderCountMax = 20;
+        //internal const int ResponseCookieCountMax = 20;
         //
         // ----- text delimiter that divides the text and html parts of an email message stored in the queue folder
         //
@@ -821,43 +821,43 @@ namespace Contensive.Processor {
         internal const string RequestNameTitleExtension = "tx";
         //
         //
-        internal const string RequestNameDynamicFormId = "dformid";
+        //internal const string RequestNameDynamicFormId = "dformid";
         //
         internal const string RequestNameRunAddon = "addonid";
         internal const string RequestNameEditReferer = "EditReferer";
-        internal const string RequestNameCatalogOrder = "CatalogOrderID";
-        internal const string RequestNameCatalogCategoryId = "CatalogCatID";
-        internal const string RequestNameCatalogForm = "CatalogFormID";
-        internal const string RequestNameCatalogItemId = "CatalogItemID";
-        internal const string RequestNameCatalogItemAge = "CatalogItemAge";
-        internal const string RequestNameCatalogRecordTop = "CatalogTop";
-        internal const string RequestNameCatalogFeatured = "CatalogFeatured";
-        internal const string RequestNameCatalogSpan = "CatalogSpan";
-        internal const string RequestNameCatalogKeywords = "CatalogKeywords";
-        internal const string RequestNameCatalogSource = "CatalogSource";
+        //internal const string RequestNameCatalogOrder = "CatalogOrderID";
+        //internal const string RequestNameCatalogCategoryId = "CatalogCatID";
+        //internal const string RequestNameCatalogForm = "CatalogFormID";
+        //internal const string RequestNameCatalogItemId = "CatalogItemID";
+        //internal const string RequestNameCatalogItemAge = "CatalogItemAge";
+        //internal const string RequestNameCatalogRecordTop = "CatalogTop";
+        //internal const string RequestNameCatalogFeatured = "CatalogFeatured";
+        //internal const string RequestNameCatalogSpan = "CatalogSpan";
+        //internal const string RequestNameCatalogKeywords = "CatalogKeywords";
+        //internal const string RequestNameCatalogSource = "CatalogSource";
         //
         internal const string rnDownloadFileGuid = "download";
         internal const string rnDownloadFileId = "downloadid";
-        internal const string RequestNameLibraryUpload = "LibraryUpload";
-        internal const string RequestNameLibraryName = "LibraryName";
-        internal const string RequestNameLibraryDescription = "LibraryDescription";
+        //internal const string RequestNameLibraryUpload = "LibraryUpload";
+        //internal const string RequestNameLibraryName = "LibraryName";
+        //internal const string RequestNameLibraryDescription = "LibraryDescription";
 
-        internal const string RequestNameRootPage = "RootPageName";
-        internal const string RequestNameRootPageId = "RootPageID";
-        internal const string RequestNameContent = "ContentName";
-        internal const string RequestNameOrderByClause = "OrderByClause";
-        internal const string RequestNameAllowChildPageList = "AllowChildPageList";
+        //internal const string RequestNameRootPage = "RootPageName";
+        //internal const string RequestNameRootPageId = "RootPageID";
+        //internal const string RequestNameContent = "ContentName";
+        //internal const string RequestNameOrderByClause = "OrderByClause";
+        //internal const string RequestNameAllowChildPageList = "AllowChildPageList";
         //
-        internal const string RequestNameCRKey = "crkey";
+        //internal const string RequestNameCRKey = "crkey";
         internal const string RequestNameAdminForm = "af";
         internal const string RequestNameAdminSubForm = "subform";
         internal const string RequestNameButton = "button";
-        internal const string RequestNameAdminSourceForm = "asf";
-        internal const string RequestNameAdminFormSpelling = "SpellingRequest";
+        //internal const string RequestNameAdminSourceForm = "asf";
+        //internal const string RequestNameAdminFormSpelling = "SpellingRequest";
         internal const string RequestNameInlineStyles = "InlineStyles";
-        internal const string RequestNameAllowCSSReset = "AllowCSSReset";
+        //internal const string RequestNameAllowCSSReset = "AllowCSSReset";
         //
-        internal const string RequestNameReportForm = "rid";
+        //internal const string RequestNameReportForm = "rid";
         //
         internal const string RequestNameToolContentId = "ContentID";
         //
@@ -867,10 +867,10 @@ namespace Contensive.Processor {
         internal const string rnPasteParentRecordId = "dp29a7dsa6rid";
         internal const string RequestNamePasteFieldList = "dp29a7dsa6key";
         internal const string rnCutClear = "dp29a7dsa6clear";
-        //
-        internal const string RequestNameRequestBinary = "RequestBinary";
-        internal const string RequestNameJSForm = "RequestJSForm";
-        internal const string RequestNameJSProcess = "ProcessJSForm";
+        ////
+        //internal const string RequestNameRequestBinary = "RequestBinary";
+        //internal const string RequestNameJSForm = "RequestJSForm";
+        //internal const string RequestNameJSProcess = "ProcessJSForm";
         //
         internal const string RequestNameFolderId = "FolderID";
         //
@@ -895,7 +895,7 @@ namespace Contensive.Processor {
         //
         // ----- Actions
         //
-        internal const int ToolsActionMenuMove = 1;
+        //internal const int ToolsActionMenuMove = 1;
         internal const int ToolsActionAddField = 2; // Add a field to the Index page
         internal const int ToolsActionRemoveField = 3;
         internal const int ToolsActionMoveFieldRight = 4;
@@ -904,12 +904,12 @@ namespace Contensive.Processor {
         internal const int ToolsActionSetZA = 7;
         internal const int ToolsActionExpand = 8;
         internal const int ToolsActionContract = 9;
-        internal const int ToolsActionEditMove = 10;
-        internal const int ToolsActionRunQuery = 11;
-        internal const int ToolsActionDuplicateDataSource = 12;
-        internal const int ToolsActionDefineContentFieldFromTableFieldsFromTable = 13;
-        internal const int ToolsActionFindAndReplace = 14;
-        internal const int ToolsActionIISReset = 15;
+        //internal const int ToolsActionEditMove = 10;
+        //internal const int ToolsActionRunQuery = 11;
+        //internal const int ToolsActionDuplicateDataSource = 12;
+        //internal const int ToolsActionDefineContentFieldFromTableFieldsFromTable = 13;
+        //internal const int ToolsActionFindAndReplace = 14;
+        //internal const int ToolsActionIISReset = 15;
         //
         //=======================================================================
         //   content replacements
@@ -1210,6 +1210,12 @@ namespace Contensive.Processor {
         public const string dashboardWidgetPieChartLayoutGuid = "{319AEB6C-9C06-456F-818E-270200860216}";
         public const string dashboardWidgetPieChartLayoutName = "Dashboard Widget Pie Chart Layout";
         public const string dashboardWidgetPieChartLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetPieChartLayout.html";
+        // 
+        // -- Dashboard Line Widget
+        // 
+        public const string dashboardWidgetLineChartLayoutGuid = "{62173186-3408-47FA-9174-2E6795EAE481}";
+        public const string dashboardWidgetLineChartLayoutName = "Dashboard Widget Line Chart Layout";
+        public const string dashboardWidgetLineChartLayoutPathFilename = @"baseassets\widgetdashboard\DashboardWidgetLineChartLayout.html";
         // 
         // -- Dashboard Bar Widget
         // 

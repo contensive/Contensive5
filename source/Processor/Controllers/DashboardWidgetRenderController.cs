@@ -109,6 +109,12 @@ namespace Contensive.Processor.Controllers {
                     DashboardWidgetBarChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetBarChartModel>(widgetAddonResultJson);
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetBarChartLayoutGuid, Constants.dashboardWidgetBarChartLayoutName, Constants.dashboardWidgetBarChartLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                } else if (addonResult.widgetType == WidgetTypeEnum.line) {
+                    //
+                    // -- pie widget
+                    DashboardWidgetLineChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetLineChartModel>(widgetAddonResultJson);
+                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetLineChartLayoutGuid, Constants.dashboardWidgetLineChartLayoutName, Constants.dashboardWidgetLineChartLayoutPathFilename);
+                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else {
                     //
                     // -- future growth

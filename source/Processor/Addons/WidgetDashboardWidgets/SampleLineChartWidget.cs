@@ -32,7 +32,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     url = "https://www.contensive.com",
                     dataLabels = DefaultDataLabels.Take(segments).ToList(),
                     dataValues = DefaultDataValues.Take(segments).ToList(),
-                    widgetType = WidgetTypeEnum.pie,
+                    widgetType = WidgetTypeEnum.line,
                     filterOptions = [
                            new() {
                                filterCaption = "2 Segment",
