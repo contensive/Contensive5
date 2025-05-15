@@ -279,29 +279,7 @@
       <div id="dashboard" class="row">
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
-          <div 
-            id="{{#isNewWidgetTemplate}}newWidgetTemplate{{/isNewWidgetTemplate}}{{^isNewWidgetTemplate}}{{widgetHtmlId}}{{/isNewWidgetTemplate}}" 
-            data-addonGuid="{{addonGuid}}" 
-            style="{{#isNewWidgetTemplate}}display:none;{{/isNewWidgetTemplate}}" 
-            class="
-              {{^isNewWidgetTemplate}}widget{{/isNewWidgetTemplate}} 
-              {{#widgetSmall}}col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2 mb-4{{/widgetSmall}} 
-              {{^widgetSmall}}col-12 col-lg-6 col-xxl-4 mb-4{{/widgetSmall}}
-              ">
-            <div class="card shadow-sm h-100">
-              <div class="htmlContent">
-                {{{htmlContent}}}
-              </div>
-            </div>
-          </div>
-
-          {{#url}}
-            <script>
-              document.addEventListener('DOMContentLoaded', function (event) {
-                jQuery('#{{widgetHtmlId}} .card-body').on('click', function () { window.location.href = '{{url}}'; });
-              });
-            </script>
-          {{/url}}
+          {{{htmlContent}}}
         {{/widgets}}
       </div>
     </div>

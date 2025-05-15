@@ -64,9 +64,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                             var viewModel = DashboardWidgetRenderController.buildDashboardWidgetView(cp, userDashboardConfigWidget);
                             result.Add(new WDS_Response {
                                 widgetHtmlId = requestWidget.widgetHtmlId,
-                                htmlContent = viewModel.htmlContent,
-                                link = viewModel.url,
-                                widgetName = viewModel.widgetName
+                                htmlContent = viewModel.htmlContent
                             });
                         }
                         saveDashboardConfig.widgets.Add(userDashboardConfigWidget);
@@ -87,9 +85,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                             var viewModel = DashboardWidgetRenderController.buildDashboardWidgetView(cp, userDashboardConfigWidget);
                             result.Add(new WDS_Response {
                                 widgetHtmlId = requestWidget.widgetHtmlId,
-                                htmlContent = viewModel.htmlContent,
-                                link = viewModel.url,
-                                widgetName = viewModel.widgetName
+                                htmlContent = viewModel.htmlContent
                             });
                         }
                         continue;
@@ -118,9 +114,7 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
                 var viewModel = DashboardWidgetRenderController.buildDashboardWidgetView(cp, userDashboardConfigWidget);
                 result.Add(new WDS_Response {
                     widgetHtmlId = requestWidget.widgetHtmlId,
-                    htmlContent = viewModel.htmlContent,
-                    link = viewModel.url,
-                    widgetName = viewModel.widgetName
+                    htmlContent = viewModel.htmlContent
                 });
                 continue;
             }
@@ -175,8 +169,8 @@ namespace Contensive.Processor.Addons.WidgetDashboard {
         //
         public string htmlContent { get; set; }
         //
-        public string link { get; set; }
-        //
-        public string widgetName { get; set; }
+        //public string link { get; set; }
+        ////
+        //public string widgetName { get; set; }
     }
 }

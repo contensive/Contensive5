@@ -48,9 +48,9 @@ namespace Contensive.Processor.Controllers {
             //
             // -- create the widget view model
             DashboardWidgetViewModel result = new() {
-                widgetHtmlId = userConfigWidget.widgetHtmlId,
-                addonGuid = userConfigWidget.addonGuid,
-                refreshSeconds = userConfigWidget.refreshSeconds
+                //widgetHtmlId = userConfigWidget.widgetHtmlId,
+                //addonGuid = userConfigWidget.addonGuid,
+                //refreshSeconds = userConfigWidget.refreshSeconds
             };
             if (string.IsNullOrWhiteSpace(userConfigWidget.addonGuid)) { return result; }
             //
@@ -64,24 +64,24 @@ namespace Contensive.Processor.Controllers {
             DashboardWidgetBaseModel addonResult = null;
             try {
                 addonResult = cp.JSON.Deserialize<DashboardWidgetBaseModel>(widgetAddonResultJson);
-                //
-                // -- populate the type-independent properties
-                result.refreshSeconds = addonResult.refreshSeconds;
-                result.widgetName = addonResult.widgetName;
-                result.url = addonResult.url;
-                result.widgetSmall = addonResult.width < 2;
-                //
-                // -- populate filters
-                if (addonResult.filterOptions != null && addonResult.filterOptions.Count > 0) {
-                    result.hasFilter = true;
-                    foreach (var addonFilterOption in addonResult.filterOptions) {
-                        result.filterOptions.Add(new DashboardWidgetViewModel_FilterOptions() {
-                            filterCaption = addonFilterOption.filterCaption,
-                            filterValue = addonFilterOption.filterValue,
-                            filterActive = userConfigWidget.filterValue == addonFilterOption.filterValue
-                        });
-                    };
-                };
+                ////
+                //// -- populate the type-independent properties
+                //result.refreshSeconds = addonResult.refreshSeconds;
+                //result.widgetName = addonResult.widgetName;
+                //result.url = addonResult.url;
+                //result.widgetSmall = addonResult.width < 2;
+                ////
+                //// -- populate filters
+                //if (addonResult.filterOptions != null && addonResult.filterOptions.Count > 0) {
+                //    result.hasFilter = true;
+                //    foreach (var addonFilterOption in addonResult.filterOptions) {
+                //        result.filterOptions.Add(new DashboardWidgetViewModel_FilterOptions() {
+                //            filterCaption = addonFilterOption.filterCaption,
+                //            filterValue = addonFilterOption.filterValue,
+                //            filterActive = userConfigWidget.filterValue == addonFilterOption.filterValue
+                //        });
+                //    };
+                //};
 
                 //
                 // -- populate the type-dependent properties
@@ -107,6 +107,9 @@ namespace Contensive.Processor.Controllers {
                     //
                     // -- bar widget
                     DashboardWidgetBarChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetBarChartModel>(widgetAddonResultJson);
+                    widgetAddonResult.widgetHtmlId = addonResult.widgetHtmlId;
+                    widgetAddonResult.addonGuid = addonResult.addonGuid;
+                    widgetAddonResult.widgetSmall = addonResult.width < 2;
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetBarChartLayoutGuid, Constants.dashboardWidgetBarChartLayoutName, Constants.dashboardWidgetBarChartLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else if (addonResult.widgetType == WidgetTypeEnum.line) {

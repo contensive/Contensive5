@@ -10,6 +10,9 @@ using System.Text.RegularExpressions;
 using System.Windows.Media.TextFormatting;
 
 namespace Contensive.Processor.Models.View {
+    /// <summary>
+    /// 
+    /// </summary>
     public class DashboardViewModel {
         //
         private CPBaseClass cp;
