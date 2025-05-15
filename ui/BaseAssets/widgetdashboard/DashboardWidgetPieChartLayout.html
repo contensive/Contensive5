@@ -57,7 +57,7 @@
   function callback{{uniqueId}}() {
     console.log("piechart{{uniqueId}} ready");
     const ctx = document.getElementById('piechart{{uniqueId}}');
-    const myChart = new Chart(ctx, {
+    const myChart{{uniqueId}} = new Chart(ctx, {
       type: 'pie',
       data: {
         labels: [{{#dataLabels}}'{{.}}',{{/dataLabels}}],

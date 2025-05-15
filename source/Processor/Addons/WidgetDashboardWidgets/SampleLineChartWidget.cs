@@ -27,7 +27,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     subhead = "Sample Line Chart Widget",
                     description = "This is a sample line chart widget. It is used to demonstrate how to create a line chart widget.",
                     uniqueId = cp.Utils.GetRandomString(4),
-                    width = 1,
+                    width = 2,
                     refreshSeconds = 0,
                     url = "https://www.contensive.com",
                     dataLabels = DefaultDataLabels.Take(segments).ToList(),

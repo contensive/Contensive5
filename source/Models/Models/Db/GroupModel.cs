@@ -28,7 +28,7 @@ namespace Contensive.Models.Db {
         /// <param name="groupCaption"></param>
         /// <returns></returns>
         public static GroupModel verify(CPBaseClass cp, string groupName, string groupCaption, int userId, Dictionary<string,string> DefaultValues) {
-            Models.Db.GroupModel result = null;
+            GroupModel result = null;
             try {
                 result = createByUniqueName<GroupModel>(cp, groupName);
                 if (result != null) {
@@ -42,8 +42,8 @@ namespace Contensive.Models.Db {
                     result.caption = groupCaption;
                     result.save(cp, userId);
                 }
-            } catch (Exception ex) {
-                throw (ex);
+            } catch (Exception) {
+                throw;
             }
             return result;
         }
