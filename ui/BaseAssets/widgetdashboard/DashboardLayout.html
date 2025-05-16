@@ -375,7 +375,6 @@
               result.forEach(function (widget) {
                 items.forEach(function (item) {
                   if (item.id == widget.widgetHtmlId) {
-                    //document.querySelector('#' + item.id + ' .widget-name').innerHTML = widget.widgetName;
                     if (widget.link) {
                       let script = document.createElement('script');
                       script.innerHTML = "document.addEventListener('DOMContentLoaded', function(event) { jQuery('#" + widget.widgetHtmlId + " .card').on('click', function() { window.location.href='" + widget.link + "'; }); });";
