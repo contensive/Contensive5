@@ -9,16 +9,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         //
         public LayoutBuilderClass(CPBaseClass cp) : base(cp) {
-            ////
-            //// -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
-            //baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
-            //if (string.IsNullOrEmpty(baseUrl)) {
-            //    //
-            //    // -- if request is not present then this is the original page render. Populate with the current page
-            //    // -- if however it is present, then this is the ajax callback, and the value in the request was the original page url
-            //    baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
-            //}
-            //addFormHidden("layoutBuilderBaseUrl", baseUrl);
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -360,7 +350,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        [Obsolete("Deprecated. Use baseUrl().", false)]
+        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)]
         public override string refreshQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -410,9 +400,9 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
+        /// Deprecated. Instead use cp.adminUI.getPortalFeatureLink()
         /// </summary>
-        [Obsolete("Deprecated. use callbackAddonGuid.", false)] public override string baseUrl { get; }
+        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string baseUrl { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

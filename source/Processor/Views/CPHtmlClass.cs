@@ -239,13 +239,8 @@ namespace Contensive.Processor {
         // ==========================================================================================
         //
         public override string SelectContent(string htmlName, string htmlValue, string contentName, string sqlCriteria, string noneCaption, string htmlClass, string htmlId) {
-            string result = cp.core.html.selectFromContent(htmlName, GenericController.encodeInteger(htmlValue), contentName, sqlCriteria, noneCaption);
-            if (!string.IsNullOrEmpty(htmlClass)) {
-                result = result.Replace("<select ", "<select class=\"" + htmlClass + "\" ");
-            }
-            if (!string.IsNullOrEmpty(htmlId)) {
-                result = result.Replace("<select ", "<select id=\"" + htmlId + "\" ");
-            }
+            bool isEmptyList = false;
+            string result = cp.core.html.selectFromContent(htmlName, GenericController.encodeInteger(htmlValue), contentName, sqlCriteria, noneCaption, htmlId , ref isEmptyList, htmlClass );
             return result;
         }
         //

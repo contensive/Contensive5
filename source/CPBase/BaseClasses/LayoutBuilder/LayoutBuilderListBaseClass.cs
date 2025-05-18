@@ -400,7 +400,8 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
         /// </summary>
-        [Obsolete("Deprecated. Instead use BaseUrl.", false)] public abstract string refreshQueryString { get; set; }
+        /// 
+        [Obsolete("deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public abstract string refreshQueryString { get; set; }
         // 
         /// <summary>
         /// Method retrieves the rendered html. Call this method after populating all object elements
@@ -415,14 +416,9 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         [Obsolete("Deprecated. Instead set callbackAddonGuid to the guid of the addon that creates the updated view on  pagination or search update. Typically this is the same addon tha calls the layout builder.", false)]
         public abstract string baseAjaxUrl { get; set; }
         /// <summary>
-        /// This property is setup by the constructor to the base url
-        /// (Previously this was the refreshQueryString.)
-        /// Set the url to the url of the current view. This is used to refresh the view when a user clicks on a link, like a column header to sort the data.
-        /// This url is saved as a hidden in submitted forms and should be read and used to create links that refresh the view.
-        /// The area where the hiddens are saved is not repainted duting ajax refreshes, so this value is set one time when the page is first drawn.
-        /// When a user clicks on a feature on the view, like pagination, the view is redrawn with an ajax call. That call has a different baseUrlf so links created during that call need the baseUrl of the view.
+        /// Deprecated. Instead use cp.adminUI.getPortalFeatureLink()
         /// </summary>
-        [Obsolete("Deprecated. Use callbackAddonGuid", false)] public abstract string baseUrl { get; }
+        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public abstract string baseUrl { get; }
         //
         /// <summary>
         /// if true, the data set is paginated. If false, all records are displayed.

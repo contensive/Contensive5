@@ -315,6 +315,7 @@ namespace Contensive.Processor.Controllers {
         public static string modifyQueryString(string workingQuery, string queryName, string queryValue, bool addIfMissing) {
             string result = "";
             //
+            workingQuery = workingQuery ?? string.Empty;
             if (workingQuery.IndexOf("?", StringComparison.InvariantCultureIgnoreCase) >= 0) {
                 result = modifyLinkQuery(workingQuery, queryName, queryValue, addIfMissing);
             } else {

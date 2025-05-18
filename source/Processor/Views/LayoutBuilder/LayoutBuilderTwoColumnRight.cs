@@ -7,20 +7,13 @@ namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderTwoColumnRight : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnRightBaseClass {
         //
         public LayoutBuilderTwoColumnRight(CPBaseClass cp) : base(cp) {
-            ////
-            //// -- if an ajax callback, get the baseUrl comes the request, else it is the url of the current page
-            //baseUrl = cp.Request.GetText("LayoutBuilderBaseUrl");
-            //if (string.IsNullOrEmpty(baseUrl)) {
-            //    baseUrl = $"{cp.Request.Protocol}{cp.Request.Host}{cp.Request.PathPage}?{cp.Request.QueryString}";
-            //}
-            //addFormHidden("layoutBuilderBaseUrl", baseUrl);
         }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
+        /// Deprecated. Instead use cp.adminUI.getPortalFeatureLink()
         /// </summary>
-        public override string baseUrl { get; }
+        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string baseUrl { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

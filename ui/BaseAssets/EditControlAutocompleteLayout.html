@@ -1,34 +1,35 @@
 
 <!-- autocomplete field -->
 <div class="form-inline ml-2 ms-2 my-2 my-lg-0">
-    <input id="editControl{{id}}" class="form-control" type="search" placeholder="Search" value="{{initialValueName}}">
-    <input id="editControlValue{{id}}" type="hidden" name="{{htmlName}}" value="{{initialValueId}}">
+    <input id="{{htmlId}}-text" class="form-control" type="search" placeholder="Search" value="{{initialValueName}}">
+    <input id="{{htmlId}}" type="hidden" name="{{htmlName}}" value="{{initialValueId}}">
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', function(){
-        $( "#editControl{{id}}" ).autocomplete({
+        $( "#{{htmlId}}-text" ).autocomplete({
             source: function (request, response) {
                 $.ajax({
                     dataType: "json",
                     type : 'Get',
                     url: '/EditControlAutocomplete?token={{tokenUrlEncoded}}&term='+encodeURIComponent(request.term),
                     success: function(data) { response(data); },
-                    error: function(data) { console.log("error in editControl{{id}}"); }
+                    error: function(data) { console.log("error in {{htmlId}}-text"); }
                 });
             },
             select: function( event, ui ) { 
-                console.log("editControl{{id}} autocomplete-select name:" + ui.item.label + ", value: " + ui.item.value); 
-                $( "#editControlValue{{id}}" ).val(ui.item.value);
-                $( "#editControl{{id}}" ).val(ui.item.label);
+                console.log("{{htmlId}}-text autocomplete-select name:" + ui.item.label + ", value: " + ui.item.value); 
+                $( "#{{htmlId}}-text").val(ui.item.label);
+                $( "#{{htmlId}}").val(ui.item.value);
+                $( "#{{htmlId}}").trigger("change");
                 return false;
             },
             change: function( event, ui ) {
                 // change
-                console.log("editControl{{id}} autocomplete-change"); 
+                console.log("{{htmlId}}-text autocomplete-change"); 
             }
         }).on("input", function() { 
             // update panel
-            console.log("editControl{{id}} input-event");
-            $( "#editControlValue{{id}}").val($(this).val());
+            console.log("{{htmlId}}-text input-event");
+            $( "#{{htmlId}}").val($(this).val());
         })});
 </script>

@@ -12,9 +12,11 @@ namespace Contensive.Processor {
         //
         public CPAdminUIClass(Controllers.CoreController core) {
             this.core = core;
+            this.cp = core.cpParent;
         }
         //
         private readonly Controllers.CoreController core;
+        private readonly CPClass cp;
         //
         // ====================================================================================================
         //
@@ -29,23 +31,23 @@ namespace Contensive.Processor {
         }
         //
         public override LayoutBuilderBaseClass CreateLayoutBuilder() {
-            return new LayoutBuilder.LayoutBuilderClass(core.cpParent);
+            return new LayoutBuilder.LayoutBuilderClass(cp);
         }
 
         public override LayoutBuilderTwoColumnLeftBaseClass CreateLayoutBuilderTwoColumnLeft() {
-            return new LayoutBuilder.LayoutBuilderTwoColumnLeft(core.cpParent);
+            return new LayoutBuilder.LayoutBuilderTwoColumnLeft(cp);
         }
 
         public override LayoutBuilderTwoColumnRightBaseClass CreateLayoutBuilderTwoColumnRight() {
-            return new LayoutBuilder.LayoutBuilderTwoColumnRight(core.cpParent);
+            return new LayoutBuilder.LayoutBuilderTwoColumnRight(cp);
         }
 
         public override LayoutBuilderListBaseClass CreateLayoutBuilderList() {
-            return new LayoutBuilder.LayoutBuilderListClass(core.cpParent);
+            return new LayoutBuilder.LayoutBuilderListClass(cp);
         }
 
         public override LayoutBuilderNameValueBaseClass CreateLayoutBuilderNameValue() {
-            return new LayoutBuilder.LayoutBuilderNameValueClass(core.cpParent);
+            return new LayoutBuilder.LayoutBuilderNameValueClass(cp);
         }
         //
         // ====================================================================================================
@@ -421,9 +423,9 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override string GetWidgetDashboard() {
-            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Constants.dashboardLayoutGuid, Contensive.Processor.Constants.dashboardLayoutName, Contensive.Processor.Constants.dashboardLayoutPathFilename);
-            DashboardViewModel viewModel = DashboardViewModel.create(core.cpParent, "");
-            return core.cpParent.Mustache.Render(layout, viewModel);
+            string layout = cp.Layout.GetLayout(Contensive.Processor.Constants.dashboardLayoutGuid, Contensive.Processor.Constants.dashboardLayoutName, Contensive.Processor.Constants.dashboardLayoutPathFilename);
+            DashboardViewModel viewModel = DashboardViewModel.create(cp, "");
+            return cp.Mustache.Render(layout, viewModel);
         }
         //
         // ====================================================================================================
@@ -436,12 +438,82 @@ namespace Contensive.Processor {
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
         public override string GetWidgetDashboard(string portalGuid) {
-            string layout = core.cpParent.Layout.GetLayout(Contensive.Processor.Constants.dashboardLayoutGuid, Contensive.Processor.Constants.dashboardLayoutName, Contensive.Processor.Constants.dashboardLayoutPathFilename);
-            DashboardViewModel viewModel = DashboardViewModel.create(core.cpParent, portalGuid);
-            return core.cpParent.Mustache.Render(layout, viewModel);
+            string layout = cp.Layout.GetLayout(Contensive.Processor.Constants.dashboardLayoutGuid, Contensive.Processor.Constants.dashboardLayoutName, Contensive.Processor.Constants.dashboardLayoutPathFilename);
+            DashboardViewModel viewModel = DashboardViewModel.create(cp, portalGuid);
+            return cp.Mustache.Render(layout, viewModel);
         }
-        //
-        // ====================================================================================================
+        // 
+        //====================================================================================================
+        // 
+        /// <summary>
+        /// return the link to the admin site portal and portal feature
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalFeatureGuid"></param>
+        /// <returns></returns>
+        public override string getPortalFeatureLink(string portalGuid, string portalFeatureGuid) {
+            return $"{cp.GetAppConfig().adminRoute}?addonGuid={cp.Utils.EncodeRequestVariable(Constants.guidAddonPortalFramework)}&setPortalGuid={cp.Utils.EncodeRequestVariable(portalGuid)}&dstfeatureguid={cp.Utils.EncodeRequestVariable(portalFeatureGuid)}";
+        }
+        // 
+        //====================================================================================================
+        /// <summary>
+        /// redirect and return blank
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalFeatureGuid"></param>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        public override string redirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend) {
+            // 
+            // -- setup redirect and return blank, the flag for return to parent Addon
+            cp.Response.Redirect(getPortalFeatureLink( portalGuid, portalFeatureGuid) + linkAppend);
+            return "";
+        }
+        // 
+        // ===================================================================================
+        /// <summary>
+        /// Portal features should only be run from with the c5 adminui portal. If not, redirect to the portal with this feature set
+        /// 
+        /// return false if endpoint does not include the portalframework guid.
+        /// use for 1-line validation check
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public override bool endpointContainsPortal() {
+            //
+            // -- return is from c5 adminui callback
+            string callbackAddonGuid = cp.Doc.GetText("callbackAddonGuid");
+            if (!string.IsNullOrEmpty(callbackAddonGuid)) { return true; }
+            //
+            // -- return false if endpoint does not include the portalframework guid and is not a callback from the c5 adminUI
+            string requestAddonGuid = cp.Doc.GetText("addonguid");
+            if (!string.IsNullOrEmpty(requestAddonGuid)) {
+                if ((requestAddonGuid ?? "") == Constants.guidAddonPortalFramework)
+                    return true;
+                // 
+                requestAddonGuid = requestAddonGuid.ToLowerInvariant().Replace("%7b", "{").Replace("%7d", "}");
+                return (requestAddonGuid ?? "") == Constants.guidAddonPortalFramework;
+            }
+            // 
+            // -- might be addonId (slower so migrate out of this)
+            int requestAddonId = cp.Doc.GetInteger("addonid");
+            if (requestAddonId == 0)
+                return false;
+            // 
+            // -- attempt read the addonId from cache. request is not 0, so if they match it was good
+            string cacheKeyPortalFrameworkAddonId = cp.Cache.CreateKey("portal-framework-addon-id");
+            int portalFrameworkAddonId = cp.Cache.GetInteger(cacheKeyPortalFrameworkAddonId);
+            if (portalFrameworkAddonId == requestAddonId)
+                return true;
+            // 
+            portalFrameworkAddonId = Contensive.Models.Db.DbBaseModel.getRecordId<AddonModel>(cp, Constants.guidAddonPortalFramework);
+            if (portalFrameworkAddonId == 0)
+                return false;
+            cp.Cache.Store(cacheKeyPortalFrameworkAddonId, portalFrameworkAddonId);
+            return requestAddonId == portalFrameworkAddonId;
+        }
+        // 
+        //====================================================================================================
         /// <summary>
         /// deprecated
         /// </summary>
@@ -450,6 +522,8 @@ namespace Contensive.Processor {
         public override LayoutBuilderToolFormBaseClass NewToolForm() {
             throw new NotImplementedException("Deprecated. All report and tool helper classes are implemented through the NugetPackage Contensive.PortalApi");
         }
+        // 
+        //====================================================================================================
         /// <summary>
         /// deprecated
         /// </summary>

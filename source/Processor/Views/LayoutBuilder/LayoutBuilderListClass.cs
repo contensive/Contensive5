@@ -20,7 +20,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         /// <summary>
         /// the base layout builder used to assemble the components of this builder.
-        /// initialized in constructor so it can read the request for baseUrl
         /// </summary>
         private LayoutBuilderClass layoutBuilderBase { get; set; }
         //
@@ -319,7 +318,6 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// render the entire report.
-        /// layoutBase was created in the constructor so it can read the request for baseUrl. 
         /// Populate it and getHtml()
         /// </summary>
         /// <param name="cp"></param>
@@ -1225,7 +1223,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        [Obsolete("Deprecated. No longer used. Insead BaseUrl is calculated internally.", false)] public override string formActionQueryString { get; set; }
+        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1291,7 +1289,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// The url of the page. Needed because the page is rendered with ajax, and the original page's url is used as the base for calls
         /// </summary>
-        [Obsolete("Deprecated. Use callbackAddonGuid", false)]
+        [Obsolete("Deprecated. Use CP.AdminUI.getPortalFeatureLink()", false)]
         public override string baseUrl {
             get {
                 return layoutBuilderBase.baseUrl;
