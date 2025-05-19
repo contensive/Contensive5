@@ -262,11 +262,11 @@ namespace Contensive.Processor.Controllers {
             string tokenString = core.cpParent.JSON.Serialize(token);
             string tokenEncrypted = core.cpParent.Security.EncryptTwoWay(tokenString);
             var viewModel = new {
-                id = GenericController.getRandomString(4),
                 tokenUrlEncoded = core.cpParent.Utils.EncodeRequestVariable(tokenEncrypted),
                 htmlName = MenuName,
                 initialValueName = core.cpParent.Content.GetRecordName(ContentName, CurrentValue),
-                initialValueId = CurrentValue
+                initialValueId = CurrentValue,
+                htmlId = string.IsNullOrEmpty(htmlId) ? GenericController.getRandomString(4) : htmlId
             };
             string layout = LayoutController.getLayout(core.cpParent, Constants.layoutEditControlAutocompleteGuid, Constants.layoutEditControlAutocompleteName, Constants.layoutEditControlAutocompleteCdnPathFilename, Constants.layoutEditControlAutocompleteCdnPathFilename);
             string result = core.cpParent.Mustache.Render(layout, viewModel);

@@ -10,6 +10,9 @@ using System.Text.RegularExpressions;
 using System.Windows.Media.TextFormatting;
 
 namespace Contensive.Processor.Models.View {
+    /// <summary>
+    /// 
+    /// </summary>
     public class DashboardViewModel {
         //
         private CPBaseClass cp;
@@ -68,9 +71,9 @@ namespace Contensive.Processor.Models.View {
                     //
                     // -- create an empty hidden widget used to add widgets
                     result.widgets.Add(new DashboardWidgetViewModel() {
-                        widgetSmall = true,
-                        isNewWidgetTemplate = true,
-                        widgetHtmlId = "newWidgetTemplate",
+                        //widgetSmall = true,
+                        //isNewWidgetTemplate = true,
+                        //widgetHtmlId = "newWidgetTemplate",
                     });
                     //
                     needsConfigSave = needsConfigSave || !DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);

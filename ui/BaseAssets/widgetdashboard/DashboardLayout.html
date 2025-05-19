@@ -13,6 +13,7 @@
     <script data-delete src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
     <script data-delete src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   </head>
+  <body>
 
 
     <!--<link href="css/dashboard-styles.css" rel="stylesheet">-->
@@ -288,29 +289,7 @@
       <div id="dashboard" class="row">
         <input type="hidden" id="portalGuid" value="{{portalGuid}}">
         {{#widgets}}
-          <div 
-            id="{{#isNewWidgetTemplate}}newWidgetTemplate{{/isNewWidgetTemplate}}{{^isNewWidgetTemplate}}{{widgetHtmlId}}{{/isNewWidgetTemplate}}" 
-            data-addonGuid="{{addonGuid}}" 
-            style="{{#isNewWidgetTemplate}}display:none;{{/isNewWidgetTemplate}}" 
-            class="
-              {{^isNewWidgetTemplate}}widget{{/isNewWidgetTemplate}} 
-              {{#widgetSmall}}col-12 col-sm-6 col-lg-4 col-xl-3 col-xxl-2 mb-4{{/widgetSmall}} 
-              {{^widgetSmall}}col-12 col-lg-6 col-xxl-4 mb-4{{/widgetSmall}}
-              ">
-            <div class="card shadow-sm h-100">
-              <div class="htmlContent">
-                {{{htmlContent}}}
-              </div>
-            </div>
-          </div>
-
-          {{#url}}
-            <script>
-              document.addEventListener('DOMContentLoaded', function (event) {
-                jQuery('#{{widgetHtmlId}} .card-body').on('click', function () { window.location.href = '{{url}}'; });
-              });
-            </script>
-          {{/url}}
+          {{{htmlContent}}}
         {{/widgets}}
       </div>
     </div>
@@ -406,17 +385,23 @@
               result.forEach(function (widget) {
                 items.forEach(function (item) {
                   if (item.id == widget.widgetHtmlId) {
-                    //document.querySelector('#' + item.id + ' .widget-name').innerHTML = widget.widgetName;
                     if (widget.link) {
                       let script = document.createElement('script');
                       script.innerHTML = "document.addEventListener('DOMContentLoaded', function(event) { jQuery('#" + widget.widgetHtmlId + " .card').on('click', function() { window.location.href='" + widget.link + "'; }); });";
                       document.body.appendChild(script);
                     }
-                    const targetElement = document.querySelector('#' + item.id + ' .htmlContent');
-                    targetElement.innerHTML = widget.htmlContent;
+                    var targetElement = document.querySelector('#' + item.id);
+                    let sourceElement = document.createElement("div");
+                    sourceElement.style.display = "none";
+                    sourceElement.innerHTML = widget.htmlContent;
+                    document.body.appendChild(sourceElement);
+                    //
+                    // -- find html part of sourceElement and put in targetElement.outerHtml
+                    var sourceElementHtml = sourceElement.querySelector('#' + item.id);
+                    targetElement.outerHTML = sourceElementHtml.outerHTML;
                     //
                     // Handle <script> tags
-                    const scripts = targetElement.querySelectorAll('script');
+                    const scripts = sourceElement.querySelectorAll('script');
                     scripts.forEach((script) => {
                         const newScript = document.createElement('script');
                         if (script.src) {
@@ -451,5 +436,5 @@
       }
     </script>
 
-
+</body>
 </html>

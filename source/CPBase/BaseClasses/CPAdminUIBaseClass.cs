@@ -796,6 +796,39 @@ namespace Contensive.BaseClasses {
         /// <param name="portalGuid">The guid of the portal in which the dashboard displays. All addons in the portal marked as widgets.</param>
         /// <returns></returns>
         public abstract string GetWidgetDashboard(string portalGuid);
+        // 
+        //====================================================================================================
+        /// <summary>
+        /// return the link to the admin site portal feature
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalGuid"></param>
+        /// <param name="portalFeatureGuid"></param>
+        /// <returns></returns>
+        public abstract string getPortalFeatureLink(string portalGuid, string portalFeatureGuid);
+        // 
+        //====================================================================================================
+        /// <summary>
+        /// set response to redirect to the portal feature and return blank.
+        /// Use this method to redirect to a portal feature if a features addon is running outside the portal.
+        /// For example, if the AccountList addon is running outside the Accounts portal, redirect to the Accounts portal with the AccountList feature.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalGuid"></param>
+        /// <param name="portalFeatureGuid"></param>
+        /// <param name="linkAppend"></param>
+        /// <returns></returns>
+        public abstract string redirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend);
+        // 
+        // ===================================================================================
+        /// <summary>
+        /// Portal features should only be run from with the c5 adminui portal. If not, redirect to the portal with this feature set.
+        /// return false if endpoint does not include the portalframework guid.
+        /// use for 1-line validation check
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
+        public abstract bool endpointContainsPortal();
         //
         //==========================================================================================
         //

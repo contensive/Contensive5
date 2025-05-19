@@ -3,19 +3,30 @@ using Contensive.Processor.Models;
 using Contensive.Processor.Models.Domain;
 using Contensive.Processor.Models.View;
 using System;
+using System.Collections.Generic;
+using System.Windows.Documents;
 
 namespace Contensive.Processor.Controllers {
     internal class DashboardWidgetRenderController {
         //
         // ====================================================================================================
         /// <summary>
-        /// if false, there is a problem with a widget in the userConfig and needs to be saved
+        /// render the widgets in teh userConfig, and add a blank used with the add button
+        /// returns false, there is a problem with a widget in the userConfig and needs to be saved
         /// </summary>
         /// <param name="cp"></param>
         /// <param name="userConfig"></param>
         /// <returns></returns>
         public static bool buildDashboardWidgets(CPBaseClass cp, DashboardViewModel view, DashboardUserConfigModel userConfig) {
             bool configOk = true;
+            //
+            // -- add a blank widget used for the add button
+            view.widgets.Add(buildDashboardWidgetView(cp, new DashboardWidgetUserConfigModel() {
+                widgetHtmlId = "newWidgetTemplate"
+            }));
+            //
+            // -- add widgets from the userConfig
+            List<DashboardWidgetUserConfigModel> removeWidgets = [];
             foreach (DashboardWidgetUserConfigModel userConfigWidget in userConfig.widgets) {
                 DashboardWidgetViewModel widget = buildDashboardWidgetView(cp, userConfigWidget);
                 if (!string.IsNullOrEmpty(widget.htmlContent)) {
@@ -25,9 +36,12 @@ namespace Contensive.Processor.Controllers {
                 } else {
                     //
                     // -- remove the widget from the config if it has no content
-                    userConfig.widgets.Remove(userConfigWidget);
-                    configOk = false;
+                    removeWidgets.Add(userConfigWidget);
                 }
+            }
+            foreach (var removeWidget in removeWidgets) {
+                userConfig.widgets.Remove(removeWidget);
+                configOk = false;
             }
             return configOk;
         }
@@ -40,79 +54,89 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userConfigWidget"></param>
         /// <returns></returns>
         public static DashboardWidgetViewModel buildDashboardWidgetView(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
-            ////
-            //// -- repair key if missing
-            //if (string.IsNullOrEmpty(userConfigWidget.widgetHtmlId)) {
-            //    userConfigWidget.widgetHtmlId = GenericController.getRandomString(6);
-            //}
             //
             // -- create the widget view model
-            DashboardWidgetViewModel result = new() {
-                widgetHtmlId = userConfigWidget.widgetHtmlId,
-                addonGuid = userConfigWidget.addonGuid,
-                refreshSeconds = userConfigWidget.refreshSeconds
-            };
-            if (string.IsNullOrWhiteSpace(userConfigWidget.addonGuid)) { return result; }
+            DashboardWidgetViewModel result = new();
+            string widgetAddonResultJson = "";
             //
-            // -- execute the widget addon and populate the result from the addon
-            // -- the result is a json string that is deserialized into the WidgetBaseModel
-            cp.Doc.SetProperty("widgetFilter", userConfigWidget.filterValue);
-            string widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
-            if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
-            //
-            // -- apply the addon result to the widget
-            DashboardWidgetBaseModel addonResult = null;
+            // -- if addonGuid not valid, default to htmlContent with no content. Used for add-template
+            int widgetType = 0;
+            if (userConfigWidget.widgetHtmlId == "newWidgetTemplate") {
+                //
+                // -- add widget case, create an htmlContent widtget with empty content
+                widgetType = (int)WidgetTypeEnum.htmlContent;
+                widgetAddonResultJson = cp.JSON.Serialize(new DashboardWidgetHtmlModel() {
+                    widgetHtmlId = userConfigWidget.widgetHtmlId,
+                    widgetName = "Add Widget",
+                    width = 1,
+                    refreshSeconds = 0,
+                    widgetSmall = true,
+                    filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>(),
+                    htmlContent = "",
+                    isNewWidgetTemplate = true,
+                    url = "",
+                    widgetType = WidgetTypeEnum.htmlContent
+                });
+            } else if (string.IsNullOrEmpty(userConfigWidget.addonGuid)) {
+                //
+                // -- empty guid
+                return result;
+            } else {
+                //
+                // -- execute the widget addon and populate the result from the addon
+                // -- the result is a json string that is deserialized into the WidgetBaseModel
+                cp.Doc.SetProperty("widgetFilter", userConfigWidget.filterValue);
+                widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
+                if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
+                var addonResultJObj = Newtonsoft.Json.Linq.JObject.Parse(widgetAddonResultJson);
+                widgetType = (int)addonResultJObj["widgetType"];
+            }
             try {
-                addonResult = cp.JSON.Deserialize<DashboardWidgetBaseModel>(widgetAddonResultJson);
-                //
-                // -- populate the type-independent properties
-                result.refreshSeconds = addonResult.refreshSeconds;
-                result.widgetName = addonResult.widgetName;
-                result.url = addonResult.url;
-                result.widgetSmall = addonResult.width < 2;
-                //
-                // -- populate filters
-                if (addonResult.filterOptions != null && addonResult.filterOptions.Count > 0) {
-                    result.hasFilter = true;
-                    foreach (var addonFilterOption in addonResult.filterOptions) {
-                        result.filterOptions.Add(new DashboardWidgetViewModel_FilterOptions() {
-                            filterCaption = addonFilterOption.filterCaption,
-                            filterValue = addonFilterOption.filterValue,
-                            filterActive = userConfigWidget.filterValue == addonFilterOption.filterValue
-                        });
-                    };
-                };
-
                 //
                 // -- populate the type-dependent properties
-                if (addonResult.widgetType == WidgetTypeEnum.htmlContent) {
+                if (widgetType == (int)WidgetTypeEnum.htmlContent) {
                     //
                     // -- html content provided by the addon
                     DashboardWidgetHtmlModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetHtmlModel>(widgetAddonResultJson);
+                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetHtmlContentLayoutGuid, Constants.dashboardWidgetHtmlContentLayoutName, Constants.dashboardWidgetHtmlContentLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (addonResult.widgetType == WidgetTypeEnum.number) {
+                } else if (widgetType == (int)WidgetTypeEnum.number) {
                     //
                     // -- number widget
                     DashboardWidgetNumberModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetNumberModel>(widgetAddonResultJson);
+                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetNumberLayoutGuid, Constants.dashboardWidgetNumberLayoutName, Constants.dashboardWidgetNumberLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (addonResult.widgetType == WidgetTypeEnum.pie) {
+                } else if (widgetType == (int)WidgetTypeEnum.pie) {
                     //
                     // -- pie widget
                     DashboardWidgetPieChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetPieChartModel>(widgetAddonResultJson);
+                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetPieChartLayoutGuid, Constants.dashboardWidgetPieChartLayoutName, Constants.dashboardWidgetPieChartLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (addonResult.widgetType == WidgetTypeEnum.bar) {
+                } else if (widgetType == (int)WidgetTypeEnum.bar) {
                     //
                     // -- bar widget
                     DashboardWidgetBarChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetBarChartModel>(widgetAddonResultJson);
+                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetBarChartLayoutGuid, Constants.dashboardWidgetBarChartLayoutName, Constants.dashboardWidgetBarChartLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (addonResult.widgetType == WidgetTypeEnum.line) {
+                } else if (widgetType == (int)WidgetTypeEnum.line) {
                     //
-                    // -- pie widget
+                    // -- line widget
                     DashboardWidgetLineChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetLineChartModel>(widgetAddonResultJson);
+                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
                     var layout = cp.Layout.GetLayout(Constants.dashboardWidgetLineChartLayoutGuid, Constants.dashboardWidgetLineChartLayoutName, Constants.dashboardWidgetLineChartLayoutPathFilename);
                     result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
                 } else {

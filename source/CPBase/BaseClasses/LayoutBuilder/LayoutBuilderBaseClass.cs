@@ -5,10 +5,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// LayoutBuilders create the html for common Admin UI cases.
     /// They must be implemented 2 ways, first called by the page during the initial page load, and second called by the ajax refresh methods.
     /// Both methods return the exact same html, but the javascript that calls the ajax methods selectively replaces the important content.
-    /// Set the constructor arguments baseUrl and baseAjaxUrl to manage these calls.
-    /// baseUrl is the url of the initial page load and is used as the base url for links included on the page.
-    /// It is set during the constructor, and should be read from the proproperty when used because when for example, the initial page might be /admin?srcViewId=10.
-    /// baseAjaxUrl is the url to an ajax method that just returns the html for this form.
     /// </summary>
     public abstract class LayoutBuilderBaseClass(CPBaseClass cp) {
         public CPBaseClass cp { get; set; } = cp;
@@ -314,9 +310,9 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// 
+        /// deprecated. Instead use cp.adminUI.getPortalFeatureLink()
         /// </summary>
-        [Obsolete("Deprecated, use callbackAddonGuid", false)] public abstract string baseUrl { get; }
+        [Obsolete("deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public abstract string baseUrl { get; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
