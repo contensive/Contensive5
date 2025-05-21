@@ -1577,16 +1577,15 @@
                                     </div>
                                 </li>
                                 {{#siteWarningCount}}
-                                <li class="nav-item dropdown text-center  mx-1">
-                                    <a href="{{siteWarningLink}}" class=" position-relative nav-link ">
-                                        <i class="fas fa-bell fa-fw"></i>
-                                        <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
-                                            <span class="visually-hidden">New alerts</span>
-                                        </span>
-                                        <br><small>Warnings</small>
-                                    </a>
-                                </li>
-                                {{/siteWarningCount}}
+				<li class="nav-item dropdown text-center my-0">
+					<div class="">
+						<a href="{{siteWarningLink}}" class="warn-icon nav-link ">
+							<i class="fas fa-bell warn-icon-badge"></i>
+							<br><small>Warnings</small>
+						</a>
+					</div>
+				</li>
+				{{/siteWarningCount}}
                         
                                 {{#categoryList}}
                                 <li class="nav-item dropdown text-center mx-1">
