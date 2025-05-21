@@ -730,7 +730,7 @@ namespace Contensive.Processor.Controllers {
                             DateLastAccessed = file.LastModified,
                             DateLastModified = file.LastModified,
                             Name = fileName,
-                            Size = file.Size
+                            Size = file.Size ?? 0
                         });
 
                     }
@@ -2083,7 +2083,7 @@ namespace Contensive.Processor.Controllers {
                             DateLastAccessed = s3File.LastModified,
                             DateLastModified = s3File.LastModified,
                             Name = fileName,
-                            Size = s3File.Size
+                            Size = s3File.Size ?? 0
                         };
                     }
                 };
