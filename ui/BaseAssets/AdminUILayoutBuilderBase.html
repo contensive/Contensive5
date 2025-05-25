@@ -726,9 +726,9 @@
 	<div id="js-afwFormContent">
 		<div class="{{#includeBodyColor}} bg-transparent {{/includeBodyColor}} container-fluid mt-3">		
 				
-			<div class="{{#includeBodyPadding}} {{/includeBodyPadding}}">
+			<div class=" border bg-white rounded-2 p-3 shadow-sm {{#includeBodyPadding}} {{/includeBodyPadding}}">
 				<div class="d-flex justify-content-between align-items-center mb-3 border-bottom">
-					{{#title}}<h2 class="h4">{{{title}}}</h2>{{/title}}
+					{{#title}}<h2 class="h4 m-0">{{{title}}}</h2>{{/title}}
 					{{#buttonList}}<div class="ms-auto mb-2">{{{buttonList}}}</div>{{/buttonList}}	
 				</div>
 				<div class="mb-3 ">
@@ -751,8 +751,9 @@
 					{{/htmlLeftOfBody}}
 					{{#htmlAfterBody}}<div class=\"afwBeforeHtml\">{{{htmlAfterBody}}}</div>{{/htmlAfterBody}}
 				</div>
+				{{#buttonList}}<div class="border-top pt-2 d-flex justify-content-end">{{{buttonList}}}</div>{{/buttonList}}
 			</div>
-			{{#buttonList}}<div class="border-top pt-2 d-flex justify-content-end">{{{buttonList}}}</div>{{/buttonList}}
+			
 		</div>
 	</div>
 </div>
