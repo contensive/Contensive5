@@ -54,99 +54,104 @@ namespace Contensive.Processor.Controllers {
         /// <param name="userConfigWidget"></param>
         /// <returns></returns>
         public static DashboardWidgetViewModel buildDashboardWidgetView(CPBaseClass cp, DashboardWidgetUserConfigModel userConfigWidget) {
-            //
-            // -- create the widget view model
             DashboardWidgetViewModel result = new();
-            string widgetAddonResultJson = "";
-            //
-            // -- if addonGuid not valid, default to htmlContent with no content. Used for add-template
-            int widgetType = 0;
-            if (userConfigWidget.widgetHtmlId == "newWidgetTemplate") {
-                //
-                // -- add widget case, create an htmlContent widtget with empty content
-                widgetType = (int)WidgetTypeEnum.htmlContent;
-                widgetAddonResultJson = cp.JSON.Serialize(new DashboardWidgetHtmlModel() {
-                    widgetHtmlId = userConfigWidget.widgetHtmlId,
-                    widgetName = "Add Widget",
-                    width = 1,
-                    refreshSeconds = 0,
-                    widgetSmall = true,
-                    filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>(),
-                    htmlContent = "",
-                    isNewWidgetTemplate = true,
-                    url = "",
-                    widgetType = WidgetTypeEnum.htmlContent
-                });
-            } else if (string.IsNullOrEmpty(userConfigWidget.addonGuid)) {
-                //
-                // -- empty guid
-                return result;
-            } else {
-                //
-                // -- execute the widget addon and populate the result from the addon
-                // -- the result is a json string that is deserialized into the WidgetBaseModel
-                cp.Doc.SetProperty("widgetFilter", userConfigWidget.filterValue);
-                widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
-                if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
-                var addonResultJObj = Newtonsoft.Json.Linq.JObject.Parse(widgetAddonResultJson);
-                widgetType = (int)addonResultJObj["widgetType"];
-            }
             try {
                 //
-                // -- populate the type-dependent properties
-                if (widgetType == (int)WidgetTypeEnum.htmlContent) {
+                // -- create the widget view model
+                string widgetAddonResultJson = "";
+                //
+                // -- if addonGuid not valid, default to htmlContent with no content. Used for add-template
+                int widgetType = 0;
+                if (userConfigWidget.widgetHtmlId == "newWidgetTemplate") {
                     //
-                    // -- html content provided by the addon
-                    DashboardWidgetHtmlModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetHtmlModel>(widgetAddonResultJson);
-                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
-                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
-                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
-                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetHtmlContentLayoutGuid, Constants.dashboardWidgetHtmlContentLayoutName, Constants.dashboardWidgetHtmlContentLayoutPathFilename);
-                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (widgetType == (int)WidgetTypeEnum.number) {
+                    // -- add widget case, create an htmlContent widtget with empty content
+                    widgetType = (int)WidgetTypeEnum.htmlContent;
+                    widgetAddonResultJson = cp.JSON.Serialize(new DashboardWidgetHtmlModel() {
+                        widgetHtmlId = userConfigWidget.widgetHtmlId,
+                        widgetName = "Add Widget",
+                        width = 1,
+                        refreshSeconds = 0,
+                        widgetSmall = true,
+                        filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>(),
+                        htmlContent = "",
+                        isNewWidgetTemplate = true,
+                        url = "",
+                        widgetType = WidgetTypeEnum.htmlContent
+                    });
+                } else if (string.IsNullOrEmpty(userConfigWidget.addonGuid)) {
                     //
-                    // -- number widget
-                    DashboardWidgetNumberModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetNumberModel>(widgetAddonResultJson);
-                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
-                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
-                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
-                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetNumberLayoutGuid, Constants.dashboardWidgetNumberLayoutName, Constants.dashboardWidgetNumberLayoutPathFilename);
-                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (widgetType == (int)WidgetTypeEnum.pie) {
-                    //
-                    // -- pie widget
-                    DashboardWidgetPieChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetPieChartModel>(widgetAddonResultJson);
-                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
-                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
-                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
-                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetPieChartLayoutGuid, Constants.dashboardWidgetPieChartLayoutName, Constants.dashboardWidgetPieChartLayoutPathFilename);
-                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (widgetType == (int)WidgetTypeEnum.bar) {
-                    //
-                    // -- bar widget
-                    DashboardWidgetBarChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetBarChartModel>(widgetAddonResultJson);
-                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
-                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
-                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
-                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetBarChartLayoutGuid, Constants.dashboardWidgetBarChartLayoutName, Constants.dashboardWidgetBarChartLayoutPathFilename);
-                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
-                } else if (widgetType == (int)WidgetTypeEnum.line) {
-                    //
-                    // -- line widget
-                    DashboardWidgetLineChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetLineChartModel>(widgetAddonResultJson);
-                    widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
-                    widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
-                    widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
-                    var layout = cp.Layout.GetLayout(Constants.dashboardWidgetLineChartLayoutGuid, Constants.dashboardWidgetLineChartLayoutName, Constants.dashboardWidgetLineChartLayoutPathFilename);
-                    result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                    // -- empty guid
+                    return result;
                 } else {
                     //
-                    // -- future growth
-                    result.htmlContent = "";
+                    // -- execute the widget addon and populate the result from the addon
+                    // -- the result is a json string that is deserialized into the WidgetBaseModel
+                    cp.Doc.SetProperty("widgetFilter", userConfigWidget.filterValue);
+                    widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
+                    if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
+                    var addonResultJObj = Newtonsoft.Json.Linq.JObject.Parse(widgetAddonResultJson);
+                    widgetType = (int)addonResultJObj["widgetType"];
                 }
-                return result;
-            } catch (Exception) {
-                cp.Site.ErrorReport($"Error deserializing widget data for widget {userConfigWidget.addonGuid}");
+                try {
+                    //
+                    // -- populate the type-dependent properties
+                    if (widgetType == (int)WidgetTypeEnum.htmlContent) {
+                        //
+                        // -- html content provided by the addon
+                        DashboardWidgetHtmlModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetHtmlModel>(widgetAddonResultJson);
+                        widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                        widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                        widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        var layout = cp.Layout.GetLayout(Constants.dashboardWidgetHtmlContentLayoutGuid, Constants.dashboardWidgetHtmlContentLayoutName, Constants.dashboardWidgetHtmlContentLayoutPathFilename);
+                        result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                    } else if (widgetType == (int)WidgetTypeEnum.number) {
+                        //
+                        // -- number widget
+                        DashboardWidgetNumberModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetNumberModel>(widgetAddonResultJson);
+                        widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                        widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                        widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        var layout = cp.Layout.GetLayout(Constants.dashboardWidgetNumberLayoutGuid, Constants.dashboardWidgetNumberLayoutName, Constants.dashboardWidgetNumberLayoutPathFilename);
+                        result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                    } else if (widgetType == (int)WidgetTypeEnum.pie) {
+                        //
+                        // -- pie widget
+                        DashboardWidgetPieChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetPieChartModel>(widgetAddonResultJson);
+                        widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                        widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                        widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        var layout = cp.Layout.GetLayout(Constants.dashboardWidgetPieChartLayoutGuid, Constants.dashboardWidgetPieChartLayoutName, Constants.dashboardWidgetPieChartLayoutPathFilename);
+                        result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                    } else if (widgetType == (int)WidgetTypeEnum.bar) {
+                        //
+                        // -- bar widget
+                        DashboardWidgetBarChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetBarChartModel>(widgetAddonResultJson);
+                        widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                        widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                        widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        var layout = cp.Layout.GetLayout(Constants.dashboardWidgetBarChartLayoutGuid, Constants.dashboardWidgetBarChartLayoutName, Constants.dashboardWidgetBarChartLayoutPathFilename);
+                        result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                    } else if (widgetType == (int)WidgetTypeEnum.line) {
+                        //
+                        // -- line widget
+                        DashboardWidgetLineChartModel widgetAddonResult = cp.JSON.Deserialize<DashboardWidgetLineChartModel>(widgetAddonResultJson);
+                        widgetAddonResult.widgetHtmlId = userConfigWidget.widgetHtmlId;
+                        widgetAddonResult.addonGuid = userConfigWidget.addonGuid;
+                        widgetAddonResult.widgetSmall = widgetAddonResult.width < 2;
+                        var layout = cp.Layout.GetLayout(Constants.dashboardWidgetLineChartLayoutGuid, Constants.dashboardWidgetLineChartLayoutName, Constants.dashboardWidgetLineChartLayoutPathFilename);
+                        result.htmlContent = cp.Mustache.Render(layout, widgetAddonResult);
+                    } else {
+                        //
+                        // -- future growth
+                        result.htmlContent = "";
+                    }
+                    return result;
+                } catch (Exception) {
+                    cp.Site.ErrorReport($"Error deserializing widget data for widget {userConfigWidget.addonGuid}");
+                    return result;
+                }
+            } catch (Exception ex0) {
+                cp.Site.ErrorReport(ex0, $"Error in buildDashboardWidgetView");
                 return result;
             }
         }

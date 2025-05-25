@@ -74,6 +74,13 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                 //
                 // -- Add Nav items
                 PortalBuilderClass portalBuilder = new PortalBuilderClass();
+                if (portalData.defaultFeature==null) {
+                    //
+                    // -- if no default feature, add'overview' to the nav and link to no feature, which will display dashboard
+                    portalBuilder.addNav();
+                    portalBuilder.navCaption = "Overview";
+                    portalBuilder.navLink = CP.AdminUI.getPortalFeatureLink(portalData.guid, "");
+                }
                 foreach (KeyValuePair<string, PortalDataFeatureModel> kvp in portalData.featureList) {
                     PortalDataFeatureModel feature = kvp.Value;
                     if (feature.parentFeatureId == 0) {
