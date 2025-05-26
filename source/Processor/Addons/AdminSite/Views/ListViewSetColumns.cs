@@ -325,7 +325,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     InheritedFieldCount = InheritedFieldCount + 1;
                                 }
                                 int ColumnPtr = 0;
-                                string link = "?" + core.doc.refreshQueryString + "&FieldName=" + HtmlController.encodeHtml(field.nameLc) + "&fi=" + fieldId + "&dtcn=" + ColumnPtr + "&" + RequestNameAdminSubForm + "=" + AdminFormIndex_SubFormSetColumns;
+                                string link = "?" + core.doc.refreshQueryString + "&FieldName=" + HtmlController.encodeHtml(field.nameLc) + "&fi=" + fieldId + "&dtcn=" + ColumnPtr + "&" + RequestNameAdminSubForm + "=" + AdminFormList_SetColumns;
                                 Stream.add("<td width=\"" + ColumnWidth + "%\" valign=\"top\" align=\"left\">");
                                 Stream.add(HtmlController.div(AdminUIController.getDeleteLink(link + "&dta=" + ToolsActionRemoveField), "text-center"));
                                 Stream.add(HtmlController.div(AdminUIController.getArrowRightLink(link + "&dta=" + ToolsActionMoveFieldRight), "text-center"));
@@ -423,7 +423,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 } else {
                                     //
                                     // can be used as column header
-                                    string link = "?" + core.doc.refreshQueryString + "&fi=" + field.id + "&dta=" + ToolsActionAddField + "&" + RequestNameAddFieldId + "=" + field.id + "&" + RequestNameAdminSubForm + "=" + AdminFormIndex_SubFormSetColumns;
+                                    string link = "?" + core.doc.refreshQueryString + "&fi=" + field.id + "&dta=" + ToolsActionAddField + "&" + RequestNameAddFieldId + "=" + field.id + "&" + RequestNameAdminSubForm + "=" + AdminFormList_SetColumns;
                                     validFields.Append(HtmlController.div(AdminUIController.getPlusLink(link, "&nbsp;" + field.caption)));
                                 }
                             }
@@ -456,7 +456,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + Stream.text
                     + HtmlController.inputHidden("cid", adminContent.id.ToString())
                     + HtmlController.inputHidden(rnAdminForm, "1")
-                    + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormIndex_SubFormSetColumns)
+                    + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormList_SetColumns)
                     + "";
                 //
                 // -- assemble form

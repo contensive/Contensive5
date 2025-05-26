@@ -54,18 +54,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     return core.webServer.redirect("?", "CancelAll button pressed on Index Export");
                 } else if (Button != ButtonCancel) {
                     //
-                    // get content access rights
-                    //
-                    var userContentPermissions = PermissionController.getUserContentPermissions(core, adminData.adminContent);
-                    if (!userContentPermissions.allowEdit) {
-                        //
-                        // You must be a content manager of this content to use this tool
-                        //
-                        Content = ""
-                            + "<p>You must be a content manager of " + adminData.adminContent.name + " to use this tool. Hit Cancel to return to main admin page.</p>"
-                            + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormIndex_SubFormExport) + "";
-                        ButtonCommaList = ButtonCancelAll;
-                    } else {
+                    {
                         IsRecordLimitSet = false;
                         if (string.IsNullOrEmpty(Button)) {
                             //
@@ -129,7 +118,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 Content = ""
                                     + "<p>This selection has no records. Hit Cancel to return to the " + adminData.adminContent.name + " list page.</p>"
-                                    + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormIndex_SubFormExport) + "";
+                                    + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormList_Export) + "";
                                 ButtonCommaList = ButtonCancel;
                             } else if (Button == ButtonRequestDownload) {
                                 //
@@ -153,7 +142,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 //
                                 Content = ""
                                     + "<p>Your export has been requested and will be available shortly in the <a href=\"?addonGuid={55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}\">Download Manager</a>. Hit Cancel to return to the " + adminData.adminContent.name + " list page.</p>"
-                                    + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormIndex_SubFormExport) + "";
+                                    + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormList_Export) + "";
                                 //
                                 ButtonCommaList = ButtonCancel;
                             } else {
@@ -184,7 +173,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                                     //+ cr2 + ".exportTblCaption {width:100px;}"
                                     //+ cr2 + ".exportTblInput {}"
                                     //+ "\r</style>"
-                                    + Content + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormIndex_SubFormExport) + "";
+                                    + Content + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormList_Export) + "";
                                 ButtonCommaList = ButtonCancel + "," + ButtonRequestDownload;
                                 if (core.session.isAuthenticatedDeveloper()) {
                                     ButtonCommaList = ButtonCommaList + "," + ButtonRefresh;

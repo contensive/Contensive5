@@ -83,7 +83,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 buttonsRight += getButtonDanger(ButtonDelete, JSOnClick, !info.allowDelete);
                 if (core.session.isAuthenticatedAdmin()) {
-                    buttonsRight += getButtonDanger(ButtonModifyEditForm, "window.location='?af=105&button=select&contentid=" + info.contentId + "';return false;", info.contentId.Equals(0));
+                    buttonsRight += getButtonDanger(ButtonEditModifyForm, "window.location='?af=105&button=select&contentid=" + info.contentId + "';return false;", info.contentId.Equals(0));
                 }
                 //
                 logger.Trace($"{core.logCommonMessage},getButtonBarForEdit, exit");
@@ -215,6 +215,8 @@ namespace Contensive.Processor.Controllers {
             } else {
                 RightButtons += AdminUIController.getButtonDanger(ButtonDelete, "", true);
             }
+            RightButtons += AdminUIController.getButtonPrimary(ButtonListModifyForm);
+            RightButtons += AdminUIController.getButtonPrimary(ButtonListExport);
             return getSectionButtonBar(core, LeftButtons, RightButtons);
         }
         //

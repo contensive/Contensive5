@@ -316,7 +316,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 Stream.add(Content);
                 Stream.add(ButtonBar);
                 Stream.add("<input type=hidden name=fieldcnt VALUE=" + FieldCnt + ">");
-                Stream.add("<input type=hidden name=" + RequestNameAdminSubForm + " VALUE=" + AdminFormIndex_SubFormAdvancedSearch + ">");
+                Stream.add("<input type=hidden name=" + RequestNameAdminSubForm + " VALUE=" + AdminFormList_AdvancedSearch + ">");
                 returnForm = HtmlController.form(core, Stream.text);
                 core.html.addTitle(adminData.adminContent.name + " Advanced Search", "admin advanced search" );
             } catch (Exception ex) {

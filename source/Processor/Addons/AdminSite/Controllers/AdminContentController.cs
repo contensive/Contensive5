@@ -262,6 +262,27 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 content = ListView.get(cp, cp.core, adminData);
                                 break;
                             }
+                        case AdminFormList_Export: {
+                                content = ListViewExport.get(cp.core, adminData);
+                                if(string.IsNullOrEmpty(content)) {
+                                    content = ListView.get(cp, cp.core, adminData);
+                                }
+                                break;
+                            }
+                        case AdminFormList_SetColumns: {
+                                content = ListViewSetColumns.get(cp, cp.core, adminData);
+                                if (string.IsNullOrEmpty(content)) {
+                                    content = ListView.get(cp, cp.core, adminData);
+                                }
+                                break;
+                            }
+                        case AdminFormList_AdvancedSearch: {
+                                content = ListViewAdvancedSearch.get(cp, cp.core, adminData);
+                                if (string.IsNullOrEmpty(content)) {
+                                    content = ListView.get(cp, cp.core, adminData);
+                                }
+                                break;
+                            }
                         case AdminFormEdit: {
                                 content = EditView.get(cp.core, adminData);
                                 break;
@@ -302,18 +323,18 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //        content = DefineContentFieldsFromTableClass.get(cp.core);
                         //        break;
                         //    }
-                        //case AdminFormToolCreateContentDefinition: {
-                        //        content = CreateContentDefinitionClass.get(cp.core);
-                        //        break;
-                        //    }
-                        //case AdminFormToolConfigureEdit: {
-                        //        content = ConfigureEditClass.get(cp);
-                        //        break;
-                        //    }
-                        //case AdminFormToolConfigureListing: {
-                        //        content = ConfigureListClass.get(cp.core);
-                        //        break;
-                        //    }
+                        case AdminFormToolCreateContentDefinition: {
+                                content = CreateContentDefinitionClass.get(cp.core);
+                                break;
+                            }
+                        case AdminFormToolConfigureEdit: {
+                                content = ConfigureEditClass.get(cp);
+                                break;
+                            }
+                        case AdminFormToolConfigureListing: {
+                                content = ConfigureListClass.get(cp.core);
+                                break;
+                            }
                         //case AdminFormClearCache: {
                         //        content = cp.core.addon.execute("{7B5B8150-62BE-40F4-A66A-7CC74D99BA76}", new CPUtilsBaseClass.addonExecuteContext {
                         //            addonType = CPUtilsBaseClass.addonContext.ContextAdmin

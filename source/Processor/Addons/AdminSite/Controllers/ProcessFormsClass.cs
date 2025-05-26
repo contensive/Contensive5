@@ -67,7 +67,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //        break;
                         //    }
                         case AdminFormIndex: {
-
                                 switch (adminData.srcFormButton) {
                                     case ButtonCancel: {
                                             adminData.admin_Action = Constants.AdminActionNop;
@@ -86,13 +85,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             adminData.dstFormId = AdminFormEdit;
                                             break;
                                         }
-
                                     case ButtonFind: {
                                             adminData.admin_Action = Constants.AdminActionFind;
                                             adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
-
                                     case ButtonFirst: {
                                             adminData.listViewRecordTop = 0;
                                             adminData.dstFormId = adminData.srcFormId;
@@ -107,16 +104,29 @@ namespace Contensive.Processor.Addons.AdminSite {
                                             adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
-
                                     case ButtonNext: {
                                             adminData.admin_Action = Constants.AdminActionNext;
                                             adminData.dstFormId = adminData.srcFormId;
                                             break;
                                         }
-
                                     case ButtonDelete: {
                                             adminData.admin_Action = Constants.AdminActionDeleteRows;
                                             adminData.dstFormId = adminData.srcFormId;
+                                            break;
+                                        }
+                                    case ButtonListModifyForm: {
+                                            adminData.admin_Action = Constants.AdminActionNop;
+                                            adminData.dstFormId = AdminFormList_SetColumns;
+                                            break;
+                                        }
+                                    case ButtonListExport: {
+                                            adminData.admin_Action = Constants.AdminActionNop;
+                                            adminData.dstFormId = AdminFormList_Export;
+                                            break;
+                                        }
+                                    case ButtonListAdvancedSearch: {
+                                            adminData.admin_Action = Constants.AdminActionNop;
+                                            adminData.dstFormId = AdminFormList_AdvancedSearch;
                                             break;
                                         }
                                     default: {

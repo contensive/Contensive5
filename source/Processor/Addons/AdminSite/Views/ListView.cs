@@ -61,33 +61,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     // get access rights
                     var userContentPermissions = PermissionController.getUserContentPermissions(core, adminData.adminContent);
                     //
-                    // detemine which subform to disaply
-                    string Copy = "";
-                    int SubForm = core.docProperties.getInteger(RequestNameAdminSubForm);
-                    if (SubForm != 0) {
-                        switch (SubForm) {
-                            case AdminFormIndex_SubFormExport: {
-                                    Copy = ListViewExport.get(core, adminData);
-                                    break;
-                                }
-                            case AdminFormIndex_SubFormSetColumns: {
-                                    Copy = ListViewSetColumns.get(cp, core, adminData);
-                                    break;
-                                }
-                            case AdminFormIndex_SubFormAdvancedSearch: {
-                                    Copy = ListViewAdvancedSearch.get(cp, core, adminData);
-                                    break;
-                                }
-                            default: {
-                                    // empty
-                                    break;
-                                }
-                        }
-                    }
-                    Stream.add(Copy);
-                    if (string.IsNullOrEmpty(Copy)) {
-                        //
-                        // If subforms return empty, go to parent form
+                    {
                         //
                         // -- Load Index page customizations
                         GridConfigClass gridConfig = new(core, adminData);
@@ -1432,7 +1406,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Advanced Search Link
                 //
                 QS = RQS;
-                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormIndex_SubFormAdvancedSearch, true);
+                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_AdvancedSearch, true);
                 Link = "/" + core.appConfig.adminRoute + "?" + QS;
                 returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Advanced&nbsp;Search</a></div>";
                 //
@@ -1441,7 +1415,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Set Column Link
                 //
                 QS = RQS;
-                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormIndex_SubFormSetColumns, true);
+                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_SetColumns, true);
                 Link = "/" + core.appConfig.adminRoute + "?" + QS;
                 returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Set&nbsp;Columns</a></div>";
                 //
@@ -1459,7 +1433,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 // Export Link
                 //
                 QS = RQS;
-                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormIndex_SubFormExport, true);
+                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_Export, true);
                 Link = "/" + core.appConfig.adminRoute + "?" + QS;
                 returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Export</a></div>";
                 //

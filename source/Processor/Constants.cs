@@ -644,7 +644,11 @@ namespace Contensive.Processor {
         internal const string ButtonEnable = " Enable ";
         internal const string ButtonDisable = " Disable ";
         internal const string ButtonMarkReviewed = " Mark Reviewed ";
-        internal const string ButtonModifyEditForm = " Modify Form ";
+        internal const string ButtonEditModifyForm = " Modify Form ";
+        //
+        internal const string ButtonListModifyForm = " Set Columns ";
+        internal const string ButtonListExport = " Export ";
+        internal const string ButtonListAdvancedSearch = " Search ";
         //
         // ---------------------------------------------------------------------------------------------------------------------------
         //   member actions
@@ -707,18 +711,18 @@ namespace Contensive.Processor {
         //internal const int AdminFormCustomReports = 36;
         //internal const int AdminFormFormWizard = 37;
         //internal const int AdminFormLegacyAddonManager = 38;
-        internal const int AdminFormIndex_SubFormAdvancedSearch = 39;
-        internal const int AdminFormIndex_SubFormSetColumns = 40;
+        internal const int AdminFormList_AdvancedSearch = 39;
+        internal const int AdminFormList_SetColumns = 40;
         //internal const int AdminFormSecurityControl = 42;
         //internal const int AdminFormEditorConfig = 43;
         //internal const int AdminFormClearCache = 45;
-        internal const int AdminFormIndex_SubFormExport = 48;
+        internal const int AdminFormList_Export = 48;
         //
         // ----- AdminFormTools (11,100-199)
         //
-        //internal const int AdminFormToolCreateContentDefinition = 101;
-        //internal const int AdminFormToolConfigureListing = 104;
-        //internal const int AdminFormToolConfigureEdit = 105;
+        internal const int AdminFormToolCreateContentDefinition = 101;
+        internal const int AdminFormToolConfigureListing = 104;
+        internal const int AdminFormToolConfigureEdit = 105;
         //internal const int AdminFormToolManualQuery = 106;
         //internal const int AdminFormToolDefineContentFieldsFromTable = 110;
         //internal const int AdminFormToolSyncTables = 114;
