@@ -11,6 +11,7 @@ using Contensive.Models.Db;
 using Contensive.BaseModels;
 using NLog;
 using Contensive.Processor.Controllers.EditControls;
+using System.Text;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
@@ -40,7 +41,6 @@ namespace Contensive.Processor.Addons.Tools {
             CoreController core = cp.core;
             try {
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
-                Stream.add(AdminUIController.getHeaderTitleDescription("Run Manual Query", "This tool runs an SQL statement on a selected datasource. If there is a result set, the set is printed in a table."));
                 //
                 // Get the members SQL Queue
                 //
@@ -213,12 +213,22 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add(AdminUIController.getToolFormInputRow(core, "Timeout (sec)", AdminUIEditorController.getTextEditor(core, "Timeout", Timeout.ToString())));
                 //
                 // -- assemble form
-                returnHtml = AdminUIController.getToolForm(core, Stream.text, ButtonCancel + "," + ButtonRun);
+                string ButtonList = ButtonCancel + "," + ButtonRun;
+
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Run Manual Query";
+                layout.description = "This tool runs an SQL statement on a selected datasource. If there is a result set, the set is printed in a table.";
+                layout.body = Stream.text;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
-            return returnHtml;
         }
     }
 }

@@ -49,6 +49,14 @@ namespace Contensive.Processor {
         public override LayoutBuilderNameValueBaseClass CreateLayoutBuilderNameValue() {
             return new LayoutBuilder.LayoutBuilderNameValueClass(cp);
         }
+
+        public override LayoutBuilderContentWithTabsBaseClass CreateLayoutBuilderContentWithTabs() {
+            return new LayoutBuilder.LayoutBuilderContentWithTabsClass(cp);
+        }
+
+        //public override LayoutBuilderToolFormBaseClass CreateLayoutBuilderToolForm() {
+        //    return new LayoutBuilder.LayoutBuilderToolform(cp);
+        //}
         //
         // ====================================================================================================
         //

@@ -107,13 +107,21 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add(HtmlController.inputText_Legacy(core, "TableName", TableName, 1, 40, "", false, false, "form-control"));
                 Stream.add("<br><br>");
                 Stream.add("</SPAN>");
-                result = AdminUIController.getToolBody(core, Caption, ButtonList, "", false, false, Description, "", 10, Stream.text);
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = Caption;
+                layout.description = Description;
+                layout.body = Stream.text;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
-            return result;
         }
-        //
     }
 }
 

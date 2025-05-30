@@ -96,6 +96,9 @@
         min-height: 100vh;
     }
     
+    .ccCon .btn {
+        min-width: 100px;
+    }
     
     .ccCon .btn-primary {
         color: #fff;
@@ -1589,27 +1592,26 @@
                                 </li>
                                 {{/siteWarningCount}}
                         
-                                {{#categoryList}}
+                                {{#categoryNavList}}
                                 <li class="nav-item dropdown text-center mx-1">
-                                    <a class="nav-link" href="#" id="navbarDropdown-{{listName}}" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <i class="{{listIcon}} fs-6"></i>
-                                        <br><small>{{listName}}</small>
+                                    <a class="nav-link" href="#" id="navbarDropdown-{{categoryName}}" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="{{categoryIcon}} fs-6"></i>
+                                        <br><small>{{categoryName}}</small>
                                     </a>
-                                    <div class="dropdown-menu dropdown-menu-end shadow topnavSubItems" aria-labelledby="navbarDropdown-{{listName}}">
+                                    <div class="dropdown-menu dropdown-menu-end shadow topnavSubItems" aria-labelledby="navbarDropdown-{{categoryName}}">
                                         <div class="d-lg-flex align-items-start justify-content-start flex-wrap flex-lg-nowrap">
-                                            {{#listCategoryList}}
+                                            {{#categoryNavColumnList}}
                                             <div class="ccNavColumn">
-                                                {{#navCategoryName}}
-                                                <div class="dropdown-header">{{navCategoryName}}</div>
-                                                {{/navCategoryName}}{{#navCategoryItems}}
-                                                <a id="{{navItemDataDragId}}" data-dropid="{{navItemDataDragId}}"  class="{{#navItemDataDragId}}navDrag{{/navItemDataDragId}} dropdown-item" href="{{navItemHref}}" title="{{navItemName}}">{{navItemName}}</a>
-                                                {{/navCategoryItems}}
+                                                {{#categoryNavColumnItemList}}
+                                                    {{#navHeaderName}}<div class="dropdown-header">{{navHeaderName}}</div>{{/navHeaderName}}
+                                                    <a id="{{navItemDataDragId}}" data-dropid="{{navItemDataDragId}}"  class="{{#navItemDataDragId}}navDrag{{/navItemDataDragId}} dropdown-item" href="{{navItemHref}}" title="{{navItemName}}">{{navItemName}}</a>
+                                                {{/categoryNavColumnItemList}}
                                             </div>
-                                            {{/listCategoryList}}
+                                            {{/categoryNavColumnList}}
                                         </div>
                                     </div>
                                 </li>
-                                {{/categoryList}}
+                                {{/categoryNavList}}
                          	
                             </ul>
                     </div>

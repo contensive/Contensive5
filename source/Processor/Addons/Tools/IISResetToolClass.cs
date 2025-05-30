@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Contensive.Models.Db;
 using NLog;
+using System.Text;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
@@ -27,8 +28,7 @@ namespace Contensive.Processor.Addons.Tools {
         //
         public static string get(CoreController core) {
             try {
-                StringBuilderLegacyController result_reset = new StringBuilderLegacyController();
-                result_reset.add(AdminUIController.getHeaderTitleDescription("IIS Reset", "Reset the webserver."));
+                StringBuilderLegacyController stringBuilder = new StringBuilderLegacyController();
                 //
                 // Process the form
                 //
@@ -50,10 +50,20 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 // Display form
                 //
-                return AdminUIController.getToolForm(core, result_reset.text, ButtonCancel + "," + ButtonIISReset);
+                string ButtonList = ButtonCancel + "," + ButtonIISReset;
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "IIS Reset";
+                layout.description = "Reset the webserver.";
+                layout.body = stringBuilder.text;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
-                return string.Empty;
+                throw;
             }
         }
     }

@@ -39,10 +39,6 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 Stream.add("<table border=\"0\" cellpadding=\"11\" cellspacing=\"0\" width=\"100%\">");
                 //
-                Stream.add("<tr><td colspan=\"2\">" + SpanClassAdminNormal);
-                Stream.add("Delete the current content field definitions for this Content Definition, and recreate them from the table referenced by this content.");
-                Stream.add("</SPAN></td></tr>");
-                //
                 Stream.add("<tr>");
                 Stream.add("<TD>" + SpanClassAdminNormal + "Content Name</SPAN></td>");
                 Stream.add("<TD><Select name=\"ContentName\">");
@@ -63,13 +59,8 @@ namespace Contensive.Processor.Addons.Tools {
                 Stream.add("</tr>");
                 //
                 Stream.add("<tr>");
-                Stream.add("<TD>&nbsp;</td>");
-                Stream.add("<TD>" + HtmlController.inputSubmit(ButtonCreateFields) + "</td>");
-                Stream.add("</tr>");
-                //
-                Stream.add("<tr>");
-                Stream.add("<td width=\"150\"><IMG alt=\"\" src=\"" + cdnPrefix + "Images/spacer.gif\" width=\"150\" height=\"1\"></td>");
-                Stream.add("<td width=\"99%\"><IMG alt=\"\" src=\"" + cdnPrefix + "Images/spacer.gif\" width=\"100%\" height=\"1\"></td>");
+                Stream.add("<td width=\"150\"><IMG alt=\"\" src=\"/baseassets/spacer.gif\" width=\"150\" height=\"1\"></td>");
+                Stream.add("<td width=\"99%\"><IMG alt=\"\" src=\"/baseassets/spacer.gif\" width=\"100%\" height=\"1\"></td>");
                 Stream.add("</tr>");
                 Stream.add("</TABLE>");
                 Stream.add("</form>");
@@ -92,8 +83,17 @@ namespace Contensive.Processor.Addons.Tools {
                         }
                     }
                 }
-                string ButtonList = "";
-                result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
+                string ButtonList = ButtonCreateFields;
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Build Content Metadata From Db Table";
+                layout.description = "Delete the current content field definitions for this Content Definition, and recreate them from the table referenced by this content.";
+                layout.body = Stream.text;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }

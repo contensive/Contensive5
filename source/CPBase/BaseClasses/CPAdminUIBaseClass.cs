@@ -37,6 +37,14 @@ namespace Contensive.BaseClasses {
         public abstract LayoutBuilder.LayoutBuilderNameValueBaseClass CreateLayoutBuilderNameValue();
         //
         //====================================================================================================
+        //
+        public abstract LayoutBuilder.LayoutBuilderContentWithTabsBaseClass CreateLayoutBuilderContentWithTabs();
+        //
+        //====================================================================================================
+        //
+        //public abstract LayoutBuilder.LayoutBuilderToolFormBaseClass CreateLayoutBuilderToolForm();
+        //
+        //====================================================================================================
         /// <summary>
         /// Create an html row that includes a caption, editor and optional help content
         /// </summary>

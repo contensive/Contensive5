@@ -51,9 +51,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                 bool normalizeSaveLoad = core.docProperties.getBoolean("NeedToReloadConfig");
                 bool AllowContentAutoLoad = false;
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
-                string Title = "Set Columns: " + adminContent.name;
-                string Description = "Use the icons to add, remove and modify your personal column prefernces for this content (" + adminContent.name + "). Hit OK when complete. Hit Reset to restore your column preferences for this content to the site's default column preferences.";
-                Stream.add(AdminUIController.getHeaderTitleDescription(Title, Description));
+
+                BaseClasses.LayoutBuilder.LayoutBuilderBaseClass layout = cp.AdminUI.CreateLayoutBuilder();
+
+                string title = "Set Columns: " + adminContent.name;
+                core.html.addTitle(title, "admin list view set columns");
+                layout.title = title;
+                layout.description = "Use the icons to add, remove and modify your personal column prefernces for this content (" + adminContent.name + "). Hit OK when complete. Hit Reset to restore your column preferences for this content to the site's default column preferences.";
                 //
                 // -----------------------------------------------------------------------------------------------------------------------------------
                 // Process actions
@@ -458,10 +462,13 @@ namespace Contensive.Processor.Addons.AdminSite {
                     + HtmlController.inputHidden(rnAdminForm, "1")
                     + HtmlController.inputHidden(RequestNameAdminSubForm, AdminFormList_SetColumns)
                     + "";
+
+                layout.body = Content;
+                layout.addFormButton(ButtonOK);
+                layout.addFormButton(ButtonReset);
                 //
-                // -- assemble form
-                result = AdminUIController.getToolForm(core, Content, ButtonOK + "," + ButtonReset);
-                core.html.addTitle(Title, "admin list view set columns");
+                result = layout.getHtml();
+                return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }

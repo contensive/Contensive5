@@ -38,9 +38,17 @@ namespace Contensive.Processor.Addons.Tools {
                     instanceGuid = "-2",
                     errorContextMessage = "executing File Manager addon within Content File Manager"
                 });
-                string Description = "Manage files and folders within the virtual content file area.";
                 string ButtonList = ButtonApply + "," + ButtonCancel;
-                result = AdminUIController.getToolBody(core, "Content File Manager", ButtonList, "", false, false, Description, "", 0, Content);
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Content File Manager";
+                layout.description = "Manage files and folders within the virtual content file area.";
+                layout.body = Content;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }

@@ -9,6 +9,8 @@ using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using NLog;
 using Contensive.Processor.Controllers.EditControls;
+using Contensive.BaseClasses.LayoutBuilder;
+using NLog.Layouts;
 //
 namespace Contensive.Processor.Addons.Tools {
     //
@@ -36,6 +38,8 @@ namespace Contensive.Processor.Addons.Tools {
         public static string get(CPClass cp) {
             CoreController core = cp.core;
             try {
+                LayoutBuilderBaseClass layout = cp.AdminUI.CreateLayoutBuilder();
+                //
                 KeyPtrController Index = new KeyPtrController();
                 int ContentId = cp.Doc.GetInteger(RequestNameToolContentId);
                 var contentMetadata = ContentMetadataModel.create(core, ContentId, true, true);
@@ -49,6 +53,27 @@ namespace Contensive.Processor.Addons.Tools {
                     //
                     if (!string.IsNullOrEmpty(ToolButton)) {
                         bool AllowContentAutoLoad = false;
+                        if (ToolButton == "Edit Content") {
+                            //
+                            // Edit Content button, go to edit content
+                            //
+                            cp.Response.Redirect("?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4");
+                            return "";
+                        }
+                        if (ToolButton == "Edit Records") {
+                            //
+                            // Edit Content button, go to edit content
+                            //
+                            cp.Response.Redirect("?cid=" + ContentId);
+                            return "";
+                        }
+                        if (ToolButton == "Select Different Fields") {
+                            //
+                            // Edit Content button, go to edit content
+                            //
+                            cp.Response.Redirect("?af=105");
+                            return "";
+                        }
                         if (ToolButton != ButtonCancel) {
                             //
                             // Save the form changes
@@ -215,34 +240,37 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 //
                 //   Print Output
-                string description = ""
-                    + Controllers.HtmlController.p( "Use this tool to add or modify content definition fields and the underlying sql table fields.")
-                    + ((ContentId.Equals(0)) ? "" : ""
-                        + Controllers.HtmlController.ul(""
-                            + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Content", "?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                            + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Records", "?cid=" + ContentId, "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                            + Controllers.HtmlController.li(Controllers.HtmlController.a("Select Different Fields", "?af=105", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
-                            , "nav")
-                    );
+                //string description = ""
+                //    + Controllers.HtmlController.p("Use this tool to add or modify content definition fields and the underlying sql table fields.");
+                //    //+ ((ContentId.Equals(0)) ? "" : ""
+                //    //    + Controllers.HtmlController.ul(""
+                //    //        + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Content", "?aa=0&cid=3&id=" + ContentId + "&tx=&ad=0&asf=1&af=4", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                //    //        + Controllers.HtmlController.li(Controllers.HtmlController.a("Edit Records", "?cid=" + ContentId, "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                //    //        + Controllers.HtmlController.li(Controllers.HtmlController.a("Select Different Fields", "?af=105", "nav-link btn btn-primary"), "nav-item mr-1 me-1")
+                //    //        , "nav")
+                //    //);
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
-                Stream.add(AdminUIController.getHeaderTitleDescription("Edit Table Metadata", description));
+                //Stream.add(AdminUIController.getHeaderTitleDescription("Edit Table Metadata", description));
                 //
                 // -- status of last operation
-                if (!string.IsNullOrEmpty(StatusMessage)) {
-                    Stream.add(AdminUIController.getToolFormRow(core, "<UL>" + StatusMessage + "</UL>"));
-                }
+                layout.infoMessage = StatusMessage;
+                layout.failMessage = ErrorMessage;
+                //if (!string.IsNullOrEmpty(StatusMessage)) {
+                //    Stream.add(AdminUIController.getToolFormRow(core, "<UL>" + StatusMessage + "</UL>"));
+                //}
                 //
                 // -- errors with last operations
-                if (!string.IsNullOrEmpty(ErrorMessage)) {
-                    Stream.add(Controllers.HtmlController.div("There was a problem saving these changes" + "<UL>" + ErrorMessage + "</UL>", "ccError"));
-                }
+                //if (!string.IsNullOrEmpty(ErrorMessage)) {
+                //    Stream.add(Controllers.HtmlController.div("There was a problem saving these changes" + "<UL>" + ErrorMessage + "</UL>", "ccError"));
+                //}
                 if (ReloadCDef) {
                     contentMetadata = Processor.Models.Domain.ContentMetadataModel.create(core, ContentId, true, true);
                 }
-                string ButtonList = ButtonCancel + "," + ButtonSelect;
                 if (contentMetadata == null) {
                     //
                     // content tables that have edit forms to Configure
+                    layout.addFormButton(ButtonCancel);
+                    layout.addFormButton(ButtonSelect);
                     bool isEmptyList = false;
                     Stream.add(AdminUIController.getToolFormInputRow(core, "Select a Content Definition to Configure", AdminUIEditorController.getLookupContentEditor(core, RequestNameToolContentId, ContentId, ContentMetadataModel.getContentId(core, "Content"), ref isEmptyList, false, "", "", false, "")));
                 } else {
@@ -250,7 +278,14 @@ namespace Contensive.Processor.Addons.Tools {
                     // Configure edit form
                     Stream.add(Controllers.HtmlController.inputHidden(RequestNameToolContentId, ContentId));
                     Stream.add(core.html.getPanelTop());
-                    ButtonList = ButtonCancel + "," + ButtonSave + "," + ButtonOK + "," + ButtonAdd;
+                    //
+                    layout.addFormButton(ButtonCancel);
+                    layout.addFormButton(ButtonSave);
+                    layout.addFormButton(ButtonOK);
+                    layout.addFormButton(ButtonAdd);
+                    layout.addFormButton("Edit Content");
+                    layout.addFormButton("Edit Records");
+                    layout.addFormButton("Select Different Fields");
                     //
                     // Get a new copy of the content definition
                     //
@@ -532,8 +567,22 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 Stream.add(Controllers.HtmlController.inputHidden("ReloadCDef", ReloadCDef));
                 //
-                // -- assemble form
-                return AdminUIController.getToolForm(core, Stream.text, ButtonList);
+                layout.title = "Edit Table Metadata";
+                layout.description = "Use this tool to add or modify content definition fields and the underlying sql table fields.";
+                //
+                //layout.addFormButton(ButtonCancel);
+                //layout.addFormButton(ButtonSave);
+                //layout.addFormButton(ButtonOK);
+                //layout.addFormButton(ButtonAdd);
+                //layout.addFormButton("Edit Content");
+                //layout.addFormButton("Edit Records");
+                //layout.addFormButton("Select Different Fields");
+                layout.body = Stream.text;
+                //
+                return layout.getHtml();
+                ////
+                //// -- assemble form
+                //return AdminUIController.getToolForm(core, Stream.text, ButtonList);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return toolExceptionMessage;

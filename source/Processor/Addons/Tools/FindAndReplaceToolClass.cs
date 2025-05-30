@@ -33,18 +33,18 @@ namespace Contensive.Processor.Addons.Tools {
             try {
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
                 //
-                Stream.add(AdminUIController.getHeaderTitleDescription("Find and Replace", "This tool runs a find and replace operation on content throughout the site."));
-                //
                 // Process the form
                 //
-                string Button = core.docProperties.getText("button");
+                string button = core.docProperties.getText("button");
+                if(button == ButtonCancel) { return ""; }
+                //
                 bool IsDeveloper = core.session.isAuthenticatedDeveloper();
                 int RowPtr = 0;
                 string CDefList = "";
                 string FindText = "";
                 string ReplaceText = "";
                 string lcName = null;
-                if (Button == ButtonFindAndReplace) {
+                if (button == ButtonFindAndReplace) {
                     int RowCnt = core.docProperties.getInteger("CDefRowCnt");
                     if (RowCnt > 0) {
                         for (RowPtr = 0; RowPtr < RowCnt; RowPtr++) {
@@ -125,11 +125,22 @@ namespace Contensive.Processor.Addons.Tools {
                 }
                 Stream.add(TopHalf + BottomHalf + HtmlController.inputHidden("CDefRowCnt", RowPtr));
                 //
-                result = AdminUIController.getToolForm(core, Stream.text, ButtonCancel + "," + ButtonFindAndReplace);
+                string buttonList = ButtonCancel + "," + ButtonFindAndReplace;
+                string body = Stream.text;
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Find and Replace";
+                layout.description = "This tool runs a find and replace operation on content throughout the site.";
+                layout.body = body;
+                foreach (string button2 in (buttonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button2)) continue;
+                    layout.addFormButton(button2.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
-            return result;
         }
         //
     }

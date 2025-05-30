@@ -31,7 +31,7 @@ namespace Contensive.Processor.Addons.Tools {
         //=============================================================================
         //
         public static string get(CoreController core) {
-            string result = "";
+            string body = "";
             try {
                 bool StatusOK = false;
                 int FieldCount = 0;
@@ -48,14 +48,12 @@ namespace Contensive.Processor.Addons.Tools {
                 string CellData = null;
                 string TableName = "";
                 StringBuilderLegacyController Stream = new StringBuilderLegacyController();
-                string ButtonList = null;
+                string buttonList = null;
                 DataTable RSSchema = null;
                 var tmpList = new List<string> { };
                 DataSourceModel datasource = DataSourceModel.create(core.cpParent, core.docProperties.getInteger("DataSourceID"), ref tmpList);
                 //
-                ButtonList = ButtonCancel + "," + ButtonRun;
-                //
-                Stream.add(AdminUIController.getHeaderTitleDescription("Query Database Schema", "This tool examines the database schema for all tables available."));
+                buttonList = ButtonCancel + "," + ButtonRun;
                 //
                 StatusOK = true;
                 if ((core.docProperties.getText("button")) != ButtonRun) {
@@ -259,11 +257,19 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 Stream.add("</SPAN>");
                 //
-                result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Query Database Schema";
+                layout.description = "This tool examines the database schema for all tables available.";
+                layout.body = body;
+                foreach (string button in (buttonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
-            return result;
+            return body;
         }
         //
     }

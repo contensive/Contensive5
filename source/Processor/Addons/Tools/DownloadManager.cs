@@ -1,6 +1,7 @@
 ﻿
 using System;
 using Contensive.BaseClasses;
+using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Models.Db;
 using Contensive.Processor.Controllers;
 using NLog;
@@ -28,21 +29,18 @@ namespace Contensive.Processor.Addons.AdminSite {
         public static string get(CoreController core) {
             string result = null;
             try {
+                LayoutBuilderBaseClass layout = core.cpParent.AdminUI.CreateLayoutBuilder();
                 //
                 string Button = core.docProperties.getText(RequestNameButton);
                 if (Button == ButtonCancel) {
                     return core.webServer.redirect("/" + core.appConfig.adminRoute, "Downloads, Cancel Button Pressed");
                 }
-                string ButtonListLeft = "";
-                string ButtonListRight = "";
                 string Content = "";
                 //
                 if (!core.session.isAuthenticatedAdmin()) {
                     //
-                    // Must be a developer
-                    //
-                    ButtonListLeft = ButtonCancel;
-                    ButtonListRight = "";
+                    // Must be admin
+                    layout.addFormButton(ButtonCancel);
                     Content = Content + AdminUIController.getFormBodyAdminOnly();
                 } else {
                     int ContentId = core.docProperties.getInteger("ContentID");
@@ -136,7 +134,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                             Cells[RowPointer, 1] = download.name;
                             Cells[RowPointer, 2] = (requestedBy == null) ? "unknown" : requestedBy.name;
                             Cells[RowPointer, 3] = download.dateRequested.ToString();
-                            if ( string.IsNullOrEmpty(download.resultMessage)) {
+                            if (string.IsNullOrEmpty(download.resultMessage)) {
                                 Cells[RowPointer, 4] = "\r\n<div data-id=\"" + download.id + "\" class=\"downloadPending\" id=\"pending" + RowPointer + "\">Pending <img src=\"https://s3.amazonaws.com/cdn.contensive.com/assets/20201227/images/ajax-loader-small.gif\" width=16 height=16></div>";
                             } else if (!string.IsNullOrEmpty(download.filename.filename)) {
                                 Cells[RowPointer, 4] = "<div id=\"pending" + RowPointer + "\">" + LinkPrefix + download.filename.filename + LinkSuffix + "</div>";
@@ -153,24 +151,26 @@ namespace Contensive.Processor.Addons.AdminSite {
                     string Cell = AdminUIController.getReport(core, RowPointer, ColCaption, ColAlign, ColWidth, Cells, PageSize, PageNumber, PreTableCopy, PostTableCopy, DataRowCount, "ccPanel");
                     Tab0.add(Cell);
                     Content = Tab0.text;
-                    ButtonListLeft = ButtonCancel + "," + ButtonRefresh + "," + ButtonDelete;
-                    ButtonListRight = "";
-                    //Content += HtmlController.inputHidden(rnAdminSourceForm, AdminFormDownloads);
+                    //
+                    layout.addFormButton(ButtonCancel);
+                    layout.addFormButton(ButtonRefresh);
+                    layout.addFormButton(ButtonDelete);
                 }
                 //
-                string Caption = "Download Manager";
-                string Description = ""
-                + "<p>The Download Manager lists downloads requested from anywhere on the website. To add a new download of any content in Contensive, click Export on the filter tab of the content listing page. To add a new download from a SQL statement, use Custom Reports under Reports on the Navigator.</p>";
-                int ContentPadding = 0;
-                string ContentSummary = "";
-                result = AdminUIController.getToolBody(core, Caption, ButtonListLeft, ButtonListRight, true, true, Description, ContentSummary, ContentPadding, Content);
+                layout.title = "Download Manager";
+                layout.description = "<p>The Download Manager lists downloads requested from anywhere on the website. To add a new download of any content in Contensive, click Export on the filter tab of the content listing page. To add a new download from a SQL statement, use Custom Reports under Reports on the Navigator.</p>";
+                layout.body = Content;
+                //
+                //
+                result = layout.getHtml();
                 result += $"<script>{core.cpParent.PrivateFiles.Read("downloadmanager/client.js")}</script>";
                 //
-                core.html.addTitle(Caption,"Download Manager");
+                core.html.addTitle("Download Manager", "Download Manager");
+                return result;
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
-            return result;
         }
     }
 }

@@ -529,6 +529,14 @@ namespace Contensive.Processor.Controllers.Build {
                             }
                         }
                     }
+                    if (GenericController.versionIsOlder(DataBuildVersion, "25.5.28.21")) {
+                        //
+                        // -- delete Editor Config Tool (dup of ConfigureEditClass)
+                        core.db.executeNonQuery("delete from ccaggregatefunctions where ccguid='{C2100D71-8993-4491-8D75-79FCF6B329E9}'");
+                        //
+                        // -- delete Editor Config Tool (dup of ConfigureListClass)
+                        core.db.executeNonQuery("delete from ccaggregatefunctions where ccguid='{91373E4C-4562-42DD-A121-C5E09DAF1CFE}'");
+                    }
                     //
                     // -- Reload
                     core.cache.invalidateAll();

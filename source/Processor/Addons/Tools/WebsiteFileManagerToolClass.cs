@@ -38,9 +38,17 @@ namespace Contensive.Processor.Addons.Tools {
                     instanceGuid = "-2",
                     errorContextMessage = "executing File Manager within website file manager"
                 });
-                string Description = "Manage files and folders within the Website's file area.";
                 string ButtonList = ButtonApply + "," + ButtonCancel;
-                result = AdminUIController.getToolBody(core, "Website File Manager", ButtonList, "", false, false, Description, "", 0, Content);
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Website File Manager";
+                layout.description = "Manage files and folders within the Website's file area.";
+                layout.body = Content;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }

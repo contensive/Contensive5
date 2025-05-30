@@ -43,7 +43,7 @@ namespace Contensive.Processor.Addons.Tools {
                 string NewGroupName = "";
                 string Button = null;
                 string Caption = null;
-                string Description = "";
+                string statusMessage = "";
                 string ButtonList = "";
                 bool BlockForm = false;
                 //
@@ -89,7 +89,7 @@ namespace Contensive.Processor.Addons.Tools {
                             //
                             // Create Definition
                             //
-                            Description = Description + "<div>&nbsp;</div>"
+                            statusMessage = statusMessage + "<div>&nbsp;</div>"
                                 + "<div>Creating content [" + ChildContentName + "] from [" + parentContentMetadata.name + "]</div>";
                             var childContentMetadata = parentContentMetadata.createContentChild(cp.core, ChildContentName, cp.core.session.user.id);
 
@@ -101,10 +101,10 @@ namespace Contensive.Processor.Addons.Tools {
                                 using (var csData = new CsModel(cp.core)) {
                                     csData.open("Groups", "name=" + DbController.encodeSQLText(NewGroupName));
                                     if (csData.ok()) {
-                                        Description = Description + "<div>Group [" + NewGroupName + "] already exists, using existing group.</div>";
+                                        statusMessage = statusMessage + "<div>Group [" + NewGroupName + "] already exists, using existing group.</div>";
                                         GroupId = csData.getInteger("ID");
                                     } else {
-                                        Description = Description + "<div>Creating new group [" + NewGroupName + "]</div>";
+                                        statusMessage = statusMessage + "<div>Creating new group [" + NewGroupName + "]</div>";
                                         csData.close();
                                         csData.insert("Groups");
                                         if (csData.ok()) {
@@ -119,7 +119,7 @@ namespace Contensive.Processor.Addons.Tools {
                                 using (var csData = new CsModel(cp.core)) {
                                     csData.insert("Group Rules");
                                     if (csData.ok()) {
-                                        Description = Description + "<div>Assigning group [" + MetadataController.getRecordName(cp.core, "Groups", GroupId) + "] to edit content [" + ChildContentName + "].</div>";
+                                        statusMessage = statusMessage + "<div>Assigning group [" + MetadataController.getRecordName(cp.core, "Groups", GroupId) + "] to edit content [" + ChildContentName + "].</div>";
                                         csData.set("GroupID", GroupId);
                                         csData.set("ContentID", ChildContentId);
                                     }
@@ -133,7 +133,7 @@ namespace Contensive.Processor.Addons.Tools {
                                 // Add Navigator entries
                             }
                             //
-                            Description = Description + "<div>&nbsp;</div>"
+                            statusMessage = statusMessage + "<div>&nbsp;</div>"
                                 + "<div>Your new content is ready. <a href=\"?" + rnAdminForm + "=22\">Click here</a> to create another Content Definition, or hit [Cancel] to return to the main menu.</div>";
                             ButtonList = ButtonCancel;
                             BlockForm = true;
@@ -168,13 +168,20 @@ namespace Contensive.Processor.Addons.Tools {
                     //Content.add(Controllers.HtmlController.inputHidden(rnAdminSourceForm, AdminFormContentChildTool));
                 }
                 //
-                Caption = "Create Child Table Metadata";
-                Description = "<div>This tool is used to create child table metadata (child content definitions) that help segregate your content into authorable segments.</div>" + Description;
-                result = AdminUIController.getToolBody(cp.core, Caption, ButtonList, "", false, false, Description, "", 0, Content.text);
+                var layout = cp.AdminUI.CreateLayoutBuilder();
+                layout.title = "Create Child Table Metadata";
+                layout.description = "This tool is used to create child table metadata (child content definitions) that help segregate your content into authorable segments.";
+                layout.infoMessage = statusMessage;
+                layout.body = Content.text;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{cp.core.logCommonMessage}");
+                throw;
             }
-            return result;
         }
         //
         //=============================================================================

@@ -183,10 +183,20 @@ namespace Contensive.Processor.Addons.AdminSite {
                     }
                     //
                     Description = "<p>This tool creates an export of the current admin list page results. If you would like to download the current results, select a format and press OK. Your search results will be submitted for export. Your download will be ready shortly in the download manager. To exit without requesting an output, hit Cancel.</p>";
-                    result = AdminUIController.getToolBody(core, adminData.adminContent.name + " Export", ButtonCommaList, "", false, false, Description, "", 10, Content);
+                    //
+                    var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                    layout.title = adminData.adminContent.name + " Export";
+                    layout.description = Description;
+                    layout.body = Content;
+                    foreach (string button in (ButtonCommaList).Split(',')) {
+                        if (string.IsNullOrWhiteSpace(button)) continue;
+                        layout.addFormButton(button.Trim());
+                    }
+                    return layout.getHtml();
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
             return result;
         }

@@ -41,7 +41,10 @@ namespace Contensive.Processor.Controllers {
         /// <returns></returns>
         public static string getSectionHeader(CoreController core, string Title, string Description) {
             try {
-                string result = getHeaderTitleDescription(Title, Description);
+                string result = ""
+                + ((string.IsNullOrWhiteSpace(Title)) ? "" : HtmlController.h2(Title))
+                + ((string.IsNullOrWhiteSpace(Description)) ? "" : HtmlController.div(Description)); 
+                //
                 if (!core.doc.userErrorList.Count.Equals(0)) { result += HtmlController.div(ErrorController.getUserError(core)); }
                 result = HtmlController.div(result, "p-2");
                 return HtmlController.section(result);
@@ -420,8 +423,8 @@ namespace Contensive.Processor.Controllers {
                 + "<table border=0 cellpadding=3 cellspacing=0 width=\"100%\">"
                     + innerHtml
                     + "<tr>"
-                        + "<td width=20%><img alt=\"space\" src=\"" + cdnPrefix + "images/spacer.gif\" width=\"100%\" height=1 ></td>"
-                        + "<td width=80%><img alt=\"space\" src=\"" + cdnPrefix + "images/spacer.gif\" width=\"100%\" height=1 ></td>"
+                        + "<td width=20%><img alt=\"space\" src=\"/baseassets/spacer.gif\" width=\"100%\" height=1 ></td>"
+                        + "<td width=80%><img alt=\"space\" src=\"/baseassets/spacer.gif\" width=\"100%\" height=1 ></td>"
                     + "</tr>"
                 + "</table>";
         }
@@ -833,25 +836,16 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         //
-        public static string getHeaderTitleDescription(string Title, string Description) {
-            return ""
-                + ((string.IsNullOrWhiteSpace(Title)) ? "" : HtmlController.h2(Title))
-                + ((string.IsNullOrWhiteSpace(Description)) ? "" : HtmlController.div(Description));
-        }
-        //
-        //====================================================================================================
-        //
         public static string getToolForm(CoreController core, string innerHtml, string leftButtonCommaList, string rightButtonCommaList) {
-            string buttonBar = core.html.getPanelButtons(leftButtonCommaList, rightButtonCommaList);
-            string result = ""
-                + buttonBar
-                + HtmlController.div(innerHtml, "p-4 bg-light")
-                + buttonBar;
-            return HtmlController.formMultipart(core, result);
+            var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+            layout.title = "";
+            layout.body = innerHtml;
+            foreach ( string button in ( leftButtonCommaList + "," + rightButtonCommaList).Split(',')) {
+                if (string.IsNullOrWhiteSpace(button)) continue;
+                layout.addFormButton(button.Trim());
+            }
+            return layout.getHtml();
         }
-        //
-        public static string getToolForm(CoreController core, string innerHtml, string leftButtonCommaList)
-            => getToolForm(core, innerHtml, leftButtonCommaList, "");
         //
         //====================================================================================================
         //

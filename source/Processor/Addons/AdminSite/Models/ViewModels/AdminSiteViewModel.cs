@@ -5,6 +5,7 @@ using Contensive.Processor.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using static Contensive.Processor.Constants;
 using static Contensive.Processor.Controllers.GenericController;
 
@@ -64,61 +65,61 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <summary>
         /// create the hardcoded list of 6 icons that appear at the top-right of the admin page
         /// </summary>
-        public List<NavCategoryList> categoryList {
+        public List<CategoryNavItem> categoryNavList {
             get {
                 if (_categoryList != null) { return _categoryList; }
-                if (cp.User.Id == 0) { return new List<NavCategoryList>(); }
-                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<NavCategoryList>(); }
+                if (cp.User.Id == 0) { return new List<CategoryNavItem>(); }
+                if (!cp.User.IsAdmin && !cp.User.IsContentManager()) { return new List<CategoryNavItem>(); }
                 //
                 // -- read from cache, invidate if an admin click isnt found in recent table
                 string cacheKey = cp.Cache.CreateKey($"admin-categoryList");
-                var cacheData = cp.Cache.GetObject<List<NavCategoryList>>(cacheKey);
+                var cacheData = cp.Cache.GetObject<List<CategoryNavItem>>(cacheKey);
                 if (cacheData != null) {
                     _categoryList = new();
                     _categoryList.AddRange(cacheData);
-                    _categoryList.Add(new NavCategoryList {
-                        listName = "User",
-                        listIcon = "fas fa-user fa-lg",
-                        listCategoryList = new List<NavCategory>() { navProfileCategoryList }
+                    _categoryList.Add(new CategoryNavItem {
+                        categoryName = "User",
+                        categoryIcon = "fas fa-user fa-lg",
+                        categoryNavColumnList = new List<CategoryNavColumn>() { navProfileCategoryList }
                     });
                     return _categoryList;
                 }
                 //
                 cacheData = new() {
-                    new NavCategoryList {
-                        listName = "Content",
-                        listIcon = "fas fa-edit fa-lg",
-                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.content)
+                    new CategoryNavItem {
+                        categoryName = "Content",
+                        categoryIcon = "fas fa-edit fa-lg",
+                        categoryNavColumnList = getNavColumnList(NavTypeIdEnum.content)
                     },
-                    new NavCategoryList {
-                        listName = "System",
-                        listIcon = "fas fa-desktop fa-lg",
-                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.system)
+                    new CategoryNavItem {
+                        categoryName = "System",
+                        categoryIcon = "fas fa-desktop fa-lg",
+                        categoryNavColumnList = getNavColumnList(NavTypeIdEnum.system)
                     },
-                    new NavCategoryList {
-                        listName = "Design",
-                        listIcon = "fas fa-paint-brush fa-lg",
-                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.design)
+                    new CategoryNavItem {
+                        categoryName = "Design",
+                        categoryIcon = "fas fa-paint-brush fa-lg",
+                        categoryNavColumnList = getNavColumnList(NavTypeIdEnum.design)
                     },
-                    new NavCategoryList {
-                        listName = "Comm",
-                        listIcon = "fas fa-comment-alt fa-lg",
-                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.comm)
+                    new CategoryNavItem {
+                        categoryName = "Comm",
+                        categoryIcon = "fas fa-comment-alt fa-lg",
+                        categoryNavColumnList = getNavColumnList(NavTypeIdEnum.comm)
                     },
-                    new NavCategoryList {
-                        listName = "Reports",
-                        listIcon = "fas fa-chart-pie fa-lg",
-                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.report)
+                    new CategoryNavItem {
+                        categoryName = "Reports",
+                        categoryIcon = "fas fa-chart-pie fa-lg",
+                        categoryNavColumnList = getNavColumnList(NavTypeIdEnum.report)
                     },
-                    new NavCategoryList {
-                        listName = "Tools",
-                        listIcon = "fas fa-wrench fa-lg",
-                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.tool)
+                    new CategoryNavItem {
+                        categoryName = "Tools",
+                        categoryIcon = "fas fa-wrench fa-lg",
+                        categoryNavColumnList = getNavColumnList(NavTypeIdEnum.tool)
                     },
-                    new NavCategoryList {
-                        listName = "Settings",
-                        listIcon = "fas fa-cog fa-lg",
-                        listCategoryList = getNavCategoriesByType(NavTypeIdEnum.setting)
+                    new CategoryNavItem {
+                        categoryName = "Settings",
+                        categoryIcon = "fas fa-cog fa-lg",
+                        categoryNavColumnList = getNavColumnList(NavTypeIdEnum.setting)
                     }
                 };
                 //
@@ -127,15 +128,15 @@ namespace Contensive.Processor.Addons.AdminSite {
                 //
                 _categoryList = new();
                 _categoryList.AddRange(cacheData);
-                _categoryList.Add(new NavCategoryList {
-                    listName = "User",
-                    listIcon = "fas fa-user fa-lg",
-                    listCategoryList = new List<NavCategory>() { navProfileCategoryList }
+                _categoryList.Add(new CategoryNavItem {
+                    categoryName = "User",
+                    categoryIcon = "fas fa-user fa-lg",
+                    categoryNavColumnList = new List<CategoryNavColumn>() { navProfileCategoryList }
                 });
                 return _categoryList;
             }
         }
-        private List<NavCategoryList> _categoryList = null;
+        private List<CategoryNavItem> _categoryList = null;
         ////
         ////====================================================================================================
         ////
@@ -209,25 +210,30 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <param name="navTypeId"></param>
         /// <param name="localListCache"></param>
         /// <returns></returns>
-        public List<NavCategory> getNavCategoriesByType(NavTypeIdEnum navTypeId) {
+        public List<CategoryNavColumn> getNavColumnList(NavTypeIdEnum navTypeId) {
             try {
-                List<NavCategory> result = new();
+                //
+                // -- create a column list with one column per category, move advanced to last
+                List<CategoryNavColumn> columnList = new();
                 using (DataTable dt = cp.Db.ExecuteQuery(Properties.Resources.sqlGetNavItemByType.replace("{navTypeId}", ((int)navTypeId).ToString(), System.StringComparison.CurrentCultureIgnoreCase))) {
                     if (dt?.Rows != null) {
                         string categoryNameLast = "";
-                        NavCategory category = null;
+                        CategoryNavColumn column = new() {
+                            categoryNavColumnItemList = []
+                        };
                         foreach (DataRow dr in dt.Rows) {
                             string categoryName = cp.Utils.EncodeText(dr["categoryName"]);
-                            categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName.replace(".", "-", System.StringComparison.InvariantCultureIgnoreCase);
-                            if (result.Count == 0 || categoryName != categoryNameLast) {
-                                //
-                                // -- new category
-                                category = new() {
-                                    navCategoryName = categoryName,
-                                    navCategoryItems = []
-                                };
-                                result.Add(category);
+                            categoryName = string.IsNullOrEmpty(categoryName) ? "" : categoryName.replace(".", " ", System.StringComparison.InvariantCultureIgnoreCase);
+                            string navHeaderName = "";
+                            if (columnList.Count == 0 || categoryName != categoryNameLast) {
                                 categoryNameLast = categoryName;
+                                //
+                                // -- new column
+                                column = new() {
+                                    categoryNavColumnItemList = []
+                                };
+                                columnList.Add(column);
+                                navHeaderName = categoryName;
                             }
                             //
                             // -- create entry
@@ -245,27 +251,70 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"]));
                                 navItemDataDragId = id > 0 ? $"a{id}" : "";
                             }
-                            var navCategoryItem = new NavCategoryItem {
+                            //var navCategoryItem = new NavCategoryItem {
+                            //    navItemName = cp.Utils.EncodeText(dr["name"]),
+                            //    navItemDataDragId = navItemDataDragId,
+                            //    navItemHref = (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
+                            //};
+                            column.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
+                                navHeaderName = navHeaderName,
                                 navItemName = cp.Utils.EncodeText(dr["name"]),
                                 navItemDataDragId = navItemDataDragId,
                                 navItemHref = (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
-                            };
-                            category.navCategoryItems.Add(navCategoryItem);
+                            });
                         }
                     }
                 }
                 //
-                // -- if there are mulitple columns, and one has a blank categoryname, change the name to General
-                if (result.Count > 1) {
-                    for (var i = 0; i < result.Count; i++) {
-                        var item = result[i];
-                        if (string.IsNullOrEmpty(item.navCategoryName)) {
-                            item.navCategoryName = "General";
-                            break;
+                // -- if mulitple columns and the first columns header is blank, make is Misc
+                if (columnList.Count > 1 && string.IsNullOrEmpty(columnList[0].categoryNavColumnItemList[0].navHeaderName)) {
+                    columnList[0].categoryNavColumnItemList[0].navHeaderName = "Misc";
+                }
+                //
+                // -- move any column with navColumnName "advanced" to the end of the columnlist
+                List<CategoryNavColumn> columnList2 = [];
+                foreach (var column in columnList.AsEnumerable().Reverse()) {
+                    if (column.categoryNavColumnItemList.Count > 0) {
+                        //
+                        // -- move advanced to the end
+                        if (column.categoryNavColumnItemList[0].navHeaderName.Equals("advanced", StringComparison.OrdinalIgnoreCase)) {
+                            columnList2.Add(column);
+                        } else {
+                            columnList2.Insert(0, column);
                         }
                     }
                 }
-                return result;
+                if (columnList2.Count <= 4) {
+                    return columnList2;
+                }
+                //
+                // -- combine the shortest list with the one after it
+                // -- if the last column is the shortest, move it left one and combine it with the one to the left.
+                // -- over and over
+                do {
+                    // -- find the shortest column
+                    int shortestColumnIndex = 0;
+                    int shortestColumn = 9999;
+                    foreach (var column in columnList2) {
+                        if (column.categoryNavColumnItemList.Count < shortestColumn) {
+                            shortestColumn = column.categoryNavColumnItemList.Count;
+                            shortestColumnIndex = columnList2.IndexOf(column);
+                        }
+                    }
+                    // -- if shortest is the last column, swap it with the next-to-last column
+                    if (shortestColumnIndex == columnList2.Count - 1) {
+                        //
+                        // -- swap the last column with the one before it
+                        var temp = columnList2[shortestColumnIndex];
+                        columnList2[shortestColumnIndex] = columnList2[shortestColumnIndex - 1];
+                        columnList2[shortestColumnIndex - 1] = temp;
+                        shortestColumnIndex--;
+                    }
+                    // -- combine the shortest column with the next one
+                    columnList2[shortestColumnIndex].categoryNavColumnItemList.AddRange(columnList2[shortestColumnIndex + 1].categoryNavColumnItemList);
+                    columnList2.RemoveAt(shortestColumnIndex + 1);
+                } while (columnList2.Count > 4);
+                return columnList2;
             } catch (System.Exception ex) {
                 cp.Site.ErrorReport(ex, "getNavCategoriesByType");
                 return new();
@@ -339,44 +388,43 @@ namespace Contensive.Processor.Addons.AdminSite {
         /// <summary>
         /// hardcoded profile nav item in admin site top-right
         /// </summary>
-        public NavCategory navProfileCategoryList {
+        public CategoryNavColumn navProfileCategoryList {
             get {
                 if (_navProfileCategoryList != null) { return _navProfileCategoryList; }
                 //
                 string cacheKey = cp.Cache.CreateKey($"admin-nav-category-profileList-user{cp.User.Id}");
-                _navProfileCategoryList = cp.Cache.GetObject<NavCategory>(cacheKey);
+                _navProfileCategoryList = cp.Cache.GetObject<CategoryNavColumn>(cacheKey);
                 if (_navProfileCategoryList != null) { return _navProfileCategoryList; }
                 //
                 string orgName = DbBaseModel.getRecordName<OrganizationModel>(cp, cp.User.OrganizationID);
                 int orgCid = cp.Content.GetID("organizations");
                 int peopleCid = cp.Content.GetID("people");
                 int groupCid = cp.Content.GetID("groups");
-                _navProfileCategoryList = new NavCategory {
-                    navCategoryName = "",
-                    navCategoryItems = new List<NavCategoryItem> {
-                        new NavCategoryItem {
+                _navProfileCategoryList = new CategoryNavColumn {
+                    categoryNavColumnItemList = new List<CategoryNavColumnItem> {
+                        new CategoryNavColumnItem {
                             navItemName = cp.User.Name,
                             navItemHref = "?af=4&cid=" + cp.Content.GetID("people") + "&id=" + cp.User.Id
                         },
-                        new NavCategoryItem {
+                        new CategoryNavColumnItem {
                             navItemName = "Logout",
                             navItemHref = "?method=logout"
                         },
-                        new NavCategoryItem {
+                        new CategoryNavColumnItem {
                             navItemName = "Impersonate",
                             navItemHref = "/impersonate"
                         },
-                        new NavCategoryItem {
+                        new CategoryNavColumnItem {
                             navItemName = "Groups",
                             navItemHref = "?cid=" + groupCid,
                             navItemDataDragId = $"c{groupCid}"
                         },
-                        new NavCategoryItem {
+                        new CategoryNavColumnItem {
                             navItemName = "Organizations",
                             navItemHref = "?cid=" + orgCid,
                             navItemDataDragId = $"c{orgCid}"
                         },
-                        new NavCategoryItem {
+                        new CategoryNavColumnItem {
                             navItemName = "People",
                             navItemHref = "?cid=" + peopleCid,
                             navItemDataDragId = $"c{peopleCid}"
@@ -409,7 +457,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     if (cp.Content.GetRecordGuid("add-ons", dashboardAddonid) == Contensive.Processor.Constants.addonGuidDashboard) {
                         //
                         // -- link to switch to beta
-                        _navProfileCategoryList.navCategoryItems.Add(new NavCategoryItem {
+                        _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
                             navItemName = "Try Beta Dashboard",
                             navItemHref = "?dashbeta=1",
                             navItemDataDragId = $""
@@ -417,7 +465,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     } else {
                         //
                         // -- link to switch to icon-dashboard
-                        _navProfileCategoryList.navCategoryItems.Add(new NavCategoryItem {
+                        _navProfileCategoryList.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
                             navItemName = "Return to Icon Dash",
                             navItemHref = "?dashbeta=0",
                             navItemDataDragId = $""
@@ -432,7 +480,7 @@ namespace Contensive.Processor.Addons.AdminSite {
             }
         }
 
-        private NavCategory _navProfileCategoryList = null;
+        private CategoryNavColumn _navProfileCategoryList = null;
         //
         //====================================================================================================
         //
@@ -712,20 +760,32 @@ namespace Contensive.Processor.Addons.AdminSite {
     /// alternative-2
     /// Create a list of categories that each contain a name and a list of items
     /// </summary>
-    public class NavCategory {
-        public string navCategoryName { get; set; }
-        public List<NavCategoryItem> navCategoryItems { get; set; }
+    public class CategoryNavColumn {
+        public List<CategoryNavColumnItem> categoryNavColumnItemList { get; set; }
     }
-    public class NavCategoryItem {
+    public class CategoryNavColumnItem {
+        /// <summary>
+        /// creates a bold header in the column above this item. Originally at the top, but to make them stack it was moved into the item.
+        /// </summary>
+        public string navHeaderName { get; set; }
+        /// <summary>
+        /// href for this item, typically a link to the admin page for this item
+        /// </summary>
         public string navItemHref { get; set; }
+        /// <summary>
+        /// item name as it appears in the list
+        /// </summary>
         public string navItemName { get; set; }
+        /// <summary>
+        /// data-drag-id for this item, used by the drag and drop editor to identify this item
+        /// </summary>
         public string navItemDataDragId { get; set; }
     }
     //
-    public class NavCategoryList {
-        public string listName { get; set; }
-        public string listIcon { get; set; }
-        public List<NavCategory> listCategoryList { get; set; }
+    public class CategoryNavItem {
+        public string categoryName { get; set; }
+        public string categoryIcon { get; set; }
+        public List<CategoryNavColumn> categoryNavColumnList { get; set; }
     }
     //
     /// <summary>

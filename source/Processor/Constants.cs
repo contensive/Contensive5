@@ -139,12 +139,6 @@ namespace Contensive.Processor {
         public static readonly string iconAddon_Green = "<span style=\"color:#0c0\">" + iconAddon + "</span>";
         //
         // -- buttons
-        internal const string ButtonCreateFields = " Create Fields ";
-        internal const string ButtonRun = "     Run     ";
-        internal const string ButtonSelect = "  Select ";
-        internal const string ButtonFindAndReplace = " Find and Replace ";
-        internal const string ButtonIISReset = " IIS Reset ";
-        internal const string ButtonCancel = " Cancel ";
         //
         internal const string protectedContentSetControlFieldList = "ID,CREATEDBY,DATEADDED,MODIFIEDBY,MODIFIEDDATE,CONTENTCONTROLID";
         //
@@ -594,61 +588,76 @@ namespace Contensive.Processor {
         //   project width button defintions
         // ---------------------------------------------------------------------------------------------------------------------------
         //
-        internal const string ButtonApply = "  Apply ";
-        internal const string ButtonLogin = "  Login  ";
-        internal const string ButtonLogout = "  Logout  ";
-        internal const string ButtonJoin = "   Join   ";
-        internal const string ButtonSave = "  Save  ";
-        internal const string ButtonOK = "     OK     ";
-        internal const string ButtonReset = "  Reset  ";
-        internal const string ButtonSaveAddNew = " Save + Add ";
-        internal const string ButtonRestartContensiveApplication = " Restart Contensive Application ";
-        internal const string ButtonCancelAll = "  Cancel  ";
-        internal const string ButtonFind = "   Find   ";
-        internal const string ButtonDelete = "  Delete  ";
-        internal const string ButtonFileChange = "   Upload   ";
-        internal const string ButtonFileDelete = "    Delete    ";
-        internal const string ButtonClose = "  Close   ";
-        internal const string ButtonAdd = "   Add    ";
-        internal const string ButtonAddChildPage = " Add Child ";
-        internal const string ButtonAddSiblingPage = " Add Sibling ";
-        internal const string ButtonContinue = " Continue >> ";
-        internal const string ButtonBack = "  << Back  ";
-        internal const string ButtonNext = "   Next   ";
-        internal const string ButtonPrevious = " Previous ";
-        internal const string ButtonFirst = "  First   ";
-        internal const string ButtonSend = "  Send   ";
+
+        internal const string ButtonCreateFields = "Create Fields";
+        internal const string ButtonRun = "Run";
+        internal const string ButtonSelect = "Select";
+        internal const string ButtonFindAndReplace = "Find and Replace";
+        internal const string ButtonIISReset = "IIS Reset";
+        internal const string ButtonCancel = "Cancel";
+        
+        internal const string ButtonApply = "Apply";
+        internal const string ButtonLogin = "Login";
+        internal const string ButtonLogout = "Logout";
+        internal const string ButtonJoin = "Join";
+        internal const string ButtonSave = "Save";
+        internal const string ButtonOK = "OK";
+        internal const string ButtonReset = "Reset";
+        internal const string ButtonSaveAddNew = "Save + Add";
+        internal const string ButtonRestartContensiveApplication = "Restart Contensive Application";
+        internal const string ButtonCancelAll = "Cancel";
+        internal const string ButtonFind = "Find";
+        internal const string ButtonDelete = "Delete";
+        internal const string ButtonFileChange = "Upload";
+        internal const string ButtonFileDelete = "Delete";
+        internal const string ButtonClose = "Close";
+        internal const string ButtonAdd = "Add";
+        internal const string ButtonAddChildPage = "Add Child";
+        internal const string ButtonAddSiblingPage = "Add Sibling";
+        internal const string ButtonContinue = "Continue >>";
+        internal const string ButtonBack = "<< Back";
+        internal const string ButtonNext = "Next";
+        internal const string ButtonPrevious = "Previous";
+        internal const string ButtonFirst = "First";
+        internal const string ButtonSend = "Send";
         internal const string ButtonSendTest = "Send Test";
-        internal const string ButtonCreateDuplicate = " Create Duplicate ";
-        internal const string ButtonActivate = "  Activate   ";
-        internal const string ButtonDeactivate = "  Deactivate   ";
+        internal const string ButtonCreateDuplicate = "Create Duplicate";
+        internal const string ButtonActivate = "Activate";
+        internal const string ButtonDeactivate = "Deactivate";
         internal const string ButtonOpenActiveEditor = "Active Edit";
-        internal const string ButtonSetHTMLEdit = " Edit WYSIWYG ";
-        internal const string ButtonSetTextEdit = " Edit HTML ";
-        internal const string ButtonRefresh = " Refresh ";
-        internal const string ButtonOrder = " Order ";
-        internal const string ButtonSearch = " Search ";
-        internal const string ButtonSpellCheck = " Spell Check ";
-        internal const string ButtonLibraryUpload = " Upload ";
-        internal const string ButtonCreateReport = " Create Report ";
-        internal const string ButtonNewSearch = " New Search ";
-        internal const string ButtonSaveandInvalidateCache = " Save and Invalidate Cache ";
-        internal const string ButtonImportTemplates = " Import Templates ";
-        internal const string ButtonRSSRefresh = " Update RSS Feeds Now ";
-        internal const string ButtonRequestDownload = " Request Download ";
-        internal const string ButtonFinish = " Finish ";
-        internal const string ButtonRegister = " Register ";
+        internal const string ButtonSetHTMLEdit = "Edit WYSIWYG";
+        internal const string ButtonSetTextEdit = "Edit HTML";
+        internal const string ButtonRefresh = "Refresh";
+        internal const string ButtonOrder = "Order";
+        internal const string ButtonSearch = "Search";
+        internal const string ButtonSpellCheck = "Spell Check";
+        internal const string ButtonLibraryUpload = "Upload";
+        internal const string ButtonCreateReport = "Create Report";
+        internal const string ButtonNewSearch = "New Search";
+        internal const string ButtonSaveandInvalidateCache = "Save and Invalidate Cache";
+        internal const string ButtonImportTemplates = "Import Templates";
+        internal const string ButtonRSSRefresh = "Update RSS Feeds Now";
+        internal const string ButtonRequestDownload = "Request Download";
+        internal const string ButtonFinish = "Finish";
+        internal const string ButtonRegister = "Register";
         internal const string ButtonBegin = "Begin";
         internal const string ButtonAbort = "Abort";
-        internal const string ButtonCreateGUId = " Create New GUID ";
-        internal const string ButtonEnable = " Enable ";
-        internal const string ButtonDisable = " Disable ";
-        internal const string ButtonMarkReviewed = " Mark Reviewed ";
-        internal const string ButtonEditModifyForm = " Modify Form ";
+        internal const string ButtonCreateGUId = "Create New GUID";
+        internal const string ButtonEnable = "Enable";
+        internal const string ButtonDisable = "Disable";
+        internal const string ButtonMarkReviewed = "Mark Reviewed";
+        internal const string ButtonEditModifyForm = "Modify Form";
         //
-        internal const string ButtonListModifyForm = " Set Columns ";
-        internal const string ButtonListExport = " Export ";
-        internal const string ButtonListAdvancedSearch = " Search ";
+        internal const string ButtonListModifyForm = "Set Columns";
+        internal const string ButtonListExport = "Export";
+        internal const string ButtonListAdvancedSearch = "Search";
+        //
+        internal const string NoteButtonPrevious = "Previous";
+        internal const string NoteButtonNext = "Next";
+        internal const string NoteButtonDelete = "Delete";
+        internal const string NoteButtonClose = "Close";
+        //                       ' Submit button is created in CommonDim, so it is simple
+        internal const string NoteButtonSubmit = "Submit";
         //
         // ---------------------------------------------------------------------------------------------------------------------------
         //   member actions
@@ -671,13 +680,6 @@ namespace Contensive.Processor {
         //
         internal const int NoteFormList = 1;
         internal const int NoteFormRead = 2;
-        //
-        internal const string NoteButtonPrevious = " Previous ";
-        internal const string NoteButtonNext = "   Next   ";
-        internal const string NoteButtonDelete = "  Delete  ";
-        internal const string NoteButtonClose = "  Close   ";
-        //                       ' Submit button is created in CommonDim, so it is simple
-        internal const string NoteButtonSubmit = "Submit";
         //
         // --------------------------------------------------------------------------------------------------------------------------
         // ----- Admin site storage

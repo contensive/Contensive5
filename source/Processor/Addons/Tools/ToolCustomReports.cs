@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using Contensive.Models.Db;
 using Contensive.Processor.Models.Domain;
 using NLog;
+using Contensive.BaseClasses.LayoutBuilder;
 
 namespace Contensive.Processor.Addons.Tools {
     public class ToolCustomReports : BaseClasses.AddonBaseClass {
@@ -29,6 +30,8 @@ namespace Contensive.Processor.Addons.Tools {
         //
         public static string get(CoreController core) {
             try {
+                //
+                LayoutBuilderBaseClass layout = core.cpParent.AdminUI.CreateLayoutBuilder();
                 //
                 string Button = null;
                 string SQL = null;
@@ -69,10 +72,10 @@ namespace Contensive.Processor.Addons.Tools {
                 ContentId = core.docProperties.getInteger("ContentID");
                 Format = core.docProperties.getText("Format");
                 //
-                title = "Custom Report Manager";
+                title = "Custom Report Tool";
                 Description = "Custom Reports are a way for you to create a snapshot of data to view or download. To request a report, select the Custom Reports tab, check the report(s) you want, and click the [Request Download] Button. When your report is ready, it will be available in the <a href=\"?" + rnAdminForm + "=30\">Download Manager</a>. To create a new custom report, select the Request New Report tab, enter a name and SQL statement, and click the Apply button.";
                 ContentPadding = 0;
-                ButtonCommaListLeft = ButtonCancel + "," + ButtonDelete + "," + ButtonRequestDownload;
+                //ButtonCommaListLeft = ButtonCancel + "," + ButtonDelete + "," + ButtonRequestDownload;
                 ButtonCommaListRight = "";
                 SQLFieldName = "SQLQuery";
                 //
@@ -80,7 +83,7 @@ namespace Contensive.Processor.Addons.Tools {
                     //
                     // Must be a developer
                     //
-                    Description = Description + "You can not access the Custom Report Manager because your account is not configured as an administrator.";
+                    Description = Description + "You can not access the Custom Report Tool because your account is not configured as an administrator.";
                 } else {
                     //
                     // Process Requests
@@ -239,7 +242,15 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 core.html.addTitle("Custom Reports", "Custom Reports");
                 //
-                return AdminUIController.getToolBody(core, title, ButtonCommaListLeft, ButtonCommaListRight, true, true, Description, ContentSummary, ContentPadding, Content);
+                layout.title = title;
+                layout.description = Description;
+                layout.body = Content;
+                //
+                layout.addFormButton(ButtonCancel);
+                layout.addFormButton(ButtonDelete);
+                layout.addFormButton(ButtonRequestDownload);
+                //
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 return toolExceptionMessage;

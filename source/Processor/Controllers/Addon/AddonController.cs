@@ -1414,12 +1414,19 @@ namespace Contensive.Processor.Controllers {
                     }
                 }
                 //
-                result = AdminUIController.getToolBody(core, Name, ButtonList, "", true, true, Description, "", 0, Content.text);
-                Content = null;
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = Name;
+                layout.description = Description;
+                layout.body = Content.text;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
+                throw;
             }
-            return result;
         }
         //
         //====================================================================================================
@@ -2076,26 +2083,12 @@ namespace Contensive.Processor.Controllers {
         public static string getAddonManager(CoreController core) {
             string result = "";
             try {
-                bool AddonStatusOK = true;
-                try {
-                    AddonModel addon = core.cacheRuntime.addonCache.create(addonGuidAddonManager);
-                    if (addon != null) {
-                        result = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
-                            addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
-                            errorContextMessage = "calling addon manager guid for GetAddonManager method"
-                        });
-                    }
-                } catch (Exception ex) {
-                    logger.Error($"{core.logCommonMessage}", new Exception("Error calling ExecuteAddon with AddonManagerGuid, will attempt Safe Mode Addon Manager. Exception=[" + ex + "]"));
-                    AddonStatusOK = false;
-                }
-                if (string.IsNullOrEmpty(result)) {
-                    logger.Error($"{core.logCommonMessage}", new Exception("AddonManager returned blank, calling Safe Mode Addon Manager."));
-                    AddonStatusOK = false;
-                }
-                if (!AddonStatusOK) {
-                    Contensive.Processor.Addons.SafeAddonManager.AddonManagerClass AddonMan = new Contensive.Processor.Addons.SafeAddonManager.AddonManagerClass(core);
-                    result = AddonMan.getForm_SafeModeAddonManager();
+                AddonModel addon = core.cacheRuntime.addonCache.create(addonGuidAddonManager);
+                if (addon != null) {
+                    result = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
+                        addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
+                        errorContextMessage = "calling addon manager guid for GetAddonManager method"
+                    });
                 }
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
@@ -2204,7 +2197,7 @@ namespace Contensive.Processor.Controllers {
                 + " onDblClick=\"" + onDblClick + "\""
                 + " alt=\"" + IconAlt + "\""
                 + " title=\"" + IconTitle + "\""
-                + " src=\"" + cdnPrefix + "images/spacer.gif\"";
+                + " src=\"/baseassets/spacer.gif\"";
             string ImgStyle = "background:url(" + IconSrc + ") " + (-1 * SpriteColumn * IconWidth) + "px 0px no-repeat;";
             ImgStyle += "width:" + IconWidth + "px;";
             ImgStyle = ImgStyle + "height:" + IconHeight + "px;";

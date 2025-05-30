@@ -415,6 +415,7 @@
                       // Remove the original <script> tag from the target element
                       script.remove();  
                     });
+                    sourceElement.remove(); // Clean up the temporary element
                   }
                 });
               });

@@ -34,9 +34,7 @@ namespace Contensive.Processor.Addons.Tools {
                 string ChildContentName = "";
                 bool AddAdminMenuEntry = false;
                 StringBuilderLegacyController Stream = new();
-                string ButtonList = ButtonCancel + "," + ButtonRun;
-                //
-                Stream.add(AdminUIController.getHeaderTitleDescription("Create a Child Content from a Content Definition", "This tool creates a Content Definition based on another Content Definition."));
+                string buttonList = ButtonCancel + "," + ButtonRun;
                 //
                 //   print out the submit form
                 if (core.docProperties.getText("Button") != "") {
@@ -81,7 +79,17 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 Stream.add("</SPAN>");
                 //
-                result = AdminUIController.getToolForm(core, Stream.text, ButtonList);
+                string body = Stream.text;
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Create a Child Content from a Content Definition";
+                layout.description = "This tool creates a Content Definition based on another Content Definition.";
+                layout.body = body;
+                foreach (string button in (buttonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }

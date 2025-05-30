@@ -3097,7 +3097,7 @@
   <Addon Name="Download Manager" Guid="{55e5ba33-f9b7-49c5-89a8-e12a5ea3f903}" Type="Tool">
     <Admin>true</Admin>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.AdminSite.DownloadManagerAddon]]></DotNetClass>
-		<Category><![CDATA[]]></Category>
+		<Category><![CDATA[ ]]></Category>
   </Addon>
 
   <Addon Name="Create Guid" Guid="{CFA18140-FBB4-4404-BF02-7B5C82BE2964}" Type="Tool">
@@ -3120,12 +3120,6 @@
 
   <Addon Name="Edit Table Metadata" Guid="{f0b07249-86f1-4c1d-8cad-eaa8ebed11a3}" Type="Tool">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ConfigureEditClass]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[Advanced]]></Category>
-  </Addon> 
-
-  <Addon Name="Edit Table List Metadata" Guid="{91373E4C-4562-42DD-A121-C5E09DAF1CFE}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ConfigureListClass]]></DotNetClass>
     <Admin>Yes</Admin>
 		<Category><![CDATA[Advanced]]></Category>
   </Addon> 
@@ -3199,13 +3193,6 @@
 
   <Addon Name="Custom Report Tool" Guid="{D06D7D5D-B100-4E04-82BF-AAF72E5388E6}" Type="Tool">
     <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.ToolCustomReports]]></DotNetClass>
-    <Admin>Yes</Admin>
-		<Category><![CDATA[]]></Category>
-    <BlockEditTools>Yes</BlockEditTools>
-  </Addon>
-
-  <Addon Name="Editor Config Tool" Guid="{C2100D71-8993-4491-8D75-79FCF6B329E9}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.EditorConfigView]]></DotNetClass>
     <Admin>Yes</Admin>
 		<Category><![CDATA[]]></Category>
     <BlockEditTools>Yes</BlockEditTools>

@@ -39,8 +39,6 @@ namespace Contensive.Processor.Addons.Tools {
                 //
                 ButtonList = ButtonCancel + "," + ButtonRun;
                 //
-                Stream.add(AdminUIController.getHeaderTitleDescription("Synchronize Tables to Content Definitions", "This tools goes through all Content Definitions and creates any necessary Tables and Table Fields to support the Definition."));
-                //
                 if (core.docProperties.getText("Button") != "") {
                     //
                     //   Run Tools
@@ -70,12 +68,20 @@ namespace Contensive.Processor.Addons.Tools {
                         }
                     }
                 }
-                returnValue = AdminUIController.getToolForm(core, Stream.text, ButtonList);
+                //
+                var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
+                layout.title = "Synchronize Tables to Content Definitions";
+                layout.description = "This tools goes through all Content Definitions and creates any necessary Tables and Table Fields to support the Definition.";
+                layout.body = Stream.text;
+                foreach (string button in (ButtonList).Split(',')) {
+                    if (string.IsNullOrWhiteSpace(button)) continue;
+                    layout.addFormButton(button.Trim());
+                }
+                return layout.getHtml();
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;
             }
-            return returnValue;
         }
         //
     }

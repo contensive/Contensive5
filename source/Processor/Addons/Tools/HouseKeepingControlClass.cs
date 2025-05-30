@@ -88,10 +88,6 @@ namespace Contensive.Processor.Addons.Tools {
                         return cp.core.webServer.redirect("/" + cp.core.appConfig.adminRoute, "StaticPublishControl, OK Button Pressed");
                     }
                     //
-                    // ----- Status
-                    //
-                    tableBody += HtmlController.tableRowStart() + "<td colspan=\"3\" class=\"ccPanel3D ccAdminEditSubHeader\"><b>Status</b>" + tableCellEnd + kmaEndTableRow;
-                    //
                     // ----- Visits Found
                     //
                     PagesTotal = 0;
@@ -134,8 +130,6 @@ namespace Contensive.Processor.Addons.Tools {
                     }
                     tableBody += (AdminUIController.getEditRow(cp.core, SpanClassAdminNormal + PagesTotal, "Viewings Found", "", false, false, ""));
                     //
-                    tableBody += (HtmlController.tableRowStart() + "<td colspan=\"3\" class=\"ccPanel3D ccAdminEditSubHeader\"><b>Options</b>" + tableCellEnd + kmaEndTableRow);
-                    //
                     Caption = "Archive Age";
                     Copy = HtmlController.inputText_Legacy(cp.core, "ArchiveRecordAgeDays", ArchiveRecordAgeDays.ToString(), -1, 20) + "&nbsp;Number of days to keep visit records. 0 disables housekeeping.";
                     tableBody += (AdminUIController.getEditRow(cp.core, Copy, Caption));
@@ -153,7 +147,7 @@ namespace Contensive.Processor.Addons.Tools {
                     ButtonList = ButtonCancel + ",Refresh," + ButtonSave + "," + ButtonOK;
                 }
                 //
-                Caption = "Data Housekeeping Control";
+                Caption = "Housekeeping Control";
                 Description = "This tool is used to control the database record housekeeping process. This process deletes visit history records, so care should be taken before making any changes.";
                 tempGetForm_HouseKeepingControl = AdminUIController.getToolBody(cp.core, Caption, ButtonList, "", false, false, Description, "", 0, Content.text);
                 //
