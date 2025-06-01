@@ -6,6 +6,7 @@ using Contensive.Models.Db;
 using Contensive.Processor.Addons.PortalFramework.Models.Db;
 using Contensive.Processor.Addons.PortalFramework.Models.Domain;
 using Contensive.Processor.Addons.PortalFramework.Views;
+using HandlebarsDotNet.Features;
 
 namespace Contensive.Processor.Addons.PortalFramework.Addons {
     public class PortalAddon : AddonBaseClass {
@@ -74,7 +75,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                 //
                 // -- Add Nav items
                 PortalBuilderClass portalBuilder = new PortalBuilderClass();
-                if (portalData.defaultFeature==null) {
+                if (portalData.defaultFeature == null) {
                     //
                     // -- if no default feature, add'overview' to the nav and link to no feature, which will display dashboard
                     portalBuilder.addNav();
@@ -93,7 +94,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                             foreach (var subFeature in feature.subFeatureList) {
                                 navFlyoutList.Add(new PortalBuilderSubNavItemViewModel {
                                     subActive = true,
-                                    subCaption = subFeature.heading,
+                                    subCaption = string.IsNullOrEmpty(subFeature.heading) ? subFeature.name : subFeature.heading ,
                                     subIsPortalLink = false,
                                     subLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, subFeature.guid),
                                     sublinkTarget = subFeature.dataContentId > 0 || !string.IsNullOrEmpty(subFeature.dataContentGuid) ? "_blank" : ""
@@ -102,13 +103,13 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                         }
                         portalBuilder.addNav(new PortalBuilderNavItemViewModel {
                             active = false,
-                            caption = feature.heading,
+                            caption = string.IsNullOrEmpty(feature.heading) ? feature.name : feature.heading,
                             isPortalLink = false,
                             link = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, feature.guid),
                             linkTarget = feature.dataContentId > 0 || !string.IsNullOrEmpty(feature.dataContentGuid) ? "_blank" : "",
                             navFlyoutList = navFlyoutList
                         });
-                        portalBuilder.navCaption = feature.heading;
+                        portalBuilder.navCaption = string.IsNullOrEmpty(feature.heading) ? feature.name : feature.heading;
                         portalBuilder.navLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, feature.guid);
                     }
                 }
@@ -178,7 +179,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                                             foreach (var dstFeatureSibling in dstFeatureParent.subFeatureList) {
                                                 portalBuilder.addSubNav(new PortalBuilderSubNavItemViewModel {
                                                     subActive = true,
-                                                    subCaption = dstFeatureSibling.heading,
+                                                    subCaption = string.IsNullOrEmpty(dstFeatureSibling.heading) ? dstFeatureSibling.name : dstFeatureSibling.heading ,
                                                     subIsPortalLink = false,
                                                     subLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, dstFeatureSibling.guid),
                                                     sublinkTarget = dstFeatureSibling.dataContentId > 0 || !string.IsNullOrEmpty(dstFeatureSibling.dataContentGuid) ? "_blank" : ""
@@ -196,7 +197,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                             //
                             CP.Response.Redirect("?cid=" + dstDataFeature.dataContentId.ToString());
                             var content = CP.AdminUI.CreateLayoutBuilder();
-                            content.title = dstDataFeature.heading;
+                            content.title = string.IsNullOrEmpty(dstDataFeature.heading) ? dstDataFeature.name : dstDataFeature.heading;
                             content.body = "Redirecting to content";
                             body = content.getHtml();
                         } else {
@@ -208,7 +209,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                         //
                         // -- set active heading
                         PortalDataFeatureModel dstFeatureRootFeature = PortalDataFeatureModel.getRootFeature(CP, dstDataFeature, portalData.featureList);
-                        activeNavHeading = dstFeatureRootFeature.heading;
+                        activeNavHeading = string.IsNullOrEmpty(dstFeatureRootFeature.heading) ? dstFeatureRootFeature.name : dstFeatureRootFeature.heading ;
                         //
                         // -- if body not created, consider this a feature list
                         if (string.IsNullOrEmpty(body)) {
@@ -236,8 +237,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                     //
                     if (portalData.defaultFeature != null) {
                         PortalDataFeatureModel feature = portalData.defaultFeature;
-                        activeNavHeading = feature.heading;
-                        //frameRqs = CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, feature.guid);
+                        activeNavHeading = string.IsNullOrEmpty(feature.heading) ? feature.name : feature.heading;
                         CP.Doc.SetProperty(Constants.rnFrameRqs, CP.Doc.RefreshQueryString);
                         CP.Doc.AddRefreshQueryString(Constants.rnDstFeatureGuid, feature.guid);
                         body = CP.Addon.Execute(feature.addonId);

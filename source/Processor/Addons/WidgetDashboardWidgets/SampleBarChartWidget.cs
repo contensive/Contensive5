@@ -8,27 +8,25 @@ using System.Windows.Markup;
 
 namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
     public class SampleBarChartWidget : AddonBaseClass {
-        // Fix for CA1861: Use static readonly for the array to avoid recreating it repeatedly  
-        private static readonly string[] DefaultDataLabels = {
-               "Lifetime", "Gold", "Premium", "Silver", "Associate",
-               "Part-Time", "Foreign", "Canadian", "Misc", "Other", ""
-           };
-        private static readonly double[] DefaultDataValueList = [45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0];
-
-        private static readonly DashboardWidgetBarChartModel_DataSets[] DefaultDataetsValues = {
-            new() {
-                    backgroundColor = "rgba(255, 99, 132, 0.2)",
-                    borderColor = "rgba(255, 99, 132, 1)",
-                    borderWidth = 1,
-                    label = "",
-                    data = [45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0]
-           }
-        };
-
+        /// <summary>
+        /// add-on interface
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <returns></returns>
         public override object Execute(CPBaseClass cp) {
             try {
+                //
+                // -- read in id passed from widgetcontroller, and filter passed from widget ajax.
+                string widgetId = cp.Doc.GetText("widgetId");
                 int segments = cp.Doc.GetInteger("widgetFilter");
-                if(segments==0) { segments = 6; } // default to 2 segments
+                int savedFilter = cp.User.GetInteger($"SampleBarChartWidget {widgetId} filter");
+                if (segments == 0) { segments = savedFilter; }
+                if (segments == 0) { segments = 6; }
+                if (segments != savedFilter) { cp.User.SetProperty($"SampleBarChartWidget {widgetId} filter", segments); }
+                //
+                string[] DefaultDataLabels = {
+                   "Lifetime", "Gold", "Premium", "Silver", "Associate","Part-Time", "Foreign", "Canadian", "Misc", "Other", ""
+                };
                 //
                 double[] DefaultDataValueList = {
                     45, 20, 10, 8, 5, 4, 3, 2, 2, 1, 0

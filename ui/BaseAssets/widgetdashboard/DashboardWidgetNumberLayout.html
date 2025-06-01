@@ -14,8 +14,6 @@
       <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
         <div class="card-tool">
           <div class="card-grab d-flex align-items-center" title="drag widget">
-            {{#url}}<a href="{{url}}" class="body-linked" title="click to open link"></a>{{/url}}
-            <!--{{^url}}<a href="#" class="body-linked" title="click to open link"></a>{{/url}}-->
             <div class="pe-2"><i class="fa-solid fa-grip-vertical text-primary"></i></div>
             <h6 class="widget-name m-0 text-primary">{{widgetName}}</h6>
           </div> 
@@ -54,4 +52,11 @@
     </div>
   </div>
 </div>
+{{#url}}
+<script>
+  document.querySelector("#{{widgetHtmlId}} .card-body ").addEventListener("click", function() {
+    window.location.href = '{{url}}';
+  });
+  </script>
+{{/url}}
 

@@ -10,8 +10,14 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
     public class PagesToReviewWidget : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
+                //
+                // -- read in id passed from widgetcontroller and filter passed from widget ajax.
+                string widgetId = cp.Doc.GetText("widgetId");
                 int months = cp.Doc.GetInteger("widgetFilter");
+                int savedFilter = cp.User.GetInteger($"PagesToReviewWidget {widgetId} filter");
+                if (months == 0) { months = savedFilter; }
                 months = (months < 2) ? 1 : (months < 4) ? 3 : 12;
+                if (months != savedFilter) { cp.User.SetProperty($"PagesToReviewWidget {widgetId} filter", months); }
                 //
                 return new DashboardWidgetNumberModel() {
                     widgetName = "Pages To Review",

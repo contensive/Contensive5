@@ -1266,10 +1266,9 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
+        /// if true, the optional form tag will be blocked. The form tag is added automatically if buttons, hiddens or a form-action is added
         /// </summary>
-        [Obsolete("Deprecated. Use includeform to block the form tag.", false)]
-        public override bool blockFormTag {
+        [Obsolete("Deprecated. Use includeform to block the form tag.", false)] public override bool blockFormTag {
             get {
                 return !layoutBuilderBase.includeForm;
             }

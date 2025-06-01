@@ -60,10 +60,10 @@
 
 {{#url}}
 <script>
-  document.addEventListener('DOMContentLoaded', function (event) {
-    jQuery('#{{widgetHtmlId}} .card-body').on('click', function () { window.location.href = '{{url}}'; });
+  document.querySelector("#{{widgetHtmlId}} .card-body ").addEventListener("click", function() {
+    window.location.href = '{{url}}';
   });
-</script>
+  </script>
 {{/url}}
 
   

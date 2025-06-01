@@ -87,6 +87,7 @@ namespace Contensive.Processor.Controllers {
                     // -- execute the widget addon and populate the result from the addon
                     // -- the result is a json string that is deserialized into the WidgetBaseModel
                     cp.Doc.SetProperty("widgetFilter", userConfigWidget.filterValue);
+                    cp.Doc.SetProperty("widgetId", userConfigWidget.widgetHtmlId);
                     widgetAddonResultJson = cp.Addon.Execute(userConfigWidget.addonGuid);
                     if (string.IsNullOrEmpty(widgetAddonResultJson)) { return result; }
                     var addonResultJObj = Newtonsoft.Json.Linq.JObject.Parse(widgetAddonResultJson);

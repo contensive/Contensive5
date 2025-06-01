@@ -1187,13 +1187,17 @@ namespace Contensive.Processor.Controllers.Build {
                 core.cpParent.Layout.updateLayout(guidLayoutAdminUITwoColumnLeft, nameLayoutAdminUITwoColumnLeft, cdnPathFilenameLayoutAdminUITwoColumnLeft);
                 core.cpParent.Layout.updateLayout(guidLayoutAdminUITwoColumnRight, layoutAdminUITwoColumnRightName, layoutAdminUITwoColumnRightCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutEditControlAutocompleteGuid, layoutEditControlAutocompleteName, layoutEditControlAutocompleteCdnPathFilename);
-                _ = LayoutController.updateLayout(core.cpParent, 0, layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename, layoutAdminSidebarCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutAdminSidebarGuid, layoutAdminSidebarName, layoutAdminSidebarCdnPathFilename);
                 //
-                _ = LayoutController.updateLayout(core.cpParent, 0, Constants.guidLayoutPageWithNav, Constants.nameLayoutPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav);
-                _ = LayoutController.updateLayout(core.cpParent, 0, Constants.guidLayoutAdminUITwoColumnLeft, Constants.nameLayoutPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav);
+                core.cpParent.Layout.updateLayout(Constants.guidLayoutPageWithNav, Constants.nameLayoutPageWithNav, Constants.pathFilenameLayoutAdminUIPageWithNav);
+                core.cpParent.Layout.updateLayout(Constants.layoutAdminUILayoutBuilderListBodyGuid, Constants.layoutAdminUILayoutBuilderListBodyName, Constants.layoutAdminUILayoutBuilderListBodyCdnPathFilename);
+                core.cpParent.Layout.updateLayout(Constants.layoutAdminUILayoutBuilderNameValueBodyGuid, Constants.layoutAdminUILayoutBuilderNameValueBodyName, Constants.layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename);
+                core.cpParent.Layout.updateLayout(Constants.layoutAdminUILayoutBuilderBaseGuid, Constants.layoutAdminUILayoutBuilderBaseName, Constants.layoutAdminUILayoutBuilderBaseCdnPathFilename);
                 //
                 core.cpParent.Layout.updateLayout(layoutEmailVerificationGuid, layoutEmailVerificationName, layoutEmailVerificationCdnPathFilename);
                 core.cpParent.Layout.updateLayout(layoutCustomBlockingRegistrationGuid, layoutCustomBlockingRegistrationName, layoutCustomBlockingRegistrationCdnPathFilename);
+                core.cpParent.Layout.updateLayout(SiteWarningMessageWrapperLayoutGuid, SiteWarningMessageWrapperLayoutName, SiteWarningMessageWrapperLayoutCdnPathFilename);
+                core.cpParent.Layout.updateLayout(layoutCustomBlockingAgeRestrictionGuid, layoutCustomBlockingAgeRestrictionName, layoutCustomBlockingAgeRestrictionCdnPathFilename);
             } catch (Exception ex) {
                 logger.Error(ex, $"{core.logCommonMessage}");
                 throw;

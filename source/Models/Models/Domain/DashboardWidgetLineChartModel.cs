@@ -27,7 +27,7 @@ namespace Contensive.Processor.Models {
         /// labels for each section of the Pie chart  
         /// </summary>  
         public List<string> dataLabels { get; set; }
-        public List<double> dataValues { get; set; }
+        public List<DataSet> dataSets { get; set; }
         //  
         /// <summary>  
         ///   
@@ -40,5 +40,20 @@ namespace Contensive.Processor.Models {
                 .Select(s => s[random.Next(s.Length)]).ToArray());
             return randomString;
         }
+    }
+    //
+    public class DataSet {
+        /// <summary>
+        /// The label for the data set
+        /// </summary>
+        public string label { get; set; }
+        /// <summary>
+        /// The data values for the data set
+        /// </summary>
+        public List<double> data { get; set; }
+        ///// <summary>
+        ///// The background color for the data set
+        ///// </summary>
+        //public string backgroundColor { get; set; }
     }
 }

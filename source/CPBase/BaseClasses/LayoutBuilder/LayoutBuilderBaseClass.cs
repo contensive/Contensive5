@@ -36,7 +36,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
+        /// Include a form tag around the layout. Default is true. Set false to block the form tag.
         /// </summary>
         public abstract bool includeForm { get; set; }
         //
@@ -258,6 +258,48 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// An html block added above the Body. Typically used for filters.
         /// </summary>
         public abstract string htmlBeforeBody { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+
+        public enum AfwStyles {
+            afwWidth10,
+            afwWidth20,
+            afwWidth30 ,
+            afwWidth40 ,
+            afwWidth50 ,
+            afwWidth60,
+            afwWidth70 ,
+            afwWidth80,
+            afwWidth90 ,
+            afwWidth100,
+            //
+            afwWidth10px,
+            afwWidth20px ,
+            afwWidth30px ,
+            afwWidth40px,
+            afwWidth50px ,
+            afwWidth60px,
+            afwWidth70px ,
+            afwWidth80px,
+            afwWidth90px,
+            //
+            afwWidth100px ,
+            afwWidth200px,
+            afwWidth300px ,
+            afwWidth400px ,
+            afwWidth500px ,
+            //
+            afwMarginLeft100px ,
+            afwMarginLeft200px ,
+            afwMarginLeft300px ,
+            afwMarginLeft400px ,
+            afwMarginLeft500px,
+            //
+            afwTextAlignRight ,
+            afwTextAlignLeft ,
+            afwTextAlignCenter
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         //

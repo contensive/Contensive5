@@ -52,7 +52,7 @@
 //        /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
 //        /// consider a pattern that blocks the include form if this layout is called form the portal system, where the portal methods create the entire strucuture
 //        /// </summary>
-//        bool localIncludeForm { get; set; } = false;
+//        bool localIncludeForm { get; set; } = true;
 //        bool localIsEmptyReport = true;
 //        //int localPageSize = 20;
 //        //int localPageNumber = 1;

@@ -1181,6 +1181,7 @@ namespace Contensive.Processor {
         public const string SiteWarningMessageWrapperLayoutGuid = "{D3D3EB96-A842-4135-8EC2-948055E9838B}";
         public const string SiteWarningMessageWrapperLayoutName = "Site Warning Message Wrapper Layout";
         public const string SiteWarningMessageWrapperLayoutCdnPathFilename = @"baseAssets\SiteWarningMessageWrapper.html";
+        //
         // -- layout for custom blocking age restriction page
         public const string layoutCustomBlockingAgeRestrictionGuid = "{4BB2B9DB-F50A-4ECE-A78E-69BA4D001914}";
         public const string layoutCustomBlockingAgeRestrictionName = "Age Verification Layout";

@@ -1,3 +1,5 @@
+
+<script data-delete src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
   .small {
     font-size: .8em !important;
@@ -57,7 +59,6 @@
     </div> 
   </div> 
 </div>  
-<script data-delete src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   (function(){
     console.log("linechart{{uniqueId}} start");
@@ -74,28 +75,21 @@
       new Chart(ctx, {
         type: 'line',
         data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'],
+          labels: [{{#dataLabels}}'{{.}}',{{/dataLabels}}],
           datasets: [
-              {
-              label: 'Bob',
-              data: ['12', '11', '8', '7', '20', '18'],          
-              },
-              {
-              label: 'Jim',
-              data: ['4', '6', '8', '12', '9', '5'],          
-              },
-              {
-              label: 'Sally',
-              data: ['18', '16', '12', '8', '4', '1'],          
-              },
+            {{#dataSets}} {
+              label: '{{label}}',
+              data: [{{#data}}'{{.}}',{{/data}}],          
+            },
+            {{/dataSets}}
           ]
         },
         options: {
+          maintainAspectRatio : false,
           scales: {
             y: {
               beginAtZero: true
-            },
-         
+            },         
             x: {
                 ticks: {
                     callback: function(value, index, ticks) {
@@ -108,7 +102,6 @@
                     }
                 }
             },
-            maintainAspectRatio : false,
             responsive: true,
     
           },
@@ -134,3 +127,10 @@
     };
   })();
 </script>
+{{#url}}
+<script>
+  document.querySelector("#{{widgetHtmlId}} .card-body ").addEventListener("click", function() {
+    window.location.href = '{{url}}';
+  });
+  </script>
+{{/url}}

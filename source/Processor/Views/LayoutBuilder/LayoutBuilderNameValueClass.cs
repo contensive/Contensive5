@@ -104,7 +104,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        public override bool includeForm { get; set; } = false;
+        public override bool includeForm { get; set; } = true;
         //
         // ====================================================================================================
         //
@@ -481,7 +481,7 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
+        /// if true, the optional form tag will be blocked. The form tag is added automatically if buttons, hiddens or a form-action is added
         /// </summary>
         [Obsolete("Deprecated. Use includeForm.", false)] public override bool blockFormTag { get; set; }
         //

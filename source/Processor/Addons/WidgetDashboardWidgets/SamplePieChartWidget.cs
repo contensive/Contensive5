@@ -19,8 +19,13 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
 
         public override object Execute(CPBaseClass cp) {
             try {
+                //
+                // -- read in id passed from widgetcontroller and filter passed from widget ajax.
+                string widgetId = cp.Doc.GetText("widgetId");
                 int segments = cp.Doc.GetInteger("widgetFilter");
+                int savedFilter = cp.User.GetInteger($"SampleLineChartWidget {widgetId} filter");
                 if (segments < 4) { segments = 2; } else if (segments < 8) { segments = 6; } else { segments = 10; }
+                if (segments != savedFilter) { cp.User.SetProperty($"SampleLineChartWidget {widgetId} filter", segments); }
                 //
                 DashboardWidgetPieChartModel result = new() {
                     widgetName = "Sample Pie Chart Widget",

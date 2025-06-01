@@ -116,7 +116,11 @@
       }
     });
   }
-
-
-
 </script>
+{{#url}}
+<script>
+  document.querySelector("#{{widgetHtmlId}} .card-body ").addEventListener("click", function() {
+    window.location.href = '{{url}}';
+  });
+  </script>
+{{/url}}
