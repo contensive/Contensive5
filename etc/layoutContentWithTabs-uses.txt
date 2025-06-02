@@ -1,0 +1,17 @@
+C:\Git>findstr /s /i /n "LayoutBuilderContentWithTabs" *.cs
+aoDistanceLearning\server\aoDistanceLearning\Controllers\genericController.cs:60:            var tabForm = cp.AdminUI.CreateLayoutBuilderContentWithTabsBase();
+FINDSTR: Warning - input file aoHtmlImport\source\UnitTestProject1\obj\Debug\netcoreapp2.1\UnitTestProject1.Program.cs is in Unicode format.
+aoMembershipManager\server\aoMembershipManager\Views\Admin\adminAccountsClass.cs:158:            var tabForm = cp.AdminUI.CreateLayoutBuilderContentWithTabs();
+Contensive5\source\CPBase\BaseClasses\CPAdminUIBaseClass.cs:41:        public abstract LayoutBuilder.LayoutBuilderContentWithTabsBaseClass CreateLayoutBuilderContentWithTabs();
+Contensive5\source\CPBase\BaseClasses\LayoutBuilder\LayoutBuilderContentWithTabsBaseClass.cs:5:    public abstract class LayoutBuilderContentWithTabsBaseClass(CPBaseClass cp) {
+Contensive5\source\Processor\Addons\LayoutBuilder\SampleLayoutBuilderContentWithTabs.cs:10:    public class SampleLayoutBuilderContentWithTabs : AddonBaseClass {
+Contensive5\source\Processor\Addons\LayoutBuilder\SampleLayoutBuilderContentWithTabs.cs:30:                var layoutBuilder = cp.AdminUI.CreateLayoutBuilderContentWithTabs();
+Contensive5\source\Processor\Views\CPAdminUIClass.cs:53:        public override LayoutBuilderContentWithTabsBaseClass CreateLayoutBuilderContentWithTabs() {
+Contensive5\source\Processor\Views\CPAdminUIClass.cs:54:            return new LayoutBuilder.LayoutBuilderContentWithTabsClass(cp);
+Contensive5\source\Processor\Views\LayoutBuilder\LayoutBuilderContentWithTabsClass.cs:6:    public class LayoutBuilderContentWithTabsClass : LayoutBuilderContentWithTabsBaseClass {
+Contensive5\source\Processor\Views\LayoutBuilder\LayoutBuilderContentWithTabsClass.cs:14:        public LayoutBuilderContentWithTabsClass(CPBaseClass cp) : base(cp) {
+FINDSTR: Warning - input file Device.Net\src\Device.Net.UnitTests\obj\Debug\netcoreapp3.1\Device.Net.UnitTests.Program.cs is in Unicode format.
+FINDSTR: Warning - input file Pluralize.NET\Pluralize.NET.Tests\obj\Debug\net8.0-windows\Pluralize.NET.Tests.Program.cs is in Unicode format.
+FINDSTR: Warning - input file Pluralize.NET\Pluralize.NET.Tests\obj\Debug\netcoreapp2.0\Pluralize.NET.Tests.Program.cs is in Unicode format.
+FINDSTR: Warning - input file uap-csharp\UAParser.Tests\obj\Debug\netcoreapp2.1\UAParser.Tests.Program.cs is in Unicode format.
+FINDSTR: Warning - input file uap-csharp\UAParser.Tests\obj\Release\netcoreapp2.1\UAParser.Tests.Program.cs is in Unicode format.

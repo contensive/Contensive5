@@ -50,8 +50,8 @@ namespace Contensive.Processor {
             return new LayoutBuilder.LayoutBuilderNameValueClass(cp);
         }
 
-        public override LayoutBuilderContentWithTabsBaseClass CreateLayoutBuilderContentWithTabs() {
-            return new LayoutBuilder.LayoutBuilderContentWithTabsClass(cp);
+        public override LayoutBuilderTabbedBodyBaseClass CreateLayoutBuilderContentWithTabs() {
+            return new LayoutBuilder.LayoutBuilderTabbedBodyClass(cp);
         }
 
         //public override LayoutBuilderToolFormBaseClass CreateLayoutBuilderToolForm() {

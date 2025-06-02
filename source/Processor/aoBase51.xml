@@ -3076,13 +3076,19 @@
     <RemoteMethod>Yes</RemoteMethod>
   </Addon>
 
-  <Addon Name="Sample Layout Builder List" Guid="{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}" Type="Tool">
-    <Admin>true</Admin>
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilderList]]></DotNetClass>
+	<Addon Name="Sample Layout Builder Tabbed Body" Guid="{0B693207-18FF-4A3C-8D72-68615E1116DF}" Type="Tool">
+		<Admin>true</Admin>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilderTabbedBody]]></DotNetClass>
 		<Category><![CDATA[Advanced]]></Category>
-  </Addon> 
+	</Addon>
 
-  <Addon Name="Sample Layout Builder NameValue" Guid="{AB85005F-D715-4566-B85F-757D8A363896}" Type="Tool">
+	<Addon Name="Sample Layout Builder List" Guid="{7E5A82B3-AE24-44E4-B9F3-3459FAFC8679}" Type="Tool">
+		<Admin>true</Admin>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilderList]]></DotNetClass>
+		<Category><![CDATA[Advanced]]></Category>
+	</Addon>
+
+	<Addon Name="Sample Layout Builder NameValue" Guid="{AB85005F-D715-4566-B85F-757D8A363896}" Type="Tool">
     <Admin>true</Admin>
     <DotNetClass><![CDATA[Contensive.Processor.Addons.LayoutBuilder.SampleLayoutBuilderNameValue]]></DotNetClass>
 		<Category><![CDATA[Advanced]]></Category>
@@ -3974,7 +3980,351 @@
     <Record Content="add-on categories" Guid="{63973d69-1d50-41ba-9986-c421db10a04d}" Name="Extras">
       <field Name="iconhtml"><![CDATA[<i class="fas fa-cog"></i>]]></field>
     </Record>
+
+		<Record Content="Portals" Guid="{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}" Name="Content Management">
+			<field Name="defaultconfigjson"></field>
+			<field Name="defaultfeatureid"></field>
+		</Record>
+
+    <Record Content="Portal Features" Guid="{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}" Name="Design Blocks">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid"></field>
+      <field Name="datacontentid"></field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{11545914-2ddc-4a2a-8ac6-7fc85535ce71}" Name="Call To Action Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{A9A9C9A2-53C7-4BB3-BF0F-80D734C38332}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{ed9f33ee-8326-404e-8b09-dc3e0bdc8720}" Name="Calls To Action">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{A9A9C9A2-53C7-4BB3-BF0F-80D734C38332}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{66046fc4-ac76-42df-a8aa-2d6201c9bb42}" Name="Accordion Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{B3455794-9010-44A1-8342-BFE92CFBBC53} </field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{2b3ca4db-36ab-474a-9cde-ff2e57592cc0}" Name="Accordion Items">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{C3CD00F2-0262-47F3-BA94-165DB83D865F}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{70adfe83-c2d4-426c-9619-de33a976a57f}" Name="Carousel Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{3b7915e1-dce2-492f-93ed-fa8082129081}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{1bed362e-2aeb-4702-92d2-1bcc7ca0465f}" Name="Carousel Images">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{208A2938-AB69-4FF9-B4C4-BB7C7538E9E8}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{92c162d0-6ddb-4f60-bd24-268bdb1547a8}" Name="Contact Us Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{0E832DE4-4168-49B6-B3CE-DDCEC511139A}</field>      
+    </Record> 
+
+    <Record Content="Portal Features" Guid="{f5d06019-485f-42d8-b222-bfe1be91e0a3}" Name="Contact Us Data">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{1344780B-C75D-4F51-B5BE-0116D2A3EC22}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{fa2b5fac-c292-4bab-9df2-26b8e543be87}" Name="Four Column Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{247E3386-8B60-4C08-8DC9-20B80DD53B70}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{0ad006c0-b455-4fc4-a23a-4c5ec3525a03}" Name="Hero Image Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{5DA9C1AD-41C2-4C82-A81C-74CF4D07B3A0}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="Embed Code Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{33D7D777-63E8-41FA-BEE6-9EF18F4503BD}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="Image Gallery Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{AC80FBFC-4ECA-4E20-BE93-C7A8AEF31BFA}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="Image Gallery Cards">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{d94a0f50-bf94-4dc6-a73a-e0818c6c581b}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="Image Gallery Images">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{6D2657E5-3811-43D4-A20B-ED48EE58281D}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="Image Slider Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{de8a5f1c-6da9-45e8-ac97-9f6ca9f38973}</field>      
+    </Record>
+    
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="Login Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{4513C4DC-9EA9-48FC-8660-F833B8E41118}</field>      
+    </Record>   
+
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="One Column Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{AC52AE05-1547-4556-8ACC-5A826900CDE7}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{ec839f87-8756-4b23-a6cf-52bf1b879a0b}" Name="Page Extension Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{79484D7D-B04B-4F82-B0B9-C3A95A9353AE}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{56ea2739-12e2-4ea8-a769-b36b60fcf8b5}" Name="Slider Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{BF17A98B-FAA5-4D2E-8F7D-07497C395B97}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{bc3187f8-553f-4ae4-a674-6b7e6dcc0521}" Name="Text Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{3DAAB82F-7FF5-4BEC-85BB-306828F35D95}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{0abcb31f-368a-4642-9a11-0891769dfd54}" Name="Text And Image Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{F7576F10-5846-4811-9463-15DC160258B4}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{84518c60-b202-44a6-a0b9-f616b862e4d7}" Name="Three Column Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{09CB36B0-FC29-4763-A23B-66BB41F3AF98}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{51953d36-fdbe-4910-a30d-019d678263b0}" Name="Image Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{FA26D275-EB16-4C44-84A3-6C33A6793DE3}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{fa532bf1-abd7-4142-9b28-d3d8fe420e0a}" Name="Link Tracking Log">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{689C9B79-77E5-4D1D-818A-42816BB23F20}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{0f2b0c06-6c86-4379-9eda-7b6b2232833a}" Name="Tile Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{183C29BC-8FBB-432A-AE18-9E73BB5B762B}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{f93c10c7-7c59-4e4b-8ba9-89311b361dec}" Name="Two Column Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{21DE6723-BFDB-4C9D-AA13-672B651C0DD3}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{94c62bd8-a455-4804-96a4-fd161773d4f0}" Name="Two Column Left Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{8964B50A-1CCA-431B-B1D1-7609D258D330}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{60630acb-4858-4168-a42f-f06b38b693f4}" Name="Two Column Right Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{D1069D53-9999-410C-A37B-2C84362EF523}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{097638dd-a6d4-4395-a283-f35d84ff8f99}" Name="Design Block Fonts">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{59aa5bb0-0d77-4e78-b098-382863483123}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{8647173f-2398-4a75-a681-d419cbf18b9b}" Name="Design Block Themes">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{8db9d46e-2242-4a14-99fd-41b3fb3ffb5f}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{e8a84fd2-af1e-4060-b8a1-cde94f79560e}" Name="Group Directory Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{ff22113b-3c18-4223-8142-dd5958dc736a}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{638d6db0-1f15-4403-94c4-10ffe8269a70}" Name="YouTube Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{031AC657-6A69-4701-B198-F19FE85A11C4}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{5f62d0a4-a6d9-4950-9019-c656be981fae}" Name="Testimonial Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{FA2FE7BD-FB45-486E-B469-4E9ADAC8418C}</field>      
+    </Record>    
+
+    <Record Content="Portal Features" Guid="{616530f5-4036-45ad-8d5a-a092e3f1417b}" Name="Headline Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{F8CF6A02-8D5A-4A4E-9DAA-E2A5CCC6EF62}</field>      
+    </Record>
+    
+    <Record Content="Portal Features" Guid="{af824f2f-daa6-4c4d-8f87-aac49f1c4262}" Name="Testimonials">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{9C7913C9-2F6F-4431-8244-4D1F34B03D38}</field>      
+    </Record>
+    
+    <Record Content="Portal Features" Guid="{fe9875c0-8b46-4804-835c-0e854a74d9dc}" Name="CTA Popup Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{B8FDE58F-1C30-4512-B12D-AD42FA841153}</field>      
+    </Record>
+    
+    <Record Content="Portal Features" Guid="{88fb8825-d9a8-4310-92b2-107f420162fa}" Name="Mock Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{E15C6CE3-01F1-4328-89EF-1A1155A5CB51}</field>      
+    </Record>
+    
+    <Record Content="Portal Features" Guid="{eeaaaceb-f487-4595-92be-7c3bee42c038}" Name="Child Page List Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{DE8E18DB-417D-4377-93FE-1B61AAD26B8F}</field>      
+    </Record>
+    
+    <Record Content="Portal Features" Guid="{c37b89cb-bead-460c-98c0-30d30d199ea8}" Name="Breadcrumb Widgets">
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{375f0cd2-1dd7-442f-a8f6-2755d1880dd9}</field>
+      <field Name="datacontentid">{4322F006-ABE1-4EF3-B39B-87F38DE117B1}</field>      
+    </Record>
+
+    <Record Content="Portal Features" Guid="{56c6f2e7-aaa9-49fa-b53d-fb6dfa0a2228}" Name="Resource Library">
+      <field Name="sortorder"><![CDATA[Resource Library]]></field>
+      <field Name="portalid">{3fdd7c5c-68a5-435f-ba62-a3e4cb0ee61e}</field>
+      <field Name="addonid">{564EF3F5-9673-4212-A692-0942DD51FF1A} </field>
+      <field Name="parentfeatureid"></field>
+      <field Name="datacontentid"></field>
+    </Record>
+
+
+    
+
+		<Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Communications">
+			<field Name="defaultfeatureid"></field>
+		</Record>
+
+    <Record Content="Portal Features" Guid="{fef4be31-16af-48a7-89ae-2b8c45b9788a}" Name="Email">
+      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid"></field>
+      <field Name="datacontentid"></field>
+    </Record>
+
+    <Record Content="Portal Features" Guid="{feb1cd78-f98d-4679-b659-9dd28444ffa1}" Name="Group Email">
+      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{fef4be31-16af-48a7-89ae-2b8c45b9788a}</field>
+      <field Name="datacontentid">{659CDF19-D7BB-4284-B2AA-E8960BEB49AB}</field>
+    </Record>
+
+    <Record Content="Portal Features" Guid="{44bcdf20-8f32-47f2-804a-e4a697b9dafe}" Name="System Email">
+      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{fef4be31-16af-48a7-89ae-2b8c45b9788a}</field>
+      <field Name="datacontentid">{E4734A8B-8731-40D8-9A3A-D4D351ACBEAC}</field>
+    </Record>
+
+    <Record Content="Portal Features" Guid="{618c1f75-7e6d-4f84-9833-e9589b012776}" Name="Text Messages">
+      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid"></field>
+      <field Name="datacontentid"></field>
+    </Record>
+
+    <Record Content="Portal Features" Guid="{779214f7-3574-4a55-baf7-c91c01a3f1a2}" Name="Group Text Messages">
+      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{618c1f75-7e6d-4f84-9833-e9589b012776}</field>
+      <field Name="datacontentid">{630BB039-DB43-43C6-AA95-99DDE1B2F8C7}</field>
+    </Record>
+
+    <Record Content="Portal Features" Guid="{7fc03317-97f4-408e-8575-947e77c213b5}" Name="System Text Messages">
+      <field Name="portalid">{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}</field>
+      <field Name="addonid"></field>
+      <field Name="parentfeatureid">{618c1f75-7e6d-4f84-9833-e9589b012776}</field>
+      <field Name="datacontentid">{425EF73C-0FC5-48D8-BE39-E047F456AF20} </field>
+    </Record>
+
   </Data>
+
   <ImportCollection Name="Add-on Manager">{A3E58089-74FC-4FB3-B847-0AD22B51AA72}</ImportCollection>
   <ImportCollection Name="Admin Navigator">{0AB76B52-2C9E-4339-B4DB-902AF42B57EB}</ImportCollection>
   <ImportCollection Name="Bootstrap">{2d3f9a21-9602-4549-b5df-5e09a9dae57e}</ImportCollection>

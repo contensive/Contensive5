@@ -2082,8 +2082,8 @@ namespace Contensive.Processor.Controllers {
                 //
                 if (core.session.user.id > 0) {
                     if (core.doc.userErrorList.Count.Equals(0)) {
-                        string legacyFormSn = core.docProperties.getText("ccformsn");
-                        string Button = core.docProperties.getText(legacyFormSn + "mb");
+                        string legacyFormSn = core.docProperties.getText("ccformsn").Trim();
+                        string Button = core.docProperties.getText(legacyFormSn + "mb").Trim();
                         switch (Button) {
                             case ButtonLogout: {
                                     //

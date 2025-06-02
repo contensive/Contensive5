@@ -38,7 +38,7 @@ namespace Contensive.BaseClasses {
         //
         //====================================================================================================
         //
-        public abstract LayoutBuilder.LayoutBuilderContentWithTabsBaseClass CreateLayoutBuilderContentWithTabs();
+        public abstract LayoutBuilder.LayoutBuilderTabbedBodyBaseClass CreateLayoutBuilderContentWithTabs();
         //
         //====================================================================================================
         //

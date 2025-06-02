@@ -218,6 +218,7 @@ namespace Contensive.Processor.Controllers {
             } else {
                 RightButtons += AdminUIController.getButtonDanger(ButtonDelete, "", true);
             }
+            RightButtons += AdminUIController.getButtonPrimary(ButtonListAdvancedSearch);
             RightButtons += AdminUIController.getButtonPrimary(ButtonListModifyForm);
             RightButtons += AdminUIController.getButtonPrimary(ButtonListExport);
             return getSectionButtonBar(core, LeftButtons, RightButtons);

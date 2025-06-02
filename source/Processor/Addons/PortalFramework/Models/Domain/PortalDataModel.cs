@@ -75,13 +75,21 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
                     portalCs.Close();
                     //
                     // -- load features and subfeatures
-                    string featureSql = ""
-                        + " select"
-                        + " f.id,f.name,f.heading,f.sortOrder,f.addPadding,f.ccguid,f.addonId,f.dataContentId,f.parentFeatureId,"
-                        + " sub.id as subId,sub.name as subName,sub.heading as subheading,sub.sortOrder as subSortOrder,sub.addPadding as subAddPadding,sub.ccguid as subccGuid,sub.addonId as subAddonId,sub.dataContentId as subdatacontentid,sub.parentFeatureId as subparentFeatureId"
-                        + " from ccPortalFeatures f left join ccPortalFeatures sub on sub.parentFeatureId=f.id "
-                        + " where (f.active>0) and ((sub.active is null)or(sub.active>0))and f.portalid=" + portalId
-                        + " order by f.sortOrder,f.name,sub.name";
+                    string featureSql = @$" 
+                        select 
+                            f.id,f.name,f.heading,f.sortOrder,f.addPadding,f.ccguid,f.addonId,f.dataContentId,f.parentFeatureId, 
+                            sub.id as subId,sub.name as subName,sub.heading as subheading,
+                            sub.sortOrder as subSortOrder,sub.addPadding as subAddPadding,sub.ccguid as subccGuid,sub.addonId as subAddonId,
+                            sub.dataContentId as subdatacontentid,sub.parentFeatureId as subparentFeatureId 
+                        from 
+                            ccPortalFeatures f 
+                            left join ccPortalFeatures sub on sub.parentFeatureId=f.id 
+                        where 
+                            (f.active>0) 
+                            and ((sub.active is null)or(sub.active>0))
+                            and f.portalid={portalId} 
+                        order by 
+                            ISNULL(f.sortorder, f.name),sub.name";
                     using (CPCSBaseClass csFeature = CP.CSNew()) {
                         if (csFeature.OpenSQL(featureSql)) {
                             //

@@ -1400,44 +1400,44 @@ namespace Contensive.Processor.Addons.AdminSite {
                 if (!string.IsNullOrEmpty(SubFilterList)) {
                     returnContent += "<div class=\"ccFilterSubHead\">Other</div>" + SubFilterList;
                 }
-                //
-                returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
-                //
-                // Advanced Search Link
-                //
-                QS = RQS;
-                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_AdvancedSearch, true);
-                Link = "/" + core.appConfig.adminRoute + "?" + QS;
-                returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Advanced&nbsp;Search</a></div>";
-                //
-                returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
-                //
-                // Set Column Link
-                //
-                QS = RQS;
-                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_SetColumns, true);
-                Link = "/" + core.appConfig.adminRoute + "?" + QS;
-                returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Set&nbsp;Columns</a></div>";
-                //
-                returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
-                ////
-                //// Import Link
-                ////
-                //QS = RQS;
-                //QS = GenericController.modifyQueryString(QS, rnAdminForm, AdminFormImportWizard, true);
-                //Link = "/" + core.appConfig.adminRoute + "?" + QS;
-                //returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Import</a></div>";
                 ////
                 //returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
-                //
-                // Export Link
-                //
-                QS = RQS;
-                QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_Export, true);
-                Link = "/" + core.appConfig.adminRoute + "?" + QS;
-                returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Export</a></div>";
-                //
-                returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
+                ////
+                //// Advanced Search Link
+                ////
+                //QS = RQS;
+                //QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_AdvancedSearch, true);
+                //Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                //returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Advanced&nbsp;Search</a></div>";
+                ////
+                //returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
+                ////
+                //// Set Column Link
+                ////
+                //QS = RQS;
+                //QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_SetColumns, true);
+                //Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                //returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Set&nbsp;Columns</a></div>";
+                ////
+                //returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
+                //////
+                ////// Import Link
+                //////
+                ////QS = RQS;
+                ////QS = GenericController.modifyQueryString(QS, rnAdminForm, AdminFormImportWizard, true);
+                ////Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                ////returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Import</a></div>";
+                //////
+                ////returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
+                ////
+                //// Export Link
+                ////
+                //QS = RQS;
+                //QS = GenericController.modifyQueryString(QS, RequestNameAdminSubForm, AdminFormList_Export, true);
+                //Link = "/" + core.appConfig.adminRoute + "?" + QS;
+                //returnContent += "<div class=\"ccFilterHead\"><a class=\"ccFilterLink\" href=\"" + Link + "\">Export</a></div>";
+                ////
+                //returnContent += "<div style=\"border-bottom:1px dotted #808080;\">&nbsp;</div>";
                 //
                 returnContent = "<div style=\"padding-left:10px;padding-right:10px;\">" + returnContent + "</div>";
             } catch (Exception ex) {

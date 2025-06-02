@@ -1,36 +1,23 @@
-
 using Contensive.BaseClasses;
 using Contensive.BaseClasses.LayoutBuilder;
-using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Documents;
 
 namespace Contensive.Processor.LayoutBuilder {
-    public class LayoutBuilderNameValueClass : LayoutBuilderNameValueBaseClass {
+    public class LayoutBuilderTabbedBodyClass : LayoutBuilderTabbedBodyBaseClass {
         //
+        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// used for pagination and export. Setter included to support older legacy code that used cp parameter in getHtml(cp).
         /// </summary>
-        private CPBaseClass cp { get; set; }
+        private CPClass cp { get; set; }
         //
-        // constructors
-        //
-        /// <summary>
-        /// prefered constructor
-        /// </summary>
-        /// <param name="cp"></param>
-        public LayoutBuilderNameValueClass(CPBaseClass cp) : base(cp) {
-            this.cp = cp;
+        public LayoutBuilderTabbedBodyClass(CPBaseClass cp) : base(cp) {
+            this.cp = (CPClass)cp;
         }
-        //
-        /// <summary>
-        /// data structure for mustache rendering a row
-        /// </summary>
-        public List<LayoutBuilderNameValueClass_RowClass> rowList { get; set; } = new List<LayoutBuilderNameValueClass_RowClass>();
         //
         /// <summary>
         /// The guid of the addon that refreshes the view for search or pagination update.
@@ -54,41 +41,10 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string description { get; set; }
         //
         /// <summary>
-        /// start a new html fieldset
-        /// </summary>
-        /// <param name="caption"></param>
-        public override void openFieldSet(string caption) {
-            fieldSetPtrStack.Push(fieldSetPtr);
-            if (fieldSetMax < fieldSetSize) {
-                fieldSetMax += 1;
-            }
-            fieldSetPtr = fieldSetMax;
-            fieldSets[fieldSetPtr].caption = caption;
-            fieldSets[fieldSetPtr].rowOpen = rowCnt + 1;
-        }
-        //
-        // ====================================================================================================
-        /// <summary>
-        /// close  fieldset. creates an html fieldset around the field elements
-        /// </summary>
-        public override void closeFieldSet() {
-            if (fieldSetPtr >= 0) {
-                fieldSets[fieldSetPtr].rowClose = rowCnt;
-            }
-            if (fieldSetPtrStack.Count > 0) {
-                fieldSetPtr = (int)fieldSetPtrStack.Pop();
-            }
-        }
-        //
-        // ====================================================================================================
-        /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
         public override string portalSubNavTitle { get; set; }
         //
-        // ----------------------------------------------------------------------------------------------------
-        // add a form hidden
-        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// Add hidden field. Also creates a form element wrapping the layout.
         /// </summary>
@@ -97,7 +53,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFormHidden(string name, string value) {
             hiddenList += Constants.cr + "<input type=\"hidden\" name=\"" + name + "\" value=\"" + value + "\">";
         }
-        private string hiddenList = "";
+        private string hiddenList { get; set; }
         /// <summary>
         /// Add hidden field. Also creates a form element wrapping the layout.
         /// </summary>
@@ -162,114 +118,12 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string buttonList = "";
         //
-        // ----------------------------------------------------------------------------------------------------
-        // setForm
-        // ----------------------------------------------------------------------------------------------------
-        //
-        /// <summary>
-        /// Sets the action attribute to the layout's form.
-        /// </summary>
-        [Obsolete("Deprecated. Not needed.", false)]
-        public override string formAction { get; set; }
-        //
         //
         // ----------------------------------------------------------------------------------------------------
         // body
         // ----------------------------------------------------------------------------------------------------
         //
         public override string body { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        // add a row
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public override void addRow() {
-            if (rowCnt < rowSize) {
-                rowCnt += 1;
-                rowList.Add(new LayoutBuilderNameValueClass_RowClass() {
-                    rowHelp = "",
-                    rowHtmlId = "",
-                    rowName = "",
-                    rowValue = ""
-                });
-                rows[rowCnt].name = "";
-                rows[rowCnt].value = "";
-                rows[rowCnt].help = "";
-                rows[rowCnt].htmlId = "";
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public override string rowHtmlId {
-            get {
-                checkRowCnt();
-                return rows[rowCnt].htmlId;
-            }
-            set {
-                checkRowCnt();
-                rows[rowCnt].htmlId = value;
-                rowList.Last().rowHtmlId = value;
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public override string rowName {
-            get {
-                checkRowCnt();
-                return rows[rowCnt].name;
-            }
-            set {
-                checkRowCnt();
-                rows[rowCnt].name = value;
-                rowList.Last().rowName = value;
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public override string rowValue {
-            get {
-                checkRowCnt();
-                return rows[rowCnt].value;
-            }
-            set {
-                checkRowCnt();
-                rows[rowCnt].value = value;
-                rowList.Last().rowValue = value;
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public override string rowHelp {
-            get {
-                checkRowCnt();
-                return rows[rowCnt].help;
-            }
-            set {
-                checkRowCnt();
-                rows[rowCnt].help = value;
-                rowList.Last().rowHelp = value;
-            }
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        private void checkRowCnt() {
-            if (rowCnt < 0) {
-                addRow();
-            }
-        }
 
         public override void addFormHidden(string name, string value, string htmlId) {
             hiddenList += Constants.cr + $"{Constants.cr}<input type=\"hidden\" name=\"{name}\" value=\"{value}\" id=\"{htmlId}\">";
@@ -337,20 +191,78 @@ namespace Contensive.Processor.LayoutBuilder {
         /// An html block added below the table. Typically used for filters.
         /// </summary>
         public override string htmlAfterBody { get; set; } = "";
-
         //
-        // ====================================================================================================
+        // ----------------------------------------------------------------------------------------------------
+        // tab processing
+        // ----------------------------------------------------------------------------------------------------
+        //
+        //
+        public class TabClass {
+            public string tabClass { get; set; }
+            public string tabLink { get; set; }
+            public string tabCaption { get; set; }
+            public bool tabActive { get; set; }
+        }
+        public List<TabClass> tabList { get; set; } = [];
+        //
+        public override string tabCaption {
+            get {
+                return tabList.Last().tabCaption;
+            }
+            set {
+                tabList.Last().tabCaption = value;
+            }
+        }
+        //
+        public override string tabStyleClass {
+            get {
+                return tabList.Last().tabClass;
+            }
+            set {
+                tabList.Last().tabClass = value;
+            }
+        }
+        //
+        public override string tabLink {
+            get {
+                return tabList.Last().tabLink;
+            }
+            set {
+                tabList.Last().tabLink = value;
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        // 
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override void setActiveTab(string caption) {
+            if (string.IsNullOrEmpty(caption)) { return; }
+            foreach (var tab in tabList) {
+                if (tab.tabCaption.ToLower() == caption.ToLower()) {
+                    tab.tabActive = true;
+                    return;
+                }
+            }
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        // add a column
+        // ----------------------------------------------------------------------------------------------------
+        //
         /// <summary>
-        /// Render the stored structure to an html form
+        /// Add a navigation entry. The navCaption and navLink should be set after creating a new entry. The first nav entry does not need to be added.
         /// </summary>
-        /// <param name="cp"></param>
-        /// <returns></returns>
+        public override void addTab() {
+            tabList.Add(new TabClass());
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        // get
+        // ----------------------------------------------------------------------------------------------------
+        //
         public override string getHtml() {
             if (!string.IsNullOrEmpty(portalSubNavTitle)) { cp.Doc.SetProperty("portalSubNavTitle", portalSubNavTitle); }
-            //
-            //string result = "";
-            //string rowName;
-            //string rowValue;
             //
             // -- add user errors
             string userErrors = cp.Utils.ConvertHTML2Text(cp.UserError.GetList());
@@ -359,7 +271,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             //
             // -- create body from layout
-            string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderNameValueBodyGuid, Constants.layoutAdminUILayoutBuilderNameValueBodyName, Constants.layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename);
+            string layout = cp.Layout.GetLayout(Constants.layoutAdminUILayoutBuilderTabbedBodyGuid, Constants.layoutAdminUILayoutBuilderTabbedBodyName, Constants.layoutAdminUILayoutBuilderTabbedBodyCdnPathFilename);
             string bodyHtml = cp.Mustache.Render(layout, this);
             //
             // -- construct report
@@ -386,85 +298,58 @@ namespace Contensive.Processor.LayoutBuilder {
                 portalSubNavTitle = portalSubNavTitle
             };
             return layoutBase.getHtml();
+            //-------------copied from namevalue
         }
+        //navStruct[] navs = new navStruct[tabSize];
+        //int tabMax = -1;
+        //int tabPtr = -1;
+        //
+        //string localBody = "";
+        //string localTitle = "";
+        //string localWarning = "";
+        //bool localIsOuterContainer = false;
+        ////
+        //private void checkTabPtr() {
 
+        //    if (tabPtr < 0) {
+        //        addTab();
+        //    }
+        //}
+        ////
+        //private string indent(string src) {
+        //    return src.Replace(Constants.cr, Constants.cr2);
+        //}
 
-
-
         //
-        // ====================================================================================================
-        //
-        /// <summary>
-        /// the maximum number of fields allowed
-        /// </summary>
-        const int fieldSetSize = 999;
-        //
-        /// <summary>
-        /// the number of fields used in this form
-        /// </summary>
-        private int fieldSetMax = -1;
-        //
-        /// <summary>
-        /// the current field being updated
-        /// </summary>
-        private int fieldSetPtr = -1;
-        //
-        /// <summary>
-        /// the structure of data saved to each field
-        /// </summary>
-        struct FieldSetStruct {
-            public string caption;
-            public int rowOpen;
-            public int rowClose;
+        [Obsolete("move javascript and styles to layouts", false)]
+        public override string styleSheet {
+            get {
+                return Processor.Properties.Resources.layoutBuilderStyles;
+            }
         }
         //
-        /// <summary>
-        /// fieldsets are used to group fields visually with ah html fieldset element
-        /// </summary>
-        private readonly FieldSetStruct[] fieldSets = new FieldSetStruct[fieldSetSize];
-        //
-        /// <summary>
-        /// fieldsets are used to group fields visually with ah html fieldset element
-        /// </summary>
-        private readonly Stack fieldSetPtrStack = new Stack();
-        //
-        /// <summary>
-        /// the max number of row
-        /// </summary>
-        const int rowSize = 999;
-        //
-        /// <summary>
-        /// the current row
-        /// </summary>
-        private int rowCnt = -1;
-        //
-        /// <summary>
-        /// the structure of stored rows
-        /// </summary>
-        struct RowStruct {
-            public string name;
-            public string value;
-            public string help;
-            public string htmlId;
+        [Obsolete("move javascript and styles to layouts", false)]
+        public override string javascript {
+            get {
+                return Processor.Properties.Resources.layoutBuilderJavaScript;
+            }
         }
-        //
-        /// <summary>
-        /// the stored rows to be rendered
-        /// </summary>
-        private readonly RowStruct[] rows = new RowStruct[rowSize];
-        //
-        //
-        //
-        //
-        // ====================================================================================================
-        // -- deprecated
-        //
 
         [Obsolete("Deprecated. Use getHtml()", false)]
         public override string getHtml(CPBaseClass cp) {
             return getHtml();
         }
-        //
+        [Obsolete("Deprecated. Use includeForm.", false)] public override bool blockFormTag { get; set; }
+        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
+        [Obsolete("Depricated. Use htmlAfterTable", false)]
+        public override string footer {
+            get {
+                return htmlAfterBody;
+            }
+            set {
+                htmlAfterBody = value;
+            }
+        }
         [Obsolete("Deprecated. Use addFormHidden()", false)]
         public override string formid {
             get {
@@ -476,62 +361,11 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         private string formId_local = "";
-        //
-        [Obsolete("Deprecated. Use warningMessage", false)] public override string warning { get; set; }
-        //
-        /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        [Obsolete("Deprecated. Use includeForm.", false)] public override bool blockFormTag { get; set; }
-        //
-        /// <summary>
-        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
-        //
-        /// <summary>
-        /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
-        /// </summary>
-        [Obsolete("Deprecated. No longer needed.", false)] public override string refreshQueryString { get; set; }
-        //
-        /// <summary>
-        /// The html to add after the table. This is typically used for pagination controls, but can be used for anything.
-        /// </summary>
-        [Obsolete("Depricated. Use htmlAfterTable", false)]
-        public override string footer {
-            get {
-                return htmlAfterBody;
-            }
-            set {
-                htmlAfterBody = value;
-            }
-        }
-        //
-        /// <summary>
-        /// The base url to use when creating links. Set internally to the url of the current page. If this is an ajax callback, this will be the url of the page that called the ajax
-        /// </summary>
+
         [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string baseUrl { get; }
-        //
-        /// <summary>
-        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
-        /// </summary>
+
         [Obsolete("Deprecated. use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
-        //
-        /// <summary>
-        /// The default Layoutbuilder styles. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Processor.Properties.Resources.layoutBuilderStyles;
-        //
-        /// <summary>
-        /// The default Layoutbuilder script. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Processor.Properties.Resources.layoutBuilderJavaScript;
-    }
-    //
-    public class LayoutBuilderNameValueClass_RowClass {
-        public string rowName { get; set; } = "";
-        public string rowValue { get; set; } = "";
-        public string rowHelp { get; set; } = "";
-        public string rowHtmlId { get; set; } = "";
+        [Obsolete("Deprecated. No longer needed.", false)] public override string refreshQueryString { get; set; }
+        [Obsolete("Deprecated. Use warningMessage", false)] public override string warning { get; set; }
     }
 }

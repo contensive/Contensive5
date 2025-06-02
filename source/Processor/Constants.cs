@@ -650,7 +650,7 @@ namespace Contensive.Processor {
         //
         internal const string ButtonListModifyForm = "Set Columns";
         internal const string ButtonListExport = "Export";
-        internal const string ButtonListAdvancedSearch = "Search";
+        internal const string ButtonListAdvancedSearch = "Advanced Search";
         //
         internal const string NoteButtonPrevious = "Previous";
         internal const string NoteButtonNext = "Next";
@@ -1161,6 +1161,11 @@ namespace Contensive.Processor {
         public const string layoutAdminUILayoutBuilderNameValueBodyGuid = "{23F353C6-33BA-4180-80B2-043B8572D2DA}";
         public const string layoutAdminUILayoutBuilderNameValueBodyName = "AdminUI LayoutBuilder NameValue Body";
         public const string layoutAdminUILayoutBuilderNameValueBodyCdnPathFilename = "baseAssets\\AdminUILayoutBuilderNameValueBody.html";
+        //
+        // -- The body of the tabbed layout
+        public const string layoutAdminUILayoutBuilderTabbedBodyGuid = "{282A5DA4-7CCE-4579-AD26-C7C1D209B963}";
+        public const string layoutAdminUILayoutBuilderTabbedBodyName = "AdminUI LayoutBuilder Tabbed Body";
+        public const string layoutAdminUILayoutBuilderTabbedBodyCdnPathFilename = "baseAssets\\AdminUILayoutBuilderTabbedBody.html";
         //
         // -- basic layout that wraps all reports
         public const string layoutAdminUILayoutBuilderBaseGuid = "{54C3AAD0-B517-4490-9FF6-54D294EB6B50}";
