@@ -320,7 +320,8 @@
         });
         //
         // -- delete
-        $('#dashboard').on('click', '.card-close', function () {
+        $('#dashboard').on('click', '.card-close', function (event) {
+          event.preventDefault();
           console.log('card-close click');
           var el = this.closest('.widget');
           let items = [el];
@@ -329,7 +330,8 @@
         });
         //
         // -- filter
-        $('#dashboard').on('click', '.widgetFilter', function () {
+        $('#dashboard').on('click', '.widgetFilter', function (event) {
+          event.preventDefault();
           console.log('widgetFilter click');
           const widgetFilter = this.dataset.filtervalue;
           console.log('widgetFilter:' + widgetFilter);
@@ -340,7 +342,8 @@
         });
         //
         // -- add widget button
-        $('#dashboardWrapper').on('click', '.add-widget', function () {
+        $('#dashboardWrapper').on('click', '.add-widget', function (event) {
+          event.preventDefault();
           var element = $(this);
           console.log('add-widget, guid:' + element.attr('data-addonGuid'));
           let newWidget = document.getElementById('newWidgetTemplate').cloneNode(true);

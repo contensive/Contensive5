@@ -545,7 +545,7 @@ namespace Contensive.Processor.Controllers {
                         hint = 17;
                         if (!string.IsNullOrEmpty(addon_formXML) && (contentSourceId == AddonContentSourceEnum.All || contentSourceId == AddonContentSourceEnum.FormExecution)) {
                             bool ExitAddonWithBlankResponse = false;
-                            result.Append(execute_formContent(addon_formXML, ref ExitAddonWithBlankResponse, "addon [" + addon.name + "]"));
+                            result.Append(execute_formContent(addon, addon_formXML, ref ExitAddonWithBlankResponse, "addon [" + addon.name + "]"));
                             if (ExitAddonWithBlankResponse) {
                                 //
                                 // -- exit early
@@ -789,7 +789,7 @@ namespace Contensive.Processor.Controllers {
         /// <param name="return_ExitAddonBlankWithResponse"></param>
         /// <param name="contextErrorMessage"></param>
         /// <returns></returns>
-        private string execute_formContent(string FormXML, ref bool return_ExitAddonBlankWithResponse, string contextErrorMessage) {
+        private string execute_formContent(AddonModel addon, string FormXML, ref bool return_ExitAddonBlankWithResponse, string contextErrorMessage) {
             string result = "";
             try {
                 string Button = core.docProperties.getText(RequestNameButton);
@@ -1106,21 +1106,21 @@ namespace Contensive.Processor.Controllers {
                                                                     fieldType = xml_GetAttribute(IsFound, TabNode, "type", "");
                                                                     string fieldSelector = xml_GetAttribute(IsFound, TabNode, "selector", "");
                                                                     FieldDescription = xml_GetAttribute(IsFound, TabNode, "description", "");
-                                                                    string FieldAddon = xml_GetAttribute(IsFound, TabNode, "EditorAddon", "");
+                                                                    string editorAddonGuid = xml_GetAttribute(IsFound, TabNode, "EditorAddon", "");
                                                                     FieldDefaultValue = TabNode.InnerText;
                                                                     fieldValue = core.siteProperties.getText(fieldName, FieldDefaultValue);
-                                                                    if (!string.IsNullOrEmpty(FieldAddon)) {
+                                                                    if (!string.IsNullOrEmpty(editorAddonGuid)) {
                                                                         //
                                                                         // Use Editor Addon
                                                                         Dictionary<string, string> arguments = new() {
                                                                             { "FieldName", fieldName },
                                                                             { "FieldValue", core.siteProperties.getText(fieldName, FieldDefaultValue) }
                                                                         };
-                                                                        AddonModel addon = core.cacheRuntime.addonCache.createByUniqueName(FieldAddon);
-                                                                        Copy = core.addon.execute(addon, new CPUtilsBaseClass.addonExecuteContext {
+                                                                        AddonModel editorAddon = core.cacheRuntime.addonCache.createByUniqueName(editorAddonGuid);
+                                                                        Copy = core.addon.execute(editorAddon, new CPUtilsBaseClass.addonExecuteContext {
                                                                             addonType = CPUtilsBaseClass.addonContext.ContextAdmin,
                                                                             argumentKeyValuePairs = arguments,
-                                                                            errorContextMessage = "executing field addon [" + FieldAddon + "] for " + contextErrorMessage
+                                                                            errorContextMessage = "executing field addon [" + editorAddonGuid + "] for " + contextErrorMessage
                                                                         });
                                                                     } else if (!string.IsNullOrEmpty(fieldSelector)) {
                                                                         //
@@ -1337,7 +1337,7 @@ namespace Contensive.Processor.Controllers {
                                                                         if (dt.Rows.Count > 0) {
                                                                             object[,] something = { { } };
                                                                             if (dt.Rows.Count == 1 && dt.Columns.Count == 1) {
-                                                                                Copy = HtmlController.inputText(core, "result", GenericController.encodeText(something[0, 0]),"","",true);
+                                                                                Copy = HtmlController.inputText(core, "result", GenericController.encodeText(something[0, 0]), "", "", true);
                                                                             } else {
                                                                                 foreach (DataRow dr in dt.Rows) {
                                                                                     //
@@ -1415,7 +1415,7 @@ namespace Contensive.Processor.Controllers {
                 }
                 //
                 var layout = core.cpParent.AdminUI.CreateLayoutBuilder();
-                layout.title = Name;
+                layout.title = addon.name;
                 layout.description = Description;
                 layout.body = Content.text;
                 foreach (string button in (ButtonList).Split(',')) {

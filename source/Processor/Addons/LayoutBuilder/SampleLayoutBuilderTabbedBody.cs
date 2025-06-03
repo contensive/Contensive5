@@ -22,13 +22,13 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
         /// <returns></returns>
         public override object Execute(CPBaseClass cp) {
             try {
-                const string guidSampleLayoutContentWithNav = "{0B693207-18FF-4A3C-8D72-68615E1116DF}";
+                const string guidThisAddon = "{0B693207-18FF-4A3C-8D72-68615E1116DF}";
                 // 
                 // -- authenticate/authorize
                 if (!cp.User.IsAdmin) { return "You do not have permission."; }  
                 //
                 // -- initialize the layout builder, set static elements
-                var layoutBuilder = cp.AdminUI.CreateLayoutBuilderContentWithTabs();
+                var layoutBuilder = cp.AdminUI.CreateLayoutBuilderTabbedBody();
                 //
                 // -- process request
                 string button = cp.Doc.GetText("button");
@@ -70,7 +70,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 //
                 layoutBuilder.addTab();
                 layoutBuilder.tabCaption = "Tab 1";
-                layoutBuilder.tabLink = $"?addonGuid={guidSampleLayoutContentWithNav}&tab=1"; 
+                layoutBuilder.tabLink = $"?addonGuid={guidThisAddon}&tab=1"; 
                 layoutBuilder.tabStyleClass = "tab-style-class";
                 layoutBuilder.includeForm = false;
                 if (tab == 1) {
@@ -88,7 +88,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 //
                 layoutBuilder.addTab();
                 layoutBuilder.tabCaption = "Tab 2";
-                layoutBuilder.tabLink = $"?addonGuid={guidSampleLayoutContentWithNav}&tab=2";  
+                layoutBuilder.tabLink = $"?addonGuid={guidThisAddon}&tab=2";  
                 layoutBuilder.tabStyleClass = "tab-style-class";
                 if (tab == 2) {
                     //
@@ -105,7 +105,7 @@ namespace Contensive.Processor.Addons.LayoutBuilder {
                 //
                 layoutBuilder.addTab();
                 layoutBuilder.tabCaption = "Tab 3";
-                layoutBuilder.tabLink = $"?addonGuid={guidSampleLayoutContentWithNav}&tab=3";
+                layoutBuilder.tabLink = $"?addonGuid={guidThisAddon}&tab=3";
                 layoutBuilder.tabStyleClass = "tab-style-class";
                 if (tab == 3) {
                     //
