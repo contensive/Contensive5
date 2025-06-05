@@ -5,6 +5,7 @@ using static Contensive.Processor.Controllers.GenericController;
 using static Newtonsoft.Json.JsonConvert;
 using Contensive.Processor.Models.Domain;
 using Contensive.Models.Db;
+using System.Data;
 //
 namespace Contensive.Processor.Controllers {
     public class TaskSchedulerController : IDisposable {
@@ -122,49 +123,109 @@ namespace Contensive.Processor.Controllers {
                         //
                         // -- execute processes
                         try {
-                            string sqlAddonsCriteria = ""
-                                + "(active<>0)"
-                                + " and(name<>'')"
-                                + " and("
-                                + "  ((ProcessRunOnce is not null)and(ProcessRunOnce<>0))"
-                                + "  or((ProcessInterval is not null)and(ProcessInterval<>0)and(ProcessNextRun is null))"
-                                + "  or(ProcessNextRun<" + DbController.encodeSQLDate(core.dateTimeNowMockable) + ")"
-                                + " )";
-                            var addonList = DbBaseModel.createList<AddonModel>(cpApp, sqlAddonsCriteria);
-                            foreach (var addon in addonList) {
+                            if (true) {
+                                string sql = "";
                                 //
-                                int addonProcessInterval = encodeInteger(addon.processInterval);
-                                if (addon.processRunOnce) {
-                                    //
-                                    // -- run once checked 
-                                    addon.processNextRun = core.dateTimeNowMockable;
-                                    addon.processRunOnce = false;
-                                } else if ((addon.processNextRun == null) && (addonProcessInterval > 0)) {
-                                    //
-                                    // -- processInterval set but everything else blank )
-                                    addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
-                                }
-                                if (addon.processNextRun <= core.dateTimeNowMockable) {
-                                    //
-                                    logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
-                                    //
-                                    // -- add task to queue for runner
-                                    addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
-                                        addonId = addon.id,
-                                        addonName = addon.name,
-                                        args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, addon.argumentList)
-                                    }, true);
-                                    if (addonProcessInterval > 0) {
+                                // -- runonce
+                                sql = $@"
+                                    update ccAggregateFunctions
+                                    set 
+                                        ProcessRunOnce=0,
+                                        ProcessNextRun = CASE ProcessInterval
+                                                WHEN null THEN null
+                                                WHEN 0 THEN null
+                                                ELSE DATEADD(MINUTE, ProcessInterval, GETDATE())
+                                            END
+                                    output inserted.ID,inserted.name,inserted.argumentlist
+                                    where 
+                                        ProcessRunOnce>0";
+                                using( DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
+                                    foreach (DataRow row in dt.Rows) {
+                                        int addonId = Convert.ToInt32(row["ID"]);
+                                        string addonName = Convert.ToString(row["name"]);
+                                        string argumentList = Convert.ToString(row["argumentlist"]);
+                                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, runonce, addon [" + addonName + "], add task, ProcessRunOnce [1], ProcessNextRun [null]");
                                         //
-                                        // -- interval set, update the next run
-                                        addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
-                                    } else {
-                                        //
-                                        // -- no interval, no next run
-                                        addon.processNextRun = null;
+                                        // -- add task to queue for runner
+                                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                                            addonId = addonId,
+                                            addonName = addonName,
+                                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
+                                        }, true);
                                     }
                                 }
-                                addon.save(cpApp);
+                                //
+                                // -- no ProcessNextRun but ProcessInterval>0
+                                sql = $@"
+                                    update ccAggregateFunctions
+                                    set 
+                                        ProcessRunOnce=0,
+	                                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
+                                    output inserted.ID,inserted.name,inserted.argumentlist
+                                    where
+                                        (ProcessInterval>0)
+                                        and(ProcessNextRun is null)";
+                                using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
+                                    foreach (DataRow row in dt.Rows) {
+                                        int addonId = Convert.ToInt32(row["ID"]);
+                                        string addonName = Convert.ToString(row["name"]);
+                                        string argumentList = Convert.ToString(row["argumentlist"]);
+                                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, no processnextrun but ProcessInterval>0, addon [" + addonName + "], add task, ProcessRunOnce [1], ProcessNextRun [null]");
+                                        //
+                                        // -- add task to queue for runner
+                                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                                            addonId = addonId,
+                                            addonName = addonName,
+                                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
+                                        }, true);
+                                    }
+                                }
+                                //
+                                // -- ProcessNextRun has passed
+                                sql = $@"
+                                    update ccAggregateFunctions
+                                    set 
+                                        ProcessRunOnce=0,
+	                                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
+                                    output inserted.ID,inserted.name,inserted.argumentlist
+                                    where
+	                                    ProcessNextRun<GETDATE()";
+                                using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
+                                    foreach (DataRow row in dt.Rows) {
+                                        int addonId = Convert.ToInt32(row["ID"]);
+                                        string addonName = Convert.ToString(row["name"]);
+                                        string argumentList = Convert.ToString(row["argumentlist"]);
+                                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, processnextrun has passed, addon [" + addonName + "], add task, ProcessRunOnce [1], ProcessNextRun [null]");
+                                        //
+                                        // -- add task to queue for runner
+                                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                                            addonId = addonId,
+                                            addonName = addonName,
+                                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
+                                        }, true);
+                                    }
+                                }
+
+                            } else {
+                                string sqlAddonsCriteria = $@" 
+                                (active<>0) 
+                                and(name<>'') 
+                                and(
+                                    (
+                                        (ProcessRunOnce is not null)
+                                        and(ProcessRunOnce<>0)
+                                    )or(
+                                        (ProcessInterval is not null)
+                                        and(ProcessInterval<>0)
+                                        and(ProcessNextRun is null)
+                                    )or(
+                                        ProcessNextRun<{DbController.encodeSQLDate(core.dateTimeNowMockable)}
+                                    )
+                                )";
+                                var addonList = DbBaseModel.createList<AddonModel>(cpApp, sqlAddonsCriteria);
+                                foreach (var addon in addonList) {
+                                    processAddonTask(core, cpApp, addon);
+                                }
                             }
                         } catch (Exception ex) {
                             logger.Trace($"{cpApp.core.logCommonMessage},scheduleTasks, exception [" + ex + "]");
@@ -177,6 +238,45 @@ namespace Contensive.Processor.Controllers {
                 logger.Error(ex, $"{core.logCommonMessage}");
             }
         }
+        //
+        //====================================================================================================
+        //
+        private static void processAddonTask(CoreController core, CPClass cpApp, AddonModel addon) {
+            //
+            int addonProcessInterval = encodeInteger(addon.processInterval);
+            if (addon.processRunOnce) {
+                //
+                // -- run once checked 
+                addon.processNextRun = core.dateTimeNowMockable;
+                addon.processRunOnce = false;
+            } else if ((addon.processNextRun == null) && (addonProcessInterval > 0)) {
+                //
+                // -- processInterval set but everything else blank )
+                addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
+            }
+            if (addon.processNextRun <= core.dateTimeNowMockable) {
+                //
+                logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, addon [" + addon.name + "], add task, addonProcessRunOnce [" + addon.processRunOnce + "], addonProcessNextRun [" + addon.processNextRun + "]");
+                //
+                // -- add task to queue for runner
+                addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                    addonId = addon.id,
+                    addonName = addon.name,
+                    args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, addon.argumentList)
+                }, true);
+                if (addonProcessInterval > 0) {
+                    //
+                    // -- interval set, update the next run
+                    addon.processNextRun = core.dateTimeNowMockable.AddMinutes(addonProcessInterval);
+                } else {
+                    //
+                    // -- no interval, no next run
+                    addon.processNextRun = null;
+                }
+            }
+            addon.save(cpApp);
+        }
+
         //
         //====================================================================================================
         /// <summary>
