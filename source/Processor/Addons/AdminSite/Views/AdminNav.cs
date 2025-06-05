@@ -64,7 +64,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         portals.Add(new AdminNavViewModel_Portal() {
                             name = GenericController.encodeText(dr["name"]),
                             url = $"{baseUrl}&setPortalGuid={GenericController.encodeText(dr["ccguid"])}",
-                            active = currentPortalGuid.Equals(GenericController.encodeText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.encodeText(dr["id"]))
+                            active = currentPortalGuid.Equals(GenericController.encodeText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.encodeInteger(dr["id"]))
                         });
                     }
                 }
