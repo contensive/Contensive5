@@ -8,6 +8,8 @@ using Contensive.Processor.Models.Domain;
 using Contensive.Models.Db;
 using NLog;
 using System.Data;
+using System.Threading;
+using System.Threading.Tasks;
 //
 namespace Contensive.Processor.Controllers {
     /// <summary>
@@ -26,7 +28,6 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         private System.Timers.Timer processTimer { get; set; }
         private const int ProcessTimerMsecPerTick = 5000; // Check processs every 5 seconds
-        private bool processTimerInProcess { get; set; }
         //
         // ----- Alarms within Process Timer
         //
@@ -68,26 +69,42 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Stop all activity through the content server, but do not unload
-        /// </summary>
-        public void stopTimerEvents() {
-            processTimer.Enabled = false;
-        }
-        //
-        //====================================================================================================
-        /// <summary>
         /// Process the Start signal from the Server Control Manager
         /// </summary>
         /// <param name="setVerbose"></param>
         /// <param name="singleThreaded"></param>
         /// <returns></returns>
         public bool startTimerEvents() {
-            bool returnStartedOk = true;
-            processTimer = new System.Timers.Timer(ProcessTimerMsecPerTick);
-            processTimer.Elapsed += processTimerTick;
-            processTimer.Interval = ProcessTimerMsecPerTick;
-            processTimer.Enabled = true;
-            return returnStartedOk;
+            try {
+                using CPClass cp = new();
+                processTimer ??= new System.Timers.Timer(ProcessTimerMsecPerTick) {
+                    AutoReset = true, // Ensures the timer automatically resets after each tick  
+                    Enabled = true    // Enables the timer immediately  
+                };
+                processTimer.Elapsed -= processTimerTick; // Ensure no duplicate event handlers  
+                processTimer.Elapsed += processTimerTick;
+                logger.Trace($"{cp.core.logCommonMessage},startTimerEvents");
+                return true;
+            } catch (Exception ex) {
+                logger.Error(ex);
+                return false;
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// Stop all activity through the content server, but do not unload
+        /// </summary>
+        public void stopTimerEvents() {
+            try {
+                if (processTimer != null) {
+                    processTimer.Enabled = false;
+                }
+                using CPClass cp = new();
+                logger.Trace($"{cp.core.logCommonMessage},stopTimerEvents");
+            } catch (Exception ex) {
+                logger.Error(ex);
+            }
         }
         //
         //====================================================================================================
@@ -96,150 +113,133 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         protected void processTimerTick(object sender, EventArgs e) {
             try {
-                // non-thread safe. Use lock to prevent re-entry?
-                if (processTimerInProcess) {
-                    //
-                    // -- trace log without core
-                } else {
-                    processTimerInProcess = true;
-                    //
-                    // run tasks in task
-                    //
-                    using (CPClass cpServerGroup = new CPClass()) {
-                        if (!cpServerGroup.core.serverConfig.allowTaskRunnerService) {
-                            logger.Trace($"{cpServerGroup.core.logCommonMessage},taskRunner.processTimerTick, skip -- allowTaskRunnerService false");
-                        } else {
-                            runTasks(cpServerGroup.core);
-                        }
-                        //
-                        // -- log memory usage -- info
-                        long workingSetMemory = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
-                        long virtualMemory = System.Diagnostics.Process.GetCurrentProcess().VirtualMemorySize64;
-                        long privateMemory = System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64;
-                        LogController.log(cpServerGroup.core, "TaskRunner exit, workingSetMemory [" + workingSetMemory + "], virtualMemory [" + virtualMemory + "], privateMemory [" + privateMemory + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
-                    }
-                }
-            } catch (Exception ex) {
+                processTimer.Enabled = false;
                 using CPClass cp = new();
-                logger.Error(ex, $"{cp.core.logCommonMessage}");
+                if (!cp.core.serverConfig.allowTaskRunnerService) {
+                    logger.Trace($"{cp.core.logCommonMessage},taskRunner.processTimerTick, skip -- allowTaskRunnerService false");
+                } else {
+                    runTasks(cp.core);
+                }
+                LogController.LogMemoryUsage(cp.core);
+            } catch (Exception ex) {
+                logger.Error(ex);
             } finally {
-                processTimerInProcess = false;
+                processTimer.Enabled = true;
             }
         }
-
         //
         //====================================================================================================
         /// <summary>
         /// Iterate through all apps and execute tasks in processes
         /// </summary>
-        private void runTasks(CoreController serverCore) {
+        private void runTasks(CoreController core) {
             try {
-                Stopwatch swProcess = new();
-                swProcess.Start();
-                //
-                foreach (var appKVP in serverCore.serverConfig.apps) {
+                foreach (var appKVP in core.serverConfig.apps) {
                     if (appKVP.Value.enabled && appKVP.Value.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
-                        //
-                        // query tasks that need to be run
-                        //
-                        using (CPClass cpApp = new CPClass(appKVP.Value.name)) {
-                            //
-                            logger.Trace($"{cpApp.core.logCommonMessage},runTasks, appname=[" + appKVP.Value.name + "]");
-                            //
-                            try {
-                                int recordsAffected = 0;
-                                int sequentialTaskCount = 0;
-                                do {
-                                    //
-                                    // for now run an sql to get processes, eventually cache in variant cache
-                                    string sqlCmdRunner = DbController.encodeSQLText(runnerGuid);
-                                    string sql = @$"
-                                        BEGIN TRANSACTION
-                                        update cctasks 
-                                        set cmdRunner={sqlCmdRunner} 
-                                        output inserted.id
-                                        where 
-                                            id in (select top 1 id from cctasks where (cmdRunner is null)and(datestarted is null) order by id)
-                                        COMMIT TRANSACTION";
-                                    DataTable dt = cpApp.core.db.executeQuery(sql);
-                                    foreach (DataRow row in dt.Rows) {
-                                        recordsAffected++;
-                                        TaskModel task = DbBaseModel.create<TaskModel>(cpApp, cpApp.Utils.EncodeInteger(row["id"]));
-                                        Stopwatch swTask = new();
-                                        swTask.Start();
-                                        //
-                                        // -- track multiple executions
-                                        if (sequentialTaskCount > 0) {
-                                            logger.Trace($"{cpApp.core.logCommonMessage},runTasks, appname=[" + appKVP.Value.name + "], multiple tasks run in a single cycle, sequentialTaskCount [" + sequentialTaskCount + "]");
-                                        }
-                                        //
-                                        // -- two execution methods, 1) run task here, 2) start process and wait (so bad addon code does not memory link)
-                                        bool runInServiceProcess = cpApp.Site.GetBoolean("Run tasks in service process");
-                                        string cliPathFilename = cpApp.core.programFiles.localAbsRootPath + "cc.exe";
-                                        if (!runInServiceProcess && !System.IO.File.Exists(cliPathFilename)) {
-                                            runInServiceProcess = true;
-                                            string errMsg = "TaskRunner cannot run out of process because command line program cc.exe not found in program files folder [" + cpApp.core.programFiles.localAbsRootPath + "]";
-                                            Logger.Error(cpApp.core.logCommonMessage + "," + errMsg);
-                                        }
-                                        if (runInServiceProcess) {
-                                            //
-                                            // -- execute here
-                                            executeRunnerTasks(cpApp.Site.Name, runnerGuid);
-                                        } else {
-                                            //
-                                            // -- execute in new  process
-                                            string filename = "cc.exe";
-                                            string workingDirectory = cpApp.core.programFiles.localAbsRootPath;
-                                            string arguments = "-a \"" + appKVP.Value.name + "\" --runTask \"" + runnerGuid + "\"";
-                                            logger.Info($"{cpApp.core.logCommonMessage},TaskRunner starting process to execute task for filename [" + filename + "], workingDirectory [" + workingDirectory + "], arguments [" + arguments + "]");
-                                            //
-                                            // todo manage multiple executing processes
-                                            using (Process process = new Process()) {
-                                                process.StartInfo.CreateNoWindow = true;
-                                                process.StartInfo.FileName = filename;
-                                                process.StartInfo.WorkingDirectory = workingDirectory;
-                                                process.StartInfo.Arguments = arguments;
-                                                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                                                process.Start();
-                                                //
-                                                // -- determine how long to wait
-                                                int timeoutMsec = 0;
-                                                if ((int.MaxValue / 1000) >= task.timeout) {
-                                                    // minus 1 because maxvalue causes wait for ever
-                                                    timeoutMsec = int.MaxValue - 1;
-                                                } else {
-                                                    timeoutMsec = task.timeout * 1000;
-                                                }
-                                                if (timeoutMsec == 0) {
-                                                    //
-                                                    // --no timeout, just run the task
-                                                    process.WaitForExit();
-                                                } else {
-                                                    process.WaitForExit(timeoutMsec);
-                                                }
-                                                if (!process.HasExited) {
-                                                    string errMsg = "TaskRunner Killing process, process timed out, app [" + appKVP.Value.name + "].";
-                                                    Logger.Error(cpApp.core.logCommonMessage + "," + errMsg);
-                                                    process.Kill();
-                                                    process.WaitForExit();
-                                                }
-                                                process.Close();
-                                            }
-                                        }
-                                        logger.Trace($"{cpApp.core.logCommonMessage},runTasks, app [" + appKVP.Value.name + "], task complete (" + swTask.ElapsedMilliseconds + "ms)");
-                                    }
-                                    sequentialTaskCount++;
-                                } while (recordsAffected > 0);
-                            } catch (Exception ex) {
-                                logger.Error(ex, $"{cpApp.core.logCommonMessage}");
-                            }
-                        }
+                        runTasks_app(core, appKVP);
                     }
                 }
                 //
                 // -- trace log without core
             } catch (Exception ex) {
-                logger.Error(ex, $"{serverCore.logCommonMessage}");
+                logger.Error(ex, $"{core.logCommonMessage}");
+            }
+        }
+        //
+        //====================================================================================================
+        //
+        private void runTasks_app(CoreController core, KeyValuePair<string, AppConfigModel> appKVP) {
+            logger.Trace($"{core.logCommonMessage},runTasks, app=[" + appKVP.Value.name + "]");
+            using (CPClass cp = new(appKVP.Value.name)) {
+                try {
+                    //int recordsAffected = 0;
+                    //int sequentialTaskCount = 0;
+                    //do {
+                    //
+                    // for now run an sql to get processes, eventually cache in variant cache
+                    string sqlCmdRunner = DbController.encodeSQLText(runnerGuid);
+                    string sql = @$"
+                            BEGIN TRANSACTION
+                            update cctasks 
+                            set 
+                                cmdRunner={sqlCmdRunner},
+                                dateStarted=getdate()       
+                            output inserted.id
+                            where 
+                                id in (select top 1 id from cctasks where (cmdRunner is null) order by id)
+                            COMMIT TRANSACTION";
+                    DataTable dt = cp.core.db.executeQuery(sql);
+                    foreach (DataRow row in dt.Rows) {
+                        //recordsAffected++;
+                        TaskModel task = DbBaseModel.create<TaskModel>(cp, cp.Utils.EncodeInteger(row["id"]));
+                        Stopwatch swTask = new();
+                        swTask.Start();
+                        ////
+                        //// -- track multiple executions
+                        //if (sequentialTaskCount > 0) {
+                        //    logger.Trace($"{cp.core.logCommonMessage},runTasks, appname=[" + appKVP.Value.name + "], multiple tasks run in a single cycle, sequentialTaskCount [" + sequentialTaskCount + "]");
+                        //}
+                        //
+                        // -- two execution methods, 1) run task here, 2) start process and wait (so bad addon code does not memory link)
+                        bool runInServiceProcess = cp.Site.GetBoolean("Run tasks in service process");
+                        string cliPathFilename = cp.core.programFiles.localAbsRootPath + "cc.exe";
+                        if (!runInServiceProcess && !System.IO.File.Exists(cliPathFilename)) {
+                            runInServiceProcess = true;
+                            string errMsg = "TaskRunner cannot run out of process because command line program cc.exe not found in program files folder [" + cp.core.programFiles.localAbsRootPath + "]";
+                            Logger.Error(cp.core.logCommonMessage + "," + errMsg);
+                        }
+                        if (runInServiceProcess) {
+                            //
+                            // -- execute here
+                            executeRunnerTasks(cp.Site.Name, runnerGuid);
+                        } else {
+                            //
+                            // -- execute in new  process
+                            string filename = "cc.exe";
+                            string workingDirectory = cp.core.programFiles.localAbsRootPath;
+                            string arguments = "-a \"" + appKVP.Value.name + "\" --runTask \"" + runnerGuid + "\"";
+                            logger.Info($"{cp.core.logCommonMessage},TaskRunner starting process to execute task for filename [" + filename + "], workingDirectory [" + workingDirectory + "], arguments [" + arguments + "]");
+                            //
+                            // todo manage multiple executing processes
+                            using (Process process = new Process()) {
+                                process.StartInfo.CreateNoWindow = true;
+                                process.StartInfo.FileName = filename;
+                                process.StartInfo.WorkingDirectory = workingDirectory;
+                                process.StartInfo.Arguments = arguments;
+                                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                                process.Start();
+                                //
+                                // -- determine how long to wait
+                                int timeoutMsec = 0;
+                                if ((int.MaxValue / 1000) >= task.timeout) {
+                                    // minus 1 because maxvalue causes wait for ever
+                                    timeoutMsec = int.MaxValue - 1;
+                                } else {
+                                    timeoutMsec = task.timeout * 1000;
+                                }
+                                if (timeoutMsec == 0) {
+                                    //
+                                    // --no timeout, just run the task
+                                    process.WaitForExit();
+                                } else {
+                                    process.WaitForExit(timeoutMsec);
+                                }
+                                if (!process.HasExited) {
+                                    string errMsg = "TaskRunner Killing process, process timed out, app [" + appKVP.Value.name + "].";
+                                    Logger.Error(cp.core.logCommonMessage + "," + errMsg);
+                                    process.Kill();
+                                    process.WaitForExit();
+                                }
+                                process.Close();
+                            }
+                        }
+                        logger.Trace($"{cp.core.logCommonMessage},runTasks, app [" + appKVP.Value.name + "], task complete (" + swTask.ElapsedMilliseconds + "ms)");
+                    }
+                    //sequentialTaskCount++;
+                    //} while (recordsAffected > 0);
+                } catch (Exception ex) {
+                    logger.Error(ex, $"{cp.core.logCommonMessage}");
+                }
             }
         }
         //

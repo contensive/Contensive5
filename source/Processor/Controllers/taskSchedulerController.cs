@@ -1,17 +1,16 @@
 ﻿
+using Contensive.Models.Db;
+using Contensive.Processor.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using static Contensive.Processor.Controllers.GenericController;
 using static Newtonsoft.Json.JsonConvert;
-using Contensive.Processor.Models.Domain;
-using Contensive.Models.Db;
-using System.Data;
 //
 namespace Contensive.Processor.Controllers {
     public class TaskSchedulerController : IDisposable {
         private System.Timers.Timer processTimer;
         private const int ProcessTimerMsecPerTick = 5000;
-        private bool ProcessTimerInProcess;
         public bool StartServiceInProgress;
         protected bool disposed;
         //
@@ -35,47 +34,40 @@ namespace Contensive.Processor.Controllers {
         //
         //====================================================================================================
         /// <summary>
-        /// Stop all activity through the content server, but do not unload
+        /// Process the Start signal from the Server Control Manager
         /// </summary>
-        public void stopTimerEvents() {
+        /// <returns></returns>
+        public bool startTimerEvents() {
             try {
-                processTimer.Enabled = false;
-                using (CPClass cp = new CPClass()) {
-                    logger.Trace($"{cp.core.logCommonMessage},stopTimerEvents");
-                }
+                using CPClass cp = new();
+                processTimer ??= new System.Timers.Timer(ProcessTimerMsecPerTick) {
+                    AutoReset = true, // Ensures the timer automatically resets after each tick  
+                    Enabled = true    // Enables the timer immediately  
+                };
+                processTimer.Elapsed -= processTimerTick; // Ensure no duplicate event handlers  
+                processTimer.Elapsed += processTimerTick;
+                logger.Trace($"{cp.core.logCommonMessage},startTimerEvents");
+                return true;
             } catch (Exception ex) {
-                using (CPClass cp = new CPClass()) {
-                    logger.Error(ex, $"{cp.core.logCommonMessage}");
-                }
+                logger.Error(ex);
+                return false;
             }
         }
         //
         //====================================================================================================
         /// <summary>
-        /// Process the Start signal from the Server Control Manager
+        /// Stop all activity through the content server, but do not unload
         /// </summary>
-        /// <returns></returns>
-        public bool startTimerEvents() {
-            bool returnStartedOk = false;
+        public void stopTimerEvents() {
             try {
-                // todo StartServiceInProgress does nothing. windows will not call it twice
-                if (!StartServiceInProgress) {
-                    StartServiceInProgress = true;
-                    processTimer = new System.Timers.Timer(ProcessTimerMsecPerTick);
-                    processTimer.Elapsed += processTimerTick;
-                    processTimer.Enabled = true;
-                    returnStartedOk = true;
-                    StartServiceInProgress = false;
+                if (processTimer != null) {
+                    processTimer.Enabled = false;
                 }
-                using (CPClass cp = new CPClass()) {
-                    logger.Trace($"{cp.core.logCommonMessage},stopTimerEvents");
-                }
+                using CPClass cp = new();
+                logger.Trace($"{cp.core.logCommonMessage},stopTimerEvents");
             } catch (Exception ex) {
-                using (CPClass cp = new CPClass()) {
-                    logger.Error(ex, $"{cp.core.logCommonMessage}");
-                }
+                logger.Error(ex);
             }
-            return returnStartedOk;
         }
         //
         //====================================================================================================
@@ -84,158 +76,130 @@ namespace Contensive.Processor.Controllers {
         /// </summary>
         public void processTimerTick(object sender, EventArgs e) {
             try {
-                // windows holds one instance of this class. This check needs a lock to catch the non-threadsafe check-then-set here
-                if (!ProcessTimerInProcess) {
-                    ProcessTimerInProcess = true;
-                    using (CPClass cp = new()) {
-                        if (cp.core.serverConfig.allowTaskSchedulerService) {
-                            scheduleTasks(cp.core);
-                        }
-                        //
-                        // -- log memory usage -- info
-                        long workingSetMemory = System.Diagnostics.Process.GetCurrentProcess().WorkingSet64;
-                        long virtualMemory = System.Diagnostics.Process.GetCurrentProcess().VirtualMemorySize64;
-                        long privateMemory = System.Diagnostics.Process.GetCurrentProcess().PrivateMemorySize64;
-                        LogController.log(cp.core, "TaskScheduler exit, workingSetMemory [" + workingSetMemory + "], virtualMemory [" + virtualMemory + "], privateMemory [" + privateMemory + "]", BaseClasses.CPLogBaseClass.LogLevel.Info);
-                    }
+                processTimer.Enabled = false;
+                using CPClass cp = new();
+                if (!cp.core.serverConfig.allowTaskSchedulerService) {
+                    logger.Trace($"{cp.core.logCommonMessage},taskScheduler.processTimerTick, skip -- allowTaskSchedulerService false");
+                } else {
+                    scheduleTasks(cp.core);
                 }
+                LogController.LogMemoryUsage(cp.core);
             } catch (Exception ex) {
-                using (CPClass cp = new CPClass()) {
-                    logger.Error(ex, $"{cp.core.logCommonMessage}");
-                }
+                logger.Error(ex);
             } finally {
-                ProcessTimerInProcess = false;
+                processTimer.Enabled = true;
             }
         }
         //
         //====================================================================================================
         /// <summary>
-        /// Iterate through all apps, find addosn that need to run and add them to the task queue
+        /// Iterate through all apps, find addons that need to run and add them to the task queue
         /// </summary>
         private void scheduleTasks(CoreController core) {
             try {
-                //
-                // -- run tasks for each app
                 foreach (var appKvp in core.serverConfig.apps) {
                     if (appKvp.Value.enabled && appKvp.Value.appStatus.Equals(AppConfigModel.AppStatusEnum.ok)) {
-                        logger.Trace($"{core.logCommonMessage},scheduleTasks, app=[" + appKvp.Value.name + "]");
-                        using CPClass cpApp = new(appKvp.Value.name);
-                        //
-                        // -- execute processes
-                        try {
-                            if (true) {
-                                string sql = "";
-                                //
-                                // -- runonce
-                                sql = $@"
-                                    update ccAggregateFunctions
-                                    set 
-                                        ProcessRunOnce=0,
-                                        ProcessNextRun = CASE ProcessInterval
-                                                WHEN null THEN null
-                                                WHEN 0 THEN null
-                                                ELSE DATEADD(MINUTE, ProcessInterval, GETDATE())
-                                            END
-                                    output inserted.ID,inserted.name,inserted.argumentlist
-                                    where 
-                                        ProcessRunOnce>0";
-                                using( DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
-                                    foreach (DataRow row in dt.Rows) {
-                                        int addonId = Convert.ToInt32(row["ID"]);
-                                        string addonName = Convert.ToString(row["name"]);
-                                        string argumentList = Convert.ToString(row["argumentlist"]);
-                                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, runonce, addon [" + addonName + "], add task, ProcessRunOnce [1], ProcessNextRun [null]");
-                                        //
-                                        // -- add task to queue for runner
-                                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
-                                            addonId = addonId,
-                                            addonName = addonName,
-                                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
-                                        }, true);
-                                    }
-                                }
-                                //
-                                // -- no ProcessNextRun but ProcessInterval>0
-                                sql = $@"
-                                    update ccAggregateFunctions
-                                    set 
-                                        ProcessRunOnce=0,
-	                                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
-                                    output inserted.ID,inserted.name,inserted.argumentlist
-                                    where
-                                        (ProcessInterval>0)
-                                        and(ProcessNextRun is null)";
-                                using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
-                                    foreach (DataRow row in dt.Rows) {
-                                        int addonId = Convert.ToInt32(row["ID"]);
-                                        string addonName = Convert.ToString(row["name"]);
-                                        string argumentList = Convert.ToString(row["argumentlist"]);
-                                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, no processnextrun but ProcessInterval>0, addon [" + addonName + "], add task, ProcessRunOnce [1], ProcessNextRun [null]");
-                                        //
-                                        // -- add task to queue for runner
-                                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
-                                            addonId = addonId,
-                                            addonName = addonName,
-                                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
-                                        }, true);
-                                    }
-                                }
-                                //
-                                // -- ProcessNextRun has passed
-                                sql = $@"
-                                    update ccAggregateFunctions
-                                    set 
-                                        ProcessRunOnce=0,
-	                                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
-                                    output inserted.ID,inserted.name,inserted.argumentlist
-                                    where
-	                                    ProcessNextRun<GETDATE()";
-                                using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
-                                    foreach (DataRow row in dt.Rows) {
-                                        int addonId = Convert.ToInt32(row["ID"]);
-                                        string addonName = Convert.ToString(row["name"]);
-                                        string argumentList = Convert.ToString(row["argumentlist"]);
-                                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, processnextrun has passed, addon [" + addonName + "], add task, ProcessRunOnce [1], ProcessNextRun [null]");
-                                        //
-                                        // -- add task to queue for runner
-                                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
-                                            addonId = addonId,
-                                            addonName = addonName,
-                                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
-                                        }, true);
-                                    }
-                                }
-
-                            } else {
-                                string sqlAddonsCriteria = $@" 
-                                (active<>0) 
-                                and(name<>'') 
-                                and(
-                                    (
-                                        (ProcessRunOnce is not null)
-                                        and(ProcessRunOnce<>0)
-                                    )or(
-                                        (ProcessInterval is not null)
-                                        and(ProcessInterval<>0)
-                                        and(ProcessNextRun is null)
-                                    )or(
-                                        ProcessNextRun<{DbController.encodeSQLDate(core.dateTimeNowMockable)}
-                                    )
-                                )";
-                                var addonList = DbBaseModel.createList<AddonModel>(cpApp, sqlAddonsCriteria);
-                                foreach (var addon in addonList) {
-                                    processAddonTask(core, cpApp, addon);
-                                }
-                            }
-                        } catch (Exception ex) {
-                            logger.Trace($"{cpApp.core.logCommonMessage},scheduleTasks, exception [" + ex + "]");
-                            logger.Error(ex, $"{cpApp.core.logCommonMessage}");
-                        }
+                        scheduleTasks_app(core, appKvp);
                     }
                 }
             } catch (Exception ex) {
-                logger.Trace($"{core.logCommonMessage},scheduleTasks, exeception [" + ex + "]");
-                logger.Error(ex, $"{core.logCommonMessage}");
+                logger.Error(ex, $"{core.logCommonMessage},scheduleTasks");
+            }
+        }
+        //
+        //====================================================================================================
+        /// <summary>
+        /// find the next addon for one app and add it to the task queue to be run by the task runner. 
+        /// This is called for each app in the serverConfig.apps dictionary.
+        /// </summary>
+        /// <param name="core"></param>
+        /// <param name="appKvp"></param>
+        private static void scheduleTasks_app(CoreController core, KeyValuePair<string, AppConfigModel> appKvp) {
+            logger.Trace($"{core.logCommonMessage},scheduleTasks, app=[" + appKvp.Value.name + "]");
+            using CPClass cpApp = new(appKvp.Value.name);
+            try {
+                //
+                // -- runonce
+                string sql = $@"
+                    update ccAggregateFunctions
+                    set 
+                        ProcessRunOnce=0,
+                        ProcessNextRun = CASE ProcessInterval
+                                WHEN null THEN null
+                                WHEN 0 THEN null
+                                ELSE DATEADD(MINUTE, ProcessInterval, GETDATE())
+                            END
+                    output inserted.ID,inserted.name,inserted.argumentlist
+                    where 
+                        ProcessRunOnce>0";
+                using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
+                    foreach (DataRow row in dt.Rows) {
+                        int addonId = Convert.ToInt32(row["ID"]);
+                        string addonName = Convert.ToString(row["name"]);
+                        string argumentList = Convert.ToString(row["argumentlist"]);
+                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, runonce, addon [" + addonName + "]");
+                        //
+                        // -- add task to queue for runner
+                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                            addonId = addonId,
+                            addonName = addonName,
+                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
+                        }, true);
+                    }
+                }
+                //
+                // -- no ProcessNextRun but ProcessInterval>0
+                sql = $@"
+                    update ccAggregateFunctions
+                    set 
+                        ProcessRunOnce=0,
+	                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
+                    output inserted.ID,inserted.name,inserted.argumentlist
+                    where
+                        (ProcessInterval>0)
+                        and(ProcessNextRun is null)";
+                using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
+                    foreach (DataRow row in dt.Rows) {
+                        int addonId = Convert.ToInt32(row["ID"]);
+                        string addonName = Convert.ToString(row["name"]);
+                        string argumentList = Convert.ToString(row["argumentlist"]);
+                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, no processnextrun but ProcessInterval>0, addon [" + addonName + "]");
+                        //
+                        // -- add task to queue for runner
+                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                            addonId = addonId,
+                            addonName = addonName,
+                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
+                        }, true);
+                    }
+                }
+                //
+                // -- ProcessNextRun has passed
+                sql = $@"
+                    update ccAggregateFunctions
+                    set 
+                        ProcessRunOnce=0,
+	                    ProcessNextRun=DATEADD(MINUTE, ProcessInterval, GETDATE())
+                    output inserted.ID,inserted.name,inserted.argumentlist
+                    where
+	                    ProcessNextRun<GETDATE()";
+                using (DataTable dt = cpApp.Db.ExecuteQuery(sql)) {
+                    foreach (DataRow row in dt.Rows) {
+                        int addonId = Convert.ToInt32(row["ID"]);
+                        string addonName = Convert.ToString(row["name"]);
+                        string argumentList = Convert.ToString(row["argumentlist"]);
+                        logger.Info($"{cpApp.core.logCommonMessage},scheduleTasks, processnextrun has passed, addon [" + addonName + "]");
+                        //
+                        // -- add task to queue for runner
+                        addTaskToQueue(cpApp.core, new TaskModel.CmdDetailClass {
+                            addonId = addonId,
+                            addonName = addonName,
+                            args = GenericController.convertAddonArgumentstoDocPropertiesList(cpApp.core, argumentList)
+                        }, true);
+                    }
+                }
+            } catch (Exception ex) {
+                logger.Error(ex, $"{cpApp.core.logCommonMessage}");
             }
         }
         //

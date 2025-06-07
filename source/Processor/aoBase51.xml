@@ -4277,7 +4277,7 @@
 
     
 
-		<Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Communications">
+		<Record Content="Portals" Guid="{e4d011e9-9f3b-4f7e-8ec3-f4fcc2a20455}" Name="Comm">
 			<field Name="defaultfeatureid"></field>
 		</Record>
 

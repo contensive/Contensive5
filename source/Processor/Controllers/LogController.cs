@@ -426,7 +426,26 @@ namespace Contensive.Processor.Controllers {
                 csData.set("count", 1);
                 csData.set("DateLastReported", core.dateTimeNowMockable);
             }
-            //
         }
+        //
+        //================================================================================================
+        /// <summary>
+        /// log the status of the memory usage of the task scheduler process when it exits. This is useful for debugging memory leaks or performance issues.
+        /// </summary>
+        /// <param name="core"></param>
+        public static void LogMemoryUsage(CoreController core) {
+            try {
+                var currentProcess = System.Diagnostics.Process.GetCurrentProcess();
+                long workingSetMemory = currentProcess.WorkingSet64;
+                long virtualMemory = currentProcess.VirtualMemorySize64;
+                long privateMemory = currentProcess.PrivateMemorySize64;
+                //
+                string logMessage = $"TaskScheduler exit, workingSetMemory [{workingSetMemory}], virtualMemory [{virtualMemory}], privateMemory [{privateMemory}]";
+                LogController.log(core, logMessage, BaseClasses.CPLogBaseClass.LogLevel.Info);
+            } catch (Exception ex) {
+                logger.Error(ex, $"{core.logCommonMessage},LogMemoryUsage, exception: {ex.Message}");
+            }
+        }
+
     }
 }
