@@ -162,8 +162,7 @@ namespace Contensive.Processor.Controllers {
                             BEGIN TRANSACTION
                             update cctasks 
                             set 
-                                cmdRunner={sqlCmdRunner},
-                                dateStarted=getdate()       
+                                cmdRunner={sqlCmdRunner}    
                             output inserted.id
                             where 
                                 id in (select top 1 id from cctasks where (cmdRunner is null) order by id)

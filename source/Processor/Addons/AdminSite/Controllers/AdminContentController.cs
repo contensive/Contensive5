@@ -345,10 +345,6 @@ namespace Contensive.Processor.Addons.AdminSite {
                         //        content = cp.core.html.getResourceLibrary("", false, "", "", true);
                         //        break;
                         //    }
-                        //case AdminFormQuickStats: {
-                        //        content = QuickStatsView.get(cp.core);
-                        //        break;
-                        //    }
                         //case AdminFormClose: {
                         //        content = "<Script Language=\"JavaScript\" type=\"text/javascript\"> window.close(); </Script>";
                         //        break;

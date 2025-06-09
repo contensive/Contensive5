@@ -29,6 +29,17 @@ namespace Contensive.Processor.Models.Domain {
             string jsonConfigText = cp.PrivateFiles.Read(getConfigFilename(cp, portalName));
             if (string.IsNullOrWhiteSpace(jsonConfigText)) { return null; }
             var userConfig = cp.JSON.Deserialize<DashboardUserConfigModel>(jsonConfigText);
+            //
+            // -- fix widgetHtmlId created without js- prefix
+            bool needsSave = false;
+            foreach (var widget in userConfig.widgets) {
+                if (!string.IsNullOrEmpty(widget.widgetHtmlId) && !widget.widgetHtmlId.StartsWith("js-")) {
+                    widget.widgetHtmlId = "js-" + widget.widgetHtmlId;
+                    needsSave = true;
+                }
+            }
+            if(needsSave) { userConfig.save(cp, portalName); }
+            //
             userConfig.widgets = userConfig.widgets.OrderBy((x) => x.sort).ToList();
             return userConfig;
         }

@@ -28,7 +28,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     refreshSeconds = 0,
                     widgetType = WidgetTypeEnum.number,
                     url = $"{cp.Site.GetText("adminurl")}?addonguid=%7B6A54A051-6CF6-4D8C-823D-C37741DD072A%7D",
-                    filterOptions = new List<DashboardWidgetBaseModel_FilterOptions>() {
+                    filterOptions = [
                         new DashboardWidgetBaseModel_FilterOptions() {
                             filterCaption = "1 Month",
                             filterValue = "1",
@@ -44,7 +44,7 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                             filterValue = "12",
                             filterActive = (months == 12)
                         }
-                    }
+                    ]
                 };
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

@@ -12,6 +12,8 @@ using Amazon.S3.Model;
 using System.Collections.Generic;
 using Contensive.CLI.Controllers;
 using NLog;
+using System.Text.RegularExpressions;
+using System.Net.Mail;
 
 namespace Contensive.CLI {
     static class NewAppCmd {
@@ -42,8 +44,11 @@ namespace Contensive.CLI {
                     Console.Write("\nThis application name is not valid because it must contain only letters and numbers.");
                     return;
                 }
+                string defaultEmailAddress = "";
                 //
                 using (CPClass cp = new CPClass()) {
+                    defaultEmailAddress = cp.ServerConfig.defaultEmailContact;
+                    //
                     if (!cp.serverOk) {
                         Console.WriteLine("The Server Group does not appear to be configured correctly. Please run --configure");
                         return;
@@ -145,8 +150,29 @@ namespace Contensive.CLI {
                     //
                     // -- domain
                     domainName = "www." + appConfig.name + ".com";
-                    if (promptForArguments) { domainName = GenericController.promptForReply("Primary Domain Name", domainName); }
+                    while (promptForArguments) {
+                        domainName = GenericController.promptForReply("Primary Domain Name", domainName);
+                        domainName = normalizeDomain(domainName);
+                        if (IsValidDomain(domainName)) {
+                            break;
+                        } else {
+                            Console.WriteLine("The primary domain name is not valid. It must be a valid domain name, such as www.example.com.");
+                        }
+                    }
+                    appConfig.domainList.Clear();
                     appConfig.domainList.Add(domainName);
+                    //
+                    // -- admin email address / default fron-address, save to site properties after build
+                    // create email address for admin@ the domain name of the website
+                    if (string.IsNullOrEmpty(defaultEmailAddress)) {
+                        defaultEmailAddress = "admin@" + getNakedDomain(domainName);
+                    }
+                    if (promptForArguments) {
+                        defaultEmailAddress = GenericController.promptForReply("Admin email address (required for email from-address)", defaultEmailAddress);
+                    }
+                    if (string.IsNullOrEmpty(cp.ServerConfig.defaultEmailContact)) {
+                        cp.ServerConfig.defaultEmailContact = defaultEmailAddress;
+                    }
                     //
                     // -- file architectur
                     if (!promptForArguments) {
@@ -310,7 +336,7 @@ namespace Contensive.CLI {
                 //
                 // initialize the new app, use the save authentication that was used to authorize this object
                 //
-                using (CPClass cp = new CPClass(appName)) {
+                using (CPClass cp = new(appName)) {
                     logger.Info($"{cp.core.logCommonMessage},Verify website.");
                     cp.core.webServer.verifySite(appName, domainName, cp.core.appConfig.localWwwPath);
                     //
@@ -347,23 +373,14 @@ namespace Contensive.CLI {
                     }
                     //
                     logger.Info($"{cp.core.logCommonMessage},Run db upgrade.");
-
-/* Unmerged change from project 'Cli (net9.0-windows)'
-Before:
-                    Processor.Controllers.BuildController.upgrade(cp.core, true, true);
-                    //
-After:
-                    BuildController.upgrade(cp.core, true, true);
-                    //
-*/
                     Processor.Controllers.Build.BuildController.upgrade(cp.core, true, true);
                     //
                     // -- set the application back to normal mode
                     cp.core.serverConfig.save(cp.core);
                     cp.core.siteProperties.setProperty(Constants.sitePropertyName_ServerPageDefault, iisDefaultDoc);
                     //
-                    cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailAdmin, cp.ServerConfig.defaultEmailContact);
-                    cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailFromAddress, cp.ServerConfig.defaultEmailContact);
+                    cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailAdmin, defaultEmailAddress);
+                    cp.core.siteProperties.setProperty(Constants.sitePropertyName_EmailFromAddress, defaultEmailAddress);
                     //
                     logger.Info($"{cp.core.logCommonMessage},Upgrade complete.");
                     if (DefaultAspxSiteInstalled) {
@@ -419,6 +436,71 @@ After:
                 }
             }
             return string.Empty;
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Claude
+        /// given a domain entered by the user, process it to a standard format.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        static string normalizeDomain(string input) {
+            // Remove common prefixes if present
+            string domain = input.ToLower();
+
+            if (domain.StartsWith("http://"))
+                domain = domain.Substring(7);
+            else if (domain.StartsWith("https://"))
+                domain = domain.Substring(8);
+
+            // Remove trailing slash if present
+            if (domain.EndsWith("/"))
+                domain = domain.TrimEnd('/');
+
+            // Remove path components (keep only the domain part)
+            int slashIndex = domain.IndexOf('/');
+            if (slashIndex != -1)
+                domain = domain.Substring(0, slashIndex);
+
+            return domain;
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Claude
+        /// given a domain entered by the user, process it to a standard format.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        static string getNakedDomain(string input) {
+            // Remove common prefixes if present
+            string domain = normalizeDomain(input);
+            if (domain.StartsWith("www."))
+                domain = domain.Substring(4);
+            return domain;
+        }
+        //
+        // ====================================================================================================
+        /// <summary>
+        /// Validate the domain name format.
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <returns></returns>
+        static bool IsValidDomain(string domain) {
+            if (string.IsNullOrEmpty(domain))
+                return false;
+
+            // Basic domain validation regex
+            // Allows letters, numbers, hyphens, and dots
+            // Must have at least one dot and valid TLD structure
+            string pattern = @"^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$";
+
+            return Regex.IsMatch(domain, pattern) &&
+                   domain.Length <= 253 &&
+                   !domain.StartsWith("-") &&
+                   !domain.EndsWith("-") &&
+                   !domain.Contains("..");
         }
         //
         //====================================================================================================

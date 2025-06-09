@@ -67,83 +67,96 @@
 {{/url}}
 
   
-  <script data-delete src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script data-delete src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
   
-  <script>
-    
-    console.log("barchart{{uniqueId}} start");
-    if (document.readyState === "loading") {
-      console.log("barchart{{uniqueId}} wait for ready");
-      document.addEventListener("DOMContentLoaded", callback{{uniqueId}});
-    } else {
-      console.log("barchart{{uniqueId}} no wait");
-      callback{{uniqueId}}();
+  console.log("barchart{{uniqueId}} start");
+  if (document.readyState === "loading") {
+    console.log("barchart{{uniqueId}} wait for ready");
+    document.addEventListener("DOMContentLoaded", callback{{uniqueId}});
+  } else {
+    console.log("barchart{{uniqueId}} no wait");
+    callback{{uniqueId}}();
+  }
+  window.addEventListener('resize', () => {
+    if (myChart{{uniqueId}}) {
+      // Destroy existing chart
+      myChart{{uniqueId}}.destroy(); 
     }
-    window.addEventListener('resize', () => {
-      if (myChart{{uniqueId}}) {
-        // Destroy existing chart
-        myChart{{uniqueId}}.destroy(); 
-      }
-      callback{{uniqueId}}(); // Recreate chart 
-    });
-    //
-    var myChart{{uniqueId}};
-    function callback{{uniqueId}}() {
-      const ctx = document.getElementById('barChart{{uniqueId}}');
-      myChart{{uniqueId}} = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: [{{#dataLabels}}'{{.}}',{{/dataLabels}}],
-          datasets: [
-            {{#dataSets}}
-            {
-              data: [{{#data}}{{.}},{{/data}}],
-              backgroundColor: [
-                'rgba(255, 99, 132, 0.6)',  // Red
-                'rgba(54, 162, 235, 0.6)',  // Blue
-                'rgba(255, 206, 86, 0.6)',  // Yellow
-                'rgba(75, 192, 192, 0.6)',  // Teal
-                'rgba(153, 102, 255, 0.6)', // Purple
-                'rgba(255, 159, 64, 0.6)',  // Orange
-                'rgba(201, 203, 207, 0.6)', // Grey
-                'rgba(0, 128, 128, 0.6)',   // Dark Teal
-                'rgba(220, 20, 60, 0.6)',   // Crimson
-                'rgba(50, 205, 50, 0.6)'    // Lime Green
-              ],
-              borderColor: ['rgba(255, 99, 132, 1)']
+    callback{{uniqueId}}(); // Recreate chart 
+  });
+  //
+  var myChart{{uniqueId}};
+  function callback{{uniqueId}}() {
+    const ctx = document.getElementById('barChart{{uniqueId}}');
+    myChart{{uniqueId}} = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [{{#dataLabels}}'{{.}}',{{/dataLabels}}],
+        datasets: [
+          {{#dataSets}}
+          {
+            data: [{{#data}}{{.}},{{/data}}],
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.6)',  // Red
+              'rgba(54, 162, 235, 0.6)',  // Blue
+              'rgba(255, 206, 86, 0.6)',  // Yellow
+              'rgba(75, 192, 192, 0.6)',  // Teal
+              'rgba(153, 102, 255, 0.6)', // Purple
+              'rgba(255, 159, 64, 0.6)',  // Orange
+              'rgba(201, 203, 207, 0.6)', // Grey
+              'rgba(0, 128, 128, 0.6)',   // Dark Teal
+              'rgba(220, 20, 60, 0.6)',   // Crimson
+              'rgba(50, 205, 50, 0.6)'    // Lime Green
+            ],
+            borderColor: ['rgba(255, 99, 132, 1)']
+          },
+          {{/dataSets}}
+        ],
+      },
+      options: {
+        plugins: {
+            title: {
+                display: true,
+                padding: 0,
+                font: {
+                    size: function(context) {
+                        let width = context.chart.width;
+                        return width < 400 ? 14 : 16;
+                    },
+                    family: 'Poppins',
+                    weight: '600',
+                }
             },
-            {{/dataSets}}
-          ],
+            legend: {
+              display: false
+          }           
         },
-        options: {
-          plugins: {
-              title: {
-                  display: true,
-                  padding: 0,
-                  font: {
-                      size: function(context) {
-                          let width = context.chart.width;
-                          return width < 400 ? 14 : 16;
-                      },
-                      family: 'Poppins',
-                      weight: '600',
-                  }
-              },
-              legend: {
-                display: false
-            }           
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+              stacked: true,
           },
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-                stacked: true,
-            },
-            y: {
-                stacked: true
-            }
-          },
-        }
-      });    
+          y: {
+              stacked: true
+          }
+        },
+      }
+    });    
+  }
+  document.addEventListener('DOMContentLoaded', function (event) {
+    console.log('dashboard widget number layout loaded: {{widgetHtmlId}}'); 
+    //
+    // -- refresh
+    if('1'=='{{#hasRefresh}}1{{/hasRefresh}}') {
+      // call the refresh widget command every 5 seconds
+      setInterval(function() {
+        console.log('widgetDashboardCmd refresh');
+        let items = [document.querySelector("#{{widgetHtmlId}}")];
+        widgetDashboardCmd('refresh',items);
+      }, 5000);
     }
+  });
 </script>

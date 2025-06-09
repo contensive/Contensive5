@@ -30,6 +30,14 @@ namespace Contensive.Processor.Models {
         /// </summary>
         public int refreshSeconds { get; set; }
         /// <summary>
+        /// if true, refresh every refreshSeconds seconds.
+        /// </summary>
+        public bool hasRefresh { 
+            get {
+                return (refreshSeconds > 0);
+            }
+        }
+        /// <summary>
         /// The widget short name that appears at the top of the widget.
         /// </summary>
         public string widgetName { get; set; }

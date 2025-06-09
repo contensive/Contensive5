@@ -5,7 +5,7 @@ using System;
 using System.Data;
 
 namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
-    public class WhoIsOnlineWidget : AddonBaseClass {
+    public class UsersOnlineNumberWidget : AddonBaseClass {
         public override object Execute(CPBaseClass cp) {
             try {
                 return new DashboardWidgetNumberModel() {
@@ -14,9 +14,9 @@ namespace Contensive.Processor.Addons.WidgetDashboardWidgets {
                     number = getUsersOnline(cp).ToString(),
                     subhead = "Users Online",
                     description = "The number of users online over the past 30 minutes",
-                    refreshSeconds = 0,
+                    refreshSeconds = 5,
                     widgetType = WidgetTypeEnum.number,
-                    url = $"{cp.Site.GetText("adminurl")}?addonguid=%7B3BFA1A48-31BB-4D70-96A7-B06B53BBB183%7D",
+                    url = $"{cp.Site.GetText("adminurl")}?addonguid={Constants.guidUsersOnlineReportAddon}",
                 };
             } catch (Exception ex) {
                 cp.Site.ErrorReport(ex);

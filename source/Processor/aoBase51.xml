@@ -3190,8 +3190,8 @@
     <BlockEditTools>Yes</BlockEditTools>
   </Addon>
 
-  <Addon Name="Real Time Visits" Guid="{A5439430-ED28-4D72-A9ED-50FB36145955}" Type="Tool">
-    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.QuickStatsView]]></DotNetClass>
+  <Addon Name="Users Online Report" Guid="{A5439430-ED28-4D72-A9ED-50FB36145955}" Type="Tool">
+    <DotNetClass><![CDATA[Contensive.Processor.Addons.Tools.UsersOnlineReportAddon]]></DotNetClass>
     <Admin>Yes</Admin>
 		<Category><![CDATA[]]></Category>
     <BlockEditTools>Yes</BlockEditTools>
@@ -3794,13 +3794,13 @@
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
-	<Addon Name="Who is Online Dashboard Widget" Guid="{224E4CE6-4D3A-41A8-A501-1C2DBD456EE9}" Type="Add-on">
+	<Addon Name="Users Online Widget" Guid="{224E4CE6-4D3A-41A8-A501-1C2DBD456EE9}" Type="Add-on">
 		<DashboardWidget>Yes</DashboardWidget>
-		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.WhoIsOnlineWidget]]></DotNetClass>
+		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.UsersOnlineNumberWidget]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>
 	</Addon>
 
-	<Addon Name="Pages To Review Dashboard Widget" Guid="{BF25F9DE-02B3-4DDE-91AC-42AB66BF8049}" Type="Add-on">
+	<Addon Name="Pages To Review Widget" Guid="{BF25F9DE-02B3-4DDE-91AC-42AB66BF8049}" Type="Add-on">
 		<DashboardWidget>Yes</DashboardWidget>
 		<DotNetClass><![CDATA[Contensive.Processor.Addons.WidgetDashboardWidgets.PagesToReviewWidget]]></DotNetClass>
 		<BlockEditTools>Yes</BlockEditTools>

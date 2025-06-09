@@ -64,17 +64,13 @@ namespace Contensive.Processor.Models.View {
                     // -- verify unique keys
                     foreach (var widget in userConfig.widgets) {
                         if (string.IsNullOrEmpty(widget.widgetHtmlId)) {
-                            widget.widgetHtmlId = GenericController.getRandomString(6);
+                            widget.widgetHtmlId = $"js-{GenericController.getRandomString(6)}";
                             needsConfigSave = true;
                         }
                     }
                     //
                     // -- create an empty hidden widget used to add widgets
-                    result.widgets.Add(new DashboardWidgetViewModel() {
-                        //widgetSmall = true,
-                        //isNewWidgetTemplate = true,
-                        //widgetHtmlId = "newWidgetTemplate",
-                    });
+                    result.widgets.Add(new DashboardWidgetViewModel());
                     //
                     needsConfigSave = needsConfigSave || !DashboardWidgetRenderController.buildDashboardWidgets(cp, result, userConfig);
                     //
@@ -89,7 +85,7 @@ namespace Contensive.Processor.Models.View {
                 buildAddWidgetList(cp, portalGuid, tmp);
                 foreach (var widget in tmp.addWidgetList) {
                     userConfig.widgets.Add(new DashboardWidgetUserConfigModel() {
-                        widgetHtmlId = GenericController.getRandomString(6),
+                        widgetHtmlId = $"js-{GenericController.getRandomString(6)}",
                         addonGuid = widget.guid,
                         refreshSeconds = 0
                     });

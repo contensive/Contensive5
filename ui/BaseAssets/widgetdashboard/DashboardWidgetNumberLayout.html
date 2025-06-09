@@ -57,6 +57,19 @@
   document.querySelector("#{{widgetHtmlId}} .card-body ").addEventListener("click", function() {
     window.location.href = '{{url}}';
   });
+  document.addEventListener('DOMContentLoaded', function (event) {
+    console.log('dashboard widget number layout loaded: {{widgetHtmlId}}'); 
+    //
+    // -- refresh
+    if('1'=='{{#hasRefresh}}1{{/hasRefresh}}') {
+      // call the refresh widget command every 5 seconds
+      setInterval(function() {
+        console.log('widgetDashboardCmd refresh');
+        let items = [document.querySelector("#{{widgetHtmlId}}")];
+        widgetDashboardCmd('refresh',items);
+      }, 5000);
+    }
+  });
   </script>
 {{/url}}
 
