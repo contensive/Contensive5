@@ -189,7 +189,8 @@ namespace Contensive.Processor.Properties {
         ///                &lt;/tr&gt;
         ///            &lt;/tbody&gt;
         ///        &lt;/table&gt;
-        ///    &lt;/td&gt;        /// [rest of string was truncated]&quot;;.
+        ///    &lt;/td&gt;
+        /// [rest of string was truncated]&quot;;.
         /// </summary>
         public static string GroupRuleEditorRow {
             get {
