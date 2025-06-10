@@ -64,7 +64,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             fieldSetPtr = fieldSetMax;
             fieldSets[fieldSetPtr].caption = caption;
-            fieldSets[fieldSetPtr].rowOpen = rowCnt + 1;
+            fieldSets[fieldSetPtr].rowOpen = rowList.Count+1;
         }
         //
         // ====================================================================================================
@@ -73,7 +73,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public override void closeFieldSet() {
             if (fieldSetPtr >= 0) {
-                fieldSets[fieldSetPtr].rowClose = rowCnt;
+                fieldSets[fieldSetPtr].rowClose = rowList.Count;
             }
             if (fieldSetPtrStack.Count > 0) {
                 fieldSetPtr = (int)fieldSetPtrStack.Pop();
@@ -184,19 +184,20 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public override void addRow() {
-            if (rowCnt < rowSize) {
-                rowCnt += 1;
-                rowList.Add(new LayoutBuilderNameValueClass_RowClass() {
-                    rowHelp = "",
-                    rowHtmlId = "",
-                    rowName = "",
-                    rowValue = ""
-                });
-                rows[rowCnt].name = "";
-                rows[rowCnt].value = "";
-                rows[rowCnt].help = "";
-                rows[rowCnt].htmlId = "";
-            }
+            rowList.Add(new LayoutBuilderNameValueClass_RowClass() {
+                rowColumnList = [],
+                rowHas1Column = true,
+                rowHas2Columns = false
+            });
+            rowList.Last().rowColumnList.Add(new LayoutBuilderNameValueClass_RowClass_ColumnClass());
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        // add a column to the row
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public override void addColumn() {
+            rowList.Last().rowColumnList.Add(new LayoutBuilderNameValueClass_RowClass_ColumnClass());
         }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -206,12 +207,13 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string rowHtmlId {
             get {
                 checkRowCnt();
-                return rows[rowCnt].htmlId;
+                return rowList.Last().rowColumnList.Last().columnHtmlId;
             }
             set {
-                checkRowCnt();
-                rows[rowCnt].htmlId = value;
-                rowList.Last().rowHtmlId = value;
+                rowList.Last().rowColumnList.Last().columnHtmlId = value;
+                //checkRowCnt();
+                //rows[rowCnt].htmlId = value;
+                //rowList.Last().rowColumnList.Last().columnHtmlId = value;
             }
         }
         //
@@ -222,12 +224,14 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string rowName {
             get {
                 checkRowCnt();
-                return rows[rowCnt].name;
+                return rowList.Last().rowColumnList.Last().columnName;
+                //return rows[rowCnt].name;
             }
             set {
-                checkRowCnt();
-                rows[rowCnt].name = value;
-                rowList.Last().rowName = value;
+                rowList.Last().rowColumnList.Last().columnName = value;
+                //checkRowCnt();
+                //rows[rowCnt].name = value;
+                //rowList.Last().rowColumnList.Last().columnName = value;
             }
         }
         //
@@ -237,13 +241,15 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         public override string rowValue {
             get {
-                checkRowCnt();
-                return rows[rowCnt].value;
+                //checkRowCnt();
+                return rowList.Last().rowColumnList.Last().columnValue;
+                //return rows[rowCnt].value;
             }
             set {
-                checkRowCnt();
-                rows[rowCnt].value = value;
-                rowList.Last().rowValue = value;
+                rowList.Last().rowColumnList.Last().columnValue = value;
+                //checkRowCnt();
+                //rows[rowCnt].value = value;
+                //rowList.Last().rowColumnList.Last().columnValue = value;
             }
         }
         //
@@ -251,13 +257,15 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         public override string rowHelp {
             get {
-                checkRowCnt();
-                return rows[rowCnt].help;
+                return rowList.Last().rowColumnList.Last().columnHelp;
+                //checkRowCnt();
+                //return rows[rowCnt].help;
             }
             set {
-                checkRowCnt();
-                rows[rowCnt].help = value;
-                rowList.Last().rowHelp = value;
+                rowList.Last().rowColumnList.Last().columnHelp = value;
+                //checkRowCnt();
+                //rows[rowCnt].help = value;
+                //rowList.Last().rowColumnList.Last().columnHelp = value;
             }
         }
         //
@@ -266,9 +274,9 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         private void checkRowCnt() {
-            if (rowCnt < 0) {
-                addRow();
-            }
+            //if (rowCnt < 0) {
+            //    addRow();
+            //}
         }
 
         public override void addFormHidden(string name, string value, string htmlId) {
@@ -427,31 +435,31 @@ namespace Contensive.Processor.LayoutBuilder {
         /// fieldsets are used to group fields visually with ah html fieldset element
         /// </summary>
         private readonly Stack fieldSetPtrStack = new Stack();
-        //
-        /// <summary>
-        /// the max number of row
-        /// </summary>
-        const int rowSize = 999;
-        //
-        /// <summary>
-        /// the current row
-        /// </summary>
-        private int rowCnt = -1;
-        //
-        /// <summary>
-        /// the structure of stored rows
-        /// </summary>
-        struct RowStruct {
-            public string name;
-            public string value;
-            public string help;
-            public string htmlId;
-        }
-        //
-        /// <summary>
-        /// the stored rows to be rendered
-        /// </summary>
-        private readonly RowStruct[] rows = new RowStruct[rowSize];
+        ////
+        ///// <summary>
+        ///// the max number of row
+        ///// </summary>
+        //const int rowSize = 999;
+        ////
+        ///// <summary>
+        ///// the current row
+        ///// </summary>
+        //private int rowCnt = -1;
+        ////
+        ///// <summary>
+        ///// the structure of stored rows
+        ///// </summary>
+        //struct RowStruct {
+        //    public string name;
+        //    public string value;
+        //    public string help;
+        //    public string htmlId;
+        //}
+        ////
+        ///// <summary>
+        ///// the stored rows to be rendered
+        ///// </summary>
+        //private readonly RowStruct[] rows = new RowStruct[rowSize];
         //
         //
         //
@@ -529,9 +537,24 @@ namespace Contensive.Processor.LayoutBuilder {
     }
     //
     public class LayoutBuilderNameValueClass_RowClass {
-        public string rowName { get; set; } = "";
-        public string rowValue { get; set; } = "";
-        public string rowHelp { get; set; } = "";
-        public string rowHtmlId { get; set; } = "";
+
+        //public string rowName { get; set; } = "";
+        //public string rowValue { get; set; } = "";
+        //public string rowHelp { get; set; } = "";
+        //public string rowHtmlId { get; set; } = "";
+        public bool rowHas1Column { get; set; } = true;
+        public bool rowHas2Columns { get; set; } = false;
+        public bool rowHas4Columns { get; set; } = false;
+        public List<LayoutBuilderNameValueClass_RowClass_ColumnClass> rowColumnList { get; set; } = [];
+
+    }
+    //
+    public class LayoutBuilderNameValueClass_RowClass_ColumnClass {
+
+        public string columnName { get; set; } = "";
+        public string columnValue { get; set; } = "";
+        public string columnHelp { get; set; } = "";
+        public string columnHtmlId { get; set; } = "";
+
     }
 }

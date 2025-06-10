@@ -2,15 +2,32 @@
 </style>
 <div class="container-fluid px-0">	
 	{{#rowList}}
-	<div class="py-3" id="{{rowHtmlId}}">
-		<label for="{{rowHtmlId}}" class="form-label fw-bold mb-1">{{{rowName}}}</label>
-		<div class="ccTextEditMaxWidth">
-			{{{rowValue}}}
-		</div>
-		{{#rowHelp}}
-		<div class=""><small class="form-text text-muted">{{{rowHelp}}}</small></div>
-		{{/rowHelp}}
-	</div>
+		{{#rowHas1Column}}
+			{{#rowColumnList}}
+				<div class="py-3" id="{{columnHtmlId}}">
+					<label for="{{columnHtmlId}}" class="form-label fw-bold mb-1">{{{columnName}}}</label>
+					<div class="ccTextEditMaxWidth">
+						{{{columnValue}}}
+					</div>
+					{{#columnHelp}}
+					<div class=""><small class="form-text text-muted">{{{columnHelp}}}</small></div>
+					{{/columnHelp}}
+				</div>	
+			{{/rowColumnList}}
+		{{/rowHas1Column}}
+		{{#rowHas2Columns}}
+			{{#rowColumnList}}
+				<div class="py-3" id="{{columnHtmlId}}">
+					<label for="{{columnHtmlId}}" class="form-label fw-bold mb-1">{{{columnName}}}</label>
+					<div class="ccTextEditMaxWidth">
+						{{{columnValue}}}
+					</div>
+					{{#columnHelp}}
+					<div class=""><small class="form-text text-muted">{{{columnHelp}}}</small></div>
+					{{/columnHelp}}
+				</div>	
+			{{/rowColumnList}}
+		{{/rowHas2Columns}}
 	{{/rowList}}
 </div>
 <script>
