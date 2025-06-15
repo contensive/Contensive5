@@ -474,7 +474,21 @@ namespace Contensive.Processor {
         public override string redirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend) {
             // 
             // -- setup redirect and return blank, the flag for return to parent Addon
+            linkAppend = string.IsNullOrEmpty(linkAppend) ? "" : linkAppend.StartsWith("&") ? linkAppend : "&" + linkAppend;
             cp.Response.Redirect(getPortalFeatureLink( portalGuid, portalFeatureGuid) + linkAppend);
+            return "";
+        }
+        // 
+        //====================================================================================================
+        /// <summary>
+        /// redirect and return blank
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalFeatureGuid"></param>
+        /// <param name="accountId"></param>
+        /// <returns></returns>
+        public override string redirectToPortalFeature(string portalGuid, string portalFeatureGuid) {
+            cp.Response.Redirect(getPortalFeatureLink(portalGuid, portalFeatureGuid));
             return "";
         }
         // 

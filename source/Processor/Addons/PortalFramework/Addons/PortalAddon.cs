@@ -1,6 +1,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Contensive.BaseClasses;
 using Contensive.Models.Db;
 using Contensive.Processor.Addons.PortalFramework.Models.Db;
@@ -176,7 +177,8 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                                         if (dstFeatureParent.addonId > 0 || dstFeatureParent.dataContentId > 0) {
                                             //
                                             // -- if parent is content or addon features, show subnav (otherwise, show flyout)
-                                            foreach (var dstFeatureSibling in dstFeatureParent.subFeatureList) {
+                                            var subFeatureList = dstFeatureParent.subFeatureList.OrderBy(p => p.sortOrder).ToList();
+                                            foreach (var dstFeatureSibling in subFeatureList) {
                                                 portalBuilder.addSubNav(new PortalBuilderSubNavItemViewModel {
                                                     subActive = true,
                                                     subCaption = string.IsNullOrEmpty(dstFeatureSibling.heading) ? dstFeatureSibling.name : dstFeatureSibling.heading ,

@@ -85,7 +85,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                     return _categoryList;
                 }
                 //
-                cacheData = new() {
+                cacheData = [
                     new CategoryNavItem {
                         categoryName = "Content",
                         categoryIcon = "fas fa-edit fa-lg",
@@ -121,7 +121,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                         categoryIcon = "fas fa-cog fa-lg",
                         categoryNavColumnList = getNavColumnList(NavTypeIdEnum.setting)
                     }
-                };
+                ];
                 //
                 string depKey = cp.Cache.CreateTableDependencyKey(AddonModel.tableMetadata.tableNameLower);
                 cp.Cache.Store(cacheKey, cacheData, depKey);
@@ -214,8 +214,38 @@ namespace Contensive.Processor.Addons.AdminSite {
             try {
                 //
                 // -- create a column list with one column per category, move advanced to last
-                List<CategoryNavColumn> columnList = new();
-                using (DataTable dt = cp.Db.ExecuteQuery(Properties.Resources.sqlGetNavItemByType.replace("{navTypeId}", ((int)navTypeId).ToString(), System.StringComparison.CurrentCultureIgnoreCase))) {
+                List<CategoryNavColumn> columnList = [];
+                string buildVersion = cp.core.siteProperties.dataBuildVersion;
+                string abbreviationField = cp.Utils.versionIsOlder(buildVersion, "25.6.11.1") ? "'' as abbreviation" : "a.abbreviation";
+                string orderBy = cp.Utils.versionIsOlder(buildVersion, "25.6.11.1") ? "categoryName,name" : "categoryName, COALESCE(abbreviation,name)";
+                    string sql = $@"
+                        select * 
+                        from 
+                            (
+                            select 
+                                a.name,a.ccguid,a.id as id,c.name as categoryName,0 as isContent,a.abbreviation
+                            from 
+                                ccaggregatefunctions a 
+                                left join ccaddoncategories c on c.id=a.addonCategoryId 
+                            where 1=1
+                                and(a.navTypeId={(int)navTypeId}) 
+                                and(a.admin>0)
+                                and(a.name is not null)
+                                and(a.ccguid is not null) 
+                            union
+                            select 
+                                a.name,a.ccguid,a.id as id,c.name as categoryName,1 as isContent,a.abbreviation
+                            from 
+                                cccontent a 
+                                left join ccaddoncategories c on c.id=a.AddonCategoryId 
+                            where 1=1
+                                and(a.navTypeId={(int)navTypeId})           
+                                and(a.name is not null)
+                                and(a.ccguid is not null) 
+                            ) combined
+                        order by
+                            {orderBy}";
+                using (DataTable dt = cp.Db.ExecuteQuery(sql)) {
                     if (dt?.Rows != null) {
                         string categoryNameLast = "";
                         CategoryNavColumn column = new() {
@@ -251,14 +281,11 @@ namespace Contensive.Processor.Addons.AdminSite {
                                 navItemHref = cp.GetAppConfig().adminRoute + "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"]));
                                 navItemDataDragId = id > 0 ? $"a{id}" : "";
                             }
-                            //var navCategoryItem = new NavCategoryItem {
-                            //    navItemName = cp.Utils.EncodeText(dr["name"]),
-                            //    navItemDataDragId = navItemDataDragId,
-                            //    navItemHref = (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
-                            //};
+                            string navItemName = cp.Utils.EncodeText(dr["abbreviation"]);
+                            navItemName = string.IsNullOrEmpty(navItemName) ? cp.Utils.EncodeText(dr["name"]) : navItemName;
                             column.categoryNavColumnItemList.Add(new CategoryNavColumnItem {
                                 navHeaderName = navHeaderName,
-                                navItemName = cp.Utils.EncodeText(dr["name"]),
+                                navItemName = navItemName,
                                 navItemDataDragId = navItemDataDragId,
                                 navItemHref = (cp.Utils.EncodeBoolean(dr["isContent"]) ? "?cid=" + id : "?addonguid=" + encodeURL(cp.Utils.EncodeText(dr["ccguid"])))
                             });

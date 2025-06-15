@@ -256,6 +256,10 @@ namespace Contensive.Processor.Models.Domain {
         /// addonCategory as read from xml file, stored in Db as integer foreign key
         /// </summary>
         public string addonCategoryText { get; set; }
+        /// <summary>
+        /// abbreviation used in admin navigation, if empty, the name is used
+        /// </summary>
+        public string abbreviation { get; set; }
         //
         //====================================================================================================
         /// <summary>
@@ -1199,7 +1203,8 @@ namespace Contensive.Processor.Models.Domain {
                         { "installedbycollectionid", DbController.encodeSQLNumber(InstalledByCollectionId) },
                         { "isbasecontent", DbController.encodeSQLBoolean(contentMetadata.isBaseContent) },
                         { "navtypeid",  DbController.encodeSQLNumber(  contentMetadata.navTypeID) },
-                        { "addoncategoryid", DbController.encodeSQLNumber(  contentMetadata.getAddonCategoryId(core.cpParent) ) }
+                        { "addoncategoryid", DbController.encodeSQLNumber(  contentMetadata.getAddonCategoryId(core.cpParent) ) },
+                        { "abbreviation", DbController.encodeSQLText(encodeEmpty(contentMetadata.abbreviation, "")) }
                     };
                     db.update("ccContent", "ID=" + contentMetadata.id, sqlList);
                     DbBaseModel.invalidateCacheOfRecord<ContentModel>(core.cpParent, contentMetadata.id);

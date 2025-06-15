@@ -828,6 +828,18 @@ namespace Contensive.BaseClasses {
         /// <returns></returns>
         public abstract string redirectToPortalFeature(string portalGuid, string portalFeatureGuid, string linkAppend);
         // 
+        //====================================================================================================
+        /// <summary>
+        /// set response to redirect to the portal feature and return blank.
+        /// Use this method to redirect to a portal feature if a features addon is running outside the portal.
+        /// For example, if the AccountList addon is running outside the Accounts portal, redirect to the Accounts portal with the AccountList feature.
+        /// </summary>
+        /// <param name="cp"></param>
+        /// <param name="portalGuid"></param>
+        /// <param name="portalFeatureGuid"></param>
+        /// <returns></returns>
+        public abstract string redirectToPortalFeature(string portalGuid, string portalFeatureGuid);
+        // 
         // ===================================================================================
         /// <summary>
         /// Portal features should only be run from with the c5 adminui portal. If not, redirect to the portal with this feature set.

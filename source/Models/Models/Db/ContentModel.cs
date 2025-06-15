@@ -49,6 +49,10 @@ namespace Contensive.Models.Db {
         /// lookup list - Other,Report,Setting,Tool,Comm,Design,Content,System
         /// </summary>
         public int NavTypeId { get; set; }
+        /// <summary>
+        /// used for navigation for table names that are very long
+        /// </summary>
+        public string abbreviation { get; set; }
         //
         //====================================================================================================
         /// <summary>

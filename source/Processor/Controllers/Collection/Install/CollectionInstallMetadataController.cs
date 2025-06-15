@@ -174,6 +174,8 @@ namespace Contensive.Processor.Controllers {
                                     // -- addoncategoryid, a mirror of addon-category
                                     targetMetaData.addonCategoryText = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "AddonCategoryId", DefaultMetaData.addonCategoryText);
                                     //
+                                    targetMetaData.abbreviation = XmlController.getXMLAttribute(core, metaData_NodeWithinLoop, "abbreviation", DefaultMetaData.abbreviation);
+                                    //
                                     // -- determine id
                                     targetMetaData.id = DbController.getContentId(core, contentName);
                                     //

@@ -171,6 +171,10 @@ namespace Contensive.Models.Db {
         /// lookup: All,Content Text,Content Wysiwyg,Remote Asset,Form Execution,Scripting Code Execution,DotNet Code Execution
         /// </summary>
         public int? contentSourceId { get; set; }
+        /// <summary>
+        /// used for navigation for table names that are very long
+        /// </summary>
+        public string abbreviation { get; set; }
         //
         [Obsolete("Deprecated. Use javascriptInHead.", false)] 
         public string javaScriptBodyEnd { get; set; }
