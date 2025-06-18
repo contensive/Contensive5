@@ -54,7 +54,7 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string baseUrl = $"{cp.Site.GetText("adminurl")}?addonGuid=%7BA1BCA00C-2657-42A1-8F98-BED1E5A42025%7D";
                 //
                 // -- get the list of portals
-                string sql = "select id,name,ccguid from ccPortals where active>0 order by name";
+                string sql = "select id,name,ccguid,icon from ccPortals where active>0 order by name";
                 using (var dt = cp.Db.ExecuteQuery(sql)) {
                     if (dt == null) { return; }
                     if (dt.Rows.Count == 0) { return; }
@@ -64,7 +64,8 @@ namespace Contensive.Processor.Addons.AdminSite {
                         portals.Add(new AdminNavViewModel_Portal() {
                             name = GenericController.encodeText(dr["name"]),
                             url = $"{baseUrl}&setPortalGuid={GenericController.encodeText(dr["ccguid"])}",
-                            active = currentPortalGuid.Equals(GenericController.encodeText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.encodeInteger(dr["id"]))
+                            active = currentPortalGuid.Equals(GenericController.encodeText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.encodeInteger(dr["id"])),
+                            icon = GenericController.encodeText(dr["icon"])
                         });
                     }
                 }
@@ -112,6 +113,7 @@ namespace Contensive.Processor.Addons.AdminSite {
         public string name { get; set; }
         public string url { get; set; }
         public bool active { get; set; } = true;
+        public string icon { get; set; }
     }
     //
     public class AdminNavViewModel_PublicDomains {
