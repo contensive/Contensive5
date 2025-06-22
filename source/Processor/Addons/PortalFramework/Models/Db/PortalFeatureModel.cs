@@ -12,7 +12,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Db {
         public int addonId { get; set; }
         public string heading { get; set; }
         public int parentFeatureId { get; set; }
-        public int dataContentId { get; set; }
-        public bool addPadding { get; set; }
+        public int dataContentId { get; set; }        
+        //public bool addPadding { get; set; }
     }
 }

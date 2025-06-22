@@ -54,18 +54,20 @@ namespace Contensive.Processor.Addons.AdminSite {
                 string baseUrl = $"{cp.Site.GetText("adminurl")}?addonGuid=%7BA1BCA00C-2657-42A1-8F98-BED1E5A42025%7D";
                 //
                 // -- get the list of portals
-                string sql = "select id,name,ccguid,icon from ccPortals where active>0 order by name";
+                string iconFieldName = cp.Utils.versionIsOlder(cp.Site.GetText("BuildVersion"), "25.6.20.1") ? "'' as icon" : "icon";
+                string sql = $"select id,name,ccguid,{iconFieldName} from ccPortals where active>0 order by name";
                 using (var dt = cp.Db.ExecuteQuery(sql)) {
-                    if (dt == null) { return; }
-                    if (dt.Rows.Count == 0) { return; }
+                    if (dt == null || dt.Rows.Count == 0) { return; }
                     //
                     // -- get the list of portals
                     foreach (DataRow dr in dt.Rows) {
+                        // -- add blank if icon is blank, or the http-prefixed icon url if present
+                        string icon = GenericController.encodeText(dr["icon"]);
                         portals.Add(new AdminNavViewModel_Portal() {
                             name = GenericController.encodeText(dr["name"]),
                             url = $"{baseUrl}&setPortalGuid={GenericController.encodeText(dr["ccguid"])}",
                             active = currentPortalGuid.Equals(GenericController.encodeText(dr["ccguid"]), StringComparison.OrdinalIgnoreCase) || currentPortalId.Equals(GenericController.encodeInteger(dr["id"])),
-                            icon = GenericController.encodeText(dr["icon"])
+                            icon = string.IsNullOrEmpty(icon) ? "" : cp.Http.CdnFilePathPrefix + icon
                         });
                     }
                 }
@@ -97,7 +99,7 @@ namespace Contensive.Processor.Addons.AdminSite {
 
                 }
             } catch (Exception ex) {
-                logger.Error( ex);
+                logger.Error(ex);
                 // -- swallow
             }
         }

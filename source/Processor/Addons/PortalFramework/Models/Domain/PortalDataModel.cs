@@ -55,24 +55,24 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
                     int portalDefaultFeatureId = portalCs.GetInteger("defaultFeatureId");
                     defaultConfigJson = portalCs.GetText("defaultConfigJson");
                     portalCs.Close();
-                    //
-                    // -- portal links
-                    result.linkedPortals = new List<PortalDataModel>();
-                    string sql = "select p.id,p.ccguid,p.name from ccPortals p left join ccPortalLinks l on l.toPortalId=p.id where p.active>0 and l.fromPortalId=" + result.id;
-                    if (portalCs.OpenSQL(sql)) {
-                        do {
-                            int linkedPortalId = portalCs.GetInteger("id");
-                            if (!result.id.Equals(linkedPortalId)) {
-                                PortalDataModel linkedPortal = new PortalDataModel {
-                                    id = linkedPortalId,
-                                    name = portalCs.GetText("name")
-                                };
-                                result.linkedPortals.Add(linkedPortal);
-                            }
-                            portalCs.GoNext();
-                        } while (portalCs.OK());
-                    }
-                    portalCs.Close();
+                    ////
+                    //// -- portal links
+                    //result.linkedPortals = new List<PortalDataModel>();
+                    //string sql = "select p.id,p.ccguid,p.name from ccPortals p left join ccPortalLinks l on l.toPortalId=p.id where p.active>0 and l.fromPortalId=" + result.id;
+                    //if (portalCs.OpenSQL(sql)) {
+                    //    do {
+                    //        int linkedPortalId = portalCs.GetInteger("id");
+                    //        if (!result.id.Equals(linkedPortalId)) {
+                    //            PortalDataModel linkedPortal = new PortalDataModel {
+                    //                id = linkedPortalId,
+                    //                name = portalCs.GetText("name")
+                    //            };
+                    //            result.linkedPortals.Add(linkedPortal);
+                    //        }
+                    //        portalCs.GoNext();
+                    //    } while (portalCs.OK());
+                    //}
+                    //portalCs.Close();
                     //
                     // -- load features and subfeatures
                     string featureSql = @$" 
@@ -272,42 +272,40 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
                 //
                 foreach (KeyValuePair<string, PortalDataFeatureModel> kvp in newPortal.featureList) {
                     PortalDataFeatureModel feature = kvp.Value;
-                    if (feature.guid != Constants.devToolGuid) {
-                        if (!cs.Open("portal features", "ccguid=" + CP.Db.EncodeSQLText(feature.guid), "", true, "", 9999, 1)) {
-                            cs.Insert("portal features");
-                            cs.SetField("ccGuid", feature.guid);
-                        }
-                        if (cs.OK()) {
-                            feature.id = cs.GetInteger("id");
-                            cs.SetField("portalId", newPortal.id.ToString());
-                            cs.SetField("name", feature.name);
-                            cs.SetField("heading", feature.heading);
-                            cs.SetField("sortOrder", feature.sortOrder);
-                            if (feature.addonId == 0 && !string.IsNullOrEmpty(feature.addonGuid)) {
-                                //
-                                // lookup addon by guid, set addonid
-                                //
-                                if (cs2.Open("add-ons", "ccguid=" + CP.Db.EncodeSQLText(feature.addonGuid), "", true, "", 9999, 1)) {
-                                    cs.SetField("addonId", cs2.GetInteger("id").ToString());
-                                }
-                                cs2.Close();
-                            }
-                            if (feature.dataContentId == 0 && !string.IsNullOrEmpty(feature.dataContentGuid)) {
-                                //
-                                // save dataContentId based on dataContentGuid
-                                //
-                                if (cs2.Open("content", "ccguid=" + CP.Db.EncodeSQLText(feature.dataContentGuid), "", true, "", 9999, 1)) {
-                                    feature.dataContentId = cs2.GetInteger("id");
-                                    cs.SetField("dataContentId", feature.dataContentId.ToString());
-                                }
-                                cs2.Close();
-                            }
-                            if (newPortal.defaultFeature.guid == feature.guid) {
-                                newPortal.defaultFeature = feature;
-                            }
-                        }
-                        cs.Close();
+                    if (!cs.Open("portal features", "ccguid=" + CP.Db.EncodeSQLText(feature.guid), "", true, "", 9999, 1)) {
+                        cs.Insert("portal features");
+                        cs.SetField("ccGuid", feature.guid);
                     }
+                    if (cs.OK()) {
+                        feature.id = cs.GetInteger("id");
+                        cs.SetField("portalId", newPortal.id.ToString());
+                        cs.SetField("name", feature.name);
+                        cs.SetField("heading", feature.heading);
+                        cs.SetField("sortOrder", feature.sortOrder);
+                        if (feature.addonId == 0 && !string.IsNullOrEmpty(feature.addonGuid)) {
+                            //
+                            // lookup addon by guid, set addonid
+                            //
+                            if (cs2.Open("add-ons", "ccguid=" + CP.Db.EncodeSQLText(feature.addonGuid), "", true, "", 9999, 1)) {
+                                cs.SetField("addonId", cs2.GetInteger("id").ToString());
+                            }
+                            cs2.Close();
+                        }
+                        if (feature.dataContentId == 0 && !string.IsNullOrEmpty(feature.dataContentGuid)) {
+                            //
+                            // save dataContentId based on dataContentGuid
+                            //
+                            if (cs2.Open("content", "ccguid=" + CP.Db.EncodeSQLText(feature.dataContentGuid), "", true, "", 9999, 1)) {
+                                feature.dataContentId = cs2.GetInteger("id");
+                                cs.SetField("dataContentId", feature.dataContentId.ToString());
+                            }
+                            cs2.Close();
+                        }
+                        if (newPortal.defaultFeature.guid == feature.guid) {
+                            newPortal.defaultFeature = feature;
+                        }
+                    }
+                    cs.Close();
                 }
                 //
                 // lookup parent features by guid and set id
@@ -315,24 +313,22 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
 
                 foreach (KeyValuePair<string, PortalDataFeatureModel> kvp in newPortal.featureList) {
                     PortalDataFeatureModel feature = kvp.Value;
-                    if (feature.guid != Constants.devToolGuid) {
-                        if (feature.parentFeatureId == 0 && !string.IsNullOrEmpty(feature.parentFeatureGuid)) {
+                    if (feature.parentFeatureId == 0 && !string.IsNullOrEmpty(feature.parentFeatureGuid)) {
+                        //
+                        // get the id of the parentFeature
+                        //
+                        if (cs.Open("portal features", "ccguid=" + CP.Db.EncodeSQLText(feature.parentFeatureGuid), "", true, "", 9999, 1)) {
+                            feature.parentFeatureId = cs.GetInteger("id");
+                        }
+                        cs.Close();
+                        if (feature.parentFeatureId > 0) {
                             //
-                            // get the id of the parentFeature
+                            // set the parentFeatureId field of the current feature
                             //
-                            if (cs.Open("portal features", "ccguid=" + CP.Db.EncodeSQLText(feature.parentFeatureGuid), "", true, "", 9999, 1)) {
-                                feature.parentFeatureId = cs.GetInteger("id");
+                            if (cs.Open("portal features", "id=" + feature.id.ToString(), "", true, "", 9999, 1)) {
+                                cs.SetField("parentFeatureId", feature.parentFeatureId.ToString());
                             }
                             cs.Close();
-                            if (feature.parentFeatureId > 0) {
-                                //
-                                // set the parentFeatureId field of the current feature
-                                //
-                                if (cs.Open("portal features", "id=" + feature.id.ToString(), "", true, "", 9999, 1)) {
-                                    cs.SetField("parentFeatureId", feature.parentFeatureId.ToString());
-                                }
-                                cs.Close();
-                            }
                         }
                     }
                 }

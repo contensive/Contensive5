@@ -4,7 +4,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
     /// <summary>
     /// This represents a single item in the main nav
     /// </summary>
-    public class PortalBuilderNavItemViewModel {
+    public class PortalBuilderNavItemModel {
         /// <summary>
         /// the displayed text on teh nav
         /// </summary>
@@ -24,7 +24,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
         /// <summary>
         /// if the main nav has a flyout, this is the list of items in the flyout
         /// </summary>
-        public List<PortalBuilderSubNavItemViewModel> navFlyoutList { get; set; } = new List<PortalBuilderSubNavItemViewModel>();
+        public List<PortalBuilderSubNavItemModel> navFlyoutList { get; set; } = new List<PortalBuilderSubNavItemModel>();
         /// <summary>
         /// if true, there is no flyout to this main nav
         /// </summary>

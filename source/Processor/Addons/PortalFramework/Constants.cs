@@ -26,7 +26,7 @@ namespace Contensive.Processor.Addons.PortalFramework {
         public const string rnFrameRqs = "frameRqs";
         public const string accountPortalGuid = "{12528435-EDBF-4FBB-858F-3731447E24A3}";
         public const string rnPortalId = "portalId";
-        public const string devToolGuid = "{13511AA1-3A58-4742-B98F-D92AF853989F}";
+        //public const string devToolGuid = "{13511AA1-3A58-4742-B98F-D92AF853989F}";
         public const string rnSetPortalId = "setPortalId";
         public const string rnSetPortalGuid = "setPortalGuid";
     }

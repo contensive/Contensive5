@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using Contensive.Processor.Models;
+using Contensive.Processor.Models.Domain;
 
 namespace Contensive.WebApi {
     public class ConfigurationClass {

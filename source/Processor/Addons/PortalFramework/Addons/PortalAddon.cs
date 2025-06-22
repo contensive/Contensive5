@@ -72,7 +72,9 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                     return Constants.blockedMessage;
                 }
                 PortalDataModel portalData = PortalDataModel.create(CP, portalId);
-                //string frameRqs = CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnSetPortalId, portalData.id.ToString(), true);
+                //
+                // -- dstFeature is the feature currently being viewed.
+                string dstFeatureGuid = CP.Doc.GetText(Constants.rnDstFeatureGuid);
                 //
                 // -- Add Nav items
                 PortalBuilderClass portalBuilder = new PortalBuilderClass();
@@ -83,27 +85,33 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                     portalBuilder.navCaption = "Overview";
                     portalBuilder.navLink = CP.AdminUI.getPortalFeatureLink(portalData.guid, "");
                 }
+                //
+                // -- built top-level nav
+                // -- features with no parent-feature
+                bool foundActiveFeature = false;
                 foreach (KeyValuePair<string, PortalDataFeatureModel> kvp in portalData.featureList) {
                     PortalDataFeatureModel feature = kvp.Value;
                     if (feature.parentFeatureId == 0) {
                         //
                         // -- feature has no parent, add to nav
-                        var navFlyoutList = new List<PortalBuilderSubNavItemViewModel>();
+                        var navFlyoutList = new List<PortalBuilderSubNavItemModel>();
                         if (feature.addonId == 0 && feature.dataContentId == 0) {
                             //
-                            // -- parent feature has no addon or content, add flyout if it has child features
+                            // -- parent feature has no addon or content, this is a non-feature that acts as a flyout with its child features
+                            bool activeFeature = feature.guid == dstFeatureGuid;
+                            foundActiveFeature = foundActiveFeature || activeFeature;
                             foreach (var subFeature in feature.subFeatureList) {
-                                navFlyoutList.Add(new PortalBuilderSubNavItemViewModel {
-                                    subActive = true,
-                                    subCaption = string.IsNullOrEmpty(subFeature.heading) ? subFeature.name : subFeature.heading ,
+                                navFlyoutList.Add(new PortalBuilderSubNavItemModel {
+                                    subActive = activeFeature,
+                                    subCaption = string.IsNullOrEmpty(subFeature.heading) ? subFeature.name : subFeature.heading,
                                     subIsPortalLink = false,
                                     subLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, subFeature.guid),
                                     sublinkTarget = subFeature.dataContentId > 0 || !string.IsNullOrEmpty(subFeature.dataContentGuid) ? "_blank" : ""
                                 });
                             }
                         }
-                        portalBuilder.addNav(new PortalBuilderNavItemViewModel {
-                            active = false,
+                        portalBuilder.addNav(new PortalBuilderNavItemModel {
+                            active = feature.guid == dstFeatureGuid,
                             caption = string.IsNullOrEmpty(feature.heading) ? feature.name : feature.heading,
                             isPortalLink = false,
                             link = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, feature.guid),
@@ -114,123 +122,97 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                         portalBuilder.navLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, feature.guid);
                     }
                 }
-                //
-                // add developer nav item
-                //
-                if (CP.User.IsDeveloper) {
-                    if (portalData.featureList.ContainsKey(Constants.devToolGuid)) {
-                        CP.Site.ErrorReport("loadPortalFromDb, the portal [" + portalData.name + "] appears to have the devTool feature saved in either the Db features or the defaultConfig. This is not allowed.");
-                    } else {
-                        portalBuilder.addNav();
-                        portalBuilder.navCaption = "Developer Tool";
-                        portalBuilder.navLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, Constants.devToolGuid);
-                    }
-                }
-                //
-                // add linked features nav items
-                //
-                if (portalData.linkedPortals.Count > 0) {
-                    foreach (PortalDataModel linkedPortal in portalData.linkedPortals) {
-                        portalBuilder.addNav();
-                        portalBuilder.navCaption = linkedPortal.name;
-                        portalBuilder.navLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnSetPortalId, linkedPortal.id.ToString());
-                    }
-                }
                 string body = "";
-                string dstFeatureGuid = CP.Doc.GetText(Constants.rnDstFeatureGuid);
                 string activeNavHeading = "";
                 //
-                //   execute feature, if it returns empty, display default feature
+                // -- execute feature
+                // -- if it returns empty, display default feature
                 //
-                if (dstFeatureGuid == Constants.devToolGuid) {
+                if (portalData.featureList.ContainsKey(dstFeatureGuid)) {
                     //
-                    // execute developer tool panel
+                    // add feature guid to frameRqs so if the feature uses ajax, the featureGuid will be part of it
+                    // add feature guid to rqs so if an addon is used that does not support frameRqs it will work
                     //
-                    CP.Doc.AddRefreshQueryString(Constants.rnDstFeatureGuid, Constants.devToolGuid);
-                    body = DevToolView.getDevTool(CP, portalData, CP.Doc.RefreshQueryString);
-                    activeNavHeading = "Developer Tool";
-                } else {
-                    if (portalData.featureList.ContainsKey(dstFeatureGuid)) {
+                    PortalDataFeatureModel dstDataFeature = portalData.featureList[dstFeatureGuid];
+                    if (dstDataFeature.addonId != 0) {
                         //
-                        // add feature guid to frameRqs so if the feature uses ajax, the featureGuid will be part of it
-                        // add feature guid to rqs so if an addon is used that does not support frameRqs it will work
+                        // feature is an addon, execute it
                         //
-                        PortalDataFeatureModel dstDataFeature = portalData.featureList[dstFeatureGuid];
-                        //frameRqs = CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, feature.guid);
-                        if (dstDataFeature.addonId != 0) {
-                            //
-                            // feature is an addon, execute it
-                            //
-                            CP.Doc.SetProperty(Constants.rnFrameRqs, CP.Doc.RefreshQueryString);
-                            CP.Doc.AddRefreshQueryString(Constants.rnDstFeatureGuid, dstDataFeature.guid);
-                            body = CP.Addon.Execute(dstDataFeature.addonId);
-                            //
-                            // -- portal title is a doc property set in each portal-builder that populates the title in the subnav.
-                            portalBuilder.subNavTitle = CP.Doc.GetText("portalSubNavTitle");
-                            //
-                            // -- if the feature addon has sibling features, build the subnav
-                            //
-                            if (!string.IsNullOrEmpty(dstDataFeature.parentFeatureGuid)) {
-                                if (portalData.featureList.ContainsKey(dstDataFeature.parentFeatureGuid)) {
-                                    PortalDataFeatureModel dstFeatureParent = portalData.featureList[dstDataFeature.parentFeatureGuid];
-                                    if (dstFeatureParent != null) {
-                                        if (dstFeatureParent.addonId > 0 || dstFeatureParent.dataContentId > 0) {
-                                            //
-                                            // -- if parent is content or addon features, show subnav (otherwise, show flyout)
-                                            var subFeatureList = dstFeatureParent.subFeatureList.OrderBy(p => p.sortOrder).ToList();
-                                            foreach (var dstFeatureSibling in subFeatureList) {
-                                                portalBuilder.addSubNav(new PortalBuilderSubNavItemViewModel {
-                                                    subActive = true,
-                                                    subCaption = string.IsNullOrEmpty(dstFeatureSibling.heading) ? dstFeatureSibling.name : dstFeatureSibling.heading ,
-                                                    subIsPortalLink = false,
-                                                    subLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, dstFeatureSibling.guid),
-                                                    sublinkTarget = dstFeatureSibling.dataContentId > 0 || !string.IsNullOrEmpty(dstFeatureSibling.dataContentGuid) ? "_blank" : ""
-                                                });
-                                            }
-                                        }
+                        CP.Doc.SetProperty(Constants.rnFrameRqs, CP.Doc.RefreshQueryString);
+                        CP.Doc.AddRefreshQueryString(Constants.rnDstFeatureGuid, dstDataFeature.guid);
+                        body = CP.Addon.Execute(dstDataFeature.addonId);
+                        //
+                        // -- portal title is a doc property set in each portal-builder that populates the title in the subnav.
+                        portalBuilder.subNavTitle = CP.Doc.GetText("portalSubNavTitle");
+                        //
+                    } else if (dstDataFeature.dataContentId != 0) {
+                        //
+                        // this is a data content feature -- should not be here, link should have taken them to the content
+                        //
+                        CP.Response.Redirect("?cid=" + dstDataFeature.dataContentId.ToString());
+                        var content = CP.AdminUI.CreateLayoutBuilder();
+                        content.title = string.IsNullOrEmpty(dstDataFeature.heading) ? dstDataFeature.name : dstDataFeature.heading;
+                        content.body = "Redirecting to content";
+                        body = content.getHtml();
+                    } else {
+                        //
+                        // this is a feature list, display the feature list
+                        //
+                        body = FeatureListView.getFeatureList(CP, portalData, dstDataFeature, CP.Doc.RefreshQueryString);
+                    }
+                    //
+                    // -- build the subnav, if the feature addon has sibling features, 
+                    //
+                    if (!string.IsNullOrEmpty(dstDataFeature.parentFeatureGuid)) {
+                        if (portalData.featureList.ContainsKey(dstDataFeature.parentFeatureGuid)) {
+                            PortalDataFeatureModel dstFeatureParent = portalData.featureList[dstDataFeature.parentFeatureGuid];
+                            if (dstFeatureParent != null) {
+                                if (dstFeatureParent.addonId > 0 || dstFeatureParent.dataContentId > 0) {
+                                    //
+                                    // -- if parent is content or addon features, show subnav (otherwise, show flyout)
+                                    var subFeatureList = dstFeatureParent.subFeatureList.OrderBy(p => p.sortOrder).ToList();
+                                    foreach (var dstFeatureSibling in subFeatureList) {
+                                        bool activeFeature = dstFeatureSibling.guid == dstFeatureGuid;
+                                        foundActiveFeature = foundActiveFeature || activeFeature;
+                                        portalBuilder.addSubNav(new PortalBuilderSubNavItemModel {
+                                            subActive = activeFeature,
+                                            subCaption = string.IsNullOrEmpty(dstFeatureSibling.heading) ? dstFeatureSibling.name : dstFeatureSibling.heading,
+                                            subIsPortalLink = false,
+                                            subLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, dstFeatureSibling.guid),
+                                            sublinkTarget = dstFeatureSibling.dataContentId > 0 || !string.IsNullOrEmpty(dstFeatureSibling.dataContentGuid) ? "_blank" : ""
+                                        });
                                     }
                                 }
                             }
-                            //
-                            //
-                        } else if (dstDataFeature.dataContentId != 0) {
-                            //
-                            // this is a data content feature -- should not be here, link should have taken them to the content
-                            //
-                            CP.Response.Redirect("?cid=" + dstDataFeature.dataContentId.ToString());
-                            var content = CP.AdminUI.CreateLayoutBuilder();
-                            content.title = string.IsNullOrEmpty(dstDataFeature.heading) ? dstDataFeature.name : dstDataFeature.heading;
-                            content.body = "Redirecting to content";
-                            body = content.getHtml();
-                        } else {
-                            //
-                            // this is a feature list, display the feature list
-                            //
-                            body = FeatureListView.getFeatureList(CP, portalData, dstDataFeature, CP.Doc.RefreshQueryString);
                         }
-                        //
-                        // -- set active heading
-                        PortalDataFeatureModel dstFeatureRootFeature = PortalDataFeatureModel.getRootFeature(CP, dstDataFeature, portalData.featureList);
-                        activeNavHeading = string.IsNullOrEmpty(dstFeatureRootFeature.heading) ? dstFeatureRootFeature.name : dstFeatureRootFeature.heading ;
-                        //
-                        // -- if body not created, consider this a feature list
-                        if (string.IsNullOrEmpty(body)) {
-                            foreach (KeyValuePair<string, PortalDataFeatureModel> kvp in portalData.featureList) {
-                                PortalDataFeatureModel parentFeature = kvp.Value;
-                                if (parentFeature.id == dstDataFeature.parentFeatureId) {
-                                    //
-                                    // if feature returned empty and it is in a feature list, execute the feature list
-                                    body = FeatureListView.getFeatureList(CP, portalData, parentFeature, CP.Doc.RefreshQueryString);
-                                }
+                    }
+                    //
+                    // -- build the child subnav lists, if the active feature has not been found yet
+                    //
+                    if (!foundActiveFeature ) { }
+                    //
+
+
+                    //
+                    // -- set active heading
+                    PortalDataFeatureModel dstFeatureRootFeature = PortalDataFeatureModel.getRootFeature(CP, dstDataFeature, portalData.featureList);
+                    activeNavHeading = string.IsNullOrEmpty(dstFeatureRootFeature.heading) ? dstFeatureRootFeature.name : dstFeatureRootFeature.heading;
+                    //
+                    // -- if body not created, consider this a feature list
+                    if (string.IsNullOrEmpty(body)) {
+                        foreach (KeyValuePair<string, PortalDataFeatureModel> kvp in portalData.featureList) {
+                            PortalDataFeatureModel parentFeature = kvp.Value;
+                            if (parentFeature.id == dstDataFeature.parentFeatureId) {
+                                //
+                                // if feature returned empty and it is in a feature list, execute the feature list
+                                body = FeatureListView.getFeatureList(CP, portalData, parentFeature, CP.Doc.RefreshQueryString);
                             }
                         }
-
-
-                        //
-                        // -- add pading
-                        if (dstDataFeature.addPadding) {
-                            body = CP.Html.div(body, "", "afwBodyPad", "");
-                        }
+                    }
+                    //
+                    // -- add pading
+                    if (dstDataFeature.addPadding) {
+                        body = CP.Html.div(body, "", "afwBodyPad", "");
                     }
                 }
                 if (string.IsNullOrEmpty(body)) {

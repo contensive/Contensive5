@@ -1241,7 +1241,7 @@ namespace Contensive.Processor.Addons.AdminSite.Models {
                                         //
                                         ResponseFieldValueText = GenericController.encodeText(ResponseFieldValueText);
                                         if (ResponseFieldValueText.ToLowerInvariant().left(4) == "www.") {
-                                            ResponseFieldValueText = "http//" + ResponseFieldValueText;
+                                            ResponseFieldValueText = "https://" + ResponseFieldValueText;
                                         }
                                         break;
                                     }

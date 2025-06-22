@@ -1,5 +1,5 @@
 ﻿namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
-    public class PortalBuilderSubNavItemViewModel {
+    public class PortalBuilderSubNavItemModel {
         /// <summary>
         /// the displayed text on teh nav
         /// </summary>

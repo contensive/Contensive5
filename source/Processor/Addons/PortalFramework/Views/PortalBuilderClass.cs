@@ -2,20 +2,16 @@ using Contensive.BaseClasses;
 using Contensive.Processor.Addons.PortalFramework.Models.Domain;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Contensive.Processor.Addons.PortalFramework.Views {
     public class PortalBuilderClass {
-        const int navSize = 99;
-        const int subNavSize = 99;
         /// <summary>
         /// The nav items at the top -- features in this portal with no parent
         /// </summary>
-        private List<PortalBuilderNavItemViewModel> navs { get; set; } = new List<PortalBuilderNavItemViewModel>();
-        private int navMax { get; set; } = -1;
-        private int navPtr { get; set; } = -1;
-        private List<PortalBuilderSubNavItemViewModel> subNavs { get; set; } = new List<PortalBuilderSubNavItemViewModel>();
-        private int subNavMax { get; set; } = -1;
-        private int subNavPtr { get; set; } = -1;
+        private List<PortalBuilderNavItemModel> navItemList { get; set; } = new List<PortalBuilderNavItemModel>();
+        private List<PortalBuilderSubNavItemModel> subNavItemList { get; set; } = new List<PortalBuilderSubNavItemModel>();
+        private List<PortalBuilderChildSubNavListModel> childSubNavList { get; set; } = new List<PortalBuilderChildSubNavListModel>();
         /// <summary>
         /// if true, background padding added
         /// </summary>
@@ -32,9 +28,8 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         //====================================================================================================
         //
         private void checkNavPtr() {
-            if (navPtr < 0) {
-                addNav();
-            }
+            navItemList ??= [];
+            if (navItemList.Count == 0) { addNav(); }
         }
         //
         //====================================================================================================
@@ -42,7 +37,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         public string styleSheet {
             get {
                 return "";
-                //return Properties.Resources.styles;
             }
         }
         //
@@ -51,7 +45,6 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         public string javascript {
             get {
                 return "";
-                //return Properties.Resources.javascript;
             }
         }
         //
@@ -84,11 +77,11 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         public string navCaption {
             get {
                 checkNavPtr();
-                return navs[navPtr].caption;
+                return navItemList.Last().caption;
             }
             set {
                 checkNavPtr();
-                navs[navPtr].caption = value;
+                navItemList.Last().caption = value;
             }
         }
         //
@@ -97,20 +90,22 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         public string navLink {
             get {
                 checkNavPtr();
-                return navs[navPtr].link;
+                return navItemList.Last().link;
             }
             set {
                 checkNavPtr();
-                navs[navPtr].link = value;
+                navItemList.Last().link = value;
             }
         }
         //
         //====================================================================================================
         //
         public void setActiveNav(string caption) {
-            for (int navPtr = 0; navPtr <= navMax; navPtr++) {
-                if (navs[navPtr].caption.ToLower() == caption.ToLower()) {
-                    navs[navPtr].active = true;
+            checkNavPtr();
+            foreach ( var nav in navItemList) {
+                if (nav.caption.ToLower() == caption.ToLower()) { 
+                    nav.active = true;
+                    return;
                 }
             }
         }
@@ -120,44 +115,34 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// Add a navigation entry. The navCaption and navLink should be set after creating a new entry. The first nav entry does not need to be added.
         /// </summary>
         public void addNav() {
-            if (navPtr < navSize) {
-                navPtr += 1;
-                navs.Add(new PortalBuilderNavItemViewModel() {
-                    caption = "",
-                    link = "",
-                    active = false,
-                    isPortalLink = false,
-                    navFlyoutList = new List<PortalBuilderSubNavItemViewModel>()
-                });
-            };
-            if (navPtr > navMax) { navMax = navPtr; }
+            navItemList ??= [];
+            navItemList.Add(new PortalBuilderNavItemModel() {
+                caption = "",
+                link = "",
+                active = false,
+                isPortalLink = false,
+                navFlyoutList = new List<PortalBuilderSubNavItemModel>()
+            });
         }
         //
         //====================================================================================================
         //
-        public void addNav(PortalBuilderNavItemViewModel navItem) {
-            if (navPtr < navSize) {
-                navPtr += 1;
-                navs.Add(navItem);
-                if (navPtr > navMax) { navMax = navPtr; }
-            }
+        public void addNav(PortalBuilderNavItemModel navItem) {
+            navItemList ??= [];
+            navItemList.Add(navItem);
         }
         //
         //====================================================================================================
         //
-        public void addSubNav(PortalBuilderSubNavItemViewModel subNavItem) {
-            if (subNavPtr < navSize) {
-                subNavPtr += 1;
-                subNavs.Add(subNavItem);
-                if (subNavPtr > subNavMax) { subNavMax = subNavPtr; }
-            }
+        public void addSubNav(PortalBuilderSubNavItemModel subNavItem) {
+            subNavItemList.Add(subNavItem);
         }
         //
         //====================================================================================================
         /// <summary>
         /// Add a navigation entry. The navCaption and navLink should be set after creating a new entry. The first nav entry does not need to be added.
         /// </summary>
-        public void addPortalNav() => addNav();
+        [Obsolete("Use addNav(). Deprecated.", false)] public void addPortalNav() => addNav();
         //
         //====================================================================================================
         //
@@ -166,8 +151,9 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 //
                 // todo, a second model is not needed
                 PortalBuilderViewModel viewModel = new PortalBuilderViewModel {
-                    navList = new List<PortalBuilderNavItemViewModel>(),
-                    subNavList = new List<PortalBuilderSubNavItemViewModel>(),
+                    navItemList = [],
+                    subNavItemList = [],
+                    childSubNavLists = [[]],
                     warning = cp.Utils.ConvertHTML2Text(cp.UserError.GetList()),
                     title = title,
                     description = description,
@@ -176,16 +162,26 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 };
                 //
                 // -- build nav
-                foreach (var nav in navs) {
+                foreach (var nav in navItemList) {
                     if (!string.IsNullOrEmpty(nav.caption)) {
-                        viewModel.navList.Add(nav);
+                        viewModel.navItemList.Add(nav);
                     }
                 }
                 //
                 // -- build subnav
-                foreach (var subNav in subNavs) {
-                    if (!string.IsNullOrEmpty(subNav.subCaption)) {
-                        viewModel.subNavList.Add(subNav);
+                foreach (var subNavItem in subNavItemList) {
+                    if (!string.IsNullOrEmpty(subNavItem.subCaption)) {
+                        viewModel.subNavItemList.Add(subNavItem);
+                    }
+                }
+                //
+                // -- build all the childSubNav lists
+                foreach (var childSubNav in childSubNavList) {
+                    // -- build this childSubNav
+                    foreach (var subNavItem in childSubNav.childSubNavItemList) {
+                        if (!string.IsNullOrEmpty(subNavItem.subCaption)) {
+                            viewModel.subNavItemList.Add(subNavItem);
+                        }
                     }
                 }
                 //
@@ -202,6 +198,13 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 cp.Site.ErrorReport(ex);
                 throw;
             }
+        }
+        //
+        /// <summary>
+        /// This class is one row in the child subnav.
+        /// </summary>
+        public class PortalBuilderChildSubNavListModel {
+            public List<PortalBuilderSubNavItemModel> childSubNavItemList;
         }
     }
 }

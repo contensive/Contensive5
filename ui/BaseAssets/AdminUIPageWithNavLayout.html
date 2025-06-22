@@ -709,7 +709,7 @@
           </button>  
           <div class="navbar-collapse collapse" id="navbarSupportedContent">
             <ul class="navbar-nav">
-              {{#navList}}
+              {{#navItemList}}
                 {{#navFlyoutListEmpty}}
                 <li class="nav-item {{#active}}active{{/active}} {{#isPortalLink}}afwNavPortalLink{{/isPortalLink}}">
                   {{#link}}
@@ -735,14 +735,14 @@
                   </div>
                 </li>
                 {{/navFlyoutListEmpty}}
-              {{/navList}}
+              {{/navItemList}}
             </ul>
           </div>
         
       </nav>
     </div>
   
-  {{^subNavListEmpty}}
+  {{^subNavItemListEmpty}}
   <div class="">
     <div class="d-flex align-items-center justify-content-between mb-2 rounded-2 p-2 mt-4 px-3">
       <a class="navbar-brand  text-primary" href="#"><h5 class="fw-bold m-0">{{subNavTitle}}</h5></a>
@@ -752,7 +752,7 @@
         </button>
         <div class="collapse navbar-collapse" id="subnav">
           <ul class="navbar-nav mr-auto me-auto">
-            {{#subNavList}}
+            {{#subNavItemList}}
             <li class="nav-item {{#subActive}}active{{/subActive}} {{#subIsPortalLink}}afwNavPortalLink{{/subIsPortalLink}}">
               {{#subLink}}
               <a class="nav-link py-0" href="{{subLink}}" target="{{subLinkTarget}}">{{subCaption}}</a>
@@ -761,13 +761,37 @@
               <a class="nav-link py-0" href="#" onclick="return false">{{subCaption}}</a>
               {{/subLink}}
             </li>
-          {{/subNavList}}
+			      {{/subNavItemList}}
           </ul>
         </div>
       </nav>
     </div>
   </div>
-  {{/subNavListEmpty}}
+  <div class="">
+    <div class="d-flex align-items-center justify-content-between mb-2 rounded-2 pb-2 px-3">
+      <a class="navbar-brand  text-primary" href="#"><h5 class="fw-bold m-0">{{subNavTitle}}</h5></a>
+      <nav class="afwSubNavbar navbar navbar-expand-lg p-0">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#subnav" data-bs-target="#subnav" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="subnav">
+          <ul class="navbar-nav mr-auto me-auto">
+            {{#subNavItemList}}
+            <li class="nav-item {{#subActive}}active{{/subActive}} {{#subIsPortalLink}}afwNavPortalLink{{/subIsPortalLink}}">
+              {{#subLink}}
+              <a class="nav-link py-0" href="{{subLink}}" target="{{subLinkTarget}}">{{subCaption}}</a>
+              {{/subLink}}
+              {{^subLink}}
+              <a class="nav-link py-0" href="#" onclick="return false">{{subCaption}}</a>
+              {{/subLink}}
+            </li>
+			      {{/subNavItemList}}
+          </ul>
+        </div>
+      </nav>
+    </div>
+  </div>
+  {{/subNavItemListEmpty}}
 
   <div>
     {{{body}}}
