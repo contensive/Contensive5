@@ -53,7 +53,10 @@ namespace Contensive.Processor.Addons.PortalFramework.Models.Domain {
         /// childSubNavLists has an array of subNavLists that appear below subNavList. childSubNavLists[0] are all the features that are children of the current subNavList item. etc.
         /// 
         /// </summary>
-        public List<List<PortalBuilderNavItemModel>> childSubNavLists { get; set; }
+        public List<ChildSubNavItemListModel> childSubNavItemLists { get; set; }
 
+    }
+    public class ChildSubNavItemListModel {
+        public List<PortalBuilderSubNavItemModel> childSubNavItemList { get; set; }
     }
 }

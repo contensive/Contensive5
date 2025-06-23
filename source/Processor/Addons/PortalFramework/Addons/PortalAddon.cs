@@ -187,12 +187,51 @@ namespace Contensive.Processor.Addons.PortalFramework.Addons {
                         }
                     }
                     //
-                    // -- build the child subnav lists, if the active feature has not been found yet
-                    //
-                    if (!foundActiveFeature ) { }
-                    //
+                    // -- build navs from the dstFeature, up to the top-nav
+                    // -- then move the resulting navs to subnav, and childsubnavs
+                    var targetDataFeature = dstDataFeature;
+                    List<List<PortalBuilderSubNavItemModel>> subNavStack = [];
+                    int loopLimit = 10; 
+                    int loopCnt = 0;
+                    while (!string.IsNullOrEmpty(targetDataFeature.parentFeatureGuid)) {
+                        if (loopCnt++ > loopLimit) {
+                            CP.Site.ErrorReport("portalClass.getPortalAddonHtml infinite loop detected, limit reached");
+                            break;
+                        }
+                        PortalDataFeatureModel targetDataParentFeature = portalData.featureList[targetDataFeature.parentFeatureGuid];
+                        if (targetDataParentFeature.addonId > 0 || targetDataParentFeature.dataContentId > 0) {
+                            //
+                            // -- if parent is content or addon features, show subnav (otherwise, show flyout)
+                            var navFeatures = new List<PortalBuilderSubNavItemModel>();
+                            subNavStack.Add(navFeatures);
 
-
+                            var subFeatureList = targetDataParentFeature.subFeatureList.OrderBy(p => p.sortOrder).ToList();
+                            foreach (var dstFeatureSibling in subFeatureList) {
+                                bool activeFeature = dstFeatureSibling.guid == targetDataFeature.guid;
+                                foundActiveFeature = foundActiveFeature || activeFeature;
+                                navFeatures.Add(new PortalBuilderSubNavItemModel {
+                                    subActive = activeFeature,
+                                    subCaption = string.IsNullOrEmpty(dstFeatureSibling.heading) ? dstFeatureSibling.name : dstFeatureSibling.heading,
+                                    subIsPortalLink = false,
+                                    subLink = "?" + CP.Utils.ModifyQueryString(CP.Doc.RefreshQueryString, Constants.rnDstFeatureGuid, dstFeatureSibling.guid),
+                                    sublinkTarget = dstFeatureSibling.dataContentId > 0 || !string.IsNullOrEmpty(dstFeatureSibling.dataContentGuid) ? "_blank" : ""
+                                });
+                            }
+                        }
+                        targetDataFeature = targetDataParentFeature;
+                    }
+                    if (subNavStack.Count > 0) {
+                        //
+                        // -- if there is a nav stack, add the top nav to the subnav
+                        //
+                        subNavStack.Reverse();
+                        portalBuilder.subNavItemList = subNavStack[0];
+                        for (int i = 1; i < subNavStack.Count; i++) {
+                            portalBuilder.childSubNavList.Add(new PortalBuilderClass.PortalBuilderChildSubNavListModel {
+                                childSubNavItemList = subNavStack[i]
+                            });
+                        }
+                    }
                     //
                     // -- set active heading
                     PortalDataFeatureModel dstFeatureRootFeature = PortalDataFeatureModel.getRootFeature(CP, dstDataFeature, portalData.featureList);

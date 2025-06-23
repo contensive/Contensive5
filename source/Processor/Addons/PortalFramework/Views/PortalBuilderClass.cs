@@ -10,8 +10,8 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
         /// The nav items at the top -- features in this portal with no parent
         /// </summary>
         private List<PortalBuilderNavItemModel> navItemList { get; set; } = new List<PortalBuilderNavItemModel>();
-        private List<PortalBuilderSubNavItemModel> subNavItemList { get; set; } = new List<PortalBuilderSubNavItemModel>();
-        private List<PortalBuilderChildSubNavListModel> childSubNavList { get; set; } = new List<PortalBuilderChildSubNavListModel>();
+        internal List<PortalBuilderSubNavItemModel> subNavItemList { get; set; } = new List<PortalBuilderSubNavItemModel>();
+        internal List<PortalBuilderChildSubNavListModel> childSubNavList { get; set; } = new List<PortalBuilderChildSubNavListModel>();
         /// <summary>
         /// if true, background padding added
         /// </summary>
@@ -153,7 +153,7 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 PortalBuilderViewModel viewModel = new PortalBuilderViewModel {
                     navItemList = [],
                     subNavItemList = [],
-                    childSubNavLists = [[]],
+                    childSubNavItemLists = [],
                     warning = cp.Utils.ConvertHTML2Text(cp.UserError.GetList()),
                     title = title,
                     description = description,
@@ -176,11 +176,14 @@ namespace Contensive.Processor.Addons.PortalFramework.Views {
                 }
                 //
                 // -- build all the childSubNav lists
-                foreach (var childSubNav in childSubNavList) {
+                foreach (var src_childSubNav in childSubNavList) {
                     // -- build this childSubNav
-                    foreach (var subNavItem in childSubNav.childSubNavItemList) {
+                    var dst_childSubNavItemList = new ChildSubNavItemListModel();
+                    dst_childSubNavItemList.childSubNavItemList = [];
+                    viewModel.childSubNavItemLists.Add(dst_childSubNavItemList);
+                    foreach (var subNavItem in src_childSubNav.childSubNavItemList) {
                         if (!string.IsNullOrEmpty(subNavItem.subCaption)) {
-                            viewModel.subNavItemList.Add(subNavItem);
+                            dst_childSubNavItemList.childSubNavItemList.Add(subNavItem);
                         }
                     }
                 }
