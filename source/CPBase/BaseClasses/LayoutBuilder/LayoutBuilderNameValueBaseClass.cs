@@ -4,9 +4,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     public abstract class LayoutBuilderNameValueBaseClass : LayoutBuilderBaseClass {
         //
         public LayoutBuilderNameValueBaseClass(CPBaseClass cp) : base(cp) { }
-
-        //
-        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// After populating the current rowName, rowValue, rowHelp, and rowHtmlId properties, addRow to create a new row, and populate its rowName, rowValue, rowHelp, rowHtmlId
         /// </summary>

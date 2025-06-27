@@ -1,15 +1,16 @@
 
 
 using Contensive.BaseClasses;
+using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Processor.Controllers;
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderClass : Contensive.BaseClasses.LayoutBuilder.LayoutBuilderBaseClass {
         //
         //
-        public LayoutBuilderClass(CPBaseClass cp) : base(cp) {
-        }
+        public LayoutBuilderClass(CPBaseClass cp) : base(cp) { }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -338,25 +339,50 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
             buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
         }
-
-        [Obsolete("Deprecated. Use getHtml()", false)]
-         public override string getHtml(CPBaseClass cp) {
-            return getHtml();
-        }
-
-        //
-        //====================================================================================================
-        //
-        /// <summary>
-        /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
-        /// </summary>
-        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)]
-        public override string refreshQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// deprecated. Use warningMessage instead
+        /// add a filter group to the layout.
         /// </summary>
+        /// <param name="filterRequest"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public override void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest) {
+            throw new NotImplementedException();
+        }
+
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool includeFilter { /* todo */ get { return false; } set { } }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public bool includeResetFilterButton { /* todo */ get { return false; } set { } }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// a list of filter groups. 
+        /// populated with the addFilter() method
+        /// Each group has a caption and a list of filters. 
+        /// Each filter can be one of several types, checkbox, text, etc.
+        /// </summary>
+        public List<LayoutBuilderClass_FilterGroup> filterGroups { get { return []; } set { } }
+        //
+        //
+        //
+        //====================================================================================================
+        // -- Deprecated properties and methods
+        //
+        [Obsolete("Deprecated. Use getHtml()", false)]
+        public override string getHtml(CPBaseClass cp) {
+            return getHtml();
+        }
+        //
+        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)]
+        public override string refreshQueryString { get; set; }
+        //
         [Obsolete("Deprecated. Use warningMessage.", false)]
         public override string warning {
             get {
@@ -367,10 +393,6 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// deprecated. Use htmlAfterBody instead
-        /// </summary>
         [Obsolete("Deprecated. Use htmlAfterBody", false)]
         public override string footer {
             get {
@@ -381,10 +403,6 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// deprecated. Use warningMessage instead
-        /// </summary>
         [Obsolete("Deprecated. Use addFormHidden.", false)]
         public override string formid {
             get {
@@ -397,18 +415,62 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         private string _formid;
         //
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Deprecated. Instead use cp.adminUI.getPortalFeatureLink()
-        /// </summary>
         [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string baseUrl { get; }
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The url to the ajax method that will be called to refresh the page. This is used by the default getHtml() to include in the hidden fields. This is the url of the current page
-        /// </summary>
         [Obsolete("Deprecated. Use callbackAddonGuid", false)] public override string baseAjaxUrl { get; set; }
-
+    }
+    //
+    // =====================================================================================================
+    //
+    public class LayoutBuilderClass_FilterGroup {
+        /// <summary>
+        /// for this option group, this is the caption that will be displayed in the filter options
+        /// </summary>
+        public string filterGroupCaption { get; set; }
+        /// <summary>
+        /// a list of inputs for this option group
+        /// </summary>
+        public List<LayoutBuilderClass_FilterGroup_Input> filterInputs { get; set; }
+    }
+    //
+    // =====================================================================================================
+    //
+    public class LayoutBuilderClass_FilterGroup_Input {
+        public bool filterIsCheckbox { get; set; }
+        public bool filterIsSelect { get; set; }
+        public bool filterIsText { get; set; }
+        public bool filterIsDate { get; set; }
+        public string filterCaption { get; set; }
+        /// <summary>
+        /// a unique string for this filter input
+        /// </summary>
+        public int filterInputId { get; set; }
+        /// <summary>
+        /// for checkbox and radio, true if selected.
+        /// </summary>
+        public bool filterSelected { get; set; }
+        /// <summary>
+        /// for checkbox, always 1. For other types the value of the filter.
+        /// </summary>
+        public bool filterValue { get; set; }
+        /// <summary>
+        /// if the filter option is a select, this is the list of options for the select
+        /// </summary>
+        public List<LayoutBuilderClass_FilterGroup_Input_SelectOptions> filterSelectOptions { get; set; }
+    }
+    //
+    // =====================================================================================================
+    /// <summary>
+    /// if the filter option is a select, this is the value of the selected option.
+    /// </summary>
+    public class LayoutBuilderClass_FilterGroup_Input_SelectOptions {
+        /// <summary>
+        /// the select optons value
+        /// </summary>
+        public string filterSelectOptionValue { get; set; }
+        /// <summary>
+        /// the select options caption
+        /// </summary>
+        public string filterSelectOptionName { get; set; }
     }
 }

@@ -7,6 +7,12 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// </summary>
     public abstract class LayoutBuilderListBaseClass(CPBaseClass cp) {
         private CPBaseClass cp { get; set; } = cp;
+        //
+        /// <summary>
+        /// Add a filter group to the layout. A report can have many filter groups, each with a name and a list of filters.
+        /// </summary>
+        /// <param name="filterRequest"></param>
+        public abstract void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest);
         /// <summary>
         ///  The guid of the addon method that returns the current view.
         ///  Typically this is the method that calls the layout builder.

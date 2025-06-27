@@ -1,7 +1,9 @@
 
 using Contensive.BaseClasses;
+using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Processor.Controllers;
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderTwoColumnRight : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnRightBaseClass {
@@ -346,6 +348,11 @@ namespace Contensive.Processor.LayoutBuilder {
         /// An html block added below the table. Typically used for filters.
         /// </summary>
         public override string htmlAfterBody { get; set; } = "";
+        public bool tableFilter { /* todo */ get { return false; } set { } }
+        public bool removeFilters { /* todo */ get { return false; } set { } }
+        public override void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest) {
+            throw new NotImplementedException();
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

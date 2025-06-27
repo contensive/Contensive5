@@ -104,7 +104,7 @@ namespace Contensive.WebApi {
                         // -- transfer upload files
                         foreach (var formFile in httpContext.Request.Form.Files) {
                             if (formFile.Length > 0) {
-                                string tmpFullPathFilename = WindowsTempFileController.createTmpFile();
+                                string tmpFullPathFilename = WindowsTempFileController.createTmpFile(); 
                                 using (var inputStream = new FileStream(tmpFullPathFilename, FileMode.Create)) {
                                     // read file to stream
                                     formFile.CopyTo(inputStream);

@@ -1,13 +1,22 @@
 using System;
+using System.Collections.Generic;
 
 namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// LayoutBuilders create the html for common Admin UI cases.
+    /// This class has 2 uses. 
+    /// - the base class provides an api that client apps use to create admin layouts
+    /// - child classes implement these api calls, and also provide non-override properties used in the mustache viewModels that populate layouts.
+    ///
     /// They must be implemented 2 ways, first called by the page during the initial page load, and second called by the ajax refresh methods.
     /// Both methods return the exact same html, but the javascript that calls the ajax methods selectively replaces the important content.
     /// </summary>
     public abstract class LayoutBuilderBaseClass(CPBaseClass cp) {
         public CPBaseClass cp { get; set; } = cp;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public abstract void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest);
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -237,7 +246,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// <summary>
         /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
         /// </summary>
-        [Obsolete("Deprecated. No longer needed.",false)] public abstract string formActionQueryString { get; set; }
+        [Obsolete("Deprecated. No longer needed.", false)] public abstract string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -265,39 +274,39 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         public enum AfwStyles {
             afwWidth10,
             afwWidth20,
-            afwWidth30 ,
-            afwWidth40 ,
-            afwWidth50 ,
+            afwWidth30,
+            afwWidth40,
+            afwWidth50,
             afwWidth60,
-            afwWidth70 ,
+            afwWidth70,
             afwWidth80,
-            afwWidth90 ,
+            afwWidth90,
             afwWidth100,
             //
             afwWidth10px,
-            afwWidth20px ,
-            afwWidth30px ,
+            afwWidth20px,
+            afwWidth30px,
             afwWidth40px,
-            afwWidth50px ,
+            afwWidth50px,
             afwWidth60px,
-            afwWidth70px ,
+            afwWidth70px,
             afwWidth80px,
             afwWidth90px,
             //
-            afwWidth100px ,
+            afwWidth100px,
             afwWidth200px,
-            afwWidth300px ,
-            afwWidth400px ,
-            afwWidth500px ,
+            afwWidth300px,
+            afwWidth400px,
+            afwWidth500px,
             //
-            afwMarginLeft100px ,
-            afwMarginLeft200px ,
-            afwMarginLeft300px ,
-            afwMarginLeft400px ,
+            afwMarginLeft100px,
+            afwMarginLeft200px,
+            afwMarginLeft300px,
+            afwMarginLeft400px,
             afwMarginLeft500px,
             //
-            afwTextAlignRight ,
-            afwTextAlignLeft ,
+            afwTextAlignRight,
+            afwTextAlignLeft,
             afwTextAlignCenter
         }
         //
@@ -364,4 +373,106 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         [Obsolete("Deprecated. use callbackAddonGuid", false)] public abstract string baseAjaxUrl { get; set; }
 
     }
+    //
+    // ----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// A filter group is a list of similar options under a single caption.
+    /// </summary>
+    public abstract class LayoutBuilderFilterGroupRequest {
+        /// <summary>
+        /// The caption for this filter group. An option group has a caption and a list of filter inputs
+        /// </summary>
+        public abstract string caption { get; set; }
+        /// <summary>
+        /// list of inputs for this filter group. An option group has a caption and a list of filter inputs
+        /// </summary>
+        public abstract List<LayoutBuilderFilterGroupRequest_FilterInput> filterInput { get; set; }
+    }
+    //
+    // ----------------------------------------------------------------------------------------------------
+
+    public abstract class LayoutBuilderFilterGroupRequest_FilterInput {
+        public abstract bool filterIsCheckbox { get; set; }
+        public abstract bool filterIsSelect { get; set; }
+        public abstract bool filterIsText { get; set; }
+        public abstract bool filterIsDate { get; set; }
+        public abstract string filterCaption { get; set; }
+        /// <summary>
+        /// for checkbox and radio, true if selected.
+        /// </summary>
+        public abstract bool filterSelected { get; set; }
+        /// <summary>
+        /// for checkbox, always 1. For other types the value of the filter.
+        /// </summary>
+        public abstract bool filterValue { get; set; }
+        /// <summary>
+        /// if the filter option is a select, this is the list of options for the select
+        /// </summary>
+        public abstract List<LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption> selectOptions { get; set; }
+    }
+    //
+    // ----------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// if the filter option is a select, this is the value of the selected option.
+    /// </summary>
+    public abstract class LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption {
+        /// <summary>
+        /// the select optons value
+        /// </summary>
+        public abstract string filterOptionValue { get; set; }
+        /// <summary>
+        /// the select options caption
+        /// </summary>
+        public abstract string filterOptionName { get; set; }
+    }
+
+
+
+    //public abstract class LayoutBuilderBaseClass_RequestfilterOptionGroup {
+    //    /// <summary>
+    //    /// for this option group, this is the caption that will be displayed in the filter options
+    //    /// </summary>
+    //    public abstract string filterOptionGroupCaption { get; set; }
+    //    /// <summary>
+    //    /// a list of inputs for this option group
+    //    /// </summary>
+    //    public abstract List<LayoutBuilderBaseClass_RequestFilterOption> filterOption { get; set; }
+    //}
+    ////
+    //public abstract class LayoutBuilderBaseClass_RequestFilterOption {
+    //    public abstract bool filterIsCheckbox { get; set; }
+    //    public abstract bool filterIsSelect { get; set; }
+    //    public abstract bool filterIsText { get; set; }
+    //    public abstract bool filterIsDate { get; set; }
+    //    public abstract string filterCaption { get; set; }
+    //    /// <summary>
+    //    /// a unique string for this filter input
+    //    /// </summary>
+    //    public abstract int filterId { get; set; }
+    //    /// <summary>
+    //    /// for checkbox and radio, true if selected.
+    //    /// </summary>
+    //    public abstract bool filterSelected { get; set; }
+    //    /// <summary>
+    //    /// for checkbox, always 1. For other types the value of the filter.
+    //    /// </summary>
+    //    public abstract bool filterValue { get; set; }
+    //    /// <summary>
+    //    /// if the filter option is a select, this is the list of options for the select
+    //    /// </summary>
+    //    public abstract List<LayoutBuilderBaseClass_RequestfilterOption_FilterSelectOption> filterSelectOptions { get; set; }
+    //    /// <summary>
+    //    /// if the filter option is a select, this is the value of the selected option.
+    //    /// </summary>
+    //    public abstract class LayoutBuilderBaseClass_RequestfilterOption_FilterSelectOption {
+    //        /// <summary>
+    //        /// the select optons value
+    //        /// </summary>
+    //        public abstract string filterOptionValue { get; set; }
+    //        /// <summary>
+    //        /// the select options caption
+    //        /// </summary>
+    //        public abstract string filterOptionName { get; set; }
+    //    }
+    //}
 }

@@ -64,7 +64,7 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             fieldSetPtr = fieldSetMax;
             fieldSets[fieldSetPtr].caption = caption;
-            fieldSets[fieldSetPtr].rowOpen = rowList.Count+1;
+            fieldSets[fieldSetPtr].rowOpen = rowList.Count + 1;
         }
         //
         // ====================================================================================================
@@ -435,33 +435,13 @@ namespace Contensive.Processor.LayoutBuilder {
         /// fieldsets are used to group fields visually with ah html fieldset element
         /// </summary>
         private readonly Stack fieldSetPtrStack = new Stack();
-        ////
-        ///// <summary>
-        ///// the max number of row
-        ///// </summary>
-        //const int rowSize = 999;
-        ////
-        ///// <summary>
-        ///// the current row
-        ///// </summary>
-        //private int rowCnt = -1;
-        ////
-        ///// <summary>
-        ///// the structure of stored rows
-        ///// </summary>
-        //struct RowStruct {
-        //    public string name;
-        //    public string value;
-        //    public string help;
-        //    public string htmlId;
-        //}
-        ////
-        ///// <summary>
-        ///// the stored rows to be rendered
-        ///// </summary>
-        //private readonly RowStruct[] rows = new RowStruct[rowSize];
-        //
-        //
+
+        public bool tableFilter { /* todo */ get { return false; } set { } }
+        public bool removeFilters { /* todo */ get { return false; } set { } }
+
+        public override void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest) {
+            throw new NotImplementedException();
+        }
         //
         //
         // ====================================================================================================
@@ -472,6 +452,7 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getHtml(CPBaseClass cp) {
             return getHtml();
         }
+
         //
         [Obsolete("Deprecated. Use addFormHidden()", false)]
         public override string formid {

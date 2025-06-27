@@ -339,6 +339,12 @@ namespace Contensive.Processor.LayoutBuilder {
         public override string getHtml(CPBaseClass cp) {
             return getHtml();
         }
+
+        public override void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest) { 
+        }
+        public bool tableFilter { /* todo */ get { return false; } set { } }
+        public bool removeFilters { /* todo */ get { return false; } set { } }
+
         [Obsolete("Deprecated. Use includeForm.", false)] public override bool blockFormTag { get; set; }
         [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
         [Obsolete("Depricated. Use htmlAfterTable", false)]
