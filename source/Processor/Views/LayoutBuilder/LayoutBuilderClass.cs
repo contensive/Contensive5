@@ -219,7 +219,7 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsCheckbox = true,
                 filterCaption = caption,
-                filterInputId = cp.Utils.GetRandomString(4),
+                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
                 filterSelected = selected,
                 filterName = htmlName,
                 filterValue = htmlValue
@@ -233,7 +233,7 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsRadio = true,
                 filterCaption = caption,
-                filterInputId = cp.Utils.GetRandomString(4),
+                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
                 filterSelected = selected,
                 filterName = htmlName,
                 filterValue = htmlValue
@@ -247,7 +247,7 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsText = true,
                 filterCaption = caption,
-                filterInputId = cp.Utils.GetRandomString(4),
+                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
                 filterName = htmlName,
                 filterValue = htmlValue
             });
@@ -260,7 +260,7 @@ namespace Contensive.Processor.LayoutBuilder {
             filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsDate = true,
                 filterCaption = caption,
-                filterInputId = cp.Utils.GetRandomString(4),
+                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
                 filterName = htmlName,
                 filterValue = (htmlDateValue ?? DateTime.MinValue).Equals(DateTime.MinValue) ? "" : htmlDateValue.Value.ToString("yyyy-MM-dd")
             });
@@ -269,12 +269,12 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
             filterGroups ??= [];
             if (filterGroups.Count == 0) { addFilterGroup(""); }
-            filterGroups[filterGroups.Count - 1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
+            filterGroups[^1].filterInputs.Add(new LayoutBuilderClass_FilterGroup_Input() {
                 filterIsSelect = true,
                 filterCaption = caption,
-                filterInputId = cp.Utils.GetRandomString(4),
+                filterInputId = $"filter{cp.Utils.GetRandomString(4)}",
                 filterName = htmlName,
-                filterSelectOptions = new List<NameValueSelected>()
+                filterSelectOptions = options
             });
         }
         //

@@ -741,62 +741,86 @@
 					{{#failMessage}}<div class="p-3 mb-2 bg-danger text-white my-2">{{failMessage}}</div>{{/failMessage}}
 					{{#description}}<p class="my-2">{{{description}}}</p>{{/description}}
 					{{#csvDownloadFilename}}<p class="afwDescription" id="afwDescription my-2"><a href="{{csvDownloadFilename}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
-					{{#htmlBeforeBody}}
-						<div class="afwBeforeHtml my-2">
-							<div class="d-flex justify-content-between align-items-center">
-								{{#includeFilter}}
-								<div class="dropdown">
-									<a class="btn-outline-secondary" role="button" id="filterDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-										<img src="BaseAssets/bars-filter.svg" alt="filter icon"> Filter
-									</a>
-									<div class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
-										{{#includeResetFilterButton}}
-											<a href="" class="text-center small"><i class="fa-solid fa-xmark text-danger"></i> Remove All</a>
-										{{/includeResetFilterButton}}
-										{{#filterGroups}}
-											<h6 class="dropdown-header text-muted small">{{filterGroupCaption}}</h6>
-											{{#filterInputs}}
-												<div class="dropdown-item">
-													<div class="form-check">
-											    		{{#filterIsCheckbox}}
-														//
-														// -- checkbox
-														{{#filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="filterInput{{filterInputId}}" checked>{{/filterSelected}}
-														{{^filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="filterInput{{filterInputId}}">{{/filterSelected}}
-														<label class="form-check-label" for="filterInput{{filterInputId}}">
-															{{filterCaption}}
-														</label>
-											    		{{/filterIsCheckbox}}
-														{{#filterIsSelect}}
-														//
-														// -- select
-														<select class="form-select" id="filterInput{{filterInputId}}" aria-label="{{filterCaption}}">
-															{{#filterSelectOptions}}
-																{{#filterSelected}}<option value="{{filterSelectOptionValue}}" selected>{{filterSelectOptionName}}</option>{{/filterSelected}}
-																{{^filterSelected}}<option value="{{filterSelectOptionValue}}">{{filterSelectOptionName}}</option>{{/filterSelected}}
-															{{/filterSelectOptions}}
-														</select>
-														{{/filterIsSelect}}
-														{{#filterIsDate}}
-														//
-														// -- date
-														{{/filterIsDate}}
-														{{#filterIsText}}
-														//
-														// -- text
-														{{/filterIsText}}
+					<div class="afwBeforeHtml my-2">
+						<div class="d-flex justify-content-between align-items-center">
+							{{#includeFilter}}
+							<div class="dropdown">
+								<a class="btn-outline-secondary" role="button" id="filterDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<img src="BaseAssets/bars-filter.svg" alt="filter icon"> Filter
+								</a>
+								<div class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
+									{{#includeResetFilterButton}}
+										<a href="" class="text-center small"><i class="fa-solid fa-xmark text-danger"></i> Remove All</a>
+									{{/includeResetFilterButton}}
+									{{#filterGroups}}
+										<h6 class="dropdown-header text-muted small">{{filterGroupCaption}}</h6>
+										{{#filterInputs}}
+											<div class="dropdown-item">
+												<div class="form-check">
+													{{#filterIsCheckbox}}
+													<!--
+														checkbox
+													-->
+													{{#filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}" checked>{{/filterSelected}}
+													{{^filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}">{{/filterSelected}}
+													<label class="form-check-label" for="{{filterInputId}}">
+														{{filterCaption}}
+													</label>
+													{{/filterIsCheckbox}}
+													{{#filterIsSelect}}
+													<!--
+														select
+													-->
+													<select class="form-select" id="{{filterInputId}}" aria-label="{{filterCaption}}">
+														{{#filterSelectOptions}}
+															{{#filterSelected}}<option value="{{filterSelectOptionValue}}" selected>{{filterSelectOptionName}}</option>{{/filterSelected}}
+															{{^filterSelected}}<option value="{{filterSelectOptionValue}}">{{filterSelectOptionName}}</option>{{/filterSelected}}
+														{{/filterSelectOptions}}
+													</select>
+													{{/filterIsSelect}}
+													{{#filterIsDate}}
+													<!--
+														radio
+													-->
+													<div>radio input, 
+														caption {{filterCaption}}, 
+														id {{filterInputId}}, 
+														name {{filterName}}, 
+														filterValue {{filterValue}}
 													</div>
+													{{/filterIsDate}}
+													{{#filterIsDate}}
+													<!--
+														date
+													-->
+													<div>date input, 
+														caption {{filterCaption}}, 
+														id {{filterInputId}}, 
+														name {{filterName}}, 
+														filterValue {{filterValue}}
+													</div>
+													{{/filterIsDate}}
+													{{#filterIsText}}
+													<!--
+														text
+													-->
+													<div>text input,
+														caption {{filterCaption}},
+														id {{filterInputId}}, 
+														name {{filterName}}, 
+														filterValue {{filterValue}}
+													</div>
+													{{/filterIsText}}
 												</div>
-											{{/filterInputs}}
-										{{/filterGroups}}
-									</div>
+											</div>
+										{{/filterInputs}}
+									{{/filterGroups}}
 								</div>
-								{{/includeFilter}}
-								{{{htmlBeforeBody}}}
-							</div>							
-						</div>
-					{{/htmlBeforeBody}}
-					{{^htmlBeforeBody}}<div class="afwBeforeHtml my-2">{{{htmlBeforeBody}}}</div>{{/htmlBeforeBody}}
+							</div>
+							{{/includeFilter}}
+							{{{htmlBeforeBody}}}
+						</div>							
+					</div>
 					{{#htmlLeftOfBody}}
 						<div class="afwLeftSideHtml border-end my-2 pe-1">{{{htmlLeftOfBody}}}</div>
 						<div class="afwRightSideHtml my-2 ps-1">{{{body}}}</div>
