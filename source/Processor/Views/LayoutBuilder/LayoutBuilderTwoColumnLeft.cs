@@ -8,29 +8,33 @@ using System.Collections.Generic;
 namespace Contensive.Processor.LayoutBuilder {
     public class LayoutBuilderTwoColumnLeft : BaseClasses.LayoutBuilder.LayoutBuilderTwoColumnLeftBaseClass {
         //
-        public LayoutBuilderTwoColumnLeft(CPBaseClass cp) : base(cp) {
-        }
+        public LayoutBuilderTwoColumnLeft(CPBaseClass cp) : base(cp) { }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Add a filter group to the layout. 
-        /// create the argument with createFilterGroupRequest().
-        /// A filter group is a list of similar options under a single caption. You can have as many filter groups as you want, and each filter group can have as many filter inputs as you want.
+        /// tmp. If the layoutBuilderBase filter works, convert this to match -list pattern, create a LayoutBase during constructor and pass the filter calls through. Then the getHtml does not need to pass local values to the base, they are there
         /// </summary>
-        /// <param name="filterRequest"></param>
-        public override void addFilterGroup(LayoutBuilderBaseFilterGroupRequest filterRequest) {
+        /// <param name="caption"></param>
+        /// <exception cref="NotImplementedException"></exception>
+        public override void addFilterGroup(string caption) {
             throw new NotImplementedException();
         }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// create the object argument required for addFilterGroup().
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public override LayoutBuilderBaseFilterGroupRequest createFilterGroupRequest() {
-            throw new NotImplementedException("createFilterGroupRequest() not implemented in LayoutBuilderTwoColumnRight");
+        public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {
+            throw new NotImplementedException();
         }
+        public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected) {
+            throw new NotImplementedException();
+        }
+        public override void addFilterTextInput(string caption, string htmlName, string htmlValue) {
+            throw new NotImplementedException();
+        }
+        public override void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue) {
+            throw new NotImplementedException();
+        }
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
+            throw new NotImplementedException();
+        }
+
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

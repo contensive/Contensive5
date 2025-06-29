@@ -6,7 +6,7 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// Create a Tool Form. Tool Forms how rows of input elements
     /// </summary>
-    public abstract class LayoutBuilderToolFormBaseClass : LayoutBuilderBaseClass {
+    [Obsolete("Deprecated. Use cp.AdminUi.CreateLayoutBuilder", false)] public abstract class LayoutBuilderToolFormBaseClass : LayoutBuilderBaseClass {
         //
         public LayoutBuilderToolFormBaseClass(CPBaseClass cp) : base(cp) { }
         //

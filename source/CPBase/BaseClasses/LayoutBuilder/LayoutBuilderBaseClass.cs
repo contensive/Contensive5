@@ -27,16 +27,9 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         public abstract void addFilterTextInput(string caption, string htmlName, string htmlValue);
         //
-        public abstract void addFilterDateInput(string caption, string htmlName, string htmlValue);
+        public abstract void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue);
         //
         public abstract void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options);
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// factory pattern that creates the request argument for addFilterGroup.
-        /// </summary>
-        /// <returns></returns>
-        public abstract LayoutBuilderBaseFilterGroupRequest createFilterGroupRequest();
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>

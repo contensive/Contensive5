@@ -156,28 +156,34 @@ namespace Contensive.Processor.LayoutBuilder {
         private int rowCnt { get; set; } = -1;
         //
         // ====================================================================================================
-        // publics
+        // publics 
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Add a filter group to the layout. 
-        /// create the argument with createFilterGroupRequest().
-        /// A filter group is a list of similar options under a single caption. You can have as many filter groups as you want, and each filter group can have as many filter inputs as you want.
+        /// pass addFilter methods through the the hidden layoutbuilderbase
         /// </summary>
-        /// <param name="filterRequest"></param>
-        public override void addFilterGroup(LayoutBuilderBaseFilterGroupRequest filterRequest) {
-            layoutBuilderBase.addFilterGroup(filterRequest);
-        }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// create the object argument required for addFilterGroup().
-        /// </summary>
-        /// <returns></returns>
+        /// <param name="caption"></param>
         /// <exception cref="NotImplementedException"></exception>
-        public override LayoutBuilderBaseFilterGroupRequest createFilterGroupRequest() {
-            return layoutBuilderBase.createFilterGroupRequest();
+        public override void addFilterGroup(string caption) {
+            layoutBuilderBase.addFilterGroup(caption);
         }
+        public override void addFilterCheckbox(string caption, string htmlName, string htmlValue, bool selected) {
+            layoutBuilderBase.addFilterCheckbox(caption, htmlName, htmlValue, selected);
+        }
+        public override void addFilterRadio(string caption, string htmlName, string htmlValue, bool selected) {
+            layoutBuilderBase.addFilterRadio(caption, htmlName, htmlValue, selected);
+        }
+        public override void addFilterTextInput(string caption, string htmlName, string htmlValue) {
+            layoutBuilderBase.addFilterTextInput(caption, htmlName, htmlValue);
+        }
+        public override void addFilterDateInput(string caption, string htmlName, DateTime? htmlDateValue) {
+            layoutBuilderBase.addFilterDateInput(caption, htmlName, htmlDateValue);
+        }
+        public override void addFilterSelect(string caption, string htmlName, List<NameValueSelected> options) {
+            layoutBuilderBase.addFilterSelect(caption, htmlName, options);
+        }
+
+        //
         /// <summary>
         ///  The guid of the addon method that returns the current view.
         ///  Typically this is the method that calls the layout builder.
