@@ -1,5 +1,6 @@
 using Amazon.SimpleEmail.Model;
 using Contensive.BaseClasses;
+using Contensive.BaseClasses.LayoutBuilder;
 using Contensive.Processor.Addons.AdminSite;
 using Contensive.Processor.Controllers;
 using System;
@@ -26,7 +27,6 @@ namespace Contensive.Processor.LayoutBuilder {
         // ====================================================================================================
         // constructors
         //
-        // ----------------------------------------------------------------------------------------------------
         /// <summary>
         /// prefered constructor
         /// </summary>
@@ -42,7 +42,6 @@ namespace Contensive.Processor.LayoutBuilder {
         // ====================================================================================================
         // privates
         //
-        // ----------------------------------------------------------------------------------------------------
         //
         private GridConfigClass gridConfig {
             get {
@@ -161,6 +160,25 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
+        /// Add a filter group to the layout. 
+        /// create the argument with createFilterGroupRequest().
+        /// A filter group is a list of similar options under a single caption. You can have as many filter groups as you want, and each filter group can have as many filter inputs as you want.
+        /// </summary>
+        /// <param name="filterRequest"></param>
+        public override void addFilterGroup(LayoutBuilderBaseFilterGroupRequest filterRequest) {
+            layoutBuilderBase.addFilterGroup(filterRequest);
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// create the object argument required for addFilterGroup().
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override LayoutBuilderBaseFilterGroupRequest createFilterGroupRequest() {
+            return layoutBuilderBase.createFilterGroupRequest();
+        }
+        /// <summary>
         ///  The guid of the addon method that returns the current view.
         ///  Typically this is the method that calls the layout builder.
         /// When a search or pagination is performed, the view is refreshed by calling this method.
@@ -212,11 +230,11 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             _paginationPageNumber = 1;
         }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary></summary> 
-        [Obsolete("Deprecated. Pagination is enabled if recordCount is set > pageSize and the callbackAddonGuid is not empty.", false)]
-        public override bool allowPagination { get { return true; } }
+        ////
+        //// ----------------------------------------------------------------------------------------------------
+        ///// <summary></summary> 
+        //[Obsolete("Deprecated. Pagination is enabled if recordCount is set > pageSize and the callbackAddonGuid is not empty.", false)]
+        //public override bool allowPagination { get { return true; } }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -958,9 +976,12 @@ namespace Contensive.Processor.LayoutBuilder {
         }
         //
         // ----------------------------------------------------------------------------------------------------
-        public override string warning {
+        [Obsolete("Deprecated. use warningMessage.",false)] public override string warning {
             get {
                 return layoutBuilderBase.warningMessage;
+            }
+            set {
+                layoutBuilderBase.warningMessage = value;
             }
         }
         //
@@ -1218,12 +1239,14 @@ namespace Contensive.Processor.LayoutBuilder {
         public override void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass) {
             layoutBuilderBase.addFormButton(buttonValue, buttonName, buttonId, buttonClass);
         }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string formActionQueryString { get; set; }
+        /// <summary>  
+        /// You should avoid setting the body directly. Instead, use the addRow() and setCell() methods to populate the body.  
+        /// Automatically calls the body property of the inherited class.  
+        /// </summary>  
+        public override string body {
+            get => layoutBuilderBase.body;
+            set => layoutBuilderBase.body = value;
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -1263,11 +1286,8 @@ namespace Contensive.Processor.LayoutBuilder {
                 layoutBuilderBase.htmlAfterBody = value;
             }
         }
+        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public override string formActionQueryString { get; set; }
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automatically if buttons, hiddens or a form-action is added
-        /// </summary>
         [Obsolete("Deprecated. Use includeform to block the form tag.", false)] public override bool blockFormTag {
             get {
                 return !layoutBuilderBase.includeForm;
@@ -1277,30 +1297,15 @@ namespace Contensive.Processor.LayoutBuilder {
             }
         }
         //
-        // ----------------------------------------------------------------------------------------------------
+        [Obsolete("Deprecated. No longer needed.", false)] 
+        public override string refreshQueryString { get; set; }
         //
-        /// <summary>
-        /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
-        /// </summary>
-        [Obsolete("Deprecated. No longer needed.", false)] public override string refreshQueryString { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The url of the page. Needed because the page is rendered with ajax, and the original page's url is used as the base for calls
-        /// </summary>
         [Obsolete("Deprecated. Use CP.AdminUI.getPortalFeatureLink()", false)]
         public override string baseUrl {
             get {
                 return layoutBuilderBase.baseUrl;
             }
         }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// a url to refresh the grid provided by the client application.
-        /// Required for pagination and search. If empty, pagination and search are disabled.
-        /// This url is passed in an input-hidden and used by the layoutbuilder javascript to refresh the grid for search and sort
-        /// </summary>
         [Obsolete("Deprecated. To enable pagination, set callbackAddonGuid and recordCount.", false)]
         public override string baseAjaxUrl {
             get {
@@ -1308,6 +1313,15 @@ namespace Contensive.Processor.LayoutBuilder {
             }
             set {
                 layoutBuilderBase.baseAjaxUrl = value;
+            }
+        }
+        [Obsolete("Depricated. Use htmlAfterTable", false)]
+        public override string footer {
+            get {
+                return htmlAfterBody;
+            }
+            set {
+                htmlAfterBody = value;
             }
         }
     }

@@ -7,10 +7,92 @@ using System;
 using System.Collections.Generic;
 
 namespace Contensive.Processor.LayoutBuilder {
+    /// <summary>
+    /// 
+    /// </summary>
     public class LayoutBuilderClass : Contensive.BaseClasses.LayoutBuilder.LayoutBuilderBaseClass {
         //
-        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// construtor
+        /// </summary>
+        /// <param name="cp"></param>
         public LayoutBuilderClass(CPBaseClass cp) : base(cp) { }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// if true, the layout will include a filter group. 
+        /// This is used to determine if the layout should include a filter group or not.
+        /// </summary>
+        public bool includeFilter { get; set; } = false;
+        //
+        // ----------------------------------------------------------------------------------------------------
+        //
+        public bool includeResetFilterButton { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// a list of filter groups. 
+        /// populated with the addFilter() method
+        /// Each group has a caption and a list of filters. 
+        /// Each filter can be one of several types, checkbox, text, etc.
+        /// </summary>
+        public List<LayoutBuilderClass_FilterGroup> filterGroups { get; set; }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// concrete method shared with all derived classes.
+        /// Add a filter group to the layout. A filter group is a list of similar options under a single caption. You can have as many filter groups as you want, and each filter group can have as many filter inputs as you want.
+        /// </summary>
+        /// <param name="filterRequest"></param>
+        public override void addFilterGroup(LayoutBuilderBaseFilterGroupRequest filterRequest) {
+            //
+            // -- add a filter group to the ViewData used render the layout in getHtml()
+            includeFilter = true;
+            List<LayoutBuilderClass_FilterGroup_Input> filterInputs = [];
+            foreach (LayoutBuilderBaseFilterGroupRequest_FilterInput filterInput in filterRequest.filterInput) {
+                //
+                // -- add the filter input to the list
+                LayoutBuilderClass_FilterGroup_Input input = new LayoutBuilderClass_FilterGroup_Input() {
+                    filterCaption = filterInput.filterCaption,
+                    filterInputId = cp.Utils.GetRandomString(8),
+                    filterIsCheckbox = filterInput.filterIsCheckbox,
+                    filterIsSelect = filterInput.filterIsSelect,
+                    filterIsText = filterInput.filterIsText,
+                    filterIsDate = filterInput.filterIsDate,
+                    filterSelected = filterInput.filterSelected,
+                    filterValue = filterInput.filterValue,
+                    filterSelectOptions = []
+                };
+                //
+                // -- add the select options if this is a select
+                if (filterInput.filterIsSelect) {
+                    foreach (var option in filterInput.selectOptions) {
+                        input.filterSelectOptions.Add(new LayoutBuilderClass_FilterGroup_Input_SelectOptions() {
+                            filterSelectOptionName = option.filterSelectOptionName,
+                            filterSelectOptionValue = option.filterSelectOptionValue
+                        });
+                    }
+                }
+                //
+                // -- add the input to the list
+                filterInputs.Add(input);
+            }
+            filterGroups.Add(new LayoutBuilderClass_FilterGroup() {
+                filterGroupCaption = filterRequest.caption,
+                filterInputs = filterInputs
+            });
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// create the object argument required for addFilterGroup().
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override LayoutBuilderBaseFilterGroupRequest createFilterGroupRequest() {
+            throw new NotImplementedException("createFilterGroupRequest() not implemented in LayoutBuilderTwoColumnRight");
+        }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -75,18 +157,6 @@ namespace Contensive.Processor.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// The default Layoutbuilder styles. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Properties.Resources.layoutBuilderStyles;
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The default Layoutbuilder script. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Properties.Resources.layoutBuilderJavaScript;
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
         /// </summary>
         public override string portalSubNavTitle { get; set; }
@@ -141,18 +211,6 @@ namespace Contensive.Processor.LayoutBuilder {
         /// An html block added below the Body. Typically used for filters.
         /// </summary>
         public override string htmlAfterBody { get; set; } = "";
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        [Obsolete("Deprecated. Use includeForm to prevent the form tag.", false)] public override bool blockFormTag { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         //
@@ -340,42 +398,35 @@ namespace Contensive.Processor.LayoutBuilder {
             buttonList += LayoutBuilderController.getButton(buttonName, buttonValue, buttonId, buttonClass);
         }
         //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// add a filter group to the layout.
-        /// </summary>
-        /// <param name="filterRequest"></param>
-        /// <exception cref="NotImplementedException"></exception>
-        public override void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest) {
-            throw new NotImplementedException();
-        }
-
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// 
-        /// </summary>
-        public bool includeFilter { /* todo */ get { return false; } set { } }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public bool includeResetFilterButton { /* todo */ get { return false; } set { } }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// a list of filter groups. 
-        /// populated with the addFilter() method
-        /// Each group has a caption and a list of filters. 
-        /// Each filter can be one of several types, checkbox, text, etc.
-        /// </summary>
-        public List<LayoutBuilderClass_FilterGroup> filterGroups { get { return []; } set { } }
-        //
         //
         //
         //====================================================================================================
         // -- Deprecated properties and methods
         //
+        //
+        /// <summary>
+        /// The default Layoutbuilder styles. Override to customize.
+        /// </summary>
+        [Obsolete("move javascript and styles to layouts", false)] public override string styleSheet => Properties.Resources.layoutBuilderStyles;
+        //
+        /// <summary>
+        /// The default Layoutbuilder script. Override to customize.
+        /// </summary>
+        [Obsolete("move javascript and styles to layouts", false)] public override string javascript => Properties.Resources.layoutBuilderJavaScript;
+        //
+        /// <summary>
+        /// The action attribute of the form element that wraps the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
+        /// </summary>
+        [Obsolete("Deprecated. No longer needed.", false)] public override string formActionQueryString { get; set; }
+        //
+        /// <summary>
+        /// if true, the optional form tag will be blocked. The form tag is added automatically if buttons, hiddens or a form-action is added
+        /// </summary>
+        [Obsolete("Deprecated. Use includeForm to prevent the form tag.", false)] 
+        public override bool blockFormTag { get; set; }
+        //
         [Obsolete("Deprecated. Use getHtml()", false)]
+        //
         public override string getHtml(CPBaseClass cp) {
             return getHtml();
         }
@@ -421,8 +472,60 @@ namespace Contensive.Processor.LayoutBuilder {
     }
     //
     // =====================================================================================================
+    /// <summary>
+    /// the concrete implementation of the ILayoutBuilderFilterGroupRequest interface needed for the createFilterGroupRequest() method.
+    /// </summary>
+    public class LayoutBuilderFilterGroupRequest : LayoutBuilderBaseFilterGroupRequest {
+        /// <summary>
+        /// The caption for this filter group. An option group has a caption and a list of filter inputs
+        /// </summary>
+        public override string caption { get; set; }
+        /// <summary>
+        /// list of inputs for this filter group. An option group has a caption and a list of filter inputs
+        /// </summary>
+        public override List<LayoutBuilderBaseFilterGroupRequest_FilterInput> filterInput { get; set; }
+    }
+    public class LayoutBuilderFilterGroupRequest_FilterInput : LayoutBuilderBaseFilterGroupRequest_FilterInput {
+        public override bool filterIsCheckbox { get; set; }
+        public override bool filterIsSelect { get; set; }
+        public override bool filterIsText { get; set; }
+        public override bool filterIsDate { get; set; }
+        public override string filterCaption { get; set; }
+        ///// <summary>
+        ///// a unique string for this filter input
+        ///// </summary>
+        //public string filterInputId { get; set; }
+        /// <summary>
+        /// for checkbox and radio, true if selected.
+        /// </summary>
+        public override bool filterSelected { get; set; }
+        /// <summary>
+        /// for checkbox, always 1. For other types the value of the filter.
+        /// </summary>
+        public override bool filterValue { get; set; }
+        /// <summary>
+        /// if the filter option is a select, this is the list of options for the select
+        /// </summary>
+        //public List<LayoutBuilderClass_RequestFilterOptionGroup_Option_SelectOption> selectOptions { get; set; }
+        public override  List<LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption> selectOptions { 
+            get => throw new NotImplementedException(); 
+            set => throw new NotImplementedException(); 
+        }
+    }
+    public class LayoutBuilderClass_RequestFilterOptionGroup_Option_SelectOption : LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption {
+        /// <summary>
+        /// the select optons value
+        /// </summary>
+        public override string filterSelectOptionValue { get; set; }
+        /// <summary>
+        /// the select options caption
+        /// </summary>
+        public override string filterSelectOptionName { get; set; }
+    }
     //
-    public class LayoutBuilderClass_FilterGroup {
+    // =====================================================================================================
+    //
+    public class LayoutBuilderClass_FilterGroup{
         /// <summary>
         /// for this option group, this is the caption that will be displayed in the filter options
         /// </summary>
@@ -444,7 +547,7 @@ namespace Contensive.Processor.LayoutBuilder {
         /// <summary>
         /// a unique string for this filter input
         /// </summary>
-        public int filterInputId { get; set; }
+        public string filterInputId { get; set; }
         /// <summary>
         /// for checkbox and radio, true if selected.
         /// </summary>
@@ -473,4 +576,61 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         public string filterSelectOptionName { get; set; }
     }
+    //
+    // ====================================================================================================
+    // classes derived from addFilter request
+    //
+
+    ////
+    //// ----------------------------------------------------------------------------------------------------
+    ///// <summary>
+    ///// A filter group is a list of similar options under a single caption.
+    ///// </summary>
+    //public abstract class LayoutBuilderFilterGroupRequest : LayoutBuilderBaseFilterGroupRequest {
+    //    /// <summary>
+    //    /// The caption for this filter group. An option group has a caption and a list of filter inputs
+    //    /// </summary>
+    //    public override string caption { get; set; }
+    //    /// <summary>
+    //    /// list of inputs for this filter group. An option group has a caption and a list of filter inputs
+    //    /// </summary>
+    //    public override List<LayoutBuilderBaseFilterGroupRequest_FilterInput> filterInput { get; set; }
+    //}
+    ////
+    //// ----------------------------------------------------------------------------------------------------
+
+    //public abstract class LayoutBuilderFilterGroupRequest_FilterInput : LayoutBuilderBaseFilterGroupRequest_FilterInput {
+    //    public override bool filterIsCheckbox { get; set; }
+    //    public override bool filterIsSelect { get; set; }
+    //    public override bool filterIsText { get; set; }
+    //    public override bool filterIsDate { get; set; }
+    //    public override string filterCaption { get; set; }
+    //    /// <summary>
+    //    /// for checkbox and radio, true if selected.
+    //    /// </summary>
+    //    public override bool filterSelected { get; set; }
+    //    /// <summary>
+    //    /// for checkbox, always 1. For other types the value of the filter.
+    //    /// </summary>
+    //    public override bool filterValue { get; set; }
+    //    /// <summary>
+    //    /// if the filter option is a select, this is the list of options for the select
+    //    /// </summary>
+    //    public override List<LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption> selectOptions { get; set; }
+    //}
+    ////
+    //// ----------------------------------------------------------------------------------------------------
+    ///// <summary>
+    ///// if the filter option is a select, this is the value of the selected option.
+    ///// </summary>
+    //public abstract class LayoutBuilderClass_RequestFilterOptionGroup_Option_SelectOption : LayoutBuilderBaseClass_RequestFilterOptionGroup_Option_SelectOption {
+    //    /// <summary>
+    //    /// the select optons value
+    //    /// </summary>
+    //    public override string filterSelectOptionValue { get; set; }
+    //    /// <summary>
+    //    /// the select options caption
+    //    /// </summary>
+    //    public override string filterSelectOptionName { get; set; }
+    //}
 }

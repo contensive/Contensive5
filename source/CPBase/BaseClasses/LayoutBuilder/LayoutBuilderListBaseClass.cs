@@ -5,20 +5,9 @@ namespace Contensive.BaseClasses.LayoutBuilder {
     /// <summary>
     /// A tabular list of data rows with filters on the left.
     /// </summary>
-    public abstract class LayoutBuilderListBaseClass(CPBaseClass cp) {
-        private CPBaseClass cp { get; set; } = cp;
+    public abstract class LayoutBuilderListBaseClass : LayoutBuilderBaseClass {
         //
-        /// <summary>
-        /// Add a filter group to the layout. A report can have many filter groups, each with a name and a list of filters.
-        /// </summary>
-        /// <param name="filterRequest"></param>
-        public abstract void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest);
-        /// <summary>
-        ///  The guid of the addon method that returns the current view.
-        ///  Typically this is the method that calls the layout builder.
-        /// When a search or pagination is performed, the view is refreshed by calling this method.
-        /// </summary>
-        public abstract string callbackAddonGuid { get; set; }
+        public LayoutBuilderListBaseClass(CPBaseClass cp) : base(cp) { }
         //
         /// <summary>
         /// The sql search term used to filter the data set when a user types the term into the search box.
@@ -55,18 +44,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
-        /// Set true if this tool is requested directly and not embedded in another AdminUI form
-        /// </summary>
-        public abstract bool isOuterContainer { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// If true, the resulting html is wrapped in a form element whose action returns execution back to this addon where is it processed here in the same code.
-        /// </summary>
-        public abstract bool includeForm { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
         /// Add padding around the body
         /// </summary>
         public abstract int reportRowLimit { get; }
@@ -76,109 +53,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         /// The total records in the dataset, not just what is displayed on the page
         /// </summary>
         public abstract int recordCount { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Add padding around the body
-        /// </summary>
-        public abstract bool includeBodyPadding { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Add background color to the body
-        /// </summary>
-        public abstract bool includeBodyColor { get; set; }
-        // 
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Method retrieves the rendered html. Call this method after populating all object elements
-        /// </summary>
-        /// <returns></returns>
-        public abstract string getHtml();
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// use this area for optional filters
-        /// </summary>
-        public abstract string htmlLeftOfBody { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// optional html before the Body
-        /// </summary>
-        public abstract string htmlBeforeBody { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// optional html after the Body
-        /// </summary>
-        public abstract string htmlAfterBody { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Add hidden form input
-        /// </summary>
-        /// <param name="Name"></param>
-        /// <param name="Value"></param>
-        public abstract void addFormHidden(string Name, string Value);
-        /// <summary>
-        /// Add hidden form input
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        public abstract void addFormHidden(string name, int value);
-        /// <summary>
-        /// Add hidden form input
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        public abstract void addFormHidden(string name, double value);
-        /// <summary>
-        /// Add hidden form input
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        public abstract void addFormHidden(string name, DateTime value);
-        /// <summary>
-        /// Add hidden form input
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        public abstract void addFormHidden(string name, bool value);
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Add form button
-        /// </summary>
-        /// <param name="buttonValue"></param>
-        public abstract void addFormButton(string buttonValue);
-        /// <summary>
-        /// Add form button
-        /// </summary>
-        /// <param name="buttonValue"></param>
-        /// <param name="buttonName"></param>
-        public abstract void addFormButton(string buttonValue, string buttonName);
-        /// <summary>
-        /// Add form button
-        /// </summary>
-        /// <param name="buttonValue"></param>
-        /// <param name="buttonName"></param>
-        /// <param name="buttonId"></param>
-        public abstract void addFormButton(string buttonValue, string buttonName, string buttonId);
-        /// <summary>
-        /// Add form button
-        /// </summary>
-        /// <param name="buttonValue"></param>
-        /// <param name="buttonName"></param>
-        /// <param name="buttonId"></param>
-        /// <param name="buttonClass"></param>
-        public abstract void addFormButton(string buttonValue, string buttonName, string buttonId, string buttonClass);
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// This report will be wrapped in a form tag and the action should send traffic back to the same page. If empty, the form uses cp.Doc.RefreshQueryString
-        /// </summary>
-        [Obsolete("Deprecated. No longer needed.", false)] public abstract string formActionQueryString { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         /// <summary>
@@ -193,18 +67,6 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         //
         public abstract string name { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public abstract string title { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public abstract string warning { get; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        //
-        public abstract string description { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
         //
@@ -286,152 +148,18 @@ namespace Contensive.BaseClasses.LayoutBuilder {
         //
         public abstract bool addCsvDownloadCurrentPage { get; set; }
 
-
         //
-        /// <summary>
-        /// message displayed as a warning message. Not an error, but an issue of some type
-        /// </summary>
-        public abstract string warningMessage { get; set; }
-        //
-        /// <summary>
-        /// message displayed as a fail message. Data is wrong
-        /// </summary>
-        public abstract string failMessage { get; set; }
-        //
-        /// <summary>
-        /// message displayed as an informational message. Nothing is wrong, but the user should know
-        /// </summary>
-        public abstract string infoMessage { get; set; }
-        //
-        /// <summary>
-        /// message displayed as a success message.
-        /// </summary>
-        public abstract string successMessage { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The default Layoutbuilder styles. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public abstract string styleSheet { get; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// The default Layoutbuilder script. Override to customize.
-        /// </summary>
-        [Obsolete("move javascript and styles to layouts", false)] public abstract string javascript { get; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// Optional. If set, this value will populate the title in the subnav of the portalbuilder
-        /// </summary>
-        public abstract string portalSubNavTitle { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// A virtual filename to a download of the report data. Leave blank to prevent download file
-        /// </summary>
-        public abstract string csvDownloadFilename { get; set; }
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        /// <param name="Name"></param>
-        /// <param name="Value"></param>
-        /// <param name="htmlId"></param>
-        public abstract void addFormHidden(string Name, string Value, string htmlId);
-        //
-        /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <param name="htmlId"></param>
-        public abstract void addFormHidden(string name, int value, string htmlId);
-        //
-        /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <param name="htmlId"></param>
-        public abstract void addFormHidden(string name, double value, string htmlId);
-        //
-        /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <param name="htmlId"></param>
-        public abstract void addFormHidden(string name, DateTime value, string htmlId);
-        //
-        /// <summary>
-        /// add a form hidden input to the layout. This will also create a form around the layout. Set blockForm to true to block the automatic form.
-        /// </summary>
-        /// <param name="name"></param>
-        /// <param name="value"></param>
-        /// <param name="htmlId"></param>
-        public abstract void addFormHidden(string name, bool value, string htmlId);
-        //
-        /// <summary>
-        /// Create a button with a link that does not submit a form. When clicked it anchors to the link
-        /// </summary>
-        /// <param name="buttonCaption"></param>
-        /// <param name="link"></param>
-        public abstract void addLinkButton(string buttonCaption, string link);
-        //
-        /// <summary>
-        /// Create a button with a link that does not submit a form. When clicked it anchors to the link
-        /// </summary>
-        /// <param name="buttonCaption"></param>
-        /// <param name="link"></param>
-        /// <param name="htmlId"></param>
-        public abstract void addLinkButton(string buttonCaption, string link, string htmlId);
-        //
-        /// <summary>
-        /// Create a button with a link that does not submit a form. When clicked it anchors to the link
-        /// </summary>
-        /// <param name="buttonCaption"></param>
-        /// <param name="link"></param>
-        /// <param name="htmlId"></param>
-        /// <param name="htmlClass"></param>
-        public abstract void addLinkButton(string buttonCaption, string link, string htmlId, string htmlClass);
-        //
-        // ----------------------------------------------------------------------------------------------------
-        /// <summary>
-        /// if true, the optional form tag will be blocked. The form tag is added automaatically if buttons, hiddens or a form-action is added
-        /// </summary>
-        [Obsolete("Deprecated. To prevent the form tag set includeForm=false.", false)] public abstract bool blockFormTag { get; set; }
-        //
-        /// <summary>
-        /// Include all nameValue pairs required to refresh the page if someone clicks on a header. For example, if there is a filter dateTo that is not empty, add dateTo=1/1/2000 to the RQS
-        /// </summary>
-        /// 
-        [Obsolete("deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public abstract string refreshQueryString { get; set; }
-        // 
-        /// <summary>
-        /// Method retrieves the rendered html. Call this method after populating all object elements
-        /// </summary>
-        /// <param name="cp"></param>
-        /// <returns></returns>
-        [Obsolete("Deprecated. Use getHtml().", false)] public abstract string getHtml(CPBaseClass cp);
-        /// <summary>
-        /// deprecated. Instead set callbackAddonGuid to the guid of the addon method that returns the current view.
-        /// When a search or pagination is performed, the view is refreshed by calling this method.
-        /// </summary>
-        [Obsolete("Deprecated. Instead set callbackAddonGuid to the guid of the addon that creates the updated view on  pagination or search update. Typically this is the same addon tha calls the layout builder.", false)]
-        public abstract string baseAjaxUrl { get; set; }
-        /// <summary>
-        /// Deprecated. Instead use cp.adminUI.getPortalFeatureLink()
-        /// </summary>
-        [Obsolete("Deprecated. Instead use cp.adminUI.getPortalFeatureLink()", false)] public abstract string baseUrl { get; }
-        //
-        /// <summary>
-        /// if true, the data set is paginated. If false, all records are displayed.
-        /// 
-        /// </summary>
-        [Obsolete("Deprecated. Pagination is enabled if recordCount is set > pageSize and the callbackAddonGuid is not empty.", false)]
-        public abstract bool allowPagination { get; }
+        [Obsolete("Deprecated. Use addFormHidden()", false)]
+        public override string formid {
+            get {
+                return formId_local;
+            }
+            set {
+                addFormHidden("formid", value);
+                formId_local = value;
+            }
+        }
+        private string formId_local = "";
     }
     //
     //====================================================================================================

@@ -15,6 +15,27 @@ namespace Contensive.Processor.LayoutBuilder {
         /// </summary>
         private CPClass cp { get; set; }
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter group to the layout. 
+        /// create the argument with createFilterGroupRequest().
+        /// A filter group is a list of similar options under a single caption. You can have as many filter groups as you want, and each filter group can have as many filter inputs as you want.
+        /// </summary>
+        /// <param name="filterRequest"></param>
+        public override void addFilterGroup(LayoutBuilderBaseFilterGroupRequest filterRequest) {
+            throw new NotImplementedException();
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// create the object argument required for addFilterGroup().
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override LayoutBuilderBaseFilterGroupRequest createFilterGroupRequest() {
+            throw new NotImplementedException("createFilterGroupRequest() not implemented in LayoutBuilderTwoColumnRight");
+        }
+        //
         public LayoutBuilderTabbedBodyClass(CPBaseClass cp) : base(cp) {
             this.cp = (CPClass)cp;
         }
@@ -338,9 +359,6 @@ namespace Contensive.Processor.LayoutBuilder {
         [Obsolete("Deprecated. Use getHtml()", false)]
         public override string getHtml(CPBaseClass cp) {
             return getHtml();
-        }
-
-        public override void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest) { 
         }
         public bool tableFilter { /* todo */ get { return false; } set { } }
         public bool removeFilters { /* todo */ get { return false; } set { } }

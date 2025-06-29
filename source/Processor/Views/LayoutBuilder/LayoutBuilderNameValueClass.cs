@@ -27,6 +27,27 @@ namespace Contensive.Processor.LayoutBuilder {
             this.cp = cp;
         }
         //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// Add a filter group to the layout. 
+        /// create the argument with createFilterGroupRequest().
+        /// A filter group is a list of similar options under a single caption. You can have as many filter groups as you want, and each filter group can have as many filter inputs as you want.
+        /// </summary>
+        /// <param name="filterRequest"></param>
+        public override void addFilterGroup(LayoutBuilderBaseFilterGroupRequest filterRequest) {
+            throw new NotImplementedException();
+        }
+        //
+        // ----------------------------------------------------------------------------------------------------
+        /// <summary>
+        /// create the object argument required for addFilterGroup().
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public override LayoutBuilderBaseFilterGroupRequest createFilterGroupRequest() {
+            throw new NotImplementedException("createFilterGroupRequest() not implemented in LayoutBuilderTwoColumnRight");
+        }
+        //
         /// <summary>
         /// data structure for mustache rendering a row
         /// </summary>
@@ -176,7 +197,9 @@ namespace Contensive.Processor.LayoutBuilder {
         // ----------------------------------------------------------------------------------------------------
         // body
         // ----------------------------------------------------------------------------------------------------
-        //
+        /// <summary>
+        /// Avoid setting this property, instead add rows and columns, and populate rowName and rowValue.
+        /// </summary>
         public override string body { get; set; }
         //
         // ----------------------------------------------------------------------------------------------------
@@ -438,10 +461,6 @@ namespace Contensive.Processor.LayoutBuilder {
 
         public bool tableFilter { /* todo */ get { return false; } set { } }
         public bool removeFilters { /* todo */ get { return false; } set { } }
-
-        public override void addFilterGroup(LayoutBuilderFilterGroupRequest filterRequest) {
-            throw new NotImplementedException();
-        }
         //
         //
         // ====================================================================================================
