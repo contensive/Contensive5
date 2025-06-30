@@ -199,11 +199,11 @@
         vertical-align: top;
     }
     
-    .ccCon h1, .ccCon H2, .ccCon H3, .ccCon H4, .ccCon H5, .ccCon H6 {
+    /* .ccCon h1, .ccCon H2, .ccCon H3, .ccCon H4, .ccCon H5, .ccCon H6 {
         margin-top: 15PX;
         margin-bottom: 10PX;
         padding: 0PX;
-    }
+    } */
     /*
         legacy
     */
@@ -1563,7 +1563,7 @@
             
             
             <div class="input-group">
-                <form class="navbar-search ps-4">
+                <form class="navbar-search ps-md-2">
                   <input id="cmdSearch" type="search" class="form-control bg-white" placeholder="Search..." aria-label="Search" aria-describedby="search">
                 </form>
                 {{#hasRecentList}}
@@ -1580,7 +1580,7 @@
                 {{/hasRecentList}}
             </div>
             <div>
-                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#collapsingNavbar">
+                <button class="navbar-toggler pe-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#collapsingNavbar">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="offcanvas offcanvas-end" id="collapsingNavbar">

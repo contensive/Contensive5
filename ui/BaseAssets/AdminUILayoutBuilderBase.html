@@ -724,6 +724,70 @@
   .bg-gray-dark {
 	  background-color: #888;
   }
+
+  .filter-btn {
+	  background-color: #fff;
+	  color: #000;
+	  border: 1px solid #ccc;
+	  padding: 5px 24px;
+	  border-radius: 0.375rem;
+	  cursor: pointer;
+	  text-decoration: none;
+	  font-weight: 300;
+
+  }
+  .filter-btn:hover {
+	  background-color: #e2e6ea;
+	  color: #333;
+  }
+
+  .filter-btn img {
+	  width: 16px;
+	  height: 16px;
+	  vertical-align: middle;
+	  margin-right: 5px;
+  }
+
+  .dropdown-filter .dropdown-menu {
+	  max-width: 400px;
+	  padding: 10px 0;
+	  font-size: 16px;
+  }
+
+  .dropdown-filter .dropdown-header {
+		font-weight: 300;
+		font-size: 14px;
+		color: #333;
+		padding: 0.25rem 1.5rem;
+  }
+
+  .dropdown-filter .dropdown-header::before {
+		content: "";
+		display: block;
+		width: 100%;
+		height: 1px;
+		padding: 0.25rem 1.5rem;
+		padding-top: 0.8em;
+		border-top: #ccc solid 1px;
+		margin-top: 1em;
+  }
+
+  .dropdown-filter .dropdown-header:first-child::before {
+		display: none;
+  }
+
+  .dropdown-filter .dropdown-item {
+	  	overflow: hidden;
+		padding: 0 1.5rem;
+  }
+
+  .dropdown-filter .form-check {
+	  font-size: 16px;
+  }
+
+  .dropdown-filter .filter-text {
+	text-wrap: auto;
+  }
 </style>
 <div class="afw" id="{{#isOuterContainer}}afw{{/isOuterContainer}}">
 	<div id="js-afwFormContent">
@@ -741,34 +805,37 @@
 					{{#failMessage}}<div class="p-3 mb-2 bg-danger text-white my-2">{{failMessage}}</div>{{/failMessage}}
 					{{#description}}<p class="my-2">{{{description}}}</p>{{/description}}
 					{{#csvDownloadFilename}}<p class="afwDescription" id="afwDescription my-2"><a href="{{csvDownloadFilename}}">Click here</a> to download the data.</p>{{/csvDownloadFilename}}
-<<<<<<< Updated upstream
 					<div class="afwBeforeHtml my-2">
 						<div class="d-flex justify-content-between align-items-center">
 							{{#includeFilter}}
-							<div class="dropdown">
-								<a class="btn-outline-secondary" role="button" id="filterDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-									<img src="BaseAssets/bars-filter.svg" alt="filter icon"> Filter
+							<div class="dropdown dropdown-filter">
+								<a class="filter-btn" role="button" id="filterDropdown" data-bs-toggle="dropdown"  data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false">
+									<img src="BaseAssets/bars-filter.svg" alt="filter icon"> Filters
 								</a>
-								<div class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
+								<div class="dropdown-menu dropdown-menu-start" aria-labelledby="filterDropdown">
 									{{#includeResetFilterButton}}
 										<a href="" class="text-center small"><i class="fa-solid fa-xmark text-danger"></i> Remove All</a>
 									{{/includeResetFilterButton}}
 									{{#filterGroups}}
-										<h6 class="dropdown-header text-muted small">{{filterGroupCaption}}</h6>
+										<h6 class="dropdown-header">{{filterGroupCaption}}</h6>
 										{{#filterInputs}}
 											<div class="dropdown-item">
-												<div class="form-check">
-													{{#filterIsCheckbox}}
-													<!--
-														checkbox
-													-->
-													{{#filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}" checked>{{/filterSelected}}
-													{{^filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}">{{/filterSelected}}
-													<label class="form-check-label" for="{{filterInputId}}">
-														{{filterCaption}}
-													</label>
-													{{/filterIsCheckbox}}
-													{{#filterIsSelect}}
+												{{#filterIsCheckbox}}
+													<div class="form-check">
+														<!--
+															checkbox
+														-->
+														{{#filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}" checked>{{/filterSelected}}
+														{{^filterSelected}}<input class="form-check-input" type="checkbox" value="{{filterValue}}" name="{{filterName}}" id="{{filterInputId}}">{{/filterSelected}}
+														<label class="form-check-label" for="{{filterInputId}}">
+															{{filterCaption}}
+														</label>
+													</div>
+												{{/filterIsCheckbox}}
+
+											
+												{{#filterIsSelect}}
+													
 													<!--
 														select
 													-->
@@ -778,8 +845,12 @@
 															{{^filterSelected}}<option value="{{filterSelectOptionValue}}">{{filterSelectOptionName}}</option>{{/filterSelected}}
 														{{/filterSelectOptions}}
 													</select>
-													{{/filterIsSelect}}
-													{{#filterIsDate}}
+													
+												{{/filterIsSelect}}
+											
+
+											
+												{{#filterIsDate}}
 													<!--
 														radio
 													-->
@@ -789,8 +860,9 @@
 														name {{filterName}}, 
 														filterValue {{filterValue}}
 													</div>
-													{{/filterIsDate}}
-													{{#filterIsDate}}
+												{{/filterIsDate}}
+
+												{{#filterIsDate}}
 													<!--
 														date
 													-->
@@ -800,56 +872,26 @@
 														name {{filterName}}, 
 														filterValue {{filterValue}}
 													</div>
-													{{/filterIsDate}}
-													{{#filterIsText}}
+												{{/filterIsDate}}
+											
+
+										
+												{{#filterIsText}}
 													<!--
 														text
 													-->
-													<div>text input,
+													<div class="filter-text">text input,
 														caption {{filterCaption}},
 														id {{filterInputId}}, 
 														name {{filterName}}, 
 														filterValue {{filterValue}}
 													</div>
-													{{/filterIsText}}
-												</div>
+												{{/filterIsText}}
+												
 											</div>
 										{{/filterInputs}}
 									{{/filterGroups}}
 								</div>
-=======
-					{{#htmlBeforeBody}}
-						<div class="afwBeforeHtml my-2">
-							<div class="d-flex justify-content-between align-items-center">
-								{{#tableFilter}}
-									<div class="dropdown">
-										<a class="btn-outline-secondary" role="button" id="tableFilter" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-											<img src="BaseAssets/bars-filter.svg" alt="filter icon"> Filter
-										</a>
-										<div class="dropdown-menu dropdown-menu-end" aria-labelledby="tableFilter">
-											{{#removeFilters}}
-												<a href="" class="text-center small"><i class="fa-solid fa-xmark text-danger"></i> Remove All</a>
-											{{/removeFilters}}
-
-											{{#filterOptionGroup}}
-												<h6 class="dropdown-header text-muted small">{{filterOptionGroupCaption}}</h6>
-												{{#filterOption}}
-													<div class="dropdown-item">
-														<div class="form-check">
-															<input class="form-check-input" type="checkbox" value="" id="filterOption{{id}}">
-															<label class="form-check-label" for="filterOption{{id}}">
-																{{filterCaption}}
-															</label>
-														</div>
-													</div>
-												{{/filterOption}}
-											{{/filterOptionGroup}}
-										</div>
-									</div>
-								{{/tableFilter}}
-
-							{{{htmlBeforeBody}}}
->>>>>>> Stashed changes
 							</div>
 							{{/includeFilter}}
 							{{{htmlBeforeBody}}}
