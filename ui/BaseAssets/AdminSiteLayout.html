@@ -1,4 +1,5 @@
 <style>
+    @import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css");
     @media (min-width: 768px) {
         .navbar-brand.abs {
             position: absolute;
@@ -92,7 +93,7 @@
         margin: 0;
         padding: 0;
         color: #233;
-        background-color: rgb(240,240,240);
+        background-color: #f8f9fc !important;
         min-height: 100vh;
     }
     
@@ -209,8 +210,6 @@
     .ccCon .ccToolsCon {
         margin: 0;
         padding: 0;
-        background-color: white;
-        border-right: 1px solid black;
         min-height: 100vh;
     }
     
@@ -1544,10 +1543,25 @@
         min-width: 100px;
         text-align: center;
     }
-    </style>
+    
+    #sidebarToggleTop {
+        width: 2.5rem;
+        height: 2.5rem;
+        text-align: center;
+        cursor: pointer;
+        background: white;
+        margin-left: 20px;
+        margin-top: 20px;
+        text-decoration: none;
+        color: rgb(40, 40, 44);
+    }
+
+</style>
     <div class="ccBodyAdmin ccCon">
     {{{adminExceptions}}}
         <nav class="navbar navbar-expand-xxl navbar-light bg-white shadow-sm ccAdminHeaderNav">
+            
+            
             <div class="input-group">
                 <form class="navbar-search ps-4">
                   <input id="cmdSearch" type="search" class="form-control bg-white" placeholder="Search..." aria-label="Search" aria-describedby="search">
@@ -1619,15 +1633,44 @@
                 </div>
             </div>
         </nav>
+
         <div class="table-responsive">
             <table border="0" cellpadding="0" cellspacing="0">
                 <tr>
                     <td class="ccToolsCon" valign="top">{{{adminNav}}}</td>
-                    <td class="ccContentCon" valign="top" id="desktop">{{{adminContent}}}</td>
+                    <td class="ccContentCon" valign="top" id="desktop">
+                         <div>
+                            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle"><span><i class="fa-solid fa-angle-right"></i></span></button>
+                       
+                         </div>
+                        {{{adminContent}}}
+                    </td>
                 </tr>
             </table>
         </div>
     </div>
+
+ <script>
+        (function($) {
+          "use strict"; // Start of use strict
+
+          // Toggle the side navigation
+          $("#sidebarToggle, #sidebarToggleTop").on('click', function(e) {
+            $("body").toggleClass("sidebar-toggled");
+            $(".sidebar").toggleClass("toggled");
+            if ($(".sidebar").hasClass("toggled")) {
+                $('.sidebar .collapse').collapse('hide');
+                $('#sidebarToggleTop span').replaceWith('<span><i class="fa-solid fa-angle-right"></i></span>');
+            } else {
+
+               $('#sidebarToggleTop span').replaceWith('<span><i class="fa-solid fa-xmark"></i></span>');
+            };
+          });
+          
+
+        })(jQuery); // End of use strict
+    </script>
+
 
 <script>
 
