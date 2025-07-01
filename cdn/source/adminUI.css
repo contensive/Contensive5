@@ -9,11 +9,11 @@ html,body{
     padding: 0;
 }
 .ccBodyAdmin {
-    font-family: 'Catamaran', sans-serif;
+   font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     margin: 0;
     padding: 0;
     color: #233;
-    background-color: rgb(240,240,240);
+    background-color: r#f8f9fc !important;
     min-height: 100vh;
 }
 
